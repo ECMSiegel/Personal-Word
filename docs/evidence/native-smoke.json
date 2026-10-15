@@ -1,0 +1,32 @@
+{
+  "date": "2026-10-14",
+  "runtime": "macOS Tauri WebView and bundled SQLite",
+  "phases": [
+    {
+      "ok": true,
+      "phase": "1",
+      "steps": [
+        "native project creation",
+        "rapid edit and section switch",
+        "fragment extraction and restoration",
+        "named snapshot",
+        "typed immediately before quit"
+      ]
+    },
+    {
+      "ok": true,
+      "phase": "2",
+      "steps": [
+        "native restart preserved final edit",
+        "snapshot restored after process restart"
+      ]
+    }
+  ],
+  "runnerChecks": [
+    "Both processes exited successfully",
+    "SQLite integrity_check returned ok",
+    "Final rapid edit persisted before quit",
+    "Portable project.json matched SQLite after each phase",
+    "Safety snapshot present after restoration"
+  ]
+}
