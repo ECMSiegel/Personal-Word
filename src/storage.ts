@@ -14,14 +14,21 @@ function read<T>(key: string, fallback: T): T {
 function write(key: string, value: unknown) {
   localStorage.setItem(prefix + key, JSON.stringify(value));
 }
+export type Listing = { projects: Summary[]; damaged: string[] };
 export const storage = {
-  async list(): Promise<Summary[]> {
+  async list(): Promise<Listing> {
     if (desktop) return invoke("list_projects");
-    return Object.keys(localStorage)
+    const projects = Object.keys(localStorage)
       .filter((k) => k.startsWith(prefix + "project."))
       .map((k) => JSON.parse(localStorage.getItem(k)!) as Project)
       .map(({ id, title, updatedAt }) => ({ id, title, updatedAt }))
       .sort((a, b) => b.updatedAt.localeCompare(a.updatedAt));
+    return { projects, damaged: [] };
+  },
+  async delete(id: string): Promise<void> {
+    if (desktop) return invoke("delete_project", { id });
+    for (const k of ["project.", "history.", "snapshots."])
+      localStorage.removeItem(prefix + k + id);
   },
   async load(id: string): Promise<Project> {
     const p = desktop

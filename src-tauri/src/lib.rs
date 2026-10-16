@@ -5,7 +5,7 @@ use std::sync::{
     atomic::{AtomicBool, Ordering},
     Mutex,
 };
-use store::{Project, Store, Summary, Version};
+use store::{Listing, Project, Store, Version};
 use tauri::{Emitter, Manager};
 struct State(Mutex<Store>);
 struct ExitAllowed(AtomicBool);
@@ -15,8 +15,12 @@ fn finish_quit(app: tauri::AppHandle, allowed: tauri::State<ExitAllowed>) {
     app.exit(0);
 }
 #[tauri::command]
-fn list_projects(state: tauri::State<State>) -> Result<Vec<Summary>, String> {
+fn list_projects(state: tauri::State<State>) -> Result<Listing, String> {
     state.0.lock().map_err(|e| e.to_string())?.list()
+}
+#[tauri::command]
+fn delete_project(id: String, state: tauri::State<State>) -> Result<(), String> {
+    state.0.lock().map_err(|e| e.to_string())?.delete(&id)
 }
 #[tauri::command]
 fn load_project(id: String, state: tauri::State<State>) -> Result<Project, String> {
@@ -99,6 +103,7 @@ pub fn run() {
         storage_path,
         finish_quit,
         export_file,
+        delete_project,
         smoke::smoke_report
     ]);
     #[cfg(not(feature = "native-smoke"))]
@@ -111,11 +116,12 @@ pub fn run() {
         load_version,
         storage_path,
         finish_quit,
-        export_file
+        export_file,
+        delete_project
     ]);
     builder
         .build(tauri::generate_context!())
-        .expect("Could not launch Folio")
+        .expect("Could not launch Personal Word")
         .run(|app, event| {
             if let tauri::RunEvent::ExitRequested { api, .. } = event {
                 if !app.state::<ExitAllowed>().0.load(Ordering::SeqCst) {

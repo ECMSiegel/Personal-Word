@@ -1,6 +1,6 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
-  "productName": "Folio",
+  "productName": "Personal Word",
   "version": "0.1.0",
   "identifier": "com.folio.writing",
   "build": {
@@ -12,7 +12,7 @@
   "app": {
     "windows": [
       {
-        "title": "Folio",
+        "title": "Personal Word",
         "width": 1240,
         "height": 840,
         "minWidth": 850,

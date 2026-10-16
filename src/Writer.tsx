@@ -19,6 +19,7 @@ import {
   Redo2,
   Scissors,
   Link as LinkIcon,
+  Unlink,
 } from "lucide-react";
 import { useState } from "react";
 import { type Entry } from "./model";
@@ -26,10 +27,12 @@ export function Writer({
   item,
   onEdit,
   onExtract,
+  onLink,
 }: {
   item: Entry;
   onEdit: (content: JSONContent, text: string) => void;
   onExtract: (editor: Editor) => void;
+  onLink: (current: string, apply: (url: string) => void) => void;
 }) {
   const [, render] = useState(0);
   const editor = useEditor({
@@ -151,19 +154,23 @@ export function Writer({
         <button
           title="Add link"
           aria-label="Add link"
-          onClick={() => {
-            const url = window.prompt(
-              "Link address",
-              editor.getAttributes("link").href ?? "https://",
-            );
-            if (url === null) return;
-            if (!url) editor.chain().focus().unsetLink().run();
-            else if (/^https?:\/\//i.test(url))
-              editor.chain().focus().setLink({ href: url }).run();
-          }}
+          onClick={() =>
+            onLink(editor.getAttributes("link").href ?? "", (url) =>
+              editor.chain().focus().setLink({ href: url }).run(),
+            )
+          }
         >
           <LinkIcon size={16} />
         </button>
+        {editor.isActive("link") && (
+          <button
+            title="Remove link"
+            aria-label="Remove link"
+            onClick={() => editor.chain().focus().unsetLink().run()}
+          >
+            <Unlink size={16} />
+          </button>
+        )}
         <span className="separator" />
         <button
           title="Undo"

@@ -44,6 +44,12 @@ pub struct Summary {
 }
 #[derive(Serialize)]
 #[serde(rename_all = "camelCase")]
+pub struct Listing {
+    pub projects: Vec<Summary>,
+    pub damaged: Vec<String>,
+}
+#[derive(Serialize)]
+#[serde(rename_all = "camelCase")]
 pub struct Version {
     pub id: String,
     pub name: String,
@@ -91,23 +97,41 @@ impl Store {
         }
         Ok(db)
     }
-    pub fn list(&self) -> Result<Vec<Summary>> {
-        let mut result = vec![];
+    pub fn list(&self) -> Result<Listing> {
+        let mut projects = vec![];
+        let mut damaged = vec![];
         for item in fs::read_dir(&self.root).map_err(err)? {
             let item = item.map_err(err)?;
             let id = item.file_name().to_string_lossy().to_string();
             if Uuid::parse_str(&id).is_err() || !item.path().is_dir() {
                 continue;
             }
-            let p = self.read(&id)?;
-            result.push(Summary {
-                id: p.id,
-                title: p.title,
-                updated_at: p.updated_at,
-            });
+            match self.read(&id) {
+                Ok(p) => projects.push(Summary {
+                    id: p.id,
+                    title: p.title,
+                    updated_at: p.updated_at,
+                }),
+                Err(_) => damaged.push(id),
+            }
         }
-        result.sort_by(|a, b| b.updated_at.cmp(&a.updated_at));
-        Ok(result)
+        projects.sort_by(|a, b| b.updated_at.cmp(&a.updated_at));
+        damaged.sort();
+        Ok(Listing { projects, damaged })
+    }
+    pub fn delete(&self, id: &str) -> Result<()> {
+        let dir = self.dir(id)?;
+        if !dir.is_dir() {
+            return Err("Project folder is already gone.".into());
+        }
+        let target = self.root.join(format!("{id}.deleted"));
+        if target.exists() {
+            return Err(format!(
+                "A set-aside copy already exists at {}. Move it away first.",
+                target.display()
+            ));
+        }
+        fs::rename(&dir, &target).map_err(err)
     }
     pub fn read(&self, id: &str) -> Result<Project> {
         let db = self.connect(id, false)?;
@@ -485,6 +509,34 @@ mod tests {
         assert!(!stored.contains("Do not partially save"));
     }
 
+    #[test]
+    fn one_damaged_folder_does_not_hide_healthy_projects() {
+        let t = tempfile::tempdir().unwrap();
+        let s = Store::new(t.path().into()).unwrap();
+        let p = project();
+        s.save(&p).unwrap();
+        let broken = Uuid::new_v4().to_string();
+        fs::create_dir(t.path().join(&broken)).unwrap();
+        let listing = s.list().unwrap();
+        assert_eq!(listing.projects.len(), 1);
+        assert_eq!(listing.projects[0].id, p.id);
+        assert_eq!(listing.damaged, vec![broken]);
+    }
+    #[test]
+    fn delete_sets_the_folder_aside_instead_of_erasing_it() {
+        let t = tempfile::tempdir().unwrap();
+        let s = Store::new(t.path().into()).unwrap();
+        let p = project();
+        s.save(&p).unwrap();
+        s.delete(&p.id).unwrap();
+        assert!(s.list().unwrap().projects.is_empty());
+        assert!(t
+            .path()
+            .join(format!("{}.deleted", p.id))
+            .join("project.json")
+            .is_file());
+        assert!(s.delete(&p.id).is_err());
+    }
     #[test]
     fn rejects_newer_schemas_and_malformed_rich_text() {
         let t = tempfile::tempdir().unwrap();

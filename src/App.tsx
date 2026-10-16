@@ -11,6 +11,7 @@ import {
   AlertCircle,
   Download,
   ArrowLeft,
+  Trash2,
 } from "lucide-react";
 import {
   entry,
@@ -25,10 +26,21 @@ import {
   type Version,
 } from "./model";
 import { desktop, storage } from "./storage";
-import { recover, SaveQueue, type SaveStatus } from "./save-queue";
+import {
+  DamagedJournal,
+  journalKey,
+  parseJournal,
+  recover,
+  RecoveryConflict,
+  SaveQueue,
+  scanJournals,
+  type SaveStatus,
+} from "./save-queue";
 import { Writer } from "./Writer";
 import { ProjectLibrary } from "./components/ProjectLibrary";
 import { ProjectSidebar } from "./components/ProjectSidebar";
+
+import { ReadingProgress } from "./components/ReadingProgress";
 
 type NameDialog = {
   title: string;
@@ -36,11 +48,24 @@ type NameDialog = {
   value: string;
   action: (name: string) => Promise<void> | void;
 };
+type ChoiceDialog = {
+  title: string;
+  body: string;
+  actions: {
+    label: string;
+    run: () => Promise<void> | void;
+    primary?: boolean;
+    keep?: boolean;
+  }[];
+};
 export default function App() {
   const [editorEpoch, setEditorEpoch] = useState(0);
   const [project, setProject] = useState<Project | null>(null);
   const current = useRef<Project | null>(null);
   const [library, setLibrary] = useState<Summary[]>([]);
+  const [damagedJournals, setDamagedJournals] = useState<DamagedJournal[]>([]);
+  const [damagedFolders, setDamagedFolders] = useState<string[]>([]);
+  const [choice, setChoice] = useState<ChoiceDialog | null>(null);
   const [active, setActive] = useState("");
   const [mode, setMode] = useState<"write" | "read">("write");
   const [status, setStatus] = useState<SaveStatus>({ state: "saved" });
@@ -84,34 +109,21 @@ export default function App() {
     }
   }, []);
   const refreshLibrary = useCallback(async () => {
-    const saved = await storage.list();
-    for (const key of Object.keys(localStorage).filter((k) =>
-      k.startsWith("folio.recovery."),
-    )) {
-      const p: unknown = JSON.parse(localStorage.getItem(key)!);
-      validateProject(p);
-      if (!saved.some((s) => s.id === p.id))
-        saved.unshift({ id: p.id, title: p.title, updatedAt: p.updatedAt });
-    }
-    setLibrary(saved);
+    const { projects, damaged } = await storage.list();
+    const scan = scanJournals(
+      Object.keys(localStorage)
+        .filter((k) => k.startsWith("folio.recovery."))
+        .map((k) => [k, localStorage.getItem(k)!]),
+    );
+    for (const p of scan.recovered)
+      if (!projects.some((s) => s.id === p.id))
+        projects.unshift({ id: p.id, title: p.title, updatedAt: p.updatedAt });
+    setLibrary(projects);
+    setDamagedJournals(scan.damaged);
+    setDamagedFolders(damaged);
   }, []);
-  const open = useCallback(
-    async (id: string) => {
-      await queue.flush();
-      let saved: Project;
-      try {
-        saved = await storage.load(id);
-      } catch (e) {
-        const raw = localStorage.getItem("folio.recovery." + id);
-        if (!raw) throw e;
-        const candidate: unknown = JSON.parse(raw);
-        validateProject(candidate);
-        saved = candidate;
-        setNotice(
-          "Opened a local recovery copy. Review your writing, then retry saving.",
-        );
-      }
-      const p = recover(saved, localStorage);
+  const enter = useCallback(
+    (p: Project, pending: boolean) => {
       current.current = p;
       setProject(p);
       setActive(p.order[0] ?? p.entries[0]?.id ?? "");
@@ -121,12 +133,100 @@ export default function App() {
       setQuery("");
       setMode("write");
       localStorage.setItem("folio.lastProject", p.id);
-      if (p !== saved || localStorage.getItem("folio.recovery." + id)) {
+      if (pending) {
         queue.enqueue(p);
         setNotice("Recovered pending edits from the local journal.");
       }
     },
     [queue],
+  );
+  const open = useCallback(
+    async (id: string) => {
+      await queue.flush();
+      let saved: Project;
+      try {
+        saved = await storage.load(id);
+      } catch (e) {
+        const raw = localStorage.getItem(journalKey(id));
+        if (!raw) throw e;
+        saved = parseJournal(journalKey(id), raw);
+        setNotice(
+          "Opened a local recovery copy. Review your writing, then retry saving.",
+        );
+      }
+      let p: Project;
+      try {
+        p = recover(saved, localStorage);
+      } catch (e) {
+        if (e instanceof RecoveryConflict) {
+          setChoice({
+            title: "Two copies of this project disagree.",
+            body:
+              "The saved copy and the recovery journal are both at revision " +
+              saved.revision +
+              " but hold different writing. Choose which to keep. Exporting the journal first saves it as a file you can import later.",
+            actions: [
+              {
+                label: "Export journal first",
+                keep: true,
+                run: () =>
+                  download(
+                    e.journal.title + " (recovery journal).json",
+                    JSON.stringify(e.journal, null, 2),
+                    "application/json",
+                  ),
+              },
+              {
+                label: "Keep disk copy",
+                run: () => {
+                  localStorage.removeItem(journalKey(id));
+                  enter(e.disk, false);
+                },
+              },
+              {
+                label: "Keep journal copy",
+                primary: true,
+                run: () =>
+                  enter(
+                    {
+                      ...e.journal,
+                      revision: e.disk.revision + 1,
+                      updatedAt: now(),
+                    },
+                    true,
+                  ),
+              },
+            ],
+          });
+          return;
+        }
+        if (e instanceof DamagedJournal) {
+          setChoice({
+            title: "The recovery journal for this project is damaged.",
+            body: "The saved copy opens fine. Export the journal's raw text if you want to look at it, or discard it and open the saved copy.",
+            actions: [
+              {
+                label: "Export journal",
+                keep: true,
+                run: () => download(e.key + ".txt", e.raw, "text/plain"),
+              },
+              {
+                label: "Discard and open",
+                primary: true,
+                run: () => {
+                  localStorage.removeItem(e.key);
+                  enter(saved, false);
+                },
+              },
+            ],
+          });
+          return;
+        }
+        throw e;
+      }
+      enter(p, p !== saved || !!localStorage.getItem(journalKey(id)));
+    },
+    [enter, queue],
   );
   useEffect(() => {
     void run(async () => {
@@ -271,6 +371,68 @@ export default function App() {
             x.id === e.id ? { ...x, title, updatedAt: now() } : x,
           ),
         })),
+    });
+  const renameProject = () =>
+    setNameDialog({
+      title: "Rename project",
+      label: "Project title",
+      value: current.current?.title ?? "",
+      action: (title) => mutate((p) => ({ ...p, title })),
+    });
+  const remove = (e: Entry) =>
+    setChoice({
+      title: `Delete ${e.kind} “${e.title}”?`,
+      body: "A safety snapshot is kept first, so you can bring it back from Snapshots & history.",
+      actions: [
+        {
+          label: "Delete " + e.kind,
+          primary: true,
+          run: async () => {
+            await queue.flush();
+            await storage.snapshot(
+              current.current!.id,
+              `Before deleting “${e.title}”`,
+            );
+            mutate((p) => ({
+              ...p,
+              entries: p.entries.filter((x) => x.id !== e.id),
+              order: p.order.filter((x) => x !== e.id),
+            }));
+            const p = current.current!;
+            if (active === e.id)
+              setActive(p.order[0] ?? p.entries[0]?.id ?? "");
+            if (target === e.id) setTarget("");
+            setNotice(`“${e.title}” deleted. A safety snapshot keeps it.`);
+          },
+        },
+      ],
+    });
+  const removeProject = (s: Summary) =>
+    setChoice({
+      title: `Delete project “${s.title}”?`,
+      body: desktop
+        ? "Its folder is set aside as " +
+          s.id +
+          ".deleted inside Local storage, so nothing is erased."
+        : "Its browser preview storage is removed.",
+      actions: [
+        {
+          label: "Delete project",
+          primary: true,
+          run: async () => {
+            await queue.flush();
+            try {
+              await storage.delete(s.id);
+            } catch (e) {
+              if (!localStorage.getItem(journalKey(s.id))) throw e;
+            }
+            localStorage.removeItem(journalKey(s.id));
+            if (localStorage.getItem("folio.lastProject") === s.id)
+              localStorage.removeItem("folio.lastProject");
+            await refreshLibrary();
+          },
+        },
+      ],
     });
   const reorder = (id: string, to: number) =>
     mutate((p) => {
@@ -449,7 +611,24 @@ export default function App() {
           projects={library}
           onCreate={create}
           onOpen={(id) => void run(() => open(id))}
+          onDelete={removeProject}
           onImport={(file) => void run(() => importProject(file))}
+          damagedJournals={damagedJournals}
+          onExportJournal={(d) => download(d.key + ".txt", d.raw, "text/plain")}
+          onDiscardJournal={(d) =>
+            void run(async () => {
+              localStorage.removeItem(d.key);
+              await refreshLibrary();
+            })
+          }
+          damagedFolders={damagedFolders}
+          path={path}
+          onSetAside={(id) =>
+            void run(async () => {
+              await storage.delete(id);
+              await refreshLibrary();
+            })
+          }
         />
       ) : (
         <>
@@ -493,7 +672,14 @@ export default function App() {
                   )}
                 </button>
                 <span className="breadcrumb">
-                  {project.title}
+                  <button
+                    className="breadcrumb-title"
+                    title="Rename project"
+                    aria-label="Rename project"
+                    onClick={renameProject}
+                  >
+                    {project.title}
+                  </button>
                   <span>/</span>
                   {mode === "read"
                     ? "Manuscript"
@@ -537,6 +723,32 @@ export default function App() {
                 </button>
               </div>
             </header>
+            <ReadingProgress identity={project.id + mode + active} />
+            {mode === "read" && sections.length > 1 && (
+              <nav className="proximity-nav" aria-label="Manuscript sections">
+                {sections.map((section) => (
+                  <button
+                    key={section.id}
+                    aria-label={"Jump to " + section.title}
+                    onClick={() =>
+                      document
+                        .getElementById("read-" + section.id)
+                        ?.scrollIntoView({
+                          behavior: window.matchMedia(
+                            "(prefers-reduced-motion: reduce)",
+                          ).matches
+                            ? "instant"
+                            : "smooth",
+                          block: "start",
+                        })
+                    }
+                  >
+                    <span>{section.title}</span>
+                    <i aria-hidden="true" />
+                  </button>
+                ))}
+              </nav>
+            )}
             {mode === "read" ? (
               <div className="manuscript-read">
                 <div className="eyebrow">CONTINUOUS MANUSCRIPT · READ ONLY</div>
@@ -556,7 +768,7 @@ export default function App() {
                   Export plain text <Download size={13} />
                 </button>
                 {sections.map((e) => (
-                  <section key={e.id}>
+                  <section key={e.id} id={"read-" + e.id}>
                     <button
                       className="read-title"
                       onClick={() => {
@@ -580,13 +792,23 @@ export default function App() {
                       ? "FRAGMENT"
                       : `SECTION ${project.order.indexOf(item.id) + 1} OF ${sections.length}`}
                   </div>
-                  <button
-                    className="document-title"
-                    title="Rename"
-                    onClick={() => rename(item)}
-                  >
-                    {item.title}
-                  </button>
+                  <div className="document-title-row">
+                    <button
+                      className="document-title"
+                      title="Rename"
+                      onClick={() => rename(item)}
+                    >
+                      {item.title}
+                    </button>
+                    <button
+                      className="delete-entry"
+                      title={"Delete " + item.kind}
+                      aria-label={"Delete " + item.kind}
+                      onClick={() => remove(item)}
+                    >
+                      <Trash2 size={15} />
+                    </button>
+                  </div>
                   {item.origin && (
                     <p className="origin">
                       Kept from “{item.origin.sectionTitle}” ·{" "}
@@ -598,6 +820,20 @@ export default function App() {
                   key={item.id + ":" + editorEpoch}
                   item={item}
                   onExtract={extract}
+                  onLink={(value, apply) =>
+                    setNameDialog({
+                      title: value ? "Edit link" : "Add link",
+                      label: "Link address",
+                      value: value || "https://",
+                      action: (url) => {
+                        if (!/^https?:\/\//i.test(url))
+                          throw new Error(
+                            "Links must start with http:// or https://",
+                          );
+                        apply(url);
+                      },
+                    })
+                  }
                   onEdit={(content, text) =>
                     mutate((p) => ({
                       ...p,
@@ -807,6 +1043,41 @@ export default function App() {
           </form>
         </div>
       )}
+      {choice && (
+        <div className="modal-backdrop">
+          <div className="dialog" role="dialog" aria-modal="true">
+            <div className="eyebrow">FOLIO</div>
+            <h2>{choice.title}</h2>
+            <p className="dialog-body">{choice.body}</p>
+            <div className="dialog-actions">
+              <button
+                type="button"
+                disabled={busy}
+                onClick={() => setChoice(null)}
+              >
+                Cancel
+              </button>
+              {choice.actions.map((a) => (
+                <button
+                  key={a.label}
+                  type="button"
+                  className={a.primary ? "primary" : ""}
+                  disabled={busy}
+                  onClick={() => {
+                    setBusy(true);
+                    void run(async () => {
+                      await a.run();
+                      if (!a.keep) setChoice(null);
+                    }).finally(() => setBusy(false));
+                  }}
+                >
+                  {a.label}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
       {preview && (
         <div className="modal-backdrop">
           <div className="preview-dialog">
@@ -825,7 +1096,7 @@ export default function App() {
                 ),
                 ...preview.entries.filter((e) => e.kind === "fragment"),
               ].map((e) => (
-                <section key={e.id}>
+                <section key={e.id} id={"read-" + e.id}>
                   <h3>
                     {e.title}{" "}
                     {e.kind === "fragment" && <small>· Fragment</small>}

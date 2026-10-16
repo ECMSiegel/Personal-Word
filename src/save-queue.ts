@@ -17,20 +17,58 @@ const canonical = (value: unknown): string =>
       : v,
   );
 export const journalKey = (id: string) => "folio.recovery." + id;
+export class RecoveryConflict extends Error {
+  constructor(
+    public disk: Project,
+    public journal: Project,
+  ) {
+    super("Conflicting recovery copy retained. Export it before continuing.");
+  }
+}
+export class DamagedJournal extends Error {
+  constructor(
+    public key: string,
+    public raw: string,
+    reason: unknown,
+  ) {
+    super("Recovery journal is damaged: " + String(reason));
+  }
+}
+export function parseJournal(key: string, raw: string): Project {
+  try {
+    const candidate: unknown = JSON.parse(raw);
+    validateProject(candidate);
+    return candidate;
+  } catch (e) {
+    throw new DamagedJournal(key, raw, e);
+  }
+}
+export function scanJournals(pairs: [key: string, raw: string][]): {
+  recovered: Project[];
+  damaged: DamagedJournal[];
+} {
+  const recovered: Project[] = [];
+  const damaged: DamagedJournal[] = [];
+  for (const [key, raw] of pairs) {
+    try {
+      recovered.push(parseJournal(key, raw));
+    } catch (e) {
+      damaged.push(e as DamagedJournal);
+    }
+  }
+  return { recovered, damaged };
+}
 export function recover(p: Project, journal: Journal): Project {
   const raw = journal.getItem(journalKey(p.id));
   if (!raw) return p;
-  const candidate: unknown = JSON.parse(raw);
-  validateProject(candidate);
+  const candidate = parseJournal(journalKey(p.id), raw);
   if (candidate.id !== p.id)
     throw new Error("Recovery journal belongs to another project.");
   if (
     candidate.revision === p.revision &&
     canonical(candidate) !== canonical(p)
   )
-    throw new Error(
-      "Conflicting recovery copy retained. Export it before continuing.",
-    );
+    throw new RecoveryConflict(p, candidate);
   return candidate.revision > p.revision ? candidate : p;
 }
 export class SaveQueue {

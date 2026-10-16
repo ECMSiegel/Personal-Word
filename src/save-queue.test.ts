@@ -1,5 +1,13 @@
 import { describe, it, expect, vi } from "vitest";
-import { SaveQueue, recover, journalKey, type Journal } from "./save-queue";
+import {
+  SaveQueue,
+  recover,
+  journalKey,
+  scanJournals,
+  RecoveryConflict,
+  DamagedJournal,
+  type Journal,
+} from "./save-queue";
 import { newProject, type Project } from "./model";
 function journal(): Journal {
   const map = new Map<string, string>();
@@ -121,4 +129,52 @@ it("retains a conflicting journal at the same revision", () => {
   j.setItem(journalKey(p.id), JSON.stringify({ ...p, title: "Recovery copy" }));
   expect(() => recover(p, j)).toThrow("Conflicting recovery copy");
   expect(j.getItem(journalKey(p.id))).toContain("Recovery copy");
+});
+it("exposes both copies of a same-revision conflict so the writer can choose", () => {
+  const p = newProject("Disk");
+  const j = journal();
+  j.setItem(journalKey(p.id), JSON.stringify({ ...p, title: "Recovery copy" }));
+  let caught: unknown;
+  try {
+    recover(p, j);
+  } catch (e) {
+    caught = e;
+  }
+  expect(caught).toBeInstanceOf(RecoveryConflict);
+  const conflict = caught as RecoveryConflict;
+  expect(conflict.disk).toEqual(p);
+  expect(conflict.journal.title).toBe("Recovery copy");
+  expect(j.getItem(journalKey(p.id))).toContain("Recovery copy");
+});
+it("reports a malformed journal with its key and raw text instead of a bare parse error", () => {
+  const p = newProject("Disk");
+  const j = journal();
+  j.setItem(journalKey(p.id), "{broken");
+  let caught: unknown;
+  try {
+    recover(p, j);
+  } catch (e) {
+    caught = e;
+  }
+  expect(caught).toBeInstanceOf(DamagedJournal);
+  expect((caught as DamagedJournal).key).toBe(journalKey(p.id));
+  expect((caught as DamagedJournal).raw).toBe("{broken");
+});
+describe("library journal scan", () => {
+  it("lists healthy journals and keeps corrupt or invalid ones aside", () => {
+    const good = newProject("Healthy");
+    const invalid = { ...newProject("Invalid"), order: [] };
+    const { recovered, damaged } = scanJournals([
+      [journalKey(good.id), JSON.stringify(good)],
+      ["folio.recovery.corrupt", "{not json"],
+      [journalKey(invalid.id), JSON.stringify(invalid)],
+    ]);
+    expect(recovered.map((p) => p.title)).toEqual(["Healthy"]);
+    expect(damaged.map((d) => d.key)).toEqual([
+      "folio.recovery.corrupt",
+      journalKey(invalid.id),
+    ]);
+    expect(damaged[0].raw).toBe("{not json");
+    expect(damaged[0].message).toContain("damaged");
+  });
 });

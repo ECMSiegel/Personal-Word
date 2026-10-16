@@ -50,7 +50,7 @@ export function ProjectSidebar({
   return (
     <aside className="sidebar">
       <div className="brand">
-        <Feather size={19} /> folio
+        <Feather size={19} /> Personal Word
       </div>
       <button
         className="project-switch"
