@@ -1,12 +1,12 @@
 {
-  "date": "2026-10-14",
-  "runtime": "macOS Tauri WebView and bundled SQLite",
+  "ok": true,
   "phases": [
     {
       "ok": true,
       "phase": "1",
       "steps": [
         "native project creation",
+        "native WebKit page fragmentation and continuous toggle",
         "rapid edit and section switch",
         "fragment extraction and restoration",
         "named snapshot",
@@ -22,11 +22,13 @@
       ]
     }
   ],
-  "runnerChecks": [
-    "Both processes exited successfully",
-    "SQLite integrity_check returned ok",
-    "Final rapid edit persisted before quit",
-    "Portable project.json matched SQLite after each phase",
-    "Safety snapshot present after restoration"
+  "dataDirectory": "/var/folders/rw/ltqyk83j3c5041kpmmr0dk000000gp/T/folio-native-hcs3sv2b",
+  "checks": [
+    "SQLite integrity",
+    "quit flush",
+    "process restart",
+    "fragment extraction and restore",
+    "snapshot restore and safety snapshot",
+    "portable JSON matches database"
   ]
 }

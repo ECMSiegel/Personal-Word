@@ -4,19 +4,23 @@ test("system appearance changes live and document progress follows nested scroll
   page,
 }) => {
   await page.emulateMedia({ colorScheme: "light" });
+  await page.addInitScript(() =>
+    localStorage.setItem("personal-word.restoreTabs", "true"),
+  );
   await page.goto("/");
   await expect(page).toHaveTitle(/Personal Word/);
   await expect(page.locator(".brand")).toContainText("Personal Word");
   await expect(page.locator(".library")).toHaveCSS(
     "background-color",
-    "rgb(245, 245, 247)",
+    "rgb(255, 255, 255)",
   );
   await page.emulateMedia({ colorScheme: "dark", reducedMotion: "reduce" });
   await expect(page.locator(".library")).toHaveCSS(
     "background-color",
-    "rgb(40, 40, 44)",
+    "rgb(32, 32, 35)",
   );
-  await page.getByRole("button", { name: "New writing project" }).click();
+  await page.getByRole("button", { name: "Start new project" }).click();
+  await page.getByRole("button", { name: "Blank", exact: true }).click();
   await page.getByLabel("Project title").fill("Appearance check");
   await page.getByRole("button", { name: "Save", exact: true }).click();
   await expect(page.locator(".workspace")).toHaveCSS(
@@ -40,7 +44,9 @@ test("system appearance changes live and document progress follows nested scroll
     "aria-valuenow",
     "0",
   );
-  await page.getByRole("button", { name: "Read manuscript" }).click();
+  await page
+    .getByRole("button", { name: "Read manuscript", exact: true })
+    .click();
   await page.getByRole("button", { name: "Jump to Second section" }).click();
   await expect
     .poll(() => page.locator(".manuscript-read").evaluate((el) => el.scrollTop))

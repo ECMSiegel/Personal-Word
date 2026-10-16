@@ -1,6 +1,8 @@
 import { getSchema, type JSONContent } from "@tiptap/react";
-import StarterKit from "@tiptap/starter-kit";
-const documentSchema = getSchema([StarterKit]);
+import { documentExtensions } from "./editor/extensions";
+import type { PageLayout } from "./editor/formatting";
+import type { ResearchData, DocumentSettings } from "./research/types";
+const documentSchema = getSchema(documentExtensions());
 export type Entry = {
   id: string;
   kind: "section" | "fragment";
@@ -8,6 +10,10 @@ export type Entry = {
   content: JSONContent;
   text: string;
   updatedAt: string;
+  synopsis?: string;
+  draftStatus?: "notes" | "draft" | "revised";
+  tags?: string[];
+  uses?: { projectId: string; sectionId: string; date: string }[];
   origin: {
     sectionId: string;
     sectionTitle: string;
@@ -25,8 +31,25 @@ export type Project = {
   revision: number;
   order: string[];
   entries: Entry[];
+  research?: ResearchData;
+  documentSettings?: DocumentSettings;
+  templateId?: string;
+  pageLayout?: PageLayout;
+  sidebarOrder?: string[];
+  annotations?: Annotation[];
 };
-export type Summary = Pick<Project, "id" | "title" | "updatedAt">;
+export type Annotation = {
+  id: string;
+  entryId: string;
+  quote: string;
+  text: string;
+  resolved: boolean;
+  createdAt: string;
+  kind: "comment" | "task";
+};
+export type Summary = Pick<Project, "id" | "title" | "updatedAt"> & {
+  createdAt?: string;
+};
 export type Version = { id: string; name: string; createdAt: string };
 export const now = () => new Date().toISOString();
 export const emptyDoc = (): JSONContent => ({
@@ -96,7 +119,50 @@ export function validateProject(value: unknown): asserts value is Project {
     typeof p.createdAt !== "string" ||
     typeof p.updatedAt !== "string"
   )
-    throw new Error("This is not a valid Folio project.");
+    throw new Error("This is not a valid Personal Word project.");
+  if (p.research) {
+    const r = p.research;
+    if (
+      !Array.isArray(r.sources) ||
+      !Array.isArray(r.notes) ||
+      !Array.isArray(r.footnotes)
+    )
+      throw new Error("Invalid research data.");
+    for (const source of r.sources)
+      if (
+        typeof source.id !== "string" ||
+        typeof source.title !== "string" ||
+        !Array.isArray(source.authors) ||
+        !source.authors.every((a) => typeof a === "string") ||
+        !["book", "journal", "website"].includes(source.kind)
+      )
+        throw new Error("Invalid research source.");
+    for (const note of [...r.notes, ...r.footnotes])
+      if (typeof note.id !== "string" || typeof note.text !== "string")
+        throw new Error("Invalid research note.");
+  }
+  if (
+    p.annotations &&
+    (!Array.isArray(p.annotations) ||
+      p.annotations.some(
+        (a) =>
+          typeof a.id !== "string" ||
+          typeof a.entryId !== "string" ||
+          typeof a.text !== "string" ||
+          typeof a.quote !== "string",
+      ))
+  )
+    throw new Error("Invalid annotations.");
+  if (
+    p.pageLayout &&
+    (!["continuous", "pages"].includes(p.pageLayout.mode) ||
+      !["letter", "a4"].includes(p.pageLayout.paper) ||
+      !Number.isFinite(p.pageLayout.margin) ||
+      !Number.isFinite(p.pageLayout.zoom) ||
+      p.pageLayout.zoom < 25 ||
+      p.pageLayout.zoom > 200)
+  )
+    throw new Error("Invalid page settings.");
   const ids = new Set<string>();
   for (const e of p.entries) {
     if (

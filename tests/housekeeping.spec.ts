@@ -5,8 +5,12 @@ async function createProject(
   page: import("@playwright/test").Page,
   title: string,
 ) {
+  await page.addInitScript(() =>
+    localStorage.setItem("personal-word.restoreTabs", "true"),
+  );
   await page.goto("/");
-  await page.getByRole("button", { name: "New writing project" }).click();
+  await page.getByRole("button", { name: "Start new project" }).click();
+  await page.getByRole("button", { name: "Blank", exact: true }).click();
   await page.getByLabel("Project title").fill(title);
   await page.getByRole("button", { name: "Save", exact: true }).click();
   await expect(page.getByText("Saved", { exact: true })).toBeVisible();
@@ -30,7 +34,13 @@ test("rename project, delete a section and a fragment with safety snapshots, del
     .getByRole("button", { name: "Delete fragment" })
     .click();
   await expect(page.getByRole("dialog")).toHaveCount(0);
-  await expect(page.locator(".fragments")).not.toContainText("Loose idea");
+  await expect(
+    page
+      .locator(".sidebar-group")
+      .filter({
+        has: page.getByRole("button", { name: "Fragments", exact: true }),
+      }),
+  ).not.toContainText("Loose idea");
   await page.getByRole("button", { name: "Delete section" }).click();
   await page
     .getByRole("dialog")
@@ -38,14 +48,23 @@ test("rename project, delete a section and a fragment with safety snapshots, del
     .click();
   await expect(page.getByText("A little room to begin.")).toBeVisible();
   await expect(page.getByText("Saved", { exact: true })).toBeVisible();
-  await page.getByRole("button", { name: "Snapshots & history" }).click();
+  await page
+    .getByRole("button", { name: "Snapshots & history", exact: true })
+    .click();
   await expect(
-    page.getByRole("button", { name: /Before deleting “Opening”/ }),
+    page
+      .locator(".versions")
+      .getByRole("button", { name: /Before deleting “Opening”/ }),
   ).toBeVisible();
   await expect(
-    page.getByRole("button", { name: /Before deleting “Loose idea”/ }),
+    page
+      .locator(".versions")
+      .getByRole("button", { name: /Before deleting “Loose idea”/ }),
   ).toBeVisible();
-  await page.getByRole("button", { name: /Before deleting “Opening”/ }).click();
+  await page
+    .locator(".versions")
+    .getByRole("button", { name: /Before deleting “Opening”/ })
+    .click();
   await page.getByRole("button", { name: "Restore this version" }).click();
   await expect(editor).toContainText("Words that will be deleted.");
   await page.reload();
@@ -64,7 +83,10 @@ test("rename project, delete a section and a fragment with safety snapshots, del
   await expect(page.locator(".project-row")).toHaveCount(0);
   expect(
     await page.evaluate(() =>
-      Object.keys(localStorage).filter((k) => k.includes("folio.")),
+      Object.keys(localStorage).filter(
+        (k) =>
+          k.startsWith("folio.preview.") || k.startsWith("folio.recovery."),
+      ),
     ),
   ).toEqual([]);
 });
@@ -104,11 +126,13 @@ test("a corrupt recovery journal is listed as damaged without hiding the library
   await page.evaluate(() => {
     localStorage.setItem("folio.recovery.corrupt-key", "{not json");
     localStorage.removeItem("folio.lastProject");
+    localStorage.setItem("personal-word.restoreTabs", "false");
   });
   await page.reload();
   await expect(
     page.getByRole("button", { name: /Healthy/ }).first(),
   ).toBeVisible();
+  await page.getByRole("button", { name: "Projects", exact: true }).click();
   const region = page.getByRole("region", { name: "Needs attention" });
   await expect(region).toContainText("Damaged recovery journal");
   await expect(page.getByRole("alert")).toHaveCount(0);

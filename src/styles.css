@@ -27,7 +27,12 @@
   }
 }
 :root {
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-family:
+    Futura,
+    "Avenir Next",
+    -apple-system,
+    BlinkMacSystemFont,
+    sans-serif;
   color: var(--text);
   background: var(--paper);
   font-synthesis: none;
@@ -107,7 +112,7 @@ p {
   display: flex;
   align-items: center;
   gap: 8px;
-  font-family: Georgia, serif;
+  font-family: Futura, sans-serif;
   font-size: 25px;
   letter-spacing: -1px;
   color: var(--text);
@@ -333,7 +338,7 @@ p {
   margin-bottom: 14px;
 }
 .document-title {
-  font-family: Georgia, "Times New Roman", serif;
+  font-family: Futura, "Avenir Next", sans-serif;
   letter-spacing: -0.8px;
   font-size: 38px;
   line-height: 1.2;
@@ -388,7 +393,7 @@ p {
   font-size: 10px;
 }
 .writing-surface {
-  font-family: Georgia, "Times New Roman", serif;
+  font-family: Futura, "Avenir Next", sans-serif;
   font-size: 19px;
   line-height: 1.85;
   outline: none;
@@ -501,8 +506,8 @@ p {
 }
 .library h1 {
   font:
-    40px Georgia,
-    serif;
+    40px Futura,
+    sans-serif;
   letter-spacing: -1px;
   color: var(--text);
 }
@@ -633,8 +638,8 @@ p {
 }
 .dialog h2 {
   font:
-    26px Georgia,
-    serif;
+    26px Futura,
+    sans-serif;
   margin: 20px 0 26px;
 }
 .dialog label {
@@ -701,8 +706,8 @@ p {
 }
 .panel-heading h2 {
   font:
-    23px Georgia,
-    serif;
+    23px Futura,
+    sans-serif;
   margin: 0;
 }
 .version-tabs {
@@ -751,8 +756,8 @@ p {
 }
 .preview-dialog h2 {
   font:
-    29px Georgia,
-    serif;
+    29px Futura,
+    sans-serif;
 }
 .preview-dialog p,
 .preview-dialog .panel-heading {
@@ -769,16 +774,16 @@ p {
 }
 .preview-content h3 {
   font:
-    22px Georgia,
-    serif;
+    22px Futura,
+    sans-serif;
 }
 .preview-dialog > .primary {
   align-self: flex-end;
 }
 .read-prose {
   font:
-    18px/1.85 Georgia,
-    serif;
+    18px/1.85 Futura,
+    sans-serif;
   white-space: pre-wrap;
   overflow-wrap: anywhere;
   color: var(--text);
@@ -790,8 +795,8 @@ p {
 }
 .manuscript-read h1 {
   font:
-    38px Georgia,
-    serif;
+    38px Futura,
+    sans-serif;
   letter-spacing: -0.7px;
 }
 .manuscript-read section {
@@ -799,8 +804,8 @@ p {
 }
 .read-title {
   font:
-    27px Georgia,
-    serif;
+    27px Futura,
+    sans-serif;
   padding: 0;
   margin-bottom: 22px;
   text-align: left;
@@ -822,8 +827,8 @@ p {
 }
 .empty-editor h1 {
   font:
-    30px Georgia,
-    serif;
+    30px Futura,
+    sans-serif;
 }
 @media (max-width: 1000px) {
   .sidebar {
@@ -855,15 +860,26 @@ p {
   pointer-events: auto;
 }
 
-/* Personal Word: quiet chrome, legible controls, content first. */
+/* Flat workspace surfaces share the live system appearance. */
 :root {
-  background: var(--paper);
+  font-family:
+    Futura,
+    "Avenir Next",
+    -apple-system,
+    BlinkMacSystemFont,
+    sans-serif;
 }
-button {
-  border-radius: 7px;
-  transition:
-    background 140ms,
-    color 140ms;
+button,
+input,
+select,
+.dialog,
+.preview-dialog,
+.damaged,
+.notice,
+.error-banner,
+.entry-row,
+.format-bar {
+  border-radius: 0;
 }
 button:focus-visible,
 input:focus-visible,
@@ -872,233 +888,421 @@ select:focus-visible {
 }
 button[aria-pressed="true"],
 .selected {
-  background: var(--selection);
   color: var(--accent);
-}
-.sidebar {
-  background: var(--sidebar);
-  width: 260px;
-  padding-top: 24px;
+  background: var(--selection);
+  font-weight: 600;
 }
 .brand {
-  font:
-    600 18px/1.4 -apple-system,
-    BlinkMacSystemFont,
-    sans-serif;
-  letter-spacing: -0.5px;
-  color: var(--text);
+  font-family: inherit;
+  font-size: 17px;
+  font-weight: 600;
+  letter-spacing: -0.3px;
+  padding: 0;
 }
-.brand svg {
-  color: var(--accent);
+.app-shell {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
 }
-.project-switch {
-  margin-top: 28px;
+.app-shell > .app {
+  height: auto;
+  flex: 1;
+  min-height: 0;
 }
-.search {
-  background: var(--shadow);
-  border-radius: 8px;
-  padding: 4px 8px;
+.project-tabs {
+  height: 34px;
+  min-height: 34px;
+  display: flex;
+  align-items: stretch;
+  overflow-x: auto;
+  border-bottom: 1px solid var(--line);
+  background: var(--surface);
 }
-.group-heading {
+.project-tabs > button,
+.project-tab > button {
   font-size: 11px;
-  letter-spacing: 0.3px;
+  padding: 7px 12px;
+  white-space: nowrap;
 }
-.entry-list {
-  padding-left: 10px;
+.project-tab {
+  display: flex;
+  border-right: 1px solid var(--line);
+  max-width: 220px;
 }
-.entry-row.selected::before {
-  content: "";
-  position: absolute;
-  left: -9px;
-  top: -4px;
-  height: 25px;
-  width: 7px;
-  border-left: 1.5px solid var(--accent);
-  border-bottom: 1.5px solid var(--accent);
-  border-radius: 0 0 0 6px;
+.project-tab > button:first-child {
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
-.entry-main {
-  font-size: 13px;
-  min-height: 38px;
+.project-tab > button:last-child {
+  padding-inline: 7px;
 }
-.entry-main svg,
-.restore-fragment button,
-.text-button {
+.project-tab.active {
   color: var(--accent);
+  background: var(--paper);
+  font-weight: 600;
 }
-.reorder {
-  background: var(--sidebar);
-  border-radius: 6px;
+.tabs-library {
+  border-right: 1px solid var(--line);
 }
-.selected .reorder {
-  background: var(--selection);
+.sidebar-shell {
+  flex: 0 0 var(--sidebar-width);
+  min-width: 0;
+  position: relative;
+  z-index: 4;
 }
-.topbar {
+.sidebar-shell.is-overlay {
+  flex-basis: 0;
+}
+.sidebar-shell .sidebar {
+  width: var(--sidebar-width);
+  height: 100%;
+  padding: 20px 12px 12px;
+  position: relative;
+  background: var(--surface);
+  container-type: inline-size;
+}
+.sidebar-shell.is-overlay .sidebar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  transform: translateX(-100%);
+  visibility: hidden;
+  box-shadow: 5px 0 15px var(--shadow);
+}
+.sidebar-shell.is-overlay.is-revealed .sidebar {
+  transform: translateX(0);
+  visibility: visible;
+}
+.sidebar-edge {
+  position: absolute;
+  z-index: 5;
+  left: 0;
+  top: 0;
+  width: 24px;
   height: 60px;
   background: var(--surface);
+  border-right: 1px solid var(--line);
 }
-.breadcrumb,
-.breadcrumb-title,
-.save-status,
-.snapshot-button {
+.is-revealed .sidebar-edge {
+  display: none;
+}
+.sidebar-brand {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 4px;
+}
+.sidebar-brand > button {
+  padding: 5px;
+}
+.project-switch {
+  margin: 20px 0 0;
+}
+.search {
+  margin: 14px 0 20px;
+}
+.sidebar-groups {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+}
+.sidebar-group {
+  margin-bottom: 19px;
+}
+.group-heading {
+  padding: 0;
+  margin: 0 0 4px;
+  letter-spacing: 0;
+  font-size: 12px;
+  gap: 3px;
+}
+.group-title {
+  padding: 6px;
+  justify-content: flex-start;
+  text-align: left;
+  font-weight: 500;
+  min-width: 0;
+}
+.group-actions {
+  display: flex;
+  flex-shrink: 0;
+  opacity: 0;
+}
+.sidebar-group:hover > .group-heading .group-actions,
+.sidebar-group:focus-within > .group-heading .group-actions {
+  opacity: 1;
+}
+.group-actions button {
+  padding: 4px 2px;
+}
+.entry-list {
+  max-height: none;
+  padding: 0;
+  overflow: visible;
+}
+.entry-row {
+  margin: 1px 0;
+}
+.entry-main {
+  padding: 7px 8px;
+  min-height: 32px;
   font-size: 12px;
 }
-.snapshot-button {
+.entry-main small {
+  font-size: 10px;
+}
+.entry-row.selected::before {
+  content: none;
+}
+.cards-view .entry-list {
+  display: grid;
+  gap: 6px;
+}
+.cards-view .entry-row {
+  border: 1px solid var(--line);
   background: var(--paper);
 }
-.workspace {
+.cards-view .entry-row.selected {
+  border-color: var(--accent);
+  background: var(--selection);
+}
+.cards-view .entry-main {
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 10px;
+}
+.cards-view .entry-main > span {
+  flex-basis: calc(100% - 25px);
+}
+.cards-view .entry-main small {
+  display: block;
+  width: 100%;
+  text-align: left;
+}
+.entry-preview {
+  font-size: 11px;
+  line-height: 1.5;
+  color: var(--muted);
+  margin: 0;
+  width: 100%;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  font-weight: 400;
+}
+.sidebar-hover-setting {
+  display: flex;
+  align-items: center;
+  font-size: 10px;
+  color: var(--muted);
+  gap: 5px;
+  padding-top: 12px;
+}
+.sidebar-hover-setting input {
+  margin: 0;
+  accent-color: var(--accent);
+}
+.sidebar-resize {
+  position: absolute;
+  width: 7px;
+  right: -3px;
+  top: 0;
+  bottom: 0;
+  cursor: col-resize;
+  touch-action: none;
+  z-index: 6;
+}
+.sidebar-resize:hover,
+.sidebar-resize:focus-visible {
+  background: var(--accent);
+  outline: 0;
+}
+@container (max-width: 240px) {
+  .entry-main small {
+    display: none;
+  }
+  .group-actions button:nth-child(-n + 2) {
+    display: none;
+  }
+  .cards-view .entry-preview {
+    -webkit-line-clamp: 2;
+  }
+}
+@container (min-width: 380px) {
+  .cards-view .entry-list {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+.focus .sidebar-shell {
+  display: none;
+}
+.library {
+  padding-top: 44px;
+  background: var(--paper);
+}
+.library-heading {
+  margin-top: 48px;
+}
+.library h1 {
+  font-family: inherit;
+  font-size: 28px;
+  font-weight: 500;
+  letter-spacing: -0.5px;
+  margin-bottom: 24px;
+}
+.library-toolbar,
+.library-display {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+}
+.library-display {
+  font-size: 11px;
+}
+.library-display label {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+.library-display select {
+  padding: 6px;
+}
+.library-display > button {
+  padding: 7px;
+}
+.create-project {
   position: relative;
 }
-.document-title {
-  font-family: -apple-system, BlinkMacSystemFont, sans-serif;
-  font-size: 34px;
-  font-weight: 650;
-  letter-spacing: -1px;
-  color: var(--text);
-}
-.document-title:hover {
-  color: var(--accent);
-}
-.format-bar {
+.create-menu {
+  position: absolute;
+  top: calc(100% + 5px);
+  left: 0;
+  min-width: 185px;
   border: 1px solid var(--line);
-  border-radius: 9px;
-  padding: 5px;
-  background: var(--surface);
+  background: var(--paper);
+  z-index: 8;
+  padding: 4px;
+  box-shadow: 0 4px 12px var(--shadow);
 }
-.format-bar button {
-  color: var(--text);
-}
-.writing-surface,
-.read-prose {
-  color: var(--text);
-}
-.statusbar {
-  background: var(--surface);
-  color: var(--muted);
-  font-size: 11px;
+.create-menu button {
+  display: flex;
+  width: 100%;
+  justify-content: flex-start;
+  padding: 8px;
 }
 .primary {
   background: var(--accent);
-  color: var(--paper);
-  font-weight: 600;
+  color: white;
+  font-size: 12px;
+  font-weight: 500;
 }
 .primary:hover {
   background: var(--accent);
-  filter: brightness(0.92);
-}
-.library {
-  background: var(--surface);
-  padding-top: 44px;
-}
-.library-heading {
-  margin-top: 64px;
-}
-.library h1 {
-  font:
-    650 36px/1.2 -apple-system,
-    BlinkMacSystemFont,
-    sans-serif;
-  color: var(--text);
-}
-.library p {
-  color: var(--muted);
+  filter: brightness(0.95);
 }
 .project-list {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 16px;
+  display: flex;
+  flex-direction: column;
+  margin-top: 22px;
+  gap: 0;
 }
 .project-row {
-  position: relative;
-  border: 1px solid var(--line);
-  border-radius: 14px;
-  background: var(--paper);
+  border-top: 1px solid var(--line);
   min-width: 0;
 }
 .project-row > button:first-child {
+  padding: 14px 4px;
+  gap: 16px;
+  flex-direction: row;
+  align-items: center;
+}
+.project-list .project-name {
+  font-size: 13px;
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.project-row > button:first-child > .project-dates {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+  flex: 0 0 auto;
+  font-size: 10px;
+  color: var(--muted);
+}
+.project-list--cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+  gap: 12px;
+}
+.project-list--cards .project-row {
+  position: relative;
+  border: 1px solid var(--line);
+}
+.project-list--cards .project-row > button:first-child {
+  min-height: 115px;
+  padding: 20px 26px 20px 14px;
   flex-direction: column;
   align-items: flex-start;
-  padding: 24px;
-  width: 100%;
-  border-radius: 14px;
-  gap: 18px;
 }
-.project-row > button:first-child > span:first-of-type {
-  width: 100%;
-  overflow-wrap: anywhere;
+.project-list--cards .project-dates {
+  flex-wrap: wrap;
+  justify-content: flex-start !important;
+  gap: 4px !important;
 }
-.project-row > button:first-child > span:last-child {
+.project-list--cards .delete-entry {
+  position: absolute;
+  right: 3px;
+  top: 4px;
+}
+.library-empty {
+  font-size: 12px;
+  padding: 20px 0;
+}
+.document-title,
+.writing-surface,
+.read-prose,
+.manuscript-read h1,
+.read-title,
+.preview-content h3,
+.empty-editor h1,
+.dialog h2,
+.panel-heading h2,
+.preview-dialog h2 {
+  font-family:
+    Futura,
+    "Avenir Next",
+    -apple-system,
+    sans-serif;
+}
+.document-title {
+  font-size: 32px;
+  font-weight: 500;
+  letter-spacing: -0.5px;
+}
+.document-heading .eyebrow {
   display: none;
 }
-.project-row > .delete-entry {
-  position: absolute;
-  right: 12px;
-  top: 12px;
-}
-.project-folder {
-  position: relative;
-  display: block;
-  width: 64px;
-  height: 48px;
-  background: var(--accent);
-  border-radius: 5px 8px 8px 8px;
-  margin-top: 8px;
-}
-.project-folder::before {
-  content: "";
-  position: absolute;
-  width: 27px;
-  height: 9px;
-  top: -6px;
-  background: var(--accent);
-  border-radius: 5px 5px 0 0;
-}
-.project-folder i {
-  position: absolute;
-  inset: 5px 6px;
+.statusbar {
+  border: 0;
   background: var(--paper);
-  border-radius: 3px;
-  transform: rotate(-5deg);
-  transition: transform 180ms;
 }
-.project-folder::after {
-  content: "";
-  position: absolute;
-  inset: 12px 0 0;
-  background: var(--accent);
-  border: 1px solid #ffffff55;
-  border-radius: 5px;
-  transform-origin: bottom;
-  transition: transform 180ms;
-}
-.project-row:hover .project-folder i,
-.project-row:focus-within .project-folder i {
-  transform: translateY(-6px) rotate(-8deg);
-}
-.project-row:hover .project-folder::after,
-.project-row:focus-within .project-folder::after {
-  transform: perspective(150px) rotateX(-20deg);
-}
-.dialog,
-.preview-dialog {
-  border: 1px solid var(--line);
-  border-radius: 14px;
-  max-width: calc(100vw - 32px);
-}
-.dialog h2,
-.panel-heading h2 {
-  font:
-    600 22px/1.3 -apple-system,
-    sans-serif;
+.statusbar > div > span:last-child {
+  display: none;
 }
 .scroll-progress {
   position: absolute;
-  top: 60px;
+  top: 66px;
   left: 0;
   right: 0;
   height: 2px;
-  z-index: 3;
   pointer-events: none;
+  z-index: 3;
 }
 .scroll-progress span {
   display: block;
@@ -1108,7 +1312,7 @@ button[aria-pressed="true"],
 }
 .proximity-nav {
   position: absolute;
-  right: 12px;
+  right: 8px;
   top: 40%;
   display: flex;
   flex-direction: column;
@@ -1126,7 +1330,6 @@ button[aria-pressed="true"],
   width: 14px;
   height: 2px;
   background: var(--muted);
-  transition: width 160ms;
 }
 .proximity-nav span {
   max-width: 160px;
@@ -1137,7 +1340,6 @@ button[aria-pressed="true"],
   font-size: 11px;
   background: var(--paper);
   padding: 3px 6px;
-  border-radius: 4px;
 }
 .proximity-nav:hover span,
 .proximity-nav:focus-within span {
@@ -1148,6 +1350,29 @@ button[aria-pressed="true"],
   width: 28px;
   background: var(--accent);
 }
+.workspace {
+  position: relative;
+}
+@media (max-width: 700px) {
+  .library {
+    padding: 28px 20px;
+  }
+  .project-dates {
+    flex-wrap: wrap;
+    max-width: 160px;
+    gap: 3px !important;
+  }
+  .library-toolbar {
+    gap: 8px;
+  }
+  .library-display {
+    gap: 5px;
+  }
+  .editor-scroll,
+  .manuscript-read {
+    padding: 32px 24px 60px;
+  }
+}
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
@@ -1156,28 +1381,99 @@ button[aria-pressed="true"],
     scroll-behavior: auto !important;
   }
 }
-@media (max-width: 700px) {
-  .sidebar {
-    width: 200px;
-    padding-inline: 8px;
-  }
-  .brand {
-    font-size: 16px;
-  }
-  .topbar {
-    padding-inline: 12px;
-  }
-  .breadcrumb {
-    display: none;
-  }
-  .editor-scroll,
-  .manuscript-read {
-    padding: 32px 20px 70px;
-  }
-  .library {
-    padding: 32px 24px;
-  }
-  .brand > span {
-    display: none;
-  }
+.cards-view .entry-row {
+  flex-direction: column;
+  align-items: stretch;
+}
+.entry-details {
+  padding: 0 8px 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+.entry-details input,
+.entry-details select {
+  padding: 5px;
+  font-size: 10px;
+  width: 100%;
+  background: transparent;
+}
+.document-statistics {
+  display: flex;
+  justify-content: flex-end;
+  padding: 7px 24px;
+  color: var(--muted);
+  font-size: 10px;
+}
+.research-aside {
+  width: min(390px, 36vw);
+  min-width: 260px;
+  border-left: 1px solid var(--line);
+  background: var(--paper);
+  overflow: auto;
+  padding: 16px;
+}
+.research-aside > header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 18px;
+}
+.project-settings {
+  padding: 32px;
+  overflow: auto;
+  flex: 1;
+}
+.project-settings h1 {
+  font-size: 25px;
+  font-weight: 500;
+}
+.project-settings > label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+/* Compact chrome with comfortable controls. */
+.topbar {
+  height: 40px;
+  padding-inline: 20px;
+}
+.scroll-progress {
+  top: 40px;
+}
+.editor-settings {
+  font-size: 12px;
+}
+.group-heading {
+  font-size: 12px;
+}
+.sidebar-brand > button {
+  opacity: 0;
+}
+.sidebar-brand:hover > button,
+.sidebar-brand:focus-within > button {
+  opacity: 1;
+}
+
+.library-toolbar {
+  margin-top: 48px;
+  justify-content: flex-start;
+}
+.library-toolbar h1 {
+  margin: 0 12px 0 0;
+}
+.library-display {
+  margin-left: auto;
+}
+.topbar > div:first-child > button {
+  opacity: 0;
+}
+.topbar:hover > div:first-child > button,
+.topbar:focus-within > div:first-child > button {
+  opacity: 1;
+}
+.fragment-aside .feature-panel {
+  padding: 12px 0;
 }

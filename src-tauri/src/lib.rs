@@ -93,6 +93,10 @@ fn export_file(path: String, data: String) -> Result<(), String> {
     store::atomic(std::path::Path::new(&path), data.as_bytes())
 }
 #[tauri::command]
+fn export_bytes(path: String, data: Vec<u8>) -> Result<(), String> {
+    store::atomic(std::path::Path::new(&path), &data)
+}
+#[tauri::command]
 fn storage_path(state: tauri::State<State>) -> Result<String, String> {
     Ok(state
         .0
@@ -141,6 +145,7 @@ pub fn run() {
         storage_path,
         finish_quit,
         export_file,
+        export_bytes,
         delete_project,
         smoke::smoke_report
     ]);
@@ -156,6 +161,7 @@ pub fn run() {
         storage_path,
         finish_quit,
         export_file,
+        export_bytes,
         delete_project
     ]);
     builder

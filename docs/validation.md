@@ -21,6 +21,17 @@ This is a working local desktop slice, not a production durability certification
 - Automatic recovery history keeps every save from the last 10 minutes, one per 5 minutes for a day, one per hour beyond that, up to 2,000 states; deliberate named snapshots are separate.
 - The delivered local app bundle is a development build. A release build is available with `npm run tauri build`; distribution signing/notarization is not configured.
 
+## Personal Word workspace update -- October 16, 2026
+
+Re-run after the expanded workspace changes (see [personal-word-v2.md](personal-word-v2.md)):
+
+- `npm run build`: passed.
+- `npm test`: 34 unit tests passed in 6 files.
+- `npm run test:e2e`: 11 Playwright scenarios passed (Chromium; browser storage only).
+- `cargo test`: 14 Rust persistence tests passed, 1 ignored.
+- Native smoke (fresh `native-smoke` debug build, macOS WebKit): both phases passed, including page fragmentation of an overflowing paragraph with a page count above one, the continuous/pages toggle, quit flush, process restart, snapshot restore, SQLite integrity, and portable JSON equality. See [native evidence](evidence/native-smoke.json).
+- Release: `npm run tauri build -- --bundles app` produced `src-tauri/target/release/bundle/macos/Personal Word.app` (identifier `com.folio.writing` retained). The superseded debug `Folio.app` bundle was removed.
+
 ## Save path at 100,000 words — October 16, 2026
 
 `npm run bench` (`scripts/bench-save.sh`) builds a 100,000-word project (100 sections × 1,000 words) and times one keystroke in the middle section and one save. "Before" is commit 6f1e6e9 run with the same benchmark; three runs each on this Intel Mac, no other build running.

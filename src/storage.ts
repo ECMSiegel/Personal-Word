@@ -22,7 +22,12 @@ export const storage = {
     const projects = Object.keys(localStorage)
       .filter((k) => k.startsWith(prefix + "project."))
       .map((k) => JSON.parse(localStorage.getItem(k)!) as Project)
-      .map(({ id, title, updatedAt }) => ({ id, title, updatedAt }))
+      .map(({ id, title, createdAt, updatedAt }) => ({
+        id,
+        title,
+        createdAt,
+        updatedAt,
+      }))
       .sort((a, b) => b.updatedAt.localeCompare(a.updatedAt));
     return { projects, damaged: [] };
   },
@@ -104,6 +109,6 @@ export const storage = {
   async path(): Promise<string> {
     return desktop
       ? invoke("storage_path")
-      : "Browser preview storage — use the desktop app for SQLite and portable files.";
+      : "Browser preview storage -- use the desktop app for SQLite and portable files.";
   },
 };

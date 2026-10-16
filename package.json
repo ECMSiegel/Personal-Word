@@ -1,5 +1,5 @@
 {
-  "name": "folio-writing",
+  "name": "personal-word",
   "version": "0.1.0",
   "private": true,
   "type": "module",
@@ -20,7 +20,9 @@
     "@tiptap/pm": "^3",
     "@tiptap/react": "^3",
     "@tiptap/starter-kit": "^3",
+    "docx": "^9.11.0",
     "lucide-react": "^0.468",
+    "pdf-lib": "^1.17.1",
     "react": "^19",
     "react-dom": "^19"
   },

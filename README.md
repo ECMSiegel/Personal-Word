@@ -30,7 +30,7 @@ Shortcuts: **⌘S** flush saves, **⌘⇧S** snapshot, **⌘⇧N** section, **�
 
 ## Your files
 
-Desktop project folders live at `~/Library/Application Support/com.folio.writing/projects/<project-id>/` on macOS. Click **Local storage** in the footer for the actual path.
+Desktop project folders live at `~/Library/Application Support/com.folio.writing/projects/<project-id>/` on macOS. Open **Settings → Local storage** for the actual path.
 
 Each folder contains:
 
@@ -41,7 +41,7 @@ Each folder contains:
 - `previous-session.sqlite3`: online database backup made on opening.
 - `attachments/`: reserved ordinary-file directory; attachment UI is deferred.
 
-Use **Saved** as confirmation that SQLite and the current portable copies have both completed. Save failures keep pending data in memory and the recovery journal where available. Quit/window close attempts to flush first and stays open on failure. A forced kill can bypass this guard; recovery depends on the last persisted journal/database state. Do not interpret this as a power-loss guarantee.
+Use **Saved** as confirmation of the database save. Portable mirrors are written in the background and flushed on explicit save, library navigation, and quit; mirror failures are reported separately. Save failures keep pending data in memory and the recovery journal where available. Quit/window close attempts to flush first and stays open on failure. A forced kill can bypass this guard; recovery depends on the last persisted journal/database state. Do not interpret this as a power-loss guarantee.
 
 ### Recovery
 
@@ -64,7 +64,7 @@ npx playwright install chromium
 npm run test:e2e
 ```
 
-See [architecture](docs/architecture.md) and [validation](docs/validation.md). This is an initial working slice, not a claim of production readiness. Native forced-termination/power-loss coverage, large manuscripts, accessibility, and signed distribution need further qualification. Research, split editing, alternate drafts, images/tables, find/replace, and DOCX/PDF are deferred.
+See [architecture](docs/architecture.md) and [validation](docs/validation.md). This is an initial working slice, not a claim of production readiness. Native forced-termination/power-loss coverage, large manuscripts, accessibility, and signed distribution need further qualification. Research and DOCX/PDF export are now implemented with documented limitations. Images/tables, cloud collaboration, and full tracked changes remain outside this release.
 
 ### Native integration test
 
@@ -79,8 +79,14 @@ It creates a project through the UI, switches sections, cuts/restores a fragment
 
 ## Appearance
 
-Personal Word follows the computer’s light/dark appearance automatically, including changes while open. The interface uses system typography, neutral surfaces, accessible focus rings, and reduced-motion support. Project folders open from the library; manuscript reading offers section shortcuts; the thin line below the toolbar tracks document scrolling.
+Personal Word follows the computer’s light/dark appearance automatically, including changes while open. The interface uses system typography, neutral surfaces, accessible focus rings, and reduced-motion support. Projects open from the library; manuscript reading offers section shortcuts; the thin line below the toolbar tracks document scrolling.
 
-Design references: [Rare UI](https://rareui.com) (hook sidebar, proximity navigation, scroll progress, and folder interactions) and [Dieter Rams’ ten principles](https://tenprinciples.design/). These are lightweight original implementations inspired by those patterns, without Next.js or Motion dependencies.
+Design references include [Rare UI](https://rareui.com) and [Dieter Rams’ ten principles](https://tenprinciples.design/). The current design removes the former decorative folder and curved hook treatments in favor of compact rows, optional cards, and flat sans-serif controls. No Rare UI component source is bundled.
 
 The existing application identifier and storage keys remain stable so previously saved projects continue to open after the rename.
+
+## Expanded writing workspace
+
+See [the current feature and limitation guide](docs/personal-word-v2.md) and [agent working principles](AGENTS.md). The library now opens on launch; use **Start new project** to choose a template. Each sidebar collection can switch between lines and cards. **Settings** contains document defaults, startup preferences, reusable templates, DOCX/PDF export, PDF preview, and Local storage.
+
+Page view is editable and currently arranges section pages horizontally. Exported Word/PDF pagination is independent; inspect the export preview before submission. The app does not claim exact print parity or exhaustive Chicago citation coverage.

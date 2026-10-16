@@ -34,6 +34,8 @@ pub struct Entry {
     pub text: String,
     pub updated_at: String,
     pub origin: Option<Value>,
+    #[serde(flatten)]
+    pub extra: serde_json::Map<String, Value>,
 }
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 #[serde(rename_all = "camelCase")]
@@ -45,6 +47,8 @@ pub struct Project {
     pub revision: i64,
     pub order: Vec<String>,
     pub entries: Vec<Entry>,
+    #[serde(flatten)]
+    pub extra: serde_json::Map<String, Value>,
 }
 /// The project row: everything except entry bodies, with entry ids in display order.
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
@@ -57,6 +61,8 @@ pub struct Header {
     pub revision: i64,
     pub order: Vec<String>,
     pub entry_ids: Vec<String>,
+    #[serde(flatten)]
+    pub extra: serde_json::Map<String, Value>,
 }
 /// One save: the new header plus the entries that changed since `base_revision`
 /// (or every entry when the frontend does not know what is on disk).
@@ -70,6 +76,7 @@ pub struct Change {
 #[derive(Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Summary {
+    pub created_at: String,
     pub id: String,
     pub title: String,
     pub updated_at: String,
@@ -97,6 +104,7 @@ impl Project {
             revision: self.revision,
             order: self.order.clone(),
             entry_ids: self.entries.iter().map(|e| e.id.clone()).collect(),
+            extra: self.extra.clone(),
         }
     }
     fn assemble(h: Header, mut entries: HashMap<String, Entry>) -> Result<Project> {
@@ -117,6 +125,7 @@ impl Project {
             revision: h.revision,
             order: h.order,
             entries,
+            extra: h.extra,
         })
     }
 }
@@ -191,6 +200,7 @@ impl Store {
                 .and_then(|db| read_header(&db, &id))
             {
                 Ok(h) => projects.push(Summary {
+                    created_at: h.created_at,
                     id: h.id,
                     title: h.title,
                     updated_at: h.updated_at,
@@ -770,7 +780,7 @@ fn validate_node(node: &Value, depth: usize) -> Result<()> {
         .get("type")
         .and_then(Value::as_str)
         .ok_or("Missing rich text node type")?;
-    let inline = ["text", "hardBreak"];
+    let inline = ["text", "hardBreak", "footnoteReference"];
     let blocks = [
         "paragraph",
         "heading",
@@ -779,6 +789,7 @@ fn validate_node(node: &Value, depth: usize) -> Result<()> {
         "orderedList",
         "codeBlock",
         "horizontalRule",
+        "pageBreak",
     ];
     if !["doc", "listItem"].contains(&kind) && !inline.contains(&kind) && !blocks.contains(&kind) {
         return Err(format!("Unsupported rich text node: {kind}"));
@@ -793,7 +804,7 @@ fn validate_node(node: &Value, depth: usize) -> Result<()> {
     }
     if let Some(marks) = node.get("marks") {
         for mark in marks.as_array().ok_or("Invalid text marks")? {
-            if !["bold", "italic", "underline", "strike", "code", "link"]
+            if !["bold", "italic", "underline", "strike", "code", "link", "textFormat"]
                 .contains(&mark.get("type").and_then(Value::as_str).unwrap_or(""))
             {
                 return Err("Unsupported text formatting".into());
@@ -852,6 +863,7 @@ mod tests {
             updated_at: "2026-10-14".into(),
             revision: 1,
             order: vec![id.clone()],
+            extra: Default::default(),
             entries: vec![Entry {
                 id,
                 kind: "section".into(),
@@ -860,6 +872,7 @@ mod tests {
                 text: "Keep this.".into(),
                 updated_at: "2026-10-14".into(),
                 origin: None,
+                extra: Default::default(),
             }],
         }
     }
@@ -872,6 +885,7 @@ mod tests {
             text: text.into(),
             updated_at: "2026-10-14".into(),
             origin: None,
+            extra: Default::default(),
         }
     }
     /// Runs one mirror pass for `id` the way the background task and Retry do.
@@ -1293,6 +1307,7 @@ mod tests {
                     text: paras.join("\n"),
                     updated_at: "2026-10-16".into(),
                     origin: None,
+                extra: Default::default(),
                 }
             })
             .collect();
@@ -1300,6 +1315,20 @@ mod tests {
         p
     }
     /// `cargo test --release --manifest-path src-tauri/Cargo.toml bench_save -- --ignored --nocapture`
+    #[test]
+    fn extended_project_metadata_survives_save_and_restart() {
+        let t = tempfile::tempdir().unwrap();
+        let mut store = Store::new(t.path().into()).unwrap();
+        let mut p = project();
+        p.extra.insert("research".into(), serde_json::json!({"sources":[],"notes":[],"footnotes":[{"id":"note-1","text":"Evidence"}]}));
+        p.extra.insert("pageLayout".into(), serde_json::json!({"mode":"pages","paper":"letter","margin":96,"zoom":100}));
+        p.extra.insert("sidebarOrder".into(), serde_json::json!(["research","manuscript"]));
+        p.entries[0].extra.insert("tags".into(), serde_json::json!(["keep"]));
+        p.entries[0].content = serde_json::json!({"type":"doc","content":[{"type":"paragraph","attrs":{"lineHeight":"2"},"content":[{"type":"text","text":"Evidence","marks":[{"type":"textFormat","attrs":{"fontFamily":"Arial","fontSize":"12pt"}}]},{"type":"footnoteReference","attrs":{"id":"note-1"}}]},{"type":"pageBreak"},{"type":"paragraph"}]});
+        store.save(&p).unwrap();
+        let fresh = Store::new(t.path().into()).unwrap();
+        assert_eq!(fresh.load(&p.id).unwrap(), p);
+    }
     #[test]
     #[ignore]
     fn bench_save_100k_words() {

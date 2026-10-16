@@ -1,0 +1,178 @@
+.editor-settings {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  padding: 8px;
+  border-bottom: 1px solid var(--line);
+  margin-bottom: 20px;
+  font:
+    11px Futura,
+    system-ui,
+    sans-serif;
+}
+.editor-settings label {
+  display: inline-flex;
+  gap: 5px;
+  align-items: center;
+}
+.editor-settings input,
+.editor-settings select,
+.editor-settings button {
+  font: inherit;
+  color: var(--text);
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+  padding: 4px;
+}
+.editor-settings input {
+  width: 48px;
+  border-bottom: 1px solid var(--line);
+}
+.editor-settings select {
+  max-width: 120px;
+}
+.editor-settings button[aria-pressed="true"] {
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+.editor-viewport {
+  overflow: auto;
+  max-width: 100%;
+  padding: 2px;
+}
+.editor-paper .writing-surface {
+  font-family: Futura, system-ui, sans-serif;
+  font-size: 14pt;
+  line-height: 1.5;
+}
+.editor-paper .writing-surface p {
+  margin: 0;
+}
+.manual-page-break {
+  border-top: 1px dashed var(--muted);
+  height: 12px;
+  margin: 16px 0;
+}
+.manual-page-break::after {
+  content: "Page break";
+  font:
+    10px Futura,
+    system-ui,
+    sans-serif;
+  color: var(--muted);
+}
+.is-paged {
+  background: var(--surface, var(--line));
+  padding: 24px;
+}
+.is-paged .editor-paper {
+  padding: var(--page-margin);
+  width: calc(
+    var(--page-count) * (var(--page-width) + var(--page-gap)) - var(--page-gap)
+  );
+  min-height: var(--page-height);
+  box-sizing: border-box;
+  background: repeating-linear-gradient(
+    to right,
+    var(--paper) 0,
+    var(--paper) var(--page-width),
+    transparent var(--page-width),
+    transparent calc(var(--page-width) + var(--page-gap))
+  );
+}
+.is-paged .writing-surface {
+  width: var(--content-width);
+  height: var(--content-height);
+  min-height: 0;
+  padding: 0;
+  column-width: var(--content-width);
+  column-gap: calc(2 * var(--page-margin) + var(--page-gap));
+  column-fill: auto;
+  overflow: visible;
+}
+.is-paged .writing-surface p {
+  orphans: 2;
+  widows: 2;
+}
+.is-paged .writing-surface h1,
+.is-paged .writing-surface h2 {
+  break-after: avoid-column;
+}
+.is-paged .manual-page-break {
+  break-after: column;
+  height: 0;
+  border: 0;
+  margin: 0;
+}
+.is-paged .manual-page-break::after {
+  content: none;
+}
+@media print {
+  .format-bar,
+  .editor-settings {
+    display: none;
+  }
+  .editor-viewport,
+  .is-paged {
+    overflow: visible;
+    padding: 0;
+    background: none;
+  }
+  .is-paged .editor-paper {
+    width: auto;
+    padding: 0;
+    background: none;
+    zoom: 1 !important;
+  }
+  .is-paged .writing-surface {
+    width: auto;
+    height: auto;
+    columns: auto;
+  }
+  .manual-page-break {
+    break-after: page;
+  }
+}
+.editor-paper .writing-surface {
+  counter-reset: footnote;
+}
+.footnote-reference {
+  counter-increment: footnote;
+  color: var(--accent, var(--text));
+  cursor: pointer;
+}
+.footnote-reference::after {
+  content: counter(footnote);
+  font-size: 0.75em;
+  vertical-align: super;
+}
+.editor-tool-separator {
+  color: var(--muted);
+  padding: 0 7px;
+  font:
+    11px Futura,
+    system-ui,
+    sans-serif;
+}
+.editor-paper .writing-surface {
+  font-family: var(--document-font, Futura, system-ui, sans-serif);
+  font-size: var(--document-size, 14pt);
+  line-height: var(--document-line, 1.5);
+}
+.editor-paper .writing-surface p {
+  text-indent: var(--document-indent, 0);
+}
+.editor-paper .writing-surface [data-paragraph-style="scene"],
+.editor-paper .writing-surface [data-paragraph-style="character"] {
+  text-transform: uppercase;
+}
+.footnote-reference {
+  display: inline;
+  vertical-align: super;
+  font-size: 0.75em;
+}
+.footnote-reference::after {
+  content: none;
+}

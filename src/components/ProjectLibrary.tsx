@@ -1,4 +1,5 @@
-import { Feather, Plus, Trash2 } from "lucide-react";
+import { useState } from "react";
+import { ChevronDown, Layers, List, Trash2 } from "lucide-react";
 import type { Summary } from "../model";
 import type { DamagedJournal } from "../save-queue";
 import { desktop } from "../storage";
@@ -14,9 +15,11 @@ export function ProjectLibrary({
   damagedFolders,
   path,
   onSetAside,
+  templates,
 }: {
   projects: Summary[];
-  onCreate: () => void;
+  templates?: { id: string; name: string }[];
+  onCreate: (templateId?: string) => void;
   onOpen: (id: string) => void;
   onDelete: (project: Summary) => void;
   onImport: (file: File) => void;
@@ -27,33 +30,109 @@ export function ProjectLibrary({
   path: string;
   onSetAside: (id: string) => void;
 }) {
+  const [view, setView] = useState<"list" | "cards">("list");
+  const [sort, setSort] = useState("edited");
+  const [reverse, setReverse] = useState(false);
+  const [creating, setCreating] = useState(false);
+  const added = (p: Summary) =>
+    (p as Summary & { createdAt?: string }).createdAt;
+  const sorted = [...projects].sort((a, b) =>
+    sort === "name"
+      ? a.title.localeCompare(b.title)
+      : (sort === "added" ? (added(b) ?? "") : b.updatedAt).localeCompare(
+          sort === "added" ? (added(a) ?? "") : a.updatedAt,
+        ),
+  );
+  if (reverse) sorted.reverse();
+  const date = (value?: string) =>
+    value
+      ? new Date(value).toLocaleDateString(undefined, {
+          month: "short",
+          day: "numeric",
+          year: "numeric",
+        })
+      : "Unknown";
   return (
     <main className="library">
-      <div className="brand">
-        <Feather size={24} /> Personal Word<span>A place for your writing</span>
+      <div className="brand">Personal Word</div>
+      <div className="library-toolbar">
+        <h1>Projects</h1>
+        <div className="create-project">
+          <button
+            className="primary"
+            aria-expanded={creating}
+            onClick={() => setCreating(!creating)}
+          >
+            Start new project <ChevronDown size={14} />
+          </button>
+          {creating && (
+            <div
+              className="create-menu"
+              onKeyDown={(e) => {
+                if (e.key === "Escape") setCreating(false);
+              }}
+            >
+              {(
+                templates?.map((t) => [t.id, t.name]) ?? [
+                  ["blank", "Blank project"],
+                  ["essay", "Essay"],
+                  ["chicago", "Chicago essay"],
+                  ["screenplay", "Screenplay"],
+                  ["story", "Story"],
+                ]
+              ).map(([id, label]) => (
+                <button
+                  key={id}
+                  onClick={() => {
+                    setCreating(false);
+                    onCreate(id);
+                  }}
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+        <div className="library-display">
+          <label>
+            Sort{" "}
+            <select
+              aria-label="Sort projects"
+              value={sort}
+              onChange={(e) => setSort(e.target.value)}
+            >
+              <option value="name">Name</option>
+              <option value="added">Added</option>
+              <option value="edited">Last edited</option>
+            </select>
+          </label>
+          <button
+            aria-label="Reverse project sort order"
+            onClick={() => setReverse((value) => !value)}
+          >
+            {reverse ? "↑" : "↓"}
+          </button>
+          <button
+            aria-label={
+              view === "list" ? "Show project cards" : "Show project list"
+            }
+            onClick={() => setView(view === "list" ? "cards" : "list")}
+          >
+            {view === "list" ? <Layers size={17} /> : <List size={17} />}
+          </button>
+        </div>
       </div>
-      <div className="library-heading">
-        <div className="eyebrow">YOUR WORKSPACE</div>
-        <h1>Your writing.</h1>
-        <p>A place for every draft and every idea.</p>
-      </div>
-      <button className="primary" onClick={onCreate}>
-        <Plus size={17} /> New writing project
-      </button>
-      <div className="project-list">
-        {projects.map((p) => (
+      <div className={"project-list project-list--" + view}>
+        {sorted.map((p) => (
           <div className="project-row" key={p.id}>
             <button onClick={() => onOpen(p.id)}>
-              <span className="project-folder" aria-hidden="true">
-                <i />
+              <strong className="project-name">-- {p.title}</strong>
+              <span className="project-dates">
+                <span>Added {date(added(p))}</span>
+                <span>--</span>
+                <span>Last Edited {date(p.updatedAt)}</span>
               </span>
-              <span>
-                <strong>{p.title}</strong>
-                <small>
-                  Last written {new Date(p.updatedAt).toLocaleDateString()}
-                </small>
-              </span>
-              <span>→</span>
             </button>
             <button
               className="delete-entry"
@@ -61,10 +140,11 @@ export function ProjectLibrary({
               title="Delete project"
               onClick={() => onDelete(p)}
             >
-              <Trash2 size={16} />
+              <Trash2 size={14} />
             </button>
           </div>
         ))}
+        {!projects.length && <p className="library-empty">No projects yet.</p>}
       </div>
       {(damagedJournals.length > 0 || damagedFolders.length > 0) && (
         <div className="damaged" role="region" aria-label="Needs attention">
@@ -74,7 +154,7 @@ export function ProjectLibrary({
               <span>
                 <strong>Damaged recovery journal</strong>
                 <small>
-                  {d.key.replace("folio.recovery.", "")} · {d.message}
+                  {d.key.replace("folio.recovery.", "")} -- {d.message}
                 </small>
               </span>
               <button onClick={() => onExportJournal(d)}>Export</button>
@@ -109,7 +189,7 @@ export function ProjectLibrary({
       <p className="storage-note">
         {desktop
           ? "Your writing stays on this Mac."
-          : "Browser preview · writing is stored in this browser only."}
+          : "Browser preview -- writing is stored in this browser only."}
       </p>
     </main>
   );

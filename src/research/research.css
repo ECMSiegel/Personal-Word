@@ -1,0 +1,98 @@
+.research-panel {
+  font-family: var(--font-sans, -apple-system, BlinkMacSystemFont, sans-serif);
+  padding: 20px;
+  max-width: 780px;
+  margin: auto;
+}
+.research-panel button,
+.research-panel input,
+.research-panel textarea,
+.research-panel select {
+  font: inherit;
+  border-radius: 0;
+  padding: 7px;
+  border: 1px solid var(--line, #aaa);
+  background: var(--paper, #fff);
+  color: inherit;
+}
+.research-tabs {
+  display: flex;
+  gap: 8px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--line, #aaa);
+}
+.research-tabs button {
+  text-transform: capitalize;
+}
+.research-tabs button[aria-pressed="true"] {
+  font-weight: 700;
+  text-decoration: underline;
+}
+.research-form,
+.research-panel article {
+  display: grid;
+  gap: 10px;
+  margin-top: 16px;
+  padding: 14px 0;
+  border-top: 1px solid var(--line, #aaa);
+}
+.research-panel label {
+  display: grid;
+  gap: 5px;
+  font-size: 13px;
+}
+.research-panel textarea {
+  min-height: 85px;
+  resize: vertical;
+}
+.research-panel input[type="checkbox"] {
+  width: auto;
+}
+.research-panel p {
+  font-size: 13px;
+  line-height: 1.6;
+}
+.research-panel select {
+  max-width: 100%;
+}
+.citation-preview {
+  white-space: pre-wrap;
+}
+.research-help {
+  opacity: 0.7;
+}
+.template-picker {
+  display: grid;
+  gap: 8px;
+  padding: 18px;
+}
+.template-picker button {
+  text-align: left;
+  border-radius: 0;
+  padding: 10px;
+  background: transparent;
+  color: inherit;
+  border: 1px solid var(--line, #aaa);
+}
+.template-picker small {
+  display: block;
+  margin-top: 4px;
+  font-weight: 400;
+}
+
+.research-panel button {
+  border: 0;
+  background: transparent;
+  color: var(--accent);
+}
+.research-panel textarea,
+.research-panel input,
+.research-panel select {
+  border: 0;
+  border-bottom: 1px solid var(--line);
+}
+.export-preview {
+  width: 100%;
+  height: 540px;
+  border: 1px solid var(--line);
+}

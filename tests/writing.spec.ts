@@ -4,8 +4,12 @@ test("writer journey: project, rapid edits, sections, fragments, snapshots, rest
 }) => {
   const errors: string[] = [];
   page.on("pageerror", (e) => errors.push(e.message));
+  await page.addInitScript(() =>
+    localStorage.setItem("personal-word.restoreTabs", "true"),
+  );
   await page.goto("/");
-  await page.getByRole("button", { name: "New writing project" }).click();
+  await page.getByRole("button", { name: "Start new project" }).click();
+  await page.getByRole("button", { name: "Blank", exact: true }).click();
   await page.getByLabel("Project title").fill("The shape of a place");
   await page.getByRole("button", { name: "Save", exact: true }).click();
   const editor = page.getByRole("textbox", { name: "Writing editor" });
@@ -24,8 +28,7 @@ test("writer journey: project, rapid edits, sections, fragments, snapshots, rest
   await expect(editor).not.toContainText("The first paragraph belongs here.");
   await page
     .getByRole("button", {
-      name: "The first paragraph belongs here.",
-      exact: true,
+      name: /The first paragraph belongs here./,
     })
     .click();
   await expect(editor).toContainText("The first paragraph belongs here.");
@@ -40,8 +43,13 @@ test("writer journey: project, rapid edits, sections, fragments, snapshots, rest
   await page.reload();
   await expect(editor).toContainText("A completely different opening.");
   await page.getByRole("button", { name: "Move A second place up" }).click();
-  await page.getByRole("button", { name: "Snapshots & history" }).click();
-  await page.getByRole("button", { name: /Before workshop/ }).click();
+  await page
+    .getByRole("button", { name: "Snapshots & history", exact: true })
+    .click();
+  await page
+    .locator(".versions")
+    .getByRole("button", { name: /Before workshop/ })
+    .click();
   await page.getByRole("button", { name: "Restore this version" }).click();
   await expect(editor).toContainText("The first paragraph belongs here.");
   await page
@@ -58,8 +66,12 @@ test("writer journey: project, rapid edits, sections, fragments, snapshots, rest
   expect(errors).toEqual([]);
 });
 test("recovers a newer journal after an interrupted save", async ({ page }) => {
+  await page.addInitScript(() =>
+    localStorage.setItem("personal-word.restoreTabs", "true"),
+  );
   await page.goto("/");
-  await page.getByRole("button", { name: "New writing project" }).click();
+  await page.getByRole("button", { name: "Start new project" }).click();
+  await page.getByRole("button", { name: "Blank", exact: true }).click();
   await page.getByLabel("Project title").fill("Recovery");
   await page.getByRole("button", { name: "Save", exact: true }).click();
   await expect(page.getByText("Saved", { exact: true })).toBeVisible();
@@ -89,8 +101,12 @@ test("recovers a newer journal after an interrupted save", async ({ page }) => {
 test("five thousand words survive rapid section changes and drag reordering", async ({
   page,
 }) => {
+  await page.addInitScript(() =>
+    localStorage.setItem("personal-word.restoreTabs", "true"),
+  );
   await page.goto("/");
-  await page.getByRole("button", { name: "New writing project" }).click();
+  await page.getByRole("button", { name: "Start new project" }).click();
+  await page.getByRole("button", { name: "Blank", exact: true }).click();
   await page.getByLabel("Project title").fill("Long essay");
   await page.getByRole("button", { name: "Save", exact: true }).click();
   const editor = page.getByRole("textbox", { name: "Writing editor" });
@@ -119,6 +135,8 @@ test("five thousand words survive rapid section changes and drag reordering", as
   await expect(editor).toContainText("The last words remain.");
   await page.locator(".entry-main").filter({ hasText: "Opening" }).click();
   await expect(editor).toContainText("Paragraph 499");
-  await expect(page.locator(".sidebar-bottom")).toContainText("5,004 words");
+  await expect(page.locator(".document-statistics")).toContainText(
+    "5,000 words",
+  );
   await page.screenshot({ path: "test-results/writing-view.png" });
 });

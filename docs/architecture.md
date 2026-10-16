@@ -1,4 +1,4 @@
-# Folio: first milestone
+# Personal Word architecture
 
 A single-writer, Mac-first desktop application. Tauri 2 hosts React/TypeScript and Tiptap 3 (ProseMirror). Rust owns SQLite and file access. No network service, accounts, or AI. The browser development preview uses explicitly labeled browser storage, still one whole-project blob per save; it is not desktop persistence.
 
@@ -44,3 +44,9 @@ Opening a project still loads and validates every entry (about 45 ms of Rust for
 
 - https://v2.tauri.app/start/prerequisites/
 - https://tiptap.dev/docs/editor/getting-started/install/react
+
+## Expanded workspace (October 2026)
+
+See [the feature guide](personal-word-v2.md). Project headers now optionally carry document settings, page layout, research sources/notes, comments, and sidebar order. Entry metadata includes synopsis, drafting status, tags, and fragment usage. Rust Project/Header/Entry structs preserve these additive fields through flattened JSON metadata. The SQLite schema and legacy application identity remain unchanged.
+
+The editor and frontend validator share src/editor/extensions.ts. Page layout uses CSS multicolumn fragmentation; DOCX and PDF exporters walk the same rich text but use independent layout engines. UI composition stays in App.tsx; research, export, editor, and organization modules own their specific behaviors. Future work should extract App routing/state further before adding more destinations.

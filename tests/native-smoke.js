@@ -53,18 +53,27 @@
     );
   try {
     await wait(() => document.querySelector(".app"), "application mounted");
+    localStorage.setItem("personal-word.restoreTabs", "true");
     if (window.__SMOKE_PHASE__ === "1") {
       // Only clear the last-project navigation key in this isolated test application.
-      if (!button("New writing project")) {
+      if (!button("Start new project")) {
         await click(
           document.querySelector(".project-switch")?.textContent.trim(),
         );
       }
-      await click("New writing project");
+      await click("Start new project");
+      await click("Blank");
       await input("Project title", "Native durability check");
       await click("Save");
       await saved();
       steps.push("native project creation");
+      await type("Native page flow keeps the same editor and document. ".repeat(300));
+      await click("Continuous");
+      await wait(() => { const el=editor();return el?.querySelector("p")?.getClientRects().length>1; }, "native paragraph pagination");
+      const count=document.querySelector('[aria-label="Page count"]')?.textContent;
+      if(!count || !/of [2-9]/.test(count))throw Error("Native page count did not reflect overflowing text: "+count);
+      await click("Pages");
+      steps.push("native WebKit page fragmentation and continuous toggle");
       await type("Original prose kept for a fragment.");
       await wait(
         () => document.querySelector('[aria-label="New section"]'),

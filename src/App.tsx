@@ -5,7 +5,6 @@ import {
   Plus,
   History,
   PanelLeftClose,
-  PanelLeftOpen,
   X,
   Check,
   AlertCircle,
@@ -41,6 +40,30 @@ import { ProjectSidebar } from "./components/ProjectSidebar";
 
 import { ReadingProgress } from "./components/ReadingProgress";
 
+import { ReadDocument } from "./components/ReadDocument";
+import { footnoteText } from "./research/citations";
+import { ProjectTabs } from "./components/ProjectTabs";
+import { ResearchPanel } from "./research/ResearchPanel";
+import { defaultDocumentSettings } from "./research/types";
+import { writingTemplates, type WritingTemplate } from "./templates";
+import { ExportPanel } from "./export/ExportPanel";
+import { TemplatePicker } from "./research/TemplatePicker";
+import { CommentsPanel } from "./organization/CommentsPanel";
+import { FragmentLibrary } from "./organization/FragmentLibrary";
+import { RevisionComparison } from "./organization/RevisionComparison";
+import "./organization/organization.css";
+import {
+  importFragment,
+  mergeMissingResearch,
+} from "./organization/operations";
+
+function readPreference<T>(key: string, fallback: T): T {
+  try {
+    return JSON.parse(localStorage.getItem(key) ?? "null") ?? fallback;
+  } catch {
+    return fallback;
+  }
+}
 type NameDialog = {
   title: string;
   label: string;
@@ -59,6 +82,73 @@ type ChoiceDialog = {
 };
 export default function App() {
   const [editorEpoch, setEditorEpoch] = useState(0);
+  const [destination, setDestination] = useState("manuscript");
+  const [researchEpoch, setResearchEpoch] = useState(0);
+  const [researchTab, setResearchTab] = useState<
+    "sources" | "notes" | "footnotes"
+  >("sources");
+  const opening = useRef(false);
+  const editorRef = useRef<Editor | null>(null);
+  const pendingQuote = useRef<string>("");
+  const editorReady = useCallback((editor: Editor | null) => {
+    editorRef.current = editor;
+    if (editor && pendingQuote.current) {
+      const quote = pendingQuote.current;
+      pendingQuote.current = "";
+      let found = false;
+      editor.state.doc.descendants((node, pos) => {
+        if (found) return false;
+        if (node.isText) {
+          const at = node.text?.indexOf(quote) ?? -1;
+          if (at >= 0) {
+            editor.commands.setTextSelection({
+              from: pos + at,
+              to: pos + at + quote.length,
+            });
+            editor.commands.scrollIntoView();
+            found = true;
+          }
+        }
+        return !found;
+      });
+    }
+  }, []);
+  const [tabs, setTabs] = useState<{ id: string; title: string }[]>(() =>
+    readPreference("personal-word.restoreTabs", false)
+      ? readPreference("personal-word.tabs", [])
+      : [],
+  );
+  const [restoreTabs, setRestoreTabs] = useState(() =>
+    readPreference("personal-word.restoreTabs", false),
+  );
+  const [customTemplates, setCustomTemplates] = useState<WritingTemplate[]>(
+    () => readPreference("personal-word.templates", []),
+  );
+  const locations = useRef<
+    Record<
+      string,
+      { active: string; mode: "write" | "read"; destination: string }
+    >
+  >({});
+  const [reader, setReader] = useState(() =>
+    readPreference("personal-word.reader", {
+      font: "Futura, Avenir, sans-serif",
+      size: 18,
+      spacing: 1.6,
+    }),
+  );
+  useEffect(() => {
+    localStorage.setItem("personal-word.tabs", JSON.stringify(tabs));
+  }, [tabs]);
+  useEffect(() => {
+    localStorage.setItem(
+      "personal-word.templates",
+      JSON.stringify(customTemplates),
+    );
+  }, [customTemplates]);
+  useEffect(() => {
+    localStorage.setItem("personal-word.reader", JSON.stringify(reader));
+  }, [reader]);
   const [project, setProject] = useState<Project | null>(null);
   const current = useRef<Project | null>(null);
   const [library, setLibrary] = useState<Summary[]>([]);
@@ -72,7 +162,6 @@ export default function App() {
   const [mirrorError, setMirrorError] = useState("");
   const [notice, setNotice] = useState("");
   const [nameDialog, setNameDialog] = useState<NameDialog | null>(null);
-  const [focus, setFocus] = useState(false);
   const [query, setQuery] = useState("");
   const [versions, setVersions] = useState<Version[] | null>(null);
   const [history, setHistory] = useState(false);
@@ -132,12 +221,23 @@ export default function App() {
     (p: Project, pending: boolean) => {
       current.current = p;
       setProject(p);
-      setActive(p.order[0] ?? p.entries[0]?.id ?? "");
+      const location = locations.current[p.id];
+      setActive(
+        location?.active && p.entries.some((e) => e.id === location.active)
+          ? location.active
+          : (p.order[0] ?? p.entries[0]?.id ?? ""),
+      );
+      setDestination(location?.destination ?? "manuscript");
+      setTabs((tabs) =>
+        tabs.some((t) => t.id === p.id)
+          ? tabs.map((t) => (t.id === p.id ? { id: p.id, title: p.title } : t))
+          : [...tabs, { id: p.id, title: p.title }],
+      );
       setTarget(p.order[0] ?? "");
       setVersions(null);
       setPreview(null);
       setQuery("");
-      setMode("write");
+      setMode(location?.mode ?? "write");
       localStorage.setItem("folio.lastProject", p.id);
       if (pending) {
         queue.enqueue(p);
@@ -148,96 +248,102 @@ export default function App() {
   );
   const open = useCallback(
     async (id: string) => {
-      await queue.flush();
-      let saved: Project | null = null;
-      let failure: unknown;
+      if (opening.current) return;
+      opening.current = true;
       try {
-        saved = await storage.load(id);
-      } catch (e) {
-        failure = e;
-      }
-      let p: Project | null;
-      try {
-        p = queue.open(id, saved);
-      } catch (e) {
-        if (e instanceof RecoveryConflict) {
-          setChoice({
-            title: "Two copies of this project disagree.",
-            body:
-              "The saved copy and the recovery journal are both at revision " +
-              e.disk.revision +
-              " but hold different writing. Choose which to keep. Exporting the journal first saves it as a file you can import later.",
-            actions: [
-              {
-                label: "Export journal first",
-                keep: true,
-                run: () =>
-                  download(
-                    e.journal.title + " (recovery journal).json",
-                    JSON.stringify(e.journal, null, 2),
-                    "application/json",
-                  ),
-              },
-              {
-                label: "Keep disk copy",
-                run: () => {
-                  discardJournal(localStorage, id);
-                  queue.open(id, e.disk);
-                  enter(e.disk, false);
-                },
-              },
-              {
-                label: "Keep journal copy",
-                primary: true,
-                run: () => {
-                  discardJournal(localStorage, id);
-                  queue.open(id, e.disk);
-                  enter(
-                    {
-                      ...e.journal,
-                      revision: e.disk.revision + 1,
-                      updatedAt: now(),
-                    },
-                    true,
-                  );
-                },
-              },
-            ],
-          });
-          return;
+        await queue.flush();
+        let saved: Project | null = null;
+        let failure: unknown;
+        try {
+          saved = await storage.load(id);
+        } catch (e) {
+          failure = e;
         }
-        if (e instanceof DamagedJournal && saved) {
-          const disk = saved;
-          setChoice({
-            title: "The recovery journal for this project is damaged.",
-            body: "The saved copy opens fine. Export the journal's raw text if you want to look at it, or discard it and open the saved copy.",
-            actions: [
-              {
-                label: "Export journal",
-                keep: true,
-                run: () => download(e.key + ".txt", e.raw, "text/plain"),
-              },
-              {
-                label: "Discard and open",
-                primary: true,
-                run: () => {
-                  discardJournal(localStorage, id);
-                  queue.open(id, disk);
-                  enter(disk, false);
+        let p: Project | null;
+        try {
+          p = queue.open(id, saved);
+        } catch (e) {
+          if (e instanceof RecoveryConflict) {
+            setChoice({
+              title: "Two copies of this project disagree.",
+              body:
+                "The saved copy and the recovery journal are both at revision " +
+                e.disk.revision +
+                " but hold different writing. Choose which to keep. Exporting the journal first saves it as a file you can import later.",
+              actions: [
+                {
+                  label: "Export journal first",
+                  keep: true,
+                  run: () =>
+                    download(
+                      e.journal.title + " (recovery journal).json",
+                      JSON.stringify(e.journal, null, 2),
+                      "application/json",
+                    ),
                 },
-              },
-            ],
-          });
-          return;
+                {
+                  label: "Keep disk copy",
+                  run: () => {
+                    discardJournal(localStorage, id);
+                    queue.open(id, e.disk);
+                    enter(e.disk, false);
+                  },
+                },
+                {
+                  label: "Keep journal copy",
+                  primary: true,
+                  run: () => {
+                    discardJournal(localStorage, id);
+                    queue.open(id, e.disk);
+                    enter(
+                      {
+                        ...e.journal,
+                        revision: e.disk.revision + 1,
+                        updatedAt: now(),
+                      },
+                      true,
+                    );
+                  },
+                },
+              ],
+            });
+            return;
+          }
+          if (e instanceof DamagedJournal && saved) {
+            const disk = saved;
+            setChoice({
+              title: "The recovery journal for this project is damaged.",
+              body: "The saved copy opens fine. Export the journal's raw text if you want to look at it, or discard it and open the saved copy.",
+              actions: [
+                {
+                  label: "Export journal",
+                  keep: true,
+                  run: () => download(e.key + ".txt", e.raw, "text/plain"),
+                },
+                {
+                  label: "Discard and open",
+                  primary: true,
+                  run: () => {
+                    discardJournal(localStorage, id);
+                    queue.open(id, disk);
+                    enter(disk, false);
+                  },
+                },
+              ],
+            });
+            return;
+          }
+          throw saved ? e : failure;
         }
-        throw saved ? e : failure;
+        if (!p) throw failure;
+        enter(p, p !== saved || !!localStorage.getItem(journalKey(id)));
+        if (!saved)
+          setNotice(
+            "Opened a local recovery copy. Review your writing, then retry saving.",
+          );
+      } finally {
+        opening.current = false;
       }
-      if (!p) throw failure;
-      enter(p, p !== saved || !!localStorage.getItem(journalKey(id)));
-      if (!saved)
-        setNotice(
-          "Opened a local recovery copy. Review your writing, then retry saving.",
-        );
     },
     [enter, queue],
   );
@@ -246,7 +352,8 @@ export default function App() {
       await refreshLibrary();
       setPath(await storage.path());
       const last = localStorage.getItem("folio.lastProject");
-      if (last) await open(last);
+      if (last && readPreference("personal-word.restoreTabs", false))
+        await open(last);
     });
   }, [open, refreshLibrary, run]);
   useEffect(() => {
@@ -345,6 +452,7 @@ export default function App() {
           order: kind === "section" ? [...p.order, item.id] : p.order,
         }));
         setActive(item.id);
+        setDestination(kind === "fragment" ? "fragment-editor" : "manuscript");
         setMode("write");
       },
     });
@@ -371,7 +479,7 @@ export default function App() {
       }
       if (key === "\\") {
         event.preventDefault();
-        setFocus((f) => !f);
+        window.dispatchEvent(new Event("personal-word:toggle-sidebar"));
       }
       if (key === "k") {
         event.preventDefault();
@@ -391,6 +499,20 @@ export default function App() {
     window.addEventListener("keydown", handler);
     return () => window.removeEventListener("keydown", handler);
   });
+  useEffect(() => {
+    if (project) {
+      locations.current[project.id] = { active, mode, destination };
+      setTabs((tabs) =>
+        tabs.some((t) => t.id === project.id)
+          ? tabs.map((t) =>
+              t.id === project.id && t.title !== project.title
+                ? { ...t, title: project.title }
+                : t,
+            )
+          : [...tabs, { id: project.id, title: project.title }],
+      );
+    }
+  }, [project?.id, project?.title, active, mode, destination]);
   const item = project?.entries.find((e) => e.id === active);
   const rename = (e: Entry) =>
     setNameDialog({
@@ -462,6 +584,7 @@ export default function App() {
             discardJournal(localStorage, s.id);
             if (localStorage.getItem("folio.lastProject") === s.id)
               localStorage.removeItem("folio.lastProject");
+            setTabs((tabs) => tabs.filter((t) => t.id !== s.id));
             await refreshLibrary();
           },
         },
@@ -528,6 +651,14 @@ export default function App() {
     mutate((p) => ({
       ...p,
       entries: p.entries.map((e) => {
+        if (e.id === fragment.id)
+          return {
+            ...e,
+            uses: [
+              ...(e.uses ?? []),
+              { projectId: p.id, sectionId: target, date: now() },
+            ],
+          };
         if (e.id !== target) return e;
         const content = {
           type: "doc",
@@ -568,6 +699,8 @@ export default function App() {
       await queue.flush();
       setEditorEpoch((n) => n + 1);
       setActive(preview.order[0] ?? "");
+      setDestination("manuscript");
+      setMode("write");
       setPreview(null);
       setVersions(null);
       setNotice(
@@ -593,14 +726,58 @@ export default function App() {
     a.click();
     setTimeout(() => URL.revokeObjectURL(url), 1000);
   };
-  const create = () =>
+  const create = (templateId = "blank") =>
     setNameDialog({
       title: "A new writing project",
       label: "Project title",
       value: "",
       action: async (title) => {
         await queue.flush();
+        const template =
+          [...writingTemplates, ...customTemplates].find(
+            (t) => t.id === templateId,
+          ) ?? writingTemplates[0];
         const p = newProject(title);
+        p.templateId = template.id;
+        p.documentSettings = { ...template.settings };
+        p.entries = template.sections.map((section) => ({
+          ...entry("section", section.title),
+          content: structuredClone(section.content),
+          text: textOf(section.content),
+        }));
+        p.order = p.entries.map((e) => e.id);
+        if (template.id === "chicago") {
+          p.entries[0].content = {
+            type: "doc",
+            content: [
+              {
+                type: "paragraph",
+                attrs: {
+                  textAlign: "center",
+                  firstLineIndent: "0",
+                  spaceBefore: "144pt",
+                  spaceAfter: "48pt",
+                },
+                content: [{ type: "text", text: title }],
+              },
+              ...["[Your name]", "[Course]", "[Instructor]", "[Date]"].map(
+                (text) => ({
+                  type: "paragraph",
+                  attrs: { textAlign: "center", firstLineIndent: "0" },
+                  content: [{ type: "text", text }],
+                }),
+              ),
+            ],
+          };
+          p.entries[0].text = textOf(p.entries[0].content);
+        }
+        p.pageLayout = {
+          mode: template.id === "chicago" ? "pages" : "continuous",
+          paper: "letter",
+          margin: template.settings.marginInches * 96,
+          zoom: 100,
+        };
+        setDestination("manuscript");
         setVersions(null);
         setPreview(null);
         setQuery("");
@@ -633,519 +810,1020 @@ export default function App() {
     localStorage.setItem("folio.lastProject", imported.id);
     await queue.flush();
   };
+  const goLibrary = () =>
+    void run(async () => {
+      await saveAll();
+      await refreshLibrary();
+      current.current = null;
+      setProject(null);
+      setDestination("manuscript");
+    });
+  const addAnnotation = (kind: "comment" | "task" = "task") => {
+    const editor = editorRef.current;
+    const quote =
+      editor && !editor.state.selection.empty
+        ? editor.state.doc.textBetween(
+            editor.state.selection.from,
+            editor.state.selection.to,
+            "\n",
+          )
+        : "";
+    const entryId = active;
+    setNameDialog({
+      title: kind === "comment" ? "Comment on selection" : "Add revision task",
+      label: "Note",
+      value: "",
+      action: (text) =>
+        mutate((p) => ({
+          ...p,
+          annotations: [
+            ...(p.annotations ?? []),
+            {
+              id: crypto.randomUUID(),
+              entryId,
+              quote,
+              text,
+              resolved: false,
+              createdAt: now(),
+              kind,
+            },
+          ],
+        })),
+    });
+  };
+  const restoreEntry = (old: Entry, blockIndex?: number) =>
+    void run(async () => {
+      await queue.flush();
+      await storage.snapshot(current.current!.id, "Before restoring passage");
+      mutate((p) => {
+        const live = p.entries.find((e) => e.id === old.id);
+        let replacement = structuredClone(old);
+        if (blockIndex !== undefined && live) {
+          const blocks = [...(live.content.content ?? [])];
+          blocks.splice(
+            blockIndex,
+            1,
+            structuredClone(old.content.content![blockIndex]),
+          );
+          replacement = { ...live, content: { type: "doc", content: blocks } };
+          replacement.text = textOf(replacement.content);
+        }
+        replacement.updatedAt = now();
+        return {
+          ...p,
+          entries: live
+            ? p.entries.map((e) => (e.id === old.id ? replacement : e))
+            : [...p.entries, replacement],
+          order:
+            !live && old.kind === "section" ? [...p.order, old.id] : p.order,
+          research: mergeMissingResearch(p.research, preview?.research),
+        };
+      });
+      await queue.flush();
+      setEditorEpoch((n) => n + 1);
+      setPreview(null);
+      setNotice("Restored with a safety snapshot.");
+    });
+  const insertFootnote = (id: string) => {
+    const editor = editorRef.current;
+    if (editor)
+      editor
+        .chain()
+        .focus()
+        .insertContent({ type: "footnoteReference", attrs: { id } })
+        .run();
+  };
+  const saveTemplate = () =>
+    setNameDialog({
+      title: "Save reusable template",
+      label: "Template name",
+      value: "",
+      action: (name) => {
+        const p = current.current!;
+        setCustomTemplates((items) => [
+          ...items,
+          {
+            id: crypto.randomUUID(),
+            name,
+            description: "Your saved section structure and document settings.",
+            custom: true,
+            settings: p.documentSettings ?? defaultDocumentSettings,
+            sections: p.order.map((id) => ({
+              title: p.entries.find((e) => e.id === id)!.title,
+              content: { type: "doc", content: [{ type: "paragraph" }] },
+            })),
+          },
+        ]);
+      },
+    });
+  const footnoteNumbers: Record<string, number> = {};
+  const numberNotes = (node: {
+    type?: string;
+    attrs?: Record<string, any>;
+    content?: any[];
+  }) => {
+    if (
+      node.type === "footnoteReference" &&
+      node.attrs?.id &&
+      !footnoteNumbers[node.attrs.id]
+    )
+      footnoteNumbers[node.attrs.id] = Object.keys(footnoteNumbers).length + 1;
+    node.content?.forEach(numberNotes);
+  };
+  project?.order.forEach((id) => {
+    const entry = project.entries.find((e) => e.id === id);
+    if (entry) numberNotes(entry.content);
+  });
   const sections =
     project?.order
       .map((id) => project.entries.find((e) => e.id === id)!)
       .filter(Boolean) ?? [];
   return (
-    <div className={"app " + (focus ? "focus" : "")}>
-      {!project ? (
-        <ProjectLibrary
-          projects={library}
-          onCreate={create}
-          onOpen={(id) => void run(() => open(id))}
-          onDelete={removeProject}
-          onImport={(file) => void run(() => importProject(file))}
-          damagedJournals={damagedJournals}
-          onExportJournal={(d) => download(d.key + ".txt", d.raw, "text/plain")}
-          onDiscardJournal={(d) =>
-            void run(async () => {
-              discardJournal(localStorage, d.key.slice(journalKey("").length));
+    <div className="app-shell">
+      <ProjectTabs
+        tabs={tabs}
+        activeId={project?.id ?? ""}
+        onSelect={(id) => void run(() => open(id))}
+        onLibrary={goLibrary}
+        onClose={(id) =>
+          void run(async () => {
+            await queue.flush();
+            setTabs((t) => t.filter((x) => x.id !== id));
+            if (project?.id === id) {
               await refreshLibrary();
-            })
-          }
-          damagedFolders={damagedFolders}
-          path={path}
-          onSetAside={(id) =>
-            void run(async () => {
-              await storage.delete(id);
-              await refreshLibrary();
-            })
-          }
-        />
-      ) : (
-        <>
-          <ProjectSidebar
-            project={project}
-            active={active}
-            mode={mode}
-            query={query}
-            onQuery={setQuery}
-            onLibrary={() =>
+              current.current = null;
+              setProject(null);
+            }
+          })
+        }
+      />
+      <div className="app">
+        {!project ? (
+          <ProjectLibrary
+            projects={library}
+            templates={[...writingTemplates, ...customTemplates].map((t) => ({
+              id: t.id,
+              name: t.name,
+            }))}
+            onCreate={create}
+            onOpen={(id) => void run(() => open(id))}
+            onDelete={removeProject}
+            onImport={(file) => void run(() => importProject(file))}
+            damagedJournals={damagedJournals}
+            onExportJournal={(d) =>
+              download(d.key + ".txt", d.raw, "text/plain")
+            }
+            onDiscardJournal={(d) =>
               void run(async () => {
-                await saveAll();
+                discardJournal(
+                  localStorage,
+                  d.key.slice(journalKey("").length),
+                );
                 await refreshLibrary();
-                current.current = null;
-                setProject(null);
-                localStorage.removeItem("folio.lastProject");
               })
             }
-            onAdd={add}
-            onSelect={(id) => {
-              setActive(id);
-              setMode("write");
-            }}
-            onRename={rename}
-            onReorder={reorder}
-            onRead={() => setMode("read")}
-            onVersions={() => showVersions()}
+            damagedFolders={damagedFolders}
+            path={path}
+            onSetAside={(id) =>
+              void run(async () => {
+                await storage.delete(id);
+                await refreshLibrary();
+              })
+            }
           />
-          <main className="workspace" aria-busy={busy}>
-            <header className="topbar">
-              <div>
-                <button
-                  aria-label="Toggle focus mode"
-                  title="Focus mode (⌘\\)"
-                  onClick={() => setFocus(!focus)}
-                >
-                  {focus ? (
-                    <PanelLeftOpen size={18} />
-                  ) : (
-                    <PanelLeftClose size={18} />
-                  )}
-                </button>
-                <span className="breadcrumb">
+        ) : (
+          <>
+            <ProjectSidebar
+              key={project.id}
+              project={project}
+              activeDestination={destination}
+              groupOrder={project.sidebarOrder}
+              onGroupOrder={(sidebarOrder) =>
+                mutate((p) => ({ ...p, sidebarOrder }))
+              }
+              onDestination={(id) => {
+                setDestination(id);
+                if (id === "read") setMode("read");
+                else if (id !== "history") setMode("write");
+              }}
+              onEntryDetails={(id, patch) =>
+                mutate((p) => ({
+                  ...p,
+                  entries: p.entries.map((e) =>
+                    e.id === id ? { ...e, ...patch } : e,
+                  ),
+                }))
+              }
+              collectionItems={{
+                research: (project.research?.notes ?? []).map((n) => ({
+                  id: n.id,
+                  title: n.text.slice(0, 70) || "Research note",
+                  detail: n.kind,
+                })),
+                comments: (project.annotations ?? [])
+                  .filter((a) => !a.resolved)
+                  .map((a) => ({ id: a.id, title: a.text })),
+                history: (versions ?? []).map((v) => ({
+                  id: v.id,
+                  title: v.name,
+                })),
+              }}
+              onCollectionSelect={(group, id) => {
+                setDestination(group);
+                setMode("write");
+                if (group === "history")
+                  void run(async () => {
+                    setPreview(await storage.version(project.id, id, history));
+                    setPreviewName(
+                      versions?.find((v) => v.id === id)?.name ?? "Snapshot",
+                    );
+                  });
+                if (group === "research") {
+                  setResearchTab("notes");
+                  setResearchEpoch((n) => n + 1);
+                }
+              }}
+              onCollectionAdd={(group) => {
+                if (group === "comments") addAnnotation();
+                else if (group === "history") snapshot();
+                else {
+                  setDestination(group);
+                  setMode("write");
+                  setResearchTab("notes");
+                  setResearchEpoch((n) => n + 1);
+                  mutate((p) => ({
+                    ...p,
+                    research: {
+                      ...(p.research ?? {
+                        sources: [],
+                        notes: [],
+                        footnotes: [],
+                      }),
+                      notes: [
+                        ...(p.research?.notes ?? []),
+                        { id: crypto.randomUUID(), kind: "personal", text: "" },
+                      ],
+                    },
+                  }));
+                }
+              }}
+              active={active}
+              mode={mode}
+              query={query}
+              onQuery={setQuery}
+              onLibrary={() =>
+                void run(async () => {
+                  await saveAll();
+                  await refreshLibrary();
+                  current.current = null;
+                  setProject(null);
+                  localStorage.removeItem("folio.lastProject");
+                })
+              }
+              onAdd={add}
+              onSelect={(id) => {
+                setActive(id);
+                setDestination(
+                  project.entries.find((e) => e.id === id)?.kind === "fragment"
+                    ? "fragment-editor"
+                    : "manuscript",
+                );
+                setMode("write");
+              }}
+              onRename={rename}
+              onReorder={reorder}
+              onRead={() => {
+                setMode("read");
+                setDestination("read");
+              }}
+              onVersions={() => showVersions()}
+            />
+            <main className="workspace" aria-busy={busy}>
+              <header className="topbar">
+                <div>
                   <button
-                    className="breadcrumb-title"
-                    title="Rename project"
-                    aria-label="Rename project"
-                    onClick={renameProject}
-                  >
-                    {project.title}
-                  </button>
-                  <span>/</span>
-                  {mode === "read"
-                    ? "Manuscript"
-                    : item?.kind === "fragment"
-                      ? "Fragments"
-                      : "Manuscript"}
-                </span>
-              </div>
-              <div>
-                <span className={"save-status " + status.state}>
-                  {status.state === "saved" ? (
-                    <Check size={13} />
-                  ) : status.state === "error" ? (
-                    <AlertCircle size={13} />
-                  ) : (
-                    <span className="save-dot" />
-                  )}
-                  {status.state === "saved"
-                    ? "Saved"
-                    : status.state === "pending"
-                      ? "Unsaved edits"
-                      : status.state === "saving"
-                        ? "Saving…"
-                        : "Save failed"}
-                </span>
-                <button className="snapshot-button" onClick={snapshot}>
-                  <History size={15} /> Snapshot
-                </button>
-                <button
-                  aria-label="Export portable project"
-                  title="Export complete project JSON"
-                  onClick={() =>
-                    download(
-                      project.title + ".json",
-                      JSON.stringify(current.current, null, 2),
-                      "application/json",
-                    )
-                  }
-                >
-                  <Download size={17} />
-                </button>
-              </div>
-            </header>
-            <ReadingProgress identity={project.id + mode + active} />
-            {mode === "read" && sections.length > 1 && (
-              <nav className="proximity-nav" aria-label="Manuscript sections">
-                {sections.map((section) => (
-                  <button
-                    key={section.id}
-                    aria-label={"Jump to " + section.title}
+                    aria-label="Toggle sidebar"
+                    title="Toggle sidebar (⌘\\)"
                     onClick={() =>
-                      document
-                        .getElementById("read-" + section.id)
-                        ?.scrollIntoView({
-                          behavior: window.matchMedia(
-                            "(prefers-reduced-motion: reduce)",
-                          ).matches
-                            ? "instant"
-                            : "smooth",
-                          block: "start",
-                        })
+                      window.dispatchEvent(
+                        new Event("personal-word:toggle-sidebar"),
+                      )
                     }
                   >
-                    <span>{section.title}</span>
-                    <i aria-hidden="true" />
+                    <PanelLeftClose size={18} />
                   </button>
-                ))}
-              </nav>
-            )}
-            {mode === "read" ? (
-              <div className="manuscript-read">
-                <div className="eyebrow">CONTINUOUS MANUSCRIPT · READ ONLY</div>
-                <h1>{project.title}</h1>
-                <button
-                  className="text-button"
-                  onClick={() =>
-                    download(
-                      project.title + ".txt",
-                      sections
-                        .map((e) => e.title + "\n\n" + e.text)
-                        .join("\n\n"),
-                      "text/plain",
-                    )
-                  }
-                >
-                  Export plain text <Download size={13} />
-                </button>
-                {sections.map((e) => (
-                  <section key={e.id} id={"read-" + e.id}>
+                  <span className="breadcrumb">
                     <button
-                      className="read-title"
-                      onClick={() => {
-                        setActive(e.id);
-                        setMode("write");
+                      className="breadcrumb-title"
+                      title="Rename project"
+                      aria-label="Rename project"
+                      onClick={renameProject}
+                    >
+                      {project.title}
+                    </button>
+                    <span>/</span>
+                    {mode === "read"
+                      ? "Manuscript"
+                      : item?.kind === "fragment"
+                        ? "Fragments"
+                        : "Manuscript"}
+                  </span>
+                </div>
+                <div>
+                  <span className={"save-status " + status.state}>
+                    {status.state === "saved" ? (
+                      <Check size={13} />
+                    ) : status.state === "error" ? (
+                      <AlertCircle size={13} />
+                    ) : (
+                      <span className="save-dot" />
+                    )}
+                    {status.state === "saved"
+                      ? "Saved"
+                      : status.state === "pending"
+                        ? "Unsaved edits"
+                        : status.state === "saving"
+                          ? "Saving…"
+                          : "Save failed"}
+                  </span>
+                  <button className="snapshot-button" onClick={snapshot}>
+                    <History size={15} /> Snapshot
+                  </button>
+                  <button
+                    aria-label="Export portable project"
+                    title="Export complete project JSON"
+                    onClick={() =>
+                      download(
+                        project.title + ".json",
+                        JSON.stringify(current.current, null, 2),
+                        "application/json",
+                      )
+                    }
+                  >
+                    <Download size={17} />
+                  </button>
+                </div>
+              </header>
+              <ReadingProgress identity={project.id + mode + active} />
+              {mode === "read" && sections.length > 1 && (
+                <nav className="proximity-nav" aria-label="Manuscript sections">
+                  {sections.map((section) => (
+                    <button
+                      key={section.id}
+                      aria-label={"Jump to " + section.title}
+                      onClick={() =>
+                        document
+                          .getElementById("read-" + section.id)
+                          ?.scrollIntoView({
+                            behavior: window.matchMedia(
+                              "(prefers-reduced-motion: reduce)",
+                            ).matches
+                              ? "instant"
+                              : "smooth",
+                            block: "start",
+                          })
+                      }
+                    >
+                      <span>{section.title}</span>
+                      <i aria-hidden="true" />
+                    </button>
+                  ))}
+                </nav>
+              )}
+              {destination === "settings" ? (
+                <div className="project-settings">
+                  <h1>Project settings</h1>
+                  <label>
+                    <input
+                      type="checkbox"
+                      checked={restoreTabs}
+                      onChange={(e) => {
+                        setRestoreTabs(e.target.checked);
+                        localStorage.setItem(
+                          "personal-word.restoreTabs",
+                          JSON.stringify(e.target.checked),
+                        );
                       }}
-                    >
-                      {e.title} <span>↗</span>
-                    </button>
-                    <div className="read-prose">
-                      {e.text || "This section is waiting for words."}
-                    </div>
-                  </section>
-                ))}
-              </div>
-            ) : item ? (
-              <div className="editor-scroll">
-                <div className="document-heading">
+                    />{" "}
+                    Restore open project tabs at launch
+                  </label>
+                  <p>Default startup opens Projects.</p>
+                  <button title={path} onClick={() => setNotice(path)}>
+                    Local storage
+                  </button>
+                  <ExportPanel
+                    project={project}
+                    onSettingsChange={(documentSettings) =>
+                      mutate((p) => ({
+                        ...p,
+                        documentSettings,
+                        pageLayout: p.pageLayout
+                          ? {
+                              ...p.pageLayout,
+                              margin: documentSettings.marginInches * 96,
+                            }
+                          : p.pageLayout,
+                      }))
+                    }
+                  />
+                  <TemplatePicker
+                    onChoose={(template) => create(template.id)}
+                    customTemplates={customTemplates}
+                    onSaveCurrent={saveTemplate}
+                    onDeleteCustom={(id) =>
+                      setCustomTemplates((items) =>
+                        items.filter((t) => t.id !== id),
+                      )
+                    }
+                  />
+                </div>
+              ) : destination === "comments" ? (
+                <CommentsPanel
+                  project={project}
+                  onChange={(annotations) =>
+                    mutate((p) => ({ ...p, annotations }))
+                  }
+                  onAdd={() => addAnnotation()}
+                  onJump={(id, quote) => {
+                    pendingQuote.current = quote;
+                    setActive(id);
+                    setMode("write");
+                    setDestination("manuscript");
+                    setNotice(quote ? "Passage: " + quote : "Opened section.");
+                  }}
+                />
+              ) : mode === "read" ? (
+                <div className="manuscript-read">
+                  <div
+                    className="reader-options"
+                    role="toolbar"
+                    aria-label="Reading display"
+                  >
+                    <label>
+                      Font
+                      <select
+                        value={reader.font}
+                        onChange={(e) =>
+                          setReader({ ...reader, font: e.target.value })
+                        }
+                      >
+                        <option value="Futura, Avenir, sans-serif">
+                          Futura / Avenir
+                        </option>
+                        <option value="-apple-system, sans-serif">
+                          System sans
+                        </option>
+                        <option value="Georgia, serif">Georgia</option>
+                        <option value="monospace">Monospace</option>
+                      </select>
+                    </label>
+                    <label>
+                      Size
+                      <input
+                        aria-label="Reading font size"
+                        type="number"
+                        min="10"
+                        max="48"
+                        value={reader.size}
+                        onChange={(e) =>
+                          setReader({ ...reader, size: Number(e.target.value) })
+                        }
+                      />
+                    </label>
+                    <label>
+                      Line spacing
+                      <input
+                        aria-label="Reading line spacing"
+                        type="number"
+                        min="1"
+                        max="3"
+                        step="0.1"
+                        value={reader.spacing}
+                        onChange={(e) =>
+                          setReader({
+                            ...reader,
+                            spacing: Math.max(
+                              1,
+                              Math.min(3, Number(e.target.value) || 1.6),
+                            ),
+                          })
+                        }
+                      />
+                    </label>
+                  </div>
                   <div className="eyebrow">
-                    {item.kind === "fragment"
-                      ? "FRAGMENT"
-                      : `SECTION ${project.order.indexOf(item.id) + 1} OF ${sections.length}`}
+                    CONTINUOUS MANUSCRIPT -- READ ONLY
                   </div>
-                  <div className="document-title-row">
-                    <button
-                      className="document-title"
-                      title="Rename"
-                      onClick={() => rename(item)}
-                    >
-                      {item.title}
-                    </button>
-                    <button
-                      className="delete-entry"
-                      title={"Delete " + item.kind}
-                      aria-label={"Delete " + item.kind}
-                      onClick={() => remove(item)}
-                    >
-                      <Trash2 size={15} />
-                    </button>
+                  <h1>{project.title}</h1>
+                  <button
+                    className="text-button"
+                    onClick={() =>
+                      download(
+                        project.title + ".txt",
+                        sections
+                          .map((e) => e.title + "\n\n" + e.text)
+                          .join("\n\n"),
+                        "text/plain",
+                      )
+                    }
+                  >
+                    Export plain text <Download size={13} />
+                  </button>
+                  {sections.map((e) => (
+                    <section key={e.id} id={"read-" + e.id}>
+                      <button
+                        className="read-title"
+                        onClick={() => {
+                          setActive(e.id);
+                          setMode("write");
+                        }}
+                      >
+                        {e.title} <span>↗</span>
+                      </button>
+                      <div
+                        className="read-prose"
+                        style={{
+                          fontFamily: reader.font,
+                          fontSize: reader.size,
+                          lineHeight: reader.spacing,
+                        }}
+                      >
+                        {e.text ? (
+                          <ReadDocument
+                            content={e.content}
+                            numbers={footnoteNumbers}
+                          />
+                        ) : (
+                          "This section is waiting for words."
+                        )}
+                      </div>
+                    </section>
+                  ))}
+                  {project.research &&
+                    Object.keys(footnoteNumbers).length > 0 && (
+                      <section className="reader-footnotes">
+                        <h2>Notes</h2>
+                        {Object.entries(footnoteNumbers).map(([id, number]) => {
+                          const note = project.research!.footnotes.find(
+                            (n) => n.id === id,
+                          );
+                          return (
+                            <p key={id}>
+                              <sup>{number}</sup>{" "}
+                              {note
+                                ? footnoteText(note, project.research!)
+                                : "Missing note"}
+                            </p>
+                          );
+                        })}
+                      </section>
+                    )}
+                </div>
+              ) : item ? (
+                <div className="editor-scroll">
+                  <div className="document-heading">
+                    <div className="document-title-row">
+                      <button
+                        className="document-title"
+                        title="Rename"
+                        onClick={() => rename(item)}
+                      >
+                        {item.title}
+                      </button>
+                      <button
+                        className="delete-entry"
+                        title={"Delete " + item.kind}
+                        aria-label={"Delete " + item.kind}
+                        onClick={() => remove(item)}
+                      >
+                        <Trash2 size={15} />
+                      </button>
+                    </div>
+                    {item.origin && (
+                      <p className="origin">
+                        Kept from “{item.origin.sectionTitle}” --{" "}
+                        {new Date(item.origin.removedAt).toLocaleDateString()}
+                      </p>
+                    )}
                   </div>
-                  {item.origin && (
-                    <p className="origin">
-                      Kept from “{item.origin.sectionTitle}” ·{" "}
-                      {new Date(item.origin.removedAt).toLocaleDateString()}
-                    </p>
+                  <Writer
+                    key={item.id + ":" + editorEpoch}
+                    item={item}
+                    documentSettings={project.documentSettings}
+                    footnoteNumbers={footnoteNumbers}
+                    onFootnote={() => {
+                      setResearchEpoch((n) => n + 1);
+                      setResearchTab("footnotes");
+                      setDestination("research");
+                    }}
+                    layout={project.pageLayout}
+                    onLayoutChange={(pageLayout) =>
+                      mutate((p) => ({
+                        ...p,
+                        pageLayout,
+                        documentSettings: {
+                          ...(p.documentSettings ?? defaultDocumentSettings),
+                          marginInches: pageLayout.margin / 96,
+                        },
+                      }))
+                    }
+                    onEditorReady={editorReady}
+                    onExtract={extract}
+                    onLink={(value, apply) =>
+                      setNameDialog({
+                        title: value ? "Edit link" : "Add link",
+                        label: "Link address",
+                        value: value || "https://",
+                        action: (url) => {
+                          if (!/^https?:\/\//i.test(url))
+                            throw new Error(
+                              "Links must start with http:// or https://",
+                            );
+                          apply(url);
+                        },
+                      })
+                    }
+                    onEdit={(content, text) =>
+                      mutate((p) => ({
+                        ...p,
+                        entries: p.entries.map((e) =>
+                          e.id === item.id
+                            ? { ...e, content, text, updatedAt: now() }
+                            : e,
+                        ),
+                      }))
+                    }
+                  />
+                  <button
+                    className="text-button"
+                    onClick={() => addAnnotation("comment")}
+                  >
+                    Comment on selection
+                  </button>
+                  {item.kind === "fragment" && (
+                    <div className="restore-fragment">
+                      <span>Give these words a home</span>
+                      <select
+                        aria-label="Restore fragment to section"
+                        value={target}
+                        onChange={(e) => setTarget(e.target.value)}
+                      >
+                        <option value="">Choose a section</option>
+                        {sections.map((e) => (
+                          <option key={e.id} value={e.id}>
+                            {e.title}
+                          </option>
+                        ))}
+                      </select>
+                      <button disabled={!target} onClick={restoreFragment}>
+                        Append to section →
+                      </button>
+                    </div>
                   )}
                 </div>
-                <Writer
-                  key={item.id + ":" + editorEpoch}
-                  item={item}
-                  onExtract={extract}
-                  onLink={(value, apply) =>
-                    setNameDialog({
-                      title: value ? "Edit link" : "Add link",
-                      label: "Link address",
-                      value: value || "https://",
-                      action: (url) => {
-                        if (!/^https?:\/\//i.test(url))
-                          throw new Error(
-                            "Links must start with http:// or https://",
-                          );
-                        apply(url);
-                      },
-                    })
-                  }
-                  onEdit={(content, text) =>
+              ) : (
+                <div className="empty-editor">
+                  <h1>A little room to begin.</h1>
+                  <button className="primary" onClick={() => add("section")}>
+                    Create a section
+                  </button>
+                </div>
+              )}
+              <footer className="document-statistics">
+                <span title={`${item?.text.length ?? 0} characters`}>
+                  {(mode === "read"
+                    ? sections.reduce((n, e) => n + words(e.text), 0)
+                    : words(item?.text ?? "")
+                  ).toLocaleString()}{" "}
+                  words
+                </span>
+              </footer>
+            </main>
+            {destination === "fragments" && (
+              <aside className="research-aside fragment-aside">
+                <header>
+                  <strong>Fragment library</strong>
+                  <button
+                    aria-label="Close fragment library"
+                    onClick={() => setDestination("manuscript")}
+                  >
+                    <X size={16} />
+                  </button>
+                </header>
+                <FragmentLibrary
+                  project={project}
+                  onOpen={(id) => {
+                    setActive(id);
+                    setDestination("fragment-editor");
+                    setMode("write");
+                  }}
+                  onTags={(id, tags) =>
                     mutate((p) => ({
                       ...p,
                       entries: p.entries.map((e) =>
-                        e.id === item.id
-                          ? { ...e, content, text, updatedAt: now() }
-                          : e,
+                        e.id === id ? { ...e, tags } : e,
                       ),
                     }))
                   }
+                  onCopy={(source, fragment) => {
+                    mutate((p) => importFragment(p, source, fragment));
+                    setNotice("Fragment copied with its source references.");
+                  }}
                 />
-                {item.kind === "fragment" && (
-                  <div className="restore-fragment">
-                    <span>Give these words a home</span>
-                    <select
-                      aria-label="Restore fragment to section"
-                      value={target}
-                      onChange={(e) => setTarget(e.target.value)}
-                    >
-                      <option value="">Choose a section</option>
-                      {sections.map((e) => (
-                        <option key={e.id} value={e.id}>
-                          {e.title}
-                        </option>
-                      ))}
-                    </select>
-                    <button disabled={!target} onClick={restoreFragment}>
-                      Append to section →
-                    </button>
-                  </div>
-                )}
-              </div>
-            ) : (
-              <div className="empty-editor">
-                <h1>A little room to begin.</h1>
-                <button className="primary" onClick={() => add("section")}>
-                  Create a section
-                </button>
-              </div>
+              </aside>
             )}
-            <footer className="statusbar">
-              <span>
-                {mode === "read"
-                  ? "Read manuscript"
-                  : item?.kind === "fragment"
-                    ? "A fragment is a possibility."
-                    : "One section at a time."}
-              </span>
-              <div>
-                <span>{words(item?.text ?? "").toLocaleString()} words</span>
-                <span>
-                  {(item?.text.length ?? 0).toLocaleString()} characters
-                </span>
-                <button title={path} onClick={() => setNotice(path)}>
-                  Local storage
-                </button>
-              </div>
-            </footer>
-          </main>
-          {versions && (
-            <aside className="versions">
-              <div className="panel-heading">
-                <h2>Versions</h2>
-                <button
-                  aria-label="Close versions"
-                  onClick={() => {
-                    setVersions(null);
-                    setPreview(null);
+            {destination === "research" && (
+              <aside className="research-aside">
+                <header>
+                  <strong>Research</strong>
+                  <button
+                    aria-label="Close research"
+                    onClick={() => setDestination("manuscript")}
+                  >
+                    <X size={16} />
+                  </button>
+                </header>
+                <ResearchPanel
+                  key={researchEpoch}
+                  initialTab={researchTab}
+                  onInsertNote={(note) => {
+                    const editor = editorRef.current;
+                    if (!editor) return;
+                    const id = crypto.randomUUID();
+                    if (note.sourceId)
+                      mutate((p) => ({
+                        ...p,
+                        research: {
+                          ...(p.research ?? {
+                            sources: [],
+                            notes: [],
+                            footnotes: [],
+                          }),
+                          footnotes: [
+                            ...(p.research?.footnotes ?? []),
+                            {
+                              id,
+                              text: "",
+                              sourceId: note.sourceId,
+                              locator: note.locator,
+                            },
+                          ],
+                        },
+                      }));
+                    editor
+                      .chain()
+                      .focus()
+                      .insertContent([
+                        {
+                          type: "text",
+                          text:
+                            note.kind === "quote"
+                              ? "“" + note.text + "”"
+                              : note.text,
+                        },
+                        ...(note.sourceId
+                          ? [{ type: "footnoteReference", attrs: { id } }]
+                          : []),
+                      ])
+                      .run();
                   }}
-                >
-                  <X size={18} />
-                </button>
-              </div>
-              <div className="version-tabs">
-                <button
-                  className={!history ? "selected" : ""}
-                  onClick={() => showVersions(false)}
-                >
-                  Snapshots
-                </button>
-                <button
-                  className={history ? "selected" : ""}
-                  onClick={() => showVersions(true)}
-                >
-                  Recovery history
-                </button>
-              </div>
-              <p className="panel-help">
-                {history
-                  ? "Previous saved states, kept automatically."
-                  : "Milestones you chose to keep."}
-              </p>
-              {!history && (
-                <button className="primary" onClick={snapshot}>
-                  <Plus size={15} /> Create snapshot
-                </button>
-              )}
-              {versions.length === 0 && (
-                <p className="empty-hint">
-                  {history
-                    ? "History appears after your next save."
-                    : "Keep a version before taking a new direction."}
-                </p>
-              )}
-              {versions.map((v) => (
-                <button
-                  className="version-item"
-                  key={v.id}
-                  onClick={() =>
-                    void run(async () => {
-                      setPreview(
-                        await storage.version(project.id, v.id, history),
-                      );
-                      setPreviewName(v.name);
-                    })
+                  data={project.research}
+                  onChange={(research) => mutate((p) => ({ ...p, research }))}
+                  onInsertFootnote={
+                    editorRef.current ? insertFootnote : undefined
                   }
-                >
-                  <History size={15} />
-                  <span>
-                    <strong>{v.name}</strong>
-                    <small>{new Date(v.createdAt).toLocaleString()}</small>
-                  </span>
-                </button>
-              ))}
-            </aside>
-          )}
-        </>
-      )}
-      {(error || status.state === "error" || mirrorError) && (
-        <div className="error-banner" role="alert">
-          <AlertCircle size={17} />
-          <span>
-            {error || (status.state === "error" ? status.message : mirrorError)}
-          </span>
-          <button
-            onClick={() =>
-              void run(async () => {
-                await saveAll();
-                await refreshLibrary();
-              })
-            }
-          >
-            Retry
-          </button>
-          <button aria-label="Dismiss error" onClick={() => setError("")}>
-            <X size={16} />
-          </button>
-        </div>
-      )}
-      {notice && (
-        <div className="notice" role="status">
-          <span>{notice}</span>
-          <button
-            aria-label="Dismiss notification"
-            onClick={() => setNotice("")}
-          >
-            <X size={15} />
-          </button>
-        </div>
-      )}
-      {nameDialog && (
-        <div className="modal-backdrop">
-          <form
-            className="dialog"
-            role="dialog"
-            aria-modal="true"
-            onSubmit={(event) => {
-              event.preventDefault();
-              const dialog = nameDialog;
-              if (!dialog.value.trim() || busy) return;
-              setBusy(true);
-              void run(async () => {
-                await dialog.action(dialog.value.trim());
-                setNameDialog(null);
-              }).finally(() => setBusy(false));
-            }}
-          >
-            <div className="eyebrow">FOLIO</div>
-            <h2>{nameDialog.title}</h2>
-            <label>
-              {nameDialog.label}
-              <input
-                autoFocus
-                value={nameDialog.value}
-                onChange={(e) =>
-                  setNameDialog({ ...nameDialog, value: e.target.value })
-                }
-                onKeyDown={(e) => {
-                  if (e.key === "Escape") setNameDialog(null);
-                }}
-              />
-            </label>
-            <div className="dialog-actions">
-              <button
-                type="button"
-                disabled={busy}
-                onClick={() => setNameDialog(null)}
-              >
-                Cancel
-              </button>
-              <button
-                className="primary"
-                disabled={!nameDialog.value.trim() || busy}
-                type="submit"
-              >
-                {busy ? "Saving…" : "Save"}
-              </button>
-            </div>
-          </form>
-        </div>
-      )}
-      {choice && (
-        <div className="modal-backdrop">
-          <div className="dialog" role="dialog" aria-modal="true">
-            <div className="eyebrow">FOLIO</div>
-            <h2>{choice.title}</h2>
-            <p className="dialog-body">{choice.body}</p>
-            <div className="dialog-actions">
-              <button
-                type="button"
-                disabled={busy}
-                onClick={() => setChoice(null)}
-              >
-                Cancel
-              </button>
-              {choice.actions.map((a) => (
-                <button
-                  key={a.label}
-                  type="button"
-                  className={a.primary ? "primary" : ""}
-                  disabled={busy}
-                  onClick={() => {
-                    setBusy(true);
-                    void run(async () => {
-                      await a.run();
-                      if (!a.keep) setChoice(null);
-                    }).finally(() => setBusy(false));
-                  }}
-                >
-                  {a.label}
-                </button>
-              ))}
-            </div>
-          </div>
-        </div>
-      )}
-      {preview && (
-        <div className="modal-backdrop">
-          <div className="preview-dialog">
-            <div className="panel-heading">
-              <button onClick={() => setPreview(null)}>
-                <ArrowLeft size={16} /> Back
-              </button>
-              <span>READ-ONLY VERSION</span>
-            </div>
-            <h2>{previewName}</h2>
-            <p>Restoring keeps a safety snapshot of your current writing.</p>
-            <div className="preview-content">
-              {[
-                ...preview.order.map((id) =>
-                  preview.entries.find((e) => e.id === id)!,
-                ),
-                ...preview.entries.filter((e) => e.kind === "fragment"),
-              ].map((e) => (
-                <section key={e.id} id={"read-" + e.id}>
-                  <h3>
-                    {e.title}{" "}
-                    {e.kind === "fragment" && <small>· Fragment</small>}
-                  </h3>
-                  <div className="read-prose">{e.text}</div>
-                </section>
-              ))}
-            </div>
-            <button className="primary" onClick={restoreVersion}>
-              Restore this version
+                />
+              </aside>
+            )}
+            {versions && (
+              <aside className="versions">
+                <div className="panel-heading">
+                  <h2>Versions</h2>
+                  <button
+                    aria-label="Close versions"
+                    onClick={() => {
+                      setVersions(null);
+                      setPreview(null);
+                    }}
+                  >
+                    <X size={18} />
+                  </button>
+                </div>
+                <div className="version-tabs">
+                  <button
+                    className={!history ? "selected" : ""}
+                    onClick={() => showVersions(false)}
+                  >
+                    Snapshots
+                  </button>
+                  <button
+                    className={history ? "selected" : ""}
+                    onClick={() => showVersions(true)}
+                  >
+                    Recovery history
+                  </button>
+                </div>
+                <p className="panel-help">
+                  {history
+                    ? "Previous saved states, kept automatically."
+                    : "Milestones you chose to keep."}
+                </p>
+                {!history && (
+                  <button className="primary" onClick={snapshot}>
+                    <Plus size={15} /> Create snapshot
+                  </button>
+                )}
+                {versions.length === 0 && (
+                  <p className="empty-hint">
+                    {history
+                      ? "History appears after your next save."
+                      : "Keep a version before taking a new direction."}
+                  </p>
+                )}
+                {versions.map((v) => (
+                  <button
+                    className="version-item"
+                    key={v.id}
+                    onClick={() =>
+                      void run(async () => {
+                        setPreview(
+                          await storage.version(project.id, v.id, history),
+                        );
+                        setPreviewName(v.name);
+                      })
+                    }
+                  >
+                    <History size={15} />
+                    <span>
+                      <strong>{v.name}</strong>
+                      <small>{new Date(v.createdAt).toLocaleString()}</small>
+                    </span>
+                  </button>
+                ))}
+              </aside>
+            )}
+          </>
+        )}
+        {(error || status.state === "error" || mirrorError) && (
+          <div className="error-banner" role="alert">
+            <AlertCircle size={17} />
+            <span>
+              {error ||
+                (status.state === "error" ? status.message : mirrorError)}
+            </span>
+            <button
+              onClick={() =>
+                void run(async () => {
+                  await saveAll();
+                  await refreshLibrary();
+                })
+              }
+            >
+              Retry
+            </button>
+            <button aria-label="Dismiss error" onClick={() => setError("")}>
+              <X size={16} />
             </button>
           </div>
-        </div>
-      )}
+        )}
+        {notice && (
+          <div className="notice" role="status">
+            <span>{notice}</span>
+            <button
+              aria-label="Dismiss notification"
+              onClick={() => setNotice("")}
+            >
+              <X size={15} />
+            </button>
+          </div>
+        )}
+        {nameDialog && (
+          <div className="modal-backdrop">
+            <form
+              className="dialog"
+              role="dialog"
+              aria-modal="true"
+              onSubmit={(event) => {
+                event.preventDefault();
+                const dialog = nameDialog;
+                if (!dialog.value.trim() || busy) return;
+                setBusy(true);
+                void run(async () => {
+                  await dialog.action(dialog.value.trim());
+                  setNameDialog(null);
+                }).finally(() => setBusy(false));
+              }}
+            >
+              <div className="eyebrow">PERSONAL WORD</div>
+              <h2>{nameDialog.title}</h2>
+              <label>
+                {nameDialog.label}
+                <input
+                  autoFocus
+                  value={nameDialog.value}
+                  onChange={(e) =>
+                    setNameDialog({ ...nameDialog, value: e.target.value })
+                  }
+                  onKeyDown={(e) => {
+                    if (e.key === "Escape") setNameDialog(null);
+                  }}
+                />
+              </label>
+              <div className="dialog-actions">
+                <button
+                  type="button"
+                  disabled={busy}
+                  onClick={() => setNameDialog(null)}
+                >
+                  Cancel
+                </button>
+                <button
+                  className="primary"
+                  disabled={!nameDialog.value.trim() || busy}
+                  type="submit"
+                >
+                  {busy ? "Saving…" : "Save"}
+                </button>
+              </div>
+            </form>
+          </div>
+        )}
+        {choice && (
+          <div className="modal-backdrop">
+            <div className="dialog" role="dialog" aria-modal="true">
+              <div className="eyebrow">PERSONAL WORD</div>
+              <h2>{choice.title}</h2>
+              <p className="dialog-body">{choice.body}</p>
+              <div className="dialog-actions">
+                <button
+                  type="button"
+                  disabled={busy}
+                  onClick={() => setChoice(null)}
+                >
+                  Cancel
+                </button>
+                {choice.actions.map((a) => (
+                  <button
+                    key={a.label}
+                    type="button"
+                    className={a.primary ? "primary" : ""}
+                    disabled={busy}
+                    onClick={() => {
+                      setBusy(true);
+                      void run(async () => {
+                        await a.run();
+                        if (!a.keep) setChoice(null);
+                      }).finally(() => setBusy(false));
+                    }}
+                  >
+                    {a.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+        {preview && (
+          <div className="modal-backdrop">
+            <div className="preview-dialog">
+              <div className="panel-heading">
+                <button onClick={() => setPreview(null)}>
+                  <ArrowLeft size={16} /> Back
+                </button>
+                <span>READ-ONLY VERSION</span>
+              </div>
+              <h2>{previewName}</h2>
+              <p>Restoring keeps a safety snapshot of your current writing.</p>
+              <div className="preview-content">
+                {project && (
+                  <RevisionComparison
+                    before={preview}
+                    current={project}
+                    onRestore={restoreEntry}
+                  />
+                )}
+                {[
+                  ...preview.order.map((id) =>
+                    preview.entries.find((e) => e.id === id)!,
+                  ),
+                  ...preview.entries.filter((e) => e.kind === "fragment"),
+                ].map((e) => (
+                  <section key={e.id} id={"read-" + e.id}>
+                    <h3>
+                      {e.title}{" "}
+                      {e.kind === "fragment" && <small>-- Fragment</small>}
+                    </h3>
+                    <div className="read-prose">{e.text}</div>
+                  </section>
+                ))}
+              </div>
+              <button className="primary" onClick={restoreVersion}>
+                Restore this version
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

@@ -1,0 +1,84 @@
+.feature-panel {
+  padding: 28px 36px;
+  overflow: auto;
+  flex: 1;
+}
+.feature-panel header,
+.feature-controls {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+.feature-panel h1 {
+  font-size: 24px;
+  font-weight: 600;
+}
+.feature-item {
+  border-bottom: 1px solid var(--line);
+  padding: 20px 0;
+}
+.feature-item h2 {
+  font-size: 16px;
+}
+.feature-item small {
+  display: block;
+  color: var(--muted);
+  margin: 8px 0;
+}
+.feature-item button {
+  padding: 6px 10px;
+  color: var(--accent);
+}
+.feature-item input[type="checkbox"] {
+  margin-right: 8px;
+}
+.fragment-preview {
+  max-height: 180px;
+  overflow: auto;
+  white-space: pre-wrap;
+}
+.revision-columns {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+.revision-columns p {
+  white-space: pre-wrap;
+  padding: 8px;
+}
+.revision-removed {
+  background: color-mix(in srgb, var(--danger) 12%, transparent);
+  text-decoration: line-through;
+}
+.revision-added {
+  background: color-mix(in srgb, var(--accent) 12%, transparent);
+}
+.revision-block button {
+  font-size: 11px;
+  color: var(--accent);
+}
+.reader-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+.reader-options label {
+  font-size: 12px;
+  color: var(--muted);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.reader-options input {
+  width: 64px;
+}
+.project-settings {
+  padding: 30px;
+  overflow: auto;
+}
+.project-settings label {
+  display: block;
+  margin: 16px 0;
+}
