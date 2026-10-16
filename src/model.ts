@@ -58,6 +58,13 @@ export function newProject(title: string): Project {
 }
 export const words = (text: string) =>
   text.trim() ? text.trim().split(/\s+/u).length : 0;
+// Entries are immutable, so unchanged entries keep their count between keystrokes.
+const wordCounts = new WeakMap<Entry, number>();
+export function entryWords(e: Entry): number {
+  let n = wordCounts.get(e);
+  if (n === undefined) wordCounts.set(e, (n = words(e.text)));
+  return n;
+}
 export function textOf(node: JSONContent): string {
   if (node.type === "text") return node.text ?? "";
   if (node.type === "hardBreak") return "\n";

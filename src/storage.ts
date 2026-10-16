@@ -5,6 +5,7 @@ import {
   type Version,
   validateProject,
 } from "./model";
+import type { Change } from "./save-queue";
 export const desktop = isTauri();
 const prefix = "folio.preview.";
 function read<T>(key: string, fallback: T): T {
@@ -30,10 +31,16 @@ export const storage = {
     validateProject(p);
     return p;
   },
-  async save(project: Project): Promise<void> {
+  async save(change: Change): Promise<void> {
+    if (desktop) return invoke("save_changes", { change });
+    const { header, entries } = change;
+    // Browser preview keeps one whole-project blob; only the desktop app stores entries separately.
+    const old = read<Project | null>("project." + header.id, null);
+    const byId = new Map(old?.entries.map((e) => [e.id, e]));
+    for (const e of entries) byId.set(e.id, e);
+    const { entryIds, ...rest } = header;
+    const project = { ...rest, entries: entryIds.map((id) => byId.get(id)!) };
     validateProject(project);
-    if (desktop) return invoke("save_project", { project });
-    const old = read<Project | null>("project." + project.id, null);
     if (
       old &&
       (old.revision > project.revision ||
@@ -46,6 +53,10 @@ export const storage = {
       write("history." + project.id, [old, ...history].slice(0, 100));
     }
     write("project." + project.id, project);
+  },
+  /** Writes project.json and text copies now instead of waiting for the background pass. */
+  async flushMirrors(id: string): Promise<void> {
+    if (desktop) return invoke("flush_mirrors", { id });
   },
   async snapshot(id: string, name: string): Promise<string> {
     if (desktop) return invoke("create_snapshot", { id, name });

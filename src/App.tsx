@@ -25,7 +25,7 @@ import {
   type Version,
 } from "./model";
 import { desktop, storage } from "./storage";
-import { recover, SaveQueue, type SaveStatus } from "./save-queue";
+import { SaveQueue, type SaveStatus } from "./save-queue";
 import { Writer } from "./Writer";
 import { ProjectLibrary } from "./components/ProjectLibrary";
 import { ProjectSidebar } from "./components/ProjectSidebar";
@@ -45,6 +45,7 @@ export default function App() {
   const [mode, setMode] = useState<"write" | "read">("write");
   const [status, setStatus] = useState<SaveStatus>({ state: "saved" });
   const [error, setError] = useState("");
+  const [mirrorError, setMirrorError] = useState("");
   const [notice, setNotice] = useState("");
   const [nameDialog, setNameDialog] = useState<NameDialog | null>(null);
   const [focus, setFocus] = useState(false);
@@ -83,13 +84,20 @@ export default function App() {
       setError(String(e));
     }
   }, []);
+  // Commits pending edits, then writes project.json and the text copies immediately.
+  const saveAll = useCallback(async () => {
+    await queue.flush();
+    if (current.current) await storage.flushMirrors(current.current.id);
+    setMirrorError("");
+  }, [queue]);
   const refreshLibrary = useCallback(async () => {
     const saved = await storage.list();
     for (const key of Object.keys(localStorage).filter((k) =>
       k.startsWith("folio.recovery."),
     )) {
-      const p: unknown = JSON.parse(localStorage.getItem(key)!);
-      validateProject(p);
+      const p = JSON.parse(localStorage.getItem(key)!) as Summary;
+      if (typeof p?.id !== "string" || typeof p.title !== "string")
+        throw new Error("Recovery journal is malformed. It has been kept.");
       if (!saved.some((s) => s.id === p.id))
         saved.unshift({ id: p.id, title: p.title, updatedAt: p.updatedAt });
     }
@@ -98,20 +106,24 @@ export default function App() {
   const open = useCallback(
     async (id: string) => {
       await queue.flush();
-      let saved: Project;
+      let saved: Project | null = null;
+      let failure: unknown;
       try {
         saved = await storage.load(id);
       } catch (e) {
-        const raw = localStorage.getItem("folio.recovery." + id);
-        if (!raw) throw e;
-        const candidate: unknown = JSON.parse(raw);
-        validateProject(candidate);
-        saved = candidate;
+        failure = e;
+      }
+      let p: Project | null;
+      try {
+        p = queue.open(id, saved);
+      } catch (e) {
+        throw saved ? e : failure;
+      }
+      if (!p) throw failure;
+      if (!saved)
         setNotice(
           "Opened a local recovery copy. Review your writing, then retry saving.",
         );
-      }
-      const p = recover(saved, localStorage);
       current.current = p;
       setProject(p);
       setActive(p.order[0] ?? p.entries[0]?.id ?? "");
@@ -123,7 +135,7 @@ export default function App() {
       localStorage.setItem("folio.lastProject", p.id);
       if (p !== saved || localStorage.getItem("folio.recovery." + id)) {
         queue.enqueue(p);
-        setNotice("Recovered pending edits from the local journal.");
+        if (saved) setNotice("Recovered pending edits from the local journal.");
       }
     },
     [queue],
@@ -199,6 +211,26 @@ export default function App() {
       off?.();
     };
   }, [queue, run]);
+  useEffect(() => {
+    if (!desktop) return;
+    let disposed = false;
+    let off: (() => void) | undefined;
+    void import("@tauri-apps/api/event").then(async ({ listen }) => {
+      const unlisten = await listen<{ id: string; error: string | null }>(
+        "folio:mirror-status",
+        ({ payload }) => {
+          if (payload.id === current.current?.id)
+            setMirrorError(payload.error ?? "");
+        },
+      );
+      if (disposed) unlisten();
+      else off = unlisten;
+    });
+    return () => {
+      disposed = true;
+      off?.();
+    };
+  }, []);
   const add = (kind: Entry["kind"]) =>
     setNameDialog({
       title: kind === "section" ? "New section" : "New fragment",
@@ -234,7 +266,7 @@ export default function App() {
       const key = event.key.toLowerCase();
       if (key === "s") {
         event.preventDefault();
-        void run(() => queue.flush());
+        void run(saveAll);
       }
       if (key === "\\") {
         event.preventDefault();
@@ -461,7 +493,7 @@ export default function App() {
             onQuery={setQuery}
             onLibrary={() =>
               void run(async () => {
-                await queue.flush();
+                await saveAll();
                 await refreshLibrary();
                 current.current = null;
                 setProject(null);
@@ -726,14 +758,16 @@ export default function App() {
           )}
         </>
       )}
-      {(error || status.state === "error") && (
+      {(error || status.state === "error" || mirrorError) && (
         <div className="error-banner" role="alert">
           <AlertCircle size={17} />
-          <span>{error || status.message}</span>
+          <span>
+            {error || (status.state === "error" ? status.message : mirrorError)}
+          </span>
           <button
             onClick={() =>
               void run(async () => {
-                await queue.flush();
+                await saveAll();
                 await refreshLibrary();
               })
             }

@@ -10,7 +10,7 @@ import {
   Feather,
   Search,
 } from "lucide-react";
-import { words, type Project, type Entry } from "../model";
+import { entryWords, type Project, type Entry } from "../model";
 import { desktop } from "../storage";
 type Props = {
   project: Project;
@@ -43,7 +43,7 @@ export function ProjectSidebar({
   const sections = project.order
     .map((id) => project.entries.find((e) => e.id === id)!)
     .filter(Boolean);
-  const total = sections.reduce((n, e) => n + words(e.text), 0);
+  const total = sections.reduce((n, e) => n + entryWords(e), 0);
   const matches = (e: Entry) =>
     !query ||
     (e.title + " " + e.text).toLowerCase().includes(query.toLowerCase());
@@ -112,7 +112,7 @@ export function ProjectSidebar({
             >
               <FileText size={15} />
               <span>{e.title}</span>
-              <small>{words(e.text)}</small>
+              <small>{entryWords(e)}</small>
             </button>
             <div className="reorder">
               <button

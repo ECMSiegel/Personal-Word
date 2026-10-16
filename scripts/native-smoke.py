@@ -26,7 +26,10 @@ for phase in ('1', '2'):
     db_path = next((work/'projects').glob('*/project.sqlite3'))
     with sqlite3.connect(db_path) as db:
         assert db.execute('PRAGMA integrity_check').fetchone()[0] == 'ok'
-        project = json.loads(db.execute('SELECT data FROM project').fetchone()[0])
+        header = json.loads(db.execute('SELECT data FROM project').fetchone()[0])
+        rows = {i: json.loads(d) for i, d in db.execute('SELECT id, data FROM entries')}
+        entry_ids = header.pop('entryIds')
+        project = {**header, 'entries': [rows[i] for i in entry_ids]}
         text = next(e['text'] for e in project['entries'] if e['id'] == project['order'][0])
         assert ('Rapid final text must survive native quit.' if phase=='1' else 'Original prose kept for a fragment.') in text
         mirror = json.loads((db_path.parent/'project.json').read_text())
