@@ -28,9 +28,8 @@ import {
 import { desktop, storage } from "./storage";
 import {
   DamagedJournal,
+  discardJournal,
   journalKey,
-  parseJournal,
-  recover,
   RecoveryConflict,
   SaveQueue,
   scanJournals,
@@ -70,6 +69,7 @@ export default function App() {
   const [mode, setMode] = useState<"write" | "read">("write");
   const [status, setStatus] = useState<SaveStatus>({ state: "saved" });
   const [error, setError] = useState("");
+  const [mirrorError, setMirrorError] = useState("");
   const [notice, setNotice] = useState("");
   const [nameDialog, setNameDialog] = useState<NameDialog | null>(null);
   const [focus, setFocus] = useState(false);
@@ -108,6 +108,12 @@ export default function App() {
       setError(String(e));
     }
   }, []);
+  // Commits pending edits, then writes project.json and the text copies immediately.
+  const saveAll = useCallback(async () => {
+    await queue.flush();
+    if (current.current) await storage.flushMirrors(current.current.id);
+    setMirrorError("");
+  }, [queue]);
   const refreshLibrary = useCallback(async () => {
     const { projects, damaged } = await storage.list();
     const scan = scanJournals(
@@ -143,27 +149,23 @@ export default function App() {
   const open = useCallback(
     async (id: string) => {
       await queue.flush();
-      let saved: Project;
+      let saved: Project | null = null;
+      let failure: unknown;
       try {
         saved = await storage.load(id);
       } catch (e) {
-        const raw = localStorage.getItem(journalKey(id));
-        if (!raw) throw e;
-        saved = parseJournal(journalKey(id), raw);
-        setNotice(
-          "Opened a local recovery copy. Review your writing, then retry saving.",
-        );
+        failure = e;
       }
-      let p: Project;
+      let p: Project | null;
       try {
-        p = recover(saved, localStorage);
+        p = queue.open(id, saved);
       } catch (e) {
         if (e instanceof RecoveryConflict) {
           setChoice({
             title: "Two copies of this project disagree.",
             body:
               "The saved copy and the recovery journal are both at revision " +
-              saved.revision +
+              e.disk.revision +
               " but hold different writing. Choose which to keep. Exporting the journal first saves it as a file you can import later.",
             actions: [
               {
@@ -179,14 +181,17 @@ export default function App() {
               {
                 label: "Keep disk copy",
                 run: () => {
-                  localStorage.removeItem(journalKey(id));
+                  discardJournal(localStorage, id);
+                  queue.open(id, e.disk);
                   enter(e.disk, false);
                 },
               },
               {
                 label: "Keep journal copy",
                 primary: true,
-                run: () =>
+                run: () => {
+                  discardJournal(localStorage, id);
+                  queue.open(id, e.disk);
                   enter(
                     {
                       ...e.journal,
@@ -194,13 +199,15 @@ export default function App() {
                       updatedAt: now(),
                     },
                     true,
-                  ),
+                  );
+                },
               },
             ],
           });
           return;
         }
-        if (e instanceof DamagedJournal) {
+        if (e instanceof DamagedJournal && saved) {
+          const disk = saved;
           setChoice({
             title: "The recovery journal for this project is damaged.",
             body: "The saved copy opens fine. Export the journal's raw text if you want to look at it, or discard it and open the saved copy.",
@@ -214,17 +221,23 @@ export default function App() {
                 label: "Discard and open",
                 primary: true,
                 run: () => {
-                  localStorage.removeItem(e.key);
-                  enter(saved, false);
+                  discardJournal(localStorage, id);
+                  queue.open(id, disk);
+                  enter(disk, false);
                 },
               },
             ],
           });
           return;
         }
-        throw e;
+        throw saved ? e : failure;
       }
+      if (!p) throw failure;
       enter(p, p !== saved || !!localStorage.getItem(journalKey(id)));
+      if (!saved)
+        setNotice(
+          "Opened a local recovery copy. Review your writing, then retry saving.",
+        );
     },
     [enter, queue],
   );
@@ -299,6 +312,26 @@ export default function App() {
       off?.();
     };
   }, [queue, run]);
+  useEffect(() => {
+    if (!desktop) return;
+    let disposed = false;
+    let off: (() => void) | undefined;
+    void import("@tauri-apps/api/event").then(async ({ listen }) => {
+      const unlisten = await listen<{ id: string; error: string | null }>(
+        "folio:mirror-status",
+        ({ payload }) => {
+          if (payload.id === current.current?.id)
+            setMirrorError(payload.error ?? "");
+        },
+      );
+      if (disposed) unlisten();
+      else off = unlisten;
+    });
+    return () => {
+      disposed = true;
+      off?.();
+    };
+  }, []);
   const add = (kind: Entry["kind"]) =>
     setNameDialog({
       title: kind === "section" ? "New section" : "New fragment",
@@ -334,7 +367,7 @@ export default function App() {
       const key = event.key.toLowerCase();
       if (key === "s") {
         event.preventDefault();
-        void run(() => queue.flush());
+        void run(saveAll);
       }
       if (key === "\\") {
         event.preventDefault();
@@ -426,7 +459,7 @@ export default function App() {
             } catch (e) {
               if (!localStorage.getItem(journalKey(s.id))) throw e;
             }
-            localStorage.removeItem(journalKey(s.id));
+            discardJournal(localStorage, s.id);
             if (localStorage.getItem("folio.lastProject") === s.id)
               localStorage.removeItem("folio.lastProject");
             await refreshLibrary();
@@ -617,7 +650,7 @@ export default function App() {
           onExportJournal={(d) => download(d.key + ".txt", d.raw, "text/plain")}
           onDiscardJournal={(d) =>
             void run(async () => {
-              localStorage.removeItem(d.key);
+              discardJournal(localStorage, d.key.slice(journalKey("").length));
               await refreshLibrary();
             })
           }
@@ -640,7 +673,7 @@ export default function App() {
             onQuery={setQuery}
             onLibrary={() =>
               void run(async () => {
-                await queue.flush();
+                await saveAll();
                 await refreshLibrary();
                 current.current = null;
                 setProject(null);
@@ -962,14 +995,16 @@ export default function App() {
           )}
         </>
       )}
-      {(error || status.state === "error") && (
+      {(error || status.state === "error" || mirrorError) && (
         <div className="error-banner" role="alert">
           <AlertCircle size={17} />
-          <span>{error || status.message}</span>
+          <span>
+            {error || (status.state === "error" ? status.message : mirrorError)}
+          </span>
           <button
             onClick={() =>
               void run(async () => {
-                await queue.flush();
+                await saveAll();
                 await refreshLibrary();
               })
             }
