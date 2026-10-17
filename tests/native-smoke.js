@@ -67,12 +67,33 @@
       await click("Save");
       await saved();
       steps.push("native project creation");
-      await type("Native page flow keeps the same editor and document. ".repeat(300));
-      await click("Continuous");
-      await wait(() => { const el=editor();return el?.querySelector("p")?.getClientRects().length>1; }, "native paragraph pagination");
-      const count=document.querySelector('[aria-label="Page count"]')?.textContent;
-      if(!count || !/of [2-9]/.test(count))throw Error("Native page count did not reflect overflowing text: "+count);
-      await click("Pages");
+      await type(
+        "Native page flow keeps the same editor and document. ".repeat(300),
+      );
+      const pageView = () => {
+        const found = document.querySelector('[aria-label="Page view"]');
+        if (!found) document.querySelector('[aria-label="More formatting"]')?.click();
+        return found;
+      };
+      (await wait(pageView, "page view toggle")).click();
+      await wait(() => {
+        const el = editor();
+        return el?.querySelector("p")?.getClientRects().length > 1;
+      }, "native paragraph pagination");
+      const pageCount = () =>
+        document.querySelector('[aria-label="Page count"]')?.textContent;
+      for (let i = 0; i < 75 && !/of [2-9]/.test(pageCount() ?? ""); i++)
+        await delay(40);
+      const count = pageCount();
+      if (!count || !/of [2-9]/.test(count))
+        throw Error(
+          "Native page count did not reflect overflowing text: " + count,
+        );
+      pageView().click();
+      await wait(
+        () => pageView()?.getAttribute("aria-pressed") === "false",
+        "continuous view",
+      );
       steps.push("native WebKit page fragmentation and continuous toggle");
       await type("Original prose kept for a fragment.");
       await wait(

@@ -45,8 +45,7 @@ body {
   margin: 0;
 }
 button,
-input,
-select {
+input {
   font: inherit;
 }
 button {
@@ -58,18 +57,17 @@ button {
   align-items: center;
   justify-content: center;
   gap: 7px;
-  border-radius: 5px;
+  border-radius: 0;
 }
 button:hover {
-  background: var(--line);
+  background: var(--surface);
 }
 button:disabled {
   opacity: 0.35;
   cursor: default;
 }
 button:focus-visible,
-input:focus-visible,
-select:focus-visible {
+input:focus-visible {
   outline: 2px solid var(--text);
   outline-offset: 2px;
 }
@@ -77,10 +75,9 @@ button[aria-pressed="true"] {
   background: var(--line);
   color: var(--text);
 }
-input,
-select {
+input {
   border: 1px solid var(--line);
-  border-radius: 5px;
+  border-radius: 0;
   background: var(--paper);
   padding: 8px;
   color: inherit;
@@ -97,7 +94,7 @@ p {
 .app {
   height: 100vh;
   display: flex;
-  overflow: hidden;
+  overflow: clip;
 }
 .sidebar {
   width: 254px;
@@ -185,7 +182,6 @@ p {
 .entry-row {
   display: flex;
   align-items: center;
-  border-radius: 5px;
   position: relative;
 }
 .entry-main {
@@ -218,7 +214,6 @@ p {
   opacity: 0;
   position: absolute;
   right: 2px;
-  background: var(--line);
 }
 .entry-row:hover .reorder,
 .entry-row:focus-within .reorder {
@@ -265,9 +260,11 @@ p {
 .workspace {
   flex: 1;
   min-width: 0;
+  min-height: 0;
   display: flex;
   flex-direction: column;
   background: var(--paper);
+  overflow: clip;
 }
 .topbar {
   height: 66px;
@@ -289,11 +286,25 @@ p {
   padding: 7px;
 }
 .breadcrumb {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
   font-size: 11px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
   color: var(--muted);
+}
+.topbar .breadcrumb button {
+  padding: 2px 4px;
+}
+.breadcrumb .delete-entry {
+  padding: 2px;
+  opacity: 0;
+}
+.breadcrumb:hover .delete-entry,
+.breadcrumb:focus-within .delete-entry {
+  opacity: 1;
 }
 .breadcrumb > span {
   margin: 0 12px;
@@ -321,14 +332,11 @@ p {
   border: 1px solid var(--line);
   padding: 6px 9px !important;
 }
-.editor-scroll {
+.editor-area {
   flex: 1;
-  overflow: auto;
-  padding: 54px max(38px, calc((100% - 760px) / 2)) 90px;
-}
-.document-heading {
-  margin: 0 0 26px;
-  padding: 0 8px;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
 }
 .eyebrow {
   font-size: 10px;
@@ -336,21 +344,6 @@ p {
   color: var(--muted);
   font-weight: 500;
   margin-bottom: 14px;
-}
-.document-title {
-  font-family: Futura, "Avenir Next", sans-serif;
-  letter-spacing: -0.8px;
-  font-size: 38px;
-  line-height: 1.2;
-  text-align: left;
-  justify-content: flex-start;
-  padding: 4px 0;
-  margin-left: -1px;
-  color: var(--text);
-}
-.document-title:hover {
-  background: transparent;
-  color: var(--text);
 }
 .origin {
   font-size: 11px;
@@ -367,20 +360,13 @@ p {
   margin: 0 7px 25px;
   flex-wrap: wrap;
   position: sticky;
-  top: -54px;
+  top: 0;
   background: var(--paper);
   z-index: 1;
 }
 .format-bar button {
   padding: 6px;
   color: var(--text);
-}
-.format-bar select {
-  font-size: 11px;
-  border: 0;
-  background: transparent;
-  padding: 5px 2px;
-  width: 94px;
 }
 .separator {
   height: 17px;
@@ -540,11 +526,6 @@ p {
 .delete-entry:hover {
   color: var(--danger);
 }
-.document-title-row {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
 .breadcrumb-title {
   font-size: 11px;
   color: inherit;
@@ -554,7 +535,6 @@ p {
   margin: 0 0 25px;
   padding: 16px;
   border: 1px solid var(--muted);
-  border-radius: 9px;
   background: var(--surface);
 }
 .damaged-row {
@@ -633,7 +613,6 @@ p {
   background: var(--paper);
   padding: 32px;
   border: 1px solid var(--line);
-  border-radius: 9px;
   box-shadow: 0 20px 80px var(--shadow);
 }
 .dialog h2 {
@@ -677,7 +656,6 @@ p {
   gap: 16px;
   max-width: 85vw;
   font-size: 12px;
-  border-radius: 6px;
   z-index: 30;
   box-shadow: 0 5px 25px var(--shadow);
   overflow-wrap: anywhere;
@@ -718,7 +696,6 @@ p {
 .version-tabs button {
   font-size: 11px;
   padding: 9px 8px;
-  border-radius: 4px 4px 0 0;
 }
 .panel-help {
   font-size: 11px;
@@ -752,7 +729,6 @@ p {
   max-height: 85vh;
   display: flex;
   flex-direction: column;
-  border-radius: 8px;
 }
 .preview-dialog h2 {
   font:
@@ -834,9 +810,6 @@ p {
   .sidebar {
     width: 220px;
   }
-  .editor-scroll {
-    padding: 40px 30px 80px;
-  }
   .breadcrumb {
     max-width: 190px;
   }
@@ -871,7 +844,6 @@ p {
 }
 button,
 input,
-select,
 .dialog,
 .preview-dialog,
 .damaged,
@@ -882,8 +854,7 @@ select,
   border-radius: 0;
 }
 button:focus-visible,
-input:focus-visible,
-select:focus-visible {
+input:focus-visible {
   outline-color: var(--accent);
 }
 button[aria-pressed="true"],
@@ -903,7 +874,7 @@ button[aria-pressed="true"],
   height: 100vh;
   display: flex;
   flex-direction: column;
-  overflow: hidden;
+  overflow: clip;
 }
 .app-shell > .app {
   height: auto;
@@ -965,10 +936,14 @@ button[aria-pressed="true"],
 .sidebar-shell.is-overlay .sidebar {
   position: absolute;
   top: 0;
+  bottom: 0;
   left: 0;
   transform: translateX(-100%);
   visibility: hidden;
   box-shadow: 5px 0 15px var(--shadow);
+  transition:
+    transform 180ms ease,
+    visibility 180ms;
 }
 .sidebar-shell.is-overlay.is-revealed .sidebar {
   transform: translateX(0);
@@ -976,16 +951,20 @@ button[aria-pressed="true"],
 }
 .sidebar-edge {
   position: absolute;
-  z-index: 5;
-  left: 0;
   top: 0;
-  width: 24px;
-  height: 60px;
-  background: var(--surface);
-  border-right: 1px solid var(--line);
+  bottom: 0;
+  left: 0;
+  width: 8px;
+  z-index: 5;
+  padding: 0;
+  background: transparent;
 }
-.is-revealed .sidebar-edge {
-  display: none;
+.sidebar-edge:hover {
+  background: transparent;
+}
+.sidebar-edge:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: -2px;
 }
 .sidebar-brand {
   display: flex;
@@ -1023,6 +1002,11 @@ button[aria-pressed="true"],
   text-align: left;
   font-weight: 500;
   min-width: 0;
+}
+.group-title.selected {
+  background: transparent;
+  color: var(--accent);
+  font-weight: 600;
 }
 .group-actions {
   display: flex;
@@ -1167,9 +1151,6 @@ button[aria-pressed="true"],
   align-items: center;
   gap: 5px;
 }
-.library-display select {
-  padding: 6px;
-}
 .library-display > button {
   padding: 7px;
 }
@@ -1264,7 +1245,6 @@ button[aria-pressed="true"],
   font-size: 12px;
   padding: 20px 0;
 }
-.document-title,
 .writing-surface,
 .read-prose,
 .manuscript-read h1,
@@ -1280,35 +1260,12 @@ button[aria-pressed="true"],
     -apple-system,
     sans-serif;
 }
-.document-title {
-  font-size: 32px;
-  font-weight: 500;
-  letter-spacing: -0.5px;
-}
-.document-heading .eyebrow {
-  display: none;
-}
 .statusbar {
   border: 0;
   background: var(--paper);
 }
 .statusbar > div > span:last-child {
   display: none;
-}
-.scroll-progress {
-  position: absolute;
-  top: 66px;
-  left: 0;
-  right: 0;
-  height: 2px;
-  pointer-events: none;
-  z-index: 3;
-}
-.scroll-progress span {
-  display: block;
-  height: 100%;
-  background: var(--accent);
-  transform-origin: left;
 }
 .proximity-nav {
   position: absolute;
@@ -1368,7 +1325,6 @@ button[aria-pressed="true"],
   .library-display {
     gap: 5px;
   }
-  .editor-scroll,
   .manuscript-read {
     padding: 32px 24px 60px;
   }
@@ -1392,22 +1348,29 @@ button[aria-pressed="true"],
   gap: 5px;
 }
 .entry-details input,
-.entry-details select {
+.entry-details .entry-status {
   padding: 5px;
   font-size: 10px;
   width: 100%;
   background: transparent;
 }
 .document-statistics {
+  height: 24px;
+  flex-shrink: 0;
   display: flex;
-  justify-content: flex-end;
-  padding: 7px 24px;
+  align-items: center;
+  gap: 18px;
+  padding: 0 24px;
   color: var(--muted);
   font-size: 10px;
+  white-space: nowrap;
+}
+.document-statistics > span:last-child {
+  margin-left: auto;
 }
 .research-aside {
-  width: min(390px, 36vw);
-  min-width: 260px;
+  flex: 0 0 auto;
+  min-width: 0;
   border-left: 1px solid var(--line);
   background: var(--paper);
   overflow: auto;
@@ -1439,9 +1402,6 @@ button[aria-pressed="true"],
 .topbar {
   height: 40px;
   padding-inline: 20px;
-}
-.scroll-progress {
-  top: 40px;
 }
 .editor-settings {
   font-size: 12px;
@@ -1476,4 +1436,46 @@ button[aria-pressed="true"],
 }
 .fragment-aside .feature-panel {
   padding: 12px 0;
+}
+
+/* Flat hover: no grey boxes. Sidebar text rows underline instead of filling. */
+.sidebar button:hover {
+  background: var(--sidebar);
+}
+.sidebar .group-title:hover,
+.sidebar .entry-main:hover,
+.sidebar .project-switch:hover {
+  background: transparent;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.project-row > button:first-child:hover,
+.project-row > button:first-child:focus-visible {
+  background: transparent;
+}
+.project-row > button:first-child:hover > .project-name,
+.project-row > button:first-child:focus-visible > .project-name {
+  font-weight: 600;
+}
+.project-row .delete-entry {
+  opacity: 0;
+}
+.project-row:hover .delete-entry,
+.project-row:focus-within .delete-entry {
+  opacity: 1;
+}
+
+.aside-resizer {
+  flex: 0 0 6px;
+  width: 6px;
+  margin-left: -3px;
+  position: relative;
+  z-index: 2;
+  cursor: col-resize;
+  touch-action: none;
+}
+.aside-resizer:hover,
+.aside-resizer:focus-visible {
+  background: var(--accent);
+  outline: 0;
 }

@@ -9,13 +9,13 @@ import {
   Layers,
   List,
   MessageSquare,
-  PanelLeft,
   Pin,
   PinOff,
   Plus,
   Search,
 } from "lucide-react";
 import { entryWords, type Project, type Entry } from "../model";
+import { Dropdown } from "./Dropdown";
 export const workspaceGroups = [
   "manuscript",
   "fragments",
@@ -81,14 +81,34 @@ export function ProjectSidebar(props: Props) {
   } = props;
   const [prefs, setPrefs] = useState(preferences);
   const [revealed, setRevealed] = useState(false);
+  const [focusKey, setFocusKey] = useState(0);
+  const pinnedRef = useRef(prefs.pinned);
+  pinnedRef.current = prefs.pinned;
+  const reveal = (focus = false) => {
+    setRevealed(true);
+    if (focus) setFocusKey((n) => n + 1);
+  };
+  useEffect(() => {
+    if (focusKey)
+      aside.current
+        ?.querySelector<HTMLElement>(".sidebar-brand button")
+        ?.focus();
+  }, [focusKey]);
   useEffect(() => {
     const toggle = () => {
       setPrefs((p) => ({ ...p, pinned: !p.pinned }));
       setRevealed(false);
     };
+    const revealSidebar = () => {
+      if (pinnedRef.current) toggle();
+      else reveal(true);
+    };
     window.addEventListener("personal-word:toggle-sidebar", toggle);
-    return () =>
+    window.addEventListener("personal-word:reveal-sidebar", revealSidebar);
+    return () => {
       window.removeEventListener("personal-word:toggle-sidebar", toggle);
+      window.removeEventListener("personal-word:reveal-sidebar", revealSidebar);
+    };
   }, []);
   const [views, setViews] = useState<Record<string, boolean>>(() => {
     try {
@@ -180,11 +200,9 @@ export function ProjectSidebar(props: Props) {
           className="sidebar-edge"
           aria-label="Show sidebar"
           aria-expanded={expanded}
-          onMouseEnter={() => prefs.hover && setRevealed(true)}
-          onClick={() => setRevealed(!revealed)}
-        >
-          <PanelLeft size={17} />
-        </button>
+          onMouseEnter={() => prefs.hover && reveal()}
+          onClick={() => reveal(true)}
+        />
       )}
       <aside
         ref={aside}
@@ -457,20 +475,21 @@ export function ProjectSidebar(props: Props) {
                                 })
                               }
                             />
-                            <select
-                              aria-label={"Draft status for " + e.title}
+                            <Dropdown
+                              className="entry-status"
+                              label={"Draft status for " + e.title}
                               value={e.draftStatus ?? "notes"}
-                              onChange={(event) =>
+                              onChange={(value) =>
                                 props.onEntryDetails?.(e.id, {
-                                  draftStatus: event.target
-                                    .value as Entry["draftStatus"],
+                                  draftStatus: value as Entry["draftStatus"],
                                 })
                               }
-                            >
-                              <option value="notes">Notes</option>
-                              <option value="draft">Draft</option>
-                              <option value="revised">Revised</option>
-                            </select>
+                              options={[
+                                { value: "notes", label: "Notes" },
+                                { value: "draft", label: "Draft" },
+                                { value: "revised", label: "Revised" },
+                              ]}
+                            />
                           </div>
                         )}
                       </div>

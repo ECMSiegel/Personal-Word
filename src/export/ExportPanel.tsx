@@ -4,6 +4,7 @@ import {
   type DocumentSettings,
 } from "../research/types";
 import { saveExport, safeFilename, type ExportProject } from "./document";
+import { Dropdown } from "../components/Dropdown";
 import "../research/research.css";
 export function ExportPanel({
   project,
@@ -62,19 +63,16 @@ export function ExportPanel({
         <div className="research-form">
           <label>
             Export typeface
-            <select
+            <Dropdown
+              label="Export typeface"
               value={s.font}
-              onChange={(e) =>
-                onSettingsChange({
-                  ...s,
-                  font: e.target.value as DocumentSettings["font"],
-                })
-              }
-            >
-              <option value="serif">Times New Roman</option>
-              <option value="sans">Arial</option>
-              <option value="mono">Courier New</option>
-            </select>
+              onChange={(font) => onSettingsChange({ ...s, font })}
+              options={[
+                { value: "serif", label: "Times New Roman" },
+                { value: "sans", label: "Arial" },
+                { value: "mono", label: "Courier New" },
+              ]}
+            />
           </label>
           <label>
             Font size
@@ -96,16 +94,18 @@ export function ExportPanel({
           </label>
           <label>
             Line spacing
-            <select
-              value={s.lineSpacing}
-              onChange={(e) =>
-                onSettingsChange({ ...s, lineSpacing: Number(e.target.value) })
+            <Dropdown
+              label="Line spacing"
+              value={String(s.lineSpacing)}
+              onChange={(value) =>
+                onSettingsChange({ ...s, lineSpacing: Number(value) })
               }
-            >
-              <option value="1">Single</option>
-              <option value="1.5">1.5</option>
-              <option value="2">Double</option>
-            </select>
+              options={[
+                { value: "1", label: "Single" },
+                { value: "1.5", label: "1.5" },
+                { value: "2", label: "Double" },
+              ]}
+            />
           </label>
           <label>
             Margins (inches)

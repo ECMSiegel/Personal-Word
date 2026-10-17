@@ -32,6 +32,16 @@ Re-run after the expanded workspace changes (see [personal-word-v2.md](personal-
 - Native smoke (fresh `native-smoke` debug build, macOS WebKit): both phases passed, including page fragmentation of an overflowing paragraph with a page count above one, the continuous/pages toggle, quit flush, process restart, snapshot restore, SQLite integrity, and portable JSON equality. See [native evidence](evidence/native-smoke.json).
 - Release: `npm run tauri build -- --bundles app` produced `src-tauri/target/release/bundle/macos/Personal Word.app` (identifier `com.folio.writing` retained). The superseded debug `Folio.app` bundle was removed.
 
+## UI and research rework -- October 16, 2026 (evening)
+
+- `npm run build`: passed. `npm test`: 52 unit tests (indent stepping, citation lookup parsing/mapping with inline fixtures, Chicago website dates).
+- `npm run test:e2e`: 25 Playwright scenarios (adds toolbar, layout, and research specs; Chromium, browser storage only).
+- `cargo test`: 16 Rust tests passed, 1 ignored (adds `lookup_fetch` scheme rejection).
+- Native smoke on a fresh `native-smoke` build: both phases passed, including page fragmentation with the new Page view toggle and status-line page count in macOS WebKit.
+- Typing cost (production build, Chromium, 1,200-word paragraph, insertText + frame): median ~17 ms before and after the rework.
+- Light/dark screenshots reviewed in Chromium: writing screen, research panel, project list with open sort menu, unpinned sidebar. Native WebKit visuals beyond the smoke test were not screenshot-reviewed.
+- Citation lookup was exercised only against mocked Crossref responses; live Crossref/Open Library/web requests were not run in tests.
+
 ## Save path at 100,000 words — October 16, 2026
 
 `npm run bench` (`scripts/bench-save.sh`) builds a 100,000-word project (100 sections × 1,000 words) and times one keystroke in the middle section and one save. "Before" is commit 6f1e6e9 run with the same benchmark; three runs each on this Intel Mac, no other build running.

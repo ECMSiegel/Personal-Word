@@ -1,5 +1,6 @@
 import { useState } from "react";
 import type { Entry, Project } from "../model";
+import { Dropdown } from "../components/Dropdown";
 
 export function RevisionComparison({
   before,
@@ -19,13 +20,12 @@ export function RevisionComparison({
     <div className="revision-comparison">
       <label>
         Compare section{" "}
-        <select value={selected} onChange={(e) => setSelected(e.target.value)}>
-          {before.entries.map((e) => (
-            <option key={e.id} value={e.id}>
-              {e.title}
-            </option>
-          ))}
-        </select>
+        <Dropdown
+          label="Compare section"
+          value={selected}
+          onChange={setSelected}
+          options={before.entries.map((e) => ({ value: e.id, label: e.title }))}
+        />
       </label>
       {old && (
         <>

@@ -52,17 +52,14 @@ test("writer journey: project, rapid edits, sections, fragments, snapshots, rest
     .click();
   await page.getByRole("button", { name: "Restore this version" }).click();
   await expect(editor).toContainText("The first paragraph belongs here.");
-  await page
-    .getByRole("button", { name: "Opening", exact: true })
-    .last()
-    .click();
+  await page.getByRole("button", { name: "Rename section" }).click();
   await page.getByLabel("Title", { exact: true }).fill("The return");
   await page.getByRole("button", { name: "Save", exact: true }).click();
   await expect(page.getByText("Saved", { exact: true })).toBeVisible();
   await page.reload();
-  await expect(
-    page.getByRole("button", { name: "The return", exact: true }),
-  ).toBeVisible();
+  await expect(page.getByRole("button", { name: "Rename section" })).toHaveText(
+    "The return",
+  );
   expect(errors).toEqual([]);
 });
 test("recovers a newer journal after an interrupted save", async ({ page }) => {

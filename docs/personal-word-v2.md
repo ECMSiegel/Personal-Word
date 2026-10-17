@@ -8,7 +8,9 @@
 - Fonts, sizes, line spacing, paragraph spacing, paper size, margins, zoom, and explicit page breaks. View changes preserve the mounted editor and undo stack.
 - Editable page view uses actual CSS multicolumn fragmentation. Pages are arranged horizontally. Count and current page refer to the open section, not an exported full manuscript.
 - Templates: blank, essay, Chicago student paper, screenplay, story, and user-saved structure/settings templates. Blank writing defaults to sans serif. Chicago uses 12 pt serif, double spacing, one-inch margins, half-inch first-line indentation, editable title-page fields, notes, bibliography, and page numbers. Screenplay has named paragraph styles and Tab/Shift-Tab cycling.
-- Research: source records, quotations, paraphrases, personal notes, locators, and insertion into the editor. Footnote references retain stable IDs and are numbered in manuscript order.
+- Research: two tabs. Sources holds each work with its Chicago note/bibliography preview, its quotes and paraphrases, and the footnotes that cite it (Cite here, Insert quote + cite); footnotes without a source are listed as text-only notes. Notes holds loose personal notes. Footnote references retain stable IDs and are numbered in manuscript order; clicking a reference opens its source.
+- Citation lookup: paste a DOI (Crossref), ISBN (Open Library), or web address (page metadata) and the fields fill in as a draft to review. Nothing is sent until Look up is clicked, and only the typed identifier is sent.
+- Writing screen: section title lives in the top bar; one-row formatting toolbar (zoom, style, font, size, marks, link, lists, indent, spacing popover, page view, page setup popover, comment, keep as fragment) that folds trailing groups into a More menu when narrow; page count in the status line. Tab/Shift-Tab indent like Word (lists nest; paragraph start sets a first-line indent; otherwise the paragraph moves 0.5 in). Fragments and Research side panels are resizable (width stored globally). All dropdowns use the flat in-app Dropdown component instead of native selects.
 - Chicago 18 citation assistance for common books, journal articles, and websites; full/short notes and a cited-source bibliography. Review complicated names, unusual source types, and institutional instructions manually. Official references are linked in the app.
 - Word export produces editable native footnotes; PDF export includes page-bottom notes and an in-app PDF preview.
 - Comments and revision tasks can quote selected text. They remain available and are marked detached when their quoted passage disappears.
@@ -26,7 +28,7 @@ This is an initial implementation of the expanded workspace, not publication-rea
 4. Comment anchors use quoted text rather than a full operational-transform anchoring system. Repeated identical passages can be ambiguous; changed or removed quotes are labeled detached.
 5. Font families depend on fonts installed on the Mac. No proprietary Futura files are bundled.
 6. Cross-project fragment search reads saved projects; it does not index damaged recovery journals.
-7. The app remains local-only and unsigned/not notarized. No cloud sync, collaboration, subscription, or licensing system was added.
+7. The app is unsigned/not notarized and stores everything locally. Citation lookup is the only network use and is opt-in per click; Crossref/Open Library/site metadata can be incomplete or wrong, so results are drafts to review. Web page lookup in the browser preview often fails because sites block cross-origin reads. No cloud sync, collaboration, subscription, or licensing system was added.
 
 ## Data compatibility
 

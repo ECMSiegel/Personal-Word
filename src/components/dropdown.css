@@ -1,0 +1,81 @@
+.dropdown {
+  position: relative;
+  display: inline-flex;
+  min-width: 0;
+  max-width: 100%;
+}
+.dropdown-button {
+  width: 100%;
+  min-width: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  padding: 5px 7px;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: var(--text);
+  font: inherit;
+  text-align: left;
+  white-space: nowrap;
+}
+.dropdown-button:hover,
+.dropdown-button[aria-expanded="true"] {
+  background: var(--surface);
+}
+.dropdown-button svg {
+  color: var(--muted);
+}
+.dropdown-value {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.dropdown-menu {
+  position: absolute;
+  top: calc(100% + 2px);
+  left: 0;
+  z-index: 40;
+  min-width: max(100%, 150px);
+  max-height: 320px;
+  overflow: auto;
+  padding: 4px 0;
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 0;
+  box-shadow: 0 6px 18px var(--shadow);
+  font-family:
+    Futura,
+    "Avenir Next",
+    -apple-system,
+    sans-serif;
+  font-size: 12px;
+}
+.dropdown-option {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px 7px 8px;
+  white-space: nowrap;
+  cursor: default;
+  color: var(--text);
+}
+.dropdown-option.is-highlighted {
+  background: var(--surface);
+}
+.dropdown-option.is-current {
+  font-weight: 600;
+}
+.dropdown-option[aria-disabled="true"] {
+  opacity: 0.4;
+}
+.dropdown-check {
+  width: 14px;
+  display: inline-flex;
+  color: var(--accent);
+}
+.dropdown-menu.is-flipped {
+  left: auto;
+  right: 0;
+}

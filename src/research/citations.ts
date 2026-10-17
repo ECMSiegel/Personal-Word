@@ -23,6 +23,26 @@ function authors(s: Source, bib = false, short = false): string {
   );
 }
 const end = (v: string) => v.replace(/[.,\s]+$/, "") + ".";
+const monthNames = [
+  "January",
+  "February",
+  "March",
+  "April",
+  "May",
+  "June",
+  "July",
+  "August",
+  "September",
+  "October",
+  "November",
+  "December",
+];
+/** Chicago writes full dates as "March 4, 2025"; stored dates stay yyyy-mm-dd. */
+const chicagoDate = (value: string) => {
+  const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value.trim());
+  const month = match ? monthNames[Number(match[2]) - 1] : undefined;
+  return match && month ? `${month} ${Number(match[3])}, ${match[1]}` : value;
+};
 const link = (s: Source) =>
   s.doi
     ? `https://doi.org/${s.doi.replace(/^https?:\/\/doi.org\//, "")}`
@@ -72,7 +92,7 @@ export function citationParts(
   }
   if (s.kind === "website")
     parts.push({
-      text: `${bib ? ". " : ", "}${[s.website, s.year || (s.accessed ? "accessed " + s.accessed : "")].filter(Boolean).join(", ")}`,
+      text: `${bib ? ". " : ", "}${[s.website, s.year ? chicagoDate(s.year) : s.accessed && "accessed " + chicagoDate(s.accessed)].filter(Boolean).join(", ")}`,
     });
   if (s.kind === "book" && !bib && locator)
     parts.push({ text: ", " + locator });

@@ -1,46 +1,245 @@
-.editor-settings {
+.writer {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  min-width: 0;
+}
+.writer-scroll {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+}
+.writer > .format-bar {
+  position: relative;
+  z-index: 40;
+  display: flex;
+  flex: 0 0 auto;
+  flex-wrap: nowrap;
+  align-items: center;
+  gap: 0;
+  height: 36px;
+  min-width: 0;
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0 8px;
+  top: auto;
+  border-top: 0;
+  border-bottom: 1px solid var(--line);
+  background: var(--paper);
+  container-type: inline-size;
+  color: var(--text);
+  font-family:
+    Futura,
+    "Avenir Next",
+    -apple-system,
+    sans-serif;
+  font-size: 12px;
+}
+.writer .format-bar .toolbar-group {
   display: flex;
   align-items: center;
-  flex-wrap: wrap;
-  gap: 10px;
-  padding: 8px;
-  border-bottom: 1px solid var(--line);
-  margin-bottom: 20px;
-  font:
-    11px Futura,
-    system-ui,
-    sans-serif;
+  gap: 2px;
+  flex: 0 0 auto;
 }
-.editor-settings label {
+.writer .format-bar .toolbar-group.is-end {
+  margin-left: auto;
+}
+.writer .format-bar .toolbar-divider {
+  display: inline-block;
+  width: 1px;
+  height: 16px;
+  margin: 0 3px;
+  background: var(--line);
+  flex: 0 0 auto;
+}
+.writer .format-bar .toolbar-icon {
   display: inline-flex;
-  gap: 5px;
   align-items: center;
-}
-.editor-settings input,
-.editor-settings select,
-.editor-settings button {
-  font: inherit;
-  color: var(--text);
-  background: transparent;
+  justify-content: center;
+  flex: 0 0 auto;
+  width: 28px;
+  height: 28px;
+  margin: 0;
+  padding: 0;
   border: 0;
   border-radius: 0;
-  padding: 4px;
+  background: transparent;
+  color: var(--text);
+  font: inherit;
 }
-.editor-settings input {
-  width: 48px;
-  border-bottom: 1px solid var(--line);
+.writer .format-bar .toolbar-icon:hover:not(:disabled) {
+  background: var(--surface);
 }
-.editor-settings select {
-  max-width: 120px;
+.writer .format-bar .toolbar-icon:disabled {
+  opacity: 0.35;
 }
-.editor-settings button[aria-pressed="true"] {
-  text-decoration: underline;
-  text-underline-offset: 4px;
+.writer .format-bar .toolbar-icon[aria-pressed="true"] {
+  color: var(--accent);
+  background: var(--selection);
+}
+.writer .format-bar .toolbar-icon[aria-pressed="true"]:hover {
+  background: var(--selection);
+}
+.writer .format-bar .dropdown-button {
+  height: 26px;
+  box-sizing: border-box;
+  padding: 0 6px;
+  border: 1px solid var(--line);
+  border-radius: 0;
+  font-size: 12px;
+}
+.writer .format-bar .dropdown-button:hover,
+.writer .format-bar .dropdown-button[aria-expanded="true"] {
+  background: var(--surface);
+}
+.writer .format-bar .extract {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 28px;
+  margin: 0;
+  padding: 0 8px;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: var(--text);
+  font: inherit;
+  white-space: nowrap;
+}
+.writer .format-bar .extract:hover:not(:disabled) {
+  background: var(--surface);
+}
+.writer .format-bar .extract:disabled {
+  opacity: 0.35;
+}
+@container (max-width: 1400px) {
+  .writer .format-bar .extract span {
+    display: none;
+  }
+}
+.writer .toolbar-anchor {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+.writer .toolbar-popover {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  z-index: 40;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-width: 232px;
+  padding: 12px;
+  box-sizing: border-box;
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 0;
+  box-shadow: 0 6px 18px var(--shadow);
+  color: var(--text);
+  font-family:
+    Futura,
+    "Avenir Next",
+    -apple-system,
+    sans-serif;
+  font-size: 12px;
+  text-align: left;
+  white-space: nowrap;
+  outline: none;
+}
+.writer .toolbar-popover.align-end {
+  left: auto;
+  right: 0;
+}
+.writer .toolbar-popover.is-more {
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: center;
+  max-width: min(420px, 90vw);
+  padding: 6px;
+}
+.writer .toolbar-popover.is-more .toolbar-group {
+  flex-wrap: wrap;
+}
+.writer .toolbar-popover-body {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.writer .toolbar-field {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.writer .toolbar-field-title {
+  color: var(--muted);
+  font-size: 11px;
+}
+.writer .toolbar-field-unit {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.writer .toolbar-presets {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 4px;
+}
+.writer .toolbar-presets button,
+.writer .toolbar-text-button {
+  height: 26px;
+  padding: 0 8px;
+  margin: 0;
+  border: 1px solid var(--line);
+  border-radius: 0;
+  background: transparent;
+  color: var(--text);
+  font: inherit;
+}
+.writer .toolbar-presets button:hover,
+.writer .toolbar-text-button:hover {
+  background: var(--surface);
+}
+.writer .toolbar-presets button[aria-pressed="true"] {
+  color: var(--accent);
+  background: var(--selection);
+}
+.writer .toolbar-number {
+  box-sizing: border-box;
+  width: 38px;
+  height: 26px;
+  margin: 0;
+  padding: 0 2px;
+  min-width: 0;
+  border: 1px solid var(--line);
+  border-radius: 0;
+  background: transparent;
+  color: var(--text);
+  font: inherit;
+  text-align: center;
+  appearance: textfield;
+  -moz-appearance: textfield;
+}
+.writer .toolbar-number::-webkit-outer-spin-button,
+.writer .toolbar-number::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
 }
 .editor-viewport {
-  overflow: auto;
   max-width: 100%;
   padding: 2px;
+}
+.is-continuous {
+  overflow: visible;
+}
+.is-continuous .editor-paper {
+  box-sizing: border-box;
+  margin: 0 auto;
+  max-width: var(--page-width);
+  padding: 32px var(--page-margin);
 }
 .editor-paper .writing-surface {
   font-family: Futura, system-ui, sans-serif;
@@ -65,9 +264,11 @@
 }
 .is-paged {
   background: var(--surface, var(--line));
-  padding: 24px;
+  padding: 16px;
+  overflow-x: auto;
 }
 .is-paged .editor-paper {
+  margin: 0 auto;
   padding: var(--page-margin);
   width: calc(
     var(--page-count) * (var(--page-width) + var(--page-gap)) - var(--page-gap)
@@ -110,8 +311,7 @@
   content: none;
 }
 @media print {
-  .format-bar,
-  .editor-settings {
+  .format-bar {
     display: none;
   }
   .editor-viewport,
@@ -147,14 +347,6 @@
   content: counter(footnote);
   font-size: 0.75em;
   vertical-align: super;
-}
-.editor-tool-separator {
-  color: var(--muted);
-  padding: 0 7px;
-  font:
-    11px Futura,
-    system-ui,
-    sans-serif;
 }
 .editor-paper .writing-surface {
   font-family: var(--document-font, Futura, system-ui, sans-serif);

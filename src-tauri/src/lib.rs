@@ -1,5 +1,6 @@
 #[cfg(feature = "native-smoke")]
 mod smoke;
+mod lookup;
 mod store;
 use std::sync::{
     atomic::{AtomicBool, Ordering},
@@ -147,6 +148,7 @@ pub fn run() {
         export_file,
         export_bytes,
         delete_project,
+        lookup::lookup_fetch,
         smoke::smoke_report
     ]);
     #[cfg(not(feature = "native-smoke"))]
@@ -162,7 +164,8 @@ pub fn run() {
         finish_quit,
         export_file,
         export_bytes,
-        delete_project
+        delete_project,
+        lookup::lookup_fetch
     ]);
     builder
         .build(tauri::generate_context!())

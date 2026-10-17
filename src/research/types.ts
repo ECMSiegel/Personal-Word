@@ -14,6 +14,9 @@ export type Source = {
   doi?: string;
   accessed?: string;
   website?: string;
+  isbn?: string;
+  /** Where a citation lookup found this record, e.g. "Found on Crossref". */
+  lookupNote?: string;
 };
 export type ResearchNote = {
   id: string;

@@ -3,6 +3,7 @@ import { ChevronDown, Layers, List, Trash2 } from "lucide-react";
 import type { Summary } from "../model";
 import type { DamagedJournal } from "../save-queue";
 import { desktop } from "../storage";
+import { Dropdown } from "./Dropdown";
 export function ProjectLibrary({
   projects,
   onCreate,
@@ -97,15 +98,16 @@ export function ProjectLibrary({
         <div className="library-display">
           <label>
             Sort{" "}
-            <select
-              aria-label="Sort projects"
+            <Dropdown
+              label="Sort projects"
               value={sort}
-              onChange={(e) => setSort(e.target.value)}
-            >
-              <option value="name">Name</option>
-              <option value="added">Added</option>
-              <option value="edited">Last edited</option>
-            </select>
+              onChange={setSort}
+              options={[
+                { value: "name", label: "Name" },
+                { value: "added", label: "Added" },
+                { value: "edited", label: "Last edited" },
+              ]}
+            />
           </label>
           <button
             aria-label="Reverse project sort order"
@@ -127,7 +129,7 @@ export function ProjectLibrary({
         {sorted.map((p) => (
           <div className="project-row" key={p.id}>
             <button onClick={() => onOpen(p.id)}>
-              <strong className="project-name">-- {p.title}</strong>
+              <strong className="project-name">{p.title}</strong>
               <span className="project-dates">
                 <span>Added {date(added(p))}</span>
                 <span>--</span>

@@ -43,7 +43,6 @@ test("research notes, footnote insertion, comments, and export route", async ({
     .locator(".group-title")
     .filter({ hasText: /^Research$/ })
     .click();
-  await page.getByRole("button", { name: "footnotes", exact: true }).click();
   await page.getByRole("button", { name: "Insert footnote at cursor" }).click();
   await page
     .getByLabel("Footnote text", { exact: true })
@@ -73,6 +72,12 @@ test("research notes, footnote insertion, comments, and export route", async ({
   expect((await download).suggestedFilename()).toBe("Research.docx");
 });
 
+async function toolbarButton(page: any, name: string) {
+  const button = page.getByRole("button", { name, exact: true });
+  if (!(await button.count()))
+    await page.getByRole("button", { name: "More formatting" }).click();
+  return button;
+}
 test("page layout reflows long paragraphs and preserves undo and formatting", async ({
   page,
 }) => {
@@ -83,8 +88,12 @@ test("page layout reflows long paragraphs and preserves undo and formatting", as
     "A long sentence with enough words to flow across paper. ".repeat(300),
   );
   await editor.press("ControlOrMeta+a");
-  await page.getByLabel("Line spacing", { exact: true }).selectOption("2");
-  await page.getByRole("button", { name: "Continuous", exact: true }).click();
+  await page
+    .getByRole("button", { name: "Line and paragraph spacing" })
+    .click();
+  await page.getByRole("button", { name: "Double", exact: true }).click();
+  await page.keyboard.press("Escape");
+  await (await toolbarButton(page, "Page view")).click();
   await expect(page.getByLabel("Page count")).toContainText(/of [2-9]/);
   await expect
     .poll(() =>
@@ -94,12 +103,12 @@ test("page layout reflows long paragraphs and preserves undo and formatting", as
         .evaluate((el) => el.getClientRects().length),
     )
     .toBeGreaterThan(1);
-  await page.getByRole("button", { name: "Pages", exact: true }).click();
+  await (await toolbarButton(page, "Page view")).click();
   await editor.fill("Before");
   await page.waitForTimeout(600);
   await editor.press("End");
-  await editor.pressSequentially(" added");
-  await page.getByRole("button", { name: "Continuous", exact: true }).click();
+  await page.keyboard.insertText(" added");
+  await (await toolbarButton(page, "Page view")).click();
   await page.getByRole("button", { name: "Undo", exact: true }).click();
   await expect(editor).toHaveText("Before");
   await page.screenshot({ path: "test-results/personal-word-pages.png" });

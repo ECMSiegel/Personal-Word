@@ -37,10 +37,8 @@ import {
 import { Writer } from "./Writer";
 import { ProjectLibrary } from "./components/ProjectLibrary";
 import { ProjectSidebar } from "./components/ProjectSidebar";
-
-import { ReadingProgress } from "./components/ReadingProgress";
-
 import { ReadDocument } from "./components/ReadDocument";
+import { Dropdown } from "./components/Dropdown";
 import { footnoteText } from "./research/citations";
 import { ProjectTabs } from "./components/ProjectTabs";
 import { ResearchPanel } from "./research/ResearchPanel";
@@ -63,6 +61,51 @@ function readPreference<T>(key: string, fallback: T): T {
   } catch {
     return fallback;
   }
+}
+const asideMin = 260;
+const asideMax = 720;
+function clampAside(width: number) {
+  return Math.max(asideMin, Math.min(asideMax, Math.round(width)));
+}
+function AsideResizer({
+  width,
+  onWidth,
+}: {
+  width: number;
+  onWidth: (width: number) => void;
+}) {
+  const drag = useRef<{ x: number; width: number } | null>(null);
+  return (
+    <div
+      className="aside-resizer"
+      role="separator"
+      aria-label="Resize side panel"
+      aria-orientation="vertical"
+      aria-valuemin={asideMin}
+      aria-valuemax={asideMax}
+      aria-valuenow={width}
+      tabIndex={0}
+      onPointerDown={(event) => {
+        event.currentTarget.setPointerCapture(event.pointerId);
+        drag.current = { x: event.clientX, width };
+      }}
+      onPointerMove={(event) => {
+        if (drag.current)
+          onWidth(drag.current.width + drag.current.x - event.clientX);
+      }}
+      onPointerUp={() => {
+        drag.current = null;
+      }}
+      onPointerCancel={() => {
+        drag.current = null;
+      }}
+      onKeyDown={(event) => {
+        if (event.key !== "ArrowLeft" && event.key !== "ArrowRight") return;
+        event.preventDefault();
+        onWidth(width + (event.key === "ArrowLeft" ? 16 : -16));
+      }}
+    />
+  );
 }
 type NameDialog = {
   title: string;
@@ -87,6 +130,7 @@ export default function App() {
   const [researchTab, setResearchTab] = useState<
     "sources" | "notes" | "footnotes"
   >("sources");
+  const [focusFootnote, setFocusFootnote] = useState<string>();
   const opening = useRef(false);
   const editorRef = useRef<Editor | null>(null);
   const pendingQuote = useRef<string>("");
@@ -158,6 +202,18 @@ export default function App() {
   const [active, setActive] = useState("");
   const [mode, setMode] = useState<"write" | "read">("write");
   const [status, setStatus] = useState<SaveStatus>({ state: "saved" });
+  const [pageStatus, setPageStatus] = useState({ current: 1, total: 1 });
+  const [asideWidth, setAsideWidth] = useState(() =>
+    clampAside(
+      Number(readPreference("personal-word.asidePanelWidth", 390)) || 390,
+    ),
+  );
+  useEffect(() => {
+    localStorage.setItem(
+      "personal-word.asidePanelWidth",
+      JSON.stringify(asideWidth),
+    );
+  }, [asideWidth]);
   const [error, setError] = useState("");
   const [mirrorError, setMirrorError] = useState("");
   const [notice, setNotice] = useState("");
@@ -514,6 +570,17 @@ export default function App() {
     }
   }, [project?.id, project?.title, active, mode, destination]);
   const item = project?.entries.find((e) => e.id === active);
+  const writing =
+    !!item &&
+    mode !== "read" &&
+    destination !== "settings" &&
+    destination !== "comments";
+  const asideResizer = (
+    <AsideResizer
+      width={asideWidth}
+      onWidth={(width) => setAsideWidth(clampAside(width))}
+    />
+  );
   const rename = (e: Entry) =>
     setNameDialog({
       title: "Rename " + e.kind,
@@ -1040,6 +1107,7 @@ export default function App() {
                   });
                 if (group === "research") {
                   setResearchTab("notes");
+                  setFocusFootnote(undefined);
                   setResearchEpoch((n) => n + 1);
                 }
               }}
@@ -1050,6 +1118,7 @@ export default function App() {
                   setDestination(group);
                   setMode("write");
                   setResearchTab("notes");
+                  setFocusFootnote(undefined);
                   setResearchEpoch((n) => n + 1);
                   mutate((p) => ({
                     ...p,
@@ -1106,7 +1175,7 @@ export default function App() {
                     title="Toggle sidebar (⌘\\)"
                     onClick={() =>
                       window.dispatchEvent(
-                        new Event("personal-word:toggle-sidebar"),
+                        new Event("personal-word:reveal-sidebar"),
                       )
                     }
                   >
@@ -1122,11 +1191,28 @@ export default function App() {
                       {project.title}
                     </button>
                     <span>/</span>
-                    {mode === "read"
-                      ? "Manuscript"
-                      : item?.kind === "fragment"
-                        ? "Fragments"
-                        : "Manuscript"}
+                    {writing && item ? (
+                      <>
+                        <button
+                          className="breadcrumb-title"
+                          title={"Rename " + item.kind}
+                          aria-label={"Rename " + item.kind}
+                          onClick={() => rename(item)}
+                        >
+                          {item.title}
+                        </button>
+                        <button
+                          className="delete-entry"
+                          title={"Delete " + item.kind}
+                          aria-label={"Delete " + item.kind}
+                          onClick={() => remove(item)}
+                        >
+                          <Trash2 size={13} />
+                        </button>
+                      </>
+                    ) : (
+                      "Manuscript"
+                    )}
                   </span>
                 </div>
                 <div>
@@ -1164,7 +1250,6 @@ export default function App() {
                   </button>
                 </div>
               </header>
-              <ReadingProgress identity={project.id + mode + active} />
               {mode === "read" && sections.length > 1 && (
                 <nav className="proximity-nav" aria-label="Manuscript sections">
                   {sections.map((section) => (
@@ -1261,21 +1346,23 @@ export default function App() {
                   >
                     <label>
                       Font
-                      <select
+                      <Dropdown
+                        label="Font"
                         value={reader.font}
-                        onChange={(e) =>
-                          setReader({ ...reader, font: e.target.value })
-                        }
-                      >
-                        <option value="Futura, Avenir, sans-serif">
-                          Futura / Avenir
-                        </option>
-                        <option value="-apple-system, sans-serif">
-                          System sans
-                        </option>
-                        <option value="Georgia, serif">Georgia</option>
-                        <option value="monospace">Monospace</option>
-                      </select>
+                        onChange={(font) => setReader({ ...reader, font })}
+                        options={[
+                          {
+                            value: "Futura, Avenir, sans-serif",
+                            label: "Futura / Avenir",
+                          },
+                          {
+                            value: "-apple-system, sans-serif",
+                            label: "System sans",
+                          },
+                          { value: "Georgia, serif", label: "Georgia" },
+                          { value: "monospace", label: "Monospace" },
+                        ]}
+                      />
                     </label>
                     <label>
                       Size
@@ -1380,40 +1467,16 @@ export default function App() {
                     )}
                 </div>
               ) : item ? (
-                <div className="editor-scroll">
-                  <div className="document-heading">
-                    <div className="document-title-row">
-                      <button
-                        className="document-title"
-                        title="Rename"
-                        onClick={() => rename(item)}
-                      >
-                        {item.title}
-                      </button>
-                      <button
-                        className="delete-entry"
-                        title={"Delete " + item.kind}
-                        aria-label={"Delete " + item.kind}
-                        onClick={() => remove(item)}
-                      >
-                        <Trash2 size={15} />
-                      </button>
-                    </div>
-                    {item.origin && (
-                      <p className="origin">
-                        Kept from “{item.origin.sectionTitle}” --{" "}
-                        {new Date(item.origin.removedAt).toLocaleDateString()}
-                      </p>
-                    )}
-                  </div>
+                <div className="editor-area">
                   <Writer
                     key={item.id + ":" + editorEpoch}
                     item={item}
                     documentSettings={project.documentSettings}
                     footnoteNumbers={footnoteNumbers}
-                    onFootnote={() => {
+                    onFootnote={(id) => {
+                      setFocusFootnote(id);
                       setResearchEpoch((n) => n + 1);
-                      setResearchTab("footnotes");
+                      setResearchTab("sources");
                       setDestination("research");
                     }}
                     layout={project.pageLayout}
@@ -1453,33 +1516,46 @@ export default function App() {
                         ),
                       }))
                     }
+                    onComment={() => addAnnotation("comment")}
+                    onPageStatus={(s) =>
+                      setPageStatus((prev) =>
+                        prev.current === s.current && prev.total === s.total
+                          ? prev
+                          : s,
+                      )
+                    }
+                    header={
+                      item.origin ? (
+                        <p className="origin">
+                          Kept from “{item.origin.sectionTitle}” --{" "}
+                          {new Date(item.origin.removedAt).toLocaleDateString()}
+                        </p>
+                      ) : undefined
+                    }
+                    footer={
+                      item.kind === "fragment" ? (
+                        <div className="restore-fragment">
+                          <span>Give these words a home</span>
+                          <Dropdown
+                            label="Restore fragment to section"
+                            width={220}
+                            value={target}
+                            onChange={setTarget}
+                            options={[
+                              { value: "", label: "Choose a section" },
+                              ...sections.map((e) => ({
+                                value: e.id,
+                                label: e.title,
+                              })),
+                            ]}
+                          />
+                          <button disabled={!target} onClick={restoreFragment}>
+                            Append to section →
+                          </button>
+                        </div>
+                      ) : undefined
+                    }
                   />
-                  <button
-                    className="text-button"
-                    onClick={() => addAnnotation("comment")}
-                  >
-                    Comment on selection
-                  </button>
-                  {item.kind === "fragment" && (
-                    <div className="restore-fragment">
-                      <span>Give these words a home</span>
-                      <select
-                        aria-label="Restore fragment to section"
-                        value={target}
-                        onChange={(e) => setTarget(e.target.value)}
-                      >
-                        <option value="">Choose a section</option>
-                        {sections.map((e) => (
-                          <option key={e.id} value={e.id}>
-                            {e.title}
-                          </option>
-                        ))}
-                      </select>
-                      <button disabled={!target} onClick={restoreFragment}>
-                        Append to section →
-                      </button>
-                    </div>
-                  )}
                 </div>
               ) : (
                 <div className="empty-editor">
@@ -1490,6 +1566,11 @@ export default function App() {
                 </div>
               )}
               <footer className="document-statistics">
+                {writing && project.pageLayout?.mode === "pages" && (
+                  <span aria-label="Page count" aria-live="polite">
+                    Page {pageStatus.current} of {pageStatus.total}
+                  </span>
+                )}
                 <span title={`${item?.text.length ?? 0} characters`}>
                   {(mode === "read"
                     ? sections.reduce((n, e) => n + words(e.text), 0)
@@ -1499,8 +1580,13 @@ export default function App() {
                 </span>
               </footer>
             </main>
+            {(destination === "fragments" || destination === "research") &&
+              asideResizer}
             {destination === "fragments" && (
-              <aside className="research-aside fragment-aside">
+              <aside
+                className="research-aside fragment-aside"
+                style={{ width: asideWidth }}
+              >
                 <header>
                   <strong>Fragment library</strong>
                   <button
@@ -1533,7 +1619,7 @@ export default function App() {
               </aside>
             )}
             {destination === "research" && (
-              <aside className="research-aside">
+              <aside className="research-aside" style={{ width: asideWidth }}>
                 <header>
                   <strong>Research</strong>
                   <button
@@ -1546,6 +1632,7 @@ export default function App() {
                 <ResearchPanel
                   key={researchEpoch}
                   initialTab={researchTab}
+                  focusFootnoteId={focusFootnote}
                   onInsertNote={(note) => {
                     const editor = editorRef.current;
                     if (!editor) return;

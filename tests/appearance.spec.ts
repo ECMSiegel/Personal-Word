@@ -1,6 +1,6 @@
 import { test, expect } from "@playwright/test";
 
-test("system appearance changes live and document progress follows nested scrolling", async ({
+test("system appearance changes live and the writing area scrolls on its own", async ({
   page,
 }) => {
   await page.emulateMedia({ colorScheme: "light" });
@@ -30,20 +30,19 @@ test("system appearance changes live and document progress follows nested scroll
   await page
     .getByRole("textbox", { name: "Writing editor" })
     .fill("A paragraph of writing.\n\n".repeat(100));
-  await page.locator(".editor-scroll").evaluate((el) => {
+  await page.locator(".writer-scroll").evaluate((el) => {
     el.scrollTop = el.scrollHeight;
   });
-  await expect(page.getByRole("progressbar")).toHaveAttribute(
-    "aria-valuenow",
-    "100",
-  );
+  await expect
+    .poll(() => page.locator(".writer-scroll").evaluate((el) => el.scrollTop))
+    .toBeGreaterThan(100);
+  await expect(
+    page.getByRole("toolbar", { name: "Formatting" }),
+  ).toBeInViewport();
+  await expect(page.getByRole("progressbar")).toHaveCount(0);
   await page.getByRole("button", { name: "New section", exact: true }).click();
   await page.getByLabel("Title", { exact: true }).fill("Second section");
   await page.getByRole("button", { name: "Save", exact: true }).click();
-  await expect(page.getByRole("progressbar")).toHaveAttribute(
-    "aria-valuenow",
-    "0",
-  );
   await page
     .getByRole("button", { name: "Read manuscript", exact: true })
     .click();

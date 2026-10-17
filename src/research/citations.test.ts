@@ -41,6 +41,24 @@ describe("Chicago 18 common-source citations", () => {
     );
     expect(formatCitation(s, "bibliography")).toContain(": 1–20.");
   });
+  it("writes website dates in Chicago form and omits the access date when dated", () => {
+    const site: Source = {
+      id: "w",
+      kind: "website",
+      title: "A Page",
+      authors: ["Jane Doe"],
+      website: "Example",
+      year: "2025-03-04",
+      accessed: "2026-10-16",
+      url: "https://example.org/page",
+    };
+    expect(formatCitation(site, "full")).toBe(
+      "Jane Doe, “A Page,” Example, March 4, 2025, https://example.org/page.",
+    );
+    expect(formatCitation({ ...site, year: "" }, "full")).toBe(
+      "Jane Doe, “A Page,” Example, accessed October 16, 2026, https://example.org/page.",
+    );
+  });
   it("sorts bibliography by author", () =>
     expect(
       bibliography({

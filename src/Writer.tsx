@@ -18,8 +18,26 @@ import {
   Scissors,
   Link as LinkIcon,
   Unlink,
+  IndentDecrease,
+  IndentIncrease,
+  BetweenHorizontalStart,
+  FileText,
+  AlignJustify,
+  Settings2,
+  Ellipsis,
+  MessageSquarePlus,
+  Minus,
+  Plus,
+  type LucideIcon,
 } from "lucide-react";
-import { useState, useEffect, useRef, type CSSProperties } from "react";
+import {
+  useState,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  type CSSProperties,
+  type ReactNode,
+} from "react";
 import {
   defaultPageLayout,
   paperGeometry,
@@ -30,8 +48,86 @@ import {
 } from "./editor/formatting";
 import "./editor/editor.css";
 import { documentExtensions } from "./editor/extensions";
+import { changeIndent, indentKeys } from "./editor/indent";
+import { NumberInput, PanelButton } from "./editor/ToolbarControls";
+import { Dropdown, type DropdownOption } from "./components/Dropdown";
 import type { DocumentSettings } from "./research/types";
 import { type Entry } from "./model";
+
+type ToolbarPanel = "spacing" | "setup" | "more";
+type ToolbarGroup =
+  | "history"
+  | "zoom"
+  | "paragraph"
+  | "font"
+  | "size"
+  | "marks"
+  | "link"
+  | "lists"
+  | "indent"
+  | "spacing"
+  | "view"
+  | "setup"
+  | "more"
+  | "right";
+
+const TOOLBAR_ORDER: ToolbarGroup[] = [
+  "history",
+  "zoom",
+  "paragraph",
+  "font",
+  "size",
+  "marks",
+  "link",
+  "lists",
+  "indent",
+  "spacing",
+  "view",
+  "setup",
+  "more",
+  "right",
+];
+/** Groups that move into the More menu first, least important first. */
+const OVERFLOW_ORDER: ToolbarGroup[] = [
+  "setup",
+  "view",
+  "spacing",
+  "indent",
+  "lists",
+  "link",
+  "marks",
+  "size",
+  "font",
+  "paragraph",
+  "zoom",
+];
+const ALWAYS_VISIBLE: ToolbarGroup[] = ["history", "right"];
+const FONT_FACES = [
+  "Futura, system-ui, sans-serif",
+  "Arial, sans-serif",
+  "Helvetica, sans-serif",
+  "Verdana, sans-serif",
+  "Georgia, serif",
+  "Times New Roman, serif",
+  "Courier New, monospace",
+];
+const LINE_PRESETS = [
+  { value: 1, label: "Single" },
+  { value: 1.15, label: "1.15" },
+  { value: 1.5, label: "1.5" },
+  { value: 2, label: "Double" },
+];
+
+function withCurrent(
+  options: DropdownOption<string>[],
+  value: string,
+  label: string,
+): DropdownOption<string>[] {
+  return options.some((option) => option.value === value)
+    ? options
+    : [...options, { value, label }];
+}
+
 export function Writer({
   item,
   onEdit,
@@ -40,10 +136,14 @@ export function Writer({
   layout: controlledLayout,
   onLayoutChange,
   onPageCountChange,
+  onPageStatus,
   onEditorReady,
+  onComment,
   documentSettings,
   footnoteNumbers,
   onFootnote,
+  header,
+  footer,
 }: {
   documentSettings?: DocumentSettings;
   footnoteNumbers?: Record<string, number>;
@@ -52,6 +152,10 @@ export function Writer({
   layout?: PageLayout;
   onLayoutChange?: (layout: PageLayout) => void;
   onPageCountChange?: (count: number) => void;
+  onPageStatus?: (status: { current: number; total: number }) => void;
+  onComment?: () => void;
+  header?: ReactNode;
+  footer?: ReactNode;
   item: Entry;
   onEdit: (content: JSONContent, text: string) => void;
   onExtract: (editor: Editor) => void;
@@ -59,6 +163,8 @@ export function Writer({
 }) {
   const settingsRef = useRef(documentSettings);
   settingsRef.current = documentSettings;
+  const pageStatusRef = useRef(onPageStatus);
+  pageStatusRef.current = onPageStatus;
   const defaultFont =
     documentSettings?.font === "serif"
       ? "Times New Roman, serif"
@@ -81,12 +187,26 @@ export function Writer({
   };
   const [pages, setPages] = useState(1);
   const [currentPage, setCurrentPage] = useState(1);
+  const [panel, setPanel] = useState<ToolbarPanel | null>(null);
+  const [overflowCount, setOverflowCount] = useState(0);
   const viewport = useRef<HTMLDivElement>(null);
+  const barRef = useRef<HTMLDivElement>(null);
+  const groupEls = useRef<Partial<Record<ToolbarGroup, HTMLElement | null>>>(
+    {},
+  );
+  const groupWidths = useRef<Partial<Record<ToolbarGroup, number>>>({});
+  const panelTriggers = useRef<
+    Partial<Record<ToolbarPanel, HTMLButtonElement | null>>
+  >({});
   const geometry = paperGeometry(layout);
   const [, render] = useState(0);
   const editor = useEditor({
     extensions: [
       ...documentExtensions(),
+      indentKeys(
+        () => settingsRef.current?.font === "mono",
+        () => (settingsRef.current?.firstLineIndent ? 0.5 : 0),
+      ),
       Placeholder.configure({
         placeholder: "Begin anywhere. The shape will come.",
       }),
@@ -194,7 +314,69 @@ export function Writer({
     layout.zoom,
     onPageCountChange,
   ]);
+  useEffect(() => {
+    pageStatusRef.current?.({
+      current: Math.min(currentPage, pages),
+      total: pages,
+    });
+  }, [currentPage, pages]);
+  useEffect(() => {
+    if (!panel) return;
+    const dismiss = (event: PointerEvent) => {
+      const target = event.target as Element | null;
+      if (!target?.closest?.("[data-toolbar-panel]")) setPanel(null);
+    };
+    document.addEventListener("pointerdown", dismiss);
+    return () => document.removeEventListener("pointerdown", dismiss);
+  }, [panel]);
+  const fitToolbar = () => {
+    const bar = barRef.current;
+    if (!bar) return;
+    for (const id of Object.keys(groupEls.current) as ToolbarGroup[]) {
+      const el = groupEls.current[id];
+      if (el) groupWidths.current[id] = el.offsetWidth;
+    }
+    const widths = groupWidths.current;
+    const style = getComputedStyle(bar);
+    const available =
+      bar.clientWidth -
+      parseFloat(style.paddingLeft) -
+      parseFloat(style.paddingRight);
+    const sum = (ids: ToolbarGroup[]) =>
+      ids.reduce((total, id) => total + (widths[id] ?? 0), 0);
+    let count = OVERFLOW_ORDER.length;
+    for (let k = 0; k <= OVERFLOW_ORDER.length; k++) {
+      const visible = OVERFLOW_ORDER.slice(k);
+      const total =
+        sum(ALWAYS_VISIBLE) + sum(visible) + (k ? (widths.more ?? 40) : 0);
+      if (total <= available) {
+        count = k;
+        break;
+      }
+    }
+    setOverflowCount(count);
+  };
+  const linkActive = editor?.isActive("link") ?? false;
+  useLayoutEffect(() => {
+    fitToolbar();
+    // Group widths only change when these inputs do; measuring on every
+    // keystroke forces a full layout and slows typing.
+  }, [editor, linkActive, documentSettings?.font, layout.mode, overflowCount]);
+  useEffect(() => {
+    const bar = barRef.current;
+    if (!bar) return;
+    const observer = new ResizeObserver(() => fitToolbar());
+    observer.observe(bar);
+    return () => observer.disconnect();
+  }, [editor]);
   if (!editor) return null;
+  const hidden = OVERFLOW_ORDER.slice(0, overflowCount);
+  const closePanel = (name: ToolbarPanel) => {
+    setPanel(
+      name !== "more" && hidden.includes(name as ToolbarGroup) ? "more" : null,
+    );
+    panelTriggers.current[name]?.focus();
+  };
   const paragraphAttrs = editor.getAttributes(
     editor.isActive("heading") ? "heading" : "paragraph",
   );
@@ -218,7 +400,23 @@ export function Writer({
     "--page-count": pages,
     zoom: layout.zoom / 100,
   } as CSSProperties;
-  const tools = [
+  const paragraphValue = editor.isActive("heading", { level: 1 })
+    ? "1"
+    : editor.isActive("heading", { level: 2 })
+      ? "2"
+      : "0";
+  const fontValue: string =
+    editor.getAttributes("textFormat").fontFamily ?? defaultFont;
+  const size =
+    parseFloat(editor.getAttributes("textFormat").fontSize ?? "") ||
+    defaultSize;
+  const setSize = (n: number) =>
+    editor
+      .chain()
+      .setMark("textFormat", { fontSize: `${Math.min(96, Math.max(8, n))}pt` })
+      .run();
+  const line = Number(paragraphAttrs.lineHeight ?? defaultLine);
+  const marks = [
     {
       label: "Bold (⌘B)",
       icon: Bold,
@@ -243,6 +441,8 @@ export function Writer({
       active: editor.isActive("strike"),
       run: () => editor.chain().focus().toggleStrike().run(),
     },
+  ];
+  const lists = [
     {
       label: "Bullet list",
       icon: List,
@@ -262,328 +462,506 @@ export function Writer({
       run: () => editor.chain().focus().toggleBlockquote().run(),
     },
   ];
-  return (
-    <>
-      <div className="format-bar" role="toolbar" aria-label="Formatting">
-        <select
-          aria-label="Paragraph style"
-          value={
-            editor.isActive("heading", { level: 1 })
-              ? "1"
-              : editor.isActive("heading", { level: 2 })
-                ? "2"
-                : "0"
-          }
-          onChange={(e) =>
-            e.target.value === "0"
-              ? editor.chain().focus().setParagraph().run()
-              : editor
-                  .chain()
-                  .focus()
-                  .toggleHeading({ level: Number(e.target.value) as 1 | 2 })
-                  .run()
-          }
-        >
-          <option value="0">Normal text</option>
-          <option value="1">Heading 1</option>
-          <option value="2">Heading 2</option>
-        </select>
-        <span className="editor-tool-separator" aria-hidden="true">
-          --
-        </span>
-        {tools.map((t) => (
-          <button
-            key={t.label}
-            title={t.label}
-            aria-label={t.label}
-            aria-pressed={t.active}
-            onClick={t.run}
-          >
-            <t.icon size={16} />
-          </button>
-        ))}
-        <button
-          title="Add link"
-          aria-label="Add link"
-          onClick={() =>
-            onLink(editor.getAttributes("link").href ?? "", (url) =>
-              editor.chain().focus().setLink({ href: url }).run(),
-            )
-          }
-        >
-          <LinkIcon size={16} />
-        </button>
-        {editor.isActive("link") && (
-          <button
-            title="Remove link"
-            aria-label="Remove link"
-            onClick={() => editor.chain().focus().unsetLink().run()}
-          >
-            <Unlink size={16} />
-          </button>
-        )}
-        <span className="editor-tool-separator" aria-hidden="true">
-          --
-        </span>
-        <button
-          title="Undo"
-          aria-label="Undo"
-          disabled={!editor.can().undo()}
-          onClick={() => editor.chain().focus().undo().run()}
-        >
-          <Undo2 size={16} />
-        </button>
-        <button
-          title="Redo"
-          aria-label="Redo"
-          disabled={!editor.can().redo()}
-          onClick={() => editor.chain().focus().redo().run()}
-        >
-          <Redo2 size={16} />
-        </button>
-        {item.kind === "section" && (
-          <button
-            className="extract"
-            disabled={editor.state.selection.empty}
-            title="Move selection to Fragments (⌘⇧X)"
-            onClick={() => onExtract(editor)}
-          >
-            <Scissors size={15} />
-            <span>Keep as fragment</span>
-          </button>
-        )}
-      </div>
-      <div className="editor-settings" aria-label="Text and page settings">
-        {documentSettings?.font === "mono" && (
-          <label>
-            Screenplay{" "}
-            <select
-              aria-label="Screenplay paragraph style"
-              value={paragraphAttrs.paragraphStyle ?? "action"}
-              onChange={(e) =>
-                editor
-                  .chain()
-                  .focus()
-                  .setParagraph()
-                  .updateAttributes(
-                    "paragraph",
-                    screenplayAttributes(e.target.value),
-                  )
-                  .run()
-              }
+  const iconButton = (t: {
+    label: string;
+    icon: LucideIcon;
+    active: boolean;
+    run: () => void;
+  }) => (
+    <button
+      key={t.label}
+      type="button"
+      className="toolbar-icon"
+      title={t.label}
+      aria-label={t.label}
+      aria-pressed={t.active}
+      onClick={t.run}
+    >
+      <t.icon size={16} aria-hidden="true" />
+    </button>
+  );
+  const groupBody = (id: ToolbarGroup): ReactNode => {
+    switch (id) {
+      case "history":
+        return (
+          <>
+            <button
+              type="button"
+              className="toolbar-icon"
+              title="Undo"
+              aria-label="Undo"
+              disabled={!editor.can().undo()}
+              onClick={() => editor.chain().focus().undo().run()}
             >
-              {screenplayStyles.map((style) => (
-                <option key={style} value={style}>
-                  {style[0].toUpperCase() + style.slice(1)}
-                </option>
-              ))}
-            </select>
-            <span title="Tab advances paragraph style; Shift Tab reverses">
-              Tab to cycle
-            </span>
-          </label>
-        )}
-        <label>
-          Font{" "}
-          <select
-            aria-label="Font family"
-            value={editor.getAttributes("textFormat").fontFamily ?? defaultFont}
-            onChange={(e) =>
+              <Undo2 size={16} aria-hidden="true" />
+            </button>
+            <button
+              type="button"
+              className="toolbar-icon"
+              title="Redo"
+              aria-label="Redo"
+              disabled={!editor.can().redo()}
+              onClick={() => editor.chain().focus().redo().run()}
+            >
+              <Redo2 size={16} aria-hidden="true" />
+            </button>
+          </>
+        );
+      case "zoom":
+        return (
+          <Dropdown
+            value={String(layout.zoom)}
+            options={withCurrent(
+              [50, 75, 100, 125, 150].map((n) => ({
+                value: String(n),
+                label: `${n}%`,
+              })),
+              String(layout.zoom),
+              `${layout.zoom}%`,
+            )}
+            onChange={(value) => setLayout({ zoom: Number(value) })}
+            label="Editor zoom"
+            width={74}
+          />
+        );
+      case "paragraph":
+        return (
+          <>
+            <Dropdown
+              value={paragraphValue}
+              options={[
+                { value: "0", label: "Normal text" },
+                { value: "1", label: "Heading 1" },
+                { value: "2", label: "Heading 2" },
+              ]}
+              onChange={(value) =>
+                value === "0"
+                  ? editor.chain().focus().setParagraph().run()
+                  : editor
+                      .chain()
+                      .focus()
+                      .toggleHeading({ level: Number(value) as 1 | 2 })
+                      .run()
+              }
+              label="Paragraph style"
+              width={104}
+            />
+            {documentSettings?.font === "mono" && (
+              <Dropdown
+                value={paragraphAttrs.paragraphStyle ?? "action"}
+                options={screenplayStyles.map((style) => ({
+                  value: style,
+                  label: style[0].toUpperCase() + style.slice(1),
+                }))}
+                onChange={(style) =>
+                  editor
+                    .chain()
+                    .focus()
+                    .setParagraph()
+                    .updateAttributes("paragraph", screenplayAttributes(style))
+                    .run()
+                }
+                label="Screenplay paragraph style"
+                title="Tab advances paragraph style; Shift Tab reverses"
+                width={110}
+              />
+            )}
+          </>
+        );
+      case "font":
+        return (
+          <Dropdown
+            value={fontValue}
+            options={withCurrent(
+              FONT_FACES.map((f) => ({
+                value: f,
+                label: f.split(",")[0],
+                style: { fontFamily: f },
+              })),
+              fontValue,
+              fontValue.split(",")[0],
+            )}
+            onChange={(value) =>
               editor
                 .chain()
                 .focus()
-                .setMark("textFormat", { fontFamily: e.target.value })
+                .setMark("textFormat", { fontFamily: value })
                 .run()
             }
-          >
-            {[
-              "Futura, system-ui, sans-serif",
-              "Arial, sans-serif",
-              "Helvetica, sans-serif",
-              "Verdana, sans-serif",
-              "Georgia, serif",
-              "Times New Roman, serif",
-              "Courier New, monospace",
-            ].map((f) => (
-              <option key={f} value={f}>
-                {f.split(",")[0]}
-              </option>
-            ))}
-          </select>
-        </label>
-        <label>
-          Size{" "}
-          <input
-            aria-label="Font size"
-            type="number"
-            min="8"
-            max="96"
-            value={parseFloat(
-              editor.getAttributes("textFormat").fontSize ??
-                String(defaultSize),
+            label="Font family"
+            width={124}
+          />
+        );
+      case "size":
+        return (
+          <>
+            <button
+              type="button"
+              className="toolbar-icon"
+              title="Decrease font size"
+              aria-label="Decrease font size"
+              onClick={() => setSize(size - 1)}
+            >
+              <Minus size={14} aria-hidden="true" />
+            </button>
+            <NumberInput
+              label="Font size"
+              value={size}
+              min={8}
+              max={96}
+              step={1}
+              width={38}
+              onCommit={setSize}
+            />
+            <button
+              type="button"
+              className="toolbar-icon"
+              title="Increase font size"
+              aria-label="Increase font size"
+              onClick={() => setSize(size + 1)}
+            >
+              <Plus size={14} aria-hidden="true" />
+            </button>
+          </>
+        );
+      case "marks":
+        return marks.map(iconButton);
+      case "link":
+        return (
+          <>
+            <button
+              type="button"
+              className="toolbar-icon"
+              title="Add link"
+              aria-label="Add link"
+              onClick={() =>
+                onLink(editor.getAttributes("link").href ?? "", (url) =>
+                  editor.chain().focus().setLink({ href: url }).run(),
+                )
+              }
+            >
+              <LinkIcon size={16} aria-hidden="true" />
+            </button>
+            {editor.isActive("link") && (
+              <button
+                type="button"
+                className="toolbar-icon"
+                title="Remove link"
+                aria-label="Remove link"
+                onClick={() => editor.chain().focus().unsetLink().run()}
+              >
+                <Unlink size={16} aria-hidden="true" />
+              </button>
             )}
-            onChange={(e) => {
-              const n = Number(e.target.value);
-              if (n >= 8 && n <= 96)
-                editor
-                  .chain()
-                  .setMark("textFormat", { fontSize: `${n}pt` })
-                  .run();
+          </>
+        );
+      case "lists":
+        return lists.map(iconButton);
+      case "indent":
+        return (
+          <>
+            <button
+              type="button"
+              className="toolbar-icon"
+              title="Decrease indent"
+              aria-label="Decrease indent"
+              onClick={() => changeIndent(editor, -1)}
+            >
+              <IndentDecrease size={16} aria-hidden="true" />
+            </button>
+            <button
+              type="button"
+              className="toolbar-icon"
+              title="Increase indent"
+              aria-label="Increase indent"
+              onClick={() => changeIndent(editor, 1)}
+            >
+              <IndentIncrease size={16} aria-hidden="true" />
+            </button>
+          </>
+        );
+      case "spacing":
+        return (
+          <PanelButton
+            label="Line and paragraph spacing"
+            dialogLabel="Line and paragraph spacing"
+            icon={BetweenHorizontalStart}
+            open={panel === "spacing"}
+            onToggle={() => setPanel(panel === "spacing" ? null : "spacing")}
+            onEscape={() => closePanel("spacing")}
+            buttonRef={(el) => {
+              panelTriggers.current.spacing = el;
             }}
-          />
-        </label>
-        <span aria-hidden="true">--</span>
-        <label>
-          Line{" "}
-          <select
-            aria-label="Line spacing"
-            value={
-              ["1", "1.15", "1.5", "2"].includes(
-                String(paragraphAttrs.lineHeight ?? String(defaultLine)),
-              )
-                ? String(paragraphAttrs.lineHeight ?? String(defaultLine))
-                : "custom"
+          >
+            <div className="toolbar-popover-body">
+              <span className="toolbar-field-title">Line spacing</span>
+              <div className="toolbar-presets">
+                {LINE_PRESETS.map((preset) => (
+                  <button
+                    key={preset.label}
+                    type="button"
+                    aria-pressed={line === preset.value}
+                    onClick={() =>
+                      setParagraphFormat("lineHeight", String(preset.value))
+                    }
+                  >
+                    {preset.label}
+                  </button>
+                ))}
+              </div>
+              <div className="toolbar-field">
+                <span>Custom</span>
+                <NumberInput
+                  label="Custom line spacing"
+                  value={line}
+                  min={0.8}
+                  max={5}
+                  step={0.05}
+                  width={64}
+                  onCommit={(n) => setParagraphFormat("lineHeight", String(n))}
+                />
+              </div>
+              <div className="toolbar-field">
+                <span>Space before</span>
+                <span className="toolbar-field-unit">
+                  <NumberInput
+                    label="Paragraph spacing before"
+                    value={parseFloat(paragraphAttrs.spaceBefore ?? "0") || 0}
+                    min={0}
+                    max={144}
+                    step={1}
+                    width={56}
+                    onCommit={(n) =>
+                      setParagraphFormat("spaceBefore", `${n}pt`)
+                    }
+                  />
+                  pt
+                </span>
+              </div>
+              <div className="toolbar-field">
+                <span>Space after</span>
+                <span className="toolbar-field-unit">
+                  <NumberInput
+                    label="Paragraph spacing after"
+                    value={parseFloat(paragraphAttrs.spaceAfter ?? "0") || 0}
+                    min={0}
+                    max={144}
+                    step={1}
+                    width={56}
+                    onCommit={(n) => setParagraphFormat("spaceAfter", `${n}pt`)}
+                  />
+                  pt
+                </span>
+              </div>
+            </div>
+          </PanelButton>
+        );
+      case "view":
+        return (
+          <button
+            type="button"
+            className="toolbar-icon"
+            title={layout.mode === "pages" ? "Page view" : "Continuous view"}
+            aria-label="Page view"
+            aria-pressed={layout.mode === "pages"}
+            onClick={() =>
+              setLayout({
+                mode: layout.mode === "pages" ? "continuous" : "pages",
+              })
             }
-            onChange={(e) => {
-              if (e.target.value !== "custom")
-                setParagraphFormat("lineHeight", e.target.value);
-              else setParagraphFormat("lineHeight", "1.25");
+          >
+            {layout.mode === "pages" ? (
+              <FileText size={16} aria-hidden="true" />
+            ) : (
+              <AlignJustify size={16} aria-hidden="true" />
+            )}
+          </button>
+        );
+      case "setup":
+        return (
+          <PanelButton
+            label="Page setup"
+            dialogLabel="Page setup"
+            icon={Settings2}
+            align="end"
+            open={panel === "setup"}
+            onToggle={() => setPanel(panel === "setup" ? null : "setup")}
+            onEscape={() => closePanel("setup")}
+            buttonRef={(el) => {
+              panelTriggers.current.setup = el;
             }}
           >
-            <option value="1">Single</option>
-            <option value="1.15">1.15</option>
-            <option value="1.5">1.5</option>
-            <option value="2">Double</option>
-            <option value="custom">Custom</option>
-          </select>
-        </label>
-        <label>
-          Custom{" "}
-          <input
-            aria-label="Custom line spacing"
-            type="number"
-            min="0.8"
-            max="5"
-            step="0.05"
-            value={paragraphAttrs.lineHeight ?? String(defaultLine)}
-            onChange={(e) => {
-              const n = Number(e.target.value);
-              if (n >= 0.8 && n <= 5)
-                setParagraphFormat("lineHeight", String(n));
-            }}
-          />
-        </label>
-        {(["spaceBefore", "spaceAfter"] as const).map((key, i) => (
-          <label key={key}>
-            {i ? "After" : "Before"}{" "}
-            <input
-              aria-label={`Paragraph spacing ${i ? "after" : "before"}`}
-              type="number"
-              min="0"
-              max="144"
-              value={parseFloat(paragraphAttrs[key] ?? "0")}
-              onChange={(e) => {
-                const n = Number(e.target.value);
-                if (n >= 0 && n <= 144) setParagraphFormat(key, `${n}pt`);
-              }}
-            />{" "}
-            pt
-          </label>
-        ))}
-        <span aria-hidden="true">--</span>
-        <button
-          aria-pressed={layout.mode === "pages"}
-          onClick={() =>
-            setLayout({
-              mode: layout.mode === "pages" ? "continuous" : "pages",
-            })
-          }
-        >
-          {layout.mode === "pages" ? "Pages" : "Continuous"}
-        </button>
-        <label>
-          Paper{" "}
-          <select
-            aria-label="Paper size"
-            value={layout.paper}
-            onChange={(e) =>
-              setLayout({ paper: e.target.value as PageLayout["paper"] })
+            <div className="toolbar-popover-body">
+              <div className="toolbar-field">
+                <span>Paper</span>
+                <Dropdown
+                  value={layout.paper}
+                  options={[
+                    { value: "letter", label: "Letter" },
+                    { value: "a4", label: "A4" },
+                  ]}
+                  onChange={(paper) =>
+                    setLayout({ paper: paper as PageLayout["paper"] })
+                  }
+                  label="Paper size"
+                  width={112}
+                />
+              </div>
+              <div className="toolbar-field">
+                <span>Margins</span>
+                <Dropdown
+                  value={String(layout.margin)}
+                  options={withCurrent(
+                    [
+                      { value: "48", label: "½ inch" },
+                      { value: "72", label: "¾ inch" },
+                      { value: "96", label: "1 inch" },
+                    ],
+                    String(layout.margin),
+                    `${+(layout.margin / 96).toFixed(2)} inch`,
+                  )}
+                  onChange={(value) => setLayout({ margin: Number(value) })}
+                  label="Page margins"
+                  width={112}
+                />
+              </div>
+              <button
+                type="button"
+                className="toolbar-text-button"
+                onClick={() => {
+                  setPanel(null);
+                  editor
+                    .chain()
+                    .focus()
+                    .insertContent([
+                      { type: "pageBreak" },
+                      { type: "paragraph" },
+                    ])
+                    .run();
+                }}
+              >
+                Insert page break
+              </button>
+            </div>
+          </PanelButton>
+        );
+      case "more":
+        return (
+          <PanelButton
+            label="More formatting"
+            dialogLabel="More formatting"
+            icon={Ellipsis}
+            align="end"
+            isMore
+            open={
+              panel === "more" ||
+              (panel !== null && hidden.includes(panel as ToolbarGroup))
             }
+            onToggle={() => setPanel(panel === "more" ? null : "more")}
+            onEscape={() => closePanel("more")}
+            buttonRef={(el) => {
+              panelTriggers.current.more = el;
+            }}
           >
-            <option value="letter">Letter</option>
-            <option value="a4">A4</option>
-          </select>
-        </label>
-        <label>
-          Margins{" "}
-          <select
-            aria-label="Page margins"
-            value={layout.margin}
-            onChange={(e) => setLayout({ margin: Number(e.target.value) })}
-          >
-            <option value="48">½ inch</option>
-            <option value="72">¾ inch</option>
-            <option value="96">1 inch</option>
-          </select>
-        </label>
-        <label>
-          Zoom{" "}
-          <select
-            aria-label="Editor zoom"
-            value={layout.zoom}
-            onChange={(e) => setLayout({ zoom: Number(e.target.value) })}
-          >
-            {[50, 75, 100, 125, 150].map((n) => (
-              <option key={n} value={n}>
-                {n}%
-              </option>
-            ))}
-          </select>
-        </label>
-        <button
-          onClick={() =>
-            editor
-              .chain()
-              .focus()
-              .insertContent([{ type: "pageBreak" }, { type: "paragraph" }])
-              .run()
-          }
-        >
-          Page break
-        </button>
-        {layout.mode === "pages" && (
-          <span aria-live="polite" aria-label="Page count">
-            Page {Math.min(currentPage, pages)} of {pages} -- this section --
-            scroll horizontally
-          </span>
-        )}
-      </div>
+            {TOOLBAR_ORDER.filter((id) => hidden.includes(id)).map((group) =>
+              renderGroup(group, true),
+            )}
+          </PanelButton>
+        );
+      case "right":
+        return (
+          <>
+            <button
+              type="button"
+              className="toolbar-icon"
+              title="Comment on selection"
+              aria-label="Comment on selection"
+              disabled={editor.state.selection.empty}
+              onClick={() => onComment?.()}
+            >
+              <MessageSquarePlus size={16} aria-hidden="true" />
+            </button>
+            {item.kind === "section" && (
+              <button
+                type="button"
+                className="extract"
+                aria-label="Keep as fragment"
+                disabled={editor.state.selection.empty}
+                title="Move selection to Fragments (⌘⇧X)"
+                onClick={() => onExtract(editor)}
+              >
+                <Scissors size={15} aria-hidden="true" />
+                <span>Keep as fragment</span>
+              </button>
+            )}
+          </>
+        );
+    }
+  };
+  const renderGroup = (id: ToolbarGroup, inMore = false) => (
+    <span
+      key={id}
+      className={
+        "toolbar-group" +
+        (id === "right" ? " is-end" : "") +
+        (inMore ? " in-more" : "")
+      }
+      ref={
+        inMore
+          ? undefined
+          : (el) => {
+              groupEls.current[id] = el;
+            }
+      }
+    >
+      {!inMore && id !== "history" && id !== "right" && (
+        <span className="toolbar-divider" aria-hidden="true" />
+      )}
+      {groupBody(id)}
+    </span>
+  );
+  return (
+    <div className="writer">
       <div
-        onClick={(event) => {
-          const target = (event.target as HTMLElement).closest<HTMLElement>(
-            "[data-footnote-id]",
-          );
-          if (target?.dataset.footnoteId)
-            onFootnote?.(target.dataset.footnoteId);
-        }}
-        ref={viewport}
-        onScroll={(event) =>
-          setCurrentPage(
-            Math.max(
-              1,
-              Math.floor(
-                event.currentTarget.scrollLeft /
-                  (((geometry.width + geometry.gap) * layout.zoom) / 100),
-              ) + 1,
-            ),
-          )
-        }
-        className={`editor-viewport ${layout.mode === "pages" ? "is-paged" : "is-continuous"}`}
+        className="format-bar"
+        role="toolbar"
+        aria-label="Formatting"
+        ref={barRef}
       >
-        <div className="editor-paper" style={pageStyle}>
-          <EditorContent editor={editor} />
-        </div>
+        {TOOLBAR_ORDER.filter((id) =>
+          id === "more" ? hidden.length > 0 : !hidden.includes(id),
+        ).map((id) => renderGroup(id))}
       </div>
-    </>
+      <div className="writer-scroll">
+        {header}
+        <div
+          onClick={(event) => {
+            const target = (event.target as HTMLElement).closest<HTMLElement>(
+              "[data-footnote-id]",
+            );
+            if (target?.dataset.footnoteId)
+              onFootnote?.(target.dataset.footnoteId);
+          }}
+          ref={viewport}
+          onScroll={(event) =>
+            setCurrentPage(
+              Math.max(
+                1,
+                Math.floor(
+                  event.currentTarget.scrollLeft /
+                    (((geometry.width + geometry.gap) * layout.zoom) / 100),
+                ) + 1,
+              ),
+            )
+          }
+          className={`editor-viewport ${layout.mode === "pages" ? "is-paged" : "is-continuous"}`}
+        >
+          <div className="editor-paper" style={pageStyle}>
+            <EditorContent editor={editor} />
+          </div>
+        </div>
+        {footer}
+      </div>
+    </div>
   );
 }

@@ -1,6 +1,6 @@
 # Personal Word architecture
 
-A single-writer, Mac-first desktop application. Tauri 2 hosts React/TypeScript and Tiptap 3 (ProseMirror). Rust owns SQLite and file access. No network service, accounts, or AI. The browser development preview uses explicitly labeled browser storage, still one whole-project blob per save; it is not desktop persistence.
+A single-writer, Mac-first desktop application. Tauri 2 hosts React/TypeScript and Tiptap 3 (ProseMirror). Rust owns SQLite and file access. No network service, accounts, or AI. The one outbound request is the opt-in citation lookup: when the writer clicks Look up, the typed DOI, ISBN, or web address is sent to Crossref, Open Library, or that website (natively through the `lookup_fetch` Rust command: http/https only, 12 s timeout, 3 MB cap). The browser development preview uses explicitly labeled browser storage, still one whole-project blob per save; it is not desktop persistence.
 
 ## Boundaries
 

@@ -1,365 +1,793 @@
-import { useState } from "react";
-import { citationGuidance, footnoteText, formatCitation } from "./citations";
+import { useEffect, useRef, useState } from "react";
+import { ChevronRight } from "lucide-react";
+import { Dropdown, type DropdownOption } from "../components/Dropdown";
+import {
+  bibliography,
+  citationGuidance,
+  citationParts,
+  footnoteParts,
+  type CitationPart,
+} from "./citations";
+import { lookupIdentifier } from "./lookup";
 import {
   emptyResearch,
+  type Footnote,
   type ResearchData,
-  type Source,
   type ResearchNote,
+  type Source,
 } from "./types";
 import "./research.css";
+
+export type ResearchTab = "sources" | "notes";
+
+const kindOptions: DropdownOption<Source["kind"]>[] = [
+  { value: "book", label: "Book" },
+  { value: "journal", label: "Journal article" },
+  { value: "website", label: "Website" },
+];
+const kindLabels: Record<Source["kind"], string> = {
+  book: "Book",
+  journal: "Journal article",
+  website: "Website",
+};
+const quoteKindOptions: DropdownOption<ResearchNote["kind"]>[] = [
+  { value: "quote", label: "Direct quote" },
+  { value: "paraphrase", label: "Paraphrase" },
+];
+
+const plural = (count: number, word: string) =>
+  `${count} ${word}${count === 1 ? "" : "s"}`;
+const firstWords = (text: string) => {
+  const words = text.trim().split(/\s+/);
+  return words.slice(0, 6).join(" ") + (words.length > 6 ? "…" : "");
+};
+const leadName = (source: Source) => {
+  const first = source.authors.find((name) => name.trim())?.trim();
+  if (!first) return "";
+  return first.includes(",")
+    ? first.split(",")[0].trim()
+    : (first.split(/\s+/).at(-1) ?? "");
+};
+const sourceSummary = (source: Source) =>
+  [leadName(source), source.title.trim() || "Untitled source"]
+    .filter(Boolean)
+    .join(" -- ") + (source.year ? ` (${source.year})` : "");
+
+function Cite({ parts }: { parts: CitationPart[] }) {
+  return (
+    <>
+      {parts.map((part, index) =>
+        part.italic ? (
+          <em key={index}>{part.text}</em>
+        ) : (
+          <span key={index}>{part.text}</span>
+        ),
+      )}
+    </>
+  );
+}
+
+function Field({
+  id,
+  label,
+  value,
+  onChange,
+  help,
+  wide,
+  multiline,
+}: {
+  id: string;
+  label: string;
+  value: string;
+  onChange: (value: string) => void;
+  help?: string;
+  wide?: boolean;
+  multiline?: boolean;
+}) {
+  const describedBy = help ? `${id}-help` : undefined;
+  return (
+    <div className={"field" + (wide ? " is-wide" : "")}>
+      <label htmlFor={id}>{label}</label>
+      {multiline ? (
+        <textarea
+          id={id}
+          rows={3}
+          value={value}
+          aria-describedby={describedBy}
+          onChange={(e) => onChange(e.target.value)}
+        />
+      ) : (
+        <input
+          id={id}
+          type="text"
+          value={value}
+          aria-describedby={describedBy}
+          onChange={(e) => onChange(e.target.value)}
+        />
+      )}
+      {help && (
+        <p id={describedBy} className="field-help">
+          {help}
+        </p>
+      )}
+    </div>
+  );
+}
+
+function Preview({ label, parts }: { label: string; parts: CitationPart[] }) {
+  return (
+    <div className="preview">
+      <span className="field-label">{label}</span>
+      <p className="citation-preview">
+        <Cite parts={parts} />
+      </p>
+    </div>
+  );
+}
+
 export function ResearchPanel({
   data = emptyResearch(),
   onChange,
   onInsertFootnote,
   onInsertNote,
   initialTab = "sources",
+  focusFootnoteId,
 }: {
   data?: ResearchData;
   onChange: (data: ResearchData) => void;
   onInsertFootnote?: (id: string) => void;
   onInsertNote?: (note: ResearchNote) => void;
-  initialTab?: "sources" | "notes" | "footnotes";
+  initialTab?: ResearchTab | "footnotes";
+  /** Opens Sources at the footnote's source and focuses its text. */
+  focusFootnoteId?: string;
 }) {
-  const [tab, setTab] = useState<"sources" | "notes" | "footnotes">(initialTab);
-  const [selected, setSelected] = useState("");
-  const [message, setMessage] = useState("");
-  const updateSource = (source: Source) =>
+  const [tab, setTab] = useState<ResearchTab>(
+    initialTab === "notes" ? "notes" : "sources",
+  );
+  const [openId, setOpenId] = useState<string | null>(null);
+  const [input, setInput] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [status, setStatus] = useState({ text: "", error: false });
+  const [pendingFocus, setPendingFocus] = useState<string | null>(null);
+  const panel = useRef<HTMLElement>(null);
+  const latest = useRef(data);
+  latest.current = data;
+
+  useEffect(() => {
+    if (!focusFootnoteId) return;
+    const note = latest.current.footnotes.find((f) => f.id === focusFootnoteId);
+    setTab("sources");
+    setOpenId(note?.sourceId ?? null);
+    setPendingFocus(focusFootnoteId);
+  }, [focusFootnoteId]);
+
+  useEffect(() => {
+    if (!pendingFocus) return;
+    const field = panel.current?.querySelector<HTMLTextAreaElement>(
+      `[data-research-id="${CSS.escape(pendingFocus)}"]`,
+    );
+    if (!field) return;
+    field.scrollIntoView({ block: "nearest" });
+    field.focus();
+    setPendingFocus(null);
+  }, [pendingFocus, tab, openId, data]);
+
+  const notify = (text: string, error = false) => setStatus({ text, error });
+
+  const patchSource = (id: string, patch: Partial<Source>) =>
     onChange({
       ...data,
-      sources: data.sources.map((s) => (s.id === source.id ? source : s)),
+      sources: data.sources.map((s) => (s.id === id ? { ...s, ...patch } : s)),
     });
-  const addNote = () =>
+  const patchNote = (id: string, patch: Partial<ResearchNote>) =>
+    onChange({
+      ...data,
+      notes: data.notes.map((n) => (n.id === id ? { ...n, ...patch } : n)),
+    });
+  const patchFootnote = (id: string, patch: Partial<Footnote>) =>
+    onChange({
+      ...data,
+      footnotes: data.footnotes.map((f) =>
+        f.id === id ? { ...f, ...patch } : f,
+      ),
+    });
+  const deleteNote = (id: string) =>
+    onChange({ ...data, notes: data.notes.filter((n) => n.id !== id) });
+
+  const runLookup = async () => {
+    const value = input.trim();
+    if (!value || busy) return;
+    setBusy(true);
+    notify("Looking up...");
+    try {
+      const result = await lookupIdentifier(value);
+      const id = crypto.randomUUID();
+      const current = latest.current;
+      onChange({
+        ...current,
+        sources: [...current.sources, { id, ...result.source }],
+      });
+      setInput("");
+      setOpenId(id);
+      notify(`Found on ${result.provider} -- review the details`);
+    } catch (error) {
+      notify(error instanceof Error ? error.message : "Lookup failed", true);
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const addManual = () => {
+    const id = crypto.randomUUID();
+    onChange({
+      ...data,
+      sources: [...data.sources, { id, kind: "book", title: "", authors: [] }],
+    });
+    setOpenId(id);
+    notify("");
+  };
+
+  const deleteSource = (source: Source) => {
+    if (
+      data.footnotes.some((f) => f.sourceId === source.id) ||
+      data.notes.some((n) => n.sourceId === source.id)
+    ) {
+      notify(
+        "Remove the quotes and footnotes linked to this source before deleting it. Footnotes can be unlinked.",
+        true,
+      );
+      return;
+    }
+    onChange({
+      ...data,
+      sources: data.sources.filter((s) => s.id !== source.id),
+    });
+    setOpenId(null);
+    notify("");
+  };
+
+  const citeHere = (source: Source) => {
+    const id = crypto.randomUUID();
+    onChange({
+      ...data,
+      footnotes: [...data.footnotes, { id, text: "", sourceId: source.id }],
+    });
+    onInsertFootnote?.(id);
+    setPendingFocus(id);
+  };
+
+  const insertTextOnly = () => {
+    const id = crypto.randomUUID();
+    onChange({ ...data, footnotes: [...data.footnotes, { id, text: "" }] });
+    onInsertFootnote?.(id);
+    setPendingFocus(id);
+  };
+
+  const addQuote = (source: Source) => {
+    const id = crypto.randomUUID();
     onChange({
       ...data,
       notes: [
         ...data.notes,
-        { id: crypto.randomUUID(), kind: "personal", text: "" },
+        { id, kind: "quote", text: "", sourceId: source.id },
       ],
     });
-  const source = data.sources.find((s) => s.id === selected);
+    setPendingFocus(id);
+  };
+
+  const addNote = () => {
+    const id = crypto.randomUUID();
+    onChange({
+      ...data,
+      notes: [...data.notes, { id, kind: "personal", text: "" }],
+    });
+    setPendingFocus(id);
+  };
+
+  const renderFootnote = (note: Footnote) => {
+    const linked = Boolean(note.sourceId);
+    const parts = footnoteParts(note, data);
+    return (
+      <div className="footnote-item" key={note.id}>
+        <span className="field-label">
+          Footnote
+          {note.text.trim() ? ` -- ${firstWords(note.text)}` : ""}
+        </span>
+        <textarea
+          aria-label="Footnote text"
+          data-research-id={note.id}
+          rows={2}
+          value={note.text}
+          onChange={(e) => patchFootnote(note.id, { text: e.target.value })}
+        />
+        {linked && (
+          <div className="footnote-options">
+            <Field
+              id={`${note.id}-locator`}
+              label="Page"
+              value={note.locator ?? ""}
+              onChange={(locator) => patchFootnote(note.id, { locator })}
+            />
+            <label className="check">
+              <input
+                type="checkbox"
+                checked={note.shortened ?? false}
+                onChange={(e) =>
+                  patchFootnote(note.id, { shortened: e.target.checked })
+                }
+              />
+              Shortened citation
+            </label>
+          </div>
+        )}
+        <div className="cite-preview">
+          <span className="field-label">Preview</span>
+          <p className="citation-preview">
+            {parts.length ? (
+              <Cite parts={parts} />
+            ) : (
+              "Write a note or choose a source."
+            )}
+          </p>
+        </div>
+        {linked && (
+          <div className="item-actions">
+            <button
+              type="button"
+              onClick={() => patchFootnote(note.id, { sourceId: undefined })}
+            >
+              Unlink source
+            </button>
+          </div>
+        )}
+      </div>
+    );
+  };
+
+  const renderQuote = (note: ResearchNote) => (
+    <div className="linked-item" key={note.id}>
+      <div className="field">
+        <span className="field-label">Kind</span>
+        <Dropdown<ResearchNote["kind"]>
+          label="Quote or paraphrase"
+          value={note.kind}
+          width="100%"
+          options={quoteKindOptions}
+          onChange={(kind) => patchNote(note.id, { kind })}
+        />
+      </div>
+      <textarea
+        aria-label="Quote text"
+        data-research-id={note.id}
+        rows={3}
+        placeholder="Quoted or paraphrased text"
+        value={note.text}
+        onChange={(e) => patchNote(note.id, { text: e.target.value })}
+      />
+      <Field
+        id={`${note.id}-locator`}
+        label="Page"
+        value={note.locator ?? ""}
+        onChange={(locator) => patchNote(note.id, { locator })}
+      />
+      <div className="item-actions">
+        <button
+          type="button"
+          disabled={!onInsertNote || !note.text.trim()}
+          onClick={() => onInsertNote?.(note)}
+        >
+          Insert quote + cite
+        </button>
+        <button
+          type="button"
+          className="is-danger"
+          onClick={() => deleteNote(note.id)}
+        >
+          Delete quote
+        </button>
+      </div>
+    </div>
+  );
+
+  const renderSource = (source: Source) => {
+    const patch = (value: Partial<Source>) => patchSource(source.id, value);
+    const fieldId = (key: string) => `${source.id}-${key}`;
+    const footnotes = data.footnotes.filter((f) => f.sourceId === source.id);
+    const quotes = data.notes.filter((n) => n.sourceId === source.id);
+    return (
+      <div className="source-body" id={`${source.id}-panel`}>
+        {source.lookupNote && (
+          <p className="research-hint">
+            {source.lookupNote} -- review the details
+          </p>
+        )}
+        <div className="field">
+          <span className="field-label">Source type</span>
+          <Dropdown<Source["kind"]>
+            label="Source type"
+            value={source.kind}
+            width="100%"
+            options={kindOptions}
+            onChange={(kind) => patch({ kind })}
+          />
+        </div>
+        <div className="research-fields">
+          <Field
+            id={fieldId("authors")}
+            label="Authors"
+            multiline
+            wide
+            help="One name per line, first name first"
+            value={source.authors.join("\n")}
+            onChange={(value) => patch({ authors: value.split("\n") })}
+          />
+          <Field
+            id={fieldId("title")}
+            label="Title"
+            wide
+            value={source.title}
+            onChange={(title) => patch({ title })}
+          />
+          {source.kind === "book" && (
+            <>
+              <Field
+                id={fieldId("publisher")}
+                label="Publisher"
+                wide
+                value={source.publisher ?? ""}
+                onChange={(publisher) => patch({ publisher })}
+              />
+              <Field
+                id={fieldId("year")}
+                label="Year"
+                value={source.year ?? ""}
+                onChange={(year) => patch({ year })}
+              />
+            </>
+          )}
+          {source.kind === "journal" && (
+            <>
+              <Field
+                id={fieldId("journal")}
+                label="Journal"
+                wide
+                value={source.journal ?? ""}
+                onChange={(journal) => patch({ journal })}
+              />
+              <div className="field-group">
+                <Field
+                  id={fieldId("volume")}
+                  label="Volume"
+                  value={source.volume ?? ""}
+                  onChange={(volume) => patch({ volume })}
+                />
+                <Field
+                  id={fieldId("issue")}
+                  label="Issue"
+                  value={source.issue ?? ""}
+                  onChange={(issue) => patch({ issue })}
+                />
+                <Field
+                  id={fieldId("pages")}
+                  label="Pages"
+                  value={source.pages ?? ""}
+                  onChange={(pages) => patch({ pages })}
+                />
+              </div>
+              <Field
+                id={fieldId("year")}
+                label="Year"
+                value={source.year ?? ""}
+                onChange={(year) => patch({ year })}
+              />
+            </>
+          )}
+          {source.kind === "website" && (
+            <>
+              <Field
+                id={fieldId("website")}
+                label="Website name"
+                wide
+                value={source.website ?? ""}
+                onChange={(website) => patch({ website })}
+              />
+              <Field
+                id={fieldId("published")}
+                label="Published"
+                help="yyyy-mm-dd or a year"
+                value={source.year ?? ""}
+                onChange={(year) => patch({ year })}
+              />
+              <Field
+                id={fieldId("accessed")}
+                label="Accessed"
+                help="yyyy-mm-dd"
+                value={source.accessed ?? ""}
+                onChange={(accessed) => patch({ accessed })}
+              />
+            </>
+          )}
+          <Field
+            id={fieldId("doi")}
+            label="DOI"
+            wide
+            value={source.doi ?? ""}
+            onChange={(doi) => patch({ doi })}
+          />
+          {source.kind === "book" && (
+            <Field
+              id={fieldId("isbn")}
+              label="ISBN"
+              value={source.isbn ?? ""}
+              onChange={(isbn) => patch({ isbn })}
+            />
+          )}
+          <Field
+            id={fieldId("url")}
+            label="URL"
+            wide
+            value={source.url ?? ""}
+            onChange={(url) => patch({ url })}
+          />
+        </div>
+        <div className="citation-previews">
+          <Preview label="Note" parts={citationParts(source, "full")} />
+          <Preview
+            label="Shortened note"
+            parts={citationParts(source, "short")}
+          />
+          <Preview
+            label="Bibliography"
+            parts={citationParts(source, "bibliography")}
+          />
+        </div>
+        <div className="source-actions">
+          <button
+            type="button"
+            disabled={!onInsertFootnote}
+            title={onInsertFootnote ? undefined : "Open a section to cite"}
+            onClick={() => citeHere(source)}
+          >
+            Cite here
+          </button>
+          <button type="button" onClick={() => addQuote(source)}>
+            Add quote
+          </button>
+          <button
+            type="button"
+            className="is-danger"
+            onClick={() => deleteSource(source)}
+          >
+            Delete source
+          </button>
+        </div>
+        {quotes.length > 0 && (
+          <section className="linked" aria-label="Quotes from this source">
+            <h4 className="research-subhead">Quotes and paraphrases</h4>
+            {quotes.map(renderQuote)}
+          </section>
+        )}
+        <section className="linked" aria-label="Footnotes from this source">
+          <h4 className="research-subhead">
+            {plural(footnotes.length, "footnote")}
+          </h4>
+          {footnotes.length === 0 && (
+            <p className="research-hint">
+              No footnotes cite this source yet. Use Cite here.
+            </p>
+          )}
+          {footnotes.map(renderFootnote)}
+        </section>
+      </div>
+    );
+  };
+
+  const sourceNotes = (source: Source) => ({
+    footnotes: data.footnotes.filter((f) => f.sourceId === source.id).length,
+    quotes: data.notes.filter((n) => n.sourceId === source.id).length,
+  });
+  const textOnly = data.footnotes.filter((f) => !f.sourceId);
+  const looseNotes = data.notes.filter((n) => !n.sourceId);
+  const cited = data.sources.filter((s) =>
+    data.footnotes.some((f) => f.sourceId === s.id),
+  );
+  const entries = bibliography({ ...data, sources: cited });
+
   return (
-    <section className="research-panel" aria-label="Research workspace">
-      <div className="research-tabs">
-        {(["sources", "notes", "footnotes"] as const).map((t) => (
-          <button key={t} aria-pressed={tab === t} onClick={() => setTab(t)}>
-            {t}
+    <section
+      className="research-panel"
+      aria-label="Research workspace"
+      ref={panel}
+    >
+      <nav className="research-tabs" aria-label="Research sections">
+        {(
+          [
+            ["sources", "Sources"],
+            ["notes", "Notes"],
+          ] as const
+        ).map(([value, label]) => (
+          <button
+            key={value}
+            type="button"
+            aria-pressed={tab === value}
+            onClick={() => setTab(value)}
+          >
+            {label}
           </button>
         ))}
-      </div>
-      {tab === "sources" && (
+      </nav>
+      {tab === "sources" ? (
         <>
-          <p>
-            Chicago 18 notes and bibliography --{" "}
-            <a
-              href={citationGuidance.citation}
-              target="_blank"
-              rel="noreferrer"
-            >
-              Citation guide
-            </a>
-          </p>
-          <button
-            onClick={() => {
-              const id = crypto.randomUUID();
-              onChange({
-                ...data,
-                sources: [
-                  ...data.sources,
-                  { id, kind: "book", title: "", authors: [] },
-                ],
-              });
-              setSelected(id);
-            }}
-          >
-            Add source
-          </button>
-          <select
-            aria-label="Source"
-            value={selected}
-            onChange={(e) => setSelected(e.target.value)}
-          >
-            <option value="">Choose a source</option>
-            {data.sources.map((s) => (
-              <option key={s.id} value={s.id}>
-                {s.title || "Untitled source"}
-              </option>
-            ))}
-          </select>
-          {source && (
-            <div className="research-form">
-              <label>
-                Type
-                <select
-                  value={source.kind}
-                  onChange={(e) =>
-                    updateSource({
-                      ...source,
-                      kind: e.target.value as Source["kind"],
-                    })
+          <div className="research-add">
+            <div className="research-lookup">
+              <input
+                type="text"
+                aria-label="DOI, ISBN, or web address"
+                placeholder="Paste a DOI, ISBN, or web address"
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    e.preventDefault();
+                    void runLookup();
                   }
-                >
-                  <option value="book">Book</option>
-                  <option value="journal">Journal article</option>
-                  <option value="website">Website</option>
-                </select>
-              </label>
-              <label>
-                Authors -- one natural-order name per line
-                <textarea
-                  value={source.authors.join("\n")}
-                  onChange={(e) =>
-                    updateSource({
-                      ...source,
-                      authors: e.target.value.split("\n"),
-                    })
-                  }
-                />
-              </label>
-              {(
-                [
-                  "title",
-                  ...(source.kind === "book"
-                    ? ["publisher"]
-                    : source.kind === "journal"
-                      ? ["journal", "volume", "issue", "pages"]
-                      : ["website"]),
-                  "year",
-                  "url",
-                  "doi",
-                  "accessed",
-                ] as (keyof Source)[]
-              ).map((key) => (
-                <label key={key}>
-                  {key === "pages"
-                    ? "Article page range"
-                    : key === "year"
-                      ? "Publication date / year"
-                      : key}
-                  <input
-                    value={String(source[key] ?? "")}
-                    onChange={(e) =>
-                      updateSource({ ...source, [key]: e.target.value })
-                    }
-                  />
-                </label>
-              ))}
-              <p className="citation-preview">
-                {formatCitation(source, "bibliography")}
-              </p>
-              <button
-                onClick={() => {
-                  if (
-                    data.footnotes.some((n) => n.sourceId === source.id) ||
-                    data.notes.some((n) => n.sourceId === source.id)
-                  ) {
-                    setMessage(
-                      "Remove this source from linked notes before deleting it.",
-                    );
-                    return;
-                  }
-                  onChange({
-                    ...data,
-                    sources: data.sources.filter((s) => s.id !== source.id),
-                  });
-                  setSelected("");
                 }}
+              />
+              <button
+                type="button"
+                className="button-primary"
+                disabled={busy || !input.trim()}
+                onClick={() => void runLookup()}
               >
-                Delete source
+                Look up
               </button>
             </div>
-          )}
-        </>
-      )}
-      {tab === "notes" && (
-        <>
-          <button onClick={addNote}>Add research note</button>
-          {data.notes.map((n) => (
-            <article key={n.id}>
-              <label>
-                Note type
-                <select
-                  value={n.kind}
-                  onChange={(e) =>
-                    onChange({
-                      ...data,
-                      notes: data.notes.map((x) =>
-                        x.id === n.id
-                          ? { ...x, kind: e.target.value as typeof n.kind }
-                          : x,
-                      ),
-                    })
-                  }
-                >
-                  <option value="quote">Direct quote</option>
-                  <option value="paraphrase">Paraphrase</option>
-                  <option value="personal">Personal note</option>
-                </select>
-              </label>
-              <textarea
-                aria-label="Research note text"
-                value={n.text}
-                onChange={(e) =>
-                  onChange({
-                    ...data,
-                    notes: data.notes.map((x) =>
-                      x.id === n.id ? { ...x, text: e.target.value } : x,
-                    ),
-                  })
-                }
-              />
-              <label>
-                Source
-                <select
-                  value={n.sourceId ?? ""}
-                  onChange={(e) =>
-                    onChange({
-                      ...data,
-                      notes: data.notes.map((x) =>
-                        x.id === n.id
-                          ? { ...x, sourceId: e.target.value || undefined }
-                          : x,
-                      ),
-                    })
-                  }
-                >
-                  <option value="">No source</option>
-                  {data.sources.map((s) => (
-                    <option value={s.id} key={s.id}>
-                      {s.title}
-                    </option>
-                  ))}
-                </select>
-              </label>
-              <input
-                aria-label="Note page or locator"
-                placeholder="Page / locator"
-                value={n.locator ?? ""}
-                onChange={(e) =>
-                  onChange({
-                    ...data,
-                    notes: data.notes.map((x) =>
-                      x.id === n.id ? { ...x, locator: e.target.value } : x,
-                    ),
-                  })
-                }
-              />
-              <button
-                disabled={!onInsertNote || !n.text.trim()}
-                onClick={() => onInsertNote?.(n)}
-              >
-                Insert into writing
+            <p className="research-privacy">
+              Look up sends only this identifier to Crossref, Open Library, or
+              the website.
+            </p>
+            <div className="research-actions">
+              <button type="button" onClick={addManual}>
+                Enter manually
               </button>
-              <button
-                onClick={() =>
-                  onChange({
-                    ...data,
-                    notes: data.notes.filter((x) => x.id !== n.id),
-                  })
-                }
-              >
-                Delete note
-              </button>
-            </article>
-          ))}
-        </>
-      )}
-      {tab === "footnotes" && (
-        <>
-          <p>
-            References keep stable IDs. Export numbers them in document order.
-            Place the cursor in your text before inserting.
-          </p>
-          <button
-            disabled={!onInsertFootnote}
-            onClick={() => {
-              const id = crypto.randomUUID();
-              onChange({
-                ...data,
-                footnotes: [...data.footnotes, { id, text: "" }],
-              });
-              onInsertFootnote?.(id);
-            }}
+            </div>
+          </div>
+          <p
+            role="status"
+            className={"research-status" + (status.error ? " is-error" : "")}
           >
-            Insert footnote at cursor
-          </button>
-          {data.footnotes.map((n) => (
-            <article key={n.id}>
+            {status.text}
+          </p>
+          {data.sources.length === 0 && (
+            <p className="research-hint">
+              No sources yet. Look one up or enter it manually.
+            </p>
+          )}
+          <ul className="source-list">
+            {data.sources.map((source) => {
+              const open = openId === source.id;
+              const counts = sourceNotes(source);
+              return (
+                <li className="source-item" key={source.id}>
+                  <button
+                    type="button"
+                    className="source-toggle"
+                    aria-expanded={open}
+                    aria-controls={`${source.id}-panel`}
+                    onClick={() => setOpenId(open ? null : source.id)}
+                  >
+                    <span className="source-text">
+                      <span className="source-title">
+                        {sourceSummary(source)}
+                      </span>
+                      <small>
+                        {kindLabels[source.kind]} --{" "}
+                        {plural(counts.footnotes, "footnote")},{" "}
+                        {plural(counts.quotes, "quote")}
+                      </small>
+                    </span>
+                    <ChevronRight size={14} aria-hidden="true" />
+                  </button>
+                  {open && renderSource(source)}
+                </li>
+              );
+            })}
+          </ul>
+          <section className="research-group">
+            <h3 className="research-subhead">Text-only notes</h3>
+            <p className="research-hint">
+              Footnotes that cite no source. Place the cursor in your text
+              before inserting.
+            </p>
+            <div className="research-actions">
+              <button
+                type="button"
+                disabled={!onInsertFootnote}
+                title={onInsertFootnote ? undefined : "Open a section to cite"}
+                onClick={insertTextOnly}
+              >
+                Insert footnote at cursor
+              </button>
+            </div>
+            {textOnly.map(renderFootnote)}
+          </section>
+          <details className="research-bibliography">
+            <summary>Bibliography</summary>
+            {entries.length ? (
+              <ol>
+                {entries.map((entry) => (
+                  <li key={entry.id}>
+                    <Cite parts={entry.parts} />
+                  </li>
+                ))}
+              </ol>
+            ) : (
+              <p className="research-hint">
+                Sources cited in footnotes appear here.
+              </p>
+            )}
+          </details>
+        </>
+      ) : (
+        <>
+          <p className="research-hint">
+            Ideas and reminders. Quotes from a source live under that source.
+          </p>
+          <div className="research-actions">
+            <button type="button" onClick={addNote}>
+              Add note
+            </button>
+          </div>
+          {looseNotes.length === 0 && (
+            <p className="research-hint">No notes yet.</p>
+          )}
+          {looseNotes.map((note) => (
+            <div className="note-item" key={note.id}>
               <textarea
-                aria-label="Footnote text"
-                value={n.text}
-                onChange={(e) =>
-                  onChange({
-                    ...data,
-                    footnotes: data.footnotes.map((x) =>
-                      x.id === n.id ? { ...x, text: e.target.value } : x,
-                    ),
-                  })
-                }
+                aria-label="Note text"
+                data-research-id={note.id}
+                rows={3}
+                value={note.text}
+                onChange={(e) => patchNote(note.id, { text: e.target.value })}
               />
-              <label>
-                Cited source
-                <select
-                  value={n.sourceId ?? ""}
-                  onChange={(e) =>
-                    onChange({
-                      ...data,
-                      footnotes: data.footnotes.map((x) =>
-                        x.id === n.id
-                          ? { ...x, sourceId: e.target.value || undefined }
-                          : x,
-                      ),
-                    })
-                  }
-                >
-                  <option value="">Text only</option>
-                  {data.sources.map((s) => (
-                    <option key={s.id} value={s.id}>
-                      {s.title}
-                    </option>
-                  ))}
-                </select>
-              </label>
-              <input
-                aria-label="Footnote page or locator"
-                placeholder="Page / locator"
-                value={n.locator ?? ""}
-                onChange={(e) =>
-                  onChange({
-                    ...data,
-                    footnotes: data.footnotes.map((x) =>
-                      x.id === n.id ? { ...x, locator: e.target.value } : x,
-                    ),
-                  })
-                }
-              />
-              <label>
-                <input
-                  type="checkbox"
-                  checked={n.shortened ?? false}
-                  onChange={(e) =>
-                    onChange({
-                      ...data,
-                      footnotes: data.footnotes.map((x) =>
-                        x.id === n.id
-                          ? { ...x, shortened: e.target.checked }
-                          : x,
-                      ),
-                    })
+              <div className="field">
+                <span className="field-label">Attach to source</span>
+                <Dropdown<string>
+                  label="Attach to source"
+                  value={note.sourceId ?? ""}
+                  width="100%"
+                  options={[
+                    { value: "", label: "No source" },
+                    ...data.sources.map((s) => ({
+                      value: s.id,
+                      label: sourceSummary(s),
+                    })),
+                  ]}
+                  onChange={(value) =>
+                    patchNote(note.id, { sourceId: value || undefined })
                   }
                 />
-                Shortened citation
-              </label>
-              <p className="citation-preview">
-                {footnoteText(n, data) || "Write a note or choose a source."}
-              </p>
-            </article>
+              </div>
+              <div className="item-actions">
+                <button
+                  type="button"
+                  className="is-danger"
+                  onClick={() => deleteNote(note.id)}
+                >
+                  Delete note
+                </button>
+              </div>
+            </div>
           ))}
         </>
       )}
-      {message && <p role="status">{message}</p>}
       <p className="research-help">
-        Citation assistance covers common books, journal articles, and websites.
-        Review names, dates, titles, and special cases against the guide.{" "}
+        Chicago 18 notes and bibliography for common books, journal articles,
+        and websites. Review names, dates, and special cases against the{" "}
+        <a href={citationGuidance.citation} target="_blank" rel="noreferrer">
+          citation guide
+        </a>
+        .{" "}
         <a href={citationGuidance.layout} target="_blank" rel="noreferrer">
           Student paper layout
         </a>
