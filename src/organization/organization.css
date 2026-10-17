@@ -33,11 +33,6 @@
 .feature-item input[type="checkbox"] {
   margin-right: 8px;
 }
-.fragment-preview {
-  max-height: 180px;
-  overflow: auto;
-  white-space: pre-wrap;
-}
 .revision-columns {
   display: grid;
   grid-template-columns: 1fr 1fr;

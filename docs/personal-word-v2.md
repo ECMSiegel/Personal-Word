@@ -14,6 +14,7 @@
 - Chicago 18 citation assistance for common books, journal articles, and websites; full/short notes and a cited-source bibliography. Review complicated names, unusual source types, and institutional instructions manually. Official references are linked in the app.
 - Word export produces editable native footnotes; PDF export includes page-bottom notes and an in-app PDF preview.
 - Comments and revision tasks can quote selected text. They remain available and are marked detached when their quoted passage disappears.
+- Fragments panel is a split view: each fragment is shown in full and editable beside the main editor (read-only if it is the entry open in the main editor), with Insert at cursor, Append to section, Open in editor, tags, and delete.
 - Fragments have tags, search across saved projects, side-by-side browsing, copy with remapped research references, and placement history.
 - Snapshot comparison highlights changed paragraphs side by side; restore a section or a paragraph with a safety snapshot first.
 - Read manuscript has independent typeface, size, and line-spacing controls and displays note markers and notes.
@@ -22,7 +23,7 @@
 
 This is an initial implementation of the expanded workspace, not publication-ready word-processing parity.
 
-1. Editor pages, PDF, and Word use different layout engines. Their page breaks and font metrics can differ. The editor does not lay footnote bodies into its paper margins; use the research panel for note editing and PDF preview for exported placement.
+1. Editor pages, PDF, and Word use different layout engines. Their page breaks and font metrics can differ. The editor shows footnote text below the section in continuous view and at the bottom of the page holding each reference in page view; notes are editable in place. Page view reserves the same footnote space on every page (the tallest page's notes), so pages without notes keep extra bottom space, and very long notes are not split across pages. PDF and Word place notes with their own engines.
 2. PDF currently uses standard Latin fonts, substitutes the document font family, and rejects unsupported Unicode, overlong unbreakable words, or footnotes that exceed a page. Word export is the alternative for these cases. Long footnotes are not silently truncated.
 3. Revision comparison is paragraph-based, not a word-level tracked-changes engine. Restoring a passage replaces the paragraph at the same index. The interface states that behavior.
 4. Comment anchors use quoted text rather than a full operational-transform anchoring system. Repeated identical passages can be ambiguous; changed or removed quotes are labeled detached.

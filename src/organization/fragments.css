@@ -1,0 +1,168 @@
+.fragment-library {
+  display: flex;
+  flex-direction: column;
+  font-family: Futura, "Avenir Next", system-ui, sans-serif;
+  font-size: 13px;
+  color: var(--text);
+}
+.fragment-controls {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.fragment-library input[type="text"],
+.fragment-library input:not([type]),
+.fragment-tags input {
+  border: 1px solid var(--line);
+  border-radius: 0;
+  background: var(--paper);
+  color: var(--text);
+  font: inherit;
+  font-size: 13px;
+  padding: 6px 8px;
+  min-width: 0;
+}
+.fragment-search {
+  flex: 1 1 160px;
+}
+.fragment-across {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--muted);
+  white-space: nowrap;
+}
+.fragment-across input {
+  margin: 0;
+}
+.fragment-count {
+  margin: 10px 0 0;
+  font-size: 11px;
+  color: var(--muted);
+}
+.fragment-empty {
+  margin: 16px 0;
+  color: var(--muted);
+  line-height: 1.5;
+}
+.fragment-item {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  border-bottom: 1px solid var(--line);
+  padding: 12px 0;
+}
+.fragment-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+}
+.fragment-head h2 {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.4;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.fragment-meta {
+  display: block;
+  font-size: 11px;
+  color: var(--muted);
+}
+.fragment-note {
+  margin: 0;
+  font-size: 11px;
+  color: var(--muted);
+}
+.fragment-body {
+  position: relative;
+}
+.fragment-body.is-collapsed {
+  max-height: 88px;
+  overflow: hidden;
+}
+.fragment-body.is-clamped::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 28px;
+  background: linear-gradient(to bottom, transparent, var(--paper));
+  pointer-events: none;
+}
+.fragment-text {
+  font-family: var(--document-font, Futura, system-ui, sans-serif);
+  font-size: 14px;
+  line-height: 1.55;
+  color: var(--text);
+  overflow-wrap: anywhere;
+  outline: none;
+}
+.fragment-text p {
+  margin: 0 0 0.6em;
+}
+.fragment-text:focus-visible {
+  outline: 1px solid var(--accent);
+  outline-offset: 4px;
+}
+.fragment-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+}
+.fragment-link {
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: none;
+  color: var(--accent);
+  font: inherit;
+  font-size: 12px;
+  text-align: left;
+  cursor: pointer;
+}
+.fragment-link:hover {
+  text-decoration: underline;
+}
+.fragment-link:disabled {
+  color: var(--muted);
+  cursor: default;
+  text-decoration: none;
+}
+.fragment-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  padding: 2px;
+  border: 0;
+  border-radius: 0;
+  background: none;
+  color: var(--muted);
+  cursor: pointer;
+}
+.fragment-icon:hover,
+.fragment-icon:focus-visible {
+  color: var(--text);
+}
+.fragment-icon.fragment-danger:hover,
+.fragment-icon.fragment-danger:focus-visible {
+  color: var(--danger);
+}
+.fragment-tags {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: var(--muted);
+}
+.fragment-tags input {
+  flex: 1 1 auto;
+  width: 100%;
+}

@@ -32,6 +32,12 @@ Re-run after the expanded workspace changes (see [personal-word-v2.md](personal-
 - Native smoke (fresh `native-smoke` debug build, macOS WebKit): both phases passed, including page fragmentation of an overflowing paragraph with a page count above one, the continuous/pages toggle, quit flush, process restart, snapshot restore, SQLite integrity, and portable JSON equality. See [native evidence](evidence/native-smoke.json).
 - Release: `npm run tauri build -- --bundles app` produced `src-tauri/target/release/bundle/macos/Personal Word.app` (identifier `com.folio.writing` retained). The superseded debug `Folio.app` bundle was removed.
 
+## Footnotes, fragment split view, polish -- October 16, 2026 (late)
+
+- `npm test`: 60 unit tests (adds footnote page assignment/reserve math). `npm run test:e2e`: 31 Playwright scenarios (adds footnotes and fragments-panel specs). `cargo test`: 16 passed, 1 ignored.
+- Native smoke on a fresh `native-smoke` build: both phases passed.
+- Chromium screenshots reviewed: footnote in continuous and page view (light/dark), fragments split view, settings page, sidebar cards, unpinned overlay over the toolbar.
+
 ## UI and research rework -- October 16, 2026 (evening)
 
 - `npm run build`: passed. `npm test`: 52 unit tests (indent stepping, citation lookup parsing/mapping with inline fixtures, Chicago website dates).

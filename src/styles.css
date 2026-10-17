@@ -66,14 +66,23 @@ button:disabled {
   opacity: 0.35;
   cursor: default;
 }
-button:focus-visible,
-input:focus-visible {
-  outline: 2px solid var(--text);
-  outline-offset: 2px;
+button:focus-visible {
+  outline: 1px solid var(--accent);
+  outline-offset: 1px;
+}
+input:not([type="checkbox"]):focus-visible,
+textarea:focus-visible {
+  outline: none;
+  border-bottom: 1px solid var(--accent);
+}
+input[type="checkbox"]:focus-visible {
+  outline: 1px solid var(--accent);
+  outline-offset: 1px;
 }
 button[aria-pressed="true"] {
-  background: var(--line);
-  color: var(--text);
+  background: transparent;
+  color: var(--accent);
+  font-weight: 600;
 }
 input {
   border: 1px solid var(--line);
@@ -583,16 +592,36 @@ p {
   margin-top: 6px;
 }
 .import {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 14px;
   font-size: 12px;
   color: var(--muted);
-  cursor: pointer;
-  text-decoration: underline;
 }
-.import input {
-  display: block;
-  font-size: 11px;
-  margin-top: 10px;
-  max-width: 300px;
+.import-choose {
+  color: var(--accent);
+  cursor: pointer;
+  position: relative;
+}
+.import-choose:hover {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.import-choose:focus-within {
+  outline: 1px solid var(--accent);
+  outline-offset: 3px;
+}
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+  padding: 0;
 }
 .storage-note {
   font-size: 11px;
@@ -605,7 +634,7 @@ p {
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 10;
+  z-index: 70;
   backdrop-filter: blur(3px);
 }
 .dialog {
@@ -860,7 +889,7 @@ input:focus-visible {
 button[aria-pressed="true"],
 .selected {
   color: var(--accent);
-  background: var(--selection);
+  background: transparent;
   font-weight: 600;
 }
 .brand {
@@ -924,6 +953,7 @@ button[aria-pressed="true"],
 }
 .sidebar-shell.is-overlay {
   flex-basis: 0;
+  z-index: 60;
 }
 .sidebar-shell .sidebar {
   width: var(--sidebar-width);
@@ -940,6 +970,8 @@ button[aria-pressed="true"],
   left: 0;
   transform: translateX(-100%);
   visibility: hidden;
+  background: var(--surface);
+  border-right: 1px solid var(--line);
   box-shadow: 5px 0 15px var(--shadow);
   transition:
     transform 180ms ease,
@@ -963,8 +995,8 @@ button[aria-pressed="true"],
   background: transparent;
 }
 .sidebar-edge:focus-visible {
-  outline: 2px solid var(--accent);
-  outline-offset: -2px;
+  outline: 1px solid var(--accent);
+  outline-offset: -1px;
 }
 .sidebar-brand {
   display: flex;
@@ -1047,9 +1079,12 @@ button[aria-pressed="true"],
   border: 1px solid var(--line);
   background: var(--paper);
 }
+.entry-row.selected {
+  background: color-mix(in srgb, var(--text) 6%, transparent);
+}
 .cards-view .entry-row.selected {
-  border-color: var(--accent);
-  background: var(--selection);
+  border-color: color-mix(in srgb, var(--muted) 55%, var(--line));
+  background: var(--paper);
 }
 .cards-view .entry-main {
   flex-wrap: wrap;
@@ -1382,21 +1417,6 @@ button[aria-pressed="true"],
   justify-content: space-between;
   margin-bottom: 18px;
 }
-.project-settings {
-  padding: 32px;
-  overflow: auto;
-  flex: 1;
-}
-.project-settings h1 {
-  font-size: 25px;
-  font-weight: 500;
-}
-.project-settings > label {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-bottom: 16px;
-}
 
 /* Compact chrome with comfortable controls. */
 .topbar {
@@ -1434,11 +1454,8 @@ button[aria-pressed="true"],
 .topbar:focus-within > div:first-child > button {
   opacity: 1;
 }
-.fragment-aside .feature-panel {
-  padding: 12px 0;
-}
 
-/* Flat hover: no grey boxes. Sidebar text rows underline instead of filling. */
+/* Flat hover: no grey boxes and no underlines. Sidebar rows thicken instead. */
 .sidebar button:hover {
   background: var(--sidebar);
 }
@@ -1446,8 +1463,16 @@ button[aria-pressed="true"],
 .sidebar .entry-main:hover,
 .sidebar .project-switch:hover {
   background: transparent;
-  text-decoration: underline;
-  text-underline-offset: 3px;
+  text-decoration: none;
+}
+.sidebar .group-title:not(.selected):hover,
+.sidebar .entry-row:not(.selected) .entry-main:hover {
+  font-weight: 600;
+}
+.delete-entry:hover,
+.delete-entry:focus-visible {
+  background: transparent;
+  color: var(--danger);
 }
 .project-row > button:first-child:hover,
 .project-row > button:first-child:focus-visible {
@@ -1478,4 +1503,16 @@ button[aria-pressed="true"],
 .aside-resizer:focus-visible {
   background: var(--accent);
   outline: 0;
+}
+
+/* Selected cards emphasize only the title; details stay regular weight. */
+.cards-view .entry-row.selected .entry-main small,
+.cards-view .entry-row.selected .entry-preview,
+.cards-view .entry-row.selected .entry-details {
+  font-weight: 400;
+}
+.entry-details .dropdown-button {
+  font-size: 11px;
+  font-weight: 400;
+  padding: 4px 6px;
 }

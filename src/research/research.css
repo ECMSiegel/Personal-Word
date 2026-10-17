@@ -47,12 +47,10 @@
   color: var(--danger);
 }
 .research-panel button:focus-visible,
-.research-panel input:focus-visible,
-.research-panel textarea:focus-visible,
 .research-panel .dropdown-button:focus-visible,
 .research-panel .source-toggle:focus-visible {
-  outline: 2px solid var(--accent);
-  outline-offset: 2px;
+  outline: 1px solid var(--accent);
+  outline-offset: 1px;
 }
 .research-panel input[type="text"],
 .research-panel input:not([type]),
@@ -109,6 +107,7 @@
 }
 .research-tabs button[aria-pressed="true"] {
   color: var(--accent);
+  background: transparent;
   font-weight: 600;
   border-bottom-color: var(--accent);
 }
@@ -304,26 +303,192 @@
   overflow-wrap: anywhere;
 }
 
-.template-picker {
-  display: grid;
-  gap: 8px;
-  padding: 18px;
-}
-.template-picker button {
-  text-align: left;
-  border-radius: 0;
-  padding: 10px;
-  background: transparent;
-  color: inherit;
-  border: 1px solid var(--line, #aaa);
-}
-.template-picker small {
-  display: block;
-  margin-top: 4px;
-  font-weight: 400;
-}
 .export-preview {
   width: 100%;
   height: 540px;
   border: 1px solid var(--line);
+}
+
+div.project-settings {
+  box-sizing: border-box;
+  flex: 1;
+  overflow: auto;
+  max-width: 720px;
+  padding: 40px 48px;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--text);
+}
+.project-settings .settings-field,
+.project-settings .settings-check {
+  margin: 0;
+}
+.project-settings h1 {
+  margin: 0;
+  font-size: 22px;
+  font-weight: 600;
+  letter-spacing: -0.3px;
+}
+.project-settings .settings-section {
+  display: grid;
+  gap: 16px;
+  margin-top: 32px;
+  padding: 24px 0 0;
+  border-top: 1px solid var(--line);
+  min-width: 0;
+}
+.project-settings .settings-section h2 {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 600;
+}
+.project-settings .settings-help {
+  margin: 0;
+  max-width: 60ch;
+  font-size: 12px;
+  line-height: 1.6;
+  color: var(--muted);
+}
+.project-settings .settings-form {
+  display: grid;
+  gap: 12px;
+}
+.project-settings .settings-field {
+  display: grid;
+  grid-template-columns: 180px minmax(0, 260px);
+  align-items: center;
+  gap: 12px;
+}
+.project-settings .settings-label {
+  font-size: 12px;
+  color: var(--muted);
+}
+.project-settings .settings-field input[type="number"] {
+  width: 72px;
+  padding: 6px 8px;
+  border: 1px solid var(--line);
+  border-radius: 0;
+  background: var(--paper);
+  color: var(--text);
+}
+.project-settings .settings-field .dropdown {
+  width: 100%;
+}
+.project-settings .settings-field .dropdown-button {
+  padding: 6px 8px;
+  border: 1px solid var(--line);
+}
+.project-settings .settings-checks {
+  display: grid;
+  gap: 8px;
+  justify-items: start;
+}
+.project-settings .settings-check {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: default;
+}
+.project-settings input[type="checkbox"] {
+  width: 14px;
+  height: 14px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  accent-color: var(--accent);
+}
+.project-settings .settings-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+.project-settings .settings-button {
+  justify-self: start;
+  padding: 6px 12px;
+  border: 1px solid var(--line);
+  background: transparent;
+  color: var(--text);
+  justify-content: center;
+}
+.project-settings .settings-button:hover {
+  background: var(--surface);
+}
+.project-settings .settings-button.button-primary {
+  border-color: var(--accent);
+}
+.project-settings .settings-button.button-primary:hover {
+  background: var(--accent);
+  filter: brightness(0.95);
+}
+.project-settings .settings-text-action {
+  padding: 0;
+  color: var(--accent);
+  font-size: 12px;
+  justify-content: flex-start;
+}
+.project-settings .settings-text-action:hover {
+  background: transparent;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.project-settings .settings-status {
+  min-height: 1em;
+  margin: 0;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.template-picker {
+  display: grid;
+  gap: 16px;
+}
+.template-list {
+  display: grid;
+}
+.template-row {
+  display: flex;
+  align-items: stretch;
+  gap: 12px;
+  border-bottom: 1px solid var(--line);
+}
+.template-choice {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 2px;
+  padding: 12px 0;
+  background: transparent;
+  color: var(--text);
+  text-align: left;
+}
+.template-choice:hover {
+  background: transparent;
+}
+.template-choice strong {
+  font-weight: 500;
+}
+.template-choice:hover strong,
+.template-choice:focus-visible strong {
+  font-weight: 600;
+}
+.template-choice small {
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--muted);
+}
+.template-delete {
+  align-self: center;
+  padding: 0;
+  font-size: 12px;
+  color: var(--muted);
+}
+.template-delete:hover {
+  background: transparent;
+  color: var(--danger);
+  text-decoration: underline;
+  text-underline-offset: 3px;
 }

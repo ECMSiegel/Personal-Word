@@ -177,17 +177,23 @@ export function ProjectLibrary({
           ))}
         </div>
       )}
-      <label className="import">
-        Recover from a project.json file
-        <input
-          type="file"
-          accept=".json"
-          onChange={(e) => {
-            const file = e.target.files?.[0];
-            if (file) onImport(file);
-          }}
-        />
-      </label>
+      <div className="import">
+        <span id="import-project-label">Recover from a project.json file</span>
+        <label className="import-choose" htmlFor="import-project-json">
+          Choose project.json…
+          <input
+            id="import-project-json"
+            className="visually-hidden"
+            type="file"
+            accept=".json"
+            aria-labelledby="import-project-label"
+            onChange={(e) => {
+              const file = e.target.files?.[0];
+              if (file) onImport(file);
+            }}
+          />
+        </label>
+      </div>
       <p className="storage-note">
         {desktop
           ? "Your writing stays on this Mac."

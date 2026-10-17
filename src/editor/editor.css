@@ -76,10 +76,10 @@
 }
 .writer .format-bar .toolbar-icon[aria-pressed="true"] {
   color: var(--accent);
-  background: var(--selection);
+  background: var(--surface);
 }
 .writer .format-bar .toolbar-icon[aria-pressed="true"]:hover {
-  background: var(--selection);
+  background: var(--surface);
 }
 .writer .format-bar .dropdown-button {
   height: 26px;
@@ -205,7 +205,18 @@
 }
 .writer .toolbar-presets button[aria-pressed="true"] {
   color: var(--accent);
-  background: var(--selection);
+  font-weight: 600;
+  background: transparent;
+}
+.writer .format-bar .toolbar-popover [aria-pressed="true"] {
+  font-weight: 600;
+  background: transparent;
+}
+.writer-slot {
+  box-sizing: border-box;
+  max-width: var(--page-width, 816px);
+  margin: 16px auto;
+  padding: 0 24px;
 }
 .writer .toolbar-number {
   box-sizing: border-box;
@@ -234,6 +245,9 @@
 }
 .is-continuous {
   overflow: visible;
+}
+.editor-paper {
+  position: relative;
 }
 .is-continuous .editor-paper {
   box-sizing: border-box;
@@ -285,7 +299,7 @@
 }
 .is-paged .writing-surface {
   width: var(--content-width);
-  height: var(--content-height);
+  height: calc(var(--content-height) - var(--footnote-reserve, 0px));
   min-height: 0;
   padding: 0;
   column-width: var(--content-width);
@@ -334,6 +348,11 @@
   .manual-page-break {
     break-after: page;
   }
+  .footnote-area,
+  .page-footnotes,
+  .footnote-measure {
+    display: none !important;
+  }
 }
 .editor-paper .writing-surface {
   counter-reset: footnote;
@@ -367,4 +386,109 @@
 }
 .footnote-reference::after {
   content: none;
+}
+
+.footnote-area {
+  margin-top: 32px;
+  color: var(--text);
+}
+.page-footnotes {
+  position: absolute;
+  box-sizing: border-box;
+  color: var(--text);
+}
+.footnote-measure {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: var(--content-width);
+  visibility: hidden;
+  pointer-events: none;
+}
+.footnote-area,
+.page-footnotes,
+.footnote-measure {
+  font-family: var(--document-font, Futura, system-ui, sans-serif);
+}
+.footnote-rule {
+  width: 1.5in;
+  height: 0;
+  margin-bottom: 4px;
+  border-top: 1px solid var(--line);
+}
+.footnote-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.footnote-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 4px;
+  font-size: calc(var(--document-size, 14pt) * 0.83);
+  line-height: 1.3;
+}
+.footnote-number {
+  flex: 0 0 auto;
+  min-width: 1.1em;
+  font-size: 0.75em;
+  line-height: 1;
+  position: relative;
+  top: -0.45em;
+  vertical-align: baseline;
+}
+.footnote-body {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow-wrap: anywhere;
+  cursor: text;
+  outline: none;
+}
+.footnote-body:focus-visible {
+  box-shadow: 0 0 0 1px var(--accent);
+}
+.footnote-row.is-editing .footnote-body {
+  white-space: pre-wrap;
+}
+.footnote-input {
+  flex: 1 1 auto;
+  box-sizing: border-box;
+  min-width: 0;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-bottom: 1px solid var(--accent);
+  border-radius: 0;
+  background: transparent;
+  color: var(--text);
+  font: inherit;
+  line-height: inherit;
+  resize: none;
+  overflow: hidden;
+  outline: none;
+}
+.footnote-source {
+  flex: 0 0 auto;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: var(--muted);
+  font-family: Futura, "Avenir Next", -apple-system, sans-serif;
+  font-size: 11px;
+  line-height: inherit;
+  cursor: pointer;
+  opacity: 0;
+}
+.footnote-row:hover .footnote-source,
+.footnote-row:focus-within .footnote-source,
+.footnote-source:focus-visible {
+  opacity: 1;
+}
+.footnote-source:hover,
+.footnote-source:focus-visible {
+  color: var(--accent);
+  background: transparent;
 }

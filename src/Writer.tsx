@@ -50,11 +50,21 @@ import "./editor/editor.css";
 import { documentExtensions } from "./editor/extensions";
 import { changeIndent, indentKeys } from "./editor/indent";
 import { NumberInput, PanelButton } from "./editor/ToolbarControls";
+import {
+  FootnoteBlock,
+  FootnoteRows,
+  type FootnoteNote,
+} from "./editor/FootnoteArea";
+import { assignPages, computeReserve } from "./editor/footnoteLayout";
 import { Dropdown, type DropdownOption } from "./components/Dropdown";
 import type { DocumentSettings } from "./research/types";
 import { type Entry } from "./model";
 
 type ToolbarPanel = "spacing" | "setup" | "more";
+type FootnotePlan = {
+  reserve: number;
+  pages: { page: number; ids: string[] }[];
+};
 type ToolbarGroup =
   | "history"
   | "zoom"
@@ -141,13 +151,17 @@ export function Writer({
   onComment,
   documentSettings,
   footnoteNumbers,
+  footnotes,
   onFootnote,
+  onFootnoteTextChange,
   header,
   footer,
 }: {
   documentSettings?: DocumentSettings;
   footnoteNumbers?: Record<string, number>;
+  footnotes?: FootnoteNote[];
   onFootnote?: (id: string) => void;
+  onFootnoteTextChange?: (id: string, text: string) => void;
   onEditorReady?: (editor: Editor | null) => void;
   layout?: PageLayout;
   onLayoutChange?: (layout: PageLayout) => void;
@@ -273,6 +287,151 @@ export function Writer({
       editor.off("transaction", numberReferences);
     };
   }, [editor, footnoteNumbers]);
+  const footnotePaper = useRef<HTMLDivElement>(null);
+  const footnoteMeasure = useRef<HTMLDivElement>(null);
+  const [editingNote, setEditingNote] = useState<string | null>(null);
+  const [footnotePlan, setFootnotePlan] = useState<FootnotePlan | null>(null);
+  const referencedIds: string[] = [];
+  editor?.state.doc.descendants((node) => {
+    const id =
+      node.type.name === "footnoteReference" ? String(node.attrs.id) : "";
+    if (id && !referencedIds.includes(id)) referencedIds.push(id);
+  });
+  const referencedKey = referencedIds.join("\n");
+  const notes = referencedIds.flatMap((id) => {
+    const note = footnotes?.find((item) => item.id === id);
+    return note ? [note] : [];
+  });
+  const notesKey = JSON.stringify(notes);
+  const knownNotes = useRef<Set<string> | null>(null);
+  const pendingNotes = useRef<string[]>([]);
+  useEffect(() => {
+    knownNotes.current = null;
+    pendingNotes.current = [];
+  }, [item.id]);
+  useEffect(() => {
+    const ids = new Set(referencedIds);
+    const known = knownNotes.current;
+    if (known) {
+      for (const id of ids) {
+        if (!known.has(id) && !pendingNotes.current.includes(id))
+          pendingNotes.current.push(id);
+      }
+    }
+    knownNotes.current = ids;
+    pendingNotes.current = pendingNotes.current.filter((id) => {
+      if (!ids.has(id)) return false;
+      const note = notes.find((item) => item.id === id);
+      return !note || note.text === "";
+    });
+    const ready = pendingNotes.current.find((id) =>
+      notes.some((item) => item.id === id && item.editable),
+    );
+    if (!ready) return;
+    pendingNotes.current = pendingNotes.current.filter((id) => id !== ready);
+    setEditingNote(ready);
+  }, [referencedKey, notesKey]);
+  useEffect(() => {
+    if (editingNote && !notes.some((item) => item.id === editingNote))
+      setEditingNote(null);
+  }, [editingNote, notesKey]);
+  useEffect(() => {
+    if (!editor || layout.mode !== "pages") {
+      setFootnotePlan(null);
+      return;
+    }
+    const noteIds = new Set(notes.map((note) => note.id));
+    const columnGap = geometry.gap + 2 * geometry.margin;
+    let active = true;
+    let frame = 0;
+    // Each page reserves the same bottom space, sized for the tallest page.
+    // This is an approximation: a short page keeps an empty reserve. Reserving
+    // space reflows text, so references can move; retry a few times until the
+    // page assignment stops changing.
+    const plan = () => {
+      const paper = footnotePaper.current;
+      if (!active || !paper) return;
+      const surface = editor.view.dom;
+      const cap = geometry.contentHeight / 2;
+      let reserve = 0;
+      let result: FootnotePlan = { reserve: 0, pages: [] };
+      for (let attempt = 0; attempt < 3; attempt++) {
+        paper.style.setProperty("--footnote-reserve", `${reserve}px`);
+        const surfaceRect = surface.getBoundingClientRect();
+        const scale = surfaceRect.width / geometry.contentWidth || 1;
+        const ids: string[] = [];
+        const lefts: number[] = [];
+        surface
+          .querySelectorAll<HTMLElement>("[data-footnote-id]")
+          .forEach((el) => {
+            const id = el.dataset.footnoteId ?? "";
+            if (!noteIds.has(id) || ids.includes(id)) return;
+            ids.push(id);
+            lefts.push(el.getBoundingClientRect().left);
+          });
+        const columns = assignPages(
+          lefts,
+          surfaceRect.left,
+          geometry.contentWidth,
+          columnGap,
+          scale,
+        );
+        const byPage = new Map<number, string[]>();
+        ids.forEach((id, i) => {
+          byPage.set(columns[i], [...(byPage.get(columns[i]) ?? []), id]);
+        });
+        const pages = [...byPage]
+          .sort((a, b) => a[0] - b[0])
+          .map(([page, pageIds]) => ({ page, ids: pageIds }));
+        const heights = new Map<string, number>();
+        footnoteMeasure.current
+          ?.querySelectorAll<HTMLElement>("[data-note-id]")
+          .forEach((el) => {
+            heights.set(
+              el.dataset.noteId ?? "",
+              el.getBoundingClientRect().height / scale,
+            );
+          });
+        const next = computeReserve(
+          pages.map((group) =>
+            group.ids.reduce((sum, id) => sum + (heights.get(id) ?? 0), 0),
+          ),
+          cap,
+        );
+        result = { reserve, pages };
+        if (Math.abs(next - reserve) < 0.5) break;
+        reserve = next;
+      }
+      paper.style.setProperty("--footnote-reserve", `${result.reserve}px`);
+      setFootnotePlan((previous) =>
+        JSON.stringify(previous) === JSON.stringify(result) ? previous : result,
+      );
+    };
+    const run = () => {
+      cancelAnimationFrame(frame);
+      frame = requestAnimationFrame(plan);
+    };
+    const observer = new ResizeObserver(run);
+    observer.observe(editor.view.dom);
+    editor.on("update", run);
+    document.fonts.ready.then(run);
+    run();
+    return () => {
+      active = false;
+      observer.disconnect();
+      editor.off("update", run);
+      cancelAnimationFrame(frame);
+    };
+  }, [
+    editor,
+    layout.mode,
+    layout.paper,
+    layout.margin,
+    layout.zoom,
+    documentSettings,
+    editingNote,
+    notesKey,
+  ]);
   useEffect(() => {
     onEditorReady?.(editor);
     return () => onEditorReady?.(null);
@@ -933,7 +1092,7 @@ export function Writer({
         ).map((id) => renderGroup(id))}
       </div>
       <div className="writer-scroll">
-        {header}
+        {header && <div className="writer-slot">{header}</div>}
         <div
           onClick={(event) => {
             const target = (event.target as HTMLElement).closest<HTMLElement>(
@@ -956,11 +1115,69 @@ export function Writer({
           }
           className={`editor-viewport ${layout.mode === "pages" ? "is-paged" : "is-continuous"}`}
         >
-          <div className="editor-paper" style={pageStyle}>
+          <div className="editor-paper" style={pageStyle} ref={footnotePaper}>
             <EditorContent editor={editor} />
+            {notes.length > 0 && layout.mode === "continuous" && (
+              <FootnoteBlock
+                className="footnote-area"
+                label="Footnotes"
+                notes={notes}
+                editingId={editingNote}
+                onEdit={setEditingNote}
+                onEditEnd={() => setEditingNote(null)}
+                onTextChange={onFootnoteTextChange}
+                onSourceDetails={onFootnote}
+              />
+            )}
+            {notes.length > 0 && layout.mode === "pages" && (
+              <div
+                className="footnote-measure"
+                aria-hidden="true"
+                ref={footnoteMeasure}
+              >
+                <FootnoteRows
+                  notes={notes}
+                  measuring
+                  editingId={editingNote}
+                  onEdit={setEditingNote}
+                  onEditEnd={() => setEditingNote(null)}
+                />
+              </div>
+            )}
+            {layout.mode === "pages" &&
+              footnotePlan?.pages.map((group) => {
+                const groupNotes = group.ids.flatMap((id) =>
+                  notes.filter((note) => note.id === id),
+                );
+                if (!groupNotes.length) return null;
+                return (
+                  <FootnoteBlock
+                    key={group.page}
+                    className="page-footnotes"
+                    label={`Footnotes, page ${group.page + 1}`}
+                    style={{
+                      left:
+                        group.page * (geometry.width + geometry.gap) +
+                        geometry.margin,
+                      top:
+                        geometry.margin +
+                        geometry.contentHeight -
+                        footnotePlan.reserve +
+                        8,
+                      width: geometry.contentWidth,
+                    }}
+                    notes={groupNotes}
+                    editingId={editingNote}
+                    onEdit={setEditingNote}
+                    onEditEnd={() => setEditingNote(null)}
+                    onTextChange={onFootnoteTextChange}
+                    onSourceDetails={onFootnote}
+                  />
+                );
+              })}
           </div>
         </div>
-        {footer}
+        {footer && <div className="writer-slot">{footer}</div>}
       </div>
     </div>
   );

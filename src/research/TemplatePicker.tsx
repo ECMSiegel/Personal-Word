@@ -12,26 +12,33 @@ export function TemplatePicker({
   onDeleteCustom?: (id: string) => void;
 }) {
   return (
-    <section className="template-picker" aria-label="Writing templates">
-      <p>Templates -- choose a starting structure</p>
-      {[...writingTemplates, ...customTemplates].map((t) => (
-        <div key={t.id}>
-          <button onClick={() => onChoose(t)}>
-            <strong>{t.name}</strong>
-            <small>{t.description}</small>
-          </button>
-          {t.custom && onDeleteCustom && (
-            <button
-              aria-label={`Delete template ${t.name}`}
-              onClick={() => onDeleteCustom(t.id)}
-            >
-              Delete
+    <section
+      className="template-picker settings-section"
+      aria-label="Writing templates"
+    >
+      <h2>Templates</h2>
+      <p className="settings-help">Choose a starting structure for a new project.</p>
+      <div className="template-list">
+        {[...writingTemplates, ...customTemplates].map((t) => (
+          <div className="template-row" key={t.id}>
+            <button className="template-choice" onClick={() => onChoose(t)}>
+              <strong>{t.name}</strong>
+              <small>{t.description}</small>
             </button>
-          )}
-        </div>
-      ))}
+            {t.custom && onDeleteCustom && (
+              <button
+                className="text-button template-delete"
+                aria-label={`Delete template ${t.name}`}
+                onClick={() => onDeleteCustom(t.id)}
+              >
+                Delete
+              </button>
+            )}
+          </div>
+        ))}
+      </div>
       {onSaveCurrent && (
-        <button onClick={onSaveCurrent}>
+        <button className="settings-text-action" onClick={onSaveCurrent}>
           Save current project as reusable template
         </button>
       )}

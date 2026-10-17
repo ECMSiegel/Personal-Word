@@ -714,7 +714,36 @@ export default function App() {
   };
   const restoreFragment = () => {
     if (!item || item.kind !== "fragment" || !target) return;
-    const fragment = item;
+    appendFragment(item, target);
+  };
+  const appendFragment = (fragment: Entry, target: string, open = true) => {
+    const editor = editorRef.current;
+    if (!open && target === active && mode === "write" && editor) {
+      // The open editor owns this section's content; append through it so its
+      // next save cannot overwrite the appended text.
+      editor.commands.insertContentAt(
+        editor.state.doc.content.size,
+        fragment.content.content ?? [],
+      );
+      mutate((p) => ({
+        ...p,
+        entries: p.entries.map((e) =>
+          e.id === fragment.id
+            ? {
+                ...e,
+                uses: [
+                  ...(e.uses ?? []),
+                  { projectId: p.id, sectionId: target, date: now() },
+                ],
+              }
+            : e,
+        ),
+      }));
+      setNotice(
+        "Fragment appended to the section. The original remains in Fragments.",
+      );
+      return;
+    }
     mutate((p) => ({
       ...p,
       entries: p.entries.map((e) => {
@@ -737,10 +766,38 @@ export default function App() {
         return { ...e, content, text: textOf(content), updatedAt: now() };
       }),
     }));
-    setActive(target);
+    if (open) setActive(target);
     setNotice(
       "Fragment appended to the section. The original remains in Fragments.",
     );
+  };
+  const insertFragment = (fragment: Entry) => {
+    const editor = editorRef.current;
+    const section = current.current?.entries.find((e) => e.id === active);
+    if (!editor || !section || section.kind !== "section") {
+      setNotice("Open a section and place the cursor to insert a fragment.");
+      return;
+    }
+    editor
+      .chain()
+      .focus()
+      .insertContent(fragment.content.content ?? [])
+      .run();
+    mutate((p) => ({
+      ...p,
+      entries: p.entries.map((e) =>
+        e.id === fragment.id
+          ? {
+              ...e,
+              uses: [
+                ...(e.uses ?? []),
+                { projectId: p.id, sectionId: section.id, date: now() },
+              ],
+            }
+          : e,
+      ),
+    }));
+    setNotice("Fragment inserted. The original remains in Fragments.");
   };
   const showVersions = (automatic = false) =>
     void run(async () => {
@@ -1278,24 +1335,38 @@ export default function App() {
               {destination === "settings" ? (
                 <div className="project-settings">
                   <h1>Project settings</h1>
-                  <label>
-                    <input
-                      type="checkbox"
-                      checked={restoreTabs}
-                      onChange={(e) => {
-                        setRestoreTabs(e.target.checked);
-                        localStorage.setItem(
-                          "personal-word.restoreTabs",
-                          JSON.stringify(e.target.checked),
-                        );
-                      }}
-                    />{" "}
-                    Restore open project tabs at launch
-                  </label>
-                  <p>Default startup opens Projects.</p>
-                  <button title={path} onClick={() => setNotice(path)}>
-                    Local storage
-                  </button>
+                  <section className="settings-section">
+                    <h2>General</h2>
+                    <label className="settings-check">
+                      <input
+                        type="checkbox"
+                        checked={restoreTabs}
+                        onChange={(e) => {
+                          setRestoreTabs(e.target.checked);
+                          localStorage.setItem(
+                            "personal-word.restoreTabs",
+                            JSON.stringify(e.target.checked),
+                          );
+                        }}
+                      />
+                      Restore open project tabs at launch
+                    </label>
+                    <p className="settings-help">
+                      Default startup opens Projects.
+                    </p>
+                    <div className="settings-form">
+                      <div className="settings-field">
+                        <span className="settings-label">Storage location</span>
+                        <button
+                          className="settings-button"
+                          title={path}
+                          onClick={() => setNotice(path)}
+                        >
+                          Show path
+                        </button>
+                      </div>
+                    </div>
+                  </section>
                   <ExportPanel
                     project={project}
                     onSettingsChange={(documentSettings) =>
@@ -1473,6 +1544,26 @@ export default function App() {
                     item={item}
                     documentSettings={project.documentSettings}
                     footnoteNumbers={footnoteNumbers}
+                    footnotes={(project.research?.footnotes ?? [])
+                      .filter((n) => footnoteNumbers[n.id])
+                      .map((n) => ({
+                        id: n.id,
+                        number: footnoteNumbers[n.id],
+                        text: n.text,
+                        citation: footnoteText(n, project.research!),
+                        editable: true,
+                      }))}
+                    onFootnoteTextChange={(id, text) =>
+                      mutate((p) => ({
+                        ...p,
+                        research: p.research && {
+                          ...p.research,
+                          footnotes: p.research.footnotes.map((n) =>
+                            n.id === id ? { ...n, text } : n,
+                          ),
+                        },
+                      }))
+                    }
                     onFootnote={(id) => {
                       setFocusFootnote(id);
                       setResearchEpoch((n) => n + 1);
@@ -1615,6 +1706,23 @@ export default function App() {
                     mutate((p) => importFragment(p, source, fragment));
                     setNotice("Fragment copied with its source references.");
                   }}
+                  activeId={mode === "write" ? item?.id : undefined}
+                  onEdit={(id, content, text) =>
+                    mutate((p) => ({
+                      ...p,
+                      entries: p.entries.map((e) =>
+                        e.id === id
+                          ? { ...e, content, text, updatedAt: now() }
+                          : e,
+                      ),
+                    }))
+                  }
+                  onInsert={insertFragment}
+                  sections={sections.map((e) => ({ id: e.id, title: e.title }))}
+                  onAppend={(fragment, sectionId) =>
+                    appendFragment(fragment, sectionId, false)
+                  }
+                  onDelete={remove}
                 />
               </aside>
             )}

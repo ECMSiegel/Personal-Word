@@ -32,7 +32,12 @@ export const ParagraphFormat = Extension.create({
       {
         types: ["paragraph", "heading"],
         attributes: {
-          textAlign: { default: null, parseHTML: el => el.style.textAlign || null, renderHTML: a => a.textAlign ? {style: `text-align: ${a.textAlign}`} : {} },
+          textAlign: {
+            default: null,
+            parseHTML: (el) => el.style.textAlign || null,
+            renderHTML: (a) =>
+              a.textAlign ? { style: `text-align: ${a.textAlign}` } : {},
+          },
           paragraphStyle: {
             default: null,
             parseHTML: (el) => el.getAttribute("data-paragraph-style"),
