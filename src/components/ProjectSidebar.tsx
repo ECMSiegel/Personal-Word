@@ -25,6 +25,10 @@ export const workspaceGroups = [
   "history",
   "settings",
 ];
+/** Groups whose lists collapse with a chevron on the group title. */
+export const collapsibleGroups = ["manuscript", "fragments", "research"];
+/** Feature shortcuts that sit at the bottom of the sidebar. */
+export const bottomGroups = ["read", "comments", "history", "settings"];
 type Props = {
   project: Project;
   active: string;
@@ -119,12 +123,14 @@ export function ProjectSidebar(props: Props) {
       return {};
     }
   });
+  const [collapsed, setCollapsed] = useState<Record<string, boolean>>({});
   useEffect(() => {
     localStorage.setItem(
       "personal-word.views." + project.id,
       JSON.stringify(views),
     );
   }, [views, project.id]);
+  useEffect(() => setCollapsed({}), [project.id]);
   const [localOrder, setLocalOrder] = useState(workspaceGroups);
   const aside = useRef<HTMLElement>(null);
   useEffect(() => {
@@ -182,6 +188,255 @@ export function ProjectSidebar(props: Props) {
     settings: "Settings",
   };
   const expanded = prefs.pinned || revealed;
+  const group = (id: string, index: number) => {
+    const collection = [
+      "manuscript",
+      "fragments",
+      "research",
+      "comments",
+      "history",
+    ].includes(id);
+    const kind =
+      id === "manuscript"
+        ? "section"
+        : id === "fragments"
+          ? "fragment"
+          : "research";
+    const entries = (
+      id === "manuscript"
+        ? sections
+        : id === "fragments"
+          ? project.entries.filter((e) => e.kind === "fragment")
+          : []
+    ).filter(
+      (e) =>
+        !query ||
+        (e.title + " " + e.text).toLowerCase().includes(query.toLowerCase()),
+    );
+    return (
+      <section
+        className={
+          "sidebar-group " +
+          (views[id] ? "cards-view" : "list-view") +
+          (collapsed[id] ? " is-collapsed" : "")
+        }
+        key={id}
+        onDragOver={(e) => e.preventDefault()}
+        onDrop={(e) => {
+          const group = e.dataTransfer.getData("text/personal-word-group");
+          if (group) {
+            e.preventDefault();
+            moveGroup(group, index);
+          }
+        }}
+      >
+        <div
+          className="group-heading"
+          draggable
+          onDragStart={(e) =>
+            e.dataTransfer.setData("text/personal-word-group", id)
+          }
+        >
+          <button
+            className={
+              "group-title " +
+              (props.activeDestination === id ||
+              (id === "read" && mode === "read")
+                ? "selected"
+                : "")
+            }
+            onClick={() => selectDestination(id)}
+          >
+            {id === "manuscript" && <FileText size={15} />}
+            {id === "fragments" && <Layers size={15} />}
+            {id === "read" && <BookOpen size={15} />}
+            {id === "comments" && <MessageSquare size={15} />}
+            {id === "history" && <History size={15} />}
+            {labels[id]}
+          </button>
+          {collapsibleGroups.includes(id) && (
+            <button
+              className="group-chevron"
+              aria-label={(collapsed[id] ? "Show " : "Hide ") + labels[id]}
+              aria-expanded={!collapsed[id]}
+              data-collapsed={collapsed[id] ? "true" : undefined}
+              onClick={() => setCollapsed((c) => ({ ...c, [id]: !c[id] }))}
+            >
+              <ChevronDown size={14} />
+            </button>
+          )}
+          <div className="group-actions">
+            <button
+              aria-label={"Move " + labels[id] + " up"}
+              disabled={index === 0}
+              onClick={() => moveGroup(id, index - 1)}
+            >
+              <ArrowUp size={12} />
+            </button>
+            <button
+              aria-label={"Move " + labels[id] + " down"}
+              disabled={index === order.length - 1}
+              onClick={() => moveGroup(id, index + 1)}
+            >
+              <ArrowDown size={12} />
+            </button>
+            {collection && (
+              <>
+                <button
+                  aria-label={
+                    views[id]
+                      ? "Show " + labels[id] + " list"
+                      : "Show " + labels[id] + " cards"
+                  }
+                  onClick={() => setViews((v) => ({ ...v, [id]: !v[id] }))}
+                >
+                  {views[id] ? <List size={15} /> : <Layers size={15} />}
+                </button>
+                <button
+                  aria-label={
+                    "New " +
+                    (id === "manuscript"
+                      ? "section"
+                      : id === "fragments"
+                        ? "fragment"
+                        : id === "comments"
+                          ? "comment"
+                          : id === "history"
+                            ? "snapshot"
+                            : "research note")
+                  }
+                  onClick={() => {
+                    if (id === "manuscript" || id === "fragments")
+                      onAdd(kind as Entry["kind"]);
+                    else if (props.onCollectionAdd) props.onCollectionAdd(id);
+                    else selectDestination(id);
+                  }}
+                >
+                  <Plus size={16} />
+                </button>
+              </>
+            )}
+          </div>
+        </div>
+        {collection && !collapsed[id] && (
+          <div className="entry-list">
+            {(props.collectionItems?.[id] ?? [])
+              .filter(
+                (item) =>
+                  !query ||
+                  (item.title + " " + item.detail)
+                    .toLowerCase()
+                    .includes(query.toLowerCase()),
+              )
+              .map((item) => (
+                <div className="entry-row" key={item.id}>
+                  <button
+                    className="entry-main"
+                    onClick={() => {
+                      selectDestination(id);
+                      props.onCollectionSelect?.(id, item.id);
+                    }}
+                  >
+                    <span>{item.title}</span>
+                    {views[id] && item.detail && (
+                      <p className="entry-preview">{item.detail}</p>
+                    )}
+                  </button>
+                </div>
+              ))}
+            {entries.map((e) => (
+              <div
+                key={e.id}
+                className={
+                  "entry-row " +
+                  (active === e.id && mode === "write" ? "selected" : "")
+                }
+                draggable
+                onDragStart={(event) => {
+                  event.stopPropagation();
+                  event.dataTransfer.setData("text/folio-section", e.id);
+                }}
+                onDragOver={(event) => event.preventDefault()}
+                onDrop={(event) => {
+                  const dragged =
+                    event.dataTransfer.getData("text/folio-section");
+                  if (project.order.includes(dragged)) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    onReorder(dragged, project.order.indexOf(e.id));
+                  }
+                }}
+              >
+                <button
+                  className="entry-main"
+                  onClick={() => onSelect(e.id)}
+                  onDoubleClick={() => onRename(e)}
+                >
+                  <FileText size={14} />
+                  <span>{e.title}</span>
+                  <small>{entryWords(e)} words</small>
+                  {views[id] && (
+                    <p className="entry-preview">{e.text || "Empty"}</p>
+                  )}
+                </button>
+                {id === "manuscript" && (
+                  <div className="reorder">
+                    <button
+                      aria-label={"Move " + e.title + " up"}
+                      disabled={project.order[0] === e.id}
+                      onClick={() =>
+                        onReorder(e.id, project.order.indexOf(e.id) - 1)
+                      }
+                    >
+                      <ArrowUp size={12} />
+                    </button>
+                    <button
+                      aria-label={"Move " + e.title + " down"}
+                      disabled={project.order.at(-1) === e.id}
+                      onClick={() =>
+                        onReorder(e.id, project.order.indexOf(e.id) + 1)
+                      }
+                    >
+                      <ArrowDown size={12} />
+                    </button>
+                  </div>
+                )}
+                {views[id] && props.onEntryDetails && (
+                  <div className="entry-details">
+                    <input
+                      aria-label={"Synopsis for " + e.title}
+                      placeholder="Synopsis"
+                      value={e.synopsis ?? ""}
+                      onChange={(event) =>
+                        props.onEntryDetails?.(e.id, {
+                          synopsis: event.target.value,
+                        })
+                      }
+                    />
+                    <Dropdown
+                      className="entry-status"
+                      label={"Draft status for " + e.title}
+                      value={e.draftStatus ?? "notes"}
+                      onChange={(value) =>
+                        props.onEntryDetails?.(e.id, {
+                          draftStatus: value as Entry["draftStatus"],
+                        })
+                      }
+                      options={[
+                        { value: "notes", label: "Notes" },
+                        { value: "draft", label: "Draft" },
+                        { value: "revised", label: "Revised" },
+                      ]}
+                    />
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        )}
+      </section>
+    );
+  };
   return (
     <div
       className={
@@ -236,7 +491,6 @@ export function ProjectSidebar(props: Props) {
           onClick={onLibrary}
         >
           <span>{project.title}</span>
-          <ChevronDown size={16} />
         </button>
         <div className="search">
           <Search size={14} />
@@ -249,257 +503,15 @@ export function ProjectSidebar(props: Props) {
           <kbd>⌘K</kbd>
         </div>
         <div className="sidebar-groups">
-          {order.map((id, index) => {
-            const collection = [
-              "manuscript",
-              "fragments",
-              "research",
-              "comments",
-              "history",
-            ].includes(id);
-            const kind =
-              id === "manuscript"
-                ? "section"
-                : id === "fragments"
-                  ? "fragment"
-                  : "research";
-            const entries = (
-              id === "manuscript"
-                ? sections
-                : id === "fragments"
-                  ? project.entries.filter((e) => e.kind === "fragment")
-                  : []
-            ).filter(
-              (e) =>
-                !query ||
-                (e.title + " " + e.text)
-                  .toLowerCase()
-                  .includes(query.toLowerCase()),
-            );
-            return (
-              <section
-                className={
-                  "sidebar-group " + (views[id] ? "cards-view" : "list-view")
-                }
-                key={id}
-                onDragOver={(e) => e.preventDefault()}
-                onDrop={(e) => {
-                  const group = e.dataTransfer.getData(
-                    "text/personal-word-group",
-                  );
-                  if (group) {
-                    e.preventDefault();
-                    moveGroup(group, index);
-                  }
-                }}
-              >
-                <div
-                  className="group-heading"
-                  draggable
-                  onDragStart={(e) =>
-                    e.dataTransfer.setData("text/personal-word-group", id)
-                  }
-                >
-                  <button
-                    className={
-                      "group-title " +
-                      (props.activeDestination === id ||
-                      (id === "read" && mode === "read")
-                        ? "selected"
-                        : "")
-                    }
-                    onClick={() => selectDestination(id)}
-                  >
-                    {id === "read" && <BookOpen size={15} />}
-                    {id === "comments" && <MessageSquare size={15} />}
-                    {id === "history" && <History size={15} />}
-                    {labels[id]}
-                  </button>
-                  <div className="group-actions">
-                    <button
-                      aria-label={"Move " + labels[id] + " up"}
-                      disabled={index === 0}
-                      onClick={() => moveGroup(id, index - 1)}
-                    >
-                      <ArrowUp size={12} />
-                    </button>
-                    <button
-                      aria-label={"Move " + labels[id] + " down"}
-                      disabled={index === order.length - 1}
-                      onClick={() => moveGroup(id, index + 1)}
-                    >
-                      <ArrowDown size={12} />
-                    </button>
-                    {collection && (
-                      <>
-                        <button
-                          aria-label={
-                            views[id]
-                              ? "Show " + labels[id] + " list"
-                              : "Show " + labels[id] + " cards"
-                          }
-                          onClick={() =>
-                            setViews((v) => ({ ...v, [id]: !v[id] }))
-                          }
-                        >
-                          {views[id] ? (
-                            <List size={15} />
-                          ) : (
-                            <Layers size={15} />
-                          )}
-                        </button>
-                        <button
-                          aria-label={
-                            "New " +
-                            (id === "manuscript"
-                              ? "section"
-                              : id === "fragments"
-                                ? "fragment"
-                                : id === "comments"
-                                  ? "comment"
-                                  : id === "history"
-                                    ? "snapshot"
-                                    : "research note")
-                          }
-                          onClick={() => {
-                            if (id === "manuscript" || id === "fragments")
-                              onAdd(kind as Entry["kind"]);
-                            else if (props.onCollectionAdd)
-                              props.onCollectionAdd(id);
-                            else selectDestination(id);
-                          }}
-                        >
-                          <Plus size={16} />
-                        </button>
-                      </>
-                    )}
-                  </div>
-                </div>
-                {collection && (
-                  <div className="entry-list">
-                    {(props.collectionItems?.[id] ?? [])
-                      .filter(
-                        (item) =>
-                          !query ||
-                          (item.title + " " + item.detail)
-                            .toLowerCase()
-                            .includes(query.toLowerCase()),
-                      )
-                      .map((item) => (
-                        <div className="entry-row" key={item.id}>
-                          <button
-                            className="entry-main"
-                            onClick={() => {
-                              selectDestination(id);
-                              props.onCollectionSelect?.(id, item.id);
-                            }}
-                          >
-                            <span>{item.title}</span>
-                            {views[id] && item.detail && (
-                              <p className="entry-preview">{item.detail}</p>
-                            )}
-                          </button>
-                        </div>
-                      ))}
-                    {entries.map((e) => (
-                      <div
-                        key={e.id}
-                        className={
-                          "entry-row " +
-                          (active === e.id && mode === "write"
-                            ? "selected"
-                            : "")
-                        }
-                        draggable
-                        onDragStart={(event) => {
-                          event.stopPropagation();
-                          event.dataTransfer.setData(
-                            "text/folio-section",
-                            e.id,
-                          );
-                        }}
-                        onDragOver={(event) => event.preventDefault()}
-                        onDrop={(event) => {
-                          const dragged =
-                            event.dataTransfer.getData("text/folio-section");
-                          if (project.order.includes(dragged)) {
-                            event.preventDefault();
-                            event.stopPropagation();
-                            onReorder(dragged, project.order.indexOf(e.id));
-                          }
-                        }}
-                      >
-                        <button
-                          className="entry-main"
-                          onClick={() => onSelect(e.id)}
-                          onDoubleClick={() => onRename(e)}
-                        >
-                          <FileText size={14} />
-                          <span>{e.title}</span>
-                          <small>{entryWords(e)} words</small>
-                          {views[id] && (
-                            <p className="entry-preview">{e.text || "Empty"}</p>
-                          )}
-                        </button>
-                        {id === "manuscript" && (
-                          <div className="reorder">
-                            <button
-                              aria-label={"Move " + e.title + " up"}
-                              disabled={project.order[0] === e.id}
-                              onClick={() =>
-                                onReorder(e.id, project.order.indexOf(e.id) - 1)
-                              }
-                            >
-                              <ArrowUp size={12} />
-                            </button>
-                            <button
-                              aria-label={"Move " + e.title + " down"}
-                              disabled={project.order.at(-1) === e.id}
-                              onClick={() =>
-                                onReorder(e.id, project.order.indexOf(e.id) + 1)
-                              }
-                            >
-                              <ArrowDown size={12} />
-                            </button>
-                          </div>
-                        )}
-                        {views[id] && props.onEntryDetails && (
-                          <div className="entry-details">
-                            <input
-                              aria-label={"Synopsis for " + e.title}
-                              placeholder="Synopsis"
-                              value={e.synopsis ?? ""}
-                              onChange={(event) =>
-                                props.onEntryDetails?.(e.id, {
-                                  synopsis: event.target.value,
-                                })
-                              }
-                            />
-                            <Dropdown
-                              className="entry-status"
-                              label={"Draft status for " + e.title}
-                              value={e.draftStatus ?? "notes"}
-                              onChange={(value) =>
-                                props.onEntryDetails?.(e.id, {
-                                  draftStatus: value as Entry["draftStatus"],
-                                })
-                              }
-                              options={[
-                                { value: "notes", label: "Notes" },
-                                { value: "draft", label: "Draft" },
-                                { value: "revised", label: "Revised" },
-                              ]}
-                            />
-                          </div>
-                        )}
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </section>
-            );
-          })}
+          {order
+            .filter((id) => collapsibleGroups.includes(id))
+            .map((id) => group(id, order.indexOf(id)))}
         </div>
+        <nav className="sidebar-bottom-groups" aria-label="Project features">
+          {order
+            .filter((id) => !collapsibleGroups.includes(id))
+            .map((id) => group(id, order.indexOf(id)))}
+        </nav>
         <label className="sidebar-hover-setting">
           <input
             type="checkbox"

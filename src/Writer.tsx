@@ -221,9 +221,7 @@ export function Writer({
         () => settingsRef.current?.font === "mono",
         () => (settingsRef.current?.firstLineIndent ? 0.5 : 0),
       ),
-      Placeholder.configure({
-        placeholder: "Begin anywhere. The shape will come.",
-      }),
+      Placeholder.configure({ placeholder: "" }),
     ],
     content: item.content,
     editorProps: {

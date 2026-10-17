@@ -32,6 +32,11 @@ Re-run after the expanded workspace changes (see [personal-word-v2.md](personal-
 - Native smoke (fresh `native-smoke` debug build, macOS WebKit): both phases passed, including page fragmentation of an overflowing paragraph with a page count above one, the continuous/pages toggle, quit flush, process restart, snapshot restore, SQLite integrity, and portable JSON equality. See [native evidence](evidence/native-smoke.json).
 - Release: `npm run tauri build -- --bundles app` produced `src-tauri/target/release/bundle/macos/Personal Word.app` (identifier `com.folio.writing` retained). The superseded debug `Folio.app` bundle was removed.
 
+## Sidebar reorganization -- October 17, 2026
+
+- Project-switch arrow removed (Projects opens from the library/home as before); collapse chevrons added next to Manuscript/Fragments/Research (title click still opens the panel; chevron is a separate button with label "Show/Hide {group}"); Read manuscript, Comments, Snapshots & history, Settings moved to the bottom of the sidebar; empty-document placeholder text removed.
+- `npm test`: 60 unit tests. `npm run test:e2e`: 31 Playwright scenarios.
+
 ## Footnotes, fragment split view, polish -- October 16, 2026 (late)
 
 - `npm test`: 60 unit tests (adds footnote page assignment/reserve math). `npm run test:e2e`: 31 Playwright scenarios (adds footnotes and fragments-panel specs). `cargo test`: 16 passed, 1 ignored.

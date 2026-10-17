@@ -1516,3 +1516,36 @@ button[aria-pressed="true"],
   font-weight: 400;
   padding: 4px 6px;
 }
+
+/* Group titles carry a collapse chevron for list groups. */
+.group-title {
+  align-items: center;
+  gap: 6px;
+}
+.group-title svg {
+  flex-shrink: 0;
+}
+.group-chevron {
+  display: inline-flex;
+  margin-left: auto;
+  margin-right: 2px;
+  color: var(--muted);
+  transition: transform 0.15s ease;
+}
+.group-chevron[data-collapsed="true"] {
+  transform: rotate(-90deg);
+}
+.sidebar-bottom-groups .group-chevron,
+.group-chevron {
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+}
+.sidebar-bottom-groups {
+  margin-top: auto;
+  padding-bottom: 6px;
+}
+.sidebar-bottom-groups .sidebar-group + .sidebar-group {
+  border-top: 1px solid var(--line);
+}
