@@ -9,8 +9,11 @@ import {
   type CitationPart,
 } from "./citations";
 import { lookupIdentifier } from "./lookup";
+import { parseCslJson, type CslImportResult } from "./cslImport";
+import { CaptureQuote } from "./CaptureQuote";
+import { MAX_MANUSCRIPT_BYTES } from "../import/manuscript";
+import type { NoteForm } from "./types";
 import {
-  emptyResearch,
   type Footnote,
   type ResearchData,
   type ResearchNote,
@@ -19,6 +22,7 @@ import {
 import "./research.css";
 
 export type ResearchTab = "sources" | "notes";
+const emptyResearchData: ResearchData = { sources: [], notes: [], footnotes: [] };
 
 const kindOptions: DropdownOption<Source["kind"]>[] = [
   { value: "book", label: "Book" },
@@ -75,6 +79,7 @@ function Field({
   help,
   wide,
   multiline,
+  placeholder,
 }: {
   id: string;
   label: string;
@@ -83,6 +88,7 @@ function Field({
   help?: string;
   wide?: boolean;
   multiline?: boolean;
+  placeholder?: string;
 }) {
   const describedBy = help ? `${id}-help` : undefined;
   return (
@@ -93,6 +99,7 @@ function Field({
           id={id}
           rows={3}
           value={value}
+          placeholder={placeholder}
           aria-describedby={describedBy}
           onChange={(e) => onChange(e.target.value)}
         />
@@ -101,6 +108,7 @@ function Field({
           id={id}
           type="text"
           value={value}
+          placeholder={placeholder}
           aria-describedby={describedBy}
           onChange={(e) => onChange(e.target.value)}
         />
@@ -126,12 +134,15 @@ function Preview({ label, parts }: { label: string; parts: CitationPart[] }) {
 }
 
 export function ResearchPanel({
-  data = emptyResearch(),
+  data = emptyResearchData,
   onChange,
   onInsertFootnote,
   onInsertNote,
   initialTab = "sources",
   focusFootnoteId,
+  noteForms = {},
+  onImportCsl,
+  onCaptureQuote,
 }: {
   data?: ResearchData;
   onChange: (data: ResearchData) => void;
@@ -140,6 +151,9 @@ export function ResearchPanel({
   initialTab?: ResearchTab | "footnotes";
   /** Opens Sources at the footnote's source and focuses its text. */
   focusFootnoteId?: string;
+  noteForms?: Record<string, "full" | "short">;
+  onImportCsl?: (result: CslImportResult) => void;
+  onCaptureQuote?: (note: ResearchNote, insert: boolean) => void;
 }) {
   const [tab, setTab] = useState<ResearchTab>(
     initialTab === "notes" ? "notes" : "sources",
@@ -149,6 +163,9 @@ export function ResearchPanel({
   const [busy, setBusy] = useState(false);
   const [status, setStatus] = useState({ text: "", error: false });
   const [pendingFocus, setPendingFocus] = useState<string | null>(null);
+  const [captureSourceId, setCaptureSourceId] = useState<string | undefined>();
+  const [capturingQuote, setCapturingQuote] = useState(false);
+  const importFile = useRef<HTMLInputElement>(null);
   const panel = useRef<HTMLElement>(null);
   const latest = useRef(data);
   latest.current = data;
@@ -263,18 +280,6 @@ export function ResearchPanel({
     setPendingFocus(id);
   };
 
-  const addQuote = (source: Source) => {
-    const id = crypto.randomUUID();
-    onChange({
-      ...data,
-      notes: [
-        ...data.notes,
-        { id, kind: "quote", text: "", sourceId: source.id },
-      ],
-    });
-    setPendingFocus(id);
-  };
-
   const addNote = () => {
     const id = crypto.randomUUID();
     onChange({
@@ -286,7 +291,7 @@ export function ResearchPanel({
 
   const renderFootnote = (note: Footnote) => {
     const linked = Boolean(note.sourceId);
-    const parts = footnoteParts(note, data);
+    const parts = footnoteParts(note, data, noteForms[note.id]);
     return (
       <div className="footnote-item" key={note.id}>
         <span className="field-label">
@@ -308,16 +313,22 @@ export function ResearchPanel({
               value={note.locator ?? ""}
               onChange={(locator) => patchFootnote(note.id, { locator })}
             />
-            <label className="check">
-              <input
-                type="checkbox"
-                checked={note.shortened ?? false}
-                onChange={(e) =>
-                  patchFootnote(note.id, { shortened: e.target.checked })
-                }
+            <div className="field">
+              <span className="field-label">Note form</span>
+              <Dropdown<NoteForm>
+                label="Note form"
+                value={note.form ?? (note.shortened ? "short" : "auto")}
+                width="100%"
+                options={[
+                  { value: "auto", label: `Automatic (${noteForms[note.id] ?? "full"})` },
+                  { value: "full", label: "Always full" },
+                  { value: "short", label: "Always short" },
+                ]}
+                onChange={(form) => {
+                  patchFootnote(note.id, { form, shortened: undefined });
+                }}
               />
-              Shortened citation
-            </label>
+            </div>
           </div>
         )}
         <div className="cite-preview">
@@ -427,6 +438,14 @@ export function ResearchPanel({
             wide
             value={source.title}
             onChange={(title) => patch({ title })}
+          />
+          <Field
+            id={fieldId("shortTitle")}
+            label="Short title"
+            wide
+            value={source.shortTitle ?? ""}
+            placeholder="Used in shortened notes"
+            onChange={(shortTitle) => patch({ shortTitle: shortTitle || undefined })}
           />
           {source.kind === "book" && (
             <>
@@ -550,7 +569,7 @@ export function ResearchPanel({
           >
             Cite here
           </button>
-          <button type="button" onClick={() => addQuote(source)}>
+          <button type="button" onClick={() => { setCaptureSourceId(source.id); setCapturingQuote(true); }}>
             Add quote
           </button>
           <button
@@ -618,6 +637,34 @@ export function ResearchPanel({
       </nav>
       {tab === "sources" ? (
         <>
+          <label className="check">
+            <input
+              type="checkbox"
+              checked={data.autoShortNotes ?? false}
+              onChange={(event) => onChange({ ...data, autoShortNotes: event.target.checked })}
+            />
+            Shorten repeat citations automatically
+          </label>
+          <input
+            ref={importFile}
+            type="file"
+            accept=".json,application/json"
+            hidden
+            aria-label="Zotero CSL JSON file"
+            onChange={async (event) => {
+              const file = event.currentTarget.files?.[0];
+              event.currentTarget.value = "";
+              if (!file) return;
+              try {
+                if (file.size > MAX_MANUSCRIPT_BYTES) throw new Error("Choose a file no larger than 5 MB.");
+                const text = new TextDecoder("utf-8", { fatal: true }).decode(await file.arrayBuffer());
+                const result = parseCslJson(text, latest.current.sources);
+                if (onImportCsl) onImportCsl(result);
+              } catch (error) {
+                notify(error instanceof Error ? error.message : "Could not read this CSL JSON file.", true);
+              }
+            }}
+          />
           <div className="research-add">
             <div className="research-lookup">
               <input
@@ -647,10 +694,17 @@ export function ResearchPanel({
               the website.
             </p>
             <div className="research-actions">
+              <button type="button" onClick={() => { setCaptureSourceId(undefined); setCapturingQuote(true); }}>
+                Capture quote
+              </button>
               <button type="button" onClick={addManual}>
                 Enter manually
               </button>
+              <button type="button" onClick={() => importFile.current?.click()}>
+                Import from Zotero…
+              </button>
             </div>
+            <p className="research-hint">In Zotero, right-click a library or collection, choose Export, and pick CSL JSON.</p>
           </div>
           <p
             role="status"
@@ -693,6 +747,17 @@ export function ResearchPanel({
               );
             })}
           </ul>
+          {capturingQuote && <CaptureQuote
+            sources={data.sources}
+            initialSourceId={captureSourceId}
+            onCancel={() => setCapturingQuote(false)}
+            onSave={(quote, insert) => {
+              const note: ResearchNote = { id: crypto.randomUUID(), kind: "quote", text: quote.text, sourceId: quote.sourceId, locator: quote.locator };
+              onChange({ ...data, notes: [...data.notes, note] });
+              setCapturingQuote(false);
+              if (insert) onCaptureQuote?.(note, true);
+            }}
+          />}
           <section className="research-group">
             <h3 className="research-subhead">Text-only notes</h3>
             <p className="research-hint">

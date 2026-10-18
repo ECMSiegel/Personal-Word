@@ -31,3 +31,36 @@ it("rejects unsupported imported editor content before it can be opened", () => 
   p.entries[0].content = { type: "doc", content: [{ type: "unknown" }] };
   expect(() => validateProject(p)).toThrow();
 });
+it("starts new projects with automatic short notes enabled", () => {
+  expect(newProject("x").research?.autoShortNotes).toBe(true);
+});
+it("rejects invalid footnote forms", () => {
+  const p = newProject("x");
+  p.research!.footnotes.push({ id: "n", text: "", form: "sometimes" as "full" });
+  expect(() => validateProject(p)).toThrow("Invalid footnote form");
+});
+it.each([
+  ["shortTitle", 42],
+  ["cslId", 42],
+])("rejects a non-string source %s", (field, value) => {
+  const p = newProject("x");
+  p.research!.sources.push({ id: "s", kind: "book", title: "T", authors: [] });
+  (p.research!.sources[0] as Record<string, unknown>)[field] = value;
+  expect(() => validateProject(p)).toThrow("Invalid research source.");
+});
+it("rejects a non-boolean automatic short note preference", () => {
+  const p = newProject("x");
+  (p.research as { autoShortNotes?: unknown }).autoShortNotes = "yes";
+  expect(() => validateProject(p)).toThrow("Invalid research data.");
+});
+it.each([
+  null, [], "goal", { totalWords: 0 }, { dailyWords: -1 },
+  { totalWords: 2.5 }, { dailyWords: "10" },
+  { deadline: "tomorrow" }, { deadline: "2026-02-30" },
+])("rejects invalid writing goals: %j", (goals) => {
+  expect(() => validateProject({ ...newProject("Goals"), goals })).toThrow("Invalid writing goals");
+});
+it("accepts additive writing goals and cleared goals", () => {
+  expect(() => validateProject({ ...newProject("Goals"), goals: { totalWords: 1000, dailyWords: 50, deadline: "2026-10-31" } })).not.toThrow();
+  expect(() => validateProject({ ...newProject("Goals"), goals: {} })).not.toThrow();
+});

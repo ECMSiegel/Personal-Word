@@ -8,6 +8,7 @@ import {
   footnoteText,
   footnoteParts,
 } from "../research/citations";
+import { footnoteIdsInOrder, resolveNoteForms } from "../research/noteForms";
 import {
   defaultDocumentSettings,
   emptyResearch,
@@ -64,6 +65,7 @@ function points(value: unknown): number | undefined {
 }
 export function documentBlocks(project: ExportProject) {
   const data = project.research ?? emptyResearch();
+  const noteForms = resolveNoteForms(footnoteIdsInOrder(project), data);
   const settings = { ...defaultDocumentSettings, ...project.documentSettings };
   const notes: { number: number; id: string; text: string; parts: Inline[] }[] =
     [];
@@ -83,8 +85,8 @@ export function documentBlocks(project: ExportProject) {
         notes.push({
           id,
           number,
-          text: footnoteText(n, data),
-          parts: footnoteParts(n, data).map((p) => ({
+          text: footnoteText(n, data, noteForms[id]),
+          parts: footnoteParts(n, data, noteForms[id]).map((p) => ({
             text: p.text,
             italic: p.italic,
           })),
@@ -207,7 +209,7 @@ export async function saveExport(blob: Blob, name: string) {
       defaultPath: name,
       filters: [
         {
-          name: name.endsWith(".pdf") ? "PDF" : "Word document",
+          name: name.endsWith(".pdf") ? "PDF" : name.endsWith(".md") ? "Markdown" : name.endsWith(".txt") ? "Plain text" : "Word document",
           extensions: [name.split(".").at(-1)!],
         },
       ],

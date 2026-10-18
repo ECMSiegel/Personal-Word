@@ -67,4 +67,22 @@ describe("Chicago 18 common-source citations", () => {
         footnotes: [],
       }).map((x) => x.id),
     ).toEqual(["a", "b"]));
+  it("uses the main title before a colon in short notes", () => {
+    expect(formatCitation({ ...book, title: "Lamps and Ledgers: Keeping the Coastal Lights", authors: ["Marguerite Halloway"] }, "short", "48")).toBe("Halloway, Lamps and Ledgers, 48.");
+  });
+  it("prefers an explicit short title", () => {
+    expect(formatCitation({ ...book, title: "Lamps and Ledgers: Keeping the Coastal Lights", shortTitle: "Ledgers", authors: ["Marguerite Halloway"] }, "short", "48")).toBe("Halloway, Ledgers, 48.");
+  });
+  it("uses short titles in journal notes", () => {
+    expect(formatCitation({ id: "j", kind: "journal", title: "On Testing: A Method", shortTitle: "Testing", authors: ["Jane Smith"] }, "short", "12")).toBe("Smith, “Testing,” 12.");
+  });
+  it("uses the untitled-source placeholder in shortened notes", () => {
+    expect(formatCitation({ id: "u", kind: "book", title: "", authors: [] }, "short")).toBe("[Untitled source].");
+    expect(formatCitation({ id: "u", kind: "book", title: "", authors: [] }, "short", "12")).toBe("[Untitled source], 12.");
+    expect(formatCitation({ id: "uj", kind: "journal", title: "", authors: [] }, "short")).toBe("“[Untitled source].”");
+  });
+  it("uses Chicago short author forms for two authors and et al.", () => {
+    expect(formatCitation({ ...book, authors: ["Yu", "Lee"] }, "short")).toMatch(/^Yu and Lee, /);
+    expect(formatCitation({ ...book, authors: ["Yu", "Lee", "Kim"] }, "short")).toMatch(/^Yu et al\., /);
+  });
 });

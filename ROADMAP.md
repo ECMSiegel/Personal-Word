@@ -10,6 +10,10 @@ Personal Word is an experimental Mac-first writing workspace. These are prioriti
 4. Complete native keyboard, VoiceOver, IME, window-size/zoom, and light/dark checks. Improve small controls and discoverability based on observed problems.
 5. Extract App/Writer lifecycle and layout responsibilities without introducing competing project state or breaking undo and save behavior. Footnote layout and dialog rendering have moved out of `Writer`/`App`; the wider orchestration is unchanged.
 
+## Writer workflows -- October 18 implementation
+
+CSL JSON source import, manuscript-order automatic short notes and short titles, quote capture, word goals/deadline, optional focus/prose decorations, and whole-project Markdown/plain-text export are implemented (CLAIMED; qualification and owner confirmation tracked in the writer-features implementation log). BibTeX/live sync, automatic grammar correction, and per-chapter note restarts remain outside this pass.
+
 ## Bounded starter contributions
 
 - Report a reproducible keyboard/focus or native WebKit layout problem with a small synthetic project.

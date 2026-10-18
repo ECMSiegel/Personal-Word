@@ -35,11 +35,16 @@ import {
   type SaveStatus,
 } from "./save-queue";
 import { Writer } from "./Writer";
+import { goalStatus, manuscriptWords } from "./goals";
 import { ProjectLibrary } from "./components/ProjectLibrary";
 import { ProjectSidebar } from "./components/ProjectSidebar";
 import { ReadDocument } from "./components/ReadDocument";
 import { Dropdown } from "./components/Dropdown";
 import { footnoteText } from "./research/citations";
+import { footnoteIdsInOrder, resolveNoteForms } from "./research/noteForms";
+import { isBlockQuote } from "./research/quoteText";
+import { CslImportPreview } from "./research/CslImportPreview";
+import type { CslImportResult } from "./research/cslImport";
 import { ProjectTabs } from "./components/ProjectTabs";
 import { ResearchPanel } from "./research/ResearchPanel";
 import { defaultDocumentSettings } from "./research/types";
@@ -64,6 +69,10 @@ function readPreference<T>(key: string, fallback: T): T {
   } catch {
     return fallback;
   }
+}
+function localDate() {
+  const date = new Date();
+  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
 }
 const asideMin = 260;
 const asideMax = 720;
@@ -181,11 +190,45 @@ export default function App() {
     localStorage.setItem("personal-word.reader", JSON.stringify(reader));
   }, [reader]);
   const [project, setProject] = useState<Project | null>(null);
+  const [focusMode, setFocusMode] = useState(() => readPreference("personal-word.focus-mode", false));
+  const [proseCheck, setProseCheck] = useState(() => readPreference("personal-word.prose-check", false));
+  useEffect(() => {
+    localStorage.setItem("personal-word.focus-mode", JSON.stringify(focusMode));
+  }, [focusMode]);
+  useEffect(() => {
+    localStorage.setItem("personal-word.prose-check", JSON.stringify(proseCheck));
+  }, [proseCheck]);
+  const [goalDay, setGoalDay] = useState(localDate);
+  const [goalBaseline, setGoalBaseline] = useState<{ projectId: string; date: string; words: number } | null>(null);
+  useEffect(() => {
+    let timer: ReturnType<typeof setTimeout>;
+    const schedule = () => {
+      setGoalDay(localDate());
+      const date = new Date();
+      const midnight = new Date(date.getFullYear(), date.getMonth(), date.getDate() + 1);
+      timer = setTimeout(schedule, midnight.getTime() - date.getTime() + 50);
+    };
+    const onFocus = () => setGoalDay(localDate());
+    schedule();
+    window.addEventListener("focus", onFocus);
+    return () => { clearTimeout(timer); window.removeEventListener("focus", onFocus); };
+  }, []);
+  useEffect(() => {
+    if (!project) { setGoalBaseline(null); return; }
+    const key = `personal-word.goal-baseline.${project.id}`;
+    const saved = readPreference<{ date: string; words: number } | null>(key, null);
+    const baseline = saved?.date === goalDay && Number.isSafeInteger(saved.words) && saved.words >= 0
+      ? saved : { date: goalDay, words: manuscriptWords(project) };
+    try { localStorage.setItem(key, JSON.stringify(baseline)); } catch { /* Progress remains available for this session. */ }
+    setGoalBaseline({ projectId: project.id, ...baseline });
+    // Capture the total only when a project opens or the local date changes.
+  }, [project?.id, goalDay]);
   const current = useRef<Project | null>(null);
   const [library, setLibrary] = useState<Summary[]>([]);
   const [damagedJournals, setDamagedJournals] = useState<DamagedJournal[]>([]);
   const [damagedFolders, setDamagedFolders] = useState<string[]>([]);
   const [importPreview, setImportPreview] = useState<ManuscriptPreview | null>(null);
+  const [cslImportPreview, setCslImportPreview] = useState<CslImportResult | null>(null);
   const [choice, setChoice] = useState<ChoiceDialog | null>(null);
   const [active, setActive] = useState("");
   const [mode, setMode] = useState<"write" | "read">("write");
@@ -1065,10 +1108,59 @@ export default function App() {
     const entry = project.entries.find((e) => e.id === id);
     if (entry) numberNotes(entry.content);
   });
+  const noteForms = project
+    ? resolveNoteForms(footnoteIdsInOrder(project), project.research ?? { sources: [], notes: [], footnotes: [] })
+    : {};
+  const insertResearchNote = (note: { kind: string; text: string; sourceId?: string; locator?: string }) => {
+    const editor = editorRef.current;
+    if (!editor) return;
+    const id = crypto.randomUUID();
+    const text = note.text.trim();
+    const blockQuote = note.kind === "quote" && isBlockQuote(text);
+    if (note.sourceId)
+      mutate((p) => {
+        const research = p.research ?? { sources: [], notes: [], footnotes: [] };
+        return {
+          ...p,
+          research: {
+            ...research,
+            footnotes: [...research.footnotes, {
+              id, text: "", sourceId: note.sourceId, locator: note.locator, form: "auto",
+            }],
+          },
+        };
+      });
+    const insertion = blockQuote
+      ? [
+          { type: "blockquote", content: [{ type: "paragraph", content: [{ type: "text", text }] }] },
+          ...(note.sourceId ? [{ type: "footnoteReference", attrs: { id } }] : []),
+        ]
+      : [
+          { type: "text", text: note.kind === "quote" ? `“${text}”` : text },
+          ...(note.sourceId ? [{ type: "footnoteReference", attrs: { id } }] : []),
+        ];
+    editor.chain().focus().insertContent(insertion).run();
+  };
   const sections =
     project?.order
       .map((id) => project.entries.find((e) => e.id === id)!)
       .filter(Boolean) ?? [];
+  const goals = project ? goalStatus(project, goalDay,
+    goalBaseline?.projectId === project.id && goalBaseline.date === goalDay
+      ? goalBaseline.words : manuscriptWords(project)) : {};
+  const patchGoal = (key: "totalWords" | "dailyWords" | "deadline", value: string) => {
+    if (key !== "deadline" && value && (!Number.isSafeInteger(Number(value)) || Number(value) <= 0)) {
+      setError("Writing goals must be positive whole numbers.");
+      return;
+    }
+    mutate((p) => {
+      const next = { ...p.goals };
+      if (!value) delete next[key];
+      else if (key === "deadline") next.deadline = value;
+      else next[key] = Number(value);
+      return { ...p, goals: Object.keys(next).length ? next : undefined };
+    });
+  };
   return (
     <div className="app-shell">
       <ProjectTabs
@@ -1375,6 +1467,24 @@ export default function App() {
                       </div>
                     </div>
                   </section>
+                  <section className="settings-section">
+                    <h2>Goals</h2>
+                    <div className="settings-form">
+                      <label className="settings-field">Manuscript word goal
+                        <input type="number" min="1" step="1" value={project.goals?.totalWords ?? ""}
+                          onChange={(event) => patchGoal("totalWords", event.target.value)} />
+                      </label>
+                      <label className="settings-field">Daily word goal
+                        <input type="number" min="1" step="1" value={project.goals?.dailyWords ?? ""}
+                          onChange={(event) => patchGoal("dailyWords", event.target.value)} />
+                      </label>
+                      <label className="settings-field">Deadline
+                        <input type="date" value={project.goals?.deadline ?? ""}
+                          onChange={(event) => patchGoal("deadline", event.target.value)} />
+                      </label>
+                    </div>
+                    <p className="settings-help">Goals count manuscript sections. Daily progress starts when you first open the project each local day.</p>
+                  </section>
                   <ExportPanel
                     project={project}
                     onSettingsChange={(documentSettings) =>
@@ -1537,7 +1647,7 @@ export default function App() {
                             <p key={id}>
                               <sup>{number}</sup>{" "}
                               {note
-                                ? footnoteText(note, project.research!)
+                                ? footnoteText(note, project.research!, noteForms[note.id])
                                 : "Missing note"}
                             </p>
                           );
@@ -1549,6 +1659,10 @@ export default function App() {
                 <div className="editor-area">
                   <Writer
                     key={item.id + ":" + editorEpoch}
+                    focusMode={focusMode}
+                    proseCheck={proseCheck}
+                    onToggleFocusMode={() => setFocusMode((value) => !value)}
+                    onToggleProseCheck={() => setProseCheck((value) => !value)}
                     item={item}
                     documentSettings={project.documentSettings}
                     footnoteNumbers={footnoteNumbers}
@@ -1558,7 +1672,7 @@ export default function App() {
                         id: n.id,
                         number: footnoteNumbers[n.id],
                         text: n.text,
-                        citation: footnoteText(n, project.research!),
+                        citation: footnoteText(n, project.research!, noteForms[n.id]),
                         editable: true,
                       }))}
                     onFootnoteTextChange={(id, text) =>
@@ -1677,6 +1791,11 @@ export default function App() {
                   ).toLocaleString()}{" "}
                   words
                 </span>
+                {(goals.daily || goals.total || goals.daysLeft !== undefined) && <span className="writing-goals" aria-label="Writing goals">
+                  {goals.daily && <span className="goal-daily">{goals.daily.done.toLocaleString()} of {goals.daily.target.toLocaleString()} today</span>}
+                  {goals.total && <span className="goal-total">{goals.total.done.toLocaleString()} of {goals.total.target.toLocaleString()}</span>}
+                  {goals.daysLeft !== undefined && <span className="goal-deadline">{goals.daysLeft} {goals.daysLeft === 1 ? "day" : "days"} left{goals.perDayNeeded !== undefined ? `, ${goals.perDayNeeded.toLocaleString()} a day` : ""}</span>}
+                </span>}
               </footer>
             </main>
             {(destination === "fragments" || destination === "research") &&
@@ -1749,47 +1868,10 @@ export default function App() {
                   key={researchEpoch}
                   initialTab={researchTab}
                   focusFootnoteId={focusFootnote}
-                  onInsertNote={(note) => {
-                    const editor = editorRef.current;
-                    if (!editor) return;
-                    const id = crypto.randomUUID();
-                    if (note.sourceId)
-                      mutate((p) => ({
-                        ...p,
-                        research: {
-                          ...(p.research ?? {
-                            sources: [],
-                            notes: [],
-                            footnotes: [],
-                          }),
-                          footnotes: [
-                            ...(p.research?.footnotes ?? []),
-                            {
-                              id,
-                              text: "",
-                              sourceId: note.sourceId,
-                              locator: note.locator,
-                            },
-                          ],
-                        },
-                      }));
-                    editor
-                      .chain()
-                      .focus()
-                      .insertContent([
-                        {
-                          type: "text",
-                          text:
-                            note.kind === "quote"
-                              ? "“" + note.text + "”"
-                              : note.text,
-                        },
-                        ...(note.sourceId
-                          ? [{ type: "footnoteReference", attrs: { id } }]
-                          : []),
-                      ])
-                      .run();
-                  }}
+                  noteForms={noteForms}
+                  onInsertNote={insertResearchNote}
+                  onImportCsl={setCslImportPreview}
+                  onCaptureQuote={(note, insert) => { if (insert) insertResearchNote(note); }}
                   data={project.research}
                   onChange={(research) => mutate((p) => ({ ...p, research }))}
                   onInsertFootnote={
@@ -1905,6 +1987,24 @@ export default function App() {
           setBusy(true);
           void run(() => confirmImport(title)).finally(() => setBusy(false));
         }} />}
+        {cslImportPreview && <CslImportPreview
+          result={cslImportPreview}
+          onCancel={() => setCslImportPreview(null)}
+          onAdd={() => {
+            const result = cslImportPreview;
+            mutate((p) => {
+              const research = p.research ?? { sources: [], notes: [], footnotes: [] };
+              return {
+                ...p,
+                research: {
+                  ...research,
+                  sources: [...research.sources, ...result.sources.map((source) => ({ id: crypto.randomUUID(), ...source }))],
+                },
+              };
+            });
+            setCslImportPreview(null);
+          }}
+        />}
         {preview && (
           <div className="modal-backdrop">
             <div className="preview-dialog">

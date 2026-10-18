@@ -1,0 +1,23 @@
+[
+  {
+    "id": "zotero-book-1",
+    "type": "book",
+    "title": "A Lantern for the Coast",
+    "title-short": "Lantern",
+    "author": [{ "family": "Halloway", "given": "Marguerite" }],
+    "publisher": "Harbor Street Press",
+    "issued": { "date-parts": [[2019]] }
+  },
+  {
+    "id": "zotero-journal-1",
+    "type": "article-journal",
+    "title": "Keeping the Harbor Lights",
+    "author": [{ "family": "Smith", "given": "Jane" }],
+    "container-title": "Journal of Maritime Studies",
+    "volume": 12,
+    "issue": 3,
+    "page": "44-59",
+    "DOI": "10.1234/harbor"
+  },
+  { "id": "zotero-thesis-1", "type": "thesis", "title": "Unsupported thesis" }
+]

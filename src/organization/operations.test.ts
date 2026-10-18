@@ -37,6 +37,11 @@ describe("fragment research integrity", () => {
     );
     expect(f.content.content![0].content![0].attrs!.id).toBe("same");
   });
+  it("section restore preserves the project automatic-note preference", () => {
+    const current = { sources: [], notes: [], footnotes: [], autoShortNotes: true };
+    expect(mergeMissingResearch(current, undefined).autoShortNotes).toBe(true);
+    expect(mergeMissingResearch(undefined, current).autoShortNotes).toBeUndefined();
+  });
   it("section restore keeps newly added research", () => {
     expect(
       mergeMissingResearch(

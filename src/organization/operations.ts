@@ -57,6 +57,7 @@ export function mergeMissingResearch(
   const a = current ?? { sources: [], notes: [], footnotes: [] };
   const b = snapshot ?? { sources: [], notes: [], footnotes: [] };
   return {
+    ...a,
     sources: [
       ...a.sources,
       ...b.sources.filter((x) => !a.sources.some((y) => y.id === x.id)),

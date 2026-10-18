@@ -23,6 +23,7 @@ import {
   BetweenHorizontalStart,
   FileText,
   AlignJustify,
+  Focus,
   Settings2,
   Ellipsis,
   MessageSquarePlus,
@@ -48,6 +49,8 @@ import {
 } from "./editor/formatting";
 import "./editor/editor.css";
 import { documentExtensions } from "./editor/extensions";
+import { FocusMode, ProseCheck, focusModeKey, proseCheckKey, MAX_PROSE_DECORATIONS } from "./editor/writingAids";
+import type { ProseIssue } from "./editor/proseCheck";
 import { changeIndent, indentKeys } from "./editor/indent";
 import { NumberInput, PanelButton } from "./editor/ToolbarControls";
 import {
@@ -60,7 +63,7 @@ import { Dropdown, type DropdownOption } from "./components/Dropdown";
 import type { DocumentSettings } from "./research/types";
 import { type Entry } from "./model";
 
-type ToolbarPanel = "spacing" | "setup" | "more";
+type ToolbarPanel = "spacing" | "setup" | "more" | "aids";
 type ToolbarGroup =
   | "history"
   | "zoom"
@@ -73,6 +76,7 @@ type ToolbarGroup =
   | "indent"
   | "spacing"
   | "view"
+  | "aids"
   | "setup"
   | "more"
   | "right";
@@ -89,12 +93,14 @@ const TOOLBAR_ORDER: ToolbarGroup[] = [
   "indent",
   "spacing",
   "view",
+  "aids",
   "setup",
   "more",
   "right",
 ];
 /** Groups that move into the More menu first, least important first. */
 const OVERFLOW_ORDER: ToolbarGroup[] = [
+  "aids",
   "setup",
   "view",
   "spacing",
@@ -152,6 +158,10 @@ export function Writer({
   onFootnoteTextChange,
   header,
   footer,
+  focusMode = false,
+  proseCheck = false,
+  onToggleFocusMode,
+  onToggleProseCheck,
 }: {
   documentSettings?: DocumentSettings;
   footnoteNumbers?: Record<string, number>;
@@ -166,6 +176,10 @@ export function Writer({
   onComment?: () => void;
   header?: ReactNode;
   footer?: ReactNode;
+  focusMode?: boolean;
+  proseCheck?: boolean;
+  onToggleFocusMode?: () => void;
+  onToggleProseCheck?: () => void;
   item: Entry;
   onEdit: (content: JSONContent, text: string) => void;
   onExtract: (editor: Editor) => void;
@@ -173,6 +187,10 @@ export function Writer({
 }) {
   const settingsRef = useRef(documentSettings);
   settingsRef.current = documentSettings;
+  const focusModeRef = useRef(focusMode);
+  focusModeRef.current = focusMode;
+  const proseCheckRef = useRef(proseCheck);
+  proseCheckRef.current = proseCheck;
   const pageStatusRef = useRef(onPageStatus);
   pageStatusRef.current = onPageStatus;
   const defaultFont =
@@ -213,6 +231,8 @@ export function Writer({
   const editor = useEditor({
     extensions: [
       ...documentExtensions(),
+      FocusMode.configure({ enabled: () => focusModeRef.current }),
+      ProseCheck.configure({ enabled: () => proseCheckRef.current }),
       indentKeys(
         () => settingsRef.current?.font === "mono",
         () => (settingsRef.current?.firstLineIndent ? 0.5 : 0),
@@ -227,6 +247,15 @@ export function Writer({
         spellcheck: "true",
       },
       handleKeyDown: (_, event) => {
+        if (
+          (event.metaKey || event.ctrlKey) &&
+          event.shiftKey &&
+          event.key.toLowerCase() === "f"
+        ) {
+          event.preventDefault();
+          onToggleFocusMode?.();
+          return true;
+        }
         if (
           event.key === "Tab" &&
           settingsRef.current?.font === "mono" &&
@@ -284,6 +313,12 @@ export function Writer({
   const footnotePaper = useRef<HTMLDivElement>(null);
   const footnoteMeasure = useRef<HTMLDivElement>(null);
   const [editingNote, setEditingNote] = useState<string | null>(null);
+  useEffect(() => {
+    if (!editor) return;
+    editor.view.dispatch(editor.state.tr
+      .setMeta(focusModeKey, "refresh")
+      .setMeta(proseCheckKey, "refresh"));
+  }, [editor, focusMode, proseCheck]);
   const referencedIds: string[] = [];
   editor?.state.doc.descendants((node) => {
     const id =
@@ -844,6 +879,46 @@ export function Writer({
             )}
           </button>
         );
+      case "aids": {
+        const decorations = proseCheckKey.getState(editor.state)?.find() ?? [];
+        const kinds: ProseIssue["kind"][] = ["repeat", "passive", "filler", "long"];
+        const issues = decorations.flatMap((decoration) => {
+          const spec = (decoration.spec ?? {}) as Partial<ProseIssue>;
+          const kind = spec.kind as ProseIssue["kind"];
+          if (!kinds.includes(kind)) return [];
+          return [{ from: decoration.from, to: decoration.to, kind, message: String(spec.message ?? "") }];
+        });
+        const counts = kinds.map((kind) => `${kind[0].toUpperCase()}${kind.slice(1)} ${issues.filter((issue) => issue.kind === kind).length}`).join(" -- ");
+        return (
+          <>
+            <button type="button" className="toolbar-icon" title="Focus mode" aria-label="Focus mode" aria-pressed={focusMode} onClick={() => onToggleFocusMode?.()}>
+              <Focus size={16} aria-hidden="true" />
+            </button>
+            <PanelButton
+              label="Prose check"
+              dialogLabel="Prose check"
+              icon={Settings2}
+              open={panel === "aids"}
+              onToggle={() => setPanel(panel === "aids" ? null : "aids")}
+              onEscape={() => closePanel("aids")}
+              buttonRef={(el) => { panelTriggers.current.aids = el; }}
+            >
+              <div className="toolbar-popover-body prose-check-panel">
+                <label className="toolbar-field"><span>On</span><input type="checkbox" checked={proseCheck} onChange={() => onToggleProseCheck?.()} /></label>
+                <span className="toolbar-field-title" aria-live="polite">{counts}</span>
+                {decorations.length >= MAX_PROSE_DECORATIONS && <span className="toolbar-field-title">Only the issues closest to the cursor are shown.</span>}
+                <div className="prose-issues" aria-label="Prose issues">
+                  {issues.map((issue, index) => {
+                    const excerpt = editor.state.doc.textBetween(issue.from, issue.to, " ");
+                    return <button key={`${issue.from}-${index}`} type="button" className="toolbar-text-button" title={issue.message} onClick={() => editor.chain().focus().setTextSelection({ from: issue.from, to: issue.to }).scrollIntoView().run()}><span>{excerpt}</span><span>{issue.message}</span></button>;
+                  })}
+                  {issues.length === 0 && <span className="toolbar-field-title">No issues found.</span>}
+                </div>
+              </div>
+            </PanelButton>
+          </>
+        );
+      }
       case "setup":
         return (
           <PanelButton

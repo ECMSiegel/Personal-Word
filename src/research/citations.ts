@@ -58,8 +58,9 @@ export function citationParts(
   const parts: CitationPart[] = [];
   if (a) parts.push({ text: a + (bib ? ". " : ", ") });
   const title = s.title || "[Untitled source]";
+  const noteTitle = short ? shortTitle(s) || title : title;
   parts.push({
-    text: s.kind === "book" ? title : `“${title.replace(/[.]$/, "")}”`,
+    text: s.kind === "book" ? noteTitle : `“${(short ? noteTitle : title).replace(/[.]$/, "")}”`,
     italic: s.kind === "book",
   });
   if (short) {
@@ -114,6 +115,15 @@ export function citationParts(
     i === parts.length - 2 ? { ...p, text: p.text.replace(/[.]$/, "") } : p,
   );
 }
+export function shortTitle(s: Source): string {
+  if (s.shortTitle?.trim()) return s.shortTitle.trim();
+  const colon = s.title.indexOf(": ");
+  const question = s.title.indexOf("? ");
+  const breaks = [colon, question].filter((index) => index >= 0);
+  if (!breaks.length) return s.title;
+  const index = Math.min(...breaks);
+  return s.title.slice(0, index + (s.title[index] === "?" ? 1 : 0));
+}
 export const formatCitation = (
   s: Source,
   mode: "full" | "short" | "bibliography" = "full",
@@ -125,17 +135,18 @@ export const formatCitation = (
 export function footnoteParts(
   note: Footnote,
   data: ResearchData,
+  form?: "full" | "short",
 ): CitationPart[] {
   const source = data.sources.find((s) => s.id === note.sourceId);
   return [
     ...(note.text ? [{ text: note.text + (source ? " " : "") }] : []),
     ...(source
-      ? citationParts(source, note.shortened ? "short" : "full", note.locator)
+      ? citationParts(source, form ?? (note.shortened ? "short" : "full"), note.locator)
       : []),
   ];
 }
-export function footnoteText(note: Footnote, data: ResearchData) {
-  return footnoteParts(note, data)
+export function footnoteText(note: Footnote, data: ResearchData, form?: "full" | "short") {
+  return footnoteParts(note, data, form)
     .map((p) => p.text)
     .join("");
 }

@@ -134,3 +134,72 @@ test("text-only footnotes keep the insert-at-cursor flow", async ({ page }) => {
     .fill("A supporting note.");
   await expect(editor.locator("[data-footnote-id]")).toHaveText("1");
 });
+
+test("second citation of a source shows a shortened note", async ({ page }) => {
+  await page.goto("/");
+  await create(page, "Automatic short notes");
+  const editor = page.getByRole("textbox", { name: "Writing editor" });
+  await editor.fill("First passage. Second passage.");
+  await openResearch(page);
+  await page.getByRole("button", { name: "Enter manually" }).click();
+  await page.getByLabel("Authors", { exact: true }).fill("Marguerite Halloway");
+  await page.getByLabel("Title", { exact: true }).fill("Lamps and Ledgers: Keeping the Coastal Lights");
+  await page.getByLabel("Publisher", { exact: true }).fill("Harbor Street Press");
+  await page.getByLabel("Year", { exact: true }).fill("2019");
+  const cite = page.getByRole("button", { name: "Cite here", exact: true });
+  await cite.click();
+  await editor.click();
+  await page.keyboard.press("Home");
+  await cite.click();
+  await page.getByRole("button", { name: "Close research" }).click();
+  const notes = page.locator(".footnote-area");
+  await expect(notes).toContainText("Halloway, Lamps and Ledgers.");
+  await expect(notes).toContainText("(Harbor Street Press, 2019)");
+  await expect(notes.getByText("(Harbor Street Press, 2019)")).toHaveCount(1);
+});
+
+test("imports sources from a Zotero CSL JSON file", async ({ page }) => {
+  await page.goto("/");
+  await create(page, "Zotero import");
+  await openResearch(page);
+  const importButton = page.getByRole("button", { name: "Import from Zotero…" });
+  await expect(importButton).toBeVisible({ timeout: 5000 });
+  await importButton.click();
+  await page.locator('input[type="file"]').setInputFiles("tests/fixtures/zotero-sample.json");
+  await expect(page.getByText("2 sources to add")).toBeVisible();
+  await expect(page.getByText(/1 thesis/)).toBeVisible();
+  await page.getByRole("button", { name: "Add sources" }).click();
+  await expect(page.locator(".source-list")).toContainText("A Lantern for the Coast");
+  await expect(page.locator(".source-list")).toContainText("Keeping the Harbor Lights");
+});
+
+test("captured quote inserts with its citation and one undo removes both", async ({ page }) => {
+  await page.goto("/");
+  await create(page, "Quote capture");
+  const editor = page.getByRole("textbox", { name: "Writing editor" });
+  await editor.fill("Evidence here.");
+  await openResearch(page);
+  await page.getByRole("button", { name: "Enter manually" }).click();
+  await page.getByLabel("Authors", { exact: true }).fill("Marguerite Halloway");
+  await page.getByLabel("Title", { exact: true }).fill("Lamps and Ledgers");
+  const capture = page.getByRole("button", { name: "Capture quote" });
+  await expect(capture).toBeVisible({ timeout: 5000 });
+  await capture.click();
+  await page.getByRole("button", { name: "Source", exact: true }).click();
+  await page.getByRole("option", { name: /Marguerite Halloway -- Lamps and Ledgers/ }).click();
+  await page.getByLabel("Quotation").fill("A captured passage");
+  await page.getByLabel("Page").fill("48");
+  await page.getByRole("button", { name: "Save and insert" }).click();
+  await expect(editor).toContainText("“A captured passage”");
+  await expect(page.locator(".footnote-area")).toContainText(", 48.");
+  await editor.focus();
+  await page.keyboard.press(process.platform === "darwin" ? "Meta+z" : "Control+z");
+  await expect(editor).not.toContainText("A captured passage");
+  await expect(editor.locator("[data-footnote-id]")).toHaveCount(0);
+  await page.getByRole("button", { name: "Close research" }).click();
+  await page.locator(".group-title").filter({ hasText: /^Settings$/ }).click();
+  const previewPdf = page.getByRole("button", { name: "Preview PDF", exact: true });
+  await previewPdf.click();
+  await expect(previewPdf).toBeEnabled({ timeout: 30_000 });
+  await expect(page.getByTitle("PDF export preview")).toBeVisible();
+});

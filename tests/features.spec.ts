@@ -5,6 +5,41 @@ async function create(page: any, title: string, template = "Blank") {
   await page.getByLabel("Project title").fill(title);
   await page.getByRole("button", { name: "Save", exact: true }).click();
 }
+test("daily goal shows progress in the status line", async ({ page }) => {
+  await page.goto("/");
+  await create(page, "Daily writing");
+  await page.locator(".group-title").filter({ hasText: /^Settings$/ }).click();
+  const goal = page.getByLabel("Daily word goal", { exact: true });
+  await expect(goal).toBeVisible();
+  await goal.fill("10");
+  await page.locator(".group-title").filter({ hasText: /^Manuscript$/ }).click();
+  await page.getByRole("textbox", { name: "Writing editor" }).fill("one two three four five six seven eight nine ten eleven twelve");
+  await expect(page.getByLabel("Writing goals", { exact: true })).toContainText("12 of 10 today");
+});
+
+test("exports the project as Markdown", async ({ page }) => {
+  await page.goto("/");
+  await create(page, "Portable writing", "Essay");
+  await page.getByRole("textbox", { name: "Writing editor" }).fill("Evidence to preserve.");
+  await page.locator(".group-title").filter({ hasText: /^Research$/ }).click();
+  await page.getByRole("button", { name: "Insert footnote at cursor" }).click();
+  await page.getByLabel("Footnote text", { exact: true }).fill("A supporting note.");
+  await page.getByRole("button", { name: "Close research", exact: true }).click();
+  await page.locator(".group-title").filter({ hasText: /^Settings$/ }).click();
+  const button = page.getByRole("button", { name: "Export Markdown", exact: true });
+  await expect(button).toBeVisible();
+  const downloaded = page.waitForEvent("download");
+  await button.click();
+  const download = await downloaded;
+  expect(download.suggestedFilename()).toBe("Portable writing.md");
+  const stream = await download.createReadStream();
+  const chunks: Buffer[] = [];
+  for await (const chunk of stream!) chunks.push(Buffer.from(chunk));
+  const text = Buffer.concat(chunks).toString("utf8");
+  expect(text).toContain("## Introduction");
+  expect(text).toContain("[^1]");
+  expect(text).toContain("A supporting note.");
+});
 test("projects default startup, tabs, sidebar cards, and durable formatting", async ({
   page,
 }) => {

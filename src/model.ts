@@ -2,6 +2,7 @@ import { getSchema, type JSONContent } from "@tiptap/react";
 import { documentExtensions } from "./editor/extensions";
 import type { PageLayout } from "./editor/formatting";
 import type { ResearchData, DocumentSettings } from "./research/types";
+import { emptyResearch } from "./research/types";
 const documentSchema = getSchema(documentExtensions());
 export type Entry = {
   id: string;
@@ -37,6 +38,7 @@ export type Project = {
   pageLayout?: PageLayout;
   sidebarOrder?: string[];
   annotations?: Annotation[];
+  goals?: { totalWords?: number; dailyWords?: number; deadline?: string };
 };
 export type Annotation = {
   id: string;
@@ -77,6 +79,7 @@ export function newProject(title: string): Project {
     revision: 1,
     order: [first.id],
     entries: [first],
+    research: emptyResearch(),
   };
 }
 export const words = (text: string) =>
@@ -120,6 +123,21 @@ export function validateProject(value: unknown): asserts value is Project {
     typeof p.updatedAt !== "string"
   )
     throw new Error("This is not a valid Personal Word project.");
+  if (p.goals !== undefined) {
+    const goals = p.goals;
+    if (!goals || typeof goals !== "object" || Array.isArray(goals))
+      throw new Error("Invalid writing goals");
+    for (const value of [goals.totalWords, goals.dailyWords])
+      if (value !== undefined && (!Number.isSafeInteger(value) || value <= 0))
+        throw new Error("Invalid writing goals");
+    if (goals.deadline !== undefined) {
+      const value = goals.deadline;
+      const timestamp = typeof value === "string" && /^\d{4}-\d{2}-\d{2}$/.test(value)
+        ? Date.parse(value + "T00:00:00Z") : NaN;
+      if (!Number.isFinite(timestamp) || new Date(timestamp).toISOString().slice(0, 10) !== value)
+        throw new Error("Invalid writing goals");
+    }
+  }
   if (p.research) {
     const r = p.research;
     if (
@@ -137,9 +155,22 @@ export function validateProject(value: unknown): asserts value is Project {
         !["book", "journal", "website"].includes(source.kind)
       )
         throw new Error("Invalid research source.");
+    if (
+      r.sources.some(
+        (source) =>
+          (source.shortTitle !== undefined &&
+            typeof source.shortTitle !== "string") ||
+          (source.cslId !== undefined && typeof source.cslId !== "string"),
+      )
+    )
+      throw new Error("Invalid research source.");
+    if (r.autoShortNotes !== undefined && typeof r.autoShortNotes !== "boolean")
+      throw new Error("Invalid research data.");
     for (const note of [...r.notes, ...r.footnotes])
       if (typeof note.id !== "string" || typeof note.text !== "string")
         throw new Error("Invalid research note.");
+    if (r.footnotes.some((note) => note.form !== undefined && !["auto", "full", "short"].includes(note.form)))
+      throw new Error("Invalid footnote form");
   }
   if (
     p.annotations &&

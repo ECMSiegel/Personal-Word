@@ -54,6 +54,23 @@ it("numbers references by encounter and includes only cited sources", () => {
   expect(d.blocks[1].kind).toBe("pageBreak");
   expect(d.bibliography.map((x) => x.id)).toEqual(["s"]);
 });
+it("uses automatic short notes in export notes", () => {
+  const p = fixture();
+  p.research!.autoShortNotes = true;
+  p.research!.sources[0].title = "Lamps and Ledgers: Keeping the Coastal Lights";
+  p.research!.sources[0].authors = ["Marguerite Halloway"];
+  p.entries[0].content.content![0] = {
+    type: "paragraph",
+    content: [
+      { type: "footnoteReference", attrs: { id: "n" } },
+      { type: "footnoteReference", attrs: { id: "n2" } },
+    ],
+  };
+  p.research!.footnotes.push({ id: "n2", text: "", sourceId: "s", locator: "8" });
+  const notes = documentBlocks(p).notes;
+  expect(notes[1].text).toMatch(/^Halloway, Lamps and Ledgers/);
+  expect(notes[1].text).not.toContain("Press, 2026");
+});
 it("refuses dangling footnote references", () => {
   const p = fixture();
   p.research!.footnotes = [];

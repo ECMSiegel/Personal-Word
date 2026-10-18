@@ -10,6 +10,10 @@
   --accent: #0069d9;
   --selection: #dceaff;
   --danger: #b42318;
+  --prose-repeat: #b42318;
+  --prose-passive: #805300;
+  --prose-filler: #005c7a;
+  --prose-long: #653e9b;
   --shadow: #00000018;
 }
 @media (prefers-color-scheme: dark) {
@@ -23,6 +27,10 @@
     --accent: #64a8ff;
     --selection: #263e5d;
     --danger: #ff958d;
+    --prose-repeat: #ff8178;
+    --prose-passive: #f0bd55;
+    --prose-filler: #65c8eb;
+    --prose-long: #c0a0ff;
     --shadow: #00000055;
   }
 }
@@ -104,6 +112,23 @@ p {
   height: 100vh;
   display: flex;
   overflow: clip;
+}
+.writing-goals {
+  display: inline-flex;
+  gap: 0.5em;
+}
+.writing-goals > span + span::before {
+  content: "--";
+  margin-right: 0.5em;
+}
+@media (max-width: 999px) {
+  .writing-goals .goal-daily,
+  .writing-goals .goal-deadline {
+    display: none;
+  }
+  .writing-goals .goal-total::before {
+    content: none;
+  }
 }
 .sidebar {
   width: 254px;

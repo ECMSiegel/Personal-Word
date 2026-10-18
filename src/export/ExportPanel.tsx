@@ -4,6 +4,7 @@ import {
   type DocumentSettings,
 } from "../research/types";
 import { saveExport, safeFilename, type ExportProject } from "./document";
+import { projectMarkdown, projectPlainText } from "./textExport";
 import { Dropdown } from "../components/Dropdown";
 import "../research/research.css";
 export function ExportPanel({
@@ -46,6 +47,34 @@ export function ExportPanel({
       setBusy(false);
     }
   }
+  async function saveText(format: "markdown" | "plain") {
+    setBusy(true);
+    setMessage("");
+    try {
+      const markdown = format === "markdown";
+      const blob = new Blob(
+        [markdown ? projectMarkdown(project) : projectPlainText(project)],
+        {
+          type: markdown
+            ? "text/markdown;charset=utf-8"
+            : "text/plain;charset=utf-8",
+        },
+      );
+      const saved = await saveExport(
+        blob,
+        `${safeFilename(project.title)}.${markdown ? "md" : "txt"}`,
+      );
+      setMessage(
+        saved
+          ? `${markdown ? "Markdown" : "Plain text"} exported.`
+          : "Export canceled.",
+      );
+    } catch (e) {
+      setMessage(e instanceof Error ? e.message : String(e));
+    } finally {
+      setBusy(false);
+    }
+  }
   return (
     <section
       className="research-panel settings-section"
@@ -53,8 +82,8 @@ export function ExportPanel({
     >
       <h2>Export document</h2>
       <p className="settings-help">
-        Exports include writing sections in project order, footnotes, and the
-        source bibliography. Fragments and research notes stay in the project.
+        Exports include writing sections in project order, footnotes, fragments,
+        research notes, and the optional source bibliography.
       </p>
       <p className="settings-help">
         DOCX preserves editable Word footnotes. PDF uses its own pagination with
@@ -180,6 +209,20 @@ export function ExportPanel({
           onClick={() => save("docx")}
         >
           Export DOCX
+        </button>
+        <button
+          className="settings-button"
+          disabled={busy}
+          onClick={() => saveText("markdown")}
+        >
+          Export Markdown
+        </button>
+        <button
+          className="settings-button"
+          disabled={busy}
+          onClick={() => saveText("plain")}
+        >
+          Export plain text
         </button>
         <button
           className="settings-button"

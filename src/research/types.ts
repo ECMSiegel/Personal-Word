@@ -2,6 +2,8 @@ export type Source = {
   id: string;
   kind: "book" | "journal" | "website";
   title: string;
+  shortTitle?: string;
+  cslId?: string;
   /** One author per line, in natural given-name family-name order. */
   authors: string[];
   publisher?: string;
@@ -25,17 +27,20 @@ export type ResearchNote = {
   sourceId?: string;
   locator?: string;
 };
+export type NoteForm = "auto" | "full" | "short";
 export type Footnote = {
   id: string;
   text: string;
   sourceId?: string;
   locator?: string;
   shortened?: boolean;
+  form?: NoteForm;
 };
 export type ResearchData = {
   sources: Source[];
   notes: ResearchNote[];
   footnotes: Footnote[];
+  autoShortNotes?: boolean;
 };
 export type DocumentSettings = {
   font: "serif" | "sans" | "mono";
@@ -59,4 +64,5 @@ export const emptyResearch = (): ResearchData => ({
   sources: [],
   notes: [],
   footnotes: [],
+  autoShortNotes: true,
 });
