@@ -1,0 +1,194 @@
+{
+  "ok": true,
+  "phases": [
+    {
+      "diagnostics": {
+        "mode": "continuous",
+        "pageViewToggle": "overflowed",
+        "paper": {
+          "box": {
+            "height": 413,
+            "left": 347,
+            "width": 816
+          },
+          "clientWidth": 816,
+          "contentHeight": "864px",
+          "contentWidth": "624px",
+          "footnoteReserve": "",
+          "minHeight": "0px",
+          "pageCount": "1",
+          "pageWidth": "816px",
+          "scrollWidth": 816,
+          "width": "816px"
+        },
+        "paragraph": {
+          "rects": [
+            [
+              451,
+              144,
+              608
+            ]
+          ]
+        },
+        "surface": {
+          "box": {
+            "height": 349,
+            "left": 443,
+            "width": 624
+          },
+          "clientHeight": 349,
+          "clientWidth": 624,
+          "columnCount": "auto",
+          "columnGap": "normal",
+          "columnWidth": "auto",
+          "height": "349.15625px",
+          "scrollHeight": 349,
+          "scrollWidth": 624,
+          "width": "624px"
+        },
+        "viewport": [
+          1240,
+          812
+        ],
+        "visibility": "visible focus=true"
+      },
+      "ok": true,
+      "phase": "1",
+      "steps": [
+        "native project creation",
+        "acknowledged native checkpoint",
+        "native WebKit page fragmentation and continuous toggle",
+        "rapid edit and section switch",
+        "fragment extraction and restoration",
+        "named snapshot",
+        "typed immediately before quit"
+      ]
+    },
+    {
+      "diagnostics": {
+        "mode": "continuous",
+        "pageViewToggle": "overflowed",
+        "paper": {
+          "box": {
+            "height": 413,
+            "left": 347,
+            "width": 816
+          },
+          "clientWidth": 816,
+          "contentHeight": "864px",
+          "contentWidth": "624px",
+          "footnoteReserve": "",
+          "minHeight": "0px",
+          "pageCount": "1",
+          "pageWidth": "816px",
+          "scrollWidth": 816,
+          "width": "816px"
+        },
+        "paragraph": {
+          "rects": [
+            [
+              451,
+              144,
+              608
+            ]
+          ]
+        },
+        "surface": {
+          "box": {
+            "height": 349,
+            "left": 443,
+            "width": 624
+          },
+          "clientHeight": 349,
+          "clientWidth": 624,
+          "columnCount": "auto",
+          "columnGap": "normal",
+          "columnWidth": "auto",
+          "height": "349.15625px",
+          "scrollHeight": 349,
+          "scrollWidth": 624,
+          "width": "624px"
+        },
+        "viewport": [
+          1240,
+          812
+        ],
+        "visibility": "visible focus=true"
+      },
+      "ok": true,
+      "phase": "2",
+      "steps": [
+        "normal quit and reopen preserved the latest saved edit",
+        "acknowledged SQLite checkpoint before deliberate kill",
+        "queued recovery journal edit before deliberate kill"
+      ]
+    },
+    {
+      "diagnostics": {
+        "mode": "continuous",
+        "pageViewToggle": "overflowed",
+        "paper": {
+          "box": {
+            "height": 413,
+            "left": 347,
+            "width": 816
+          },
+          "clientWidth": 816,
+          "contentHeight": "864px",
+          "contentWidth": "624px",
+          "footnoteReserve": "",
+          "minHeight": "0px",
+          "pageCount": "1",
+          "pageWidth": "816px",
+          "scrollWidth": 816,
+          "width": "816px"
+        },
+        "paragraph": {
+          "rects": [
+            [
+              451,
+              144,
+              608
+            ]
+          ]
+        },
+        "surface": {
+          "box": {
+            "height": 349,
+            "left": 443,
+            "width": 624
+          },
+          "clientHeight": 349,
+          "clientWidth": 624,
+          "columnCount": "auto",
+          "columnGap": "normal",
+          "columnWidth": "auto",
+          "height": "349.15625px",
+          "scrollHeight": 349,
+          "scrollWidth": 624,
+          "width": "624px"
+        },
+        "viewport": [
+          1240,
+          812
+        ],
+        "visibility": "hidden focus=false"
+      },
+      "ok": true,
+      "phase": "3",
+      "steps": [
+        "forced restart recovered the journaled edit",
+        "snapshot restoration after forced restart"
+      ]
+    }
+  ],
+  "dataDirectory": "[temporary harness directory redacted for publication]",
+  "checks": [
+    "phase 1 normal quit flushes SQLite and portable mirrors",
+    "phase 2 normal quit/reopen preserves the latest saved edit",
+    "phase 2 deliberate harness-owned termination follows an acknowledged SQLite checkpoint",
+    "phase 3 restart recovers the journaled edit from isolated WebView storage",
+    "SQLite integrity and portable JSON mirror match after clean shutdown",
+    "fragment extraction, restoration, and snapshot restoration"
+  ]
+}

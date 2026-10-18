@@ -1549,3 +1549,7 @@ button[aria-pressed="true"],
 .sidebar-bottom-groups .sidebar-group + .sidebar-group {
   border-top: 1px solid var(--line);
 }
+
+.import-preview-text { max-height: 220px; overflow: auto; white-space: pre-wrap; overflow-wrap: anywhere; font: inherit; padding: 12px; border: 1px solid var(--line); }
+.import-warnings { padding-left: 20px; font-size: 13px; }
+.dialog { max-height: calc(100vh - 40px); overflow-y: auto; }

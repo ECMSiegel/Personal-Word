@@ -35,6 +35,41 @@ Re-run after the expanded workspace changes (see [personal-word-v2.md](personal-
 ## Sidebar reorganization -- October 17, 2026
 
 - Project-switch arrow removed (Projects opens from the library/home as before); collapse chevrons added next to Manuscript/Fragments/Research (title click still opens the panel; chevron is a separate button with label "Show/Hide {group}"); Read manuscript, Comments, Snapshots & history, Settings moved to the bottom of the sidebar; empty-document placeholder text removed.
+
+## Application improvement implementation -- October 17, 2026
+
+This is fresh evidence from the current working tree after the improvement changes. Generated artifacts remain ignored; the pre-existing untracked `.claude/` and `docs/plans/` were preserved.
+
+- `npm test`: passed, 64 tests in 10 files. Added plain-text import cases and shared export representation checks for strike and nested list semantics.
+- `npm run build`: passed after a TypeScript correction. Vite noted that `@tauri-apps/plugin-dialog` is both statically and dynamically imported; bundle completed successfully.
+- `npm run test:e2e`: blocked before test execution because the sandbox denied Playwright’s dev-server bind: `listen EPERM: operation not permitted 127.0.0.1:1420`. No Chromium scenarios ran in this pass.
+- `cargo test --manifest-path src-tauri/Cargo.toml --offline`: passed after the Unix instance lock change: 17 passed, 1 ignored; includes `advisory_lock_rejects_a_second_handle_and_releases_on_drop`. Rust tests are not native WebView UI verification.
+- Isolated native smoke build: `npm run tauri build -- --debug --features native-smoke --no-bundle --config '{"identifier":"com.folio.smoke"}'` built `src-tauri/target/debug/folio`. `python3 scripts/native-smoke.py` did not observe the acknowledged SQLite checkpoint within its 150-second timeout. The child logged macOS LaunchServices and `com.apple.hiservices-xpcservice` connection-invalid errors. The interruption and second-instance lock check were not reached; app-level second-instance UX and current native editor/layout behavior therefore remain unverified.
+- Fresh normal desktop bundle: `npm run tauri build` succeeded. Verified `Contents/Info.plist` reports `CFBundleIdentifier=com.folio.writing` and `CFBundleName=Personal Word`; executable `Contents/MacOS/folio` timestamp: 2026-10-17 16:22 local; bundle size reported by Tauri: 13.47 MiB. The app was rebuilt without the smoke feature.
+- Export artifacts: current Vitest checks generated a DOCX ZIP and parsed the generated PDF page count, but did not inspect DOCX XML numbering/footnote relationships or visually render PDF/DOCX. No Word renderer was used. Those artifact acceptance checks remain open.
+- Browser screenshots, native light/dark screenshots, VoiceOver, and native file-dialog export review were not performed in this pass.
+
+### Export support matrix (current source behavior)
+
+| Feature | DOCX | PDF |
+| --- | --- | --- |
+| Text, headings, bold, italic, underline, strike, links | Preserved as editable runs | Built-in Latin text, drawn underline/strike; unsupported glyphs rejected |
+| Ordered/bulleted lists, nesting, ordered start | Native numbering definitions and nesting level | Visible numbering/bullets and nested indentation |
+| Paragraph alignment, indentation, spacing | Preserved where represented by settings/attrs | Preserved where represented by settings/attrs |
+| Page breaks | Paragraph page break | New PDF page |
+| Footnotes and cited bibliography | Editable native footnotes and bibliography | Bottom-of-page notes and bibliography; note must fit on one page |
+| Font family/size and export settings | Standard Word families plus run formatting | Standard built-in Latin families; not embedded, shaping/fallback unavailable |
+
+This matrix describes implementation, not exhaustive visual qualification. The shared representation preserves strike/list semantics, but generated artifact XML and representative rendered layouts still need inspection.
+
+### Remaining checks and limits
+
+- Markdown import is incomplete because the maintained parser dependency could not be installed: `npm install unified remark-parse remark-gfm remark-rehype rehype-raw rehype-sanitize rehype-stringify` produced no dependency changes under the network-restricted environment and was interrupted. `.md`/`.markdown` selections return a clear error; only `.txt` import is implemented.
+- PDF long tokens are split at code-point boundaries, but script shaping and font fallback were not implemented; PDF remains restricted to glyphs supported by pdf-lib’s built-in fonts. Long footnotes remain an explicit error before file output.
+- The 2-second autosave maximum is a healthy-queue scheduling bound, not a strict durability guarantee. The new JavaScript timer behavior is covered by the general unit suite, but dedicated fake-timer continuous-typing/slow-I/O deadline tests have not yet been added.
+- The fresh native smoke attempt did not produce UI evidence. Native forced termination, lock startup messaging, file-dialog export, native screenshot review, and VoiceOver remain blocked/unverified.
+- Source ownership is documented and the source tree already has feature folders; the large App/Writer orchestration extraction proposed by the plan was not completed.
+- No user data, existing app bundle, old release, or unrelated work was deleted. No publication preparation was done.
 - `npm test`: 60 unit tests. `npm run test:e2e`: 31 Playwright scenarios.
 
 ## Footnotes, fragment split view, polish -- October 16, 2026 (late)
@@ -85,3 +120,58 @@ npm run tauri build -- --debug --bundles app
 ```
 
 The native harness's temporary project directory is printed by the runner. Browser test reports are transient under `test-results/`. The committed evidence file preserves the successful native run without embedding any real writing.
+
+
+## Source publication preparation -- October 17, 2026
+
+This pass adds licensing, public-alpha documentation, issue forms, a GitHub Actions workflow, and a dependency license inventory. It preserves the pre-existing uncommitted application improvements.
+
+- `npm run build`: passed.
+- `npm test`: 64 passed across 10 files.
+- `npm run test:e2e`: 31 passed in Chromium after allowing the local test server. The earlier sandbox startup block is not the current browser result.
+- `cargo test --locked --offline --manifest-path src-tauri/Cargo.toml`: 17 passed, 1 benchmark ignored.
+- Fresh dependency installation, frontend build, and unit tests passed in a temporary source copy without pre-existing node_modules or build artifacts. This was repeated successfully with Node 22.23.3, matching CI's major version.
+- Current synthetic workspace screenshot reviewed and saved as `docs/evidence/current-workspace.png`; the old `writing-view.png` remains historical evidence.
+- Workflow/issue-form YAML parses; local documentation links and `git diff --check` pass. Hosted CI has not executed.
+- License inventory covers 243 npm and 456 Cargo packages with no missing declared license metadata. Metadata completeness is not binary notice compliance.
+- No native UI smoke, forced-termination qualification, VoiceOver review, or exported-artifact rendering was performed in this preparation pass. Their previously documented gaps remain. No fresh app bundle is offered by this pass.
+
+See [publication readiness](publication-readiness.md) for the bounded source/history audit and remaining owner/hosting decisions.
+
+
+## Completion pass -- October 18, 2026
+
+Fresh evidence from the current working tree (`c62332c` plus this pass's uncommitted changes). Generated artifacts stay ignored; the pre-existing uncommitted work is preserved. Where this section names an October 17 statement it supersedes it.
+
+- `npm run build`: passed (after adding `src/vite-env.d.ts` for the `?inline` bundled-font imports).
+- `npx tsc -b`: passed; 89 TypeScript errors were fixed, including `markdown-it` typings, `ListInfo` export, `Set<PdfFontKey>`, and the document-settings fixture spread.
+- `npm test`: 77 passed in 10 files, adding DOCX numbering/footnote/hard-break/strike XML cases, Markdown import cases, SaveQueue deadline and slow-I/O cases, and the export-fixture generator checks.
+- `npm run test:e2e -- --workers=1`: 37 passed in Chromium in 1.7 minutes. This is browser storage only, not native WebKit evidence.
+- `cargo test --locked --manifest-path src-tauri/Cargo.toml`: 17 passed, 1 ignored.
+- Isolated native smoke (fresh `--features native-smoke` debug build with `--config '{"identifier":"com.folio.smoke"}'` and an isolated data directory): **all three phases passed**. Phase 1 created a project, typed an acknowledged checkpoint, fragmented a 15,900-character paragraph in page view (`Section page 1 of 6`), toggled back to continuous, added a section, extracted and restored a fragment, saved a named snapshot, then typed a final edit and quit normally: SQLite held the final text, `PRAGMA integrity_check` returned `ok`, and the portable `project.json` matched the database. Phase 2 reopened after the normal quit with the latest edit, acknowledged a second checkpoint, queued a journaled edit, and was terminated by the harness. Phase 3 reopened, recovered the journaled edit from isolated WebView storage, restored the snapshot, and quit normally. Redacted summary: [native smoke 2026-10-18](evidence/native-smoke-2026-10-18.json); breadcrumb logs are in the ignored `node_modules/.cache/personal-word-completion/native-run/`.
+- Native harness limit: in this background agent session the same binary intermittently stalls after enabling page view. Breadcrumbs stop at `ok native paragraph pagination`, the process stays alive at 0% CPU with the app and WebContent threads idle in their run loops, no crash report is written, and the runner then reports a missing report rather than a product failure. Runs that finish report `document.visibilityState` `visible` when the window was composited and `hidden` in a later phase, matching the macOS LaunchServices and `com.apple.hiservices-xpcservice` connection-invalid errors recorded on October 17. A separate agent session was concurrently working in this same folder during these runs (its draft plan `docs/agent-work/2026-10-18-writer-features/PLAN.md`, `README-draft.md`, and `docs/evidence/readme/` screenshots appeared at 05:47-05:48), so concurrent GUI and dev-server activity in that folder is a plausible contributor alongside the window-compositing state. The same code path renders six pages whenever the page is visible, so this is recorded as an environment limitation of a shared, background agent session rather than a product result. An interactive re-run on a quiet desktop session is still the owner's confirmation.
+- Export artifacts: `npm run render:export-fixtures` wrote synthetic DOCX and PDF fixtures; both render in QuickLook (Greek, Cyrillic, strike, hard break, bullet, nested list starting at 4, a long token split across lines, a footnote, and a bibliography). Reading the DOCX XML with JSZip shows `<w:br`, `<w:strike`, `<w:footnoteReference`, and two `<w:numPr` instances (`numId` 2 and 3, `ilvl` 0 and 1). Limit: QuickLook is not Word; nested indentation present in the XML is not visible in the QuickLook render, and Word's own rendering is not verified.
+- Markdown import: UTF-8 `.md`/`.markdown` up to 5 MB imports through a preview dialog; images, tables, and raw HTML arrive as literal text with warnings, only http/https/mailto links stay links, no remote resource is fetched, and cancelling creates nothing. This replaces the October 17 statement that Markdown import was incomplete.
+- PDF fonts: export embeds bundled OFL Noto Serif/Sans/Mono subsets from `src/export/fonts.ts` covering Latin, Latin Extended, Greek, and Cyrillic instead of pdf-lib's built-in Latin fonts. This supersedes the October 17 support-matrix row that read "standard built-in Latin families"; text outside that coverage and a note that cannot fit its page are reported instead of silently degraded.
+- License inventory: 254 npm and 456 Cargo packages with no missing declared license metadata. The unused `@types/markdown-it` stub was removed because `markdown-it` 15 ships its own declarations, so the October 17 count of 257 npm packages is superseded.
+- Defects corrected in this pass, each with a failing check first where practical: the native smoke command's phases 1 and 3 called `finish_quit` directly, skipping the frontend save flush, so the final edit never reached SQLite; the harness page-view helper re-toggled the More formatting popover on every 40 ms poll and never verified page mode; phase 2 did not let the 250 ms debounce commit the acknowledged checkpoint before deliberate termination; DOCX export created one numbering instance per list item instead of one per list; and the dropdown listbox, TypeScript build, and editor toolbar hit areas needed the corrections detailed in `docs/agent-work/2026-10-18-completion/`.
+- Browser dev-server note: one full-suite run reported 29 failures, all `page.goto: net::ERR_CONNECTION_REFUSED`, because Playwright's `reuseExistingServer` picked up a dev server that stopped about 85 seconds into the run. A second agent session was running its own browser tooling in this folder at the time, which is the likely cause. The same suite passed 37/37 once the runner owned a fresh server, so the failing run is not a product result.
+- Still open, and required before any VERIFIED wording: native light and dark screenshots, VoiceOver, IME and rich paste, native file dialogs, Word's own rendering of the DOCX, an interactive second-instance lock check, and the owner's real-use confirmation. Automated native evidence above is CLAIMED, not VERIFIED.
+
+## Pickup review and PDF repair -- October 18, 2026
+
+The independent review reproduced a PDF defect missed by the earlier QuickLook check: embedded WOFF2 font bytes produced blank text in Poppler. The repair uses the already installed fontsource WOFF companions with fontkit subsetting. A regression inspects decoded embedded font programs and requires at least three TrueType/OpenType programs for Latin, Greek, and Cyrillic; it failed with the original wOF2 programs and passes after repair. No dependency or font asset was added.
+
+Fresh post-repair evidence (automated CLAIMED, owner confirmation outstanding):
+
+- `npm run build`: pass.
+- `npm test`: 78 passed in 10 files.
+- `npm run test:e2e -- --workers=1`: 37 passed in Chromium (3.2 minutes), with a permissioned runner-owned Vite server; initial sandbox attempt failed to bind localhost before tests. Browser storage only.
+- `cargo test --locked --manifest-path src-tauri/Cargo.toml`: 17 passed, 1 benchmark ignored.
+- `npm run render:export-fixtures`: pass, with a nonfatal Vite HMR bind warning. Poppler extraction preserves Latin/Greek/Cyrillic and rendering emits no invalid-font errors. Both PDF pages visually inspected: text, strike, nested list, long token, footnote and bibliography visible.
+- Synthetic DOCX QuickLook thumbnail rendered and inspected. QuickLook does not establish Word's own rendering, and its thumbnail does not show the footnote area or nested indentation faithfully; native footnote/numbering XML tests pass.
+- License inventory: 254 npm / 456 Cargo packages, zero missing declared license metadata. `git diff --check`: pass.
+- Isolated native smoke build: pass. Harness phase 1 timed out after 180 seconds, before any progress breadcrumb, with LaunchServices/hiservices connection-invalid errors. Runner cleaned up its isolated process. Fresh native runtime is blocked; this does not replace the older successful run or establish current native behavior.
+- `npm run tauri build`: pass. Result: `src-tauri/target/release/bundle/macos/Personal Word.app` (15.25 MiB). Info.plist retains Personal Word / com.folio.writing / 0.1.0; executable folio built October 18 at 15:43 America/New_York, newer than all application source. Smoke diagnostic symbols absent. Unsigned/not notarized status unchanged.
+
+Review and repair evidence: `docs/agent-work/2026-10-18-completion/REVIEW.md` and `IMPLEMENTATION_LOG.md`. No owner-confirmed VERIFIED status, commit, publication, or writer-feature implementation is claimed. Owner requires the completion work committed before starting the approved writer-features plan.

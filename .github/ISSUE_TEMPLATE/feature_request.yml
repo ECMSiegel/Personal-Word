@@ -1,0 +1,38 @@
+name: Feature request
+description: Suggest an improvement to Personal Word.
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Please describe the workflow with synthetic examples only. Do not include manuscript passages, private project files, personal details, or credentials.
+  - type: textarea
+    id: problem
+    attributes:
+      label: What writing workflow needs help?
+      description: Describe the task or friction in general terms.
+      placeholder: When organizing a long project, I need a way to...
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: What would improve it?
+      description: Explain the behavior that would help, using invented project names or sample text if useful.
+      placeholder: A simple example of the proposed workflow.
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Current workaround
+      description: What do you do today, if anything?
+      placeholder: Optional; please avoid sharing private writing.
+    validations:
+      required: false
+  - type: checkboxes
+    id: privacy
+    attributes:
+      label: Privacy check
+      options:
+        - label: I checked that this request contains no private manuscript or project data.
+          required: true

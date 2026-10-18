@@ -10,6 +10,7 @@ export function ProjectLibrary({
   onOpen,
   onDelete,
   onImport,
+  onImportWriting,
   damagedJournals,
   onExportJournal,
   onDiscardJournal,
@@ -24,6 +25,7 @@ export function ProjectLibrary({
   onOpen: (id: string) => void;
   onDelete: (project: Summary) => void;
   onImport: (file: File) => void;
+  onImportWriting: (file: File) => void;
   damagedJournals: DamagedJournal[];
   onExportJournal: (d: DamagedJournal) => void;
   onDiscardJournal: (d: DamagedJournal) => void;
@@ -190,6 +192,24 @@ export function ProjectLibrary({
             onChange={(e) => {
               const file = e.target.files?.[0];
               if (file) onImport(file);
+            }}
+          />
+        </label>
+      </div>
+      <div className="import">
+        <span id="import-writing-label">Import writing -- text or Markdown (up to 5 MB)</span>
+        <label className="import-choose" htmlFor="import-writing-text">
+          Choose writing…
+          <input
+            id="import-writing-text"
+            className="visually-hidden"
+            type="file"
+            accept=".txt,.md,.markdown,text/plain,text/markdown"
+            aria-labelledby="import-writing-label"
+            onChange={(e) => {
+              const file = e.target.files?.[0];
+              if (file) onImportWriting(file);
+              e.currentTarget.value = "";
             }}
           />
         </label>

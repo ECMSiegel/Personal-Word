@@ -1,0 +1,61 @@
+name: Bug report
+description: Report a reproducible problem in Personal Word.
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Please use synthetic text only. Do not include manuscript passages, private project files, database contents, recovery data, personal details, or credentials. If a problem only occurs with private writing, replace it with a short invented example and describe the behavior.
+  - type: input
+    id: version
+    attributes:
+      label: App version or commit
+      description: Where did you encounter this issue?
+      placeholder: e.g. 0.1.0 or a short commit hash
+    validations:
+      required: true
+  - type: dropdown
+    id: environment
+    attributes:
+      label: Environment
+      options:
+        - macOS desktop app
+        - Browser preview
+        - Other
+    validations:
+      required: true
+  - type: textarea
+    id: summary
+    attributes:
+      label: What happened?
+      description: Describe the unexpected behavior without including private writing.
+      placeholder: A short summary using generic terms.
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Synthetic reproduction steps
+      description: Provide numbered steps with invented project names and sample text. Include expected and actual behavior.
+      placeholder: |
+        1. Create a project named "Example project".
+        2. Enter the invented text "Sample sentence.".
+        3. Switch to another section and return.
+        Expected: ...
+        Actual: ...
+    validations:
+      required: true
+  - type: textarea
+    id: diagnostics
+    attributes:
+      label: Non-sensitive diagnostics
+      description: Include error messages or screenshots only after checking they contain no manuscript text or personal data. Do not attach project, SQLite, export, or recovery files.
+      placeholder: Paste a redacted error message, or leave blank.
+    validations:
+      required: false
+  - type: checkboxes
+    id: privacy
+    attributes:
+      label: Privacy check
+      options:
+        - label: I used synthetic examples and checked that this report contains no private manuscript or project data.
+          required: true

@@ -48,7 +48,7 @@ export function Dropdown<T extends string>({
 }) {
   const [open, setOpen] = useState(false);
   const [highlight, setHighlight] = useState(0);
-  const [flip, setFlip] = useState(false);
+  const [flip, setFlip] = useState({ horizontal: false, vertical: false });
   const button = useRef<HTMLButtonElement>(null);
   const menu = useRef<HTMLDivElement>(null);
   const typed = useRef({ text: "", at: 0 });
@@ -70,9 +70,34 @@ export function Dropdown<T extends string>({
   }, [open]);
 
   useLayoutEffect(() => {
-    if (!open) return setFlip(false);
-    const rect = menu.current?.getBoundingClientRect();
-    if (rect && rect.right > window.innerWidth - 8) setFlip(true);
+    if (!open) {
+      setFlip({ horizontal: false, vertical: false });
+      return;
+    }
+    const place = () => {
+      const rect = menu.current?.getBoundingClientRect();
+      const trigger = button.current?.getBoundingClientRect();
+      const popup = menu.current;
+      if (!rect || !trigger || !popup) return;
+      const naturalHeight = popup.scrollHeight;
+      const below = window.innerHeight - trigger.bottom - 8;
+      const above = trigger.top - 8;
+      const vertical = naturalHeight > below && above > below;
+      popup.style.maxHeight = `${Math.max(
+        0,
+        Math.min(naturalHeight, vertical ? above : below),
+      )}px`;
+      setFlip({
+        horizontal:
+          trigger.left + rect.width > window.innerWidth - 8 &&
+          trigger.right - rect.width >= 8,
+        vertical,
+      });
+    };
+    menu.current?.focus();
+    place();
+    window.addEventListener("resize", place);
+    return () => window.removeEventListener("resize", place);
   }, [open]);
   useEffect(() => {
     if (!open) return;
@@ -103,14 +128,23 @@ export function Dropdown<T extends string>({
         : enabled[Math.max(0, Math.min(enabled.length - 1, position + delta))];
     setHighlight(next);
   };
-  const onKeyDown = (event: KeyboardEvent) => {
-    if (!open) {
-      if (["ArrowDown", "ArrowUp", "Enter", " "].includes(event.key)) {
+  const onButtonKeyDown = (event: KeyboardEvent) => {
+    // While the menu is open the trigger still owns the keyboard contract: the
+    // same keys that work inside the listbox must work here, so an established
+    // open-then-arrow-down-then-Enter sequence keeps working.
+    if (open) {
+      if (handleMenuKey(event)) {
         event.preventDefault();
-        openMenu();
+        event.stopPropagation();
       }
       return;
     }
+    if (["ArrowDown", "ArrowUp", "Enter", " "].includes(event.key)) {
+      event.preventDefault();
+      openMenu();
+    }
+  };
+  const handleMenuKey = (event: KeyboardEvent): boolean => {
     if (event.key === "ArrowDown") step(1);
     else if (event.key === "ArrowUp") step(-1);
     else if (event.key === "Home") setHighlight(enabled[0] ?? 0);
@@ -118,9 +152,10 @@ export function Dropdown<T extends string>({
     else if (event.key === "Enter" || event.key === " ") choose(highlight);
     else if (event.key === "Escape") {
       setOpen(false);
+      button.current?.focus();
     } else if (event.key === "Tab") {
       setOpen(false);
-      return;
+      return false;
     } else if (event.key.length === 1) {
       const now = Date.now();
       typed.current = {
@@ -134,7 +169,11 @@ export function Dropdown<T extends string>({
           !o.disabled && o.label.toLowerCase().startsWith(typed.current.text),
       );
       if (match >= 0) setHighlight(match);
-    } else return;
+    } else return false;
+    return true;
+  };
+  const onMenuKeyDown = (event: KeyboardEvent) => {
+    if (!handleMenuKey(event)) return;
     event.preventDefault();
     event.stopPropagation();
   };
@@ -153,10 +192,9 @@ export function Dropdown<T extends string>({
         aria-haspopup="listbox"
         aria-expanded={open}
         aria-controls={open ? id : undefined}
-        aria-activedescendant={open ? `${id}-${highlight}` : undefined}
         disabled={disabled}
         onClick={() => (open ? setOpen(false) : openMenu())}
-        onKeyDown={onKeyDown}
+        onKeyDown={onButtonKeyDown}
       >
         <span className="dropdown-value" style={current?.style}>
           {current?.label ?? placeholder ?? ""}
@@ -167,9 +205,16 @@ export function Dropdown<T extends string>({
         <div
           ref={menu}
           id={id}
-          className={"dropdown-menu" + (flip ? " is-flipped" : "")}
+          className={
+            "dropdown-menu" +
+            (flip.horizontal ? " is-flipped" : "") +
+            (flip.vertical ? " is-flipped-up" : "")
+          }
           role="listbox"
           aria-label={label}
+          tabIndex={-1}
+          aria-activedescendant={`${id}-${highlight}`}
+          onKeyDown={onMenuKeyDown}
         >
           {options.map((option, index) => (
             <div

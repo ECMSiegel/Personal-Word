@@ -58,9 +58,12 @@ export function ExportPanel({
       </p>
       <p className="settings-help">
         DOCX preserves editable Word footnotes. PDF uses its own pagination with
-        notes at the bottom of each page. Page breaks and line wraps can differ
-        from the editor and Word. PDF currently supports Latin text; DOCX
-        supports Unicode.
+        notes at the bottom of each page. Export pagination is independent of
+        editor page view, so page breaks and line wraps can differ. PDF draws
+        with bundled Noto font subsets instead of the selected document font and
+        covers Latin, Latin Extended, Greek, and Cyrillic; other scripts are
+        rejected and DOCX is the alternative. A footnote that cannot fit on one
+        page is reported instead of truncated.
       </p>
       {onSettingsChange && (
         <>

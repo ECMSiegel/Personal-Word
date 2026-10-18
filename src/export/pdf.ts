@@ -1,5 +1,14 @@
-import { PDFDocument, StandardFonts, rgb, type PDFFont } from "pdf-lib";
+import fontkit from "@pdf-lib/fontkit";
+import { PDFDocument, rgb, type PDFFont } from "pdf-lib";
 import { documentBlocks, type ExportProject, type Inline } from "./document";
+import {
+  bundledFontDataUrls,
+  decodeFontDataUrl,
+  type PdfFontFamily,
+  type PdfFontKey,
+  type PdfFontShard,
+  type PdfFontStyle,
+} from "./fonts";
 type Line = {
   runs: Inline[];
   height: number;
@@ -7,34 +16,116 @@ type Line = {
   align?: string;
   indent?: number;
 };
-export async function exportPdf(project: ExportProject): Promise<Blob> {
+export type PdfFontBytes = Partial<Record<PdfFontKey, Uint8Array>>;
+export async function exportPdf(
+  project: ExportProject,
+  injectedFontBytes?: PdfFontBytes,
+): Promise<Blob> {
   const d = documentBlocks(project),
     s = d.settings,
     pdf = await PDFDocument.create();
-  const family =
-    s.font === "mono"
-      ? [
-          StandardFonts.Courier,
-          StandardFonts.CourierBold,
-          StandardFonts.CourierOblique,
-          StandardFonts.CourierBoldOblique,
-        ]
-      : s.font === "sans"
-        ? [
-            StandardFonts.Helvetica,
-            StandardFonts.HelveticaBold,
-            StandardFonts.HelveticaOblique,
-            StandardFonts.HelveticaBoldOblique,
-          ]
-        : [
-            StandardFonts.TimesRoman,
-            StandardFonts.TimesRomanBold,
-            StandardFonts.TimesRomanItalic,
-            StandardFonts.TimesRomanBoldItalic,
-          ];
-  const fonts = await Promise.all(family.map((f) => pdf.embedFont(f)));
-  const font = (r: Inline): PDFFont =>
-    fonts[(r.bold ? 1 : 0) + (r.italic ? 2 : 0)];
+  pdf.registerFontkit(fontkit);
+  const family: PdfFontFamily =
+    s.font === "mono" ? "mono" : s.font === "sans" ? "sans" : "serif";
+  const styleFor = (r: Inline): PdfFontStyle =>
+    r.bold
+      ? r.italic
+        ? "boldItalic"
+        : "bold"
+      : r.italic
+        ? "italic"
+        : "regular";
+  const fontAssets = new Map<
+    PdfFontKey,
+    { bytes: Uint8Array; font: ReturnType<typeof fontkit.create> }
+  >();
+  const shards: PdfFontShard[] = [
+    "latin",
+    "latin-ext",
+    "greek",
+    "greek-ext",
+    "cyrillic",
+    "cyrillic-ext",
+  ];
+  for (const shard of shards) {
+    const key = `${family}:regular:${shard}` as PdfFontKey;
+    const bytes =
+      injectedFontBytes?.[key] ??
+      (bundledFontDataUrls[key]
+        ? decodeFontDataUrl(bundledFontDataUrls[key]!)
+        : undefined);
+    if (bytes) fontAssets.set(key, { bytes, font: fontkit.create(bytes) });
+  }
+  const shapeError = () =>
+    new Error(
+      "PDF export currently supports Latin, Greek, and Cyrillic text. This text needs script shaping or a font glyph the bundled fonts do not provide; export it as DOCX instead.",
+    );
+  const selectShard = (cluster: string): PdfFontShard => {
+    if (
+      /\p{L}/u.test(cluster) &&
+      !/[\p{Script=Latin}\p{Script=Greek}\p{Script=Cyrillic}]/u.test(cluster)
+    )
+      throw shapeError();
+    const cp = cluster.codePointAt(0)!;
+    for (const shard of shards) {
+      const entry = fontAssets.get(`${family}:regular:${shard}` as PdfFontKey);
+      if (entry && entry.font.characterSet.includes(cp)) return shard;
+    }
+    throw shapeError();
+  };
+  const segment = (r: Inline): Inline[] => {
+    if (r.lineBreak || !r.text) return [r];
+    const chunks: Inline[] = [];
+    for (const character of Array.from(r.text)) {
+      const shard = selectShard(character);
+      const key = `${family}:${styleFor(r)}:${shard}` as PdfFontKey;
+      const actualKey =
+        bundledFontDataUrls[key] || injectedFontBytes?.[key]
+          ? key
+          : (`${family}:${r.bold ? "bold" : "regular"}:${shard}` as PdfFontKey);
+      const previous = chunks.at(-1);
+      if (previous?.fontFamily === actualKey) previous.text += character;
+      else chunks.push({ ...r, text: character, fontFamily: actualKey });
+    }
+    return chunks;
+  };
+  const blocks = d.blocks.map((b) => ({
+    ...b,
+    runs: b.runs.flatMap((r) =>
+      segment({ ...r, bold: r.bold || b.kind === "heading" }),
+    ),
+  }));
+  const allRuns = [
+    ...blocks.flatMap((b) => b.runs),
+    ...d.notes.flatMap((n) => n.parts.flatMap(segment)),
+    ...d.bibliography.flatMap((b) => b.parts.flatMap(segment)),
+    ...segment({ text: "Bibliography", bold: true }),
+  ];
+  const usedKeys = [
+    ...new Set<PdfFontKey>([
+      `${family}:regular:latin`,
+      ...allRuns
+        .map((r) => r.fontFamily)
+        .filter((key): key is PdfFontKey => !!key),
+    ]),
+  ];
+  const embeddedFonts = new Map<PdfFontKey, PDFFont>();
+  for (const key of usedKeys) {
+    const injected = injectedFontBytes?.[key];
+    const bytes =
+      injected ??
+      (bundledFontDataUrls[key]
+        ? decodeFontDataUrl(bundledFontDataUrls[key]!)
+        : undefined);
+    if (!bytes) throw shapeError();
+    embeddedFonts.set(key, await pdf.embedFont(bytes, { subset: true }));
+  }
+  const font = (r: Inline): PDFFont => {
+    const key = r.fontFamily as PdfFontKey | undefined;
+    const embedded = key ? embeddedFonts.get(key) : undefined;
+    if (!embedded) throw shapeError();
+    return embedded;
+  };
   const paperWidth = project.pageLayout?.paper === "a4" ? 595.28 : 612,
     paperHeight = project.pageLayout?.paper === "a4" ? 841.89 : 792;
   const margin = s.marginInches * 72,
@@ -47,11 +138,15 @@ export async function exportPdf(project: ExportProject): Promise<Blob> {
     try {
       return font(r).widthOfTextAtSize(r.text, runSize(r));
     } catch {
-      throw new Error(
-        "PDF supports Latin text with the built-in fonts. Use DOCX for this document’s Unicode characters.",
-      );
+      throw shapeError();
     }
   };
+  const marker = (block: (typeof d.blocks)[number]) =>
+    block.list?.kind === "bullet"
+      ? "• "
+      : block.list?.kind === "ordered"
+        ? `${block.list.number ?? 1}. `
+        : "";
   function wrap(
     runs: Inline[],
     lineSize = size,
@@ -80,6 +175,10 @@ export async function exportPdf(project: ExportProject): Promise<Blob> {
       w = 0;
     };
     for (const r of runs) {
+      if (r.lineBreak) {
+        push();
+        continue;
+      }
       for (const token of r.text.split(/(\s+)/)) {
         if (!token) continue;
         if (token.includes("\n")) {
@@ -88,30 +187,45 @@ export async function exportPdf(project: ExportProject): Promise<Blob> {
         }
         const item = { ...r, text: token };
         const n = (measure(item) * lineSize) / size;
-        if (n > width - indent() - rightIndent) {
-          throw new Error(
-            "A word or URL is wider than the PDF page. Add a break or export DOCX.",
-          );
-        }
+        if (n > width - indent() - rightIndent && !token.trim()) continue;
         if (w + n > width - indent() - rightIndent && line.length) push();
         if (!line.length && !token.trim()) continue;
-        line.push(item);
-        w += n;
+        if (n > width - indent() - rightIndent) {
+          // Split oversized tokens by Unicode code point so URLs/long words do not vanish.
+          let part = "";
+          for (const character of token) {
+            const candidate = { ...item, text: part + character };
+            const candidateWidth = (measure(candidate) * lineSize) / size;
+            if (part && w + candidateWidth > width - indent() - rightIndent) {
+              line.push({ ...item, text: part });
+              push();
+              part = character;
+            } else part += character;
+          }
+          if (part) {
+            line.push({ ...item, text: part });
+            w += (measure({ ...item, text: part }) * lineSize) / size;
+            push();
+          }
+        } else {
+          line.push(item);
+          w += n;
+        }
       }
     }
     if (line.length || !result.length) push();
     return result;
   }
-  const lines: (Line | "break")[] = d.blocks.flatMap<Line | "break">((b) => {
+  const lines: (Line | "break")[] = blocks.flatMap<Line | "break">((b) => {
     if (b.kind === "pageBreak") return ["break"];
     const rows = wrap(
-      b.runs.map((r) => ({ ...r, bold: r.bold || b.kind === "heading" })),
+      [...(marker(b) ? segment({ text: marker(b) }) : []), ...b.runs],
       size,
       b.lineHeight ?? s.lineSpacing,
       b.firstLineIndent ??
         (s.firstLineIndent && b.kind === "paragraph" ? 36 : 0),
       false,
-      b.indentLeft ?? 0,
+      (b.indentLeft ?? 0) + (b.list ? 18 + 18 * b.list.level : 0),
       b.indentRight ?? 0,
     ).map((l) => ({ ...l, align: b.align }));
     const result: Line[] = [];
@@ -123,11 +237,11 @@ export async function exportPdf(project: ExportProject): Promise<Blob> {
     return result;
   });
   if (d.bibliography.length) {
-    lines.push("break", ...wrap([{ text: "Bibliography", bold: true }]));
+    lines.push("break", ...wrap(segment({ text: "Bibliography", bold: true })));
     for (const b of d.bibliography)
       lines.push(
         ...wrap(
-          b.parts.map((p) => ({ text: p.text, italic: p.italic })),
+          b.parts.flatMap((p) => segment({ text: p.text, italic: p.italic })),
           size,
           1,
           0,
@@ -143,8 +257,8 @@ export async function exportPdf(project: ExportProject): Promise<Blob> {
   const noteLines = (n: number) =>
     wrap(
       [
-        { text: `${n}. ` },
-        ...(d.notes.find((x) => x.number === n)?.parts ?? []),
+        ...segment({ text: `${n}. ` }),
+        ...(d.notes.find((x) => x.number === n)?.parts.flatMap(segment) ?? []),
       ],
       10,
       1.2,
@@ -207,10 +321,10 @@ export async function exportPdf(project: ExportProject): Promise<Blob> {
           color: rgb(0, 0, 0),
         });
         const w = measure(r);
-        if (r.underline)
+        if (r.underline || r.strike)
           page.drawLine({
-            start: { x, y: y - 2 },
-            end: { x: x + w, y: y - 2 },
+            start: { x, y: y + (r.strike ? size * 0.32 : -2) },
+            end: { x: x + w, y: y + (r.strike ? size * 0.32 : -2) },
             thickness: 0.5,
           });
         x += w;
@@ -243,7 +357,7 @@ export async function exportPdf(project: ExportProject): Promise<Blob> {
           x: paperWidth - margin - 10,
           y: margin / 2,
           size: 10,
-          font: fonts[0],
+          font: embeddedFonts.values().next().value!,
         },
       );
   });

@@ -1,92 +1,61 @@
 # Personal Word
 
-A Mac-first, local writing workspace built with Tauri, React, TypeScript, Tiptap / ProseMirror, and SQLite.
+Personal Word is an early, Mac-first writing app for local projects. It combines a Tauri 2 desktop shell, a React and TypeScript interface, a Tiptap editor, and Rust/SQLite storage. This is alpha software: core writing, import, export, and local recovery workflows are implemented, and the current unit, browser, Rust, and isolated native checks pass. What remains is interactive review on a real desktop session -- native light/dark screenshots, VoiceOver, IME and rich paste, native file dialogs, Word's own rendering of exported DOCX, and the owner's confirmation -- so this is not a production durability certification or a signed, notarized release. See the [validation record](docs/validation.md) for exact evidence and remaining checks.
 
-## Run
+![Personal Word browser preview with synthetic writing](docs/evidence/current-workspace.png)
 
-Requires Node 22+ and Rust, plus the macOS Xcode command-line tools.
+Current Chromium preview using synthetic writing; this is not native WebKit visual verification.
+
+## What works
+
+- Create projects from templates; reopen, rename, and organize projects and tabs.
+- Write with headings, common text formatting, lists, links, comments, and footnotes. Organize a manuscript into sections and fragments, search it, and inspect or restore earlier versions.
+- Save locally to SQLite with recovery journals and named snapshots. Export project JSON or manuscript text; import UTF-8 `.txt` or Markdown (`.md`, `.markdown`) files up to 5 MB as new projects after a preview.
+- Keep research notes and sources, get Chicago-style citation assistance, and look up a typed DOI, ISBN, or web address on request.
+- Export DOCX or PDF and preview PDF. Read-view and editor page layout are available.
+
+This is a focused writing workspace, not a general Word replacement. Import accepts UTF-8 `.txt` and Markdown up to 5 MB and previews the result before creating anything; images, tables, and raw HTML from Markdown arrive as literal text, and no remote resource is fetched. PDF draws with bundled open-source Noto font subsets covering Latin, Latin Extended, Greek, and Cyrillic, does not shape other scripts or use the fonts installed on the Mac, and rejects unsupported glyphs or footnotes that cannot fit on a page. Editor, DOCX, and PDF pagination use separate layout engines, so page breaks may differ. Citation assistance covers common source types; verify citations and instructor-specific formatting yourself. Cloud sync, collaboration, images, and advanced tables are not provided.
+
+## macOS development
+
+Use macOS with Node.js 22 LTS (the CI version), Rust and Cargo, and Apple's Xcode Command Line Tools. Then install the locked JavaScript dependencies and run the desktop app:
 
 ```sh
 npm ci
 npm run tauri dev
 ```
 
-Build a desktop bundle with `npm run tauri build`. The bundle is generated under `src-tauri/target/release/bundle/macos/Personal Word.app`. It is not signed or notarized for distribution.
+`npm run dev` starts a browser preview at `http://localhost:1420`. Its browser storage is separate from native SQLite; preview data and browser tests do not verify desktop persistence.
 
-`npm run dev` opens a **browser preview** at http://localhost:1420. The preview uses browser storage, not SQLite; the interface labels this distinction. Use the desktop app for real writing.
-
-## First slice
-
-- Create, reopen, rename and delete local projects. Deleting a desktop project sets its folder aside as `<project-id>.deleted` instead of erasing it.
-- Rich text: headings, bold, italic, underline, strike, lists, quotations, links (added through an in-app dialog), Markdown shortcuts, smart typography, undo/redo, OS spellcheck.
-- Create, rename, delete, drag-reorder sections; keyboard-accessible reorder buttons. Deleting a section or fragment keeps a safety snapshot first.
-- Create and edit fragments. Select manuscript text and use **Keep as fragment** or **⌘⇧X**. The cut and fragment commit together, with source metadata. Append a fragment to a selected section while retaining the original.
-- Automatic local saves, immediate recovery journals, visible failures and retry.
-- Named snapshots, read-only inspection, restoration with an automatic safety snapshot; separate automatic recovery history.
-- Project search, word and character counts, focus mode, continuous plain-text read view.
-- Export full portable JSON or manuscript plain text; recover a JSON project as a new project.
-
-Shortcuts: **⌘S** flush saves, **⌘⇧S** snapshot, **⌘⇧N** section, **⌘K** project search, **⌘\\** focus mode. Formatting uses Tiptap's standard shortcuts. Double-click a sidebar section or click its large title to rename it; click the project title in the top bar to rename the project. The trash button beside a section or fragment title deletes it; the trash button on a library row deletes the project.
-
-## Your files
-
-Desktop project folders live at `~/Library/Application Support/com.folio.writing/projects/<project-id>/` on macOS. Open **Settings → Local storage** for the actual path.
-
-Each folder contains:
-
-- `project.sqlite3` and its WAL/SHM files: authoritative transactional data.
-- `project.json`: full current portable rich-text project.
-- `manuscript.txt`, `fragments.txt`: ordinary readable text.
-- `snapshots/*.json`: named snapshot content (names and dates also in SQLite).
-- `previous-session.sqlite3`: online database backup made on opening.
-- `attachments/`: reserved ordinary-file directory; attachment UI is deferred.
-
-Use **Saved** as confirmation of the database save. Portable mirrors are written in the background and flushed on explicit save, library navigation, and quit; mirror failures are reported separately. Save failures keep pending data in memory and the recovery journal where available. Quit/window close attempts to flush first and stays open on failure. A forced kill can bypass this guard; recovery depends on the last persisted journal/database state. Do not interpret this as a power-loss guarantee.
-
-### Recovery
-
-1. Keep a copy of the entire damaged project folder before making changes.
-2. Launch normally to recover pending edits from the WebView journal.
-3. Inspect **Snapshots & history → Recovery history** to restore an earlier state. Restoration creates a safety snapshot first.
-4. If SQLite cannot open, the project library lists that folder under **Needs attention** and keeps every other project visible. Keep a copy, then import its `project.json` or a file from `snapshots/`. This creates a new project; it does not overwrite the damaged one. **Set aside** renames the folder to `<project-id>.deleted` once you are done with it.
-5. If the WebView journal and the saved copy are at the same revision but disagree, opening the project asks which to keep: the disk copy, the journal copy, or export the journal to a file first. A journal that cannot be parsed is listed in the library under **Needs attention** with **Export** (raw text) and **Discard**; it never blocks the library or the project.
-6. For database backup recovery, quit the app, preserve the original folder, then copy `previous-session.sqlite3` into a **new copy** of that folder as `project.sqlite3`, removing stale WAL/SHM files in that copy only. Seek technical help if unsure. Never overwrite the sole surviving copy.
-
-For external backups, quit Personal Word and copy the whole project folder. A copy on the same disk does not protect against drive failure. Mirror files may lag SQLite after an export failure; the app reports this and retries repair them.
-
-## Validation
+Useful project commands:
 
 ```sh
-npm test
-cargo test --manifest-path src-tauri/Cargo.toml
 npm run build
-npx playwright install chromium
+npm test
 npm run test:e2e
+cargo test --manifest-path src-tauri/Cargo.toml
+npm run tauri build
 ```
 
-See [architecture](docs/architecture.md) and [validation](docs/validation.md). This is an initial working slice, not a claim of production readiness. Native forced-termination/power-loss coverage, large manuscripts, accessibility, and signed distribution need further qualification. Research and DOCX/PDF export are now implemented with documented limitations. Images/tables, cloud collaboration, and full tracked changes remain outside this release.
+The native bundle is written under `src-tauri/target/release/bundle/macos/Personal Word.app`. Building it does not sign or notarize it for distribution. See [validation notes](docs/validation.md) for dated results and the checks that remain incomplete.
 
-### Native integration test
+## Your writing and recovery
 
-The optional harness runs the real Tauri WebView in two successive processes against temporary SQLite files. Build it with an isolated application identifier, then run the harness:
+Native project data is stored under the macOS application-data directory for `com.folio.writing`; **Settings → Local storage** shows the actual path. Each project has a SQLite database plus portable JSON and text copies. SQLite is authoritative. Portable copies may lag briefly while the app is open, and a visible saved state does not guarantee protection from a power cut or forced process termination.
 
-```sh
-npm run tauri build -- --debug --features native-smoke --no-bundle --config '{"identifier":"com.folio.smoke"}'
-python3 scripts/native-smoke.py
-```
+Quit the app before making an external backup, then copy the whole project folder to another storage device or backup service. For recovery steps, database layout, journal behavior, and known limits, see [architecture](docs/architecture.md) and the [feature guide](docs/personal-word-v2.md). Do not rename the historical `com.folio.writing` identifier or `folio.*` storage keys without a data migration; they preserve access to existing projects.
 
-It creates a project through the UI, switches sections, cuts/restores a fragment, takes a snapshot, types immediately before the real quit guard, reopens the process, and restores the snapshot. The runner also checks SQLite integrity and equality with the portable JSON copy. Test reports are in `test-results/`; the temporary project directory is printed. Rebuild normally without `native-smoke` afterward. This harness is excluded from the default build.
+## Project notes
 
-## Appearance
+- [Architecture and persistence boundaries](docs/architecture.md)
+- [Feature guide and limitations](docs/personal-word-v2.md)
+- [Validation record](docs/validation.md)
+- [Application history](docs/app-history.md)
+- [Roadmap](ROADMAP.md)
+- [Publication readiness](docs/publication-readiness.md)
+- [Third-party license inventory](THIRD_PARTY.md)
+- [Contributing](CONTRIBUTING.md)
+- [Security reporting](SECURITY.md)
+- [GNU General Public License v3.0](LICENSE)
 
-Personal Word follows the computer’s light/dark appearance automatically, including changes while open. The interface uses system typography, neutral surfaces, accessible focus rings, and reduced-motion support. Projects open from the library; manuscript reading offers section shortcuts; the thin line below the toolbar tracks document scrolling.
-
-Design references include [Rare UI](https://rareui.com) and [Dieter Rams’ ten principles](https://tenprinciples.design/). The current design removes the former decorative folder and curved hook treatments in favor of compact rows, optional cards, and flat sans-serif controls. No Rare UI component source is bundled.
-
-The existing application identifier and storage keys remain stable so previously saved projects continue to open after the rename.
-
-## Expanded writing workspace
-
-See [the current feature and limitation guide](docs/personal-word-v2.md) and [agent working principles](AGENTS.md). The library now opens on launch; use **Start new project** to choose a template. Each sidebar collection can switch between lines and cards. **Settings** contains document defaults, startup preferences, reusable templates, DOCX/PDF export, PDF preview, and Local storage.
-
-Page view is editable and currently arranges section pages horizontally. Exported Word/PDF pagination is independent; inspect the export preview before submission. The app does not claim exact print parity or exhaustive Chicago citation coverage.
+The project is licensed under GPL-3.0-only; see [LICENSE](LICENSE).

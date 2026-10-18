@@ -49,6 +49,9 @@ import { TemplatePicker } from "./research/TemplatePicker";
 import { CommentsPanel } from "./organization/CommentsPanel";
 import { FragmentLibrary } from "./organization/FragmentLibrary";
 import { RevisionComparison } from "./organization/RevisionComparison";
+import { previewManuscript, MAX_MANUSCRIPT_BYTES, type ManuscriptPreview } from "./import/manuscript";
+import { ImportPreview } from "./import/ImportPreview";
+import { ProjectDialogs, type NameDialog, type ChoiceDialog } from "./app/ProjectDialogs";
 import "./organization/organization.css";
 import {
   importFragment,
@@ -107,22 +110,6 @@ function AsideResizer({
     />
   );
 }
-type NameDialog = {
-  title: string;
-  label: string;
-  value: string;
-  action: (name: string) => Promise<void> | void;
-};
-type ChoiceDialog = {
-  title: string;
-  body: string;
-  actions: {
-    label: string;
-    run: () => Promise<void> | void;
-    primary?: boolean;
-    keep?: boolean;
-  }[];
-};
 export default function App() {
   const [editorEpoch, setEditorEpoch] = useState(0);
   const [destination, setDestination] = useState("manuscript");
@@ -198,6 +185,7 @@ export default function App() {
   const [library, setLibrary] = useState<Summary[]>([]);
   const [damagedJournals, setDamagedJournals] = useState<DamagedJournal[]>([]);
   const [damagedFolders, setDamagedFolders] = useState<string[]>([]);
+  const [importPreview, setImportPreview] = useState<ManuscriptPreview | null>(null);
   const [choice, setChoice] = useState<ChoiceDialog | null>(null);
   const [active, setActive] = useState("");
   const [mode, setMode] = useState<"write" | "read">("write");
@@ -934,6 +922,25 @@ export default function App() {
     localStorage.setItem("folio.lastProject", imported.id);
     await queue.flush();
   };
+  const importWriting = async (file: File) => {
+    if (file.size > MAX_MANUSCRIPT_BYTES) throw new Error("Manuscripts must be 5 MB or smaller.");
+    setImportPreview(previewManuscript(await file.arrayBuffer(), file.name));
+  };
+  const confirmImport = async (title: string) => {
+    if (!importPreview) return;
+    const imported = { ...importPreview.project, title };
+    await queue.flush();
+    setVersions(null);
+    setPreview(null);
+    setQuery("");
+    setMode("write");
+    apply(imported);
+    setActive(imported.order[0] ?? "");
+    setTarget(imported.order[0] ?? "");
+    localStorage.setItem("folio.lastProject", imported.id);
+    await queue.flush();
+    setImportPreview(null);
+  };
   const goLibrary = () =>
     void run(async () => {
       await saveAll();
@@ -1093,6 +1100,7 @@ export default function App() {
             onOpen={(id) => void run(() => open(id))}
             onDelete={removeProject}
             onImport={(file) => void run(() => importProject(file))}
+            onImportWriting={(file) => void run(() => importWriting(file))}
             damagedJournals={damagedJournals}
             onExportJournal={(d) =>
               download(d.key + ".txt", d.raw, "text/plain")
@@ -1659,7 +1667,7 @@ export default function App() {
               <footer className="document-statistics">
                 {writing && project.pageLayout?.mode === "pages" && (
                   <span aria-label="Page count" aria-live="polite">
-                    Page {pageStatus.current} of {pageStatus.total}
+                    Section page {pageStatus.current} of {pageStatus.total}
                   </span>
                 )}
                 <span title={`${item?.text.length ?? 0} characters`}>
@@ -1892,92 +1900,11 @@ export default function App() {
             </button>
           </div>
         )}
-        {nameDialog && (
-          <div className="modal-backdrop">
-            <form
-              className="dialog"
-              role="dialog"
-              aria-modal="true"
-              onSubmit={(event) => {
-                event.preventDefault();
-                const dialog = nameDialog;
-                if (!dialog.value.trim() || busy) return;
-                setBusy(true);
-                void run(async () => {
-                  await dialog.action(dialog.value.trim());
-                  setNameDialog(null);
-                }).finally(() => setBusy(false));
-              }}
-            >
-              <div className="eyebrow">PERSONAL WORD</div>
-              <h2>{nameDialog.title}</h2>
-              <label>
-                {nameDialog.label}
-                <input
-                  autoFocus
-                  value={nameDialog.value}
-                  onChange={(e) =>
-                    setNameDialog({ ...nameDialog, value: e.target.value })
-                  }
-                  onKeyDown={(e) => {
-                    if (e.key === "Escape") setNameDialog(null);
-                  }}
-                />
-              </label>
-              <div className="dialog-actions">
-                <button
-                  type="button"
-                  disabled={busy}
-                  onClick={() => setNameDialog(null)}
-                >
-                  Cancel
-                </button>
-                <button
-                  className="primary"
-                  disabled={!nameDialog.value.trim() || busy}
-                  type="submit"
-                >
-                  {busy ? "Saving…" : "Save"}
-                </button>
-              </div>
-            </form>
-          </div>
-        )}
-        {choice && (
-          <div className="modal-backdrop">
-            <div className="dialog" role="dialog" aria-modal="true">
-              <div className="eyebrow">PERSONAL WORD</div>
-              <h2>{choice.title}</h2>
-              <p className="dialog-body">{choice.body}</p>
-              <div className="dialog-actions">
-                <button
-                  type="button"
-                  disabled={busy}
-                  onClick={() => setChoice(null)}
-                >
-                  Cancel
-                </button>
-                {choice.actions.map((a) => (
-                  <button
-                    key={a.label}
-                    type="button"
-                    className={a.primary ? "primary" : ""}
-                    disabled={busy}
-                    onClick={() => {
-                      setBusy(true);
-                      void run(async () => {
-                        await a.run();
-                        if (!a.keep) setChoice(null);
-                      }).finally(() => setBusy(false));
-                    }}
-                  >
-                    {a.label}
-                  </button>
-                ))}
-              </div>
-            </div>
-          </div>
-        )}
+        <ProjectDialogs name={nameDialog} choice={choice} busy={busy} setName={setNameDialog} setChoice={setChoice} setBusy={setBusy} run={run} />
+        {importPreview && <ImportPreview preview={importPreview} busy={busy} onCancel={() => setImportPreview(null)} onImport={(title) => {
+          setBusy(true);
+          void run(() => confirmImport(title)).finally(() => setBusy(false));
+        }} />}
         {preview && (
           <div className="modal-backdrop">
             <div className="preview-dialog">

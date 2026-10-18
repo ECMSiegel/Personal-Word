@@ -22,7 +22,7 @@
       ]
     }
   ],
-  "dataDirectory": "/var/folders/rw/ltqyk83j3c5041kpmmr0dk000000gp/T/folio-native-7p2c4fig",
+  "dataDirectory": "[temporary test directory redacted for publication]",
   "checks": [
     "SQLite integrity",
     "quit flush",

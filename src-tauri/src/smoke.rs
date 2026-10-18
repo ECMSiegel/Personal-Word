@@ -9,9 +9,27 @@ pub fn smoke_report(app: tauri::AppHandle, report: serde_json::Value) -> Result<
         serde_json::to_vec_pretty(&report).map_err(|e| e.to_string())?,
     )
     .map_err(|e| e.to_string())?;
-    // Intentionally uses the real ExitRequested guard; the frontend must flush before allowing exit.
-    app.exit(0);
+    // Phase 2 stays open for the Python harness to terminate it after the SQLite checkpoint.
+    // Other phases exit through the real ExitRequested guard, which asks the frontend to
+    // flush its save queue before finish_quit syncs mirrors and allows the exit.
+    if phase != "2" {
+        app.exit(0);
+    }
     Ok(())
+}
+/// Appends a harness breadcrumb so a stalled run names the step it reached.
+#[tauri::command]
+pub fn smoke_progress(message: String) -> Result<(), String> {
+    use std::io::Write;
+    let dir = std::env::var("FOLIO_SMOKE_DIR").map_err(|e| e.to_string())?;
+    let path = std::path::Path::new(&dir).join("progress.log");
+    let mut file = std::fs::OpenOptions::new()
+        .create(true)
+        .append(true)
+        .open(&path)
+        .map_err(|e| e.to_string())?;
+    writeln!(file, "{message}").map_err(|e| e.to_string())?;
+    file.flush().map_err(|e| e.to_string())
 }
 pub fn configure<R: Runtime>(builder: tauri::Builder<R>) -> tauri::Builder<R> {
     builder.on_page_load(|webview, event| {

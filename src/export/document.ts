@@ -23,11 +23,20 @@ export type Inline = {
   bold?: boolean;
   italic?: boolean;
   underline?: boolean;
+  strike?: boolean;
+  lineBreak?: boolean;
   superscript?: boolean;
   footnote?: number;
   link?: string;
   fontFamily?: string;
   fontSize?: number;
+};
+export type ListInfo = {
+  kind: "bullet" | "ordered";
+  level: number;
+  number?: number;
+  id: number;
+  start: number;
 };
 export type Block = {
   runs: Inline[];
@@ -41,6 +50,7 @@ export type Block = {
   lineHeight?: number;
   spaceBefore?: number;
   spaceAfter?: number;
+  list?: ListInfo;
 };
 function points(value: unknown): number | undefined {
   if (value === null || value === undefined || value === "") return undefined;
@@ -82,7 +92,7 @@ export function documentBlocks(project: ExportProject) {
       }
       return [{ text: String(number), superscript: true, footnote: number }];
     }
-    if (node.type === "hardBreak") return [{ text: "\n" }];
+    if (node.type === "hardBreak") return [{ text: "", lineBreak: true }];
     if (node.type === "text")
       return [
         {
@@ -90,6 +100,7 @@ export function documentBlocks(project: ExportProject) {
           bold: node.marks?.some((m) => m.type === "bold"),
           italic: node.marks?.some((m) => m.type === "italic"),
           underline: node.marks?.some((m) => m.type === "underline"),
+          strike: node.marks?.some((m) => m.type === "strike"),
           link: node.marks?.find((m) => m.type === "link")?.attrs?.href,
           fontFamily:
             node.marks?.find((m) => m.type === "textFormat")?.attrs
@@ -103,7 +114,12 @@ export function documentBlocks(project: ExportProject) {
     return (node.content ?? []).flatMap(inline);
   };
   const blocks: Block[] = [];
-  const visit = (node: JSONContent, prefix = "") => {
+  let nextListId = 0;
+  const visit = (
+    node: JSONContent,
+    prefix = "",
+    list?: ListInfo,
+  ) => {
     if (["paragraph", "heading", "codeBlock"].includes(node.type ?? "")) {
       blocks.push({
         kind: node.type!,
@@ -116,6 +132,7 @@ export function documentBlocks(project: ExportProject) {
         firstLineIndent: points(node.attrs?.firstLineIndent),
         spaceAfter: points(node.attrs?.spaceAfter),
         style: node.attrs?.paragraphStyle ?? node.attrs?.screenplayStyle,
+        list,
         runs: [...(prefix ? [{ text: prefix }] : []), ...inline(node)],
       });
       return;
@@ -129,21 +146,25 @@ export function documentBlocks(project: ExportProject) {
       return;
     }
     if (node.type === "bulletList" || node.type === "orderedList") {
+      // One numbering instance per source list, so Word continues 7, 8, 9
+      // instead of restarting the start value on every item's paragraph.
+      const id = nextListId++;
+      const level = (list?.level ?? -1) + 1;
+      const start = Number(node.attrs?.start ?? 1);
       (node.content ?? []).forEach((child, i) =>
-        (child.content ?? []).forEach((p, j) =>
-          visit(
-            p,
-            j === 0
-              ? node.type === "bulletList"
-                ? "• "
-                : `${i + Number(node.attrs?.start ?? 1)}. `
-              : "",
-          ),
+        (child.content ?? []).forEach((p) =>
+          visit(p, "", {
+            kind: node.type === "bulletList" ? "bullet" : "ordered",
+            level,
+            id,
+            start,
+            number: node.type === "orderedList" ? start + i : undefined,
+          }),
         ),
       );
       return;
     }
-    (node.content ?? []).forEach((n) => visit(n, prefix));
+    (node.content ?? []).forEach((n) => visit(n, prefix, list));
   };
   for (const id of project.order) {
     const e = project.entries.find((e) => e.id === id && e.kind === "section");

@@ -1,4 +1,4 @@
-import { describe, it, expect, vi } from "vitest";
+import { afterEach, describe, it, expect, vi } from "vitest";
 import {
   SaveQueue,
   recover,
@@ -41,6 +41,84 @@ function twoSections(): Project {
     entries: [...p.entries, second],
   };
 }
+afterEach(() => vi.useRealTimers());
+
+describe("save scheduling deadlines", () => {
+  it("attempts persistence by the maximum wait despite continuous edits", async () => {
+    vi.useFakeTimers();
+    const p = newProject("Essay");
+    const persist = vi.fn(async (_change: Change) => {});
+    const q = new SaveQueue(persist, journal(), () => {});
+
+    q.enqueue(p);
+    let newest = p;
+    for (let revision = 2; revision <= 10; revision++) {
+      await vi.advanceTimersByTimeAsync(200);
+      newest = { ...p, revision, title: `Revision ${revision}` };
+      q.enqueue(newest);
+    }
+    await vi.advanceTimersByTimeAsync(199);
+    expect(persist).not.toHaveBeenCalled();
+    await vi.advanceTimersByTimeAsync(1);
+
+    expect(persist).toHaveBeenCalledTimes(1);
+    expect(persist.mock.calls[0][0].header.revision).toBe(newest.revision);
+  });
+
+  it("uses the trailing debounce when typing stops before the maximum wait", async () => {
+    vi.useFakeTimers();
+    const p = newProject("Essay");
+    const persist = vi.fn(async (_change: Change) => {});
+    const q = new SaveQueue(persist, journal(), () => {});
+
+    q.enqueue(p);
+    await vi.advanceTimersByTimeAsync(249);
+    expect(persist).not.toHaveBeenCalled();
+    await vi.advanceTimersByTimeAsync(1);
+    expect(persist).toHaveBeenCalledTimes(1);
+  });
+
+  it("does not overlap slow persistence and drains the newest queued edit", async () => {
+    vi.useFakeTimers();
+    const p = newProject("Essay");
+    let release: () => void = () => {};
+    const barrier = new Promise<void>((resolve) => (release = resolve));
+    const revisions: number[] = [];
+    const q = new SaveQueue(
+      async (change) => {
+        revisions.push(change.header.revision);
+        if (change.header.revision === 1) await barrier;
+      },
+      journal(),
+      () => {},
+    );
+
+    q.enqueue(p);
+    await vi.advanceTimersByTimeAsync(250);
+    expect(revisions).toEqual([1]);
+    q.enqueue({ ...p, revision: 2, title: "Newest while saving" });
+    await vi.advanceTimersByTimeAsync(250);
+    expect(revisions).toEqual([1]);
+
+    release();
+    await vi.waitFor(() => expect(revisions).toEqual([1, 2]));
+    expect(revisions).toEqual([1, 2]);
+  });
+
+  it("flushes the latest pending project immediately when explicitly requested", async () => {
+    vi.useFakeTimers();
+    const p = newProject("Essay");
+    const persist = vi.fn(async (_change: Change) => {});
+    const q = new SaveQueue(persist, journal(), () => {});
+    q.enqueue({ ...p, revision: 2, title: "Explicit flush" });
+
+    await q.flush();
+
+    expect(persist).toHaveBeenCalledTimes(1);
+    expect(persist.mock.calls[0][0].header.title).toBe("Explicit flush");
+    expect(vi.getTimerCount()).toBe(0);
+  });
+});
 describe("durable save coordinator", () => {
   it("journals rapid typing immediately and flushes latest state before restart", async () => {
     const j = journal();
@@ -81,6 +159,7 @@ describe("durable save coordinator", () => {
     expect(j.map.size).toBe(0);
   });
   it("retains failed data for retry and never reports it saved", async () => {
+    vi.useFakeTimers();
     const j = journal();
     const p = newProject("Essay");
     let fail = true;
@@ -104,6 +183,7 @@ describe("durable save coordinator", () => {
     expect(status).toHaveBeenLastCalledWith({ state: "saved" });
   });
   it("saves to disk even when the immediate journal cannot be written", async () => {
+    vi.useFakeTimers();
     const p = newProject("Essay");
     const saved: Change[] = [];
     const j = journal();
@@ -118,9 +198,37 @@ describe("durable save coordinator", () => {
       () => {},
     );
     q.enqueue(p);
+    expect(saved).toHaveLength(1);
     await q.flush();
     expect(saved).toHaveLength(1);
     expect(saved[0].entries).toEqual(p.entries);
+  });
+  it("keeps direct-write failure visible and retries it when the journal is unavailable", async () => {
+    vi.useFakeTimers();
+    const p = newProject("Essay");
+    const j = journal();
+    j.setItem = () => {
+      throw Error("quota");
+    };
+    let fail = true;
+    const status = vi.fn();
+    const persist = vi.fn(async (_change: Change) => {
+      if (fail) throw Error("disk unavailable");
+    });
+    const q = new SaveQueue(persist, j, status);
+
+    q.enqueue(p);
+    expect(persist).toHaveBeenCalledTimes(1);
+    await expect(q.flush()).rejects.toThrow("disk unavailable");
+    expect(status).toHaveBeenLastCalledWith({
+      state: "error",
+      message: "Error: disk unavailable",
+    });
+
+    fail = false;
+    await q.flush();
+    expect(persist).toHaveBeenCalledTimes(2);
+    expect(status).toHaveBeenLastCalledWith({ state: "saved" });
   });
   it("does not discard malformed journals", () => {
     const p = newProject("Essay");
@@ -261,6 +369,7 @@ describe("per-entry journal and saves", () => {
     expect(j.getItem(journalKey(p.id))).not.toBeNull();
   });
   it("keeps journaled entries until the newest revision is on disk", async () => {
+    vi.useFakeTimers();
     const j = journal();
     const p = twoSections();
     let release: () => void = () => {};

@@ -8,6 +8,7 @@ import {
   Packer,
   Paragraph,
   TextRun,
+  LevelFormat,
 } from "docx";
 import { documentBlocks, type ExportProject, type Inline } from "./document";
 export async function exportDocx(project: ExportProject): Promise<Blob> {
@@ -20,38 +21,66 @@ export async function exportDocx(project: ExportProject): Promise<Blob> {
         ? "Arial"
         : "Times New Roman";
   const run = (r: Inline) =>
-    r.footnote
-      ? new FootnoteReferenceRun(r.footnote)
-      : r.link
-        ? new ExternalHyperlink({
-            link: r.link,
-            children: [
-              new TextRun({
-                text: r.text,
-                font: r.fontFamily
-                  ?.split(",")[0]
-                  .replaceAll("'", "")
-                  .replaceAll('"', ""),
-                size: r.fontSize ? r.fontSize * 2 : undefined,
-                bold: r.bold,
-                italics: r.italic,
-                underline: r.underline ? {} : undefined,
-              }),
-            ],
-          })
-        : new TextRun({
-            text: r.text,
-            font: r.fontFamily
-              ?.split(",")[0]
-              .replaceAll("'", "")
-              .replaceAll('"', ""),
-            size: r.fontSize ? r.fontSize * 2 : undefined,
-            bold: r.bold,
-            italics: r.italic,
-            underline: r.underline ? {} : undefined,
-            superScript: r.superscript,
-          });
+    r.lineBreak
+      ? new TextRun({ break: 1 })
+      : r.footnote
+        ? new FootnoteReferenceRun(r.footnote)
+        : r.link
+          ? new ExternalHyperlink({
+              link: r.link,
+              children: [
+                new TextRun({
+                  text: r.text,
+                  font: r.fontFamily
+                    ?.split(",")[0]
+                    .replaceAll("'", "")
+                    .replaceAll('"', ""),
+                  size: r.fontSize ? r.fontSize * 2 : undefined,
+                  bold: r.bold,
+                  italics: r.italic,
+                  underline: r.underline ? {} : undefined,
+                  strike: r.strike,
+                }),
+              ],
+            })
+          : new TextRun({
+              text: r.text,
+              font: r.fontFamily
+                ?.split(",")[0]
+                .replaceAll("'", "")
+                .replaceAll('"', ""),
+              size: r.fontSize ? r.fontSize * 2 : undefined,
+              bold: r.bold,
+              italics: r.italic,
+              underline: r.underline ? {} : undefined,
+              strike: r.strike,
+              superScript: r.superscript,
+            });
   const doc = new Document({
+    numbering: {
+      config: [
+        ...new Map(
+          d.blocks.filter((b) => b.list).map((b) => [b.list!.id, b.list!]),
+        ).values(),
+      ].map((list) => ({
+        reference: `personal-word-${list.kind}-${list.id}`,
+        levels: Array.from({ length: 9 }, (_, level) => ({
+          level,
+          format:
+            list.kind === "ordered" ? LevelFormat.DECIMAL : LevelFormat.BULLET,
+          text:
+            list.kind === "ordered"
+              ? `%${level + 1}.`
+              : ["•", "◦", "▪"][level % 3],
+          alignment: AlignmentType.START,
+          start:
+            level === list.level && list.kind === "ordered" ? list.start : 1,
+          style: {
+            paragraph: { indent: { left: 720 * (level + 1), hanging: 360 } },
+          },
+        })),
+      })),
+    },
     styles: {
       paragraphStyles: [1, 2, 3, 4, 5, 6].map((level) => ({
         id: `Heading${level}`,
@@ -123,6 +152,13 @@ export async function exportDocx(project: ExportProject): Promise<Blob> {
               new Paragraph({
                 children: b.runs.map(run),
                 pageBreakBefore: b.kind === "pageBreak",
+                numbering: b.list
+                  ? {
+                      reference: `personal-word-${b.list.kind}-${b.list.id}`,
+                      level: b.list.level,
+                      instance: b.list.id,
+                    }
+                  : undefined,
                 alignment:
                   b.align === "center"
                     ? AlignmentType.CENTER
@@ -134,8 +170,9 @@ export async function exportDocx(project: ExportProject): Promise<Blob> {
                   right: (b.indentRight ?? 0) * 20,
                   firstLine:
                     (b.firstLineIndent ??
-                      (s.firstLineIndent && b.kind === "paragraph" ? 36 : 0)) *
-                    20,
+                      (s.firstLineIndent && b.kind === "paragraph" && !b.list
+                        ? 36
+                        : 0)) * 20,
                 },
                 spacing: {
                   before:

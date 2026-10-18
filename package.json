@@ -10,9 +10,14 @@
     "tauri": "tauri",
     "test": "vitest run",
     "test:e2e": "playwright test",
-    "bench": "sh scripts/bench-save.sh"
+    "bench": "sh scripts/bench-save.sh",
+    "render:export-fixtures": "node scripts/render-export-fixtures.mjs"
   },
   "dependencies": {
+    "@fontsource/noto-sans": "^5.3.0",
+    "@fontsource/noto-sans-mono": "^5.3.0",
+    "@fontsource/noto-serif": "^5.3.0",
+    "@pdf-lib/fontkit": "^1.1.1",
     "@tauri-apps/api": "^2",
     "@tauri-apps/plugin-dialog": "^2.8.3",
     "@tiptap/extension-placeholder": "^3",
@@ -22,6 +27,7 @@
     "@tiptap/starter-kit": "^3",
     "docx": "^9.11.0",
     "lucide-react": "^0.468",
+    "markdown-it": "^15.0.3",
     "pdf-lib": "^1.17.1",
     "react": "^19",
     "react-dom": "^19"
@@ -32,9 +38,11 @@
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "@vitejs/plugin-react": "^5",
+    "jszip": "^3.10.2",
     "prettier": "^3.9.10",
     "typescript": "~5.9.3",
     "vite": "^7",
     "vitest": "^4.1.11"
-  }
+  },
+  "license": "GPL-3.0-only"
 }

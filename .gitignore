@@ -6,3 +6,16 @@ playwright-report/
 *.tsbuildinfo
 .DS_Store
 src-tauri/gen/
+
+# Local agent state and credentials; never part of the source release.
+.claude/
+.env
+.env.*
+!.env.example
+*.pem
+*.p12
+*.pfx
+
+# SQLite sidecars are runtime files; committed fixture databases remain tracked.
+*.sqlite3-shm
+*.sqlite3-wal

@@ -59,7 +59,7 @@
   justify-content: center;
   flex: 0 0 auto;
   width: 28px;
-  height: 28px;
+  height: 32px;
   margin: 0;
   padding: 0;
   border: 0;
@@ -67,6 +67,14 @@
   background: transparent;
   color: var(--text);
   font: inherit;
+}
+.writer .format-bar .toolbar-icon:focus-visible,
+.writer .format-bar .extract:focus-visible,
+.writer .format-bar .toolbar-text-button:focus-visible,
+.writer .format-bar .toolbar-presets button:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+  z-index: 1;
 }
 .writer .format-bar .toolbar-icon:hover:not(:disabled) {
   background: var(--surface);
@@ -217,6 +225,30 @@
   max-width: var(--page-width, 816px);
   margin: 16px auto;
   padding: 0 24px;
+}
+.footnote-overflow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 8px 12px;
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--line);
+  color: var(--text);
+  font-size: 12px;
+}
+.footnote-overflow button {
+  min-height: 32px;
+  padding: 4px 8px;
+  border: 1px solid var(--line);
+  border-radius: 0;
+  background: var(--paper);
+  color: var(--accent);
+  font: inherit;
+}
+.footnote-overflow button:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
 }
 .writer .toolbar-number {
   box-sizing: border-box;

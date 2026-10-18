@@ -1,0 +1,57 @@
+name: Pre-publication CI
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  checks:
+    name: Build, browser tests, and Rust tests
+    runs-on: macos-15
+    timeout-minutes: 45
+    steps:
+      - name: Check out source
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+
+      - name: Set up Node.js
+        uses: actions/setup-node@2028fbc5c25fe9cf00d9f06a71cc4710d4507903 # v6.0.0
+        with:
+          node-version: 22
+          package-manager-cache: false
+
+      - name: Install npm dependencies
+        run: npm ci
+
+      - name: Build frontend
+        run: npm run build
+
+      - name: Run unit tests
+        run: npm test
+
+      - name: Install Playwright Chromium
+        run: npx playwright install chromium
+
+      - name: Run browser tests
+        run: npm run test:e2e
+
+      - name: Run Rust tests
+        run: cargo test --locked --manifest-path src-tauri/Cargo.toml
+
+      - name: Upload browser failure artifacts
+        if: failure()
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        with:
+          name: browser-test-failures
+          path: |
+            test-results/
+            playwright-report/
+          if-no-files-found: ignore
+          retention-days: 7

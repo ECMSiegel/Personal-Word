@@ -146,9 +146,12 @@ export function recover(
  * from the last state known to be on disk. Projects are treated as immutable.
  */
 export class SaveQueue {
+  /** Healthy queues attempt a write within this interval from the first edit. */
+  static readonly MAX_WAIT_MS = 2_000;
   private pending: Project | null = null;
   private running: Promise<void> | null = null;
   private timer: ReturnType<typeof setTimeout> | undefined;
+  private maxWaitTimer: ReturnType<typeof setTimeout> | undefined;
   /** Last state written to the journal; per-keystroke diffs are against it. */
   private journaledState: Project | null = null;
   /** Last state confirmed on disk; save deltas are against it. Null means send everything. */
@@ -169,6 +172,7 @@ export class SaveQueue {
     return project;
   }
   enqueue(p: Project) {
+    let journalFailed = false;
     const previous =
       this.journaledState?.id === p.id ? this.journaledState : null;
     if (!previous) this.dirty = new Set();
@@ -189,6 +193,7 @@ export class SaveQueue {
       this.journal.setItem(journalKey(p.id), JSON.stringify(header));
       this.status({ state: "pending" });
     } catch {
+      journalFailed = true;
       this.status({
         state: "error",
         message:
@@ -199,9 +204,18 @@ export class SaveQueue {
     this.timer = setTimeout(() => {
       void this.flush().catch(() => {});
     }, 250);
+    if (!this.maxWaitTimer) {
+      this.maxWaitTimer = setTimeout(() => {
+        void this.flush().catch(() => {});
+      }, SaveQueue.MAX_WAIT_MS);
+    }
+    if (journalFailed) void this.flush().catch(() => {});
   }
   async flush(): Promise<void> {
     clearTimeout(this.timer);
+    clearTimeout(this.maxWaitTimer);
+    this.timer = undefined;
+    this.maxWaitTimer = undefined;
     if (this.running) {
       await this.running;
       if (this.pending) return this.flush();

@@ -55,16 +55,12 @@ import {
   FootnoteRows,
   type FootnoteNote,
 } from "./editor/FootnoteArea";
-import { assignPages, computeReserve } from "./editor/footnoteLayout";
+import { useFootnoteLayout } from "./editor/useFootnoteLayout";
 import { Dropdown, type DropdownOption } from "./components/Dropdown";
 import type { DocumentSettings } from "./research/types";
 import { type Entry } from "./model";
 
 type ToolbarPanel = "spacing" | "setup" | "more";
-type FootnotePlan = {
-  reserve: number;
-  pages: { page: number; ids: string[] }[];
-};
 type ToolbarGroup =
   | "history"
   | "zoom"
@@ -288,7 +284,6 @@ export function Writer({
   const footnotePaper = useRef<HTMLDivElement>(null);
   const footnoteMeasure = useRef<HTMLDivElement>(null);
   const [editingNote, setEditingNote] = useState<string | null>(null);
-  const [footnotePlan, setFootnotePlan] = useState<FootnotePlan | null>(null);
   const referencedIds: string[] = [];
   editor?.state.doc.descendants((node) => {
     const id =
@@ -301,6 +296,18 @@ export function Writer({
     return note ? [note] : [];
   });
   const notesKey = JSON.stringify(notes);
+  const { plan: footnotePlan, overlong: hasOverlongFootnote } =
+    useFootnoteLayout({
+      editor,
+      layout,
+      geometry,
+      documentSettings,
+      editingNote,
+      notes,
+      notesKey,
+      paperRef: footnotePaper,
+      measureRef: footnoteMeasure,
+    });
   const knownNotes = useRef<Set<string> | null>(null);
   const pendingNotes = useRef<string[]>([]);
   useEffect(() => {
@@ -333,103 +340,6 @@ export function Writer({
     if (editingNote && !notes.some((item) => item.id === editingNote))
       setEditingNote(null);
   }, [editingNote, notesKey]);
-  useEffect(() => {
-    if (!editor || layout.mode !== "pages") {
-      setFootnotePlan(null);
-      return;
-    }
-    const noteIds = new Set(notes.map((note) => note.id));
-    const columnGap = geometry.gap + 2 * geometry.margin;
-    let active = true;
-    let frame = 0;
-    // Each page reserves the same bottom space, sized for the tallest page.
-    // This is an approximation: a short page keeps an empty reserve. Reserving
-    // space reflows text, so references can move; retry a few times until the
-    // page assignment stops changing.
-    const plan = () => {
-      const paper = footnotePaper.current;
-      if (!active || !paper) return;
-      const surface = editor.view.dom;
-      const cap = geometry.contentHeight / 2;
-      let reserve = 0;
-      let result: FootnotePlan = { reserve: 0, pages: [] };
-      for (let attempt = 0; attempt < 3; attempt++) {
-        paper.style.setProperty("--footnote-reserve", `${reserve}px`);
-        const surfaceRect = surface.getBoundingClientRect();
-        const scale = surfaceRect.width / geometry.contentWidth || 1;
-        const ids: string[] = [];
-        const lefts: number[] = [];
-        surface
-          .querySelectorAll<HTMLElement>("[data-footnote-id]")
-          .forEach((el) => {
-            const id = el.dataset.footnoteId ?? "";
-            if (!noteIds.has(id) || ids.includes(id)) return;
-            ids.push(id);
-            lefts.push(el.getBoundingClientRect().left);
-          });
-        const columns = assignPages(
-          lefts,
-          surfaceRect.left,
-          geometry.contentWidth,
-          columnGap,
-          scale,
-        );
-        const byPage = new Map<number, string[]>();
-        ids.forEach((id, i) => {
-          byPage.set(columns[i], [...(byPage.get(columns[i]) ?? []), id]);
-        });
-        const pages = [...byPage]
-          .sort((a, b) => a[0] - b[0])
-          .map(([page, pageIds]) => ({ page, ids: pageIds }));
-        const heights = new Map<string, number>();
-        footnoteMeasure.current
-          ?.querySelectorAll<HTMLElement>("[data-note-id]")
-          .forEach((el) => {
-            heights.set(
-              el.dataset.noteId ?? "",
-              el.getBoundingClientRect().height / scale,
-            );
-          });
-        const next = computeReserve(
-          pages.map((group) =>
-            group.ids.reduce((sum, id) => sum + (heights.get(id) ?? 0), 0),
-          ),
-          cap,
-        );
-        result = { reserve, pages };
-        if (Math.abs(next - reserve) < 0.5) break;
-        reserve = next;
-      }
-      paper.style.setProperty("--footnote-reserve", `${result.reserve}px`);
-      setFootnotePlan((previous) =>
-        JSON.stringify(previous) === JSON.stringify(result) ? previous : result,
-      );
-    };
-    const run = () => {
-      cancelAnimationFrame(frame);
-      frame = requestAnimationFrame(plan);
-    };
-    const observer = new ResizeObserver(run);
-    observer.observe(editor.view.dom);
-    editor.on("update", run);
-    document.fonts.ready.then(run);
-    run();
-    return () => {
-      active = false;
-      observer.disconnect();
-      editor.off("update", run);
-      cancelAnimationFrame(frame);
-    };
-  }, [
-    editor,
-    layout.mode,
-    layout.paper,
-    layout.margin,
-    layout.zoom,
-    documentSettings,
-    editingNote,
-    notesKey,
-  ]);
   useEffect(() => {
     onEditorReady?.(editor);
     return () => onEditorReady?.(null);
@@ -1091,6 +1001,17 @@ export function Writer({
       </div>
       <div className="writer-scroll">
         {header && <div className="writer-slot">{header}</div>}
+        {layout.mode === "pages" && hasOverlongFootnote && (
+          <div className="footnote-overflow" role="status">
+            <span>A footnote is too long to fit on its page.</span>
+            <button
+              type="button"
+              onClick={() => setLayout({ mode: "continuous" })}
+            >
+              Switch to continuous view
+            </button>
+          </div>
+        )}
         <div
           onClick={(event) => {
             const target = (event.target as HTMLElement).closest<HTMLElement>(

@@ -24,6 +24,11 @@
 .dropdown-button[aria-expanded="true"] {
   background: var(--surface);
 }
+.dropdown-button:focus-visible,
+.dropdown-menu:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
 .dropdown-button svg {
   color: var(--muted);
 }
@@ -38,7 +43,9 @@
   left: 0;
   z-index: 40;
   min-width: max(100%, 150px);
-  max-height: 320px;
+  max-width: min(320px, calc(100vw - 16px));
+  max-height: min(320px, calc(100vh - 16px));
+  box-sizing: border-box;
   overflow: auto;
   padding: 4px 0;
   background: var(--paper);
@@ -51,13 +58,15 @@
     -apple-system,
     sans-serif;
   font-size: 12px;
+  overscroll-behavior: contain;
 }
 .dropdown-option {
   display: flex;
   align-items: center;
   gap: 6px;
   padding: 7px 14px 7px 8px;
-  white-space: nowrap;
+  white-space: normal;
+  overflow-wrap: anywhere;
   cursor: default;
   color: var(--text);
 }
@@ -78,4 +87,8 @@
 .dropdown-menu.is-flipped {
   left: auto;
   right: 0;
+}
+.dropdown-menu.is-flipped-up {
+  top: auto;
+  bottom: calc(100% + 2px);
 }

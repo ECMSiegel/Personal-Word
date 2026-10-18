@@ -13,6 +13,13 @@ const MIRROR_INTERVAL: std::time::Duration = std::time::Duration::from_secs(3);
 /// The store, plus a lock that keeps portable-copy passes in order.
 struct State(Mutex<Store>, Mutex<()>);
 struct ExitAllowed(AtomicBool);
+struct InstanceLock(std::fs::File);
+impl Drop for InstanceLock {
+    fn drop(&mut self) {
+        #[cfg(unix)]
+        unsafe { libc::flock(std::os::fd::AsRawFd::as_raw_fd(&self.0), libc::LOCK_UN); }
+    }
+}
 /// Runs a mirror pass and returns the first failure, so callers can block on it.
 fn sync_mirrors(state: &State, only: Option<&str>) -> Result<(), String> {
     store::sync_mirrors(&state.0, &state.1, only)
@@ -116,6 +123,22 @@ pub fn run() {
             let root = std::env::var("FOLIO_SMOKE_DIR")
                 .map(|dir| std::path::PathBuf::from(dir).join("projects"))
                 .unwrap_or(root);
+            std::fs::create_dir_all(&root)?;
+            let lock_path = root.join(".personal-word-instance.lock");
+            let lock = std::fs::OpenOptions::new()
+                .write(true)
+                .create(true)
+                .truncate(false)
+                .open(&lock_path)
+                ?;
+            #[cfg(unix)]
+            let lock_result = unsafe { libc::flock(std::os::fd::AsRawFd::as_raw_fd(&lock), libc::LOCK_EX | libc::LOCK_NB) };
+            #[cfg(not(unix))]
+            let lock_result = 0;
+            if lock_result != 0 {
+                return Err(std::io::Error::other("Another Personal Word process is already using this writing library. Close it before opening another copy." ).into());
+            }
+            app.manage(InstanceLock(lock));
             app.manage(State(
                 Mutex::new(Store::new(root).map_err(std::io::Error::other)?),
                 Mutex::new(()),
@@ -149,7 +172,8 @@ pub fn run() {
         export_bytes,
         delete_project,
         lookup::lookup_fetch,
-        smoke::smoke_report
+        smoke::smoke_report,
+        smoke::smoke_progress
     ]);
     #[cfg(not(feature = "native-smoke"))]
     let builder = builder.invoke_handler(tauri::generate_handler![
@@ -171,6 +195,7 @@ pub fn run() {
         .build(tauri::generate_context!())
         .expect("Could not launch Personal Word")
         .run(|app, event| {
+            let _instance_lock = &app.state::<InstanceLock>().0;
             if let tauri::RunEvent::ExitRequested { api, .. } = event {
                 if !app.state::<ExitAllowed>().0.load(Ordering::SeqCst) {
                     api.prevent_exit();
@@ -178,4 +203,21 @@ pub fn run() {
                 }
             }
         });
+}
+
+#[cfg(all(test, unix))]
+mod instance_lock_tests {
+    use std::os::fd::AsRawFd;
+
+    #[test]
+    fn advisory_lock_rejects_a_second_handle_and_releases_on_drop() {
+        let temp = tempfile::tempdir().unwrap();
+        let path = temp.path().join(".personal-word-instance.lock");
+        let first = std::fs::OpenOptions::new().write(true).create(true).truncate(false).open(&path).unwrap();
+        assert_eq!(unsafe { libc::flock(first.as_raw_fd(), libc::LOCK_EX | libc::LOCK_NB) }, 0);
+        let second = std::fs::OpenOptions::new().write(true).create(true).truncate(false).open(&path).unwrap();
+        assert_ne!(unsafe { libc::flock(second.as_raw_fd(), libc::LOCK_EX | libc::LOCK_NB) }, 0);
+        drop(first);
+        assert_eq!(unsafe { libc::flock(second.as_raw_fd(), libc::LOCK_EX | libc::LOCK_NB) }, 0);
+    }
 }
