@@ -12,7 +12,7 @@ Plan: PLAN.md | Base: f324a7a | Integrator: Codex | Started: 2026-10-19
 | T5 | DONE (browser) | Fail/restore proof,3focused and49fullbrowser pass; native confirmation pendingT6 |
 | T6 | DONE | Final full gates/native recovery/normal bundle/clean-source pass; manual sidebar gap explicitly accepted |
 | T7 | DONE | APPROVE for localT8;4lookup/13browser independent reruns and finalscope/doc review complete |
-| T8 | RUNNING | T7 APPROVE received; backup, explicitstaging, sanitation and finalaudit/tag next |
+| T8 | DONE | Reviewedcommit and scoped history sanitation; final docs/tag transaction checked against frozen source |
 
 ## T0 -- baseline preservation
 - Owner approved execution in chat; plan status recorded APPROVED.
@@ -96,3 +96,12 @@ Independent Luna C verdict APPROVE -- proceed with T8 localdeliveryonly. No acti
 
 ## T8 staged check
 Private pre-finalization bundle created and verified before staging. Staged-check first caught5Markdown hardbreak trailing-space lines in the previously untracked APP_SECURITY report; B removed whitespace only, root compared exact stripped bytes. No source/test/wording changes or commit yet. Staged source/evidence diff inspected; index source hashes must match115file frozenmanifest beforecommit.
+
+## T8 delivery and privacy audit
+- Reviewed15file source/test/evidence commit created as b162a02. Two fresh private bundles were created and verified before staging/history mutation; they preserve the previous main/tag and the reviewed commit. Backups are inside private .git/source-alpha-backups/, not tracked or intended for publication. The previous annotated tag object7f5a758d17c94b46028486d657c1735c0016f021 remains recoverable.
+- Main-only sanitation rewrote exactly2eligible documentation blob prefixes, preserving every other byte in those blobs and all other file content. It preserved all12commit identities/dates/messages/topology, current-tree identity and unrelated refs. No reset, checkout, ref deletion or garbage collection occurred. No authorship rewrite was repeated.
+- Post-sanitation checkpoint:341main blobs/320UTF8,0home-prefix matches; redacted Gitleaks scanned12commits and found0credentials. The known-positive2match pre-scan and synthetic Gitleaks detection demonstrate the gates can fail. Exact mapping and redacted local logs remain in the ignored cache.
+- The final documentation-only evidence commit records completion and the local annotated v0.1.0-alpha.1 tag targets final HEAD. The final transaction checks tag/HEAD equality, approved new identities, all115tested source hashes in both committed/current trees, clean status,166tracked paths, ignored/untracked HANDOFF, no remote, unchanged unrelated refs, and a fresh main/tag privacy audit. Exact final object IDs and private backup locations are recorded in local HANDOFF after the transaction. No push/hosted release/binary distribution.
+- Native-sidebar real-use behavior remains unverified under the owner's explicit source-alpha acceptance. REL01/02/03, font-inventory wording erratum, opt-in private/local HTTP(S), uncapped recovery JSON, hosted CI and binary/Word/VoiceOver limits remain documented; none is silently promoted to a test pass.
+
+Independent Luna C also compared all12old/new rawcommit objects and parent mappings, exact2blob substitutions, currenttreeidentity,115sourcehashes and pre-sanitation bundle SHA/verification; allpassed. Redacted local note t8-independent-review.json. Final deliverycheck below remains scoped to the planned documentation commit/tag transaction, with no new sourcechanges.

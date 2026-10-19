@@ -7,7 +7,7 @@ Updated October 19, 2026. Scope: local source alpha, application version `0.1.0`
 - GPL-3.0-only source licensing and matching npm/Cargo metadata; npm package remains private. README, synthetic screenshots, contribution/security guidance, issue forms, roadmap and dependency license inventory are included.
 - GitHub Actions macOS build/unit/browser/Rust workflow exists with read-only permissions and pinned actions. Hosted execution is still untested.
 - Public `AGENTS.md` and `docs/agent-work/` are retained. `HANDOFF.md` stays local, untracked and ignored. Existing noreply identities remain in force.
-- Security/reliability reports, fail-first regressions and qualification are recorded in the [follow-up evidence](agent-work/2026-10-19-alpha-security-reliability/IMPLEMENTATION_LOG.md). Local commit/tag finalization and the authorized two-string historical sanitation are pending T8; inspect that log for actual final delivery state.
+- Security/reliability reports, fail-first regressions and qualification are recorded in the [follow-up evidence](agent-work/2026-10-19-alpha-security-reliability/IMPLEMENTATION_LOG.md). Reviewed source/evidence is committed locally; the two authorized historical strings were sanitized with verified private backups. The annotated local `v0.1.0-alpha.1` targets the final evidence HEAD; final identity/source/privacy checks are recorded in that log and the local handoff.
 
 ## Current qualification
 
@@ -21,7 +21,7 @@ The owner explicitly accepted the pending manual native-sidebar check for this s
 
 ## Security and reliability boundaries
 
-- Bounded main-history/privacy review covered 326 unique baseline blobs (305 UTF-8), synthetic fixture context and all 6 main-history screenshot versions. The initial four-path estimate was discarded; two independent checks confirmed exactly 2 old documentation home-prefix strings. Only these 2 are authorized for backup-backed sanitation. Current and candidate redacted Gitleaks scans found 0 credentials; the scanner detected a synthetic credential fixture first. No scanner result proves the absence of every secret or vulnerability. Internal backup refs remain local and outside the intended public main/tag scope.
+- Bounded main-history/privacy review covered 326 unique baseline blobs (305 UTF-8), synthetic fixture context and all 6 main-history screenshot versions. The initial four-path estimate was discarded; two independent checks confirmed exactly 2 old documentation home-prefix strings. Those 2 were replaced through backup-backed main-only sanitation, preserving all code, chronology and identities. The post-sanitation checkpoint covered 341 blobs/320 UTF-8 with 0 home-prefix matches and 0 Gitleaks findings; final main/tag equality and audit are checked after the final evidence commit. Current and candidate redacted Gitleaks scans found 0 credentials; the scanner detected a synthetic credential fixture first. No scanner result proves the absence of every secret or vulnerability. Internal backup refs remain local and outside the intended public main/tag scope.
 - npm audit returned 0 advisories across 254 lockfile entries. RustSec returned 0 vulnerability entries and retained glib/proc-macro-error warnings (RUSTSEC-2024-0429 and RUSTSEC-2024-0370). Neither package appears in the resolved x86_64 or aarch64 Apple Darwin inverse tree. Reassess the all-platform warnings if platform support changes; no blanket suppression or dependency upgrade was applied.
 - Citation lookup is explicitly initiated by the writer and retains HTTP(S), private/local destinations and redirects. The owner accepted this scope for source alpha; it is not a public-destination-only network policy. Use only destinations you intend the app to contact.
 - Recovery-project JSON retains compatibility without a new size cap. Unusually large files can consume substantial memory or block the interface; no large-file failure was reproduced. The owner accepted that resource risk for alpha.
@@ -38,7 +38,7 @@ Owner-reported Terminal run on October 19: `npm run test:e2e -- --workers=1` pas
 ## Before any public push
 
 1. Owner supplies an empty repository URL and explicitly authorizes adding a remote and pushing main plus the alpha tag. This session stops locally; do not publish internal backup refs.
-2. Inspect the final local delivery/audit record and annotated tag after T8 sanitation. A backup or ignored path is not itself a privacy scrub.
+2. Inspect the final local delivery/audit record and annotated tag. A backup or ignored path is not itself a privacy scrub.
 3. Enable the host's private vulnerability-reporting route and verify the conditional instructions in `SECURITY.md`.
 4. Observe the first hosted CI run and resolve host-specific failures; set repository description/topics.
 
