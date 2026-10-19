@@ -40,9 +40,19 @@ All application changes remain CLAIMED until the owner confirms them in real use
 - Targeted deadline browser regression: passed after the original defect was reproduced.
 - `npm run tauri build`: passed; its before-build frontend command rebuilt final source in 51.20 seconds; native optimized build finished in 4m37s. Fresh Personal Word.app is 15.25 MiB; see BUILD_EVIDENCE.json for identity and freshness checks.
 - Independent Luna review: no remaining reviewed code findings, 50 focused tests passed. The integrator additionally reviewed the exporter and repaired its missing no-space quote case.
-- Full `npm run test:e2e -- --workers=1`: BLOCKED before execution by two automatic-review timeouts and a model-capacity rejection after explicit owner-approved retry. Sandboxed fallback failed localhost listen EPERM before tests. The full suite has NOT passed in this pass; no product failure inferred.
+- Owner-reported Terminal run on October 19: `npm run test:e2e -- --workers=1` passed all 46 Chromium scenarios in 1.7 minutes. The owner supplied the complete passing output in chat. This closes the blocked browser gate; the integrating agent did not independently rerun it. Browser storage does not establish native WebKit or SQLite behavior.
 - `git diff --check` and current-tree personal-path scan: passed. README's 13 local links/images resolve. Native GUI/persistence, Word/LibreOffice rendering, hosted CI, and public-history content review remain open.
 
 ## Local delivery procedure
 
 Owner authorized a local commit, branch-history email rewrite and v0.1.0-alpha.1 tag, with no remote/push. The local noreply configuration is applied and the pre-rewrite backup bundle verified. Git finalization is performed after this source record is written; the ignored HANDOFF.md records the actual result. Only publishable branch/tag histories are rewritten; internal app refs and historical file contents are retained locally and are not a privacy-scrub claim.
+
+
+## Owner browser qualification follow-up
+
+All 46 scenarios passed in the owner’s Terminal run (1.7 minutes), including the deadline regression, accessibility undo test, save/recovery, citations, import and writing aids. Only documentation changed after the tested source commit `f324a7a`. A local backup of the previous alpha tag is preserved before updating the tag to this evidence commit. No remote or push is authorized. Native real-use and export-rendering checks remain open.
+
+
+## Dated follow-up -- October 19, 2026 security/reliability pass
+
+This historical source-alpha record and the owner's 46/46browser output remain point-in-time evidence. A later approved pass repairs native raw-argument Unicode prefix handling and accidental sidebar chrome selection, with fresh 163 unit/49 browser/19 Rust passes (1existing ignored benchmark), a 3-phase isolated native recovery pass, normal release rebuild, and clean-source Node 22 npm ci/build/unit rehearsal. The owner explicitly accepts the pending manual native-sidebar check for this source-only alpha; it remains unverified. See [the current log](../2026-10-19-alpha-security-reliability/IMPLEMENTATION_LOG.md) and [independent review](../2026-10-19-alpha-security-reliability/REVIEW.md) for current scope, findings, audit and local commit/tag delivery state. No push or binary distribution is authorized.

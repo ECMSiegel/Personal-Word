@@ -87,6 +87,7 @@ export function ProjectSidebar(props: Props) {
   const [revealed, setRevealed] = useState(false);
   const [focusKey, setFocusKey] = useState(0);
   const pinnedRef = useRef(prefs.pinned);
+  const previewDragRestorers = useRef(new Set<() => void>());
   pinnedRef.current = prefs.pinned;
   const reveal = (focus = false) => {
     setRevealed(true);
@@ -98,6 +99,12 @@ export function ProjectSidebar(props: Props) {
         ?.querySelector<HTMLElement>(".sidebar-brand button")
         ?.focus();
   }, [focusKey]);
+  useEffect(
+    () => () => {
+      for (const restore of previewDragRestorers.current) restore();
+    },
+    [],
+  );
   useEffect(() => {
     const toggle = () => {
       setPrefs((p) => ({ ...p, pinned: !p.pinned }));
@@ -371,6 +378,55 @@ export function ProjectSidebar(props: Props) {
                   className="entry-main"
                   onClick={() => onSelect(e.id)}
                   onDoubleClick={() => onRename(e)}
+                  onPointerDownCapture={(event) => {
+                    const target = event.target;
+                    if (
+                      !(target instanceof Element) ||
+                      !target.closest(".entry-preview")
+                    ) {
+                      return;
+                    }
+                    const candidateRow =
+                      event.currentTarget.closest<HTMLElement>(".entry-row");
+                    if (!candidateRow || !candidateRow.draggable) return;
+                    const row: HTMLElement = candidateRow;
+
+                    // Let the browser select preview prose instead of starting
+                    // the parent row's native drag gesture.
+                    const wasDraggable = row.draggable;
+                    row.draggable = false;
+                    let restored = false;
+                    function restoreRowDrag() {
+                      if (restored) return;
+                      restored = true;
+                      row.draggable = wasDraggable;
+                      previewDragRestorers.current.delete(restoreRowDrag);
+                      document.removeEventListener("pointerup", restoreRowDrag);
+                      document.removeEventListener(
+                        "pointercancel",
+                        restoreRowDrag,
+                      );
+                      document.removeEventListener(
+                        "visibilitychange",
+                        restoreWhenHidden,
+                      );
+                      window.removeEventListener("blur", restoreRowDrag);
+                    }
+                    function restoreWhenHidden() {
+                      if (document.hidden) restoreRowDrag();
+                    }
+                    previewDragRestorers.current.add(restoreRowDrag);
+                    document.addEventListener("pointerup", restoreRowDrag);
+                    document.addEventListener(
+                      "pointercancel",
+                      restoreRowDrag,
+                    );
+                    document.addEventListener(
+                      "visibilitychange",
+                      restoreWhenHidden,
+                    );
+                    window.addEventListener("blur", restoreRowDrag);
+                  }}
                 >
                   <FileText size={14} />
                   <span>{e.title}</span>

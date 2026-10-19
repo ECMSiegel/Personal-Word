@@ -138,6 +138,19 @@ p {
   display: flex;
   flex-direction: column;
   padding: 25px 14px 0;
+  -webkit-user-select: none;
+  user-select: none;
+}
+.sidebar input,
+.sidebar textarea,
+.sidebar [contenteditable="true"],
+.sidebar [contenteditable="true"] *,
+.sidebar [contenteditable="plaintext-only"],
+.sidebar [contenteditable="plaintext-only"] *,
+.sidebar .entry-preview,
+.sidebar .entry-preview * {
+  -webkit-user-select: text;
+  user-select: text;
 }
 .brand {
   display: flex;

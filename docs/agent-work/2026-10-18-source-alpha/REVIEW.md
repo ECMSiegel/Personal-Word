@@ -32,3 +32,13 @@ The focused tests exercise the changed model, citation, and text-export behavior
 ## Integrating qualification addendum
 
 After the independent source review, the integrator inspected the complete command logs: full unit163 passed, Rust17 passed/1ignored, final Tauri rebuild passed and fresh bundle metadata checked (BUILD_EVIDENCE.json). The full browser gate remains BLOCKED before execution by automatic-review timeout/capacity errors; the sandbox cannot bind localhost. This limits qualification without implying a product-test failure. The passing targeted deadline browser case and historical baseline browser run do not substitute for the full final suite. Owner/native and public-history gates remain open.
+
+
+## Owner-reported browser qualification follow-up -- October 19
+
+Owner-reported Terminal run on October 19: `npm run test:e2e -- --workers=1` passed all 46 Chromium scenarios in 1.7 minutes. The owner supplied the complete passing output in chat. This closes the blocked browser gate; the integrating agent did not independently rerun it. Browser storage does not establish native WebKit or SQLite behavior. The earlier review and blocked-run notes above describe their point in time and are superseded for browser qualification by this owner report. Local noreply history rewriting and the initial alpha tag were completed at `f324a7a`; this documentation-only follow-up records the browser result. Native owner checks, historical-content privacy review and hosted CI remain open.
+
+
+## Dated follow-up -- October 19, 2026 security/reliability pass
+
+This historical source-alpha record and the owner's 46/46browser output remain point-in-time evidence. A later approved pass repairs native raw-argument Unicode prefix handling and accidental sidebar chrome selection, with fresh 163 unit/49 browser/19 Rust passes (1existing ignored benchmark), a 3-phase isolated native recovery pass, normal release rebuild, and clean-source Node 22 npm ci/build/unit rehearsal. The owner explicitly accepts the pending manual native-sidebar check for this source-only alpha; it remains unverified. See [the current log](../2026-10-19-alpha-security-reliability/IMPLEMENTATION_LOG.md) and [independent review](../2026-10-19-alpha-security-reliability/REVIEW.md) for current scope, findings, audit and local commit/tag delivery state. No push or binary distribution is authorized.

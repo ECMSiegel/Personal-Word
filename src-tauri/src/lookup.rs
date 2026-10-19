@@ -11,9 +11,15 @@ const USER_AGENT: &str = "PersonalWord/0.1 (citation lookup)";
 const ACCEPT: &str = "text/html,application/xhtml+xml,application/json;q=0.9,*/*;q=0.5";
 
 fn check_url(url: &str) -> Result<(), String> {
-    let rest = if url.len() >= 8 && url[..8].eq_ignore_ascii_case("https://") {
+    let rest = if url
+        .get(..8)
+        .is_some_and(|prefix| prefix.eq_ignore_ascii_case("https://"))
+    {
         &url[8..]
-    } else if url.len() >= 7 && url[..7].eq_ignore_ascii_case("http://") {
+    } else if url
+        .get(..7)
+        .is_some_and(|prefix| prefix.eq_ignore_ascii_case("http://"))
+    {
         &url[7..]
     } else {
         return Err("Only http and https addresses can be looked up".into());
@@ -80,5 +86,17 @@ mod tests {
     fn accepts_http_and_https() {
         assert!(check_url("https://api.crossref.org/works/10.1/x").is_ok());
         assert!(check_url("HTTP://example.com/page").is_ok());
+    }
+
+    #[test]
+    fn rejects_malformed_unicode_after_partial_http_schemes_without_panicking() {
+        for url in ["https:/é", "http:/é"] {
+            assert!(check_url(url).is_err(), "{url} should be rejected");
+        }
+    }
+
+    #[test]
+    fn accepts_mixed_case_https_with_unicode_host_and_path() {
+        assert!(check_url("HtTpS://例え.テスト/章/é").is_ok());
     }
 }
