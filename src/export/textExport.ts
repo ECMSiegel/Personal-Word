@@ -4,7 +4,17 @@ import { footnoteIdsInOrder, resolveNoteForms } from "../research/noteForms";
 import { emptyResearch } from "../research/types";
 import type { ExportProject } from "./document";
 
-const escapeMarkdown = (value: string) => value.replace(/[\\*_\[\]#`]/g, "\\$&");
+const escapeMarkdown = (value: string) => value
+  .replace(/[\\*_\[\]#`]/g, "\\$&")
+  .replace(/(^|\n)([ \t]*)(>)/g, (_match, lineStart: string, indentation: string, marker: string) => `${lineStart}${indentation}\\${marker}`)
+  .replace(/(^|\n)([ \t]*)([-+]|[0-9]+\.)([ \t])/g, (_match, lineStart: string, indentation: string, marker: string, spacing: string) => {
+    const escapedMarker = /^\d/.test(marker) ? marker.replace(/\.$/, "\\.") : `\\${marker}`;
+    return `${lineStart}${indentation}${escapedMarker}${spacing}`;
+  });
+
+function researchLocator(locator: string): string {
+  return /^(?:p|pp|ch)\.\s/i.test(locator.trim()) ? locator : `p. ${locator}`;
+}
 
 function codeSpan(value: string): string {
   const longest = Math.max(0, ...[...value.matchAll(/`+/g)].map((m) => m[0].length));
@@ -53,7 +63,7 @@ function inlineMarkdown(node: JSONContent, numbers: Map<string, number>, researc
   return (node.content ?? []).map((n) => inlineMarkdown(n, numbers, research)).join("");
 }
 
-function markdownBlocks(node: JSONContent, numbers: Map<string, number>, research: ExportProject["research"], depth = 0): string[] {
+function markdownBlocks(node: JSONContent, numbers: Map<string, number>, research: ExportProject["research"], indentation = ""): string[] {
   const children = node.content ?? [];
   switch (node.type) {
     case "paragraph":
@@ -65,22 +75,23 @@ function markdownBlocks(node: JSONContent, numbers: Map<string, number>, researc
     case "codeBlock":
       return [codeBlock(children.map((n) => n.text ?? "").join(""))];
     case "blockquote":
-      return children.flatMap((n) => markdownBlocks(n, numbers, research, depth)).map((line) => line.split("\n").map((part) => `> ${part}`).join("\n"));
+      return children.flatMap((n) => markdownBlocks(n, numbers, research, indentation)).map((line) => line.split("\n").map((part) => `> ${part}`).join("\n"));
     case "bulletList":
     case "orderedList": {
       const ordered = node.type === "orderedList";
       const start = Number(node.attrs?.start ?? 1);
       return children.flatMap((item, index) => {
         const itemChildren = item.content ?? [];
-        const prefix = `${"  ".repeat(depth)}${ordered ? `${start + index}.` : "-"} `;
+        const marker = ordered ? `${start + index}. ` : "- ";
+        const prefix = indentation + marker;
         const result: string[] = [];
         let hasMarker = false;
         for (const child of itemChildren) {
           if (child.type === "paragraph") {
             const paragraph = inlineMarkdown(child, numbers, research);
-            result.push(hasMarker ? `${"  ".repeat(depth + 1)}${paragraph}` : prefix + paragraph);
+            result.push(hasMarker ? `${indentation}${" ".repeat(marker.length)}${paragraph}` : prefix + paragraph);
             hasMarker = true;
-          } else result.push(...markdownBlocks(child, numbers, research, depth + 1));
+          } else result.push(...markdownBlocks(child, numbers, research, indentation + " ".repeat(marker.length)));
         }
         return result.length ? result : [prefix.trimEnd()];
       });
@@ -90,7 +101,7 @@ function markdownBlocks(node: JSONContent, numbers: Map<string, number>, researc
     case "horizontalRule":
       return ["---"];
     default:
-      return children.flatMap((n) => markdownBlocks(n, numbers, research, depth));
+      return children.flatMap((n) => markdownBlocks(n, numbers, research, indentation));
   }
 }
 
@@ -134,7 +145,7 @@ export function projectMarkdown(project: ExportProject): string {
   if (fragments.length) sections.push("## Fragments", ...fragments.flatMap((e) => [`### ${escapeMarkdown(e.title)}`, ...markdownBlocks(e.content, numbers, research)]));
   if (research.notes.length) sections.push("## Research notes", ...research.notes.flatMap((note) => {
     const source = research.sources.find((s) => s.id === note.sourceId);
-    const locator = note.locator ? `${source ? ", " : ""}p. ${note.locator}` : "";
+    const locator = note.locator ? `${source ? ", " : ""}${researchLocator(note.locator)}` : "";
     const attribution = source || locator ? `\n\n— ${source ? escapeMarkdown(source.title) : ""}${escapeMarkdown(locator)}` : "";
     return [note.kind === "quote" ? `> ${escapeMarkdown(note.text).replace(/\n/g, "\n> ")}${attribution}` : `${escapeMarkdown(note.text)}${attribution}`];
   }));
@@ -150,7 +161,7 @@ function plainInline(node: JSONContent, numbers: Map<string, number>, research: 
   return (node.content ?? []).map((n) => plainInline(n, numbers, research)).join("");
 }
 
-function plainBlocks(node: JSONContent, numbers: Map<string, number>, research: ExportProject["research"], depth = 0): string[] {
+function plainBlocks(node: JSONContent, numbers: Map<string, number>, research: ExportProject["research"], indentation = ""): string[] {
   if (node.type === "paragraph" || node.type === "heading" || node.type === "codeBlock") return [plainInline(node, numbers, research)];
   if (node.type === "pageBreak") return ["[Page break]"];
   if (node.type === "horizontalRule") return ["[Horizontal rule]"];
@@ -158,21 +169,22 @@ function plainBlocks(node: JSONContent, numbers: Map<string, number>, research: 
     const start = Number(node.attrs?.start ?? 1);
     return (node.content ?? []).flatMap((item, i) => {
       const content = item.content ?? [];
-      const prefix = `${"  ".repeat(depth)}${node.type === "orderedList" ? `${start + i}.` : "-"} `;
+      const marker = node.type === "orderedList" ? `${start + i}. ` : "- ";
+      const prefix = indentation + marker;
       const lines: string[] = [];
       let hasMarker = false;
       for (const child of content) {
         if (child.type === "paragraph") {
           const paragraph = plainInline(child, numbers, research);
-          lines.push(hasMarker ? `${"  ".repeat(depth + 1)}${paragraph}` : prefix + paragraph);
+          lines.push(hasMarker ? `${indentation}${" ".repeat(marker.length)}${paragraph}` : prefix + paragraph);
           hasMarker = true;
-        } else lines.push(...plainBlocks(child, numbers, research, depth + 1));
+        } else lines.push(...plainBlocks(child, numbers, research, indentation + " ".repeat(marker.length)));
       }
       return lines.length ? lines : [prefix.trimEnd()];
     });
   }
-  if (node.type === "blockquote") return (node.content ?? []).flatMap((n) => plainBlocks(n, numbers, research, depth));
-  return (node.content ?? []).flatMap((n) => plainBlocks(n, numbers, research, depth));
+  if (node.type === "blockquote") return (node.content ?? []).flatMap((n) => plainBlocks(n, numbers, research, indentation));
+  return (node.content ?? []).flatMap((n) => plainBlocks(n, numbers, research, indentation));
 }
 
 export function projectPlainText(project: ExportProject): string {
@@ -192,7 +204,7 @@ export function projectPlainText(project: ExportProject): string {
   if (fragments.length) sections.push("Fragments", "---------", ...fragments.flatMap((e) => [e.title, ...plainBlocks(e.content, numbers, research)]));
   if (research.notes.length) sections.push("Research notes", "--------------", ...research.notes.map((note) => {
     const source = research.sources.find((s) => s.id === note.sourceId);
-    const locator = note.locator ? `${source ? ", " : ""}p. ${note.locator}` : "";
+    const locator = note.locator ? `${source ? ", " : ""}${researchLocator(note.locator)}` : "";
     return `${note.text}${source || locator ? `\n— ${source?.title ?? ""}${locator}` : ""}`;
   }));
   return sections.join("\n\n").trimEnd() + "\n";

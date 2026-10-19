@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import {
   entry,
+  isValidGoalDeadline,
   newProject,
   now,
   textOf,
@@ -1149,6 +1150,10 @@ export default function App() {
     goalBaseline?.projectId === project.id && goalBaseline.date === goalDay
       ? goalBaseline.words : manuscriptWords(project)) : {};
   const patchGoal = (key: "totalWords" | "dailyWords" | "deadline", value: string) => {
+    if (key === "deadline" && value && !isValidGoalDeadline(value)) {
+      setError("Enter a valid deadline date.");
+      return;
+    }
     if (key !== "deadline" && value && (!Number.isSafeInteger(Number(value)) || Number(value) <= 0)) {
       setError("Writing goals must be positive whole numbers.");
       return;

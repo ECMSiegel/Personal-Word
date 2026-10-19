@@ -114,13 +114,58 @@ describe("whole-project text exports", () => {
     const output = projectMarkdown(p);
     const plain = projectPlainText(p);
     expect(output).toContain("**bold** *italic* ~~struck~~ `code` ```` dangerous ``` ```` [link](https://example.com)");
-    expect(output).toMatch(/4\. item\n\n  second paragraph\n\n  - nested/);
+    expect(output).toMatch(/4\. item\n\n   second paragraph\n\n   - nested/);
     expect(output).toContain("second paragraph");
     expect(plain).toContain("second paragraph");
     expect(output).toContain("> quoted");
     expect(output).toContain("````\nliteral *code* ```\n````");
     expect(output).toContain("```` dangerous ``` ````");
     expect(output).toContain("---");
+  });
+
+  it("indents nested Markdown lists by the parent marker width", () => {
+    const p = fixture();
+    p.entries[0].content = {
+      type: "doc",
+      content: [
+        {
+          type: "orderedList", attrs: { start: 10 }, content: [{
+            type: "listItem", content: [
+              { type: "paragraph", content: [{ type: "text", text: "parent" }] },
+              { type: "bulletList", content: [{ type: "listItem", content: [{ type: "paragraph", content: [{ type: "text", text: "child" }] }] }] },
+            ],
+          }],
+        },
+        {
+          type: "orderedList", attrs: { start: 1 }, content: [{
+            type: "listItem", content: [
+              { type: "paragraph", content: [{ type: "text", text: "first" }] },
+              { type: "bulletList", content: [{ type: "listItem", content: [{ type: "paragraph", content: [{ type: "text", text: "nested first" }] }] }] },
+            ],
+          }],
+        },
+      ],
+    };
+
+    expect(projectMarkdown(p)).toContain("10. parent\n\n    - child");
+    expect(projectMarkdown(p)).toContain("1. first\n\n   - nested first");
+  });
+
+  it("escapes literal line-leading Markdown list and quote markers in prose", () => {
+    const p = fixture();
+    p.entries[0].content = {
+      type: "doc",
+      content: [{ type: "paragraph", content: [{ type: "text", text: "- literal bullet\n+ literal plus\n> literal quote\n>literal quote without a space\n>\n12. literal number" }] }],
+    };
+
+    const output = projectMarkdown(p);
+    expect(output).toContain("\\- literal bullet\n\\+ literal plus\n\\> literal quote\n\\>literal quote without a space\n\\>\n12\\. literal number");
+    const imported = parseManuscript(output, "literal-markers.md");
+    const nodeTypes = (node: { type?: string; content?: Array<{ type?: string; content?: unknown[] }> }): string[] => [
+      ...(node.type ? [node.type] : []),
+      ...(node.content ?? []).flatMap((child) => nodeTypes(child as { type?: string; content?: Array<{ type?: string; content?: unknown[] }> })),
+    ];
+    expect(nodeTypes(imported.entries[0].content)).not.toEqual(expect.arrayContaining(["bulletList", "orderedList", "blockquote"]));
   });
 
   it("plain text has no Markdown syntax", () => {
@@ -163,5 +208,21 @@ describe("whole-project text exports", () => {
     p.research!.notes = [{ id: "orphan-quote", kind: "quote", text: "Quoted words", locator: "23" }];
     expect(projectMarkdown(p)).toContain("> Quoted words\n\n— p. 23");
     expect(projectPlainText(p)).toContain("Quoted words\n— p. 23");
+  });
+
+  it("does not add a page prefix to already prefixed research locators", () => {
+    const p = fixture();
+    p.research!.notes = [
+      { id: "page", kind: "quote", text: "Page", sourceId: "source", locator: "p. 12" },
+      { id: "pages", kind: "quote", text: "Pages", sourceId: "source", locator: "pp. 12–14" },
+      { id: "chapter", kind: "quote", text: "Chapter", sourceId: "source", locator: "ch. 3" },
+    ];
+
+    for (const output of [projectMarkdown(p), projectPlainText(p)]) {
+      expect(output).toContain("— A Useful Book, p. 12");
+      expect(output).toContain("— A Useful Book, pp. 12–14");
+      expect(output).toContain("— A Useful Book, ch. 3");
+      expect(output).not.toMatch(/(?:p\. p\.|p\. ch\.)/);
+    }
   });
 });

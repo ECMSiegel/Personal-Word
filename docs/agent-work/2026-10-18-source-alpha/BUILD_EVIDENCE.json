@@ -1,0 +1,12 @@
+{
+  "bundle": "src-tauri/target/release/bundle/macos/Personal Word.app",
+  "identifier": "com.folio.writing",
+  "name": "Personal Word",
+  "version": "0.1.0",
+  "executableModifiedAt": "2026-10-19T00:11:34.135768-04:00",
+  "newerThanAllSourceFiles": true,
+  "sourceFilesCompared": 77,
+  "smokeDiagnosticSymbolPresent": false,
+  "bundleMiB": 15.25,
+  "qualificationBoundary": "Fresh unsigned local build; no native GUI or persistence qualification in this pass."
+}

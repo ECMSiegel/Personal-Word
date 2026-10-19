@@ -82,6 +82,13 @@ export function newProject(title: string): Project {
     research: emptyResearch(),
   };
 }
+export function isValidGoalDeadline(value: unknown): value is string {
+  if (typeof value !== "string") return false;
+  const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value);
+  if (!match) return false;
+  const timestamp = Date.parse(value + "T00:00:00Z");
+  return Number.isFinite(timestamp) && new Date(timestamp).toISOString().slice(0, 10) === value;
+}
 export const words = (text: string) =>
   text.trim() ? text.trim().split(/\s+/u).length : 0;
 // Entries are immutable, so unchanged entries keep their count between keystrokes.
@@ -131,10 +138,7 @@ export function validateProject(value: unknown): asserts value is Project {
       if (value !== undefined && (!Number.isSafeInteger(value) || value <= 0))
         throw new Error("Invalid writing goals");
     if (goals.deadline !== undefined) {
-      const value = goals.deadline;
-      const timestamp = typeof value === "string" && /^\d{4}-\d{2}-\d{2}$/.test(value)
-        ? Date.parse(value + "T00:00:00Z") : NaN;
-      if (!Number.isFinite(timestamp) || new Date(timestamp).toISOString().slice(0, 10) !== value)
+      if (!isValidGoalDeadline(goals.deadline))
         throw new Error("Invalid writing goals");
     }
   }

@@ -2,7 +2,7 @@
 
 Reviewer: OpenCode (DeepSeek V4.1 Flash) — independent sub-agent, read-only | Range: `d8aa72c` (`Complete writing workflow qualification and prepare source release`) .. working tree, uncommitted | Date: 2026-10-18
 
-Artifacts read: `docs/agent-work/2026-10-18-writer-features/PLAN.md` (519 lines), `IMPLEMENTATION_LOG.md` (whole file, incl. "Resume pass"), `HANDOFF.md`, `<home>/Local Projects/VC Projects/AGENTS.md`, project `AGENTS.md`, and the real diff (`git status --porcelain=v1`, `git diff d8aa72c --stat`, per-file diffs, plus every untracked new file read directly).
+Artifacts read: `docs/agent-work/2026-10-18-writer-features/PLAN.md` (519 lines), `IMPLEMENTATION_LOG.md` (whole file, incl. "Resume pass"), `HANDOFF.md`, `the workspace AGENTS.md`, project `AGENTS.md`, and the real diff (`git status --porcelain=v1`, `git diff d8aa72c --stat`, per-file diffs, plus every untracked new file read directly).
 
 ## Verdict: APPROVE (ready to commit locally; D1 and R1 should go straight into `review-repair`)
 

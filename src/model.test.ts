@@ -1,5 +1,5 @@
 import { expect, it } from "vitest";
-import { textOf, newProject, validateProject } from "./model";
+import { textOf, newProject, validateProject, isValidGoalDeadline } from "./model";
 it("preserves paragraph boundaries in quoted and list fragment exports", () => {
   const paragraph = (text: string) => ({
     type: "paragraph",
@@ -57,10 +57,24 @@ it.each([
   null, [], "goal", { totalWords: 0 }, { dailyWords: -1 },
   { totalWords: 2.5 }, { dailyWords: "10" },
   { deadline: "tomorrow" }, { deadline: "2026-02-30" },
+  { deadline: "2026-02-29" }, { deadline: "10000-01-01" },
 ])("rejects invalid writing goals: %j", (goals) => {
   expect(() => validateProject({ ...newProject("Goals"), goals })).toThrow("Invalid writing goals");
 });
 it("accepts additive writing goals and cleared goals", () => {
   expect(() => validateProject({ ...newProject("Goals"), goals: { totalWords: 1000, dailyWords: 50, deadline: "2026-10-31" } })).not.toThrow();
+  expect(() => validateProject({ ...newProject("Goals"), goals: { deadline: "2024-02-29" } })).not.toThrow();
+  expect(() => validateProject({ ...newProject("Goals"), goals: { deadline: "0000-01-01" } })).not.toThrow();
   expect(() => validateProject({ ...newProject("Goals"), goals: {} })).not.toThrow();
+});
+
+it.each([
+  ["2026-02-28", true],
+  ["2024-02-29", true],
+  ["2026-02-29", false],
+  ["2026-02-30", false],
+  ["10000-01-01", false],
+  ["0000-01-01", true],
+])("validates goal deadline %s as %s", (date, valid) => {
+  expect(isValidGoalDeadline(date)).toBe(valid);
 });

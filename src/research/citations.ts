@@ -67,13 +67,15 @@ export function citationParts(
     if (s.kind !== "book")
       parts[parts.length - 1].text = parts[parts.length - 1].text.replace(
         /”$/,
-        (locator ? "," : ".") + "”",
+        (locator ? "," : /[?!]$/.test(noteTitle) ? "" : ".") + "”",
       );
     parts.push({
       text: locator
         ? `${s.kind === "book" ? ", " : " "}${locator}.`
         : s.kind === "book"
-          ? "."
+          ? /[?!]$/.test(noteTitle)
+            ? ""
+            : "."
           : "",
     });
     return parts;

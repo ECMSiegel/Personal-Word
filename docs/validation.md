@@ -195,3 +195,16 @@ Limits, stated explicitly:
 - **Prose-check decoration cap.** `writingAids.ts` keeps at most `MAX_PROSE_DECORATIONS = 2000` decorations, choosing those nearest the cursor, and the panel notes "Only the issues closest to the cursor are shown." This bounds cost for pathological input (a single 10,000-word paragraph produced about 20,000 candidate issues and took 3.3 s per keystroke before the cap). Absolute per-keystroke timings on this machine are not trustworthy while the owner's other applications hold the load average between 30 and 600; only within-run comparisons (aids off versus aids on) were used, and a quiet-machine re-measurement is still required before any performance number is called verified.
 - **Prose check is off by default** and never changes the saved document; unsupported CSL item types on Zotero import are counted and reported, never silently dropped.
 - Owner confirmation required before any VERIFIED wording: automatic short notes across all renderers, Zotero import of a real export, quote capture and one-undo insertion, goal progress in real writing, focus mode and the prose panel on real prose, and the Markdown/plain-text export of a real project.
+
+
+## October 19, 2026 -- local source-alpha repairs
+
+The deadline settings mutation now uses the same strict date validation as project loading. Invalid extended years are rejected before mutation; clearing remains supported. Short citation titles ending in `?`/`!`, list indentation and literal Markdown markers, and research locator prefixes were repaired. See [regression evidence](agent-work/2026-10-18-source-alpha/EVIDENCE.md), [implementation log](agent-work/2026-10-18-source-alpha/IMPLEMENTATION_LOG.md), and [independent review](agent-work/2026-10-18-source-alpha/REVIEW.md).
+
+- Full `npm test`: 163 passed in 17 files (29.74 seconds).
+- `cargo test --locked --offline --manifest-path src-tauri/Cargo.toml`: 17 passed, one benchmark ignored.
+- Targeted deadline browser regression: one passed after the original guard-removal defect produced the expected failure. It checks rejection, preserved valid value, reopening, and clearing in isolated browser storage.
+- Final `npm run tauri build`: passed. The 15.25 MiB local Personal Word.app reports version 0.1.0 and identifier com.folio.writing. Executable timestamp 2026-10-19 00:11:34 America/New_York is newer than all 77 source files; smoke diagnostic symbols absent. See [build evidence](agent-work/2026-10-18-source-alpha/BUILD_EVIDENCE.json). This is an unsigned local build, not native GUI/persistence confirmation or a binary release.
+- Full browser suite: blocked. Initial privileged attempts were not executed because automatic permission review timed out; owner explicitly approved another retry, which was not executed because the review model was at capacity. The sandboxed attempt could not bind localhost (EPERM) before tests. No product failure or full-browser pass is inferred. The earlier writer-feature baseline's 45 passing scenarios remain historical evidence, not this pass's qualification.
+
+Application behavior remains CLAIMED until owner confirmation. Native WebKit/SQLite and Word/LibreOffice artifact qualification remain open; current browser checks do not replace them. No remote or public push is authorized.

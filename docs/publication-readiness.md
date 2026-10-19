@@ -1,35 +1,29 @@
 # Source publication readiness
 
-Review date: 2026-10-17. Scope: the current working tree based on `c62332c`, including uncommitted application improvements. This is a source-alpha preparation record, not a signed-binary release certification.
+Review date: 2026-10-19. Scope: a local source alpha, version `0.1.0`, intended tag `v0.1.0-alpha.1`. No remote, push, hosted release, or binary distribution is authorized.
 
 ## Prepared locally
 
-- GPL-3.0-only license selected by the owner, with the complete official GPL v3 text in `LICENSE` and matching npm/Cargo metadata. The npm package remains private to prevent accidental npm publication; this does not prevent a public Git repository.
-- Newcomer README, a freshly captured synthetic Chromium screenshot, contribution/security guidance, issue forms, and a prioritized roadmap.
-- GitHub Actions workflow for macOS frontend build, unit/browser tests, and Rust tests, with read-only permissions and immutable action references. Hosted execution remains unverified until a repository exists and the workflow runs there. Native GUI smoke is a separate qualification step.
-- Lockfile dependency license metadata and a regeneration script. See [THIRD_PARTY.md](../THIRD_PARTY.md) for inventory coverage and source-versus-binary limitations.
-- Local agent state and common credential files excluded by `.gitignore`; no local agent files or user projects deleted.
-- Contradictory current architecture claims corrected. Historical verification is retained separately. One machine-specific temporary directory was redacted from the old smoke evidence without changing its recorded outcomes.
+- GPL-3.0-only license and matching npm/Cargo metadata. The npm package remains private to prevent accidental npm publication.
+- Public README promoted from the reviewed draft, with synthetic browser screenshots, setup, workflows, and explicit alpha limitations. Contribution/security guidance, issue forms, and roadmap are included.
+- GitHub Actions workflow exists for macOS build, unit/browser tests, and Rust tests, with read-only permissions and pinned actions. It has not run on GitHub.
+- Dependency license inventory and regeneration script are included. A distributed app still needs complete bundled notices, including Noto OFL texts; see [THIRD_PARTY.md](../THIRD_PARTY.md). This alpha is source only.
+- `AGENTS.md` and `docs/agent-work/` remain public. Machine-specific paths were scrubbed from the current tracked text. `HANDOFF.md` remains local and ignored.
+- Owner authorized rewriting local commit identities to the supplied GitHub noreply address before any first push. Local configuration now uses that address; a recoverable pre-rewrite Git bundle was verified. Git delivery follows validation recording; inspect the local tag and handoff for actual commit/rewrite results.
 
-## Verification and audit boundaries
+## Evidence and boundaries
 
-- Frontend build and 64 unit tests passed in the working tree.
-- Rust tests passed: 17 passed, 1 benchmark ignored (`cargo test --locked --offline --manifest-path src-tauri/Cargo.toml`). This does not replace native UI smoke testing.
-- All 31 Chromium browser scenarios passed, including rename/delete/recovery. This supersedes the previous sandbox startup block for browser testing only.
-- A temporary source copy was created from tracked files plus non-ignored candidate files, without `.git`, `node_modules`, build output, or `.claude`. Fresh `npm ci`, build, and all 64 unit tests passed there. This is a clean source-copy check, not a remote clone or a claim that the current work is committed. The initial local Node 25.5.0 run emitted a dependency engine warning. A second fresh install, build, and all 64 unit tests passed on Node 22.23.3, matching CI's major version. Hosted CI remains unverified.
-- Credential-pattern scanning covered all 227 distinct historical blobs reachable from the eight current commits. No matches for the checked private-key, GitHub-token, AWS access-key, or OpenAI-style token patterns were found. This is a bounded pattern scan, not proof of absence of secrets or a security review of every line.
-- The historical screenshot was visually checked and contains synthetic test prose; it depicts the older interface and is retained only as historical evidence. The README uses a new synthetic screenshot.
-- The version-1 SQLite fixture was opened read-only and inspected; project, entry, and snapshot samples contain synthetic fixture prose. Historical binary content was not comprehensively classified.
-- Current text was checked for machine-specific paths. Git author metadata exposes a personal email address. No email address is reproduced here, and no history was rewritten.
+The writer-feature baseline (`f43c09d`, before identity rewriting) had 149 passing unit tests, 45 passing Chromium scenarios, and 17 passing Rust tests with one ignored benchmark. Those are earlier results, not this pass's qualification. Fresh source-alpha results: full `npm test` passed 163/163 tests in 17 files; Rust passed 17 tests with one ignored benchmark. The targeted deadline browser regression passed after failing with its mutation guard removed. The exact-final-source `npm run tauri build` passed: 15.25 MiB, version 0.1.0, historical identifier retained; executable newer than all 77 source files, smoke diagnostic symbols absent. Full browser qualification is blocked: privileged commands were not executed due to automatic approval review timeouts, then model-capacity failure even after owner-approved retry. A sandboxed attempt failed localhost binding with EPERM before tests. No full-browser pass or product failure is inferred.
 
-## Decisions/actions before making the repository public
+Earlier native harness runs exercised isolated SQLite save/recovery. A later native run stalled before UI injection with macOS system-service errors. Browser tests do not prove native WebKit rendering or SQLite persistence. Owner confirmation, quiet-desktop native review, VoiceOver/IME, and Microsoft Word/LibreOffice export rendering remain open. See [validation](validation.md) for dated evidence.
 
-1. Owner reviews whether to publish existing author-email metadata. If privacy changes are wanted, agree on the exact history treatment first; changing future Git configuration alone does not change existing commits.
-2. Review and commit the complete intended source tree, including the pre-existing uncommitted improvements and new files. Do not publish only the existing HEAD and assume these files are included. This preparation pass did not stage or commit work.
-3. Create the chosen remote and explicitly authorize the push. No remote, push, release, or public upload has occurred in this pass.
-4. Enable a real private vulnerability-reporting route on the host and verify the conditional instructions in `SECURITY.md`. No private contact or hosting feature is invented by that document.
-5. Observe the first hosted CI run and resolve host-specific failures. Keep alpha limitations visible; do not treat the incomplete application improvement plan as completed.
+Historical clean-source-copy installs, credential-pattern scans, and fixture inspection are bounded checks from the earlier publication preparation. They have not been repeated against all rewritten history in this pass. Removing local agent state from the current tree does not remove historical copies from earlier commits. Author identity rewriting changes commit metadata, not historical file contents.
 
-The 2026-10-18 completion pass changed two items on this list. PDF now embeds unmodified WOFF2 subsets of three OFL-1.1 Noto font packages, so a distributed binary must ship those fonts' OFL license texts and notices; the source tree documents the obligation in [THIRD_PARTY.md](../THIRD_PARTY.md) but does not yet place the notices in a bundle. Synthetic DOCX and PDF fixtures were generated and inspected (DOCX XML plus macOS QuickLook renders), which narrows but does not close Word-application rendering review: no Microsoft Word or LibreOffice pass was run.
+## Before any public push
 
-Before distributing binaries, separately finish native qualification, actual export artifact review, complete license/copyright notices for bundled components, GPL corresponding-source delivery, and signing/notarization. See [ROADMAP.md](../ROADMAP.md). These are not represented as completed by source publication preparation.
+1. Owner supplies an empty repository URL and explicitly authorizes adding a remote and pushing. This session stops locally.
+2. Review the complete intended public history as well as the current tree. Historical agent files and earlier text remain reachable even when removed from the current tree.
+3. Enable the host's private vulnerability-reporting route and verify the conditional instructions in `SECURITY.md`.
+4. Observe the first hosted CI run and resolve host-specific failures; set the repository description/topics.
+
+Before distributing binaries, separately complete bundled license notices and GPL corresponding-source delivery, native qualification, export review, and signing/notarization. A local successful app build does not close those gates.

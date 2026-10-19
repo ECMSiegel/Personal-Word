@@ -76,6 +76,41 @@ describe("Chicago 18 common-source citations", () => {
   it("uses short titles in journal notes", () => {
     expect(formatCitation({ id: "j", kind: "journal", title: "On Testing: A Method", shortTitle: "Testing", authors: ["Jane Smith"] }, "short", "12")).toBe("Smith, “Testing,” 12.");
   });
+  it("does not add a period after a short title ending in question or exclamation punctuation", () => {
+    const article: Source = {
+      id: "j",
+      kind: "journal",
+      title: "Did It Work? An Evaluation",
+      shortTitle: "Did It Work?",
+      authors: ["Jane Smith"],
+    };
+    expect(formatCitation(article, "short")).toBe("Smith, “Did It Work?”");
+    expect(formatCitation({ ...article, shortTitle: "Why Now!" }, "short")).toBe(
+      "Smith, “Why Now!”",
+    );
+    expect(formatCitation(article, "short", "p. 12")).toBe(
+      "Smith, “Did It Work?,” p. 12.",
+    );
+  });
+  it("does not add a period after a short book title ending in question or exclamation punctuation", () => {
+    expect(
+      formatCitation({ ...book, title: "What Matters?", shortTitle: "What Matters?" }, "short"),
+    ).toBe("Yu, What Matters?");
+    expect(
+      formatCitation({ ...book, title: "Why Now!", shortTitle: "Why Now!" }, "short"),
+    ).toBe("Yu, Why Now!");
+  });
+  it("preserves supplied page and chapter locator prefixes in short notes", () => {
+    expect(formatCitation(book, "short", "p. 12")).toBe(
+      "Yu, Interior Chinatown, p. 12.",
+    );
+    expect(formatCitation(book, "short", "pp. 12–14")).toBe(
+      "Yu, Interior Chinatown, pp. 12–14.",
+    );
+    expect(formatCitation(book, "short", "ch. 3")).toBe(
+      "Yu, Interior Chinatown, ch. 3.",
+    );
+  });
   it("uses the untitled-source placeholder in shortened notes", () => {
     expect(formatCitation({ id: "u", kind: "book", title: "", authors: [] }, "short")).toBe("[Untitled source].");
     expect(formatCitation({ id: "u", kind: "book", title: "", authors: [] }, "short", "12")).toBe("[Untitled source], 12.");

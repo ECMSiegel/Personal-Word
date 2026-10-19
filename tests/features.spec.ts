@@ -148,3 +148,23 @@ test("page layout reflows long paragraphs and preserves undo and formatting", as
   await expect(editor).toHaveText("Before");
   await page.screenshot({ path: "test-results/personal-word-pages.png" });
 });
+
+
+test("invalid extended-year goal deadlines never replace the saved deadline", async ({ page }) => {
+  await page.goto("/");
+  await create(page, "Deadline safety");
+  await page.locator(".group-title").filter({ hasText: /^Settings$/ }).click();
+  const deadline = page.getByLabel("Deadline", { exact: true });
+  await deadline.fill("2028-02-29");
+  await expect(deadline).toHaveValue("2028-02-29");
+  await deadline.fill("10000-01-01");
+  await expect(page.getByRole("alert")).toContainText("Enter a valid deadline date.");
+  await expect(deadline).toHaveValue("2028-02-29");
+  await page.getByRole("button", { name: "Projects", exact: true }).click();
+  await page.reload();
+  await page.locator(".project-row").filter({ hasText: "Deadline safety" }).getByRole("button").first().click();
+  await page.locator(".group-title").filter({ hasText: /^Settings$/ }).click();
+  await expect(deadline).toHaveValue("2028-02-29");
+  await deadline.fill("");
+  await expect(deadline).toHaveValue("");
+});
