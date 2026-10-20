@@ -309,3 +309,36 @@ it("keeps every item of one ordered list in a single DOCX numbering instance", a
   expect(new Set(numIds).size).toBe(1);
   expect(numbering.match(/<w:start w:val="7"\/>/g)?.length).toBe(1);
 });
+
+it("exports only http, https, and mailto links as DOCX hyperlinks", async () => {
+  const p = fixture();
+  const linked = (text: string, href: string) => ({
+    type: "text",
+    text,
+    marks: [{ type: "link", attrs: { href } }],
+  });
+  p.entries[0].content = {
+    type: "doc",
+    content: [
+      {
+        type: "paragraph",
+        content: [
+          linked("web ", "https://example.com/a"),
+          linked("mail ", "mailto:writer@example.com"),
+          linked("script ", "javascript:alert(1)"),
+          linked("local", "file:///etc/passwd"),
+        ],
+      },
+    ],
+  };
+  const zip = await JSZip.loadAsync(await (await exportDocx(p)).arrayBuffer());
+  const rels = await zip.file("word/_rels/document.xml.rels")!.async("string");
+  const main = await zip.file("word/document.xml")!.async("string");
+  expect(rels).toContain('Target="https://example.com/a"');
+  expect(rels).toContain('Target="mailto:writer@example.com"');
+  expect(rels).not.toContain("javascript:");
+  expect(rels).not.toContain("file:");
+  // Unsafe links keep their words as plain text.
+  expect(main).toContain("script ");
+  expect(main).toContain("local");
+});

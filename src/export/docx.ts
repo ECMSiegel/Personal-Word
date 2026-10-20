@@ -25,7 +25,7 @@ export async function exportDocx(project: ExportProject): Promise<Blob> {
       ? new TextRun({ break: 1 })
       : r.footnote
         ? new FootnoteReferenceRun(r.footnote)
-        : r.link
+        : r.link && /^(https?|mailto):/i.test(r.link)
           ? new ExternalHyperlink({
               link: r.link,
               children: [
