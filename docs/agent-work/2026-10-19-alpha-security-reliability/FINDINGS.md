@@ -15,7 +15,7 @@ Reviewed scope: baseline main f324a7a and intended session changes. Updated 2026
 | REL-01 | Coverage gap | Additive metadata full-save/restart is tested, but sparse-save/history/mirror combination lacks an assertion. | OPEN documented evidence gap, no reproduced loss or required code repair. |
 | REL-02 | Coverage gap | Safety snapshot is taken before restore; current UI test does not reopen that generated pre-restore copy. | OPEN documented evidence gap, no reproduced loss. |
 | REL-03 | Native coverage gap | Existing harness exercises run-event quit, not actual window-close with mirror failure. Lower-level mirror retry tests pass. | OPEN documented evidence gap; T6 native rehearsal does not claim to cover every close branch. |
-| PUB-DOC-1 | Low documentation accuracy | THIRD_PARTY.md says WOFF2; fonts.ts imports .woff and pdf.ts embeds PDF subsets. | Publication-readiness erratum applied and independently inspected; no exporter/legal conclusion or scope expansion. |
+| PUB-DOC-1 | Low documentation accuracy | THIRD_PARTY.md formerly said WOFF2; fonts.ts imports .woff and pdf.ts embeds PDF subsets. | Corrected in 5e67d58 and independently inspected; no exporter/legal conclusion or scope expansion. |
 
 ## Audit controls and claim corrections
 
@@ -28,3 +28,6 @@ Reviewed scope: baseline main f324a7a and intended session changes. Updated 2026
 
 ## Owner native acceptance
 Owner explicitly accepted the documented manual native-sidebar check gap for this source-only alpha. Actual isolated WebKit/SQLite recovery passed all3phases; the browser sidebar fix is retested, while native sidebar real-use confirmation stays open. This is a bounded release decision, not a test pass or general beta/binary-distribution waiver.
+
+
+October 20 continuation: DOCX hyperlink export guard in aad4c12 independently reviewed, fail/fix/restored-defect/final-fix proven; full164unit/49browser/19Rust passed. Generated DOCX confirms HTTP/HTTPS/mailto relationships and plain text for unsafe targets; rendered fixture inspection passed. Qualification review Q1 (stale source evidence) is addressed by current dated readiness/validation/log records. Q2 is a low future unit-fixture coverage suggestion for plain HTTP, already verified by the current actual artifact assertion; no reproduced behavior defect or release blocker.

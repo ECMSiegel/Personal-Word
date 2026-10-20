@@ -1,7 +1,7 @@
 # Implementation log -- Alpha security and reliability
 Plan: PLAN.md | Base: f324a7a | Integrator: Codex | Started: 2026-10-19
 
-## Status
+## Original pass status -- cf1226b source
 | Task | Status | Evidence |
 |---|---|---|
 | T0 | DONE | main f324a7a; existing tag7f5a758d; no remote; four pre-existing docs copied and SHA256 checked |
@@ -27,7 +27,7 @@ Plan: PLAN.md | Base: f324a7a | Integrator: Codex | Started: 2026-10-19
 Owner explicitly authorized cargo-audit0.22.2, Gitleaks8.30.1 and Node22.23.3 in the ignored project audit cache plus locked npm ci in an isolated source copy. No global installation or project dependency change authorized. Downloads and checksum verification completed; see approved local tooling below.
 
 ## Final validation
-Pending. No native/owner qualification inferred from browser results.
+Historical checkpoint; superseded by the completed dated qualification below. No native/owner qualification is inferred from browser results.
 
 ## Approved local tooling
 Owner explicitly allowed exact pinned local tools and isolated npm ci. Official GitHub release asset SHA256 digests matched downloaded cargo-audit0.22.2 and Gitleaks8.30.1; Gitleaks checksum manifest also matched. Node22.23.3 archive matched official Node SHASUMS256. Extracted under ignored project cache only, no globals or project dependencies changed. Installation details: tools/installation-evidence.json in ignored diagnostic cache.
@@ -100,8 +100,58 @@ Private pre-finalization bundle created and verified before staging. Staged-chec
 ## T8 delivery and privacy audit
 - Reviewed15file source/test/evidence commit created as b162a02. Two fresh private bundles were created and verified before staging/history mutation; they preserve the previous main/tag and the reviewed commit. Backups are inside private .git/source-alpha-backups/, not tracked or intended for publication. The previous annotated tag object7f5a758d17c94b46028486d657c1735c0016f021 remains recoverable.
 - Main-only sanitation rewrote exactly2eligible documentation blob prefixes, preserving every other byte in those blobs and all other file content. It preserved all12commit identities/dates/messages/topology, current-tree identity and unrelated refs. No reset, checkout, ref deletion or garbage collection occurred. No authorship rewrite was repeated.
-- Post-sanitation checkpoint:341main blobs/320UTF8,0home-prefix matches; redacted Gitleaks scanned12commits and found0credentials. The known-positive2match pre-scan and synthetic Gitleaks detection demonstrate the gates can fail. Exact mapping and redacted local logs remain in the ignored cache.
+- Post-sanitation checkpoint:341main blobs/320UTF8,0home-prefix matches; main had12reachable commits; redacted Gitleaks reported11scanned commits and found0credentials. The known-positive2match pre-scan and synthetic Gitleaks detection demonstrate the gates can fail. Exact mapping and redacted local logs remain in the ignored cache.
 - The final documentation-only evidence commit records completion and the local annotated v0.1.0-alpha.1 tag targets final HEAD. The final transaction checks tag/HEAD equality, approved new identities, all115tested source hashes in both committed/current trees, clean status,166tracked paths, ignored/untracked HANDOFF, no remote, unchanged unrelated refs, and a fresh main/tag privacy audit. Exact final object IDs and private backup locations are recorded in local HANDOFF after the transaction. No push/hosted release/binary distribution.
 - Native-sidebar real-use behavior remains unverified under the owner's explicit source-alpha acceptance. REL01/02/03, font-inventory wording erratum, opt-in private/local HTTP(S), uncapped recovery JSON, hosted CI and binary/Word/VoiceOver limits remain documented; none is silently promoted to a test pass.
 
 Independent Luna C also compared all12old/new rawcommit objects and parent mappings, exact2blob substitutions, currenttreeidentity,115sourcehashes and pre-sanitation bundle SHA/verification; allpassed. Redacted local note t8-independent-review.json. Final deliverycheck below remains scoped to the planned documentation commit/tag transaction, with no new sourcechanges.
+
+
+## Qualification reopened -- October 20, 2026
+User requested “Finish Qualification?” after review found the alpha tag had advanced to aad4c12 (DOCX hyperlink scheme guard) beyond the qualified cf1226b source. The 5e67d58 font-wording correction is documentation only. This continuation executes the existing T6–T8 gates on frozen aad4c12, preserves old logs and accepted alpha limitations, and performs no remote/push or new feature work. The original status/evidence above is historical, not qualification of the later exporter.
+
+| Gate | Current status | Evidence |
+|---|---|---|
+| Source freeze | DONE | aad4c12; tag objectbbbb1acd;115file refreshed manifest,2changed exporter/test hashes |
+| Full build/unit/browser/Rust | DONE | Sequential Node22 runner, new ignored qualification-2026-10-20 logs |
+| DOCX fail/restore regression | DONE | Dedicated isolated source copy using existing dependencies only; not a clean-install claim |
+| Native recovery | DONE | Existing isolated3phase harness; no real projects or unowned processes |
+| Export artifact rendering | DONE | Existing fixtures plus scheme-boundary artifact inspection |
+| Normal release | DONE | Rebuild after diagnostics, verify identity/freshness/no-smoke |
+| Clean-source install/build/unit | DONE | Explicit manifest and approved lockednpmci with Node22 |
+| Independent Luna review | APPROVE | QUALIFICATION_REVIEW.md; focused13export/13browser reruns passed |
+| Final audits/evidence commit/tag | Local transaction | Enforced post-commit checks recorded in ignored final-verification.json and HANDOFF; no additional history rewrite |
+
+
+### October 20 core and regression evidence
+Fresh Node22 build exit0; Vitest: “17 passed (17)” files and “164 passed (164)” tests. Full Playwright: “49 passed (1.8m)”. Locked offline Rust: “19 passed; 0 failed; 1 ignored”. Complete new core logs/results inspected; no skips/threshold changes. Vite retained only its known chunk/static-dynamic import warnings.
+
+Dedicated isolated-copy DOCX command: `node <existing-vitest-entry> run src/export/document.test.ts -t 'exports only http, https, and mailto links as DOCX hyperlinks'`. Removed guard: exit1 with `expected ... not to contain 'javascript:'` in actual relationships XML. Fixed: exit0,1testpassed. Restored defect: same assertion exit1. Restored fix: exit0,1testpassed. Other12tests were filtered by the focused command, not disabled in source; the full164test run above passed. All four complete logs inspected. Only the isolated copy changed; root frozen exporter hash unchanged. Its dependency symlink is explicitly not the later clean-install rehearsal.
+
+
+### October 20 native and export evidence
+Fresh isolated com.folio.smoke debug build passed (53.89s Rust compilation), then one native runner attempt exited0 in8.54s with all3phase reports ok. Actual WebKit/SQLite quit/reopen, acknowledged checkpoint then harness-owned termination, journal recovery, snapshots, integrity and JSON mirror parity passed. Complete logs inspected; no real project data or unowned process affected. This does not establish physical power-loss durability or close REL01/02/03.
+
+Regenerated synthetic baseline DOCX/PDF and additional hyperlink DOCX/Markdown/plain text. OOXML exact-target assertions found4allowed relationships (HTTP,HTTPS,uppercaseHTTPS,mailto),0disallowed relationships; all8labels retained. Baseline DOCX footnote/strike/hard-break/nested-start4 assertions passed. The new validator rejected a doctored DOCX with an unsafe relationship before passing the real artifact. Its first PDF content assertion failed because pypdf inserted layout newlines between expected words; actual Poppler text and page images showed the exact title. With independent reviewer agreement, normalized extraction whitespace before the unchanged expected-title/Café assertions. Original failure/control/final logs retained, no appcode/test threshold changed.
+
+Used existing bundled LibreOffice through render_docx.py for the1page link fixture and2page regular DOCX, plus existing Poppler for2PDF pages. Root and independent Luna visually inspected all5PNGs: expected words, multilingual glyphs, list nesting, footnote and bibliography present without observed clipping/overlap. This is a bounded LibreOffice/PDF rendering check, not Microsoft Word or universal export compatibility. Root source manifest unchanged; normal release rebuild follows diagnostics/artifacts.167file isolated source candidate copied/hashmatched and Gitleaks0findings before dependency installation.
+
+
+### October 20 normal release evidence
+After diagnostic/artifact work, normal `npm run tauri build` exit0; native release compilation1m29s, app15.25MiB. Actual Info.plist: Personal Word,0.1.0,com.folio.writing; executable newer than77sourcefiles, no FOLIO_SMOKE marker. New executable SHA2560c5740e853040f652e3ed2c3d61ba3a497ac314c08d9f742ea68f731f04c3865; all115frozen source hashes unchanged. Exact build log and release-evidence.json retained in new qualification cache. Sourcecopy lockedinstall/build/unit started only after this normalbuild completed.
+
+
+### October 20 clean-source and independent focused checks
+Approved isolated npm ci exited0 (194 installed,195 audited,0 vulnerabilities;8.15s), build exited0 (21.59s), and unit exited0 (17files/164tests;6.99s wrapper). Root inspected complete logs. The initial167file snapshot is point-in-time; final changes to qualification Markdown are recorded separately. All115frozen code/test/config hashes still match root and the clean copy after rehearsal; no copied or symlinked dependencies were used there.
+
+Independent Luna ran under the pinned Node22.23.3: full export document suite13/13passed; exact sidebar-selection/layout/editor-toolbar browser command13/13passed in26.0s. Its first broad browser command lacked focused spec arguments and was blocked by sandbox listenEPERM before tests; preserved as an environment/setup failure, not counted as a test pass. The exact focused command then used authorized loopback permission. No source changes. Q2 is future committed-unit HTTP coverage only: the actual artifact assertion already verified HTTP for this release, so no source/test change or new qualification cycle was introduced.
+
+Frozen115file manifest SHA-256: `2b00b81592ad844184000f8c2f3eba098135499535b15096bfe5ceb0c465f8b1`. Full logs/manifests/rendered fixtures remain in the ignored qualification-2026-10-20 cache.
+
+
+### October 20 independent approval and local delivery protocol
+Independent Luna verdict APPROVE; Q1 stale-source evidence closed, Q2 low future unit-fixture suggestion only. Root inspected its full13export/13browser logs. Final changes after the167file clean-install snapshot are exactly5Markdown evidence paths: FINDINGS.md, IMPLEMENTATION_LOG.md, QUALIFICATION_REVIEW.md, publication-readiness.md and validation.md. All115code/test/config hashes still match the root, clean copy and frozen committed source; no new code/dependency changes.
+
+Before delivery, current main had15reachable commits while Gitleaks reported14scanned commits,0findings; home-prefix audit covered349blobs/328UTF8 with0matches. A fresh private bundle preserving mainaad4c12 and annotated tagobjectbbbb1acd was created and verified; SHA-256 `30433b60375ca23d7f62aa4fe25b28a97e024719a2c26d2b6424b12b8c3c6885`. Existing backups/internal refs remain untouched. No further historical-content rewrite.
+
+The local transaction explicitly stages only those5evidence paths, scans the current167file public-source snapshot, validates staged115sourcehashes, commits with the approved noreply identity, audits finalmain before retargeting the annotated alpha, and then checks tag-to-HEAD equality, all115committed/current source hashes, approved identities, unchanged unrelated refs, clean tree, ignored/untracked HANDOFF, no remote, main/tag privacy and normal release identity/freshness/hash. Its exact final object IDs, actual scanner counts and outcomes are recorded in ignored qualification-2026-10-20/final-verification.json and HANDOFF.md after the transaction. These final delivery checks are separate from the independent review's pre-commit approval. No push or binary distribution.

@@ -1,6 +1,6 @@
 # Source publication readiness
 
-Updated October 19, 2026. Scope: local source alpha, application version `0.1.0`, intended annotated tag `v0.1.0-alpha.1`. No remote, push, hosted release or binary distribution is authorized.
+Updated October 20, 2026. Scope: local source alpha, application version `0.1.0`, intended annotated tag `v0.1.0-alpha.1`. No remote, push, hosted release or binary distribution is authorized.
 
 ## Prepared locally
 
@@ -11,13 +11,15 @@ Updated October 19, 2026. Scope: local source alpha, application version `0.1.0`
 
 ## Current qualification
 
-The final repaired code passed a fresh Node 22.23.3 build, all 163 unit tests in 17 files, all 49 Chromium scenarios, and 19 Rust tests with 1 existing ignored benchmark. Before and after light/dark sidebar screenshots were inspected. The accidental text-selection regression failed with the original and restored-defect CSS and passed with the scoped repair; field/editor/prose selection, reorder, resize, pin/hover and keyboard behavior passed browser checks. Direct native malformed-Unicode argument handling likewise completed a fail/pass/restored-defect/final-pass cycle. Normal Research UI canonicalizes those URL examples; no ordinary typing crash or exploit was demonstrated.
+The current frozen application source is `aad4c12`, including the DOCX hyperlink allowlist added after the earlier `cf1226b` qualification. Fresh sequential Node 22.23.3 qualification passed the build, 164 unit tests in 17 files, 49 Chromium scenarios, and 19 Rust tests with 1 existing ignored benchmark. The DOCX guard completed a defect/fix/restored-defect/final-fix cycle in an isolated copy. Actual DOCX relationships retain HTTP, HTTPS (including uppercase), and mailto; unsafe targets become plain text. A doctored artifact proved the relationship validator rejects unsafe targets.
 
-One isolated native macOS WebKit/SQLite rehearsal passed all 3 phases: normal quit/reopen, acknowledged SQLite checkpoint, harness-owned forced termination, journal recovery and snapshot restoration, with integrity and JSON mirror checks. It used only synthetic temporary storage. This is not physical power-loss proof or exhaustive close/error-branch coverage.
+Regenerated synthetic exports passed XML/text assertions. Both ordinary DOCX pages, the hyperlink-boundary DOCX page, and both PDF pages were rendered with existing LibreOffice/Poppler tools and visually inspected by the integrator and independent Luna reviewer. No clipping, overlap or missing glyphs was observed in those fixtures. This is bounded headless LibreOffice/PDF evidence, not Microsoft Word or universal document compatibility.
 
-A normal `npm run tauri build` followed the diagnostic run and produced `src-tauri/target/release/bundle/macos/Personal Word.app` (15.25MiB), name Personal Word, version 0.1.0, identifier `com.folio.writing`. Actual executable freshness versus 77 source files, absence of `FOLIO_SMOKE`, and all 115 frozen source hashes were checked. A 166-file isolated candidate matched its source manifest and passed redacted Gitleaks before installation; explicitly approved locked `npm ci`, build and 163 unit tests then passed there with Node 22. All 115 tested source files still match both copies. These are local checks, not a hosted CI result or distributed binary approval.
+One fresh isolated native macOS WebKit/SQLite rehearsal passed all 3 phases: normal quit/reopen, acknowledged SQLite checkpoint, harness-owned forced termination, journal recovery and snapshot restoration, with integrity and JSON mirror checks. Only synthetic temporary storage was used. This is not physical power-loss proof or exhaustive close/error-branch coverage.
 
-The owner explicitly accepted the pending manual native-sidebar check for this source-only alpha. Actual native label/prose selection, light/dark appearance, drag reorder and related physical interactions remain unverified; browser evidence does not silently close them. Independent focused review is recorded in [REVIEW.md](agent-work/2026-10-19-alpha-security-reliability/REVIEW.md).
+A fresh normal `npm run tauri build` followed diagnostics and produced `src-tauri/target/release/bundle/macos/Personal Word.app` (15.25 MiB), Personal Word 0.1.0, identifier `com.folio.writing`. Executable SHA-256: `0c5740e853040f652e3ed2c3d61ba3a497ac314c08d9f742ea68f731f04c3865`; newer than 77 source files and without `FOLIO_SMOKE`. All 115 frozen code/test/config hashes remained unchanged. An isolated 167-file source/document snapshot passed hash comparison and redacted Gitleaks before approved locked `npm ci`, build and 164 unit tests passed under Node 22; installation audited 195 packages with 0 vulnerabilities. Later changes are qualification documentation only, recorded separately from that point-in-time snapshot. These are local checks, not hosted CI or distributed binary approval.
+
+Independent Luna reruns passed all 13 export tests and 13 sidebar/layout/toolbar scenarios. The earlier light/dark browser screenshots and sidebar fail-first evidence remain applicable because sidebar source is unchanged. The owner explicitly accepted the pending manual native-sidebar check for this source-only alpha. Native label/prose selection, light/dark appearance, drag reorder and physical interactions remain unverified in real use. See the [current qualification review](agent-work/2026-10-19-alpha-security-reliability/QUALIFICATION_REVIEW.md) and the [original review](agent-work/2026-10-19-alpha-security-reliability/REVIEW.md).
 
 ## Security and reliability boundaries
 
@@ -27,7 +29,7 @@ The owner explicitly accepted the pending manual native-sidebar check for this s
 - Recovery-project JSON retains compatibility without a new size cap. Unusually large files can consume substantial memory or block the interface; no large-file failure was reproduced. The owner accepted that resource risk for alpha.
 - No writing-loss defect was reproduced. Sparse-save/history/mirror metadata combinations, reopening a generated pre-restore safety copy, and actual window-close during mirror failure lack complete end-to-end assertions. Passing tests/native rehearsal do not prove those additional combinations.
 - Font-format erratum: PDF source imports `.woff` assets and embeds font subsets through pdf-lib. `THIRD_PARTY.md` previously called these inputs WOFF2; that wording has since been corrected. This clarification does not complete bundled Noto OFL notices or establish binary license compliance.
-- Native sidebar real use, VoiceOver/IME, long writing sessions, native file-dialog export and Microsoft Word/LibreOffice rendering remain open. Editor and exported-document pagination use different layout engines; exact page parity is not promised.
+- Native sidebar real use, VoiceOver/IME, long writing sessions, native file-dialog export and Microsoft Word and broader interactive LibreOffice compatibility remain open. Editor and exported-document pagination use different layout engines; exact page parity is not promised.
 
 ## Earlier source-alpha baseline -- retained evidence
 
