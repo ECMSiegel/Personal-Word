@@ -24,23 +24,24 @@ ROOT = Path(__file__).resolve().parents[1]
 BINARY = ROOT / "src-tauri/target/debug/folio"
 CACHE = ROOT / "node_modules/.cache/personal-word-beta/d1"
 DIAGNOSTIC_PROTOCOL = "d1-profile-isolation-v1"
-SOURCE_INPUTS = (
-    ROOT / "src-tauri/src/lib.rs",
-    ROOT / "src-tauri/src/store.rs",
-    ROOT / "src-tauri/src/smoke.rs",
-    ROOT / "src-tauri/build.rs",
-    ROOT / "src-tauri/Cargo.toml",
-    ROOT / "src-tauri/Cargo.lock",
-    ROOT / "src-tauri/tauri.conf.json",
-    ROOT / "src/App.tsx",
-    ROOT / "src/model.ts",
-    ROOT / "src/save-queue.ts",
-    ROOT / "src/storage.ts",
-    ROOT / "package.json",
-    ROOT / "package-lock.json",
-    ROOT / "tests/native-smoke.js",
-    ROOT / "tests/native-reliability.js",
+FIXED_INPUTS = (
+    "src-tauri/build.rs",
+    "src-tauri/Cargo.toml",
+    "src-tauri/Cargo.lock",
+    "src-tauri/tauri.conf.json",
+    "index.html",
+    "vite.config.ts",
+    "package.json",
+    "package-lock.json",
+    "tests/native-smoke.js",
+    "tests/native-reliability.js",
 )
+
+
+def source_inputs():
+    """Every file the diagnostic binary embeds or compiles: all Rust and frontend sources."""
+    tree = [path for folder in ("src-tauri/src", "src") for path in (ROOT / folder).rglob("*") if path.is_file()]
+    return sorted({*tree, *(ROOT / name for name in FIXED_INPUTS)})
 ACTIVE_SUMMARY = None
 
 
@@ -51,12 +52,13 @@ def canonical(value):
 def diagnostic_binary_identity():
     if not BINARY.is_file():
         raise RuntimeError(f"Diagnostic app is missing: {BINARY}")
-    newest_source = max(path.stat().st_mtime_ns for path in SOURCE_INPUTS)
+    sources = source_inputs()
+    newest_source = max(path.stat().st_mtime_ns for path in sources)
     if BINARY.stat().st_mtime_ns < newest_source:
         raise RuntimeError("Diagnostic binary predates a D1 source input; rebuild it before launch")
     inputs = [
         {"path": str(path.relative_to(ROOT)), "sha256": hashlib.sha256(path.read_bytes()).hexdigest()}
-        for path in SOURCE_INPUTS
+        for path in sources
     ]
     return {
         "binaryPath": str(BINARY),
@@ -296,7 +298,7 @@ def require_metadata(project, label, *, history=False):
         raise AssertionError(f"{label} does not contain the exact two-entry fixture")
     expected = {
         "research": {
-            "sources": [{"id": "source-d1", "kind": "book", "title": "Bounded durability"}],
+            "sources": [{"id": "source-d1", "kind": "book", "title": "Bounded durability", "authors": []}],
             "notes": [{"id": "note-d1", "text": "Research note survives sparse save"}],
             "footnotes": [{"id": "footnote-d1", "text": "Footnote survives sparse save", "form": "short"}],
         },
@@ -314,6 +316,15 @@ def require_metadata(project, label, *, history=False):
         "additiveD1Field": {"kept": True, "nested": ["alpha", "beta"]},
     }
     actual = {key: project.get(key) for key in expected}
+    # Comment anchors (E1) are additive: the fixture quote is not in the entry text,
+    # so an anchored copy must be the conservative detached form, every other field exact.
+    annotations = [dict(item) for item in actual.get("annotations") or []]
+    for item in annotations:
+        anchor = item.pop("anchor", None)
+        if anchor is not None and (anchor.get("status") != "detached" or anchor.get("version") != 1
+                                   or anchor.get("from") != anchor.get("to")):
+            raise AssertionError(f"{label} comment anchor is not the conservative detached form: {anchor}")
+    actual["annotations"] = annotations
     if canonical(actual) != canonical(expected):
         raise AssertionError(f"{label} project metadata differs from the exact sparse-save fixture")
     first_tags = ["d1", "source-alpha"] if history else ["d1", "source-alpha", "revised"]

@@ -289,7 +289,7 @@ impl Store {
             }))
         }
     }
-    pub fn load(&self, id: &str) -> Result<Project> {
+    pub fn load(&mut self, id: &str) -> Result<Project> {
         let p = self.read(id)?;
         let db = self.connect(id, false)?;
         let integrity: String = db
@@ -303,6 +303,11 @@ impl Store {
         let backup = self.dir(id)?.join("previous-session.sqlite3");
         db.backup(rusqlite::DatabaseName::Main, &backup, None)
             .map_err(err)?;
+        // A process can end after a committed save but before its mirror pass,
+        // so a portable copy behind SQLite is queued for repair on open.
+        if mirror_revision(&self.dir(id)?) != Some(p.revision) {
+            self.dirty.insert(id.to_string());
+        }
         Ok(p)
     }
     /// Saves a whole project; the frontend sends only changed entries via `save_changes`.
@@ -763,6 +768,7 @@ pub fn sync_mirrors(
     sync_mirrors_mode(store, writing, only, false)
 }
 
+#[cfg(feature = "native-smoke")]
 pub fn sync_mirrors_for_close(
     store: &Mutex<Store>,
     writing: &Mutex<()>,
@@ -776,6 +782,7 @@ fn sync_mirrors_mode(
     only: Option<&str>,
     closing: bool,
 ) -> Vec<(String, Result<()>)> {
+    #[cfg(feature = "native-smoke")]
     let explicit_flush = only.is_some();
     let _writing = writing.lock().unwrap_or_else(|e| e.into_inner());
     let (reader, ids) = {
@@ -824,6 +831,15 @@ fn sync_mirrors_mode(
         s.dirty.extend(failed.into_iter().cloned());
     }
     results
+}
+/// The revision recorded in a project's portable project.json, if it is readable.
+fn mirror_revision(dir: &Path) -> Option<i64> {
+    #[derive(Deserialize)]
+    struct Revision {
+        revision: i64,
+    }
+    let bytes = fs::read(dir.join("project.json")).ok()?;
+    serde_json::from_slice::<Revision>(&bytes).ok().map(|r| r.revision)
 }
 fn write_mirrors(dir: &Path, p: &Project, closing: bool) -> Result<()> {
     #[cfg(feature = "native-smoke")]
@@ -1345,6 +1361,27 @@ mod tests {
         idle.unwrap();
     }
     #[test]
+    fn stale_portable_copy_is_repaired_after_a_restart() {
+        // An acknowledged save, then the process ends before the background mirror pass.
+        let t = tempfile::tempdir().unwrap();
+        let mut s = Store::new(t.path().into()).unwrap();
+        let mut p = project();
+        s.save(&p).unwrap();
+        let (mut s, first) = mirror(s, &p.id);
+        first.unwrap();
+        p.revision += 1;
+        p.entries[0].text = "Acknowledged before the mirror pass".into();
+        s.save(&p).unwrap();
+        drop(s);
+        let mut restarted = Store::new(t.path().into()).unwrap();
+        assert_eq!(restarted.load(&p.id).unwrap(), p);
+        let (_, repaired) = mirror(restarted, &p.id);
+        repaired.unwrap();
+        let mirrored: Project =
+            serde_json::from_slice(&fs::read(t.path().join(&p.id).join("project.json")).unwrap()).unwrap();
+        assert_eq!(mirrored, p);
+    }
+    #[test]
     fn failed_sql_write_rolls_back() {
         let t = tempfile::tempdir().unwrap();
         let mut s = Store::new(t.path().into()).unwrap();
@@ -1415,7 +1452,6 @@ mod tests {
         db.pragma_update(None, "user_version", 99).unwrap();
         assert!(store.load(&p.id).unwrap_err().contains("newer version"));
     }
-    /// `cargo test --release --locked --manifest-path src-tauri/Cargo.toml bench_save_100k_active_entry_100_saves -- --ignored --nocapture`
     #[test]
     fn extended_project_metadata_survives_save_and_restart() {
         let t = tempfile::tempdir().unwrap();
@@ -1427,7 +1463,7 @@ mod tests {
         p.entries[0].extra.insert("tags".into(), serde_json::json!(["keep"]));
         p.entries[0].content = serde_json::json!({"type":"doc","content":[{"type":"paragraph","attrs":{"lineHeight":"2"},"content":[{"type":"text","text":"Evidence","marks":[{"type":"textFormat","attrs":{"fontFamily":"Arial","fontSize":"12pt"}}]},{"type":"footnoteReference","attrs":{"id":"note-1"}}]},{"type":"pageBreak"},{"type":"paragraph"}]});
         store.save(&p).unwrap();
-        let fresh = Store::new(t.path().into()).unwrap();
+        let mut fresh = Store::new(t.path().into()).unwrap();
         assert_eq!(fresh.load(&p.id).unwrap(), p);
     }
     #[test]
@@ -1582,16 +1618,8 @@ mod tests {
             checkpoint_fullfsync, 1,
             "macOS WAL checkpoints should request F_FULLFSYNC"
         );
-        let check_fullfsync = |value| {
-            if value == 1 {
-                Ok(())
-            } else {
-                Err("FULLFSYNC is disabled".to_string())
-            }
-        };
-        assert!(check_fullfsync(0).is_err(), "negative control must reject OFF");
-        check_fullfsync(fullfsync).unwrap();
     }
+    /// `cargo test --release --locked --manifest-path src-tauri/Cargo.toml bench_save_100k_active_entry_100_saves -- --ignored --nocapture`
     #[test]
     #[ignore]
     fn bench_save_100k_active_entry_100_saves() {

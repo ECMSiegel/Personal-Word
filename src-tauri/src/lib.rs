@@ -175,6 +175,21 @@ pub fn run() {
                     );
                 }
             });
+            #[cfg(all(feature = "native-smoke", target_os = "macos"))]
+            if std::env::var_os("FOLIO_SMOKE_DIR").is_some() {
+                let config = app
+                    .config()
+                    .app
+                    .windows
+                    .iter()
+                    .find(|window| window.label == "main")
+                    .cloned()
+                    .ok_or_else(|| std::io::Error::other("Native diagnostics require the configured main window"))?;
+                let identifier = smoke::required_data_store_identifier().map_err(std::io::Error::other)?;
+                tauri::WebviewWindowBuilder::from_config(app.handle(), &config)?
+                    .data_store_identifier(identifier)
+                    .build()?;
+            }
             Ok(())
         });
     #[cfg(feature = "native-smoke")]
@@ -194,6 +209,7 @@ pub fn run() {
         lookup::lookup_fetch,
         smoke::smoke_report,
         smoke::diagnostic_profile_identity,
+        smoke::smoke_close_window,
         smoke::smoke_progress,
         smoke::arm_fault,
         smoke::arm_checkpoint,
@@ -224,24 +240,28 @@ pub fn run() {
             smoke::record_window_close();
         }
     });
+    // Only native diagnostics adjust the generated window configuration.
+    #[allow(unused_mut)]
     let mut context = tauri::generate_context!();
     #[cfg(feature = "native-smoke")]
     if std::env::var_os("FOLIO_SMOKE_DIR").is_some() {
         if context.config().identifier != "com.folio.smoke" {
             panic!("Native diagnostics require the com.folio.smoke app identifier");
         }
+        // Tauri does not carry a window config's data_store_identifier into the
+        // webview, so setup creates the main window with the isolated store.
         #[cfg(target_os = "macos")]
         {
-            let identifier = smoke::required_data_store_identifier()
+            smoke::required_data_store_identifier()
                 .expect("Native diagnostics require an isolated WebKit data-store identifier");
-            let main_window = context
+            context
                 .config_mut()
                 .app
                 .windows
                 .iter_mut()
                 .find(|window| window.label == "main")
-                .expect("Native diagnostics require the configured main window");
-            main_window.data_store_identifier = Some(identifier);
+                .expect("Native diagnostics require the configured main window")
+                .create = false;
         }
     }
     builder

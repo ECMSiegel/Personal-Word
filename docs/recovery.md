@@ -15,7 +15,7 @@ When closing the app, Personal Word flushes pending edits and portable copies. I
 
 ## Make and verify a backup
 
-1. Use the project download control to save a complete `.json` copy. Store it somewhere separate from the Mac's application-data folder.
+1. Use the **Export portable project** button to save a complete `.json` copy. Store it somewhere separate from the Mac's application-data folder.
 2. To check that the copy can be read without replacing the current project, import it as a new project. Compare its sections and research material, then keep or close the test copy as appropriate.
 3. For a folder backup, open **Settings > Storage location**, quit Personal Word, then copy the complete project folder to another disk or backup service. Do not copy only `project.sqlite3` while the app is open; SQLite may also have committed data in its WAL file.
 4. Keep more than one dated backup when the writing matters. A snapshot, portable mirror, or previous-session database backup on this Mac cannot protect against loss of the Mac or its drive.

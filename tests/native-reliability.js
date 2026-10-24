@@ -128,10 +128,7 @@
     if (!existingRun) localStorage.setItem("folio.nativeReliabilityRun", run);
     return true;
   };
-  const closeWindow = async () => {
-    const { getCurrentWindow } = await import("@tauri-apps/api/window");
-    await getCurrentWindow().close();
-  };
+  const closeWindow = () => invoke("smoke_close_window");
   const report = (data) =>
     invoke("smoke_report", {
       report: {
@@ -374,6 +371,8 @@
         location.reload();
         return;
       }
+      // The app launches to Projects, so reopen the fixture before editing it.
+      await ensureProjectOpen();
       await invoke("flush_mirrors", { id });
       if (scenario === "post-mirror") {
         await type("This acknowledged revision reaches the portable mirror.");
@@ -407,6 +406,7 @@
         location.reload();
         return;
       }
+      await ensureProjectOpen();
       const before = await invoke("load_project", { id });
       await invoke("arm_fault", { fault: "premature-sql-ack" });
       await type("This must never be acknowledged before SQLite commits.");

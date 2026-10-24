@@ -82,6 +82,12 @@ fn identifier_hex(identifier: [u8; 16]) -> String {
     identifier.iter().map(|byte| format!("{byte:02x}")).collect()
 }
 
+/// Closes the window natively, raising the same CloseRequested event as the title-bar button.
+#[tauri::command]
+pub fn smoke_close_window(window: tauri::Window) -> Result<(), String> {
+    window.close().map_err(|error| error.to_string())
+}
+
 #[tauri::command]
 pub async fn diagnostic_profile_identity(app: tauri::AppHandle) -> Result<Value, String> {
     if app.config().identifier != "com.folio.smoke" {
@@ -235,7 +241,7 @@ pub fn seed_durability_metadata(
     project.extra.insert(
         "research".into(),
         json!({
-            "sources":[{"id":"source-d1","kind":"book","title":"Bounded durability"}],
+            "sources":[{"id":"source-d1","kind":"book","title":"Bounded durability","authors":[]}],
             "notes":[{"id":"note-d1","text":"Research note survives sparse save"}],
             "footnotes":[{"id":"footnote-d1","text":"Footnote survives sparse save","form":"short"}]
         }),
