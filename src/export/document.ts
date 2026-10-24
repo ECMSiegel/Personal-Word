@@ -8,7 +8,7 @@ import {
   footnoteText,
   footnoteParts,
 } from "../research/citations";
-import { footnoteIdsInOrder, resolveNoteForms } from "../research/noteForms";
+import { resolveCitationContext } from "../research/noteForms";
 import {
   defaultDocumentSettings,
   emptyResearch,
@@ -65,7 +65,7 @@ function points(value: unknown): number | undefined {
 }
 export function documentBlocks(project: ExportProject) {
   const data = project.research ?? emptyResearch();
-  const noteForms = resolveNoteForms(footnoteIdsInOrder(project), data);
+  const context = resolveCitationContext({ ...project, research: data });
   const settings = { ...defaultDocumentSettings, ...project.documentSettings };
   const notes: { number: number; id: string; text: string; parts: Inline[] }[] =
     [];
@@ -85,8 +85,8 @@ export function documentBlocks(project: ExportProject) {
         notes.push({
           id,
           number,
-          text: footnoteText(n, data, noteForms[id]),
-          parts: footnoteParts(n, data, noteForms[id]).map((p) => ({
+          text: footnoteText(n, data, context[id]?.form, context[id]?.locator),
+          parts: footnoteParts(n, data, context[id]?.form, context[id]?.locator).map((p) => ({
             text: p.text,
             italic: p.italic,
           })),

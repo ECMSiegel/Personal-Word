@@ -3,6 +3,10 @@ export type ProseIssue = {
   to: number;
   kind: "repeat" | "passive" | "filler" | "long";
   message: string;
+  id?: string;
+  blockId?: string;
+  localFrom?: number;
+  localTo?: number;
 };
 
 type Word = { text: string; from: number; to: number };
@@ -56,9 +60,13 @@ function sentenceRanges(text: string): Array<[number, number]> {
 export function findProseIssues(text: string): ProseIssue[] {
   const { text: source, ranges: quotedRanges } = maskedQuotes(text);
   const found: ProseIssue[] = [];
+  const issueKeys = new Set<string>();
   const add = (from: number, to: number, kind: ProseIssue["kind"], message: string) => {
     if (quotedRanges.some(([start, end]) => from < end && to > start)) return;
-    if (!found.some((issue) => issue.kind === kind && issue.from === from && issue.to === to)) found.push({ from, to, kind, message });
+    const key = `${kind}:${from}:${to}`;
+    if (issueKeys.has(key)) return;
+    issueKeys.add(key);
+    found.push({ from, to, kind, message });
   };
   const tokens = words(source);
   for (let i = 0; i < tokens.length; i++) {

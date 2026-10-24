@@ -1,4 +1,4 @@
-import { Extension, type Command, type Editor } from "@tiptap/core";
+import { Extension, type CommandProps, type Editor } from "@tiptap/core";
 
 export const INDENT_STEP = 0.5;
 export const MAX_INDENT = 4;
@@ -6,6 +6,8 @@ export const MAX_INDENT = 4;
 const BLOCKS = ["paragraph", "heading"];
 
 type Attrs = Record<string, string | null>;
+type IndentCommandProps = Pick<CommandProps, "state" | "tr" | "dispatch">;
+type IndentCommand = (props: IndentCommandProps) => boolean;
 
 export function parseInches(value: string | null | undefined): number {
   if (!value) return 0;
@@ -29,7 +31,7 @@ export function stepIndent(
   return rounded === 0 ? "0" : `${rounded}in`;
 }
 
-function editBlocks(edit: (attrs: Attrs) => Partial<Attrs> | null): Command {
+function editBlocks(edit: (attrs: Attrs) => Partial<Attrs> | null): IndentCommand {
   return ({ state, tr, dispatch }) => {
     let found = false;
     state.doc.nodesBetween(
@@ -59,7 +61,7 @@ function indentLeftPatch(delta: number) {
   };
 }
 
-function indentParagraphStart(delta: number, documentIndent: number): Command {
+function indentParagraphStart(delta: number, documentIndent: number): IndentCommand {
   return ({ state, tr, dispatch }) => {
     const { $from } = state.selection;
     if (!BLOCKS.includes($from.parent.type.name)) return false;
@@ -93,6 +95,23 @@ function indentParagraphStart(delta: number, documentIndent: number): Command {
   };
 }
 
+/** Indents a paragraph from its ProseMirror selection position. */
+export function indentTextSelection(
+  delta: number,
+  documentIndent: number,
+): IndentCommand {
+  return ({ state, tr, dispatch }) => {
+    const { selection } = state;
+    const command =
+      selection.empty &&
+      selection.$from.parentOffset === 0 &&
+      BLOCKS.includes(selection.$from.parent.type.name)
+        ? indentParagraphStart(delta, documentIndent)
+        : editBlocks(indentLeftPatch(delta));
+    return command({ state, tr, dispatch });
+  };
+}
+
 function handleIndent(
   editor: Editor,
   delta: number,
@@ -103,16 +122,7 @@ function handleIndent(
     else editor.commands.liftListItem("listItem");
     return true;
   }
-  const { selection } = editor.state;
-  if (
-    selection.empty &&
-    selection.$from.parentOffset === 0 &&
-    BLOCKS.includes(selection.$from.parent.type.name)
-  ) {
-    editor.commands.command(indentParagraphStart(delta, documentIndent));
-    return true;
-  }
-  editor.commands.command(editBlocks(indentLeftPatch(delta)));
+  editor.commands.command(indentTextSelection(delta, documentIndent));
   return true;
 }
 

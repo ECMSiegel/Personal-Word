@@ -4,6 +4,8 @@ import {
   type Editor,
   type JSONContent,
 } from "@tiptap/react";
+import type { Transaction } from "@tiptap/pm/state";
+import type { EditorProps } from "@tiptap/pm/view";
 import Placeholder from "@tiptap/extension-placeholder";
 import {
   Bold,
@@ -36,6 +38,7 @@ import {
   useEffect,
   useLayoutEffect,
   useRef,
+  useMemo,
   type CSSProperties,
   type ReactNode,
 } from "react";
@@ -49,7 +52,7 @@ import {
 } from "./editor/formatting";
 import "./editor/editor.css";
 import { documentExtensions } from "./editor/extensions";
-import { FocusMode, ProseCheck, focusModeKey, proseCheckKey, MAX_PROSE_DECORATIONS } from "./editor/writingAids";
+import { FocusMode, ProseCheck, focusModeKey, proseCheckKey, defaultProseRules, type ProseRules } from "./editor/writingAids";
 import type { ProseIssue } from "./editor/proseCheck";
 import { changeIndent, indentKeys } from "./editor/indent";
 import { NumberInput, PanelButton } from "./editor/ToolbarControls";
@@ -60,6 +63,7 @@ import {
 } from "./editor/FootnoteArea";
 import { useFootnoteLayout } from "./editor/useFootnoteLayout";
 import { Dropdown, type DropdownOption } from "./components/Dropdown";
+import { ProseIssues } from "./components/ProseIssues";
 import type { DocumentSettings } from "./research/types";
 import { type Entry } from "./model";
 
@@ -151,6 +155,7 @@ export function Writer({
   onPageStatus,
   onEditorReady,
   onComment,
+  onSelectionChange,
   documentSettings,
   footnoteNumbers,
   footnotes,
@@ -174,6 +179,7 @@ export function Writer({
   onPageCountChange?: (count: number) => void;
   onPageStatus?: (status: { current: number; total: number }) => void;
   onComment?: () => void;
+  onSelectionChange?: (editor: Editor) => void;
   header?: ReactNode;
   footer?: ReactNode;
   focusMode?: boolean;
@@ -181,7 +187,7 @@ export function Writer({
   onToggleFocusMode?: () => void;
   onToggleProseCheck?: () => void;
   item: Entry;
-  onEdit: (content: JSONContent, text: string) => void;
+  onEdit: (content: JSONContent, text: string, transaction: Transaction) => void;
   onExtract: (editor: Editor) => void;
   onLink: (current: string, apply: (url: string) => void) => void;
 }) {
@@ -191,6 +197,26 @@ export function Writer({
   focusModeRef.current = focusMode;
   const proseCheckRef = useRef(proseCheck);
   proseCheckRef.current = proseCheck;
+  const itemRef = useRef(item);
+  itemRef.current = item;
+  const callbacksRef = useRef({ onToggleFocusMode, onToggleProseCheck, onExtract });
+  callbacksRef.current = { onToggleFocusMode, onToggleProseCheck, onExtract };
+  const analysisRevisionRef = useRef({ entryId: item.id, revision: item.contentRevision ?? 0 });
+  if (analysisRevisionRef.current.entryId !== item.id) {
+    analysisRevisionRef.current = { entryId: item.id, revision: item.contentRevision ?? 0 };
+  } else if ((item.contentRevision ?? 0) > analysisRevisionRef.current.revision) {
+    analysisRevisionRef.current.revision = item.contentRevision ?? 0;
+  }
+  const [proseRules, setProseRules] = useState<ProseRules>(defaultProseRules);
+  const proseRulesRef = useRef(proseRules);
+  proseRulesRef.current = proseRules;
+  const [proseIssues, setProseIssues] = useState<ProseIssue[]>([]);
+  const [prosePending, setProsePending] = useState(false);
+  const [proseUnavailable, setProseUnavailable] = useState(false);
+  const [dismissedIssues, setDismissedIssues] = useState<Set<string>>(() => new Set());
+  const dismissedIssuesRef = useRef(dismissedIssues);
+  dismissedIssuesRef.current = dismissedIssues;
+  const [prosePage, setProsePage] = useState(0);
   const pageStatusRef = useRef(onPageStatus);
   pageStatusRef.current = onPageStatus;
   const defaultFont =
@@ -228,19 +254,27 @@ export function Writer({
   >({});
   const geometry = paperGeometry(layout);
   const [, render] = useState(0);
-  const editor = useEditor({
-    extensions: [
+  const initialContentRef = useRef(item.content);
+  const editorRef = useRef<Editor | null>(null);
+  const editorExtensions = useMemo(() => [
       ...documentExtensions(),
       FocusMode.configure({ enabled: () => focusModeRef.current }),
-      ProseCheck.configure({ enabled: () => proseCheckRef.current }),
+      ProseCheck.configure({
+        enabled: () => proseCheckRef.current,
+        getContext: () => ({ entryId: itemRef.current.id, revision: analysisRevisionRef.current.revision }),
+        getRules: () => proseRulesRef.current,
+        getDismissed: () => dismissedIssuesRef.current,
+        onIssues: (issues) => { setProseIssues(issues); setProsePage(0); setProsePending(false); },
+        onPending: () => setProsePending(true),
+        onUnavailable: () => setProseUnavailable(true),
+      }),
       indentKeys(
         () => settingsRef.current?.font === "mono",
         () => (settingsRef.current?.firstLineIndent ? 0.5 : 0),
       ),
       Placeholder.configure({ placeholder: "" }),
-    ],
-    content: item.content,
-    editorProps: {
+    ], []);
+  const editorProps = useMemo<EditorProps>(() => ({
       attributes: {
         class: "writing-surface",
         "aria-label": "Writing editor",
@@ -253,20 +287,21 @@ export function Writer({
           event.key.toLowerCase() === "f"
         ) {
           event.preventDefault();
-          onToggleFocusMode?.();
+          callbacksRef.current.onToggleFocusMode?.();
           return true;
         }
+        const activeEditor = editorRef.current;
         if (
           event.key === "Tab" &&
           settingsRef.current?.font === "mono" &&
-          editor
+          activeEditor
         ) {
           event.preventDefault();
-          const current = editor.getAttributes("paragraph").paragraphStyle;
+          const current = activeEditor.getAttributes("paragraph").paragraphStyle;
           const index = screenplayStyles.indexOf(current);
           const next =
             screenplayStyles[(index + (event.shiftKey ? 4 : 1) + 5) % 5];
-          editor
+          activeEditor
             .chain()
             .updateAttributes("paragraph", screenplayAttributes(next))
             .run();
@@ -276,19 +311,34 @@ export function Writer({
           (event.metaKey || event.ctrlKey) &&
           event.shiftKey &&
           event.key.toLowerCase() === "x" &&
-          item.kind === "section"
+          itemRef.current.kind === "section"
         ) {
           event.preventDefault();
-          if (editor) onExtract(editor);
+          if (activeEditor) callbacksRef.current.onExtract(activeEditor);
           return true;
         }
         return false;
       },
+    }), []);
+  const editor = useEditor({
+    extensions: editorExtensions,
+    content: initialContentRef.current,
+    editorProps,
+    onUpdate: ({ editor, transaction }) => {
+      if (transaction.docChanged) {
+        if (analysisRevisionRef.current.entryId === itemRef.current.id)
+          analysisRevisionRef.current.revision += 1;
+        else analysisRevisionRef.current = { entryId: itemRef.current.id, revision: (itemRef.current.contentRevision ?? 0) + 1 };
+        onEdit(editor.getJSON(), editor.getText(), transaction);
+      }
     },
-    onUpdate: ({ editor }) => onEdit(editor.getJSON(), editor.getText()),
-    onSelectionUpdate: () => render((x) => x + 1),
+    onSelectionUpdate: ({ editor }) => {
+      render((x) => x + 1);
+      onSelectionChange?.(editor);
+    },
     onTransaction: () => render((x) => x + 1),
   });
+  editorRef.current = editor;
   useEffect(() => {
     if (!editor) return;
     const numberReferences = () => {
@@ -319,6 +369,13 @@ export function Writer({
       .setMeta(focusModeKey, "refresh")
       .setMeta(proseCheckKey, "refresh"));
   }, [editor, focusMode, proseCheck]);
+  useEffect(() => {
+    setProseUnavailable(false);
+    setProsePending(proseCheck);
+    setProsePage(0);
+    if (!editor) return;
+    editor.view.dispatch(editor.state.tr.setMeta(proseCheckKey, "refresh"));
+  }, [editor, proseRules, dismissedIssues, item.id, proseCheck]);
   const referencedIds: string[] = [];
   editor?.state.doc.descendants((node) => {
     const id =
@@ -880,15 +937,6 @@ export function Writer({
           </button>
         );
       case "aids": {
-        const decorations = proseCheckKey.getState(editor.state)?.find() ?? [];
-        const kinds: ProseIssue["kind"][] = ["repeat", "passive", "filler", "long"];
-        const issues = decorations.flatMap((decoration) => {
-          const spec = (decoration.spec ?? {}) as Partial<ProseIssue>;
-          const kind = spec.kind as ProseIssue["kind"];
-          if (!kinds.includes(kind)) return [];
-          return [{ from: decoration.from, to: decoration.to, kind, message: String(spec.message ?? "") }];
-        });
-        const counts = kinds.map((kind) => `${kind[0].toUpperCase()}${kind.slice(1)} ${issues.filter((issue) => issue.kind === kind).length}`).join(" -- ");
         return (
           <>
             <button type="button" className="toolbar-icon" title="Focus mode" aria-label="Focus mode" aria-pressed={focusMode} onClick={() => onToggleFocusMode?.()}>
@@ -905,15 +953,18 @@ export function Writer({
             >
               <div className="toolbar-popover-body prose-check-panel">
                 <label className="toolbar-field"><span>On</span><input type="checkbox" checked={proseCheck} onChange={() => onToggleProseCheck?.()} /></label>
-                <span className="toolbar-field-title" aria-live="polite">{counts}</span>
-                {decorations.length >= MAX_PROSE_DECORATIONS && <span className="toolbar-field-title">Only the issues closest to the cursor are shown.</span>}
-                <div className="prose-issues" aria-label="Prose issues">
-                  {issues.map((issue, index) => {
-                    const excerpt = editor.state.doc.textBetween(issue.from, issue.to, " ");
-                    return <button key={`${issue.from}-${index}`} type="button" className="toolbar-text-button" title={issue.message} onClick={() => editor.chain().focus().setTextSelection({ from: issue.from, to: issue.to }).scrollIntoView().run()}><span>{excerpt}</span><span>{issue.message}</span></button>;
-                  })}
-                  {issues.length === 0 && <span className="toolbar-field-title">No issues found.</span>}
-                </div>
+                <ProseIssues
+                  issues={proseIssues.filter(issue => !dismissedIssues.has(issue.id ?? ""))}
+                  rules={proseRules}
+                  pending={prosePending}
+                  unavailable={proseUnavailable}
+                  page={prosePage}
+                  excerpt={(issue) => editor.state.doc.textBetween(issue.from, issue.to, " ")}
+                  onRuleChange={(rule, enabled) => setProseRules(current => ({ ...current, [rule]: enabled }))}
+                  onPageChange={setProsePage}
+                  onSelect={(issue) => editor.chain().focus().setTextSelection({ from: issue.from, to: issue.to }).scrollIntoView().run()}
+                  onDismiss={(issue) => setDismissedIssues(current => new Set(current).add(issue.id ?? ""))}
+                />
               </div>
             </PanelButton>
           </>

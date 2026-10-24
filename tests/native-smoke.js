@@ -140,8 +140,22 @@
       },
     };
   };
+  let diagnosticProfile;
   try {
     await wait(() => document.querySelector(".app"), "application mounted");
+    diagnosticProfile = await window.__TAURI_INTERNALS__.invoke(
+      "diagnostic_profile_identity",
+    );
+    if (
+      diagnosticProfile.appIdentifier !== "com.folio.smoke" ||
+      diagnosticProfile.protocol !== "d1-profile-isolation-v1" ||
+      diagnosticProfile.dataStoreIdentifier !== window.__SMOKE_DATA_STORE_ID__ ||
+      !diagnosticProfile.activeDataStoreIdentifiers.includes(
+        window.__SMOKE_DATA_STORE_ID__,
+      )
+    ) {
+      throw Error("Native smoke app or isolated WebKit profile identity mismatch");
+    }
     localStorage.setItem("personal-word.restoreTabs", "true");
     if (window.__SMOKE_PHASE__ === "1") {
       // Only clear the last-project navigation key in this isolated test application.
@@ -306,6 +320,7 @@
         ok: true,
         phase: window.__SMOKE_PHASE__,
         steps,
+        diagnosticProfile,
         diagnostics: diagnostics(),
       },
     });
@@ -315,6 +330,7 @@
         ok: false,
         error: String(error),
         steps,
+        diagnosticProfile,
         diagnostics: diagnostics(),
         body: document.body.innerText.slice(0, 2000),
       },

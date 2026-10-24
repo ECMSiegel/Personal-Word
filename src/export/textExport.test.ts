@@ -64,6 +64,30 @@ describe("whole-project text exports", () => {
     expect(output).toContain("[^2]: Compare Writer, Research and Writing, 9.");
   });
 
+  it("uses the same opt-in Ibid. context as document export", () => {
+    const p = fixture();
+    p.research!.footnotes = ["4", "4", "9"].map((locator, i) => ({ id: `n${i}`, text: "", sourceId: "source", locator }));
+    p.research!.citationPolicy = { scope: "manuscript", repeats: "ibid" };
+    p.entries[0].content = {
+      type: "doc",
+      content: ["n0", "n1", "n2"].map((id) => ({ type: "paragraph", content: [{ type: "footnoteReference", attrs: { id } }] })),
+    };
+    const output = projectMarkdown(p);
+    expect(output).toContain("[^2]: Ibid.\n");
+    expect(output).toContain("[^3]: Ibid., 9.");
+    expect(projectPlainText(p)).toContain("Ibid., 9.");
+  });
+  it("restarts full Markdown citations per section only under section scope", () => {
+    const p = fixture();
+    p.research!.footnotes = [{ id: "note", text: "", sourceId: "source", locator: "4" }, { id: "later", text: "", sourceId: "source", locator: "9" }];
+    p.entries.push({ ...p.entries[0], id: "later-section", title: "Later", content: { type: "doc", content: [{ type: "paragraph", content: [{ type: "footnoteReference", attrs: { id: "later" } }] }] } });
+    p.order.push("later-section");
+    p.research!.citationPolicy = { scope: "manuscript", repeats: "ibid" };
+    expect(projectMarkdown(p)).toContain("[^2]: Ibid., 9.");
+    p.research!.citationPolicy = { scope: "section", repeats: "ibid" };
+    expect(projectMarkdown(p)).toContain("[^2]: Ada Writer, A Useful Book (Press, 2024), 9.");
+    expect(projectPlainText(p)).toContain("Ada Writer, A Useful Book (Press, 2024), 9.");
+  });
   it("escapes Markdown characters in section titles so one heading survives re-import", () => {
     const p = fixture();
     p.entries[0].title = "#1 [draft] *notes*";

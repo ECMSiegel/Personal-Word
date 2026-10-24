@@ -1,6 +1,6 @@
 import type { JSONContent } from "@tiptap/react";
 import { bibliography, footnoteText } from "../research/citations";
-import { footnoteIdsInOrder, resolveNoteForms } from "../research/noteForms";
+import { footnoteIdsInOrder, resolveCitationContext } from "../research/noteForms";
 import { emptyResearch } from "../research/types";
 import type { ExportProject } from "./document";
 
@@ -115,10 +115,10 @@ function footnoteNumbers(project: ExportProject): Map<string, number> {
 function projectParts(project: ExportProject) {
   const research = project.research ?? emptyResearch();
   const numbers = footnoteNumbers(project);
-  const forms = resolveNoteForms([...numbers.keys()], research);
+  const context = resolveCitationContext({ ...project, research });
   const notes = [...numbers.entries()].map(([id, number]) => {
     const note = research.footnotes.find((n) => n.id === id)!;
-    return { number, text: footnoteText(note, research, forms[id]) };
+    return { number, text: footnoteText(note, research, context[id].form, context[id].locator) };
   });
   const citedSourceIds = new Set(
     [...numbers.keys()]

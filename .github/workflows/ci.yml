@@ -13,8 +13,8 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  checks:
-    name: Build, browser tests, and Rust tests
+  frontend:
+    name: Build, unit, and browser checks
     runs-on: macos-15
     timeout-minutes: 45
     steps:
@@ -40,10 +40,7 @@ jobs:
         run: npx playwright install chromium
 
       - name: Run browser tests
-        run: npm run test:e2e
-
-      - name: Run Rust tests
-        run: cargo test --locked --manifest-path src-tauri/Cargo.toml
+        run: npm run test:e2e -- --workers=1
 
       - name: Upload browser failure artifacts
         if: failure()
@@ -55,3 +52,14 @@ jobs:
             playwright-report/
           if-no-files-found: ignore
           retention-days: 7
+
+  rust:
+    name: Rust tests
+    runs-on: macos-15
+    timeout-minutes: 30
+    steps:
+      - name: Check out source
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+
+      - name: Run Rust tests
+        run: cargo test --locked --manifest-path src-tauri/Cargo.toml

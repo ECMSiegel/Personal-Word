@@ -6,17 +6,22 @@ from pathlib import Path
 import signal
 import sqlite3
 import subprocess
+import sys
 import tempfile
 import time
+import uuid
 
 root = Path(__file__).resolve().parents[1]
 binary = root / "src-tauri/target/debug/folio"
-work = Path(tempfile.mkdtemp(prefix="personal-word-native-smoke-"))
+cache = root / "node_modules/.cache/personal-word-beta/d1"
+cache.mkdir(parents=True, exist_ok=True)
+work = Path(tempfile.mkdtemp(prefix="native-smoke-", dir=cache))
 projects = work / "projects"
 projects.mkdir()
 print(f"Native test data: {work}", flush=True)
 process = None
 reports = []
+data_store_id = uuid.uuid4().hex
 
 
 def launch(phase):
@@ -25,6 +30,8 @@ def launch(phase):
         **os.environ,
         "FOLIO_SMOKE_DIR": str(work),
         "FOLIO_SMOKE_PHASE": str(phase),
+        "FOLIO_SMOKE_SCRIPT": "native-smoke",
+        "FOLIO_SMOKE_DATA_STORE_ID": data_store_id,
     }
     output = (work / f"process-{phase}.log").open("w")
     process = subprocess.Popen(
@@ -54,6 +61,18 @@ def read_report(phase):
             f"{last_progress()}\n{log[-4000:]}"
         )
     report = json.loads(path.read_text())
+    if report.get("diagnosticAppIdentifier") != "com.folio.smoke":
+        raise RuntimeError("Native smoke report did not come from com.folio.smoke")
+    if report.get("diagnosticProtocol") != "d1-profile-isolation-v1":
+        raise RuntimeError("Native smoke report came from a stale diagnostic build")
+    if report.get("diagnosticDataStoreIdentifier") != data_store_id:
+        raise RuntimeError("Native smoke report did not use its isolated WebKit data store")
+    profile = report.get("diagnosticProfile") or {}
+    if (
+        profile.get("protocol") != "d1-profile-isolation-v1"
+        or data_store_id not in profile.get("activeDataStoreIdentifiers", [])
+    ):
+        raise RuntimeError("Native smoke report did not confirm the active isolated WebKit data store")
     print(json.dumps(report, indent=2), flush=True)
     if not report.get("ok"):
         raise RuntimeError(f"Native phase {phase} reported failure: {report}")
@@ -93,6 +112,8 @@ def verify_database(expected_text, verify_mirror):
 
 
 try:
+    if sys.platform != "darwin":
+        raise RuntimeError("Native smoke requires macOS WebKit data-store isolation")
     if not binary.is_file():
         raise RuntimeError(f"Native smoke binary is missing: {binary}")
 
@@ -169,8 +190,7 @@ try:
             "fragment extraction, restoration, and snapshot restoration",
         ],
     }
-    (root / "test-results").mkdir(exist_ok=True)
-    (root / "test-results/native-smoke.json").write_text(json.dumps(summary, indent=2) + "\n")
+    (work / "native-smoke.json").write_text(json.dumps(summary, indent=2) + "\n")
     print("Native WebView + SQLite smoke test passed.", flush=True)
 finally:
     stop_owned_process()

@@ -2,13 +2,14 @@ import { getSchema, type JSONContent } from "@tiptap/react";
 import { documentExtensions } from "./editor/extensions";
 import type { PageLayout } from "./editor/formatting";
 import type { ResearchData, DocumentSettings } from "./research/types";
-import { emptyResearch } from "./research/types";
+import { sourceKinds, emptyResearch } from "./research/types";
 const documentSchema = getSchema(documentExtensions());
 export type Entry = {
   id: string;
   kind: "section" | "fragment";
   title: string;
   content: JSONContent;
+  contentRevision?: number;
   text: string;
   updatedAt: string;
   synopsis?: string;
@@ -38,7 +39,16 @@ export type Project = {
   pageLayout?: PageLayout;
   sidebarOrder?: string[];
   annotations?: Annotation[];
-  goals?: { totalWords?: number; dailyWords?: number; deadline?: string };
+  goals?: { totalWords?: number; dailyWords?: number; deadline?: string; scope?: "manuscript" | "manuscript-and-fragments"; dayMode?: "local" | "utc" };
+};
+export type CommentAnchor = {
+  version: 1;
+  from: number;
+  to: number;
+  entryRevision: number;
+  prefix: string;
+  suffix: string;
+  status: "attached" | "detached" | "ambiguous";
 };
 export type Annotation = {
   id: string;
@@ -48,6 +58,7 @@ export type Annotation = {
   resolved: boolean;
   createdAt: string;
   kind: "comment" | "task";
+  anchor?: CommentAnchor;
 };
 export type Summary = Pick<Project, "id" | "title" | "updatedAt"> & {
   createdAt?: string;
@@ -134,6 +145,10 @@ export function validateProject(value: unknown): asserts value is Project {
     const goals = p.goals;
     if (!goals || typeof goals !== "object" || Array.isArray(goals))
       throw new Error("Invalid writing goals");
+    if (goals.scope !== undefined && !["manuscript", "manuscript-and-fragments"].includes(goals.scope))
+      throw new Error("Invalid writing goal scope");
+    if (goals.dayMode !== undefined && !["local", "utc"].includes(goals.dayMode))
+      throw new Error("Invalid writing goal day mode");
     for (const value of [goals.totalWords, goals.dailyWords])
       if (value !== undefined && (!Number.isSafeInteger(value) || value <= 0))
         throw new Error("Invalid writing goals");
@@ -156,7 +171,7 @@ export function validateProject(value: unknown): asserts value is Project {
         typeof source.title !== "string" ||
         !Array.isArray(source.authors) ||
         !source.authors.every((a) => typeof a === "string") ||
-        !["book", "journal", "website"].includes(source.kind)
+        !sourceKinds.includes(source.kind)
       )
         throw new Error("Invalid research source.");
     if (
@@ -164,11 +179,24 @@ export function validateProject(value: unknown): asserts value is Project {
         (source) =>
           (source.shortTitle !== undefined &&
             typeof source.shortTitle !== "string") ||
-          (source.cslId !== undefined && typeof source.cslId !== "string"),
+          (source.cslId !== undefined && typeof source.cslId !== "string") ||
+          ["edition", "container", "institution", "event", "publishedDate", "manualFull", "manualShort", "manualBibliography"].some((key) => {
+            const value = (source as unknown as Record<string, unknown>)[key];
+            return value !== undefined && typeof value !== "string";
+          }) ||
+          (source.cslData !== undefined && (!source.cslData || typeof source.cslData !== "object" || Array.isArray(source.cslData))) ||
+          (source.creators !== undefined && (!Array.isArray(source.creators) || source.creators.some((creator) =>
+            !creator || typeof creator !== "object" || Array.isArray(creator) || typeof creator.role !== "string" ||
+            [creator.given, creator.family, creator.literal].some((value) => value !== undefined && typeof value !== "string")
+          ))),
       )
     )
       throw new Error("Invalid research source.");
     if (r.autoShortNotes !== undefined && typeof r.autoShortNotes !== "boolean")
+      throw new Error("Invalid research data.");
+    const policy = r.citationPolicy as { scope?: unknown; repeats?: unknown } | undefined;
+    if (policy !== undefined && (!policy || typeof policy !== "object" || Array.isArray(policy) ||
+      !["manuscript", "section"].includes(policy.scope as string) || !["short", "ibid"].includes(policy.repeats as string)))
       throw new Error("Invalid research data.");
     for (const note of [...r.notes, ...r.footnotes])
       if (typeof note.id !== "string" || typeof note.text !== "string")
@@ -184,7 +212,9 @@ export function validateProject(value: unknown): asserts value is Project {
           typeof a.id !== "string" ||
           typeof a.entryId !== "string" ||
           typeof a.text !== "string" ||
-          typeof a.quote !== "string",
+          typeof a.quote !== "string" ||
+          (a.anchor?.status === "attached" && !a.quote) ||
+          (a.anchor !== undefined && !validCommentAnchor(a.anchor)),
       ))
   )
     throw new Error("Invalid annotations.");
@@ -208,6 +238,8 @@ export function validateProject(value: unknown): asserts value is Project {
       !e.title.trim() ||
       typeof e.text !== "string" ||
       typeof e.updatedAt !== "string" ||
+      (e.contentRevision !== undefined &&
+        (!Number.isSafeInteger(e.contentRevision) || e.contentRevision < 0)) ||
       e.content?.type !== "doc" ||
       !Array.isArray(e.content.content)
     )
@@ -222,4 +254,16 @@ export function validateProject(value: unknown): asserts value is Project {
     sections.some((e) => !p.order.includes(e.id))
   )
     throw new Error("Project section order is invalid.");
+}
+
+function validCommentAnchor(value: unknown): value is CommentAnchor {
+  if (!value || typeof value !== "object" || Array.isArray(value)) return false;
+  const anchor = value as CommentAnchor;
+  return anchor.version === 1 &&
+    Number.isSafeInteger(anchor.from) && anchor.from >= 0 &&
+    Number.isSafeInteger(anchor.to) && anchor.to >= anchor.from &&
+    Number.isSafeInteger(anchor.entryRevision) && anchor.entryRevision >= 0 &&
+    typeof anchor.prefix === "string" && typeof anchor.suffix === "string" &&
+    ["attached", "detached", "ambiguous"].includes(anchor.status) &&
+    (anchor.status !== "attached" || anchor.to > anchor.from);
 }

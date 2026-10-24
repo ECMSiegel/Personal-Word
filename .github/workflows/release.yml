@@ -1,0 +1,171 @@
+name: Prepare reviewed macOS candidate
+
+on:
+  workflow_dispatch:
+    inputs:
+      source_sha:
+        description: Full reviewed commit SHA on main (must have successful CI)
+        required: true
+        type: string
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: release-candidate-${{ github.event.inputs.source_sha }}
+  cancel-in-progress: false
+
+jobs:
+  candidate:
+    name: Prepare ${{ matrix.arch }} candidate (no publication)
+    environment: release-candidate
+    strategy:
+      fail-fast: true
+      max-parallel: 1
+      matrix:
+        include:
+          - runner: macos-15-intel
+            target: x86_64-apple-darwin
+            arch: x86_64
+          - runner: macos-15
+            target: aarch64-apple-darwin
+            arch: arm64
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 60
+    env:
+      REVIEWED_SHA: ${{ inputs.source_sha }}
+      CANDIDATE_TARGET: ${{ matrix.target }}
+      CANDIDATE_ARCH: ${{ matrix.arch }}
+    steps:
+      - name: Validate immutable revision input
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          import os, re
+          if not re.fullmatch(r"[0-9a-f]{40}", os.environ["REVIEWED_SHA"]):
+              raise SystemExit("source_sha must be a full lowercase commit SHA")
+          PY
+
+      - name: Check out reviewed source
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        with:
+          ref: ${{ inputs.source_sha }}
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Require main ancestry and successful CI
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          test "$(git rev-parse HEAD)" = "$REVIEWED_SHA"
+          git merge-base --is-ancestor "$REVIEWED_SHA" origin/main
+          gh api "repos/$GITHUB_REPOSITORY/actions/workflows/ci.yml/runs?head_sha=$REVIEWED_SHA&status=completed&per_page=100" \
+            --jq 'any(.workflow_runs[]; .conclusion == "success")' | python3 -c 'import sys; value=sys.stdin.read().strip(); sys.exit(0 if value == "true" else "A successful CI run is required for this exact commit")'
+
+      - name: Set up Node.js
+        uses: actions/setup-node@2028fbc5c25fe9cf00d9f06a71cc4710d4507903 # v6.0.0
+        with:
+          node-version: 22
+          package-manager-cache: false
+
+      - name: Verify native host architecture
+        shell: bash
+        run: |
+          rustc -Vv
+          rustc -Vv | python3 -c 'import os,sys; text=sys.stdin.read(); expected="host: " + os.environ["CANDIDATE_TARGET"]; sys.exit(0 if expected in text.splitlines() else "Rust host does not match candidate target")'
+          cargo -V
+
+      - name: Install locked frontend dependencies
+        run: npm ci
+
+      - name: Capture exact source manifest
+        shell: bash
+        run: |
+          mkdir -p candidate-evidence
+          python3 - <<'PY'
+          import hashlib,json,subprocess
+          from pathlib import Path, PurePosixPath
+          assert not list(Path('.').glob('.env*')), 'Environment files are not allowed in a reviewed candidate build'
+          paths=[p for p in subprocess.check_output(['git','ls-files','-z']).decode().split('\0') if p]
+          denied={'.git','.hg','.svn','.aws','.ssh','.gnupg','id_rsa','id_ed25519','.cargo-ok','cache','caches','node_modules','target','test-results','playwright-report','secrets','credentials','tokens','keys','handoff.md'}
+          def safe(name):
+              path=PurePosixPath(name)
+              return bool(name) and '\\' not in name and not path.is_absolute() and '..' not in path.parts and all(part.lower() not in denied and not part.lower().startswith('.env') and part.lower() != '.cache' and not any(word in part.lower() for word in ('credential','private-key','private_key','secret','token')) for part in path.parts) and path.suffix.lower() not in {'.pem','.p12','.pfx','.key','.p7b','.p7c','.mobileprovision','.provisionprofile','.cer','.crt'}
+          assert paths and all(safe(p) for p in paths), 'Unsafe tracked path: stop without reading its contents'
+          root=Path.cwd().resolve()
+          assert all(not any(root.joinpath(*PurePosixPath(p).parts[:n]).is_symlink() for n in range(1,len(PurePosixPath(p).parts)+1)) and Path(p).resolve().is_relative_to(root) for p in paths), 'Unsafe source link'
+          assert subprocess.run(['git','diff','--quiet']).returncode == 0, 'Tracked sources changed after dependency installation'
+          assert subprocess.run(['git','diff','--cached','--quiet']).returncode == 0, 'Index changed after dependency installation'
+          assert not subprocess.check_output(['git','ls-files','--others','--exclude-standard','-z']), 'Untracked source files appeared after dependency installation'
+          manifest={p:hashlib.sha256(Path(p).read_bytes()).hexdigest() for p in paths}
+          assert 'package.json' in manifest and 'src-tauri/Cargo.toml' in manifest
+          Path('candidate-evidence/source-manifest.json').write_text(json.dumps(manifest,indent=2)+'\n')
+          PY
+
+      - name: Build local candidate only
+        env:
+          # No signing credential or public-release permission in this preparation job.
+          APPLE_SIGNING_IDENTITY: '-'
+        run: npm run tauri build -- --target "$CANDIDATE_TARGET" --config src-tauri/tauri.release.conf.json
+
+      - name: Require unchanged reviewed sources after building
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          import subprocess
+          from pathlib import Path, PurePosixPath
+          root=Path.cwd().resolve()
+          paths=subprocess.check_output(['git','ls-files','-z']).decode().split('\0')
+          denied={'.git','.hg','.svn','.aws','.ssh','.gnupg','id_rsa','id_ed25519','.cargo-ok','cache','caches','node_modules','target','test-results','playwright-report','secrets','credentials','tokens','keys','handoff.md','.cache'}
+          def safe(name):
+              path=PurePosixPath(name)
+              return '\\' not in name and not path.is_absolute() and '..' not in path.parts and all(part.lower() not in denied and not part.lower().startswith('.env') and not any(word in part.lower() for word in ('credential','private-key','private_key','secret','token')) for part in path.parts) and path.suffix.lower() not in {'.pem','.p12','.pfx','.key','.p7b','.p7c','.mobileprovision','.provisionprofile','.cer','.crt'}
+          assert all(not p or safe(p) for p in paths), 'Build introduced unsafe tracked paths'
+          assert all(not p or (not any(root.joinpath(*PurePosixPath(p).parts[:n]).is_symlink() for n in range(1,len(PurePosixPath(p).parts)+1)) and Path(p).resolve().is_relative_to(root)) for p in paths), 'Build introduced unsafe source links'
+          assert not list(Path('.').glob('.env*')), 'Environment files appeared during the candidate build'
+          assert subprocess.run(['git','diff','--quiet']).returncode == 0, 'Build modified tracked source files'
+          assert subprocess.run(['git','diff','--cached','--quiet']).returncode == 0, 'Build modified the index'
+          untracked=subprocess.check_output(['git','ls-files','--others','--exclude-standard','-z']).decode().split('\0')
+          assert all(not p or p == 'candidate-evidence/source-manifest.json' for p in untracked), 'Build produced unreviewed source files'
+          PY
+
+      - name: Verify candidate identity, architecture, resources and source
+        shell: bash
+        run: |
+          CANDIDATE_VERSION="$(node -p 'JSON.parse(require("fs").readFileSync("package.json", "utf8")).version')"
+          python3 scripts/verify-release.py \
+            --app "src-tauri/target/$CANDIDATE_TARGET/release/bundle/macos/Personal Word.app" \
+            --arch "$CANDIDATE_ARCH" --version "$CANDIDATE_VERSION" \
+            --source-manifest candidate-evidence/source-manifest.json \
+            > candidate-evidence/verification.json
+          python3 scripts/package-source.py --revision "$REVIEWED_SHA" --out candidate-evidence/source
+
+      - name: Record distribution gate
+        if: always()
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          import json,os
+          from pathlib import Path
+          Path('candidate-evidence').mkdir(exist_ok=True)
+          data={'source':os.environ['REVIEWED_SHA'],'architecture':os.environ['CANDIDATE_ARCH'],
+                'ready_for_publication':False,
+                'blocked':['source and notice review','Developer ID signing/notarization','clean-machine architecture and owner qualification','concrete binary publication approval'],
+                'binary_uploaded':False}
+          Path('candidate-evidence/distribution-gate.json').write_text(json.dumps(data,indent=2)+'\n')
+          PY
+
+      - name: Upload metadata only (never unsigned binaries)
+        if: always()
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        with:
+          name: candidate-evidence-${{ matrix.arch }}
+          path: |
+            candidate-evidence/*.json
+          if-no-files-found: warn
+          retention-days: 7
+
+      # R3 adds a separately approved signing/notary and publication transaction.
+      # This workflow intentionally cannot upload app/DMG/source release assets.

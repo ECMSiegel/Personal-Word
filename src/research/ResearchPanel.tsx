@@ -12,7 +12,8 @@ import { lookupIdentifier } from "./lookup";
 import { parseCslJson, type CslImportResult } from "./cslImport";
 import { CaptureQuote } from "./CaptureQuote";
 import { MAX_MANUSCRIPT_BYTES } from "../import/manuscript";
-import type { NoteForm } from "./types";
+import type { CitationPolicy, NoteForm } from "./types";
+import type { CitationContext } from "./noteForms";
 import {
   type Footnote,
   type ResearchData,
@@ -24,16 +25,12 @@ import "./research.css";
 export type ResearchTab = "sources" | "notes";
 const emptyResearchData: ResearchData = { sources: [], notes: [], footnotes: [] };
 
-const kindOptions: DropdownOption<Source["kind"]>[] = [
-  { value: "book", label: "Book" },
-  { value: "journal", label: "Journal article" },
-  { value: "website", label: "Website" },
-];
 const kindLabels: Record<Source["kind"], string> = {
-  book: "Book",
-  journal: "Journal article",
-  website: "Website",
+  book: "Book", journal: "Journal article", website: "Website", chapter: "Book chapter",
+  thesis: "Thesis or dissertation", report: "Report", conference: "Conference work",
+  newspaper: "Newspaper article", interview: "Interview", media: "Media", other: "Other",
 };
+const kindOptions: DropdownOption<Source["kind"]>[] = Object.entries(kindLabels).map(([value, label]) => ({ value: value as Source["kind"], label }));
 const quoteKindOptions: DropdownOption<ResearchNote["kind"]>[] = [
   { value: "quote", label: "Direct quote" },
   { value: "paraphrase", label: "Paraphrase" },
@@ -140,7 +137,7 @@ export function ResearchPanel({
   onInsertNote,
   initialTab = "sources",
   focusFootnoteId,
-  noteForms = {},
+  citationContext = {},
   onImportCsl,
   onCaptureQuote,
 }: {
@@ -151,7 +148,7 @@ export function ResearchPanel({
   initialTab?: ResearchTab | "footnotes";
   /** Opens Sources at the footnote's source and focuses its text. */
   focusFootnoteId?: string;
-  noteForms?: Record<string, "full" | "short">;
+  citationContext?: CitationContext;
   onImportCsl?: (result: CslImportResult) => void;
   onCaptureQuote?: (note: ResearchNote, insert: boolean) => void;
 }) {
@@ -291,7 +288,8 @@ export function ResearchPanel({
 
   const renderFootnote = (note: Footnote) => {
     const linked = Boolean(note.sourceId);
-    const parts = footnoteParts(note, data, noteForms[note.id]);
+    const context = citationContext[note.id];
+    const parts = footnoteParts(note, data, context?.form, context?.locator);
     return (
       <div className="footnote-item" key={note.id}>
         <span className="field-label">
@@ -320,7 +318,7 @@ export function ResearchPanel({
                 value={note.form ?? (note.shortened ? "short" : "auto")}
                 width="100%"
                 options={[
-                  { value: "auto", label: `Automatic (${noteForms[note.id] ?? "full"})` },
+                  { value: "auto", label: `Automatic (${context?.form === "ibid" ? "Ibid." : context?.form ?? "full"})` },
                   { value: "full", label: "Always full" },
                   { value: "short", label: "Always short" },
                 ]}
@@ -423,15 +421,24 @@ export function ResearchPanel({
           />
         </div>
         <div className="research-fields">
-          <Field
-            id={fieldId("authors")}
-            label="Authors"
-            multiline
-            wide
-            help="One name per line, first name first"
-            value={source.authors.join("\n")}
+          {source.creators?.map((creator, index) => (
+            <div className="field-group" key={index}>
+              <span>{creator.role} {index + 1}</span>
+              {(creator.literal !== undefined ? ["literal"] : ["given", "family"]).map((key) => (
+                <Field key={key} id={fieldId(`creator-${index}-${key}`)} label={`${creator.role} ${index + 1} ${key === "literal" ? "organization or literal name" : key + " name"}`}
+                  value={creator[key as "given" | "family" | "literal"] ?? ""}
+                  onChange={(value) => {
+                    const creators = source.creators!.map((person, i) => i === index ? { ...person, [key]: value } : person);
+                    patch({ creators, authors: creators.some((person) => person.role === "author") ? creators.filter((person) => person.role === "author").map((person) => person.literal || [person.given, person.family].filter(Boolean).join(" ")) : source.authors });
+                  }} />
+              ))}
+            </div>
+          ))}
+          {!source.creators?.some((creator) => creator.role === "author") && <Field
+            id={fieldId("authors")} label="Authors" multiline wide
+            help="One name per line, first name first" value={source.authors.join("\n")}
             onChange={(value) => patch({ authors: value.split("\n") })}
-          />
+          />}
           <Field
             id={fieldId("title")}
             label="Title"
@@ -526,6 +533,21 @@ export function ResearchPanel({
               />
             </>
           )}
+          {! ["book", "journal", "website"].includes(source.kind) && <>
+            <p className="research-hint">This source type retains its imported fields. Automatic formatting is limited; review every preview and supply manual text wherever a form is requested.</p>
+            {([ ["container", "Container title"], ["publisher", "Publisher"], ["year", "Year"], ["institution", "Institution"], ["event", "Event"], ["publishedDate", "Published date"] ] as const).map(([key, label]) =>
+              <Field key={key} id={fieldId(key)} label={label} value={source[key] ?? ""} onChange={(value) => patch({ [key]: value })} />)}
+          </>}
+          {source.kind === "chapter" && <button type="button" onClick={() => patch({ creators: [...(source.creators ?? []), { role: "editor", literal: "" }] })}>Add editor</button>}
+          <Field id={fieldId("edition")} label="Edition" value={source.edition ?? ""} onChange={(edition) => patch({ edition })} />
+          {([ ["manualFull", "Manual full note"], ["manualShort", "Manual short note"], ["manualBibliography", "Manual bibliography entry"] ] as const).map(([key, label]) =>
+            <Field key={key} id={fieldId(key)} label={label} wide multiline help="When supplied, this exact text overrides automatic formatting." value={source[key] ?? ""} onChange={(value) => patch({ [key]: value })} />)}
+          <p className="research-hint">Review required details: {[
+            !source.title.trim() && "title",
+            !source.authors.some((name) => name.trim()) && !source.creators?.some((creator) => creator.role === "author" && [creator.literal, creator.given, creator.family].some((value) => value?.trim())) && "creator or intentional no-author entry",
+            !source.year && !source.publishedDate && "publication date or intentional no-date entry",
+          ].filter(Boolean).join("; ") || "core fields present -- verify names, dates and publication details"}.</p>
+          {source.cslData && <details><summary>Original imported CSL fields</summary><pre style={{ whiteSpace: "pre-wrap", overflowWrap: "anywhere" }}>{JSON.stringify(source.cslData, null, 2)}</pre></details>}
           <Field
             id={fieldId("doi")}
             label="DOI"
@@ -637,14 +659,57 @@ export function ResearchPanel({
       </nav>
       {tab === "sources" ? (
         <>
+          {!data.citationPolicy && (
+            <label className="check">
+              <input
+                type="checkbox"
+                checked={data.autoShortNotes ?? false}
+                onChange={(event) => onChange({ ...data, autoShortNotes: event.target.checked })}
+              />
+              Shorten repeat citations automatically
+            </label>
+          )}
           <label className="check">
             <input
               type="checkbox"
-              checked={data.autoShortNotes ?? false}
-              onChange={(event) => onChange({ ...data, autoShortNotes: event.target.checked })}
+              checked={Boolean(data.citationPolicy)}
+              onChange={(event) => {
+                const { citationPolicy: _removed, ...rest } = data;
+                onChange(event.target.checked ? { ...rest, citationPolicy: { scope: "manuscript", repeats: "short" } } : rest);
+              }}
             />
-            Shorten repeat citations automatically
+            Use repeat citation rules
           </label>
+          {data.citationPolicy && (
+            <div>
+              <div className="field">
+                <span className="field-label">Full citation again</span>
+                <Dropdown<CitationPolicy["scope"]>
+                  label="Full citation again"
+                  value={data.citationPolicy.scope}
+                  width="100%"
+                  options={[
+                    { value: "manuscript", label: "Never -- once per manuscript" },
+                    { value: "section", label: "In each section (one manuscript entry)" },
+                  ]}
+                  onChange={(scope) => onChange({ ...data, citationPolicy: { ...data.citationPolicy!, scope } })}
+                />
+              </div>
+              <div className="field">
+                <span className="field-label">Back-to-back repeat</span>
+                <Dropdown<CitationPolicy["repeats"]>
+                  label="Back-to-back repeat"
+                  value={data.citationPolicy.repeats}
+                  width="100%"
+                  options={[
+                    { value: "short", label: "Short note" },
+                    { value: "ibid", label: "Ibid." },
+                  ]}
+                  onChange={(repeats) => onChange({ ...data, citationPolicy: { ...data.citationPolicy!, repeats } })}
+                />
+              </div>
+            </div>
+          )}
           <input
             ref={importFile}
             type="file"

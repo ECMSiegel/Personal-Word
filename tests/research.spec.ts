@@ -166,8 +166,8 @@ test("imports sources from a Zotero CSL JSON file", async ({ page }) => {
   await expect(importButton).toBeVisible({ timeout: 5000 });
   await importButton.click();
   await page.locator('input[type="file"]').setInputFiles("tests/fixtures/zotero-sample.json");
-  await expect(page.getByText("2 sources to add")).toBeVisible();
-  await expect(page.getByText(/1 thesis/)).toBeVisible();
+  await expect(page.getByText("3 sources to add")).toBeVisible();
+  await expect(page.getByLabel("Add Unsupported thesis", { exact: true })).toBeChecked();
   await page.getByRole("button", { name: "Add sources" }).click();
   await expect(page.locator(".source-list")).toContainText("A Lantern for the Coast");
   await expect(page.locator(".source-list")).toContainText("Keeping the Harbor Lights");
@@ -202,4 +202,115 @@ test("captured quote inserts with its citation and one undo removes both", async
   await previewPdf.click();
   await expect(previewPdf).toBeEnabled({ timeout: 30_000 });
   await expect(page.getByTitle("PDF export preview")).toBeVisible();
+});
+
+test("opt-in Ibid. rules reach the page notes and research preview, persist, and turn off cleanly", async ({ page }) => {
+  await page.goto("/");
+  await create(page, "Ibid rules");
+  const editor = page.getByRole("textbox", { name: "Writing editor" });
+  await editor.fill("First passage. Second passage.");
+  await openResearch(page);
+  await page.getByRole("button", { name: "Enter manually" }).click();
+  await page.getByLabel("Authors", { exact: true }).fill("Marguerite Halloway");
+  await page.getByLabel("Title", { exact: true }).fill("Lamps and Ledgers");
+  await page.getByLabel("Publisher", { exact: true }).fill("Harbor Street Press");
+  await page.getByLabel("Year", { exact: true }).fill("2019");
+  const cite = page.getByRole("button", { name: "Cite here", exact: true });
+  await cite.click();
+  await editor.click();
+  await page.keyboard.press("Home");
+  await cite.click();
+  const notes = page.locator(".footnote-area");
+  // Old projects and new ones without rules keep the legacy short note.
+  await expect(notes).toContainText("Halloway, Lamps and Ledgers.");
+  await expect(notes).not.toContainText("Ibid.");
+  await page.getByLabel("Use repeat citation rules", { exact: true }).check();
+  await page.getByRole("button", { name: "Back-to-back repeat", exact: true }).click();
+  await page.getByRole("option", { name: "Ibid.", exact: true }).click();
+  await expect(notes).toContainText("Ibid.");
+  await expect(notes).not.toContainText("Halloway, Lamps and Ledgers.");
+  await expect(page.locator(".footnote-item .citation-preview")).toContainText(["Ibid."]);
+  await page.locator(".research-panel").screenshot({ path: "node_modules/.cache/personal-word-beta/c2-rules-light.png" });
+  await page.emulateMedia({ colorScheme: "dark" });
+  await page.locator(".research-panel").screenshot({ path: "node_modules/.cache/personal-word-beta/c2-rules-dark.png" });
+  await page.emulateMedia({ colorScheme: "light" });
+  await expect(page.getByRole("button", { name: "Note form" }).filter({ hasText: "Automatic (Ibid.)" })).toHaveCount(1);
+  await expect(page.locator(".save-status")).toHaveText("Saved");
+  const stored = async () => JSON.parse(await page.evaluate(() => {
+    const key = Object.keys(localStorage).find((key) => key.startsWith("folio.preview.project."))!;
+    return localStorage.getItem(key)!;
+  })).research;
+  expect((await stored()).citationPolicy).toEqual({ scope: "manuscript", repeats: "ibid" });
+  await page.reload();
+  await page.locator(".project-row").filter({ has: page.getByText("Ibid rules", { exact: true }) }).locator("button").first().click();
+  await expect(page.locator(".footnote-area")).toContainText("Ibid.");
+  await openResearch(page);
+  await page.getByLabel("Use repeat citation rules", { exact: true }).uncheck();
+  await expect(page.locator(".footnote-area")).toContainText("Halloway, Lamps and Ledgers.");
+  await expect(page.locator(".footnote-area")).not.toContainText("Ibid.");
+  await expect(page.locator(".save-status")).toHaveText("Saved");
+  expect("citationPolicy" in (await stored())).toBe(false);
+});
+
+test("citation rules agree across page notes, preview and reader through section scope, reorder and reload", async ({ page }) => {
+  await page.addInitScript(() => localStorage.setItem("personal-word.restoreTabs", "true"));
+  await page.goto("/");
+  await create(page, "Citation rule renderers");
+  await expect(page.locator(".save-status")).toHaveText("Saved");
+  await page.evaluate(() => {
+    const key = Object.keys(localStorage).find((key) => key.startsWith("folio.preview.project."))!;
+    const p = JSON.parse(localStorage.getItem(key)!);
+    const section = (title: string, passages: [string, string][]) => ({
+      ...p.entries[0], id: crypto.randomUUID(), title,
+      content: { type: "doc", content: passages.map(([text, id]) => ({ type: "paragraph", content: [{ type: "text", text }, { type: "footnoteReference", attrs: { id } }] })) },
+      text: passages.map(([text]) => text).join("\n"),
+    });
+    p.entries = [section("Opening", [["First passage.", "n1"], ["Second passage.", "n2"]]), section("Ending", [["Third passage.", "n3"]])];
+    p.order = p.entries.map((e: { id: string }) => e.id);
+    p.research = {
+      sources: [{ id: "lamps", kind: "book", title: "Lamps and Ledgers", authors: ["Marguerite Halloway"], publisher: "Harbor Street Press", year: "2019" }],
+      notes: [],
+      footnotes: [["n1", "4"], ["n2", "9"], ["n3", "9"]].map(([id, locator]) => ({ id, text: "", sourceId: "lamps", locator })),
+      autoShortNotes: true,
+    };
+    localStorage.setItem(key, JSON.stringify(p));
+    localStorage.setItem("folio.lastProject", p.id);
+  });
+  await page.reload();
+  const full4 = "Marguerite Halloway, Lamps and Ledgers (Harbor Street Press, 2019), 4.";
+  const full9 = "Marguerite Halloway, Lamps and Ledgers (Harbor Street Press, 2019), 9.";
+  const reader = async (expected: string[]) => {
+    await page.getByRole("button", { name: "Read manuscript", exact: true }).click();
+    await expect(page.locator(".reader-footnotes p")).toHaveText(expected);
+    await page.locator(".entry-main").filter({ hasText: "Opening" }).click();
+  };
+  const notes = page.locator(".footnote-area");
+  await expect(notes).toContainText("Halloway, Lamps and Ledgers, 9.");
+  await reader([`1 ${full4}`, "2 Halloway, Lamps and Ledgers, 9.", "3 Halloway, Lamps and Ledgers, 9."]);
+
+  await openResearch(page);
+  await page.locator(".source-toggle").click();
+  await page.getByLabel("Use repeat citation rules", { exact: true }).check();
+  await page.getByRole("button", { name: "Back-to-back repeat", exact: true }).click();
+  await page.getByRole("option", { name: "Ibid.", exact: true }).click();
+  await expect(page.locator(".footnote-item .citation-preview")).toHaveText([full4, "Ibid., 9.", "Ibid."]);
+  await page.getByRole("button", { name: "Close research" }).click();
+  await expect(notes).toContainText("Ibid., 9.");
+  await reader([`1 ${full4}`, "2 Ibid., 9.", "3 Ibid."]);
+
+  await openResearch(page);
+  if (await page.locator(".footnote-item").count() === 0) await page.locator(".source-toggle").click();
+  await page.getByRole("button", { name: "Full citation again", exact: true }).click();
+  await page.getByRole("option", { name: "In each section (one manuscript entry)", exact: true }).click();
+  await expect(page.locator(".footnote-item .citation-preview")).toHaveText([full4, "Ibid., 9.", full9]);
+  await page.getByRole("button", { name: "Close research" }).click();
+  await reader([`1 ${full4}`, "2 Ibid., 9.", `3 ${full9}`]);
+
+  await page.locator(".entry-row").nth(1).dragTo(page.locator(".entry-row").nth(0));
+  await expect(page.locator(".entry-main").first()).toContainText("Ending");
+  const reordered = [`1 ${full9}`, `2 ${full4}`, "3 Ibid., 9."];
+  await reader(reordered);
+  await expect(page.locator(".save-status")).toHaveText("Saved");
+  await page.reload();
+  await reader(reordered);
 });

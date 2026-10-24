@@ -173,6 +173,13 @@ impl Store {
             "PRAGMA journal_mode=WAL; PRAGMA synchronous=FULL; PRAGMA foreign_keys=ON;",
         )
         .map_err(err)?;
+        #[cfg(target_os = "macos")]
+        db.execute_batch("PRAGMA fullfsync=ON; PRAGMA checkpoint_fullfsync=ON;")
+            .map_err(err)?;
+        #[cfg(feature = "native-smoke")]
+        if crate::smoke::take_fault(crate::smoke::Fault::FullFsyncOff) {
+            db.pragma_update(None, "fullfsync", false).map_err(err)?;
+        }
         match version {
             0 => db
                 .execute_batch(&format!(
@@ -248,6 +255,40 @@ impl Store {
         validate(&p)?;
         Ok(p)
     }
+    #[cfg(feature = "native-smoke")]
+    pub fn sqlite_sync_settings(&self, id: &str) -> Result<Value> {
+        let db = self.connect(id, false)?;
+        let journal_mode: String = db
+            .pragma_query_value(None, "journal_mode", |r| r.get(0))
+            .map_err(err)?;
+        let synchronous: i64 = db
+            .pragma_query_value(None, "synchronous", |r| r.get(0))
+            .map_err(err)?;
+        #[cfg(target_os = "macos")]
+        {
+            let fullfsync: i64 = db
+                .pragma_query_value(None, "fullfsync", |r| r.get(0))
+                .map_err(err)?;
+            let checkpoint_fullfsync: i64 = db
+                .pragma_query_value(None, "checkpoint_fullfsync", |r| r.get(0))
+                .map_err(err)?;
+            Ok(serde_json::json!({
+                "journalMode": journal_mode,
+                "synchronous": synchronous,
+                "fullfsync": fullfsync,
+                "checkpointFullfsync": checkpoint_fullfsync,
+            }))
+        }
+        #[cfg(not(target_os = "macos"))]
+        {
+            Ok(serde_json::json!({
+                "journalMode": journal_mode,
+                "synchronous": synchronous,
+                "fullfsync": null,
+                "checkpointFullfsync": null,
+            }))
+        }
+    }
     pub fn load(&self, id: &str) -> Result<Project> {
         let p = self.read(id)?;
         let db = self.connect(id, false)?;
@@ -277,6 +318,10 @@ impl Store {
     pub fn save_changes(&mut self, change: &Change) -> Result<()> {
         let h = &change.header;
         validate_header(h)?;
+        #[cfg(feature = "native-smoke")]
+        let drop_metadata = crate::smoke::take_fault(crate::smoke::Fault::DropMetadata);
+        #[cfg(not(feature = "native-smoke"))]
+        let drop_metadata = false;
         let ids: HashSet<&str> = h.entry_ids.iter().map(String::as_str).collect();
         let sent = change
             .entries
@@ -286,10 +331,23 @@ impl Store {
                     return Err("Invalid entry; nothing was saved".to_string());
                 }
                 validate_entry(e)?;
-                Ok((e, serde_json::to_string(e).map_err(err)?))
+                let data = if drop_metadata {
+                    let mut entry = e.clone();
+                    entry.extra.clear();
+                    serde_json::to_string(&entry).map_err(err)?
+                } else {
+                    serde_json::to_string(e).map_err(err)?
+                };
+                Ok((e, data))
             })
             .collect::<Result<Vec<_>>>()?;
-        let header = serde_json::to_string(h).map_err(err)?;
+        let header = if drop_metadata {
+            let mut header = h.clone();
+            header.extra.clear();
+            serde_json::to_string(&header).map_err(err)?
+        } else {
+            serde_json::to_string(h).map_err(err)?
+        };
         // Don't leave an empty database behind for a new project that can't be saved.
         if sent.len() != ids.len() && !self.dir(&h.id)?.join("project.sqlite3").is_file() {
             return Err("Project is missing sections or fragments; nothing was saved".into());
@@ -371,13 +429,46 @@ impl Store {
         let now = chrono::Utc::now().timestamp();
         tx.execute("INSERT INTO project VALUES (?1,?2,?3,?4) ON CONFLICT(id) DO UPDATE SET revision=excluded.revision,saved_at=excluded.saved_at,data=excluded.data", params![h.id, h.revision, now, header]).map_err(err)?;
         prune(&tx, now)?;
+        #[cfg(feature = "native-smoke")]
+        crate::smoke::checkpoint("pre-commit", h.revision)?;
+        #[cfg(feature = "native-smoke")]
+        let injected_sql_error = if crate::smoke::take_fault(crate::smoke::Fault::SqlRollback) {
+            Some("injected SQL failure after staged writes")
+        } else if crate::smoke::take_fault(crate::smoke::Fault::SqlDiskFull) {
+            Some("injected SQLite disk-full failure after staged writes")
+        } else if crate::smoke::take_fault(crate::smoke::Fault::SqlPermissionDenied) {
+            Some("injected SQLite permission failure after staged writes")
+        } else {
+            None
+        };
+        #[cfg(feature = "native-smoke")]
+        if let Some(message) = injected_sql_error {
+            // Returning before commit drops the transaction and rolls back the
+            // staged history, entry, and project-row changes as one unit.
+            return Err(message.into());
+        }
+        #[cfg(feature = "native-smoke")]
+        if crate::smoke::take_fault(crate::smoke::Fault::PrematureSqlAck) {
+            // Negative control: simulate a success response while the transaction
+            // is still uncommitted. Dropping `tx` rolls it back; the native checker
+            // must reject the reported acknowledgement.
+            return Ok(());
+        }
         tx.commit().map_err(err)?;
+        #[cfg(feature = "native-smoke")]
+        crate::smoke::checkpoint("post-commit-pre-mirror", h.revision)?;
         self.dirty.insert(h.id.clone());
         Ok(())
     }
     pub fn snapshot(&self, id: &str, name: &str) -> Result<String> {
         if name.trim().is_empty() {
             return Err("Give this snapshot a name.".into());
+        }
+        #[cfg(feature = "native-smoke")]
+        if name.starts_with("Before restoring ")
+            && crate::smoke::take_fault(crate::smoke::Fault::SkipSafetySnapshot)
+        {
+            return Ok(Uuid::new_v4().to_string());
         }
         let p = self.read(id)?;
         let db = self.connect(id, false)?;
@@ -669,6 +760,23 @@ pub fn sync_mirrors(
     writing: &Mutex<()>,
     only: Option<&str>,
 ) -> Vec<(String, Result<()>)> {
+    sync_mirrors_mode(store, writing, only, false)
+}
+
+pub fn sync_mirrors_for_close(
+    store: &Mutex<Store>,
+    writing: &Mutex<()>,
+) -> Vec<(String, Result<()>)> {
+    sync_mirrors_mode(store, writing, None, true)
+}
+
+fn sync_mirrors_mode(
+    store: &Mutex<Store>,
+    writing: &Mutex<()>,
+    only: Option<&str>,
+    closing: bool,
+) -> Vec<(String, Result<()>)> {
+    let explicit_flush = only.is_some();
     let _writing = writing.lock().unwrap_or_else(|e| e.into_inner());
     let (reader, ids) = {
         let mut s = store.lock().unwrap_or_else(|e| e.into_inner());
@@ -690,9 +798,16 @@ pub fn sync_mirrors(
         // Deleted while queued: nothing to copy, and quit must not wait on it.
         .filter(|id| reader.dir(id).is_ok_and(|d| d.is_dir()))
         .map(|id| {
+            #[cfg(feature = "native-smoke")]
+            if explicit_flush && crate::smoke::take_fault(crate::smoke::Fault::MirrorWrite) {
+                return (
+                    id,
+                    Err("Database saved, but portable copy failed: injected mirror write failure. Retry to repair it.".into()),
+                );
+            }
             let r = reader
                 .dir(&id)
-                .and_then(|dir| write_mirrors(&dir, &reader.read(&id)?))
+                .and_then(|dir| write_mirrors(&dir, &reader.read(&id)?, closing))
                 .map_err(|e| {
                     format!("Database saved, but portable copy failed: {e}. Retry to repair it.")
                 });
@@ -710,7 +825,13 @@ pub fn sync_mirrors(
     }
     results
 }
-fn write_mirrors(dir: &Path, p: &Project) -> Result<()> {
+fn write_mirrors(dir: &Path, p: &Project, closing: bool) -> Result<()> {
+    #[cfg(feature = "native-smoke")]
+    if closing && crate::smoke::take_fault(crate::smoke::Fault::CloseFlush) {
+        return Err("injected close flush failure".into());
+    }
+    #[cfg(not(feature = "native-smoke"))]
+    let _ = closing;
     atomic(
         &dir.join("project.json"),
         &serde_json::to_vec_pretty(p).map_err(err)?,
@@ -730,7 +851,10 @@ fn write_mirrors(dir: &Path, p: &Project) -> Result<()> {
         .collect::<Vec<_>>()
         .join("\n\n");
     atomic(&dir.join("manuscript.txt"), manuscript.as_bytes())?;
-    atomic(&dir.join("fragments.txt"), fragments.as_bytes())
+    atomic(&dir.join("fragments.txt"), fragments.as_bytes())?;
+    #[cfg(feature = "native-smoke")]
+    crate::smoke::checkpoint("post-mirror", p.revision)?;
+    Ok(())
 }
 pub fn validate(p: &Project) -> Result<()> {
     validate_header(&p.header())?;
@@ -1291,30 +1415,7 @@ mod tests {
         db.pragma_update(None, "user_version", 99).unwrap();
         assert!(store.load(&p.id).unwrap_err().contains("newer version"));
     }
-    fn big_project() -> Project {
-        let mut p = project();
-        let sentence = "The quiet river carried every word we wrote far downstream.";
-        p.entries = (0..100)
-            .map(|s| {
-                let paras: Vec<String> = (0..100)
-                    .map(|i| sentence.replace("river", &format!("river{s}.{i}")))
-                    .collect();
-                Entry {
-                    id: Uuid::new_v4().to_string(),
-                    kind: "section".into(),
-                    title: format!("Section {s}"),
-                    content: serde_json::json!({"type":"doc","content": paras.iter().map(|t| serde_json::json!({"type":"paragraph","content":[{"type":"text","text":t}]})).collect::<Vec<_>>()}),
-                    text: paras.join("\n"),
-                    updated_at: "2026-10-16".into(),
-                    origin: None,
-                extra: Default::default(),
-                }
-            })
-            .collect();
-        p.order = p.entries.iter().map(|e| e.id.clone()).collect();
-        p
-    }
-    /// `cargo test --release --manifest-path src-tauri/Cargo.toml bench_save -- --ignored --nocapture`
+    /// `cargo test --release --locked --manifest-path src-tauri/Cargo.toml bench_save_100k_active_entry_100_saves -- --ignored --nocapture`
     #[test]
     fn extended_project_metadata_survives_save_and_restart() {
         let t = tempfile::tempdir().unwrap();
@@ -1330,26 +1431,200 @@ mod tests {
         assert_eq!(fresh.load(&p.id).unwrap(), p);
     }
     #[test]
+    fn sparse_metadata_survives_history_mirrors_and_restart() {
+        let t = tempfile::tempdir().unwrap();
+        let mut store = Store::new(t.path().into()).unwrap();
+        let mut p = project();
+        let second = section("Unchanged entry.");
+        p.order.push(second.id.clone());
+        p.entries.push(second);
+        p.extra.insert(
+            "research".into(),
+            serde_json::json!({
+                "sources":[{"id":"source-1","kind":"chapter","title":"Field notes",
+                    "authors":["Coastal Research Council"],
+                    "creators":[{"role":"author","literal":"Coastal Research Council"}],
+                    "edition":"2","container":"Methods","publishedDate":"2024-05-02",
+                    "manualFull":"Council, exact note!","manualShort":"Council, notes!",
+                    "manualBibliography":"Council. Exact bibliography!",
+                    "cslData":{"type":"chapter","custom":{"nested":["保留",17]},
+                        "__proto__":{"safe":"data"},"constructor":"raw"}}],
+                "notes":[{"id":"note-1","text":"Keep this note"}],
+                "footnotes":[{"id":"footnote-1","text":"Keep this footnote"}]
+            }),
+        );
+        p.extra.insert(
+            "annotations".into(),
+            serde_json::json!([{
+                "id":"comment-1",
+                "entryId":p.entries[0].id.clone(),
+                "quote":"this",
+                "text":"Resolve later",
+                "resolved":false,
+                "createdAt":"2026-10-20T12:00:00.000Z",
+                "kind":"comment",
+                "anchor":{
+                    "version":1,
+                    "from":6,
+                    "to":10,
+                    "entryRevision":8,
+                    "prefix":"Keep ",
+                    "suffix":".",
+                    "status":"attached"
+                },
+                "futureCommentMetadata":{"color":"blue","pinned":true}
+            }]),
+        );
+        p.extra.insert(
+            "futureProjectMetadata".into(),
+            serde_json::json!({"edition":2,"preserve":{"unknown":true}}),
+        );
+        p.extra.insert(
+            "documentSettings".into(),
+            serde_json::json!({"fontFamily":"serif","fontSize":12,"lineSpacing":2}),
+        );
+        p.extra.insert(
+            "pageLayout".into(),
+            serde_json::json!({"mode":"pages","paper":"letter","margin":96,"zoom":100}),
+        );
+        p.extra.insert("goals".into(), serde_json::json!({
+            "dailyWords":500,"scope":"manuscript","dayMode":"local",
+            "futureGoalMetadata":{"preserve":true}
+        }));
+        p.extra.insert(
+            "sidebarOrder".into(),
+            serde_json::json!(["research","manuscript","comments"]),
+        );
+        p.entries[0]
+            .extra
+            .insert("tags".into(), serde_json::json!(["source-alpha"]));
+        p.entries[0]
+            .extra
+            .insert("contentRevision".into(), serde_json::json!(8));
+        p.entries[0].extra.insert(
+            "futureEntryMetadata".into(),
+            serde_json::json!({"reviewState":"queued","custom":17}),
+        );
+        p.entries[1].extra.insert(
+            "synopsis".into(),
+            serde_json::json!("This unchanged entry retains its own metadata."),
+        );
+        store.save(&p).unwrap();
+        let first = p.clone();
+
+        // Only one entry is sent on the next revision; unchanged entry metadata
+        // and all project metadata must be rebuilt from their saved rows.
+        p.revision += 1;
+        p.extra["goals"] = serde_json::json!({
+            "dailyWords":750,"deadline":"2026-12-31",
+            "scope":"manuscript-and-fragments","dayMode":"utc",
+            "futureGoalMetadata":{"preserve":true}
+        });
+        p.entries[0]
+            .extra
+            .insert("tags".into(), serde_json::json!(["source-alpha", "revised"]));
+        store
+            .save_changes(&Change {
+                header: p.header(),
+                entries: vec![p.entries[0].clone()],
+                base_revision: Some(first.revision),
+            })
+            .unwrap();
+        assert_eq!(store.read(&p.id).unwrap(), p);
+        assert_eq!(
+            store.version(&p.id, &first.revision.to_string(), true).unwrap(),
+            first
+        );
+
+        let (store, mirrored) = mirror(store, &p.id);
+        mirrored.unwrap();
+        let mirror: Project = serde_json::from_slice(
+            &fs::read(t.path().join(&p.id).join("project.json")).unwrap(),
+        )
+        .unwrap();
+        assert_eq!(mirror, p);
+        drop(store);
+
+        let mut reopened = Store::new(t.path().into()).unwrap();
+        assert_eq!(reopened.load(&p.id).unwrap(), p);
+        assert_eq!(
+            reopened
+                .version(&p.id, &first.revision.to_string(), true)
+                .unwrap(),
+            first
+        );
+    }
+
+    #[cfg(target_os = "macos")]
+    #[test]
+    fn macos_database_connections_enable_fullfsync_and_checkpoint_fullfsync() {
+        let t = tempfile::tempdir().unwrap();
+        let mut store = Store::new(t.path().into()).unwrap();
+        let p = project();
+        store.save(&p).unwrap();
+        let db = store.connect(&p.id, false).unwrap();
+        let journal_mode: String = db
+            .pragma_query_value(None, "journal_mode", |r| r.get(0))
+            .unwrap();
+        let synchronous: i64 = db
+            .pragma_query_value(None, "synchronous", |r| r.get(0))
+            .unwrap();
+        let fullfsync: i64 = db
+            .pragma_query_value(None, "fullfsync", |r| r.get(0))
+            .unwrap();
+        let checkpoint_fullfsync: i64 = db
+            .pragma_query_value(None, "checkpoint_fullfsync", |r| r.get(0))
+            .unwrap();
+        assert_eq!(journal_mode.to_ascii_lowercase(), "wal");
+        assert_eq!(synchronous, 2, "SQLite FULL mode must remain enabled");
+        assert_eq!(fullfsync, 1, "macOS FULL sync should request F_FULLFSYNC");
+        assert_eq!(
+            checkpoint_fullfsync, 1,
+            "macOS WAL checkpoints should request F_FULLFSYNC"
+        );
+        let check_fullfsync = |value| {
+            if value == 1 {
+                Ok(())
+            } else {
+                Err("FULLFSYNC is disabled".to_string())
+            }
+        };
+        assert!(check_fullfsync(0).is_err(), "negative control must reject OFF");
+        check_fullfsync(fullfsync).unwrap();
+    }
+    #[test]
     #[ignore]
-    fn bench_save_100k_words() {
+    fn bench_save_100k_active_entry_100_saves() {
         let t = tempfile::tempdir().unwrap();
         let mut s = Store::new(t.path().into()).unwrap();
-        let mut p = big_project();
+        let mut p = project();
+        let text = "word ".repeat(100_000);
+        p.entries[0].text = text.clone();
+        p.entries[0].content = serde_json::json!({
+            "type":"doc",
+            "content":[{"type":"paragraph","content":[{"type":"text","text":text}]}]
+        });
         s.save(&p).unwrap();
-        let runs = 50;
-        let start = std::time::Instant::now();
-        for _ in 0..runs {
+        let mut samples = Vec::with_capacity(100);
+        for _ in 0..100 {
+            let start = std::time::Instant::now();
             p.revision += 1;
-            p.entries[50].text.push('x');
+            p.entries[0].text.push('x');
+            let current_text = p.entries[0].text.clone();
+            p.entries[0].content["content"][0]["content"][0]["text"] = current_text.into();
             s.save_changes(&Change {
                 header: p.header(),
-                entries: vec![p.entries[50].clone()],
+                entries: vec![p.entries[0].clone()],
                 base_revision: Some(p.revision - 1),
             })
             .unwrap();
+            samples.push(start.elapsed().as_secs_f64() * 1000.0);
         }
-        let per = start.elapsed().as_secs_f64() * 1000.0 / runs as f64;
-        println!("BENCH per-save (one section changed, 100k words): {per:.2} ms");
+        samples.sort_by(f64::total_cmp);
+        let p95 = samples[((samples.len() as f64 * 0.95).ceil() as usize) - 1];
+        let median = samples[samples.len() / 2];
+        println!("BENCH active-entry delta save (100k words, 100 saves): median={median:.2} ms p95={p95:.2} ms");
+        assert!(p95 <= 150.0, "100k-word active-entry delta-save p95 {p95:.2} ms exceeds 150 ms");
         let start = std::time::Instant::now();
         let (s, mirrored) = mirror(s, &p.id);
         mirrored.unwrap();

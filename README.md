@@ -37,6 +37,8 @@ These screenshots come from the browser preview, using made-up writing. The inst
 
 There is no downloadable app yet. You build it from source using the steps below. The build is not signed or notarized by Apple, so macOS may warn you the first time you open it.
 
+Download preparation and its remaining gates are recorded in [Mac distribution status](docs/distribution.md). Prepared [third-party notices](src-tauri/resources/THIRD_PARTY_NOTICES.txt) and license texts still await distribution review.
+
 ## Setup
 
 You need three things installed:
@@ -101,7 +103,7 @@ What has been checked, as of October 2026:
 Not done yet:
 
 - No signed, notarized download.
-- No check of exported files in Microsoft Word or LibreOffice. Exports were inspected as files and in macOS Quick Look only.
+- No check of exported files in Microsoft Word. Synthetic citation and quotation fixtures have been rendered in LibreOffice and as PDF; broader real-document acceptance remains open.
 - No VoiceOver, input-method, or physical power-loss qualification. Isolated forced-process-termination coverage is narrower than a real shutdown.
 
 The [roadmap](ROADMAP.md) lists what comes next.
@@ -110,9 +112,9 @@ The [roadmap](ROADMAP.md) lists what comes next.
 
 - **Page breaks differ between views.** The editor's page view, PDF export, and Word export each lay out pages differently. Expect page breaks to move.
 - **PDF uses bundled fonts.** PDF export draws with bundled Noto fonts, not the fonts on your Mac. It covers Latin, Greek, and Cyrillic scripts. Other scripts are refused with a message, so use Word export for them. A footnote too long to fit on one page is also refused rather than cut off.
-- **Citation help covers common sources.** Books, journal articles, and websites are supported. Lookup results come from outside services and can be wrong or incomplete. Check every citation and your instructor's rules yourself.
+- **Citation help covers common sources.** Books, journal articles, and websites are supported. The current development source also formats bounded examples for print edited-book chapters, ProQuest PhD dissertations, signed online newspaper articles, broadcast audio interviews and online TED Talks. Those examples have browser-preview and generated-export checks; they do not cover every subtype. Other imported records retain raw fields and offer manual citation forms. Full audio/video notes with specific time references currently require manual text. Lookup results can be wrong or incomplete. Check every citation and your instructor's rules yourself.
 - **Imports are text only.** You can import a plain-text or Markdown file up to 5 MB as a new project. Images, tables, and raw HTML in Markdown arrive as plain text. Word files cannot be imported.
-- **Zotero import supports CSL JSON only.** No BibTeX or live sync. Import deduplication uses the title and first author, so review possible duplicates. DOI lookup does not normalize `dx.doi.org` or `doi:` forms. Short notes run across the manuscript, not separately per chapter, and never use ibid.
+- **Zotero import supports CSL JSON only.** No BibTeX or live refresh yet. In the current development source, the import preview reports identifier matches and possible matches without silently discarding records based on title or surname. You can keep existing sources, add selected separate copies, or explicitly update selected fields on one matched source. Updates preserve its identity and linked notes, leave unselected local fields intact, and require a checked safety snapshot. No fields are selected automatically; replacing original CSL data replaces that whole field. DOI lookup already recognized `dx.doi.org` and `doi:` prefixes; citation rendering now shares that normalization. By default, short notes run across the manuscript and never use ibid. In Research, an opt-in "Use repeat citation rules" setting can restart full citations in each section (one manuscript entry, not a multi-entry chapter) and use roman "Ibid." for a plain note citing the same single source as the previous plain note; notes with their own text, explicit forms, manual or placeholder citations, or a dropped page number keep full/short forms.
 - **Writing aids are optional heuristics.** Prose checks can be wrong; they never correct text. Goals count manuscript sections only, and daily baselines reset by the local date. When a section has an extreme number of flagged words, only the issues nearest the cursor are shown (the panel says so) so typing stays responsive.
 - **Quote insertion has a layout limit.** A citation inserted after a block quotation can appear after the block rather than inside its final paragraph. Review the placement before export.
 - **Large projects can slow writing aids.** Goal and citation summaries currently recompute across the project during renders.

@@ -27,6 +27,13 @@
 .prose-issues { display: flex; flex-direction: column; gap: 4px; max-height: 260px; overflow: auto; }
 .prose-issues .toolbar-text-button { justify-content: flex-start; height: auto; min-height: 26px; gap: 8px; white-space: normal; text-align: left; }
 .prose-issues .toolbar-text-button span:last-child { color: var(--muted); }
+.prose-issue-row { display: flex; align-items: center; gap: 4px; }
+.prose-issue-select { flex: 1; min-width: 0; }
+.prose-issue-dismiss { border: 0; background: transparent; color: var(--muted); font: inherit; font-size: 11px; padding: 4px; cursor: pointer; }
+.prose-issue-dismiss:hover, .prose-issue-dismiss:focus-visible { color: var(--text); text-decoration: underline; }
+.prose-issue-pagination { display: flex; align-items: center; justify-content: space-between; gap: 8px; font-size: 12px; }
+.prose-issue-pagination .toolbar-text-button { padding: 4px 6px; }
+.prose-issue-pagination .toolbar-text-button:disabled { opacity: .5; cursor: default; }
 @media (prefers-reduced-motion: reduce) {
   .writer .focus-dim { transition: none; }
 }

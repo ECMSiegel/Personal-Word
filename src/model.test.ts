@@ -54,6 +54,21 @@ it("rejects a non-boolean automatic short note preference", () => {
   expect(() => validateProject(p)).toThrow("Invalid research data.");
 });
 it.each([
+  [null], [[]], ["ibid"], [{ scope: "chapter", repeats: "short" }], [{ scope: "section", repeats: "op. cit." }],
+  [{ scope: "section" }], [{ repeats: "ibid" }],
+])("rejects an invalid citation policy %j", (citationPolicy) => {
+  const p = newProject("x");
+  (p.research as { citationPolicy?: unknown }).citationPolicy = citationPolicy;
+  expect(() => validateProject(p)).toThrow("Invalid research data.");
+});
+it("accepts a valid citation policy, keeps extra fields, and allows none", () => {
+  const p = newProject("x");
+  expect(p.research?.citationPolicy).toBeUndefined();
+  expect(() => validateProject(p)).not.toThrow();
+  (p.research as { citationPolicy?: unknown }).citationPolicy = { scope: "section", repeats: "ibid", later: 1 };
+  expect(() => validateProject(p)).not.toThrow();
+});
+it.each([
   null, [], "goal", { totalWords: 0 }, { dailyWords: -1 },
   { totalWords: 2.5 }, { dailyWords: "10" },
   { deadline: "tomorrow" }, { deadline: "2026-02-30" },
@@ -77,4 +92,19 @@ it.each([
   ["0000-01-01", true],
 ])("validates goal deadline %s as %s", (date, valid) => {
   expect(isValidGoalDeadline(date)).toBe(valid);
+});
+
+it("accepts additive structured source data and retains raw prototype-named CSL fields", () => {
+  const p = newProject("Sources");
+  p.research!.sources.push({ id: "s", kind: "chapter", title: "T", authors: ["Organization"], creators: [{ role: "author", literal: "Organization" }], cslData: JSON.parse('{"__proto__":{"kept":true},"constructor":"raw"}'), edition: "2" });
+  expect(() => validateProject(p)).not.toThrow();
+  const restored = JSON.parse(JSON.stringify(p));
+  validateProject(restored);
+  expect(Object.hasOwn(restored.research!.sources[0].cslData!, "__proto__")).toBe(true);
+  expect(({} as { kept?: boolean }).kept).toBeUndefined();
+});
+it.each([ { creators: "bad" }, { creators: [{ role: 7 }] }, { creators: [{ role: "author", literal: 7 }] }, { cslData: [] }, { manualFull: 7 }, { edition: 7 } ])("rejects malformed additive source data %j", (fields) => {
+  const p = newProject("Sources");
+  p.research!.sources.push({ id: "s", kind: "book", title: "T", authors: [], ...fields } as never);
+  expect(() => validateProject(p)).toThrow("Invalid research source.");
 });

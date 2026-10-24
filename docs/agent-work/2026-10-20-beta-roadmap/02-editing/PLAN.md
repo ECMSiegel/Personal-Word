@@ -1,0 +1,67 @@
+# PLAN -- Precise annotations, responsive aids and useful revision comparison
+Date: 2026-10-20 | Architect: Codex | Project: Personal Word | Status: APPROVED -- owner: “Run the plan as cheap is as feasible utilizing luna as much as possible” (2026-10-20)
+
+## Goal
+Writers can trust comment placement, insert cited quotations correctly, inspect every prose issue and compare revisions word by word without slowing typing.
+
+## Request
+Address screenshot limitations for quote insertion, heuristic controls, goal scope/day rollover, capped issues, full-project recomputation, paragraph-only comparison and ambiguous comments; parent plan defines stage ordering.
+
+## Definition of done
+References remain inside block quotations and undo atomically; comments track selected occurrences across edits and reopen; summary work scales with changed entries; the full issue list remains accessible; configurable goals preserve old behavior; word-diff restore validates the current revision and first takes a recoverable safety snapshot.
+
+## Non-goals
+Automatic prose correction, infallible language diagnosis, AI/cloud analysis, Word Track Changes, changing existing writing punctuation or persisted goal semantics without opt-in.
+
+## Context (verified)
+- First-match quote navigation and quote-only annotations -- `src/App.tsx:133-154,996-1026`, `src/model.ts:43-50`.
+- Block reference inserted as sibling instead of in final paragraph -- `src/App.tsx:1134-1143`.
+- Project-wide note traversal occurs during render -- `src/App.tsx:1094-1114`; goal reduction -- `src/goals.ts:9-18`; entry count WeakMap already exists -- `src/model.ts:94-99`.
+- Prose scan recomputes all textblocks and sorts capped decorations -- `src/editor/writingAids.ts:27-59,79-89`; heuristic categories -- `src/editor/proseCheck.ts:1-13`.
+- Comparison uses paragraph index and JSON equality -- `src/organization/RevisionComparison.tsx:35-74`; restore splices at same index -- `src/App.tsx:1029-1055`.
+
+## Rules in force
+Parent/project preservation and UI rules; all project edits through immutable increasing revisions/SaveQueue. No normal writing mutation for decorations/selection. Integrator exclusively owns model/App/shared interfaces, and coordinates C/I/L changes. Do not add a generic App refactor unrelated to these routes.
+
+## Approach
+Use persisted ProseMirror-position anchors mapped by actual transactions, not text occurrence search. Cache derived entry summaries by immutable content/text identities; explicitly invalidate order/source/settings dependencies. Keep a bounded on-page decoration count, with the complete issue index available in a paged panel. Compare snapshots with deterministic block alignment then grapheme-safe word diff; restore from validated rich-text slices rather than flattened text.
+
+## Tasks
+### E1 -- Correct quote placement and persistent comment anchors
+- Files: modify `src/model.ts`, `src/App.tsx`, `src/Writer.tsx`, `src/organization/CommentsPanel.tsx`, `src/organization/operations.test.ts`, `tests/research.spec.ts`; create `src/editor/commentAnchors.ts`, `src/editor/commentAnchors.test.ts`, `tests/comments.spec.ts`. Integrator owns model/App wiring.
+- Interfaces: add optional `Entry.contentRevision:number` (legacy absence means0, increment once per content transaction, never for selection-only changes); optional `Annotation.anchor: {version:1; from:number; to:number; entryRevision:number; prefix:string; suffix:string; status:'attached'|'detached'|'ambiguous'}` using ProseMirror document positions and that content revision. `mapCommentAnchors(annotations, entryId, transaction, nextEntryRevision): Annotation[]`; `resolveCommentAnchor(annotation, doc): {from:number;to:number}|null`. Writer's edit callback supplies content and same-transaction anchor patches for a single project mutation. `buildQuoteInsertion(note, footnoteId?): JSONContent[]` places note reference in the final blockquote paragraph.
+- Steps: (1) Capture selection positions/context when comment creation begins; validate against current entry revision when dialog commits, or cancel/reselect if changed. (2) Map boundaries through transaction.mapping, insertion/deletion and undo/redo; mark deleted/overlapping-replaced ranges detached rather than jumping to identical text. Persist content/anchor changes in one revision and avoid selection-only saves. (3) For old quote-only comments, attach automatically only if a unique full-text/context match exists, otherwise show ambiguity and a Reattach-to-selection command; never pick the first duplicate. (4) Navigate via validated range including multi-node/marked text. (5) Build multi-paragraph block quotations with the reference inside their final paragraph; perform one editor transaction, flush a coherent project state with research metadata. One Undo removes quote/reference; no dangling active reference survives. (6) Round-trip anchors/quote through snapshots, reload, section switch and native save/history/journal; add unknown-field preservation assertions.
+- Acceptance check: `npm test -- src/editor/commentAnchors.test.ts src/organization/operations.test.ts`; `npm run test:e2e -- tests/comments.spec.ts tests/research.spec.ts --workers=1` -> duplicate second occurrence remains selected after edit/reopen, marked/multi-paragraph text works, deletion detaches, manual reattach persists; quote reference is descendant of final paragraph, one Undo/Redo coherent. D2 native anchor checks also pass before release.
+- Fail-first: current duplicate/multi-node navigation and outside-block-reference assertions fail on baseline; restore old mapping/insertion in isolated copy and require those exact assertions to fail again.
+- Stop and ask if: editor replacement/paste cannot conservatively map an anchor; imported/restored entry lacks matching identity; a migration would silently guess between duplicate passages.
+- Default if unanswered: preserve comment as detached/ambiguous and offer manual reattach; never change or discard prose.
+
+### E2 -- Incremental summaries and complete controlled writing aids
+- Files: modify `src/goals.ts`, `src/goals.test.ts`, `src/App.tsx`, `src/editor/writingAids.ts`, `src/editor/proseCheck.ts`, their existing tests, `tests/writing-aids.spec.ts`, `src/model.ts`; create `src/derived/projectIndex.ts`, `src/derived/projectIndex.test.ts`, `src/derived/prose.worker.ts`, `src/components/ProseIssues.tsx`, `tests/performance.spec.ts`. Integrator alone merges project preference fields.
+- Interfaces: `createProjectIndex(): {update(previous:Project|null,next:Project):ProjectSummary}`; `ProjectSummary` contains entryId-indexed word counts/reference order plus manuscript aggregates. Reuse `entryWords`; cache content traversal by content object identity. Add optional goal `scope:'manuscript'|'manuscript-and-fragments'` and `dayMode:'local'|'utc'`, defaulting to existing manuscript/local values. Worker messages `{entryId,revision,requestId,changedBlocks}` -> `{entryId,revision,requestId,issues,total}`; reject stale responses. Issues use stable block/range/rule IDs; list exposes total and pages of 100; visible decorations remain capped at 2000.
+- Steps: (1) Replace render-time full scans with incrementally updated per-entry summaries; invalidate order/reference/source changes precisely. Order-only moves recompose order, formatting-only edits avoid word recount; source edits refresh note text without rewalking unrelated prose. (2) Add goal scope/day settings, persist dated per-mode baselines without reinterpreting old local keys; handle midnight, DST, timezone change and absent baseline explicitly. Changing scope/mode starts an explicitly displayed fresh baseline, never silently counts historic daily writing. (3) Move full prose analysis off the input transaction; recompute changed blocks, reuse unaffected results, cancel/discard stale jobs on section/project switch. (4) Keep all detected issues in the index and accessible paged list; cap only decorations, with exact displayed/total counts. Add per-rule switches/dismiss-once keyed to the text/range; stale dismissals do not hide changed prose. Preserve opt-in defaults and never replace text automatically. (5) Benchmark a deterministic 100k-word/60-section/1000-note synthetic project and a pathological repeated-word section; no fake 100k project with only one tiny active sentence.
+- Acceptance check: `npm test -- src/derived/projectIndex.test.ts src/goals.test.ts src/editor/writingAids.test.ts src/editor/proseCheck.test.ts`; `npm run test:e2e -- tests/writing-aids.spec.ts tests/performance.spec.ts --workers=1` -> results match an uncached reference, scan counters show unchanged entries not rescanned, all issue pages navigable, >2000 issues not lost, stale worker results ignored, date/scope changes exact. Quiet-machine median input-to-editor-update <=25ms and p95<=50ms across 200 synthetic edits with aids on; record hardware/load and repeat paired aids-off/on. If environment prevents valid timing, gate remains unmeasured; do not raise limits.
+- Fail-first: counter-based reference test fails baseline full traversals; >2000 panel visibility test fails baseline capped-only exposure. Doctored invalidation/stale-response handling must produce wrong aggregate or wrong section issue and fail tests; final fix passes.
+- Stop and ask if: latency budget requires changing what words count or dropping issues; worker/schema bridge strips marks; daily baseline would be rewritten without explicit preference change.
+- Default if unanswered: preserve semantics and full saved text; keep aids off and record performance blocker.
+
+### E3 -- Word-level comparison and safe passage restore
+- Files: modify `src/organization/RevisionComparison.tsx`, `src/organization/organization.css`, `src/App.tsx`; create `src/organization/revisionDiff.ts`, `src/organization/revisionDiff.test.ts`, `tests/revisions.spec.ts`; extend `src/organization/operations.test.ts` for restore metadata.
+- Interfaces: `compareEntries(before:Entry,current:Entry): RevisionDiff` returns block-alignment IDs, grapheme-safe unchanged/added/deleted spans and immutable rich-text slices. `RestorePatch {entryId, expectedProjectRevision, expectedContentHash, from, to, slice}`; `applyRestorePatch(project,patch): Project` refuses stale/mismatched targets and does not apply the historical paragraph index blindly. Use bounded Myers word diff with Intl.Segmenter word/grapheme tokens, plus structural comparison for marks/atoms; no external package needed initially.
+- Steps: (1) Align unchanged blocks, detect inserted/deleted paragraphs, and diff changed aligned blocks by words with grapheme fallback, preserving rich-text positions/marks/footnotes. (2) Render additions/deletions accessibly without relying on color alone, with next/previous change controls. Show structural/image/table/format changes explicitly rather than flattening to misleading prose diffs. (3) Offer restore passage/section; recheck current project revision/hash, flush saves, create and verify safety snapshot first, then apply validated rich-text patch in new revision. Merge referenced research and assets using C/I contracts; never restore dangling IDs. (4) Bound pathological diff work; for oversized input show cancellable section summary and explicit “Compare selected passage,” not a frozen interface or falsely identical result. (5) Reopen the generated safety snapshot and prove it contains pre-restore prose and metadata.
+- Acceptance check: `npm test -- src/organization/revisionDiff.test.ts src/organization/operations.test.ts`; `npm run test:e2e -- tests/revisions.spec.ts --workers=1` -> changed words highlighted, reordered/inserted blocks don't shift restore onto wrong paragraph, combining/RTL text intact, stale patch rejected without mutation, accepted restore and safety copy survive reload. D2 native restore matrix passes.
+- Fail-first: old index-based comparison fails inserted-paragraph alignment/restore assertion; doctored target hash and removed snapshot operation must fail their checks before real patch passes.
+- Stop and ask if: diff cannot produce an unambiguous current range or snapshot cannot be persisted.
+- Default if unanswered: read-only diff or explicit whole-section restore with safety snapshot; no guessed word replacement.
+
+## Validation (after tasks, in order)
+E1/E2/E3 focused negative/positive tests -> full sequential build/unit/browser/Rust -> D2 native metadata/recovery -> real light/dark comment/diff/issue screenshots and 100k-word performance -> DOCX/PDF quote placement checks -> independent REVIEW.md. Manual instructions: attach to second duplicate, edit preceding text, reopen, jump; cite a multi-paragraph block quote and undo once; restore changed words and reopen the safety copy.
+
+## Risks and rollback
+All fields additive, old anchors preserved verbatim until safe migration. Retain old project backups and snapshot formats. Worker/index state is disposable, never the writing source. Disable new aids/diff UI on failure without deleting content. No rollback that overwrites higher-revision writing.
+
+## Open questions for the user
+None beyond parent defaults; choose different goal defaults only by revising the plan before execution.
+
+## Notes for the implementer
+Do not confuse low decoration count with low analysis cost. Do not count screenshots as native persistence tests. An error/ambiguous anchor is safer than attaching a comment to the wrong repeated text. Snapshot comparison is not a promise of Word tracked changes.

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { entry, newProject } from "./model";
-import { goalStatus, manuscriptWords } from "./goals";
+import { entry, newProject, validateProject } from "./model";
+import { goalStatus, manuscriptWords, goalDate, goalBaselineKey } from "./goals";
 
 function project() {
   const p = newProject("Goals");
@@ -34,4 +34,42 @@ describe("writing goals", () => {
     expect(result.total).toEqual({ done: 5, target: 1 });
     expect(result.perDayNeeded).toBeUndefined();
   });
+});
+
+
+describe("explicit goal scope", () => {
+  it("includes fragments only when selected", () => {
+    const p = { ...project(), goals: { totalWords: 20, dailyWords: 10, scope: "manuscript-and-fragments" as const } };
+    expect(goalStatus(p, "2026-10-22", 6)).toEqual({total:{done:8,target:20},daily:{done:2,target:10}});
+  });
+  it("keeps old projects on manuscript scope", () => {
+    expect(goalStatus({...project(),goals:{totalWords:20}},"2026-10-22",0).total?.done).toBe(5);
+  });
+});
+
+
+describe("goal calendar and baseline identity", () => {
+  it("uses explicit UTC or local dates through DST boundaries", () => {
+    const date = new Date("2026-11-01T03:30:00Z");
+    expect(goalDate(date,"utc","America/New_York")).toBe("2026-11-01");
+    expect(goalDate(date,"local","America/New_York")).toBe("2026-10-31");
+    expect(goalDate(new Date("2026-11-01T06:30:00Z"),"local","America/New_York")).toBe("2026-11-01");
+    expect(goalDate(date,"local","Asia/Tokyo")).toBe("2026-11-01");
+  });
+  it("retains legacy local baseline keys and separates opt-in modes", () => {
+    const p=project();
+    const legacy=`personal-word.goal-baseline.${p.id}`;
+    expect(goalBaselineKey(p)).toBe(legacy);
+    expect(goalBaselineKey({...p,goals:{scope:"manuscript",dayMode:"local"}})).toBe(legacy);
+    expect(goalBaselineKey({...p,goals:{dayMode:"utc"}})).toBe(legacy+".manuscript.utc");
+    expect(goalBaselineKey({...p,goals:{scope:"manuscript-and-fragments"}})).toBe(legacy+".manuscript-and-fragments.local");
+  });
+});
+
+
+it("validates opt-in goal enums without losing old project defaults", () => {
+  const p=project();
+  expect(()=>validateProject({...p,goals:{scope:"manuscript-and-fragments",dayMode:"utc"}})).not.toThrow();
+  expect(()=>validateProject({...p,goals:{scope:"everything"} as any})).toThrow(/scope/i);
+  expect(()=>validateProject({...p,goals:{dayMode:"solar"} as any})).toThrow(/day mode/i);
 });

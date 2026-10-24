@@ -1,9 +1,22 @@
+export const sourceKinds = ["book", "journal", "website", "chapter", "thesis", "report", "conference", "newspaper", "interview", "media", "other"] as const;
+export type SourceCreator = { role: string; given?: string; family?: string; literal?: string };
 export type Source = {
   id: string;
-  kind: "book" | "journal" | "website";
+  kind: typeof sourceKinds[number];
   title: string;
   shortTitle?: string;
   cslId?: string;
+  edition?: string;
+  creators?: SourceCreator[];
+  /** Original imported fields, kept as data and never spread into a model object. */
+  cslData?: Record<string, unknown>;
+  container?: string;
+  institution?: string;
+  event?: string;
+  publishedDate?: string;
+  manualFull?: string;
+  manualShort?: string;
+  manualBibliography?: string;
   /** One author per line, in natural given-name family-name order. */
   authors: string[];
   publisher?: string;
@@ -36,11 +49,19 @@ export type Footnote = {
   shortened?: boolean;
   form?: NoteForm;
 };
+/** Opt-in repeat-citation rules. Absent keeps the legacy autoShortNotes behavior. */
+export type CitationPolicy = {
+  /** "section" restarts first full citations at each manuscript entry. */
+  scope: "manuscript" | "section";
+  repeats: "short" | "ibid";
+};
+export type ResolvedNoteForm = "full" | "short" | "ibid";
 export type ResearchData = {
   sources: Source[];
   notes: ResearchNote[];
   footnotes: Footnote[];
   autoShortNotes?: boolean;
+  citationPolicy?: CitationPolicy;
 };
 export type DocumentSettings = {
   font: "serif" | "sans" | "mono";

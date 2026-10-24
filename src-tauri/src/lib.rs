@@ -27,14 +27,34 @@ fn sync_mirrors(state: &State, only: Option<&str>) -> Result<(), String> {
         .map(|(_, r)| r)
         .collect()
 }
+#[cfg(feature = "native-smoke")]
+fn sync_mirrors_for_close(state: &State) -> Result<(), String> {
+    store::sync_mirrors_for_close(&state.0, &state.1)
+        .into_iter()
+        .map(|(_, result)| result)
+        .collect()
+}
 #[tauri::command]
 fn finish_quit(
     app: tauri::AppHandle,
     state: tauri::State<State>,
     allowed: tauri::State<ExitAllowed>,
 ) -> Result<(), String> {
+    #[cfg(feature = "native-smoke")]
+    let mirror_result = sync_mirrors_for_close(&state);
+    #[cfg(not(feature = "native-smoke"))]
+    let mirror_result = sync_mirrors(&state, None);
+    if let Err(error) = mirror_result {
+        #[cfg(feature = "native-smoke")]
+        if crate::smoke::take_fault(crate::smoke::Fault::BypassCloseGuard) {
+            // Negative control: exit only after the normal close mirror path reports failure.
+            allowed.0.store(true, Ordering::SeqCst);
+            app.exit(0);
+            return Ok(());
+        }
+        return Err(error);
+    }
     // Like a failed save, a failed portable copy keeps the app open so Retry can repair it.
-    sync_mirrors(&state, None)?;
     allowed.0.store(true, Ordering::SeqCst);
     app.exit(0);
     Ok(())
@@ -173,7 +193,14 @@ pub fn run() {
         delete_project,
         lookup::lookup_fetch,
         smoke::smoke_report,
-        smoke::smoke_progress
+        smoke::diagnostic_profile_identity,
+        smoke::smoke_progress,
+        smoke::arm_fault,
+        smoke::arm_checkpoint,
+        smoke::seed_durability_metadata,
+        smoke::verify_safety_snapshot,
+        smoke::sqlite_sync_settings,
+        smoke::mark_mirrors_pending
     ]);
     #[cfg(not(feature = "native-smoke"))]
     let builder = builder.invoke_handler(tauri::generate_handler![
@@ -191,8 +218,34 @@ pub fn run() {
         delete_project,
         lookup::lookup_fetch
     ]);
+    #[cfg(feature = "native-smoke")]
+    let builder = builder.on_window_event(|_, event| {
+        if matches!(event, tauri::WindowEvent::CloseRequested { .. }) {
+            smoke::record_window_close();
+        }
+    });
+    let mut context = tauri::generate_context!();
+    #[cfg(feature = "native-smoke")]
+    if std::env::var_os("FOLIO_SMOKE_DIR").is_some() {
+        if context.config().identifier != "com.folio.smoke" {
+            panic!("Native diagnostics require the com.folio.smoke app identifier");
+        }
+        #[cfg(target_os = "macos")]
+        {
+            let identifier = smoke::required_data_store_identifier()
+                .expect("Native diagnostics require an isolated WebKit data-store identifier");
+            let main_window = context
+                .config_mut()
+                .app
+                .windows
+                .iter_mut()
+                .find(|window| window.label == "main")
+                .expect("Native diagnostics require the configured main window");
+            main_window.data_store_identifier = Some(identifier);
+        }
+    }
     builder
-        .build(tauri::generate_context!())
+        .build(context)
         .expect("Could not launch Personal Word")
         .run(|app, event| {
             let _instance_lock = &app.state::<InstanceLock>().0;

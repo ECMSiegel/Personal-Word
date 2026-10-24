@@ -1,8 +1,12 @@
+import { reviewSourceImport, type SourceImportReview } from "./sourceMerge";
+import type { SourceCreator } from "./types";
 import type { Source } from "./types";
 import type { SourceDraft } from "./lookup";
 
 export type CslImportResult = {
   sources: SourceDraft[];
+  existingSources: Source[];
+  review: SourceImportReview;
   skipped: Record<string, number>;
   duplicates: number;
   warnings: string[];
@@ -13,7 +17,10 @@ const knownTypes: Record<string, Source["kind"]> = {
   book: "book",
   "article-journal": "journal",
   "article-magazine": "journal",
-  "article-newspaper": "journal",
+  "article-newspaper": "newspaper",
+  chapter: "chapter", thesis: "thesis", report: "report", paper: "conference",
+  "paper-conference": "conference", interview: "interview", broadcast: "media",
+  motion_picture: "media", song: "media", speech: "media",
   webpage: "website",
   post: "website",
   "post-weblog": "website",
@@ -60,9 +67,20 @@ const accessedValue = (value: unknown): string | undefined => {
   const raw = string(date.raw);
   return raw && /^\d{4}-\d{2}-\d{2}$/.test(raw) ? raw : undefined;
 };
-const normalizedDoi = (value?: string) => value?.trim().replace(/^(?:https?:\/\/(?:dx\.)?doi\.org\/|doi:\s*)/i, "").toLowerCase();
-const surname = (names: string[]) => names[0]?.split(/\s+/).filter(Boolean).at(-1)?.toLocaleLowerCase() ?? "";
-const normalizedTitle = (title: string) => title.trim().toLocaleLowerCase();
+const creators = (item: CslItem): SourceCreator[] =>
+  ["author", "editor", "translator", "interviewer", "director", "composer"].flatMap((role) => {
+    const entries = item[role];
+    if (!Array.isArray(entries)) return [];
+    return entries.flatMap((entry) => {
+      if (!entry || typeof entry !== "object" || Array.isArray(entry)) return [];
+      const person = entry as Record<string, unknown>;
+      const fields = Object.fromEntries(["given", "family", "literal"].flatMap((key) => {
+        const value = string(person[key]);
+        return value ? [[key, value]] : [];
+      }));
+      return Object.keys(fields).length ? [{ role, ...fields }] : [];
+    });
+  });
 
 export function parseCslJson(text: string, existing: Source[]): CslImportResult {
   let parsed: unknown;
@@ -78,41 +96,38 @@ export function parseCslJson(text: string, existing: Source[]): CslImportResult 
       : null;
   if (!items) throw new Error("This file is not a CSL JSON export from Zotero.");
 
-  const result: CslImportResult = { sources: [], skipped: {}, duplicates: 0, warnings: [] };
-  const ids = new Set(existing.map((source) => source.cslId).filter((id): id is string => !!id));
-  const dois = new Set(existing.map((source) => normalizedDoi(source.doi)).filter((doi): doi is string => !!doi));
-  const titleAuthors = new Set(existing.map((source) => `${normalizedTitle(source.title)}\u0000${surname(source.authors)}`));
+  const sources: SourceDraft[] = [];
+  const skipped: Record<string, number> = {};
+  const warnings: string[] = [];
   for (const value of items) {
     if (!value || typeof value !== "object" || Array.isArray(value)) {
-      increment(result.skipped, "invalid");
-      result.warnings.push("A CSL item was skipped because it was not an object.");
+      increment(skipped, "invalid");
+      warnings.push("A CSL item was skipped because it was not an object.");
       continue;
     }
     const item = value as CslItem;
     const type = string(item.type) ?? "unknown";
-    const kind = Object.hasOwn(knownTypes, type) ? knownTypes[type] : undefined;
-    if (!kind) {
-      increment(result.skipped, type);
-      continue;
-    }
+    const kind = Object.hasOwn(knownTypes, type) ? knownTypes[type] : "other";
+    if (kind === "other") warnings.push(`“${string(first(item.title)) ?? type}” uses ${type}; raw fields are retained. Add manual citation text before citing.`);
     const title = string(first(item.title))?.trim();
     if (!title) {
-      increment(result.skipped, "invalid");
-      result.warnings.push(`A ${type} item was skipped because it had no title.`);
+      increment(skipped, "invalid");
+      warnings.push(`A ${type} item was skipped because it had no title.`);
       continue;
     }
     const itemAuthors = authors(item.author);
     const cslId = string(item.id);
     const doi = string(item.DOI);
-    const doiKey = normalizedDoi(doi);
-    const titleAuthorKey = `${normalizedTitle(title)}\u0000${surname(itemAuthors)}`;
-    if ((cslId && ids.has(cslId)) || (doiKey && dois.has(doiKey)) || titleAuthors.has(titleAuthorKey)) {
-      result.duplicates++;
-      continue;
-    }
     const draft: SourceDraft = {
       kind,
       title,
+      cslData: item,
+      creators: creators(item),
+      ...(string(item.edition) ? { edition: string(item.edition) } : {}),
+      ...(string(first(item["container-title"])) ? { container: string(first(item["container-title"])) } : {}),
+      ...(string(item.institution) ? { institution: string(item.institution) } : {}),
+      ...(string(item["event-title"]) ? { event: string(item["event-title"]) } : {}),
+      ...(accessedValue(item.issued) ? { publishedDate: accessedValue(item.issued) } : {}),
       authors: itemAuthors,
       lookupNote: "Imported from Zotero",
       ...(cslId ? { cslId } : {}),
@@ -129,10 +144,8 @@ export function parseCslJson(text: string, existing: Source[]): CslImportResult 
       ...(string(item.URL) ? { url: string(item.URL) } : {}),
       ...(accessedValue(item.accessed) ? { accessed: accessedValue(item.accessed) } : {}),
     };
-    result.sources.push(draft);
-    if (cslId) ids.add(cslId);
-    if (doiKey) dois.add(doiKey);
-    titleAuthors.add(titleAuthorKey);
+    sources.push(draft);
   }
-  return result;
+  const review = reviewSourceImport(sources, existing);
+  return { sources, existingSources: existing, skipped, duplicates: review.exactDuplicates.length, warnings: [...warnings, ...review.warnings], review };
 }

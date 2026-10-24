@@ -1,5 +1,6 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { Editor } from "@tiptap/react";
+import type { Transaction } from "@tiptap/pm/state";
 import { invoke } from "@tauri-apps/api/core";
 import {
   Plus,
@@ -24,6 +25,7 @@ import {
   type Entry,
   type Summary,
   type Version,
+  type Annotation,
 } from "./model";
 import { desktop, storage } from "./storage";
 import {
@@ -36,16 +38,19 @@ import {
   type SaveStatus,
 } from "./save-queue";
 import { Writer } from "./Writer";
-import { goalStatus, manuscriptWords } from "./goals";
+import { goalStatus, goalWords, goalDate, goalBaselineKey } from "./goals";
+import { createProjectIndex } from "./derived/projectIndex";
+import { applyRestorePatch, type RestorePatch } from "./organization/revisionDiff";
 import { ProjectLibrary } from "./components/ProjectLibrary";
 import { ProjectSidebar } from "./components/ProjectSidebar";
 import { ReadDocument } from "./components/ReadDocument";
 import { Dropdown } from "./components/Dropdown";
 import { footnoteText } from "./research/citations";
-import { footnoteIdsInOrder, resolveNoteForms } from "./research/noteForms";
-import { isBlockQuote } from "./research/quoteText";
-import { CslImportPreview } from "./research/CslImportPreview";
+import { resolveCitationContext, type SectionReferences } from "./research/noteForms";
+import { buildQuoteInsertion, createCommentAnchor, migrateLegacyCommentAnchor, resolveCommentAnchor, withCommentRevisions } from "./editor/commentAnchors";
+import { CslImportPreview, type SourceFieldUpdate } from "./research/CslImportPreview";
 import type { CslImportResult } from "./research/cslImport";
+import { mergeSourceFields } from "./research/sourceMerge";
 import { ProjectTabs } from "./components/ProjectTabs";
 import { ResearchPanel } from "./research/ResearchPanel";
 import { defaultDocumentSettings } from "./research/types";
@@ -70,10 +75,6 @@ function readPreference<T>(key: string, fallback: T): T {
   } catch {
     return fallback;
   }
-}
-function localDate() {
-  const date = new Date();
-  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
 }
 const asideMin = 260;
 const asideMax = 720;
@@ -130,28 +131,40 @@ export default function App() {
   const [focusFootnote, setFocusFootnote] = useState<string>();
   const opening = useRef(false);
   const editorRef = useRef<Editor | null>(null);
-  const pendingQuote = useRef<string>("");
+  const pendingJump = useRef<string | null>(null);
+  const pendingContentChange = useRef<{
+    projectId: string;
+    entryId: string;
+    amend: (project: Project) => Project;
+  } | null>(null);
+  const [reattachment, setReattachment] = useState<{
+    projectId: string;
+    annotationId: string;
+    entryId: string;
+    entryRevision: number;
+    selection: { from: number; to: number } | null;
+  } | null>(null);
   const editorReady = useCallback((editor: Editor | null) => {
     editorRef.current = editor;
-    if (editor && pendingQuote.current) {
-      const quote = pendingQuote.current;
-      pendingQuote.current = "";
-      let found = false;
-      editor.state.doc.descendants((node, pos) => {
-        if (found) return false;
-        if (node.isText) {
-          const at = node.text?.indexOf(quote) ?? -1;
-          if (at >= 0) {
-            editor.commands.setTextSelection({
-              from: pos + at,
-              to: pos + at + quote.length,
-            });
-            editor.commands.scrollIntoView();
-            found = true;
-          }
-        }
-        return !found;
-      });
+    if (editor && pendingJump.current) {
+      const annotation = current.current?.annotations?.find((a) => a.id === pendingJump.current);
+      pendingJump.current = null;
+      const entry = current.current?.entries.find((e) => e.id === annotation?.entryId);
+      if (!annotation || !entry || !editor.state.doc.eq(editor.schema.nodeFromJSON(entry.content))) return;
+      if (!annotation.quote) {
+        editor.commands.focus("start");
+        return;
+      }
+      const migrated = migrateLegacyCommentAnchor(annotation, editor.state.doc, entry.contentRevision ?? 0);
+      const range = migrated.anchor?.entryRevision === (entry.contentRevision ?? 0)
+        ? resolveCommentAnchor(migrated, editor.state.doc) : null;
+      if (!range) {
+        setNotice("This comment needs a new passage selection. Use Reattach to selection in Comments.");
+        return;
+      }
+      if (migrated !== annotation)
+        mutate((p) => ({ ...p, annotations: p.annotations?.map((a) => a.id === annotation.id ? migrated : a) }));
+      editor.chain().focus().setTextSelection(range).scrollIntoView().run();
     }
   }, []);
   const [tabs, setTabs] = useState<{ id: string; title: string }[]>(() =>
@@ -191,6 +204,8 @@ export default function App() {
     localStorage.setItem("personal-word.reader", JSON.stringify(reader));
   }, [reader]);
   const [project, setProject] = useState<Project | null>(null);
+  const projectIndex = useRef(createProjectIndex());
+  const projectSummary = useMemo(() => project ? projectIndex.current.update(null, project) : null, [project]);
   const [focusMode, setFocusMode] = useState(() => readPreference("personal-word.focus-mode", false));
   const [proseCheck, setProseCheck] = useState(() => readPreference("personal-word.prose-check", false));
   useEffect(() => {
@@ -199,37 +214,55 @@ export default function App() {
   useEffect(() => {
     localStorage.setItem("personal-word.prose-check", JSON.stringify(proseCheck));
   }, [proseCheck]);
-  const [goalDay, setGoalDay] = useState(localDate);
-  const [goalBaseline, setGoalBaseline] = useState<{ projectId: string; date: string; words: number } | null>(null);
+  const goalMode = project?.goals?.dayMode ?? "local";
+  const goalScope = project?.goals?.scope ?? "manuscript";
+  const [goalClockTick, setGoalClockTick] = useState(0);
+  const [goalZone, setGoalZone] = useState(() => Intl.DateTimeFormat().resolvedOptions().timeZone);
+  // Resolve the loaded preference and its day together. A local-day state
+  // initialized before an UTC project opens can overwrite its saved baseline.
+  const goalDay = useMemo(() => goalDate(new Date(), goalMode, goalZone),
+    [goalMode, goalScope, goalZone, goalClockTick, project?.id]);
+  const goalContext = project ? `${project.id}:${goalScope}:${goalMode}:${goalMode === "local" ? goalZone : "UTC"}` : "";
+  const previousGoalContext = useRef<{projectId: string; context: string} | null>(null);
+  const [goalBaseline, setGoalBaseline] = useState<{ projectId: string; context: string; date: string; words: number } | null>(null);
   useEffect(() => {
     let timer: ReturnType<typeof setTimeout>;
-    const schedule = () => {
-      setGoalDay(localDate());
-      const date = new Date();
-      const midnight = new Date(date.getFullYear(), date.getMonth(), date.getDate() + 1);
-      timer = setTimeout(schedule, midnight.getTime() - date.getTime() + 50);
+    const refresh = () => {
+      setGoalZone(Intl.DateTimeFormat().resolvedOptions().timeZone);
+      setGoalClockTick((tick) => tick + 1);
     };
-    const onFocus = () => setGoalDay(localDate());
+    const schedule = () => {
+      refresh();
+      const date = new Date();
+      const midnight = goalMode === "utc"
+        ? new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate() + 1))
+        : new Date(date.getFullYear(), date.getMonth(), date.getDate() + 1);
+      timer = setTimeout(schedule, Math.min(60_000, midnight.getTime() - date.getTime() + 50));
+    };
+    const onFocus = () => { clearTimeout(timer); schedule(); };
     schedule();
     window.addEventListener("focus", onFocus);
     return () => { clearTimeout(timer); window.removeEventListener("focus", onFocus); };
-  }, []);
+  }, [goalMode]);
   useEffect(() => {
-    if (!project) { setGoalBaseline(null); return; }
-    const key = `personal-word.goal-baseline.${project.id}`;
-    const saved = readPreference<{ date: string; words: number } | null>(key, null);
-    const baseline = saved?.date === goalDay && Number.isSafeInteger(saved.words) && saved.words >= 0
-      ? saved : { date: goalDay, words: manuscriptWords(project) };
-    try { localStorage.setItem(key, JSON.stringify(baseline)); } catch { /* Progress remains available for this session. */ }
-    setGoalBaseline({ projectId: project.id, ...baseline });
-    // Capture the total only when a project opens or the local date changes.
-  }, [project?.id, goalDay]);
+    if (!project) { setGoalBaseline(null); previousGoalContext.current = null; return; }
+    const key = goalBaselineKey(project);
+    const saved = readPreference<{ date: string; words: number; timeZone?: string } | null>(key, null);
+    const changedProfile = previousGoalContext.current?.projectId === project.id && previousGoalContext.current.context !== goalContext;
+    const sameZone = goalMode === "utc" || saved?.timeZone === undefined || saved.timeZone === goalZone;
+    const baseline = !changedProfile && sameZone && saved?.date === goalDay && Number.isSafeInteger(saved.words) && saved.words >= 0
+      ? saved : { date: goalDay, words: goalWords(project) };
+    try { localStorage.setItem(key, JSON.stringify({...baseline,timeZone: goalMode === "utc" ? "UTC" : goalZone})); } catch { /* Progress remains available for this session. */ }
+    previousGoalContext.current = {projectId: project.id,context: goalContext};
+    setGoalBaseline({ projectId: project.id, context: goalContext, ...baseline });
+    // Capture only on opening/day/profile changes, never on each writing edit.
+  }, [project?.id, goalDay, goalContext]);
   const current = useRef<Project | null>(null);
   const [library, setLibrary] = useState<Summary[]>([]);
   const [damagedJournals, setDamagedJournals] = useState<DamagedJournal[]>([]);
   const [damagedFolders, setDamagedFolders] = useState<string[]>([]);
   const [importPreview, setImportPreview] = useState<ManuscriptPreview | null>(null);
-  const [cslImportPreview, setCslImportPreview] = useState<CslImportResult | null>(null);
+  const [cslImportPreview, setCslImportPreview] = useState<(CslImportResult & { projectId: string }) | null>(null);
   const [choice, setChoice] = useState<ChoiceDialog | null>(null);
   const [active, setActive] = useState("");
   const [mode, setMode] = useState<"write" | "read">("write");
@@ -263,6 +296,11 @@ export default function App() {
   );
   const apply = useCallback(
     (p: Project) => {
+      if (current.current?.id !== p.id) {
+        pendingJump.current = null;
+        pendingContentChange.current = null;
+        setReattachment(null);
+      }
       current.current = p;
       setProject(p);
       queue.enqueue(p);
@@ -270,10 +308,10 @@ export default function App() {
     [queue],
   );
   const mutate = useCallback(
-    (change: (p: Project) => Project) => {
+    (change: (p: Project) => Project, edit?: { entryId: string; transaction: Transaction }) => {
       const p = current.current;
       if (p)
-        apply({ ...change(p), revision: p.revision + 1, updatedAt: now() });
+        apply({ ...withCommentRevisions(p, change(p), edit), revision: p.revision + 1, updatedAt: now() });
     },
     [apply],
   );
@@ -307,6 +345,9 @@ export default function App() {
   }, []);
   const enter = useCallback(
     (p: Project, pending: boolean) => {
+      pendingJump.current = null;
+      pendingContentChange.current = null;
+      setReattachment(null);
       current.current = p;
       setProject(p);
       const location = locations.current[p.id];
@@ -719,11 +760,14 @@ export default function App() {
         removedAt: now(),
       },
     };
-    editor
+    let extractionTransaction: Transaction | undefined;
+    const extracted = editor
       .chain()
       .setMeta("preventUpdate", true)
       .deleteRange({ from, to })
+      .command(({ tr }) => { extractionTransaction = tr; return true; })
       .run();
+    if (!extracted || !extractionTransaction) return;
     mutate((p) => ({
       ...p,
       entries: [
@@ -739,7 +783,7 @@ export default function App() {
         ),
         fragment,
       ],
-    }));
+    }), { entryId: source.id, transaction: extractionTransaction });
     setNotice(
       "Selection kept in Fragments. Its original section and position are remembered.",
     );
@@ -846,12 +890,12 @@ export default function App() {
         current.current.id,
         "Before restoring " + previewName,
       );
-      apply({
+      apply(withCommentRevisions(current.current, {
         ...preview,
         id: current.current.id,
         revision: current.current.revision + 1,
         updatedAt: now(),
-      });
+      }));
       await queue.flush();
       setEditorEpoch((n) => n + 1);
       setActive(preview.order[0] ?? "");
@@ -995,6 +1039,8 @@ export default function App() {
     });
   const addAnnotation = (kind: "comment" | "task" = "task") => {
     const editor = editorRef.current;
+    const selectedEntry = current.current?.entries.find((e) => e.id === active);
+    const projectId = current.current?.id;
     const quote =
       editor && !editor.state.selection.empty
         ? editor.state.doc.textBetween(
@@ -1004,14 +1050,19 @@ export default function App() {
           )
         : "";
     const entryId = active;
+    const capturedAnchor = editor && selectedEntry && !editor.state.selection.empty
+      ? createCommentAnchor(editor.state.doc, editor.state.selection.from, editor.state.selection.to, selectedEntry.contentRevision ?? 0)
+      : undefined;
     setNameDialog({
       title: kind === "comment" ? "Comment on selection" : "Add revision task",
       label: "Note",
       value: "",
       action: (text) =>
-        mutate((p) => ({
-          ...p,
-          annotations: [
+        mutate((p) => {
+          const live = p.entries.find((e) => e.id === entryId);
+          if (p.id !== projectId || (capturedAnchor && (!live || (live.contentRevision ?? 0) !== capturedAnchor.entryRevision)))
+            throw new Error("The passage changed while this comment was open. Select it again before adding a comment.");
+          return { ...p, annotations: [
             ...(p.annotations ?? []),
             {
               id: crypto.randomUUID(),
@@ -1021,44 +1072,150 @@ export default function App() {
               resolved: false,
               createdAt: now(),
               kind,
+              ...(capturedAnchor ? { anchor: capturedAnchor } : {}),
             },
-          ],
-        })),
+          ] };
+        }),
     });
   };
-  const restoreEntry = (old: Entry, blockIndex?: number) =>
+  const startReattachment = (annotation: Annotation) => {
+    const p = current.current;
+    const entry = p?.entries.find((e) => e.id === annotation.entryId);
+    if (!p || !entry) return;
+    pendingJump.current = null;
+    setReattachment({ projectId: p.id, annotationId: annotation.id, entryId: entry.id, entryRevision: entry.contentRevision ?? 0, selection: null });
+    setActive(entry.id);
+    setMode("write");
+    setDestination("manuscript");
+  };
+  const finishReattachment = () => {
+    const editor = editorRef.current;
+    const p = current.current;
+    const entry = p?.entries.find((e) => e.id === reattachment?.entryId);
+    if (!editor || !p || !entry || !reattachment || editor.state.selection.empty) return;
+    if (p.id !== reattachment.projectId || (entry.contentRevision ?? 0) !== reattachment.entryRevision || !editor.state.doc.eq(editor.schema.nodeFromJSON(entry.content))) {
+      setReattachment(null);
+      setError("The passage changed during reattachment. Start again from Comments.");
+      return;
+    }
+    const { from, to } = editor.state.selection;
+    const quote = editor.state.doc.textBetween(from, to, "\n");
+    if (!quote) return;
+    const anchor = createCommentAnchor(editor.state.doc, from, to, entry.contentRevision ?? 0);
+    if (!anchor) return;
+    mutate((project) => ({ ...project, annotations: project.annotations?.map((a) => a.id === reattachment.annotationId ? { ...a, quote, anchor } : a) }));
+    setReattachment(null);
+    setDestination("comments");
+    setNotice("Comment attached to the selected passage.");
+  };
+  const restoreEntry = (old: Entry, patch?: RestorePatch) =>
     void run(async () => {
-      await queue.flush();
-      await storage.snapshot(current.current!.id, "Before restoring passage");
-      mutate((p) => {
+      const before = current.current;
+      const historical = preview;
+      if (!before || !historical || historical.id !== before.id || !historical.entries.some((e) => e.id === old.id))
+        throw new Error("Open a snapshot of this project before restoring a passage.");
+      // Compare complete JSON state without relying on Rust/JavaScript key order.
+      const signature = (value: unknown) => JSON.stringify(value, (_key, item) =>
+        item && typeof item === "object" && !Array.isArray(item)
+          ? Object.fromEntries(Object.keys(item).sort().map((key) => [key, item[key]])) : item);
+      const original = signature(before);
+      const unchanged = () => {
+        if (!current.current || signature(current.current) !== original)
+          throw new Error("The project changed. Compare it again before restoring.");
+      };
+      const restored = (p: Project): Project => {
+        const research = mergeMissingResearch(p.research, historical.research);
+        if (patch) return applyRestorePatch({ ...p, research }, patch);
         const live = p.entries.find((e) => e.id === old.id);
-        let replacement = structuredClone(old);
-        if (blockIndex !== undefined && live) {
-          const blocks = [...(live.content.content ?? [])];
-          blocks.splice(
-            blockIndex,
-            1,
-            structuredClone(old.content.content![blockIndex]),
-          );
-          replacement = { ...live, content: { type: "doc", content: blocks } };
-          replacement.text = textOf(replacement.content);
-        }
-        replacement.updatedAt = now();
-        return {
-          ...p,
-          entries: live
-            ? p.entries.map((e) => (e.id === old.id ? replacement : e))
-            : [...p.entries, replacement],
-          order:
-            !live && old.kind === "section" ? [...p.order, old.id] : p.order,
-          research: mergeMissingResearch(p.research, preview?.research),
+        const replacement = { ...structuredClone(old), updatedAt: now() };
+        return { ...p,
+          entries: live ? p.entries.map((e) => e.id === old.id ? replacement : e) : [...p.entries, replacement],
+          order: !live && old.kind === "section" ? [...p.order, old.id] : p.order,
+          research,
         };
+      };
+      // Invalid/stale patches fail before creating a safety copy or changing prose.
+      validateProject(restored(before));
+      await queue.flush();
+      unchanged();
+      const safetyId = await storage.snapshot(before.id, "Before restoring passage");
+      const safety = await storage.version(before.id, safetyId, false);
+      validateProject(safety);
+      if (signature(safety) !== original)
+        throw new Error("The safety snapshot did not match the current writing. Nothing was restored.");
+      unchanged();
+      mutate((p) => {
+        unchanged();
+        const next = restored(p);
+        validateProject(next);
+        return next;
       });
       await queue.flush();
       setEditorEpoch((n) => n + 1);
+      setActive(old.id);
+      setDestination(old.kind === "fragment" ? "fragment-editor" : "manuscript");
+      setMode("write");
+      setVersions(null);
       setPreview(null);
-      setNotice("Restored with a safety snapshot.");
+      setNotice("Restored with a checked safety snapshot.");
     });
+  const confirmSourceImport = async (selectedSources: CslImportResult["sources"], updates: SourceFieldUpdate[]) => {
+    const before = current.current;
+    const result = cslImportPreview;
+    if (!before || !result || result.projectId !== before.id)
+      throw new Error("The project changed. Review this source import again.");
+    if (!selectedSources.length && !updates.length) return;
+    if (selectedSources.some((source) => !result.sources.includes(source)))
+      throw new Error("Choose only sources from this import preview.");
+    const signature = (value: unknown) => JSON.stringify(value, (_key, item) =>
+      item && typeof item === "object" && !Array.isArray(item)
+        ? Object.fromEntries(Object.keys(item).sort().map((key) => [key, item[key]])) : item);
+    const original = signature(before);
+    const unchanged = () => {
+      if (!current.current || signature(current.current) !== original)
+        throw new Error("The project changed. Review this source import again.");
+    };
+    const research = before.research ?? { sources: [], notes: [], footnotes: [] };
+    const replacements = new Map<string, ReturnType<typeof mergeSourceFields>>();
+    for (const update of updates) {
+      const candidate = result.sources[update.candidateIndex];
+      const targets = research.sources.filter((source) => source.id === update.existingSourceId);
+      if (targets.length !== 1)
+        throw new Error("This source identity is not unique. Nothing was updated.");
+      const source = targets[0];
+      const shown = result.existingSources.find((source) => source.id === update.existingSourceId);
+      const exact = result.review.exactDuplicates.find((row) => row.candidateIndex === update.candidateIndex);
+      const possible = result.review.possibleMatches.find((row) => row.candidateIndex === update.candidateIndex);
+      const allowed = exact?.existingSourceIds ?? possible?.matches.map((row) => row.existingSourceId) ?? [];
+      if (!candidate || !source || !shown || !allowed.includes(source.id) || signature(source) !== signature(shown))
+        throw new Error("A source changed or no longer matches this preview. Review the import again.");
+      if (replacements.has(source.id))
+        throw new Error("Update an existing source from only one imported record at a time.");
+      if (!update.fields.length) throw new Error("Choose the fields to update first.");
+      replacements.set(source.id, mergeSourceFields(source, candidate, update.fields));
+    }
+    const nextResearch = { ...research, sources: [
+      ...research.sources.map((source) => replacements.get(source.id) ?? source),
+      ...selectedSources.map((source) => ({ ...source, id: crypto.randomUUID() })),
+    ] };
+    validateProject({ ...before, research: nextResearch });
+    await queue.flush();
+    unchanged();
+    if (updates.length) {
+      const safetyId = await storage.snapshot(before.id, "Before updating research sources");
+      const safety = await storage.version(before.id, safetyId, false);
+      validateProject(safety);
+      if (signature(safety) !== original)
+        throw new Error("The safety snapshot did not match the current writing. No sources were updated.");
+      unchanged();
+    }
+    mutate((project) => { unchanged(); return { ...project, research: nextResearch }; });
+    // Once applied, close the review even if persistence fails: retrying the
+    // save queue must not apply the source additions a second time.
+    setCslImportPreview(null);
+    await queue.flush();
+    setNotice(updates.length ? "Source choices applied with a checked safety snapshot." : "Selected sources added.");
+  };
   const insertFootnote = (id: string) => {
     const editor = editorRef.current;
     if (editor)
@@ -1091,35 +1248,38 @@ export default function App() {
         ]);
       },
     });
-  const footnoteNumbers: Record<string, number> = {};
-  const numberNotes = (node: {
-    type?: string;
-    attrs?: Record<string, any>;
-    content?: any[];
-  }) => {
-    if (
-      node.type === "footnoteReference" &&
-      node.attrs?.id &&
-      !footnoteNumbers[node.attrs.id]
-    )
-      footnoteNumbers[node.attrs.id] = Object.keys(footnoteNumbers).length + 1;
-    node.content?.forEach(numberNotes);
-  };
-  project?.order.forEach((id) => {
-    const entry = project.entries.find((e) => e.id === id);
-    if (entry) numberNotes(entry.content);
-  });
-  const noteForms = project
-    ? resolveNoteForms(footnoteIdsInOrder(project), project.research ?? { sources: [], notes: [], footnotes: [] })
-    : {};
+  const footnoteNumbers: Record<string, number> = useMemo(() => Object.fromEntries(
+    (projectSummary?.referenceOrder ?? []).map((id, index) => [id, index + 1]),
+  ), [projectSummary?.referenceOrder]);
+  // Reuse the previous per-section reference list while it is unchanged, so
+  // typing does not recompute the citation context.
+  const sectionRefs = useRef<SectionReferences>([]);
+  const citationSections = useMemo(() => {
+    const next: SectionReferences = project && projectSummary
+      ? project.order.flatMap((id) => project.entries.some((e) => e.id === id && e.kind === "section")
+        ? [{ sectionId: id, ids: projectSummary.entries.get(id)?.referenceOrder ?? [] }]
+        : [])
+      : [];
+    const previous = sectionRefs.current;
+    if (next.length !== previous.length || next.some((s, i) => s.sectionId !== previous[i].sectionId ||
+      s.ids.length !== previous[i].ids.length || s.ids.some((id, j) => id !== previous[i].ids[j])))
+      sectionRefs.current = next;
+    return sectionRefs.current;
+  }, [project, projectSummary]);
+  const citationContext = useMemo(() => project
+    ? resolveCitationContext({ order: project.order, entries: project.entries, research: project.research }, citationSections)
+    : {}, [citationSections, project?.research]);
   const insertResearchNote = (note: { kind: string; text: string; sourceId?: string; locator?: string }) => {
     const editor = editorRef.current;
     if (!editor) return;
     const id = crypto.randomUUID();
-    const text = note.text.trim();
-    const blockQuote = note.kind === "quote" && isBlockQuote(text);
-    if (note.sourceId)
-      mutate((p) => {
+    const project = current.current;
+    if (!project) return;
+    const insertion = buildQuoteInsertion(note, note.sourceId ? id : undefined);
+    const amendment = note.sourceId ? {
+      projectId: project.id,
+      entryId: active,
+      amend: (p: Project): Project => {
         const research = p.research ?? { sources: [], notes: [], footnotes: [] };
         return {
           ...p,
@@ -1130,25 +1290,29 @@ export default function App() {
             }],
           },
         };
-      });
-    const insertion = blockQuote
-      ? [
-          { type: "blockquote", content: [{ type: "paragraph", content: [{ type: "text", text }] }] },
-          ...(note.sourceId ? [{ type: "footnoteReference", attrs: { id } }] : []),
-        ]
-      : [
-          { type: "text", text: note.kind === "quote" ? `“${text}”` : text },
-          ...(note.sourceId ? [{ type: "footnoteReference", attrs: { id } }] : []),
-        ];
-    editor.chain().focus().insertContent(insertion).run();
+      },
+    } : null;
+    pendingContentChange.current = amendment;
+    try {
+      editor.chain().focus().insertContent(insertion).run();
+    } finally {
+      if (pendingContentChange.current === amendment) pendingContentChange.current = null;
+    }
   };
   const sections =
     project?.order
       .map((id) => project.entries.find((e) => e.id === id)!)
       .filter(Boolean) ?? [];
+  const scopedWords = goalScope === "manuscript-and-fragments" ? projectSummary?.allWords ?? 0 : projectSummary?.manuscriptWords ?? 0;
   const goals = project ? goalStatus(project, goalDay,
-    goalBaseline?.projectId === project.id && goalBaseline.date === goalDay
-      ? goalBaseline.words : manuscriptWords(project)) : {};
+    goalBaseline?.projectId === project.id && goalBaseline.context === goalContext && goalBaseline.date === goalDay
+      ? goalBaseline.words : scopedWords, scopedWords) : {};
+  const patchGoalPreference = (key: "scope" | "dayMode", value: string) => {
+    if (key === "scope" && value !== "manuscript" && value !== "manuscript-and-fragments") return;
+    if (key === "dayMode" && value !== "local" && value !== "utc") return;
+    mutate((p) => ({ ...p, goals: { ...p.goals, [key]: value } }));
+    setNotice("Goal settings changed -- daily progress starts from the current word count.");
+  };
   const patchGoal = (key: "totalWords" | "dailyWords" | "deadline", value: string) => {
     if (key === "deadline" && value && !isValidGoalDeadline(value)) {
       setError("Enter a valid deadline date.");
@@ -1475,7 +1639,7 @@ export default function App() {
                   <section className="settings-section">
                     <h2>Goals</h2>
                     <div className="settings-form">
-                      <label className="settings-field">Manuscript word goal
+                      <label className="settings-field">Total word goal
                         <input type="number" min="1" step="1" value={project.goals?.totalWords ?? ""}
                           onChange={(event) => patchGoal("totalWords", event.target.value)} />
                       </label>
@@ -1483,12 +1647,23 @@ export default function App() {
                         <input type="number" min="1" step="1" value={project.goals?.dailyWords ?? ""}
                           onChange={(event) => patchGoal("dailyWords", event.target.value)} />
                       </label>
+                      <label className="settings-field">Goal scope
+                        <select aria-label="Goal scope" value={goalScope} onChange={(event) => patchGoalPreference("scope", event.target.value)}>
+                          <option value="manuscript">Manuscript</option>
+                          <option value="manuscript-and-fragments">Manuscript and fragments</option>
+                        </select>
+                      </label>
+                      <label className="settings-field">Goal day
+                        <select aria-label="Goal day" value={goalMode} onChange={(event) => patchGoalPreference("dayMode", event.target.value)}>
+                          <option value="local">Local day</option><option value="utc">UTC day</option>
+                        </select>
+                      </label>
                       <label className="settings-field">Deadline
                         <input type="date" value={project.goals?.deadline ?? ""}
                           onChange={(event) => patchGoal("deadline", event.target.value)} />
                       </label>
                     </div>
-                    <p className="settings-help">Goals count manuscript sections. Daily progress starts when you first open the project each local day.</p>
+                    <p className="settings-help">Daily progress starts when you first open the project each selected day. Changing scope, day mode, or local time zone starts a fresh daily baseline. Current baseline: {goalBaseline?.words.toLocaleString() ?? scopedWords.toLocaleString()} words on {goalDay}.</p>
                   </section>
                   <ExportPanel
                     project={project}
@@ -1523,12 +1698,13 @@ export default function App() {
                     mutate((p) => ({ ...p, annotations }))
                   }
                   onAdd={() => addAnnotation()}
-                  onJump={(id, quote) => {
-                    pendingQuote.current = quote;
-                    setActive(id);
+                  onReattach={startReattachment}
+                  onJump={(annotation) => {
+                    pendingJump.current = annotation.id;
+                    setActive(annotation.entryId);
                     setMode("write");
                     setDestination("manuscript");
-                    setNotice(quote ? "Passage: " + quote : "Opened section.");
+                    setNotice(annotation.quote ? "Opened commented passage." : "Opened section.");
                   }}
                 />
               ) : mode === "read" ? (
@@ -1652,7 +1828,7 @@ export default function App() {
                             <p key={id}>
                               <sup>{number}</sup>{" "}
                               {note
-                                ? footnoteText(note, project.research!, noteForms[note.id])
+                                ? footnoteText(note, project.research!, citationContext[note.id]?.form, citationContext[note.id]?.locator)
                                 : "Missing note"}
                             </p>
                           );
@@ -1662,6 +1838,17 @@ export default function App() {
                 </div>
               ) : item ? (
                 <div className="editor-area">
+                  {reattachment?.projectId === project.id && reattachment.entryId === item.id && (
+                    <div className="restore-fragment" role="region" aria-label="Reattach comment">
+                      <span>Select the passage to attach this comment.</span>
+                      <button disabled={!reattachment.selection} onMouseDown={(event) => event.preventDefault()} onClick={finishReattachment}>
+                        Attach comment to selection
+                      </button>
+                      <button onClick={() => { setReattachment(null); setDestination("comments"); }}>
+                        Cancel reattachment
+                      </button>
+                    </div>
+                  )}
                   <Writer
                     key={item.id + ":" + editorEpoch}
                     focusMode={focusMode}
@@ -1677,7 +1864,7 @@ export default function App() {
                         id: n.id,
                         number: footnoteNumbers[n.id],
                         text: n.text,
-                        citation: footnoteText(n, project.research!, noteForms[n.id]),
+                        citation: footnoteText(n, project.research!, citationContext[n.id]?.form, citationContext[n.id]?.locator),
                         editable: true,
                       }))}
                     onFootnoteTextChange={(id, text) =>
@@ -1709,6 +1896,12 @@ export default function App() {
                       }))
                     }
                     onEditorReady={editorReady}
+                    onSelectionChange={reattachment ? (editor) => {
+                      const { from, to, empty } = editor.state.selection;
+                      const hasText = !empty && !!editor.state.doc.textBetween(from, to, "\n");
+                      setReattachment((pending) => pending?.projectId === project.id && pending.entryId === item.id
+                        ? { ...pending, selection: hasText ? { from, to } : null } : pending);
+                    } : undefined}
                     onExtract={extract}
                     onLink={(value, apply) =>
                       setNameDialog({
@@ -1724,16 +1917,14 @@ export default function App() {
                         },
                       })
                     }
-                    onEdit={(content, text) =>
-                      mutate((p) => ({
-                        ...p,
-                        entries: p.entries.map((e) =>
-                          e.id === item.id
-                            ? { ...e, content, text, updatedAt: now() }
-                            : e,
-                        ),
-                      }))
-                    }
+                    onEdit={(content, text, transaction) => {
+                      const amendment = pendingContentChange.current;
+                      pendingContentChange.current = null;
+                      mutate((p) => {
+                        const next = { ...p, entries: p.entries.map((e) => e.id === item.id ? { ...e, content, text, updatedAt: now() } : e) };
+                        return amendment?.projectId === p.id && amendment.entryId === item.id ? amendment.amend(next) : next;
+                      }, { entryId: item.id, transaction });
+                    }}
                     onComment={() => addAnnotation("comment")}
                     onPageStatus={(s) =>
                       setPageStatus((prev) =>
@@ -1873,9 +2064,9 @@ export default function App() {
                   key={researchEpoch}
                   initialTab={researchTab}
                   focusFootnoteId={focusFootnote}
-                  noteForms={noteForms}
+                  citationContext={citationContext}
                   onInsertNote={insertResearchNote}
-                  onImportCsl={setCslImportPreview}
+                  onImportCsl={(result) => { if (current.current) setCslImportPreview({ ...result, projectId: current.current.id }); }}
                   onCaptureQuote={(note, insert) => { if (insert) insertResearchNote(note); }}
                   data={project.research}
                   onChange={(research) => mutate((p) => ({ ...p, research }))}
@@ -1995,19 +2186,10 @@ export default function App() {
         {cslImportPreview && <CslImportPreview
           result={cslImportPreview}
           onCancel={() => setCslImportPreview(null)}
-          onAdd={() => {
-            const result = cslImportPreview;
-            mutate((p) => {
-              const research = p.research ?? { sources: [], notes: [], footnotes: [] };
-              return {
-                ...p,
-                research: {
-                  ...research,
-                  sources: [...research.sources, ...result.sources.map((source) => ({ id: crypto.randomUUID(), ...source }))],
-                },
-              };
-            });
-            setCslImportPreview(null);
+          busy={busy}
+          onAdd={(selectedSources, updates) => {
+            setBusy(true);
+            void run(() => confirmSourceImport(selectedSources, updates)).finally(() => setBusy(false));
           }}
         />}
         {preview && (

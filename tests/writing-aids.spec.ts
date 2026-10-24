@@ -59,3 +59,50 @@ test("aids stay off for a new session by default", async ({ page }) => {
   await page.getByRole("button", { name: "Prose check", exact: true }).click();
   await expect(page.getByRole("checkbox", { name: "On", exact: true })).not.toBeChecked();
 });
+
+test("the issue index pages every result while decorations stay bounded", async ({ page }) => {
+  await page.goto("/");
+  await create(page, "Complete prose issue index");
+  const editor = page.getByRole("textbox", { name: "Writing editor" });
+  await editor.fill(Array(2_101).fill("the.").join(" "));
+  await showAids(page);
+  await page.getByRole("button", { name: "Prose check", exact: true }).click();
+  await page.getByRole("checkbox", { name: "On", exact: true }).check();
+
+  const issues = page.getByRole("region", { name: "Prose issues" });
+  await expect(issues.getByText(/2,100 total issues/)).toBeVisible();
+  await expect(issues.getByRole("button", { name: "Next issue page" })).toBeVisible();
+  await expect(issues.getByRole("button", { name: /Repeated word/ })).toHaveCount(100);
+  await issues.getByRole("button", { name: "Next issue page" }).click();
+  await expect(issues.getByText(/Page 2 of 21/)).toBeVisible();
+  await expect(issues.getByRole("button", { name: /Repeated word/ }).first()).toBeVisible();
+  await page.emulateMedia({ colorScheme: "light" });
+  await issues.screenshot({ path: "node_modules/.cache/personal-word-beta/e2/prose/issues-light.png" });
+  await page.emulateMedia({ colorScheme: "dark" });
+  await issues.screenshot({ path: "node_modules/.cache/personal-word-beta/e2/prose/issues-dark.png" });
+  await page.emulateMedia({ colorScheme: "light" });
+});
+
+test("prose rules can be switched off and a one-time dismissal expires when text changes", async ({ page }) => {
+  await page.goto("/");
+  await create(page, "Controlled prose rules");
+  const editor = page.getByRole("textbox", { name: "Writing editor" });
+  await editor.fill("The the letter was written very carefully.");
+  await showAids(page);
+  await page.getByRole("button", { name: "Prose check", exact: true }).click();
+  await page.getByRole("checkbox", { name: "On", exact: true }).check();
+
+  const issues = page.getByRole("region", { name: "Prose issues" });
+  const repeated = issues.getByRole("button", { name: /Repeated word: the/ });
+  await expect(repeated).toBeVisible();
+  await issues.getByRole("checkbox", { name: "Repeated words" }).uncheck();
+  await expect(repeated).toHaveCount(0);
+  await issues.getByRole("checkbox", { name: "Repeated words" }).check();
+  await expect(repeated).toBeVisible();
+
+  await issues.getByRole("button", { name: "Dismiss this issue once" }).first().click();
+  await expect(repeated).toHaveCount(0);
+  await editor.press("End");
+  await editor.pressSequentially(" now");
+  await expect(repeated).toBeVisible();
+});

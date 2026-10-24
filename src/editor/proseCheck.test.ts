@@ -1,5 +1,6 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { findProseIssues } from "./proseCheck";
+import { createProseWorkerHandler } from "../derived/prose.worker";
 
 describe("findProseIssues", () => {
   it("flags the the", () => {
@@ -45,5 +46,75 @@ describe("findProseIssues", () => {
     expect(passive.some((issue) => issue.kind === "passive")).toBe(false);
     const long = "A " + Array.from({ length: 22 }, () => "word").join(" ") + " “quoted words here” " + Array.from({ length: 20 }, () => "word").join(" ") + ".";
     expect(findProseIssues(long).some((issue) => issue.kind === "long")).toBe(false);
+  });
+
+  it("preserves issue order, ranges, and messages across overlapping rule types", () => {
+    expect(findProseIssues("The the. It was written. It is very useful in order to learn.")).toEqual([
+      { from: 4, to: 7, kind: "repeat", message: "Repeated word: the" },
+      { from: 12, to: 23, kind: "passive", message: "Possible passive voice" },
+      { from: 31, to: 35, kind: "filler", message: "Consider removing “very”" },
+      { from: 43, to: 54, kind: "filler", message: "Consider replacing “in order to” with “to”" },
+    ]);
+  });
+
+  it("keeps all 9,999 distinct adjacent-repeat ranges in a large repeated-word block", () => {
+    const text = Array.from({ length: 10_000 }, () => "the.").join(" ");
+    const issues = findProseIssues(text);
+    const repeats = issues.filter(issue => issue.kind === "repeat");
+    expect(repeats).toHaveLength(9_999);
+    expect(repeats[0]).toMatchObject({ from: 5, to: 8, kind: "repeat" });
+    expect(repeats.at(-1)).toMatchObject({ from: 49_995, to: 49_998, kind: "repeat" });
+    expect(issues.some(issue => issue.kind === "long")).toBe(false);
+  });
+});
+
+describe("prose worker block cache", () => {
+  it("reuses unchanged block analysis, repositions it, and rescans only changed text", () => {
+    const analyze = vi.fn(findProseIssues);
+    const handle = createProseWorkerHandler(analyze);
+    const first = handle({ entryId: "entry", revision: 1, requestId: 1, changedBlocks: [
+      { id: "a", from: 1, text: "The the cat." },
+      { id: "b", from: 20, text: "Very quiet." },
+    ], blockPositions: [{ id: "a", from: 1 }, { id: "b", from: 20 }] });
+    expect(first.total).toBeGreaterThan(0);
+    expect(analyze).toHaveBeenCalledTimes(2);
+
+    const second = handle({ entryId: "entry", revision: 2, requestId: 2, changedBlocks: [
+      { id: "b", from: 28, text: "Really quiet." },
+    ], blockPositions: [{ id: "a", from: 9 }, { id: "b", from: 28 }] });
+    expect(analyze).toHaveBeenCalledTimes(3);
+    expect(second.issues.find((issue) => issue.blockId === "a")?.from).toBe(13);
+    expect(second.issues.every((issue) => issue.id?.includes(":a:") || issue.id?.includes(":b:"))).toBe(true);
+  });
+
+  it("does not conflate identical prose in separate block identities and drops removed blocks", () => {
+    const handle = createProseWorkerHandler();
+    const result = handle({ entryId: "entry", revision: 1, requestId: 1, changedBlocks: [
+      { id: "first", from: 1, text: "The the." },
+      { id: "second", from: 12, text: "The the." },
+    ], blockPositions: [{ id: "first", from: 1 }, { id: "second", from: 12 }] });
+    expect(result.issues.map((issue) => issue.blockId)).toEqual(["first", "second"]);
+    const afterRemoval = handle({ entryId: "entry", revision: 2, requestId: 2, changedBlocks: [
+    ], blockPositions: [{ id: "second", from: 1 }] });
+    expect(afterRemoval.issues).toHaveLength(1);
+    expect(afterRemoval.issues[0].blockId).toBe("second");
+  });
+
+  it("reanalyzes a restored block after an earlier request removed it from the worker cache", () => {
+    const analyze = vi.fn(findProseIssues);
+    const handle = createProseWorkerHandler(analyze);
+    handle({ entryId: "entry", revision: 1, requestId: 1, changedBlocks: [{ id: "restored", from: 1, text: "The the." }], blockPositions: [{ id: "restored", from: 1 }] });
+    handle({ entryId: "entry", revision: 2, requestId: 2, changedBlocks: [], blockPositions: [] });
+    const restored = handle({ entryId: "entry", revision: 3, requestId: 3, changedBlocks: [{ id: "restored", from: 1, text: "The the." }], blockPositions: [{ id: "restored", from: 1 }] });
+    expect(analyze).toHaveBeenCalledTimes(2);
+    expect(restored.total).toBeGreaterThan(0);
+  });
+
+  it("changes issue identity whenever its block text changes, even when the warning text stays the same", () => {
+    const handle = createProseWorkerHandler();
+    const first = handle({ entryId: "entry", revision: 1, requestId: 1, changedBlocks: [{ id: "block", from: 1, text: "The the cat." }], blockPositions: [{ id: "block", from: 1 }] });
+    const edited = handle({ entryId: "entry", revision: 2, requestId: 2, changedBlocks: [{ id: "block", from: 1, text: "The the cats." }], blockPositions: [{ id: "block", from: 1 }] });
+    expect(first.issues[0].message).toBe(edited.issues[0].message);
+    expect(first.issues[0].id).not.toBe(edited.issues[0].id);
   });
 });

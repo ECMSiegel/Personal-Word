@@ -24,23 +24,35 @@ test("Tab indents the paragraph and keeps focus in the editor", async ({
   await page.goto("/");
   await create(page, "Indent test");
   const editor = page.getByRole("textbox", { name: "Writing editor" });
-  await editor.fill("Indented paragraph.");
+  // Exercise the same actual-text pointer entry as the indentation matrix.
+  await editor.locator("p").first().click();
+  await editor.pressSequentially("Indented paragraph.");
+  await editor.press("Home");
+  // Browser Home updates the DOM selection before ProseMirror consumes it.
+  // Wait for the command's actual selection, not a transient DOM offset.
   await expect
-    .poll(async () => {
-      await editor.press("Home");
-      return page.evaluate(() => window.getSelection()?.anchorOffset ?? -1);
-    })
-    .toBe(0);
+    .poll(() =>
+      editor.evaluate((element: any) => ({
+        offset: element.editor.state.selection.$from.parentOffset,
+        empty: element.editor.state.selection.empty,
+        domOffset: window.getSelection()?.anchorOffset,
+      })),
+    )
+    .toEqual({ offset: 0, empty: true, domOffset: 0 });
   await editor.press("Tab");
   await expect(editor).toBeFocused();
   await expect(editor.locator("p").first()).toHaveAttribute(
     "style",
-    /text-indent/,
+    /text-indent: 0\.5in/,
   );
-  await editor.press("Shift+Tab");
   await expect(editor.locator("p").first()).not.toHaveAttribute(
     "style",
-    /text-indent: 0\.5in/,
+    /margin-left/,
+  );
+  await editor.press("Shift+Tab");
+  await expect(editor.locator("p").first()).toHaveAttribute(
+    "style",
+    /text-indent: 0px;/,
   );
 });
 

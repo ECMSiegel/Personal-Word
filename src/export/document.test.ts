@@ -71,6 +71,34 @@ it("uses automatic short notes in export notes", () => {
   expect(notes[1].text).toMatch(/^Halloway, Lamps and Ledgers/);
   expect(notes[1].text).not.toContain("Press, 2026");
 });
+it("uses the shared Ibid. context for DOCX/PDF notes only after opt-in", () => {
+  const p = fixture();
+  p.entries[0].content.content![0] = {
+    type: "paragraph",
+    content: ["n", "n2", "n3"].map((id) => ({ type: "footnoteReference", attrs: { id } })),
+  };
+  p.research!.footnotes = ["8", "8", "9"].map((locator, i) => ({ id: ["n", "n2", "n3"][i], text: "", sourceId: "s", locator }));
+  p.research!.autoShortNotes = true;
+  expect(documentBlocks(p).notes.map((n) => n.text).join("|")).not.toContain("Ibid.");
+  p.research!.citationPolicy = { scope: "manuscript", repeats: "ibid" };
+  const notes = documentBlocks(p).notes;
+  expect(notes.map((n) => n.text).slice(1)).toEqual(["Ibid.", "Ibid., 9."]);
+  expect(notes[1].parts).toEqual([{ text: "Ibid.", italic: undefined }]);
+});
+it("restarts full DOCX/PDF citations per section only under section scope", () => {
+  const p = fixture();
+  p.research!.footnotes = [{ id: "n", text: "", sourceId: "s", locator: "4" }, { id: "n2", text: "", sourceId: "s", locator: "8" }];
+  const second = { ...p.entries[0], id: "second", content: { type: "doc", content: [{ type: "paragraph", content: [{ type: "footnoteReference", attrs: { id: "n2" } }] }] } };
+  p.entries.push(second);
+  p.order.push("second");
+  p.research!.citationPolicy = { scope: "manuscript", repeats: "short" };
+  expect(documentBlocks(p).notes[1].text).toBe("Smith, A Book, 8.");
+  p.research!.citationPolicy = { scope: "section", repeats: "ibid" };
+  const notes = documentBlocks(p).notes;
+  expect(notes.map((n) => n.number)).toEqual([1, 2]);
+  expect(notes[1].text).toBe("Jane Smith, A Book (Press, 2026), 8.");
+  expect(notes[1].parts.some((part) => part.italic && part.text === "A Book")).toBe(true);
+});
 it("refuses dangling footnote references", () => {
   const p = fixture();
   p.research!.footnotes = [];

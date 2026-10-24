@@ -105,6 +105,37 @@ describe("save scheduling deadlines", () => {
     expect(revisions).toEqual([1, 2]);
   });
 
+  it("bounds a healthy queue's save attempt, not completion of blocked I/O", async () => {
+    vi.useFakeTimers();
+    const p = newProject("Essay");
+    let release: () => void = () => {};
+    const barrier = new Promise<void>((resolve) => (release = resolve));
+    const persist = vi.fn(async (_change: Change) => barrier);
+    const status = vi.fn();
+    const q = new SaveQueue(persist, journal(), status);
+
+    q.enqueue(p);
+    // Keep typing so every idle debounce is reset while the first-edit deadline
+    // continues to run. A single enqueue should save at the normal 250ms idle
+    // debounce, not wait for MAX_WAIT_MS.
+    for (let edit = 1; edit <= 9; edit += 1) {
+      await vi.advanceTimersByTimeAsync(200);
+      q.enqueue({ ...p, revision: p.revision + edit });
+    }
+    await vi.advanceTimersByTimeAsync(199);
+    expect(persist).not.toHaveBeenCalled();
+    await vi.advanceTimersByTimeAsync(1);
+    expect(persist).toHaveBeenCalledTimes(1);
+    expect(status).toHaveBeenLastCalledWith({ state: "saving" });
+
+    await vi.advanceTimersByTimeAsync(5_000);
+    expect(persist).toHaveBeenCalledTimes(1);
+    expect(status).toHaveBeenLastCalledWith({ state: "saving" });
+
+    release();
+    await vi.waitFor(() => expect(status).toHaveBeenLastCalledWith({ state: "saved" }));
+  });
+
   it("flushes the latest pending project immediately when explicitly requested", async () => {
     vi.useFakeTimers();
     const p = newProject("Essay");

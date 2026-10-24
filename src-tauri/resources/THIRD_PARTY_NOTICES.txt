@@ -1,0 +1,45 @@
+Personal Word -- third-party notices for the locally reviewed assets
+
+This notice set preserves license text copied from the exact locally installed
+or cached package versions listed below. It is a preparation record, not a
+complete binary dependency inventory. The runtime/compiled graph of a candidate
+app has not been inspected. See docs/distribution.md and THIRD_PARTY.md.
+
+Bundled font assets (the application source includes these @fontsource files):
+  Noto Sans 5.3.0, @fontsource/noto-sans -- OFL-1.1
+  Noto Sans Mono 5.3.0, @fontsource/noto-sans-mono -- OFL-1.1
+  Noto Serif 5.3.0, @fontsource/noto-serif -- OFL-1.1
+  Exact package LICENSE files are preserved under Resources/licenses/.
+
+Rust dependency metadata identifies MPL-2.0 for cssparser 0.37.0,
+cssparser-macros 0.7.1, dtoa-short 0.3.5, option-ext 0.2.0, and selectors
+0.38.0. Exact locally cached license texts are present for the first three.
+The option-ext and selectors cache trees did not contain standalone license
+text files, so those notices remain unresolved and block binary distribution.
+The three locally available MPL texts are preserved under Resources/licenses/;
+the two missing texts must not be inferred from this partial set.
+
+Other locally identified license texts preserved under Resources/licenses/:
+  caniuse-lite 1.0.30001816 -- CC-BY-4.0
+  jszip 3.10.2 -- MIT OR GPL-3.0-or-later; this project selects the MIT option
+  sax 1.6.1 -- BlueOak-1.0.0
+  webpki-roots 1.0.9 -- CDLA-Permissive-2.0
+  rusqlite 0.32.1 -- MIT
+
+These package records do not prove that each component is present in a
+particular binary. The exact activated target/feature graph, Tauri/WebKit and
+platform components, SQLite compiled contents, and any additional binary
+notices remain to be reviewed against each candidate. Do not use this resource
+set to claim license completeness or clear a distribution gate.
+
+License texts and their provenance:
+  * noto-{sans,sans-mono,serif}-OFL-1.1.txt were copied verbatim from the
+    corresponding @fontsource 5.3.0 LICENSE files in the locked node_modules.
+  * cssparser, cssparser-macros, dtoa-short, webpki-roots, and rusqlite texts
+    were copied verbatim from the matching exact-version Cargo registry source
+    cache.
+  * caniuse-lite, jszip, and sax texts were copied verbatim from their locked
+    node_modules package license files.
+
+See Resources/licenses/ for the exact copied text. Package metadata and this
+notice preparation do not constitute legal advice or binary-graph evidence.

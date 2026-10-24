@@ -18,26 +18,48 @@ describe("Zotero CSL JSON import", () => {
     expect(result.sources.map((s) => s.authors)).toEqual([["World Health Organization"], []]);
     expect(JSON.stringify(result)).not.toContain("undefined");
   });
-  it("counts unsupported item types", () => {
-    expect(parseCslJson(JSON.stringify([{ type: "chapter" }, { type: "thesis" }]), []).skipped).toEqual({ chapter: 1, thesis: 1 });
+  it("counts invalid records without titles", () => {
+    expect(parseCslJson(JSON.stringify([{ type: "chapter" }, { type: "thesis" }]), []).skipped).toEqual({ invalid: 2 });
   });
-  it("counts prototype-named unsupported item types safely", () => {
-    const skipped = parseCslJson(JSON.stringify([{ type: "__proto__" }, { type: "constructor" }, { type: "toString" }]), []).skipped;
-    expect(skipped["__proto__"]).toBe(1);
-    expect(skipped["constructor"]).toBe(1);
-    expect(skipped["toString"]).toBe(1);
-    expect(Object.keys(skipped)).toHaveLength(3);
+  it("retains prototype-named types safely as raw other records", () => {
+    const result = parseCslJson(JSON.stringify(["__proto__", "constructor", "toString"].map((type) => ({ type, title: type }))), []);
+    expect(result.sources.map((source) => source.kind)).toEqual(["other", "other", "other"]);
+    expect(result.sources.map((source) => source.cslData!.type)).toEqual(["__proto__", "constructor", "toString"]);
+    expect(({} as { polluted?: boolean }).polluted).toBeUndefined();
   });
-  it("skips duplicates by Zotero id, DOI, and title plus first author", () => {
+  it("reports exact DOI matches for review without discarding any candidate", () => {
     const existing: Source[] = [
       { id: "e1", kind: "book", title: "A Book", authors: ["Jane Smith"], cslId: "z1" },
-      { id: "e2", kind: "journal", title: "DOI title", authors: [], doi: "10/doi" },
+      { id: "e2", kind: "journal", title: "DOI title", authors: [], doi: "10.1234/doi" },
       { id: "e3", kind: "website", title: "Known title", authors: ["Alex Doe"] },
     ];
-    const items = [book, { type: "book", title: "Different", DOI: "https://doi.org/10/doi" }, { type: "webpage", title: "Known title", author: [{ family: "Doe", given: "Alex" }] }, { type: "book", title: "New", author: [] }];
+    const items = [book, { type: "book", title: "Different", DOI: "https://dx.doi.org/10.1234/DOI" }, { type: "webpage", title: "Known title", author: [{ family: "Doe", given: "Alex" }] }, { type: "book", title: "New", author: [] }];
     const result = parseCslJson(JSON.stringify(items), existing);
-    expect(result.duplicates).toBe(3);
-    expect(result.sources.map((s) => s.title)).toEqual(["New"]);
+    expect(result.duplicates).toBe(1);
+    expect(result.sources.map((source) => source.title)).toEqual(["A Book", "Different", "Known title", "New"]);
+    expect(result.review.exactDuplicates[0]).toMatchObject({ candidateIndex: 1, existingSourceIds: ["e2"], matchedBy: ["doi"] });
+    expect(existing.map((source) => source.id)).toEqual(["e1", "e2", "e3"]);
+  });
+  it("retains different works with the same title and first surname", () => {
+    const existing: Source[] = [{ id: "old", kind: "journal", title: "Shared title", authors: ["Jane Smith"], year: "2020", doi: "10.1234/old" }];
+    const result = parseCslJson(JSON.stringify([{ type: "article-journal", title: "Shared title", author: [{ given: "John", family: "Smith" }], issued: { "date-parts": [[2024]] }, DOI: "10.1234/new" }]), existing);
+    expect(result.sources).toHaveLength(1);
+    expect(result.sources[0].doi).toBe("10.1234/new");
+  });
+  it("does not treat a bare CSL id from another export as globally unique", () => {
+    const result = parseCslJson(JSON.stringify([{ ...book, title: "Another work", DOI: "10.1234/new" }]), [{ id: "old", kind: "book", title: "Old work", authors: [], cslId: "z1", doi: "10.1234/old" }]);
+    expect(result.sources).toHaveLength(1);
+  });
+  it("retains unsupported raw CSL records and corporate creator identity", () => {
+    const item = { id: "raw-1", type: "custom-record", title: "Corporate archive", author: [{ literal: "Coastal Research Council" }], custom: { nested: ["保留", 17] } };
+    const result = parseCslJson(JSON.stringify([item]), []);
+    expect(result.sources).toHaveLength(1);
+    expect(result.sources[0]).toMatchObject({ kind: "other", cslData: item, creators: [{ role: "author", literal: "Coastal Research Council" }] });
+  });
+  it("preserves chapter type, edition, editor and full issued date", () => {
+    const item = { type: "chapter", title: "Estuaries", author: [{ given: "Mina", family: "Chen" }], editor: [{ literal: "Research Collective" }], "container-title": "Coastal Methods", edition: "2", issued: { "date-parts": [[2024, 5, 2]] } };
+    const result = parseCslJson(JSON.stringify([item]), []);
+    expect(result.sources[0]).toMatchObject({ kind: "chapter", container: "Coastal Methods", edition: "2", publishedDate: "2024-05-02", creators: [{ role: "author", given: "Mina", family: "Chen" }, { role: "editor", literal: "Research Collective" }], cslData: item });
   });
   it("rejects text that is not a CSL JSON array", () => {
     expect(() => parseCslJson("{bad", [])).toThrow("This file is not a CSL JSON export from Zotero.");

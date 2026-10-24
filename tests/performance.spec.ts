@@ -1,0 +1,161 @@
+import { test, expect } from "@playwright/test";
+
+async function create(page: any, title: string, advanceClock = 0) {
+  await page.goto("/");
+  await page.getByRole("button", { name: "Start new project" }).click();
+  await page.getByRole("button", { name: "Blank", exact: true }).click();
+  await page.getByLabel("Project title").fill(title);
+  await page.getByRole("button", { name: "Save", exact: true }).click();
+  if (advanceClock) await page.clock.runFor(advanceClock);
+  await expect(page.getByText("Saved", { exact: true })).toBeVisible();
+}
+const settings = (page: any) => page.locator(".group-title").filter({hasText:/^Settings$/}).click();
+const manuscript = (page: any) => page.locator(".group-title").filter({hasText:/^Manuscript$/}).click();
+
+test("goal scope and day preferences persist and start explicit fresh baselines", async ({page}) => {
+  const session=await page.context().newCDPSession(page);
+  await session.send("Emulation.setTimezoneOverride",{timezoneId:"America/New_York"});
+  // UTC is already the next day. Reload must not overwrite the UTC baseline
+  // while the project's day-mode preference is still loading.
+  await page.clock.setFixedTime(new Date("2026-10-23T02:00:00Z"));
+  await page.addInitScript(() => localStorage.setItem("personal-word.restoreTabs","true"));
+  await create(page,"Scoped goals");
+  const editor=page.getByRole("textbox",{name:"Writing editor"});
+  await editor.fill("one two three");
+  await settings(page);
+  await page.getByLabel("Daily word goal",{exact:true}).fill("10");
+  await page.getByLabel("Goal scope",{exact:true}).selectOption("manuscript-and-fragments");
+  await expect(page.getByLabel("Writing goals",{exact:true})).toContainText("0 of 10 today");
+  await manuscript(page);
+  await editor.fill("one two three four five");
+  await expect(page.getByLabel("Writing goals",{exact:true})).toContainText("2 of 10 today");
+  await settings(page);
+  await page.getByLabel("Goal day",{exact:true}).selectOption("utc");
+  await expect(page.getByLabel("Writing goals",{exact:true})).toContainText("0 of 10 today");
+  await manuscript(page);
+  await editor.fill("one two three four five six");
+  await expect(page.getByLabel("Writing goals",{exact:true})).toContainText("1 of 10 today");
+  await expect(page.getByText("Saved",{exact:true})).toBeVisible();
+  await page.reload();
+  await settings(page);
+  await expect(page.getByLabel("Goal scope",{exact:true})).toHaveValue("manuscript-and-fragments");
+  await expect(page.getByLabel("Goal day",{exact:true})).toHaveValue("utc");
+  await expect(page.getByLabel("Writing goals",{exact:true})).toContainText("1 of 10 today");
+  await page.getByLabel("Goal day",{exact:true}).selectOption("local");
+  await expect(page.getByLabel("Writing goals",{exact:true})).toContainText("0 of 10 today");
+  await page.getByLabel("Goal day",{exact:true}).selectOption("utc");
+  await expect(page.getByLabel("Writing goals",{exact:true})).toContainText("0 of 10 today");
+  await page.getByLabel("Goal day",{exact:true}).selectOption("local");
+  await manuscript(page);
+  await editor.fill("one two three four five six seven");
+  await expect(page.getByLabel("Writing goals",{exact:true})).toContainText("1 of 10 today");
+  await session.send("Emulation.setTimezoneOverride",{timezoneId:"Pacific/Honolulu"});
+  await page.evaluate(()=>window.dispatchEvent(new Event("focus")));
+  await expect(page.getByLabel("Writing goals",{exact:true})).toContainText("0 of 10 today");
+  await session.detach();
+});
+
+for (const mode of ["local", "utc"] as const) {
+  test(`goal calendar resets its baseline at ${mode} midnight`, async ({ page }) => {
+    const session = await page.context().newCDPSession(page);
+    await session.send("Emulation.setTimezoneOverride", { timezoneId: "America/New_York" });
+    const midnight = new Date(mode === "utc" ? "2026-10-23T00:00:00Z" : "2026-10-23T04:00:00Z");
+    await page.clock.install({ time: new Date(midnight.getTime() - 60_000) });
+    await create(page, `${mode} midnight goals`, 1000);
+    const editor = page.getByRole("textbox", { name: "Writing editor" });
+    const progress = page.getByLabel("Writing goals", { exact: true });
+    await editor.fill("one");
+    await settings(page);
+    await page.getByLabel("Daily word goal", { exact: true }).fill("10");
+    if (mode === "utc") await page.getByLabel("Goal day", { exact: true }).selectOption("utc");
+    await manuscript(page);
+    await editor.fill("one two");
+    // Legacy local goals retain the opening zero-word baseline; selecting UTC
+    // explicitly starts a new baseline after the first word.
+    const before = mode === "local" ? 2 : 1;
+    await expect(progress).toContainText(`${before} of 10 today`);
+    await page.clock.pauseAt(new Date(midnight.getTime() - 1000));
+    await expect(progress).toContainText(`${before} of 10 today`);
+    await page.clock.runFor(1100);
+    await expect(progress).toContainText("0 of 10 today");
+    await settings(page);
+    await expect(page.locator(".settings-help").filter({ hasText: "Current baseline:" }))
+      .toContainText("Current baseline: 2 words on 2026-10-23.");
+    await manuscript(page);
+    await editor.fill("one two three");
+    await expect(progress).toContainText("1 of 10 today");
+    await session.detach();
+  });
+}
+
+// Use a production-preview server for qualification. A development-server run
+// still checks fixture reachability and the same budget, but is not a release
+// performance claim. Paired samples and exact fixture sizes are attached.
+for (const pathological of [false, true]) {
+test(`100k words across 60 sections and 1000 notes meet the synthetic input budget -- ${pathological ? "repeated-word paragraph" : "ordinary sections"}`, async ({page}, info) => {
+  test.setTimeout(180_000);
+  await create(page,"Large writing benchmark");
+  await page.evaluate((pathological) => {
+    const key=Object.keys(localStorage).find(key=>key.startsWith("folio.preview.project."))!;
+    const p=JSON.parse(localStorage.getItem(key)!);
+    const original=p.entries[0];
+    let remaining=100_000;
+    p.entries=Array.from({length:60},(_,i)=>{
+      const count=i===0?10_000:Math.floor(remaining/(60-i));
+      remaining-=count;
+      const blocks=[];
+      for(let start=0;start<count;start+=100){
+        const text=Array.from({length:Math.min(100,count-start)},(_,j)=>["alpha","beta","gamma","delta","evidence"][j%5]).join(" ")+".";
+        blocks.push({type:"paragraph",content:[{type:"text",text}]});
+      }
+      if (pathological && i === 0) blocks.splice(0, blocks.length, {type:"paragraph",content:[{type:"text",text:Array(count).fill("the.").join(" ")}]});
+      return {...original,id:crypto.randomUUID(),title:`Section ${i+1}`,content:{type:"doc",content:blocks},text:blocks.map(block=>block.content[0].text).join("\n")};
+    });
+    p.order=p.entries.map((e:any)=>e.id);
+    p.research={sources:[],notes:[],footnotes:Array.from({length:1000},(_,i)=>({id:`benchmark-note-${i}`,text:`Supporting note ${i}.`}))};
+    p.research.footnotes.forEach((note:any,i:number)=>p.entries[i%60].content.content.at(-1).content.push({type:"footnoteReference",attrs:{id:note.id}}));
+    localStorage.setItem(key,JSON.stringify(p));
+    localStorage.setItem("personal-word.restoreTabs","true");
+    localStorage.setItem("folio.lastProject",p.id);
+    localStorage.setItem("personal-word.prose-check","false");
+  }, pathological);
+  await page.reload();
+  const editor=page.getByRole("textbox",{name:"Writing editor"});
+  await expect(editor).toBeVisible();
+  await expect.poll(()=>page.evaluate(()=>{
+    const key=Object.keys(localStorage).find(key=>key.startsWith("folio.preview.project."))!;
+    const p=JSON.parse(localStorage.getItem(key)!);
+    return {sections:p.entries.length,words:p.entries.reduce((sum:number,e:any)=>sum+e.text.trim().split(/\s+/u).length,0),notes:p.research.footnotes.length,activeWords:p.entries[0].text.trim().split(/\s+/u).length};
+  })).toEqual({sections:60,words:100_000,notes:1000,activeWords:10_000});
+  const sample=async()=>{
+    await editor.press("ControlOrMeta+Home");
+    await editor.evaluate((element:any)=>{
+      const samples:number[]=[];let started:number|null=null;
+      (window as any).__inputSamples=samples;
+      const key=(event:KeyboardEvent)=>{if(event.key==="x")started=performance.now();};
+      const update=()=>{if(started!==null){samples.push(performance.now()-started);started=null;}};
+      element.addEventListener("keydown",key);
+      element.editor.on("update",update);
+      (window as any).__stopSamples=()=>{element.removeEventListener("keydown",key);element.editor.off("update",update);};
+    });
+    await editor.pressSequentially("x".repeat(200));
+    return page.evaluate(()=>{(window as any).__stopSamples();return (window as any).__inputSamples as number[];});
+  };
+  const off=await sample();
+  const more=page.getByRole("button",{name:"More formatting",exact:true});
+  const prose=page.getByRole("button",{name:"Prose check",exact:true});
+  if(!(await prose.isVisible()) && await more.isVisible())await more.click();
+  await prose.click();
+  await page.getByRole("checkbox",{name:"On",exact:true}).check();
+  await expect(editor.locator(".prose-repeat").first()).toBeVisible({timeout:30_000});
+  // Returning focus uses the current valid editor selection; no document reset.
+  await editor.focus();
+  const on=await sample();
+  await info.attach("paired-input-samples",{body:JSON.stringify({fixture:{words:100_000,sections:60,notes:1000,activeWords:10_000},off,on}),contentType:"application/json"});
+  expect(off).toHaveLength(200);expect(on).toHaveLength(200);
+  const sorted=[...on].sort((a,b)=>a-b);
+  expect(sorted[Math.floor(sorted.length/2)]).toBeLessThanOrEqual(25);
+  expect(sorted[Math.ceil(sorted.length*.95)-1]).toBeLessThanOrEqual(50);
+});
+
+}
