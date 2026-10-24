@@ -1,8 +1,9 @@
 import { describe, expect, it } from "vitest";
 import { newProject } from "../model";
 import { parseManuscript } from "../import/manuscript";
-import type { ExportProject } from "./document";
+import { documentBlocks, type ExportProject } from "./document";
 import { projectMarkdown, projectPlainText } from "./textExport";
+import { JPG_ID, PNG_ID, cell, image, imageAssets, note, para, table, text } from "./media-fixtures";
 
 function fixture(): ExportProject {
   const p = newProject("Research draft");
@@ -248,5 +249,54 @@ describe("whole-project text exports", () => {
       expect(output).toContain("— A Useful Book, ch. 3");
       expect(output).not.toMatch(/(?:p\. p\.|p\. ch\.)/);
     }
+  });
+});
+
+describe("images and tables in text exports", () => {
+  function media(): ExportProject {
+    const p = fixture();
+    p.research!.footnotes = [
+      { id: "a", text: "Note A." },
+      { id: "b", text: "Note B." },
+    ];
+    p.entries[0].content = {
+      type: "doc",
+      content: [
+        para(text("Before"), note("a")),
+        image(PNG_ID, { title: 'Say "hi"' }),
+        image(JPG_ID, { alt: "Plain [chart]" }),
+        table(
+          [cell("tableHeader", para(text("Name"))), cell("tableHeader", para(text("A|B")))],
+          [
+            cell("tableCell", para(text("one"), note("b")), para(text("two"))),
+            cell("tableCell", para(text("x"), { type: "hardBreak" }, text("y"))),
+          ],
+        ),
+      ],
+    };
+    return p;
+  }
+  it("writes Markdown image links and a GitHub pipe table with escaped pipes and <br> joins", () => {
+    const md = projectMarkdown(media(), imageAssets());
+    expect(md).toContain(`![A red pixel](assets/${PNG_ID}.png "Say \\"hi\\"")`);
+    expect(md).toContain(`![Plain \\[chart\\]](assets/${JPG_ID}.jpg)`);
+    expect(md).toContain("| Name | A\\|B |\n| --- | --- |\n| one[^2]<br>two | x<br>y |");
+    expect(md).toContain("[^1]: Note A.");
+    expect(md).toContain("[^2]: Note B.");
+  });
+  it("writes plain-text image placeholders and tab-separated rows", () => {
+    const txt = projectPlainText(media(), imageAssets());
+    expect(txt).toContain("[Image: A red pixel]");
+    expect(txt).toContain("Name\tA|B\none[2] two\tx y");
+  });
+  it("numbers notes in table cells like the document export", () => {
+    const p = media();
+    const numbers = documentBlocks(p, imageAssets()).notes.map((n) => n.id);
+    expect(numbers).toEqual(["a", "b"]);
+    expect(projectMarkdown(p, imageAssets()).indexOf("[^2]")).toBeGreaterThan(-1);
+  });
+  it("throws when an image asset is missing instead of dropping it", () => {
+    expect(() => projectMarkdown(media())).toThrow("An image is missing");
+    expect(() => projectPlainText(media())).toThrow("An image is missing");
   });
 });

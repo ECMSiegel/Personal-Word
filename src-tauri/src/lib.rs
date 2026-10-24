@@ -1,6 +1,7 @@
 #[cfg(feature = "native-smoke")]
 mod smoke;
 mod lookup;
+mod assets;
 mod store;
 use std::sync::{
     atomic::{AtomicBool, Ordering},
@@ -78,6 +79,40 @@ fn save_changes(change: Change, state: tauri::State<State>) -> Result<(), String
         .lock()
         .map_err(|e| e.to_string())?
         .save_changes(&change)
+}
+#[tauri::command]
+fn stage_assets(
+    project_id: String,
+    assets: Vec<assets::AssetUpload>,
+    state: tauri::State<State>,
+) -> Result<Vec<assets::AssetMeta>, String> {
+    state.0.lock().map_err(|e| e.to_string())?.stage_assets(&project_id, &assets)
+}
+#[tauri::command]
+fn create_project_with_assets(
+    change: Change,
+    assets: Vec<assets::AssetUpload>,
+    state: tauri::State<State>,
+) -> Result<(), String> {
+    state
+        .0
+        .lock()
+        .map_err(|e| e.to_string())?
+        .create_project_with_assets(&change, &assets)
+}
+/// Raw image bytes, without JSON number arrays.
+#[tauri::command]
+fn read_asset(
+    project_id: String,
+    asset_id: String,
+    state: tauri::State<State>,
+) -> Result<tauri::ipc::Response, String> {
+    let bytes = state
+        .0
+        .lock()
+        .map_err(|e| e.to_string())?
+        .read_asset(&project_id, &asset_id)?;
+    Ok(tauri::ipc::Response::new(bytes))
 }
 #[tauri::command]
 fn flush_mirrors(id: String, state: tauri::State<State>) -> Result<(), String> {
@@ -198,6 +233,9 @@ pub fn run() {
         load_project,
         save_changes,
         flush_mirrors,
+        stage_assets,
+        create_project_with_assets,
+        read_asset,
         create_snapshot,
         list_versions,
         load_version,
@@ -224,6 +262,9 @@ pub fn run() {
         load_project,
         save_changes,
         flush_mirrors,
+        stage_assets,
+        create_project_with_assets,
+        read_asset,
         create_snapshot,
         list_versions,
         load_version,

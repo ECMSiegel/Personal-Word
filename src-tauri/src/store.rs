@@ -9,12 +9,13 @@ use std::{
     sync::Mutex,
 };
 use uuid::Uuid;
+use crate::assets::{self, Asset, AssetUpload};
 
 type Result<T> = std::result::Result<T, String>;
 fn err(e: impl std::fmt::Display) -> String {
     e.to_string()
 }
-const SCHEMA_VERSION: i64 = 2;
+const SCHEMA_VERSION: i64 = 3;
 /// Upper bound on automatic history rows, whatever the time buckets allow.
 const HISTORY_CAP: usize = 2000;
 const TABLES: &str = "
@@ -24,6 +25,9 @@ const TABLES: &str = "
     CREATE TABLE history_blobs (id INTEGER PRIMARY KEY, entry_id TEXT NOT NULL, data TEXT NOT NULL);
     CREATE TABLE history_entries (revision INTEGER NOT NULL, entry_id TEXT NOT NULL, blob INTEGER NOT NULL, PRIMARY KEY (revision, entry_id));
     CREATE INDEX history_entries_blob ON history_entries(blob);";
+/// Content-addressed images; never deleted, so history and snapshots keep working.
+const ASSETS: &str = "
+    CREATE TABLE assets (id TEXT PRIMARY KEY, mime TEXT NOT NULL, byte_length INTEGER NOT NULL, width INTEGER NOT NULL, height INTEGER NOT NULL, data BLOB NOT NULL, created_at INTEGER NOT NULL);";
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 #[serde(rename_all = "camelCase")]
 pub struct Entry {
@@ -184,11 +188,15 @@ impl Store {
             0 => db
                 .execute_batch(&format!(
                     "BEGIN IMMEDIATE; {TABLES}
-    CREATE TABLE snapshots (id TEXT PRIMARY KEY, name TEXT NOT NULL, created_at TEXT NOT NULL, data TEXT NOT NULL);
+    CREATE TABLE snapshots (id TEXT PRIMARY KEY, name TEXT NOT NULL, created_at TEXT NOT NULL, data TEXT NOT NULL);{ASSETS}
     PRAGMA user_version={SCHEMA_VERSION}; COMMIT;"
                 ))
                 .map_err(err)?,
-            1 => migrate_v1(&mut db)?,
+            1 => {
+                migrate_v1(&mut db)?;
+                migrate_v2(&mut db, &dir)?;
+            }
+            2 => migrate_v2(&mut db, &dir)?,
             _ => {}
         }
         Ok(db)
@@ -321,6 +329,66 @@ impl Store {
         })
     }
     pub fn save_changes(&mut self, change: &Change) -> Result<()> {
+        self.commit(change, &[], false)
+    }
+    /// Commits images an edit is about to reference, before the edit itself.
+    pub fn stage_assets(&mut self, project_id: &str, uploads: &[AssetUpload]) -> Result<Vec<assets::AssetMeta>> {
+        let verified = uploads.iter().map(assets::verify).collect::<Result<Vec<_>>>()?;
+        let mut db = self.connect(project_id, false)?;
+        let tx = db
+            .transaction_with_behavior(TransactionBehavior::Immediate)
+            .map_err(err)?;
+        insert_assets(&tx, &verified)?;
+        tx.commit().map_err(err)?;
+        Ok(verified.into_iter().map(|a| a.meta).collect())
+    }
+    /// Creates a new project and its images in one transaction.
+    pub fn create_project_with_assets(&mut self, change: &Change, uploads: &[AssetUpload]) -> Result<()> {
+        let verified = uploads.iter().map(assets::verify).collect::<Result<Vec<_>>>()?;
+        if self.dir(&change.header.id)?.join("project.sqlite3").is_file() {
+            return Err("A project with this identity already exists; nothing was replaced.".into());
+        }
+        self.commit(change, &verified, true)
+    }
+    /// Writes each referenced image once as attachments/<id>.<ext>; files are immutable.
+    fn write_attachments(&self, id: &str, dir: &Path, project: &Project) -> Result<()> {
+        let mut referenced = HashSet::new();
+        for e in &project.entries {
+            image_ids(&e.content, &mut referenced);
+        }
+        if referenced.is_empty() {
+            return Ok(());
+        }
+        let db = self.connect(id, false)?;
+        for asset_id in referenced {
+            let (mime, length, bytes): (String, i64, Vec<u8>) = db
+                .query_row(
+                    "SELECT mime,byte_length,data FROM assets WHERE id=?1",
+                    [&asset_id],
+                    |r| Ok((r.get(0)?, r.get(1)?, r.get(2)?)),
+                )
+                .map_err(err)?;
+            let path = dir
+                .join("attachments")
+                .join(format!("{asset_id}.{}", assets::extension(&mime)));
+            if fs::metadata(&path).is_ok_and(|m| m.len() == length as u64) {
+                continue;
+            }
+            atomic(&path, &bytes)?;
+        }
+        Ok(())
+    }
+    pub fn read_asset(&self, project_id: &str, asset_id: &str) -> Result<Vec<u8>> {
+        if !assets::is_asset_id(asset_id) {
+            return Err("Invalid image identifier".into());
+        }
+        self.connect(project_id, false)?
+            .query_row("SELECT data FROM assets WHERE id=?1", [asset_id], |r| r.get(0))
+            .optional()
+            .map_err(err)?
+            .ok_or_else(|| "This image is not stored in the project.".to_string())
+    }
+    fn commit(&mut self, change: &Change, new_assets: &[Asset], create_only: bool) -> Result<()> {
         let h = &change.header;
         validate_header(h)?;
         #[cfg(feature = "native-smoke")]
@@ -375,6 +443,9 @@ impl Store {
         let stale_base = || {
             Err("The saved project is older than this editor expected. Retry to save every section.".into())
         };
+        if create_only && old.is_some() {
+            return Err("A project with this identity already exists; nothing was replaced.".into());
+        }
         match (&old, change.base_revision) {
             (None, Some(_)) => return stale_base(),
             (Some((revision, _)), Some(base)) if *revision < base => return stale_base(),
@@ -400,6 +471,20 @@ impl Store {
             }
             (Some((revision, _)), _) => archive(&tx, *revision)?,
             (None, None) => {}
+        }
+        insert_assets(&tx, new_assets)?;
+        let mut referenced = HashSet::new();
+        for (e, _) in &sent {
+            image_ids(&e.content, &mut referenced);
+        }
+        for id in &referenced {
+            let stored: Option<i64> = tx
+                .query_row("SELECT 1 FROM assets WHERE id=?1", [id], |r| r.get(0))
+                .optional()
+                .map_err(err)?;
+            if stored.is_none() {
+                return Err("An image in this edit is missing from the project's storage; nothing was saved. Your recovery journal has been kept.".into());
+            }
         }
         for (e, data) in &sent {
             tx.execute("INSERT INTO entries (id,kind,data,blob) VALUES (?1,?2,?3,NULL) ON CONFLICT(id) DO UPDATE SET kind=excluded.kind,data=excluded.data,blob=NULL WHERE data<>excluded.data", params![e.id, e.kind, data]).map_err(err)?;
@@ -753,6 +838,27 @@ fn migrate_v1(db: &mut Connection) -> Result<()> {
             .map_err(err)?;
         }
     }
+    tx.pragma_update(None, "user_version", 2).map_err(err)?;
+    tx.commit().map_err(err)
+}
+/// Adds the image table. A read-only copy of the version 2 database is kept first.
+fn migrate_v2(db: &mut Connection, dir: &Path) -> Result<()> {
+    let mut backup = dir.join("before-images.sqlite3");
+    if backup.exists() {
+        backup = dir.join(format!("before-images-{}.sqlite3", Uuid::new_v4()));
+    }
+    db.backup(rusqlite::DatabaseName::Main, &backup, None)
+        .map_err(err)?;
+    let tx = db
+        .transaction_with_behavior(TransactionBehavior::Immediate)
+        .map_err(err)?;
+    let version: i64 = tx
+        .pragma_query_value(None, "user_version", |r| r.get(0))
+        .map_err(err)?;
+    if version != 2 {
+        return Ok(());
+    }
+    tx.execute_batch(ASSETS).map_err(err)?;
     tx.pragma_update(None, "user_version", SCHEMA_VERSION)
         .map_err(err)?;
     tx.commit().map_err(err)
@@ -814,7 +920,12 @@ fn sync_mirrors_mode(
             }
             let r = reader
                 .dir(&id)
-                .and_then(|dir| write_mirrors(&dir, &reader.read(&id)?, closing))
+                .and_then(|dir| {
+                    let project = reader.read(&id)?;
+                    // Image files land before the project.json that references them.
+                    reader.write_attachments(&id, &dir, &project)?;
+                    write_mirrors(&dir, &project, closing)
+                })
                 .map_err(|e| {
                     format!("Database saved, but portable copy failed: {e}. Retry to repair it.")
                 });
@@ -831,6 +942,28 @@ fn sync_mirrors_mode(
         s.dirty.extend(failed.into_iter().cloned());
     }
     results
+}
+fn insert_assets(tx: &Transaction, list: &[Asset]) -> Result<()> {
+    let now = chrono::Utc::now().timestamp();
+    for a in list {
+        tx.execute(
+            "INSERT OR IGNORE INTO assets (id,mime,byte_length,width,height,data,created_at) VALUES (?1,?2,?3,?4,?5,?6,?7)",
+            params![a.id, a.meta.mime, a.meta.byte_length as i64, a.meta.width, a.meta.height, a.bytes, now],
+        )
+        .map_err(err)?;
+    }
+    Ok(())
+}
+/// Collects the asset ids of every image node below `node`.
+fn image_ids(node: &Value, out: &mut HashSet<String>) {
+    if node.get("type").and_then(Value::as_str) == Some("image") {
+        if let Some(id) = node.pointer("/attrs/assetId").and_then(Value::as_str) {
+            out.insert(id.to_string());
+        }
+    }
+    for child in node.get("content").and_then(Value::as_array).into_iter().flatten() {
+        image_ids(child, out);
+    }
 }
 /// The revision recorded in a project's portable project.json, if it is readable.
 fn mirror_revision(dir: &Path) -> Option<i64> {
@@ -930,8 +1063,11 @@ fn validate_node(node: &Value, depth: usize) -> Result<()> {
         "codeBlock",
         "horizontalRule",
         "pageBreak",
+        "image",
+        "table",
     ];
-    if !["doc", "listItem"].contains(&kind) && !inline.contains(&kind) && !blocks.contains(&kind) {
+    let structural = ["doc", "listItem", "tableRow", "tableCell", "tableHeader"];
+    if !structural.contains(&kind) && !inline.contains(&kind) && !blocks.contains(&kind) {
         return Err(format!("Unsupported rich text node: {kind}"));
     }
     if kind == "text"
@@ -955,10 +1091,41 @@ fn validate_node(node: &Value, depth: usize) -> Result<()> {
         Some(value) => value.as_array().ok_or("Invalid node content")?.as_slice(),
         None => &[],
     };
-    if ["doc", "listItem", "bulletList", "orderedList", "blockquote"].contains(&kind)
+    if ["doc", "listItem", "bulletList", "orderedList", "blockquote", "table", "tableRow", "tableCell", "tableHeader"]
+        .contains(&kind)
         && children.is_empty()
     {
         return Err("Empty structural node".into());
+    }
+    if kind == "image" {
+        let attrs = node.get("attrs");
+        let id_ok = attrs
+            .and_then(|a| a.get("assetId"))
+            .and_then(Value::as_str)
+            .is_some_and(assets::is_asset_id);
+        let text_ok = ["alt", "title"].iter().all(|key| {
+            attrs
+                .and_then(|a| a.get(*key))
+                .is_none_or(|v| v.is_null() || v.is_string())
+        });
+        if !id_ok || !text_ok || !children.is_empty() {
+            return Err("Invalid image".into());
+        }
+    }
+    if ["tableCell", "tableHeader"].contains(&kind) {
+        let span = |key: &str| node.pointer(&format!("/attrs/{key}")).and_then(Value::as_i64).unwrap_or(1);
+        if span("colspan") != 1 || span("rowspan") != 1 {
+            return Err("Merged table cells are not supported".into());
+        }
+    }
+    if kind == "table" {
+        let widths: HashSet<usize> = children
+            .iter()
+            .map(|row| row.get("content").and_then(Value::as_array).map_or(0, Vec::len))
+            .collect();
+        if widths.len() != 1 {
+            return Err("Table rows must all have the same number of cells".into());
+        }
     }
     if kind == "listItem" && children[0].get("type").and_then(Value::as_str) != Some("paragraph") {
         return Err("List items must start with a paragraph".into());
@@ -967,6 +1134,10 @@ fn validate_node(node: &Value, depth: usize) -> Result<()> {
         let child_kind = child.get("type").and_then(Value::as_str).unwrap_or("");
         let allowed = match kind {
             "doc" | "blockquote" | "listItem" => blocks.contains(&child_kind),
+            "table" => child_kind == "tableRow",
+            "tableRow" => ["tableCell", "tableHeader"].contains(&child_kind),
+            // No nested tables in this scope.
+            "tableCell" | "tableHeader" => blocks.contains(&child_kind) && child_kind != "table",
             "bulletList" | "orderedList" => child_kind == "listItem",
             "paragraph" | "heading" => inline.contains(&child_kind),
             "codeBlock" => child_kind == "text",
@@ -1380,6 +1551,104 @@ mod tests {
         let mirrored: Project =
             serde_json::from_slice(&fs::read(t.path().join(&p.id).join("project.json")).unwrap()).unwrap();
         assert_eq!(mirrored, p);
+    }
+    fn upload(bytes: &[u8]) -> AssetUpload {
+        use base64::Engine;
+        AssetUpload {
+            id: crate::assets::tests::id_of(bytes),
+            meta: crate::assets::tests::meta_of(bytes),
+            data: base64::engine::general_purpose::STANDARD.encode(bytes),
+        }
+    }
+    fn with_image(mut p: Project, asset_id: &str) -> Project {
+        p.revision += 1;
+        p.entries[0].content = serde_json::json!({"type":"doc","content":[
+            {"type":"paragraph","content":[{"type":"text","text":"Keep this."}]},
+            {"type":"image","attrs":{"assetId":asset_id,"alt":"Harbor map","title":null,"width":null,"height":null}},
+            {"type":"table","content":[
+                {"type":"tableRow","content":[
+                    {"type":"tableHeader","content":[{"type":"paragraph","content":[{"type":"text","text":"Year"}]}]},
+                    {"type":"tableHeader","content":[{"type":"paragraph","content":[{"type":"text","text":"Ships"}]}]}]},
+                {"type":"tableRow","content":[
+                    {"type":"tableCell","content":[{"type":"paragraph","content":[{"type":"text","text":"1890"}]}]},
+                    {"type":"tableCell","content":[{"type":"paragraph"}]}]}]}]});
+        p
+    }
+    #[test]
+    fn asset_references_require_staged_bytes_and_reach_mirrors() {
+        let t = tempfile::tempdir().unwrap();
+        let mut s = Store::new(t.path().into()).unwrap();
+        let p = project();
+        s.save(&p).unwrap();
+        let bytes = crate::assets::tests::png(2, 3);
+        let image = upload(&bytes);
+        let edited = with_image(p.clone(), &image.id);
+        assert!(s.save(&edited).unwrap_err().contains("missing from the project's storage"));
+        assert_eq!(s.read(&p.id).unwrap(), p, "a rejected edit must not change the project");
+        let mut forged = image.clone();
+        forged.data = upload(&crate::assets::tests::png(3, 3)).data;
+        assert!(s.stage_assets(&p.id, &[forged]).unwrap_err().contains("do not match"));
+        let staged = s.stage_assets(&p.id, std::slice::from_ref(&image)).unwrap();
+        assert_eq!((staged[0].width, staged[0].height), (2, 3));
+        s.save(&edited).unwrap();
+        assert_eq!(s.read(&p.id).unwrap(), edited);
+        assert_eq!(s.read_asset(&p.id, &image.id).unwrap(), bytes);
+        let other = project();
+        s.save(&other).unwrap();
+        assert!(s.read_asset(&other.id, &image.id).is_err(), "assets are scoped to their project");
+        let (_, mirrored) = mirror(s, &p.id);
+        mirrored.unwrap();
+        let file = t.path().join(&p.id).join("attachments").join(format!("{}.png", image.id));
+        assert_eq!(fs::read(file).unwrap(), bytes);
+    }
+    #[test]
+    fn new_project_and_its_assets_commit_together() {
+        let t = tempfile::tempdir().unwrap();
+        let mut s = Store::new(t.path().into()).unwrap();
+        let bytes = crate::assets::tests::png(4, 4);
+        let image = upload(&bytes);
+        let mut broken = with_image(project(), &image.id);
+        broken.order.push(Uuid::new_v4().to_string());
+        let change = |p: &Project| Change { header: p.header(), entries: p.entries.clone(), base_revision: None };
+        assert!(s.create_project_with_assets(&change(&broken), std::slice::from_ref(&image)).is_err());
+        assert!(s.read_asset(&broken.id, &image.id).is_err(), "failed creation leaves no stored image");
+        let good = with_image(project(), &image.id);
+        s.create_project_with_assets(&change(&good), std::slice::from_ref(&image)).unwrap();
+        assert_eq!(s.load(&good.id).unwrap(), good);
+        assert!(s.create_project_with_assets(&change(&good), &[image]).unwrap_err().contains("already exists"));
+    }
+    #[test]
+    fn version_two_databases_gain_assets_after_a_backup() {
+        let t = tempfile::tempdir().unwrap();
+        let mut s = Store::new(t.path().into()).unwrap();
+        let p = project();
+        s.save(&p).unwrap();
+        let dir = s.dir(&p.id).unwrap();
+        {
+            let db = Connection::open(dir.join("project.sqlite3")).unwrap();
+            db.execute_batch("DROP TABLE assets; PRAGMA user_version=2;").unwrap();
+        }
+        assert_eq!(s.load(&p.id).unwrap(), p);
+        let backup = Connection::open(dir.join("before-images.sqlite3")).unwrap();
+        let old: i64 = backup.pragma_query_value(None, "user_version", |r| r.get(0)).unwrap();
+        assert_eq!(old, 2);
+        let version: i64 = s.connect(&p.id, false).unwrap().pragma_query_value(None, "user_version", |r| r.get(0)).unwrap();
+        assert_eq!(version, SCHEMA_VERSION);
+        assert_eq!(count(&s, &p.id, "assets"), 0);
+    }
+    #[test]
+    fn tables_must_be_rectangular_unmerged_and_unnested() {
+        let cell = |kind: &str| serde_json::json!({"type":kind,"content":[{"type":"paragraph"}]});
+        let table = |rows: Vec<Value>| serde_json::json!({"type":"doc","content":[{"type":"table","content":rows}]});
+        let row = |cells: Vec<Value>| serde_json::json!({"type":"tableRow","content":cells});
+        assert!(validate_node(&table(vec![row(vec![cell("tableHeader"), cell("tableHeader")]), row(vec![cell("tableCell"), cell("tableCell")])]), 0).is_ok());
+        assert!(validate_node(&table(vec![row(vec![cell("tableCell"), cell("tableCell")]), row(vec![cell("tableCell")])]), 0).unwrap_err().contains("same number"));
+        let merged = serde_json::json!({"type":"tableCell","attrs":{"colspan":2},"content":[{"type":"paragraph"}]});
+        assert!(validate_node(&table(vec![row(vec![merged])]), 0).unwrap_err().contains("Merged"));
+        let nested = serde_json::json!({"type":"tableCell","content":[{"type":"table","content":[row(vec![cell("tableCell")])]}]});
+        assert!(validate_node(&table(vec![row(vec![nested])]), 0).is_err());
+        let bad_image = serde_json::json!({"type":"doc","content":[{"type":"image","attrs":{"assetId":"https://example.com/x.png"}}]});
+        assert!(validate_node(&bad_image, 0).unwrap_err().contains("Invalid image"));
     }
     #[test]
     fn failed_sql_write_rolls_back() {

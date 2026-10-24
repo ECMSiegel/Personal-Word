@@ -3,6 +3,7 @@ import { isTauri } from "@tauri-apps/api/core";
 import { invoke } from "@tauri-apps/api/core";
 import { save } from "@tauri-apps/plugin-dialog";
 import type { Project } from "../model";
+import type { AssetId, PendingAsset } from "../assets/types";
 import {
   bibliography,
   footnoteText,
@@ -39,8 +40,23 @@ export type ListInfo = {
   id: number;
   start: number;
 };
+export type ImageBlockData = {
+  assetId: AssetId;
+  bytes: Uint8Array;
+  mime: "image/png" | "image/jpeg";
+  /** Size in points, already fitted to the available width/height. */
+  width: number;
+  height: number;
+  alt: string;
+};
+export type TableCellData = { header: boolean; blocks: Block[] };
+export type TableBlockData = { columns: number; rows: TableCellData[][] };
 export type Block = {
   runs: Inline[];
+  /** Present when kind is "image". */
+  image?: ImageBlockData;
+  /** Present when kind is "table". */
+  table?: TableBlockData;
   kind: string;
   level?: number;
   align?: string;
@@ -63,7 +79,10 @@ function points(value: unknown): number | undefined {
       ? n * 0.75
       : n;
 }
-export function documentBlocks(project: ExportProject) {
+export function documentBlocks(
+  project: ExportProject,
+  assets: Map<AssetId, PendingAsset> = new Map(),
+) {
   const data = project.research ?? emptyResearch();
   const context = resolveCitationContext({ ...project, research: data });
   const settings = { ...defaultDocumentSettings, ...project.documentSettings };
@@ -117,13 +136,81 @@ export function documentBlocks(project: ExportProject) {
   };
   const blocks: Block[] = [];
   let nextListId = 0;
+  const paperWidth = project.pageLayout?.paper === "a4" ? 595.28 : 612,
+    paperHeight = project.pageLayout?.paper === "a4" ? 841.89 : 792;
+  const textWidth = paperWidth - settings.marginInches * 144,
+    textHeight = paperHeight - settings.marginInches * 144;
+  const cellPadding = 6;
+  const imageBlock = (node: JSONContent, maxWidth: number): Block => {
+    const assetId = String(node.attrs?.assetId ?? "");
+    const asset = assets.get(assetId);
+    if (!asset)
+      throw new Error(
+        `An image is missing from this export (asset ${assetId.slice(0, 12) || "unknown"}). Restore the image or remove it from the document before exporting.`,
+      );
+    const positive = (v: unknown) =>
+      typeof v === "number" && Number.isFinite(v) && v > 0 ? v : undefined;
+    const ratio = asset.meta.height / asset.meta.width;
+    let w = positive(node.attrs?.width);
+    let h = positive(node.attrs?.height);
+    if (w && !h) h = w * ratio;
+    else if (!w && h) w = h / ratio;
+    else if (!w || !h) {
+      w = asset.meta.width;
+      h = asset.meta.height;
+    }
+    // Display pixels to points, then shrink (never enlarge) to fit.
+    w *= 0.75;
+    h *= 0.75;
+    const scale = Math.min(1, maxWidth / w, textHeight / h);
+    return {
+      kind: "image",
+      runs: [],
+      image: {
+        assetId,
+        bytes: asset.bytes,
+        mime: asset.meta.mime,
+        width: w * scale,
+        height: h * scale,
+        alt: String(node.attrs?.alt ?? ""),
+      },
+    };
+  };
   const visit = (
     node: JSONContent,
     prefix = "",
     list?: ListInfo,
+    out: Block[] = blocks,
+    maxWidth: number = textWidth,
   ) => {
+    if (node.type === "image") {
+      out.push(imageBlock(node, maxWidth));
+      return;
+    }
+    if (node.type === "table") {
+      const rows = node.content ?? [];
+      const columns = Math.max(1, ...rows.map((r) => (r.content ?? []).length));
+      const cellWidth = maxWidth / columns - cellPadding * 2;
+      out.push({
+        kind: "table",
+        runs: [],
+        table: {
+          columns,
+          rows: rows.map((row) =>
+            (row.content ?? []).map((cell) => {
+              const cellBlocks: Block[] = [];
+              (cell.content ?? []).forEach((n) =>
+                visit(n, "", undefined, cellBlocks, cellWidth),
+              );
+              return { header: cell.type === "tableHeader", blocks: cellBlocks };
+            }),
+          ),
+        },
+      });
+      return;
+    }
     if (["paragraph", "heading", "codeBlock"].includes(node.type ?? "")) {
-      blocks.push({
+      out.push({
         kind: node.type!,
         level: node.attrs?.level,
         align: node.attrs?.textAlign,
@@ -140,11 +227,11 @@ export function documentBlocks(project: ExportProject) {
       return;
     }
     if (node.type === "pageBreak") {
-      blocks.push({ kind: "pageBreak", runs: [] });
+      out.push({ kind: "pageBreak", runs: [] });
       return;
     }
     if (node.type === "horizontalRule") {
-      blocks.push({ kind: "paragraph", runs: [{ text: "--" }] });
+      out.push({ kind: "paragraph", runs: [{ text: "--" }] });
       return;
     }
     if (node.type === "bulletList" || node.type === "orderedList") {
@@ -155,18 +242,24 @@ export function documentBlocks(project: ExportProject) {
       const start = Number(node.attrs?.start ?? 1);
       (node.content ?? []).forEach((child, i) =>
         (child.content ?? []).forEach((p) =>
-          visit(p, "", {
-            kind: node.type === "bulletList" ? "bullet" : "ordered",
-            level,
-            id,
-            start,
-            number: node.type === "orderedList" ? start + i : undefined,
-          }),
+          visit(
+            p,
+            "",
+            {
+              kind: node.type === "bulletList" ? "bullet" : "ordered",
+              level,
+              id,
+              start,
+              number: node.type === "orderedList" ? start + i : undefined,
+            },
+            out,
+            maxWidth,
+          ),
         ),
       );
       return;
     }
-    (node.content ?? []).forEach((n) => visit(n, prefix, list));
+    (node.content ?? []).forEach((n) => visit(n, prefix, list, out, maxWidth));
   };
   for (const id of project.order) {
     const e = project.entries.find((e) => e.id === id && e.kind === "section");

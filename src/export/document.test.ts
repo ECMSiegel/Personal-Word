@@ -3,8 +3,22 @@ import { newProject } from "../model";
 import { documentBlocks } from "./document";
 import { exportDocx } from "./docx";
 import { exportPdf } from "./pdf";
-import { PDFDocument } from "pdf-lib";
+import { PDFArray, PDFDocument, PDFName } from "pdf-lib";
 import JSZip from "jszip";
+import { createHash } from "node:crypto";
+import { createExportFixture } from "./export-fixtures";
+import { projectMarkdown, projectPlainText } from "./textExport";
+import {
+  JPG_ID,
+  PNG_ID,
+  cell,
+  image,
+  imageAssets,
+  note,
+  para,
+  table,
+  text,
+} from "./media-fixtures";
 import {
   decodePDFRawStream,
   PDFRawStream,
@@ -370,3 +384,149 @@ it("exports only http, https, and mailto links as DOCX hyperlinks", async () => 
   expect(main).toContain("script ");
   expect(main).toContain("local");
 });
+
+// --- images and tables ---------------------------------------------------
+function mediaProject() {
+  const p = fixture();
+  p.research!.footnotes = [
+    { id: "a", text: "Note A." },
+    { id: "b", text: "Note B." },
+    { id: "c", text: "Note C." },
+  ];
+  p.entries[0].content = {
+    type: "doc",
+    content: [
+      para(text("Body one"), note("a")),
+      image(PNG_ID),
+      table(
+        [cell("tableHeader", para(text("Head 1"))), cell("tableHeader", para(text("Head 2")))],
+        [
+          cell("tableCell", para(text("Cell"), note("b")), para(text("Second paragraph"))),
+          cell("tableCell", para(text("Other"), note("c"))),
+        ],
+      ),
+      image(JPG_ID, { width: 40, height: 20 }),
+      para(text("Tail"), note("a")),
+    ],
+  };
+  return p;
+}
+const sha = (v: string) => createHash("sha256").update(v).digest("hex");
+const baseline = {
+  blocks: "302960c29afbcf6f0012fedc8f4309014ac8b5764d3162600d39cd86bcbfaae5",
+  doc: "85eff7993ecaa2d8d7998c82033d09e6a1ef5c6cbdc8da510aae5d15ec4542f0",
+  fn: "921aab319d0fa36419743516cc40e15304b1600f7f216158780d49c6057aeb9d",
+  md: "699c47590e5c74b38d98c99367c9f5e06fc848ba351b23cc72a5373e5f78c03b",
+  txt: "bf7ec93d321aba309346be3e75d3d7f0cc87e45a3481a35dfaf069ed1b0b2bd0",
+};
+it("keeps documents without images or tables byte-identical to the pre-image exporters", async () => {
+  const p = createExportFixture();
+  const zip = await JSZip.loadAsync(await (await exportDocx(p)).arrayBuffer());
+  expect(sha(JSON.stringify(documentBlocks(p)))).toBe(baseline.blocks);
+  expect(sha(await zip.file("word/document.xml")!.async("string"))).toBe(baseline.doc);
+  expect(sha(await zip.file("word/footnotes.xml")!.async("string"))).toBe(baseline.fn);
+  expect(sha(projectMarkdown(p))).toBe(baseline.md);
+  expect(sha(projectPlainText(p))).toBe(baseline.txt);
+});
+it("fits images to the text width keeping aspect ratio and numbers table notes in document order", () => {
+  const d = documentBlocks(mediaProject(), imageAssets());
+  const [, big, tbl, small] = d.blocks;
+  expect(big.kind).toBe("image");
+  // Letter, default margins: 2000x1000 px would be 1500x750 pt; it must shrink.
+  expect(big.image!.width).toBeLessThanOrEqual(612 - d.settings.marginInches * 144 + 0.001);
+  expect(big.image!.width / big.image!.height).toBeCloseTo(2, 5);
+  expect(big.image!.mime).toBe("image/png");
+  expect(big.image!.alt).toBe("A red pixel");
+  expect(small.image).toMatchObject({ mime: "image/jpeg", width: 30, height: 15 });
+  expect(tbl.table!.columns).toBe(2);
+  expect(tbl.table!.rows[0].every((c) => c.header)).toBe(true);
+  expect(tbl.table!.rows[1][0].blocks.map((b) => b.kind)).toEqual(["paragraph", "paragraph"]);
+  expect(d.notes.map((n) => [n.number, n.text])).toEqual([
+    [1, "Note A."],
+    [2, "Note B."],
+    [3, "Note C."],
+  ]);
+  expect(tbl.table!.rows[1][0].blocks[0].runs.at(-1)!.footnote).toBe(2);
+});
+it("refuses to export when an image's bytes are missing", async () => {
+  const p = mediaProject();
+  expect(() => documentBlocks(p)).toThrow("An image is missing");
+  await expect(exportDocx(p)).rejects.toThrow("An image is missing");
+  await expect(exportPdf(p)).rejects.toThrow("An image is missing");
+}, 30_000);
+it("writes real Word images, a header-repeating table, and footnotes inside cells", async () => {
+  const zip = await JSZip.loadAsync(
+    await (await exportDocx(mediaProject(), imageAssets())).arrayBuffer(),
+  );
+  const xml = await zip.file("word/document.xml")!.async("string");
+  expect(xml.match(/<w:drawing>/g)).toHaveLength(2);
+  expect(xml).toContain("<w:tbl>");
+  expect(xml).toContain("<w:tblHeader");
+  expect(xml.match(/<w:footnoteReference /g)).toHaveLength(4);
+  expect(xml).toContain('descr="A red pixel"');
+  const media = Object.keys(zip.files).filter((n) => n.startsWith("word/media/"));
+  expect(media.some((n) => n.endsWith(".png"))).toBe(true);
+  expect(media.some((n) => n.endsWith(".jpg") || n.endsWith(".jpeg"))).toBe(true);
+  // The 2000x1000 px PNG is shrunk to the 6.5 in text width (624 px, ratio 2:1).
+  expect(xml).toMatch(/<wp:extent cx="5943600" cy="2971800"/);
+  const notesXml = await zip.file("word/footnotes.xml")!.async("string");
+  expect(notesXml).toContain("Note B.");
+});
+it("draws PDF images and a table grid, paging between rows", async () => {
+  const p = mediaProject();
+  const bytes = await (await exportPdf(p, undefined, imageAssets())).arrayBuffer();
+  const pdf = await PDFDocument.load(bytes);
+  const objects = pdf.context.enumerateIndirectObjects().map(([, o]) => o);
+  const images = objects.filter(
+    (o): o is PDFRawStream =>
+      o instanceof PDFRawStream && o.dict.get(PDFName.of("Subtype")) === PDFName.of("Image"),
+  );
+  expect(images).toHaveLength(2);
+  const content = pdf
+    .getPages()
+    .map((page) => {
+      const contents = page.node.Contents();
+      const streams = contents instanceof PDFArray ? contents.asArray().map((r) => pdf.context.lookup(r)) : [contents];
+      return streams
+        .map((st) => Buffer.from(decodePDFRawStream(st as PDFRawStream).decode()).toString("latin1"))
+        .join("\n");
+    })
+    .join("\n");
+  // 2 cells x 2 rows of table borders.
+  expect(content.match(/^h\nS$/gm)).toHaveLength(4);
+  expect(pdf.getPageCount()).toBe(1);
+  // Many rows must flow onto more pages, never splitting a row.
+  const many = mediaProject();
+  many.entries[0].content = {
+    type: "doc",
+    content: [
+      table(
+        ...Array.from({ length: 60 }, (_, i) => [
+          cell("tableCell", para(text(`Row ${i} left`))),
+          cell("tableCell", para(text(`Row ${i} right`))),
+        ]),
+      ),
+    ],
+  };
+  const paged = await PDFDocument.load(await (await exportPdf(many)).arrayBuffer());
+  expect(paged.getPageCount()).toBeGreaterThan(1);
+}, 30_000);
+it("moves an image that does not fit the rest of the page onto a new page", async () => {
+  const p = mediaProject();
+  p.entries[0].content = {
+    type: "doc",
+    content: [para(text("Intro")), image(PNG_ID, { width: 600, height: 600 }), image(PNG_ID, { width: 600, height: 600 })],
+  };
+  const pdf = await PDFDocument.load(
+    await (await exportPdf(p, undefined, imageAssets())).arrayBuffer(),
+  );
+  expect(pdf.getPageCount()).toBe(2);
+}, 30_000);
+it("throws instead of clipping a table row taller than a page", async () => {
+  const p = mediaProject();
+  const long = Array.from({ length: 400 }, (_, i) => para(text(`Line ${i}`)));
+  p.entries[0].content = { type: "doc", content: [table([cell("tableCell", ...long)])] };
+  await expect(exportPdf(p)).rejects.toThrow("taller than one PDF page");
+  // DOCX can still flow it.
+  await expect(exportDocx(p)).resolves.toBeInstanceOf(Blob);
+}, 30_000);

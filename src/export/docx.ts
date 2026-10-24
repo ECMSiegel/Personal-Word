@@ -4,15 +4,29 @@ import {
   ExternalHyperlink,
   FootnoteReferenceRun,
   Footer,
+  ImageRun,
+  Table,
+  TableCell,
+  TableRow,
+  WidthType,
   PageNumber,
   Packer,
   Paragraph,
   TextRun,
   LevelFormat,
 } from "docx";
-import { documentBlocks, type ExportProject, type Inline } from "./document";
-export async function exportDocx(project: ExportProject): Promise<Blob> {
-  const d = documentBlocks(project),
+import type { AssetId, PendingAsset } from "../assets/types";
+import {
+  documentBlocks,
+  type Block,
+  type ExportProject,
+  type Inline,
+} from "./document";
+export async function exportDocx(
+  project: ExportProject,
+  assets: Map<AssetId, PendingAsset> = new Map(),
+): Promise<Blob> {
+  const d = documentBlocks(project, assets),
     s = d.settings;
   const font =
     s.font === "mono"
@@ -56,6 +70,103 @@ export async function exportDocx(project: ExportProject): Promise<Blob> {
               strike: r.strike,
               superScript: r.superscript,
             });
+  const imageRun = (b: Block) => {
+    const img = b.image!;
+    return new ImageRun({
+      type: img.mime === "image/png" ? "png" : "jpg",
+      data: img.bytes,
+      // docx sizes images in pixels (96 per inch); blocks are in points.
+      transformation: {
+        width: Math.max(1, Math.round(img.width / 0.75)),
+        height: Math.max(1, Math.round(img.height / 0.75)),
+      },
+      altText: {
+        name: img.assetId.slice(0, 12),
+        description: img.alt,
+        title: img.alt,
+      },
+    });
+  };
+  const paragraph = (b: Block, inCell: boolean) =>
+              new Paragraph({
+                children: b.image ? [imageRun(b)] : b.runs.map(run),
+                pageBreakBefore: b.kind === "pageBreak",
+                numbering: b.list
+                  ? {
+                      reference: `personal-word-${b.list.kind}-${b.list.id}`,
+                      level: b.list.level,
+                      instance: b.list.id,
+                    }
+                  : undefined,
+                alignment:
+                  b.align === "center" || b.image
+                    ? AlignmentType.CENTER
+                    : b.align === "right"
+                      ? AlignmentType.RIGHT
+                      : AlignmentType.LEFT,
+                indent: {
+                  left: (b.indentLeft ?? 0) * 20,
+                  right: (b.indentRight ?? 0) * 20,
+                  firstLine:
+                    (b.firstLineIndent ??
+                      (s.firstLineIndent &&
+                      !inCell &&
+                      b.kind === "paragraph" &&
+                      !b.list
+                        ? 36
+                        : 0)) * 20,
+                },
+                spacing: {
+                  before:
+                    b.spaceBefore !== undefined
+                      ? b.spaceBefore * 20
+                      : b.kind === "heading"
+                        ? 180
+                        : 0,
+                  after: b.spaceAfter !== undefined ? b.spaceAfter * 20 : 0,
+                  line: Math.round((b.lineHeight ?? s.lineSpacing) * 240),
+                },
+                ...(b.kind === "heading"
+                  ? {
+                      heading:
+                        `Heading${Math.min(b.level ?? 1, 6)}` as "Heading1",
+                    }
+                  : {}),
+              });
+  const tableWidthTwips = Math.round(
+    ((project.pageLayout?.paper === "a4" ? 595.28 : 612) - s.marginInches * 144) * 20,
+  );
+  const blockToDocx = (b: Block, inCell: boolean): Paragraph | Table => {
+    if (!b.table) return paragraph(b, inCell);
+    const columnWidth = Math.floor(tableWidthTwips / b.table.columns);
+    return new Table({
+      width: { size: tableWidthTwips, type: WidthType.DXA },
+      columnWidths: Array.from({ length: b.table.columns }, () => columnWidth),
+      rows: b.table.rows.map((row, index) => {
+        const header = index === 0 && row.length > 0 && row.every((c) => c.header);
+        return new TableRow({
+          tableHeader: header,
+          cantSplit: true,
+          children: row.map(
+            (cell) =>
+              new TableCell({
+                width: { size: columnWidth, type: WidthType.DXA },
+                children: cell.blocks.length
+                  ? cell.blocks.map((cb) =>
+                      cell.header && !cb.image
+                        ? paragraph(
+                            { ...cb, runs: cb.runs.map((r) => ({ ...r, bold: true })) },
+                            true,
+                          )
+                        : paragraph(cb, true),
+                    )
+                  : [new Paragraph({})],
+              }),
+          ),
+        });
+      }),
+    });
+  };
   const doc = new Document({
     numbering: {
       config: [
@@ -147,51 +258,7 @@ export async function exportDocx(project: ExportProject): Promise<Blob> {
             }
           : undefined,
         children: [
-          ...d.blocks.map(
-            (b) =>
-              new Paragraph({
-                children: b.runs.map(run),
-                pageBreakBefore: b.kind === "pageBreak",
-                numbering: b.list
-                  ? {
-                      reference: `personal-word-${b.list.kind}-${b.list.id}`,
-                      level: b.list.level,
-                      instance: b.list.id,
-                    }
-                  : undefined,
-                alignment:
-                  b.align === "center"
-                    ? AlignmentType.CENTER
-                    : b.align === "right"
-                      ? AlignmentType.RIGHT
-                      : AlignmentType.LEFT,
-                indent: {
-                  left: (b.indentLeft ?? 0) * 20,
-                  right: (b.indentRight ?? 0) * 20,
-                  firstLine:
-                    (b.firstLineIndent ??
-                      (s.firstLineIndent && b.kind === "paragraph" && !b.list
-                        ? 36
-                        : 0)) * 20,
-                },
-                spacing: {
-                  before:
-                    b.spaceBefore !== undefined
-                      ? b.spaceBefore * 20
-                      : b.kind === "heading"
-                        ? 180
-                        : 0,
-                  after: b.spaceAfter !== undefined ? b.spaceAfter * 20 : 0,
-                  line: Math.round((b.lineHeight ?? s.lineSpacing) * 240),
-                },
-                ...(b.kind === "heading"
-                  ? {
-                      heading:
-                        `Heading${Math.min(b.level ?? 1, 6)}` as "Heading1",
-                    }
-                  : {}),
-              }),
-          ),
+          ...d.blocks.map((b) => blockToDocx(b, false)),
           ...(d.bibliography.length
             ? [
                 new Paragraph({

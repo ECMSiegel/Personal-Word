@@ -1,6 +1,19 @@
 import fontkit from "@pdf-lib/fontkit";
-import { PDFDocument, rgb, type PDFFont } from "pdf-lib";
-import { documentBlocks, type ExportProject, type Inline } from "./document";
+import {
+  PDFDocument,
+  rgb,
+  type PDFFont,
+  type PDFImage,
+  type PDFPage,
+} from "pdf-lib";
+import type { AssetId, PendingAsset } from "../assets/types";
+import {
+  documentBlocks,
+  type Block,
+  type ExportProject,
+  type ImageBlockData,
+  type Inline,
+} from "./document";
 import {
   bundledFontDataUrls,
   decodeFontDataUrl,
@@ -15,13 +28,19 @@ type Line = {
   notes: number[];
   align?: string;
   indent?: number;
+  image?: ImageBlockData;
+  row?: {
+    colWidth: number;
+    cells: { items: Line[] }[];
+  };
 };
 export type PdfFontBytes = Partial<Record<PdfFontKey, Uint8Array>>;
 export async function exportPdf(
   project: ExportProject,
   injectedFontBytes?: PdfFontBytes,
+  assets: Map<AssetId, PendingAsset> = new Map(),
 ): Promise<Blob> {
-  const d = documentBlocks(project),
+  const d = documentBlocks(project, assets),
     s = d.settings,
     pdf = await PDFDocument.create();
   pdf.registerFontkit(fontkit);
@@ -89,14 +108,34 @@ export async function exportPdf(
     }
     return chunks;
   };
-  const blocks = d.blocks.map((b) => ({
+  const mapBlock = (b: Block, bold = false): Block => ({
     ...b,
     runs: b.runs.flatMap((r) =>
-      segment({ ...r, bold: r.bold || b.kind === "heading" }),
+      segment({ ...r, bold: r.bold || bold || b.kind === "heading" }),
     ),
-  }));
+    ...(b.table
+      ? {
+          table: {
+            ...b.table,
+            rows: b.table.rows.map((row) =>
+              row.map((cell) => ({
+                ...cell,
+                blocks: cell.blocks.map((cb) => mapBlock(cb, cell.header)),
+              })),
+            ),
+          },
+        }
+      : {}),
+  });
+  const blocks = d.blocks.map((b) => mapBlock(b));
+  const flatRuns = (b: Block): Inline[] => [
+    ...b.runs,
+    ...(b.table?.rows.flatMap((row) =>
+      row.flatMap((cell) => cell.blocks.flatMap(flatRuns)),
+    ) ?? []),
+  ];
   const allRuns = [
-    ...blocks.flatMap((b) => b.runs),
+    ...blocks.flatMap(flatRuns),
     ...d.notes.flatMap((n) => n.parts.flatMap(segment)),
     ...d.bibliography.flatMap((b) => b.parts.flatMap(segment)),
     ...segment({ text: "Bibliography", bold: true }),
@@ -141,7 +180,7 @@ export async function exportPdf(
       throw shapeError();
     }
   };
-  const marker = (block: (typeof d.blocks)[number]) =>
+  const marker = (block: Block) =>
     block.list?.kind === "bullet"
       ? "• "
       : block.list?.kind === "ordered"
@@ -216,17 +255,62 @@ export async function exportPdf(
     if (line.length || !result.length) push();
     return result;
   }
-  const lines: (Line | "break")[] = blocks.flatMap<Line | "break">((b) => {
-    if (b.kind === "pageBreak") return ["break"];
+  const cellPad = 4;
+  const blockLines = (
+    b: Block,
+    rightExtra = 0,
+    inCell = false,
+  ): (Line | "break")[] => {
+    if (b.kind === "pageBreak") return inCell ? [] : ["break"];
+    if (b.image)
+      return [{ runs: [], height: b.image.height + 6, notes: [], image: b.image }];
+    if (b.table) {
+      if (inCell)
+        throw new Error(
+          "Tables inside table cells are not supported in PDF export. Export DOCX instead.",
+        );
+      const table = b.table;
+      const colWidth = width / table.columns;
+      const inner = colWidth - cellPad * 2;
+      if (inner < 24)
+        throw new Error(
+          "A table has too many columns to fit on a PDF page. Remove columns or export DOCX.",
+        );
+      const result: Line[] = [{ runs: [], height: 6, notes: [] }];
+      for (const row of table.rows) {
+        const cells = row.map((cell) => ({
+          items: cell.blocks.flatMap((cb) =>
+            blockLines(cb, width - inner, true),
+          ) as Line[],
+        }));
+        const content = Math.max(
+          size,
+          ...cells.map((c) => c.items.reduce((sum, l) => sum + l.height, 0)),
+        );
+        const rowHeight = content + cellPad * 2;
+        if (rowHeight > height)
+          throw new Error(
+            "A table row is taller than one PDF page. Shorten the row or export DOCX.",
+          );
+        result.push({
+          runs: [],
+          height: rowHeight,
+          notes: cells.flatMap((c) => c.items.flatMap((l) => l.notes)),
+          row: { colWidth, cells },
+        });
+      }
+      result.push({ runs: [], height: 6, notes: [] });
+      return result;
+    }
     const rows = wrap(
       [...(marker(b) ? segment({ text: marker(b) }) : []), ...b.runs],
       size,
       b.lineHeight ?? s.lineSpacing,
       b.firstLineIndent ??
-        (s.firstLineIndent && b.kind === "paragraph" ? 36 : 0),
+        (s.firstLineIndent && !inCell && b.kind === "paragraph" ? 36 : 0),
       false,
       (b.indentLeft ?? 0) + (b.list ? 18 + 18 * b.list.level : 0),
-      b.indentRight ?? 0,
+      (b.indentRight ?? 0) + rightExtra,
     ).map((l) => ({ ...l, align: b.align }));
     const result: Line[] = [];
     if (b.spaceBefore)
@@ -235,7 +319,8 @@ export async function exportPdf(
     if (b.spaceAfter)
       result.push({ runs: [], height: b.spaceAfter, notes: [] });
     return result;
-  });
+  };
+  const lines: (Line | "break")[] = blocks.flatMap((b) => blockLines(b));
   if (d.bibliography.length) {
     lines.push("break", ...wrap(segment({ text: "Bibliography", bold: true })));
     for (const b of d.bibliography)
@@ -298,37 +383,97 @@ export async function exportPdf(
     used += line.height;
   }
   if (current.lines.length || !pages.length) pages.push(current);
+  const embeddedImages = new Map<AssetId, PDFImage>();
+  const imageBlocks = (b: Block): ImageBlockData[] => [
+    ...(b.image ? [b.image] : []),
+    ...(b.table?.rows.flatMap((row) =>
+      row.flatMap((cell) => cell.blocks.flatMap(imageBlocks)),
+    ) ?? []),
+  ];
+  for (const img of blocks.flatMap(imageBlocks)) {
+    if (embeddedImages.has(img.assetId)) continue;
+    embeddedImages.set(
+      img.assetId,
+      img.mime === "image/png"
+        ? await pdf.embedPng(img.bytes)
+        : await pdf.embedJpg(img.bytes),
+    );
+  }
+  const drawImage = (page: PDFPage, img: ImageBlockData, x: number, y: number) =>
+    page.drawImage(embeddedImages.get(img.assetId)!, {
+      x,
+      y,
+      width: img.width,
+      height: img.height,
+    });
+  const drawTextLine = (
+    page: PDFPage,
+    line: Line,
+    baseX: number,
+    y: number,
+    available: number,
+  ) => {
+    const lineWidth = line.runs.reduce((w, r) => w + measure(r), 0);
+    let x =
+      baseX +
+      (line.indent ?? 0) +
+      (line.align === "center"
+        ? (available - lineWidth) / 2
+        : line.align === "right"
+          ? available - lineWidth
+          : 0);
+    for (const r of line.runs) {
+      const fs = runSize(r);
+      page.drawText(r.text, {
+        x,
+        y: y + (r.superscript ? 4 : 0),
+        size: fs,
+        font: font(r),
+        color: rgb(0, 0, 0),
+      });
+      const w = measure(r);
+      if (r.underline || r.strike)
+        page.drawLine({
+          start: { x, y: y + (r.strike ? size * 0.32 : -2) },
+          end: { x: x + w, y: y + (r.strike ? size * 0.32 : -2) },
+          thickness: 0.5,
+        });
+      x += w;
+    }
+  };
   pages.forEach((p, index) => {
     const page = pdf.addPage([paperWidth, paperHeight]);
     let y = paperHeight - margin - size;
     for (const line of p.lines) {
-      const lineWidth = line.runs.reduce((w, r) => w + measure(r), 0);
-      let x =
-        margin +
-        (line.indent ?? 0) +
-        (line.align === "center"
-          ? (width - lineWidth) / 2
-          : line.align === "right"
-            ? width - lineWidth
-            : 0);
-      for (const r of line.runs) {
-        const fs = runSize(r);
-        page.drawText(r.text, {
-          x,
-          y: y + (r.superscript ? 4 : 0),
-          size: fs,
-          font: font(r),
-          color: rgb(0, 0, 0),
-        });
-        const w = measure(r);
-        if (r.underline || r.strike)
-          page.drawLine({
-            start: { x, y: y + (r.strike ? size * 0.32 : -2) },
-            end: { x: x + w, y: y + (r.strike ? size * 0.32 : -2) },
-            thickness: 0.5,
+      if (line.image)
+        drawImage(
+          page,
+          line.image,
+          margin + (width - line.image.width) / 2,
+          y + size - line.image.height,
+        );
+      else if (line.row) {
+        const top = y + size;
+        line.row.cells.forEach((cell, column) => {
+          const x = margin + column * line.row!.colWidth;
+          page.drawRectangle({
+            x,
+            y: top - line.height,
+            width: line.row!.colWidth,
+            height: line.height,
+            borderColor: rgb(0, 0, 0),
+            borderWidth: 0.5,
           });
-        x += w;
-      }
+          let cy = top - cellPad - size;
+          for (const item of cell.items) {
+            if (item.image)
+              drawImage(page, item.image, x + cellPad, cy + size - item.image.height);
+            else
+              drawTextLine(page, item, x + cellPad, cy, line.row!.colWidth - cellPad * 2);
+            cy -= item.height;
+          }
+        });
+      } else drawTextLine(page, line, margin, y, width);
       y -= line.height;
     }
     if (p.notes.length) {

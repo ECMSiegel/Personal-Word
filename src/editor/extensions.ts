@@ -6,6 +6,8 @@ import {
   PageBreak,
   FootnoteReference,
 } from "./formatting";
+import { Image } from "./media";
+import { tableExtensions } from "./tables";
 /** Shared schema for the writer, imported document validation, and export parsing. */
 export function documentExtensions() {
   return [
@@ -15,5 +17,7 @@ export function documentExtensions() {
     ParagraphFormat,
     PageBreak,
     FootnoteReference,
+    Image,
+    ...tableExtensions(),
   ];
 }

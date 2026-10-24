@@ -556,3 +556,58 @@
   color: var(--accent);
   background: transparent;
 }
+
+/* Images and tables */
+.ProseMirror figure.doc-image {
+  margin: 0.75em 0;
+  text-align: center;
+}
+.ProseMirror figure.doc-image img {
+  max-width: 100%;
+  height: auto;
+}
+.ProseMirror figure.doc-image .doc-image-alt {
+  display: inline-block;
+  padding: 1em 1.5em;
+  border: 1px dashed var(--line);
+  color: var(--muted);
+  font-family: var(--ui-font, inherit);
+}
+.ProseMirror figure.doc-image.ProseMirror-selectednode {
+  outline: 2px solid var(--accent);
+}
+.ProseMirror table {
+  border-collapse: collapse;
+  table-layout: fixed;
+  width: 100%;
+  margin: 0.75em 0;
+}
+.ProseMirror th,
+.ProseMirror td {
+  position: relative;
+  min-width: 2em;
+  padding: 0.3em 0.5em;
+  border: 1px solid var(--line);
+  vertical-align: top;
+  text-align: left;
+}
+.ProseMirror th {
+  background: var(--surface);
+  font-weight: 600;
+}
+.ProseMirror td > :first-child,
+.ProseMirror th > :first-child {
+  margin-top: 0;
+}
+.ProseMirror td > :last-child,
+.ProseMirror th > :last-child {
+  margin-bottom: 0;
+}
+.ProseMirror .selectedCell::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: var(--selection);
+  opacity: 0.6;
+  pointer-events: none;
+}
