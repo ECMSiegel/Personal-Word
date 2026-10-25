@@ -6,6 +6,8 @@ account available for this preparation, and only an Intel test machine is
 currently available. No download link should be published until the binary,
 license, signing, and install gates are complete.
 
+The owner removed signing and downloadable distribution from beta scope on 2026-10-23. The preparation below is retained for possible future use; it is not active beta delivery work. Pushing source changes does not publish an app download.
+
 ## Candidate checks
 
 The release verifier checks an app bundle's `com.folio.writing` identity,

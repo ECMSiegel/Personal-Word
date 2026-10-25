@@ -31,13 +31,13 @@ These screenshots come from the browser preview, using made-up writing. The inst
 | | |
 | --- | --- |
 | **Supported** | macOS only |
-| **Tested on** | An Intel Mac running macOS 15 |
+| **Tested on** | An Intel Mac running macOS 15 -- automated checks and isolated harness only; [owner real-use checklist](docs/agent-work/2026-10-24-team-reconciliation/OWNER_TEST_CHECKLIST.md) pending |
 | **Not yet hand-tested** | Apple silicon Macs, older macOS versions |
 | **Not supported** | Windows, Linux, iPad, phones |
 
-There is no downloadable app yet. You build it from source using the steps below. The build is not signed or notarized by Apple, so macOS may warn you the first time you open it.
+There is no downloadable app. Building from source produces `Personal Word.app`; a fresh local build was recorded on 2026-10-25 but has not yet been opened for owner testing. The build is not signed or notarized by Apple, so macOS may warn you the first time you open it.
 
-Download preparation and its remaining gates are recorded in [Mac distribution status](docs/distribution.md). Prepared [third-party notices](src-tauri/resources/THIRD_PARTY_NOTICES.txt) and license texts still await distribution review.
+Signing and downloadable distribution were removed from beta scope on 2026-10-23; the retained preparation work and gates are recorded in [Mac distribution status](docs/distribution.md). Prepared [third-party notices](src-tauri/resources/THIRD_PARTY_NOTICES.txt) and license texts still await distribution review.
 
 ## Setup
 
@@ -94,51 +94,28 @@ To back up, quit the app and copy the whole project folder somewhere else. The o
 
 ## Alpha status
 
-Personal Word is still alpha. As of 2026-10-25 (Gate D) the board's automated and isolated-harness checks have run on the current source and a fresh normal app has been built and inspected, but no beta has been declared ready, and the owner has not yet tried the beta features in real use. Every result below is automated or harness evidence (CLAIMED), not confirmed behavior; only the owner's real use can make anything VERIFIED.
+Personal Word is still alpha. On 2026-10-25, Gate D passed automated acceptance; **beta readiness remains pending owner real use**. The checked normal app is version 0.1.1, Intel (x86_64), with the compatible `com.folio.writing` identifier. It is unsigned and unpublished; the recorded build has not been opened against the real library. Results are CLAIMED, not owner-VERIFIED. The [validation record](docs/validation.md) holds the final counts, run IDs, binary hashes, earlier checks and their limits. Browser coverage is Chromium; native harness coverage uses synthetic data in isolated storage. Neither establishes real-use readiness or physical power-loss safety.
 
-### Beta board, 2026-10-25
+The [owner checklist](docs/agent-work/2026-10-24-team-reconciliation/OWNER_TEST_CHECKLIST.md) still needs these nine confirmations:
 
-What has been checked on the current source, by kind of evidence. Details and run IDs are in the [validation record](docs/validation.md).
+- Keyboard-only editing and the duplicate-comment jump in the real app.
+- Blocked-close retry.
+- The recovered image and its hash.
+- Reopening the pre-restore safety copy.
+- Microsoft Word rendering of the exported DOCX.
+- An Apple silicon run.
+- VoiceOver and input methods.
+- A long real writing session.
+- Native WebKit light/dark visuals.
 
-- **Browser tests (Chromium, production preview).** Suites for images and tables, rich import, Markdown notes and bundle round trip, BibTeX/Zotero, research, keyboard-only indent, accessibility and import cancel were executed (counts per suite in the validation record). The final full production-preview run (task T046 rerun, Gate D) passed 112 of 112 tests across 23 spec files (one worker, no retries, Chromium only); the per-suite counts above are history. Chromium is not Apple's WebKit.
-- **Unit and Rust tests.** 858 unit tests in 46 files and 48 Rust tests (1 ignored benchmark) passed at the end of task T018 (history). Task T043 later changed the PDF/DOCX exporters and added 7 tests. The Gate D counts on the final source are `tsc` exit 0, **865 unit tests in 47 files**, and **48 Rust tests passed with 1 ignored** (offline, serial).
-- **Isolated native tests.** A diagnostic build with a separate app identifier ran a baseline suite (13 scenarios, 5 negative controls) and a beta suite (19 scenarios, 42 negative controls). They covered a synthetic project with images and tables through saving, reload, history and snapshots, and process kills at four points: after an image was stored, between the database commit and the portable copies, during a research-source merge, and during a snapshot restore. It used synthetic data only. It is not the normal app and not a real shutdown.
-- **Exported files.** A rich synthetic project was exported to PDF, Word, Markdown, plain text, a Markdown bundle and a project archive and compared. The PDF pages were viewed. The Word file was inspected as XML, not opened in Word.
-- **Saving at scale.** On this Intel Mac, with the database's full-flush setting on and little other load, a 100,000-word save of one edited section took 116.57, 130.43 and 124.37 ms at the 95th percentile in three runs (budget 150 ms); the final-qualification rerun measured a median of 108.12 ms and a 95th percentile of 117.98 ms. That is a measurement on one machine, not a guarantee. Apple silicon has not been measured, and a busy Mac can be slower; typing is buffered while a save is in progress.
-
-### Gate D, 2026-10-25 (final qualification; CLAIMED, not beta ready)
-
-Task T021 ran the final qualification serially and task T022 (Gate D) reviewed it independently and reran the key checks. Verdict as recorded: **PASS for automated acceptance; beta readiness pending owner real use.** Nothing here is VERIFIED.
-
-- **Numbers.** `tsc` exit 0; 865 unit tests in 47 files; production-preview Playwright 112/112 across 23 spec files (one worker, no retries, Chromium only; the one earlier failure was a stale test, repaired in T046); offline serial Rust 48 passed, 1 ignored; save benchmark p95 117.98 ms (budget 150 ms, one Intel Mac at low load).
-- **Isolated native runs** (synthetic data, `com.folio.smoke` identifier, not the normal app), all on source identity `7e07795970ee8195`: baseline `20261025T093854Z-eb139b9b` 13 scenarios + 5 negative controls; beta `20261025T093937Z-7c31d8de` 19 + 42; Gate D reviewer rerun of the beta suite `20261025T100024Z-93ccb1f1` 19 + 42.
-- **Normal app.** `src-tauri/target/release/bundle/macos/Personal Word.app` (inside this project folder), identifier `com.folio.writing`, version 0.1.1, Intel (x86_64). Main binary `Contents/MacOS/folio` sha256 `66da1177a6b0063c88a34a8b4c6e58459f657d55bf2271d424582d121cb932f2`. It contains none of the diagnostic smoke markers. It is unsigned, not notarized and not published, and it has never been opened against the real library.
-- **Evidence verifier.** `scripts/verify-beta-evidence.py` exits 2 ("consistent but incomplete"): no check failed, and the nine owner items below plus the review's own recording were pending when T021 and T046 ran. It will stay at exit 2 until the owner reports.
-- **Owner items still pending (nine).** keyboard-only editing and the duplicate-comment jump in the real app; blocked-close retry; the recovered image and its hash; reopening the pre-restore safety copy; Microsoft Word rendering of the exported DOCX; an Apple silicon run; VoiceOver and input methods; a long real writing session; native WebKit light/dark visuals. Open owner questions: Q001 (off-board edits to the print-probe files), Q002 (off-board orchestrator edits), Q003 (zip header size limit), Q004 (native print STOP options).
-- Not covered by any of this: Apple silicon, other macOS versions, native WebKit drawing of the new screens, Word rendering of the DOCX, VoiceOver and input methods, power loss, hosted CI. Records: [validation record](docs/validation.md), `docs/agent-work/2026-10-24-team-reconciliation/evidence.md` and `gate-d.md`, and `docs/agent-work/2026-10-20-beta-roadmap/06-durability/REVIEW.md`.
-
-### Not done yet
-
-- No signed, notarized download. A fresh normal app build was made and inspected on 2026-10-25 (see Gate D below), but nobody has opened it yet: its first launch opens the real `com.folio.writing` library, so that step is the owner's.
-- No check of exported files in Microsoft Word. Earlier synthetic fixtures were rendered in LibreOffice and Poppler; the beta artifacts were inspected with Poppler and XML only.
-- No VoiceOver, input-method, Apple silicon, long-session or physical power-loss qualification. Isolated forced-process-termination coverage is narrower than a real shutdown.
-- No hosted CI run, and no check of how the Mac app's WebKit draws the editor.
-- The native print engine for an exact PDF preview was investigated and stopped (see Limitations). Owner question Q004 about it is open.
-
-### Earlier checks (October 2026, history)
-
-- Automated tests covered saving, crash recovery journals, imports, exports, and the main writing journeys in a browser.
-- A 100,000-word project measured under a millisecond of the app's own work per keystroke and about 9 milliseconds for one database save, excluding screen drawing.
-- Isolated native tests passed a three-phase save/recovery scenario on October 18. A later review run that day timed out before UI injection with macOS system-service errors.
-
-The [roadmap](ROADMAP.md) lists what comes next.
+All four [board questions](team/QUESTIONS.md) were resolved on 2026-10-25: the reviewed board copies supersede the stray WP8 work; the off-board orchestrator was stopped and its folder archived; the zip-header inflation limit was accepted for this beta; and the legacy PDF exporter remains in use, with WP9/WP10 cancelled. A bundled open-licence Arabic body font and a new probe are the recorded route to reconsider native print later. Signing and downloadable distribution were removed from beta scope by the owner on 2026-10-23. Hosted CI has not been qualified. See the [roadmap](ROADMAP.md) for future work.
 
 ## Limitations
 
-- **Page breaks differ between views.** The editor's page view, PDF export, and Word export each lay out pages differently. Expect page breaks to move; exact page parity is not promised. **Preview PDF** shows the same PDF exporter's output. An exact print-engine preview does not exist: a native WebKit print probe was tried and stopped, because Arabic text containing the lam-alef ligature (for example السلام) could not be searched in its PDF with 26 of the 28 installed fonts tried, so the PDF exporter below remains the only PDF path. The probe exists only in a diagnostic build, and the owner has not yet decided how to proceed (question Q004).
+- **Page breaks differ between views.** The editor's page view, PDF export, and Word export each lay out pages differently. Expect page breaks to move; exact page parity is not promised. **Preview PDF** shows the same PDF exporter's output. An exact print-engine preview does not exist: a native WebKit print probe was tried and stopped, because Arabic text containing the lam-alef ligature (for example السلام) could not be searched in its PDF with 26 of the 28 installed fonts tried, so the PDF exporter below remains the only PDF path. The probe exists only in a diagnostic build, and the owner chose to keep the legacy exporter and leave exact native PDF preview and flowing per-page footnotes cancelled (Q004).
 - **PDF uses bundled fonts.** PDF export draws with bundled Noto fonts, not the fonts on your Mac. It covers Latin, Greek, and Cyrillic scripts. Other scripts are refused with a message, so use Word export for them. A footnote too long to fit on one page is also refused rather than cut off. PDF tables do not repeat the header row on continuation pages (Word export marks the header row to repeat, which has not been checked in Word). PDF stacks consecutive images with no gap. Multi-paragraph footnotes are split into separate paragraphs in PDF and Word (task T043, repaired and reviewed; not checked in Word).
 - **Citation help covers common sources.** Books, journal articles, and websites are supported. The current development source also formats bounded examples for print edited-book chapters, ProQuest PhD dissertations, signed online newspaper articles, broadcast audio interviews and online TED Talks. Those examples have browser-preview and generated-export checks; they do not cover every subtype. Other imported records retain raw fields and offer manual citation forms. Full audio/video notes with specific time references currently require manual text. Lookup results can be wrong or incomplete. Check every citation and your instructor's rules yourself.
-- **Imports.** Plain text and Markdown files (up to 5 MB) keep their structure, but images, tables and raw HTML inside them arrive as visible literal text with a warning. HTML, Word (.docx) and Markdown-with-images (.zip) bundle files (up to 20 MB) import headings, lists, links, notes, rectangular tables and PNG/JPEG images through a preview dialog. They check the zip's declared sizes before unpacking, parse HTML without running it, and never fetch an outside image (it is omitted with a warning). Cancel creates nothing. A bundle's checksums are verified on import. Merged or nested table cells are not supported. A zip whose headers understate an entry's size is rejected only after that entry is unpacked, so a hostile file can cost memory first (owner question Q003 is open). **Cancel import** discards the result of a slow parse and creates nothing; abandoning the dialog some other way, such as leaving the screen, is not covered. The XML check refuses only external DOCTYPE declarations. The import button label says "up to 20 MB" for every format, including the 5 MB text limit.
+- **Imports.** Plain text and Markdown files (up to 5 MB) keep their structure, but images, tables and raw HTML inside them arrive as visible literal text with a warning. HTML, Word (.docx) and Markdown-with-images (.zip) bundle files (up to 20 MB) import headings, lists, links, notes, rectangular tables and PNG/JPEG images through a preview dialog. They check the zip's declared sizes before unpacking, parse HTML without running it, and never fetch an outside image (it is omitted with a warning). Cancel creates nothing. A bundle's checksums are verified on import. Merged or nested table cells are not supported. A zip whose headers understate an entry's size is rejected only after that entry is unpacked, so a hostile file can cost memory first (accepted by the owner as a documented beta limit in Q003). **Cancel import** discards the result of a slow parse and creates nothing; abandoning the dialog some other way, such as leaving the screen, is not covered. The XML check refuses only external DOCTYPE declarations. The import button label says "up to 20 MB" for every format, including the 5 MB text limit.
 - **Zotero and bibliography import.** Supports CSL JSON, BibTeX (.bib, .bibtex), and an optional Zotero refresh that is off by default, read-only, and limited to your own Mac (127.0.0.1:23119); every change goes through the review dialog. In the BibTeX importer a "Jr." suffix is kept only in the raw record, not in the formatted creator name. The refresh has no polling, no incremental updates, no handling of items deleted in Zotero, and no distinct "Zotero is off" message; it has never been run against a real Zotero. In the browser preview a different code path fetches the data, which was not approved as part of the design. Import preview reports identifier matches and possible matches without silently discarding records based on title or surname. You can keep existing sources, add selected separate copies, or explicitly update selected fields on one matched source. Updates preserve identity and linked notes, leave unselected local fields intact, and require a checked safety snapshot. No fields are selected automatically; replacing original CSL data replaces that whole field. By default, short notes run across the manuscript and never use ibid. An opt-in **Use repeat citation rules** setting in the Research panel lets you choose to show the full citation again once per section and to use "Ibid." for back-to-back repeats instead of a short note (`src/research/ResearchPanel.tsx:686`).
 - **Writing aids are optional heuristics.** Prose checks can be wrong; they never correct text. Goals count manuscript sections only, and daily baselines reset by the local date. When a section has an extreme number of flagged words, only the issues nearest the cursor are shown (the panel says so) so typing stays responsive.
 - **Quote insertion has a layout limit.** A citation inserted after a block quotation can appear after the block rather than inside its final paragraph. Review the placement before export.
@@ -162,11 +139,27 @@ The [roadmap](ROADMAP.md) lists what comes next.
 The app uses Tauri 2, React, TypeScript, the Tiptap editor, and Rust with SQLite. Run the checks with:
 
 ```sh
+# Recorded qualification used Node v22.23.3. If available locally:
+export PATH="$PWD/node_modules/.cache/personal-word-alpha-review/tools/node-v22.23.3-darwin-x64/bin:$PATH"
+node --version
 npm run build
-npm test
-npm run test:e2e
-cargo test --manifest-path src-tauri/Cargo.toml
+npm test -- --no-file-parallelism --maxWorkers=1
+PLAYWRIGHT_PREVIEW=1 npm run test:e2e -- --workers=1
+cargo test --locked --offline --manifest-path src-tauri/Cargo.toml --jobs 1 -- --test-threads=1
 ```
+
+Without `PLAYWRIGHT_PREVIEW=1`, `npm run test:e2e` starts the development server. The board qualified the production preview only; build first as above. The pinned Node path is a local cache, not included in a fresh clone; otherwise install Node v22.23.3 separately to reproduce that runtime.
+
+For the isolated native beta checks, build the diagnostic app first, then run the two suites serially:
+
+```sh
+npm run tauri build -- --debug --features native-smoke --no-bundle --config '{"identifier":"com.folio.smoke"}'
+python3 scripts/native-reliability.py --suite baseline
+python3 scripts/native-reliability.py --suite beta
+python3 scripts/verify-beta-evidence.py --evidence docs/agent-work/2026-10-20-beta-roadmap/06-durability/EVIDENCE.json --source-manifest docs/agent-work/2026-10-20-beta-roadmap/06-durability/SOURCE_MANIFEST.json
+```
+
+The evidence verifier checks recorded evidence and source identity; it does not run the suites. Exit 2 means consistent but incomplete, with nine owner confirmations still pending. Local evidence/build artifacts are required and are not shipped in Git; a fresh clone cannot verify the original local run without them. Rebuild the normal app without diagnostic features before owner testing.
 
 Some internal names still say `folio`, from the app's earlier name. They keep existing projects readable. Do not rename them without a data migration.
 
