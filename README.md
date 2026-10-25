@@ -2,6 +2,46 @@
 
 **A private writing app for the Mac, built for research papers.** Write in sections, keep your sources beside the draft, insert Chicago-style footnotes, and export to Word or PDF. Your writing is stored on your Mac. Citation lookup is optional and contacts external services.
 
+## Quick start
+
+**You need a Mac.** There is no app download yet; these steps run Personal Word from source.
+
+### 1. Install the prerequisites
+
+Install [Node.js 22](https://nodejs.org) and [Rust](https://rustup.rs). Then open **Terminal** and install Apple's command line tools if you do not already have them:
+
+```sh
+xcode-select --install
+```
+
+Wait for installation to finish before continuing.
+
+### 2. Download and run
+
+Run these commands in Terminal, one line at a time:
+
+```sh
+git clone https://github.com/ECMSiegel/Personal-Word.git
+cd Personal-Word
+npm ci
+npm run tauri dev
+```
+
+The first launch compiles the app and can take a few minutes. When the window opens, choose **Start new project**, then **Chicago student paper**, and start writing. Keep Terminal open while using this development version.
+
+### 3. Build a standalone app (optional)
+
+Close the app and press **Control+C** in Terminal to stop the development command, then run:
+
+```sh
+npm run tauri build
+open src-tauri/target/release/bundle/macos
+```
+
+The folder contains **Personal Word.app**, which you can copy to Applications. It is unsigned and not notarized, so macOS may warn you when opening it.
+
+For a browser-only preview, run `npm run dev` and open `http://localhost:1420`. **Browser writing is stored separately from the Mac app's database.**
+
 > **Beta.** Personal Word is early software for local writing. Keep your own backups, and read [Limitations](#limitations) before trusting it with work you cannot replace.
 
 ![A Chicago-style paper open in Personal Word, with a footnote at the bottom of the page](docs/evidence/readme/writing-light.png)
@@ -38,40 +78,6 @@ These screenshots come from the browser preview, using made-up writing. The inst
 There is no downloadable app. Building from source produces `Personal Word.app`; a fresh local build was recorded on 2026-10-25 and the owner has confirmed the real-use checks passed. The build is not signed or notarized by Apple, so macOS may warn you the first time you open it.
 
 Signing and downloadable distribution were removed from beta scope on 2026-10-23; the retained preparation work and gates are recorded in [Mac distribution status](docs/distribution.md). Prepared [third-party notices](src-tauri/resources/THIRD_PARTY_NOTICES.txt) and license texts still await distribution review.
-
-## Setup
-
-You need three things installed:
-
-1. **Node.js 22** (the long-term-support version). Get it from [nodejs.org](https://nodejs.org).
-2. **Rust**, installed with [rustup](https://rustup.rs).
-3. **Apple's command line tools.** Install them by running this in Terminal:
-
-   ```sh
-   xcode-select --install
-   ```
-
-Then download this repository, open Terminal in its folder, and install its dependencies:
-
-```sh
-npm ci
-```
-
-To run the app while you try it out:
-
-```sh
-npm run tauri dev
-```
-
-To build a standalone app you can keep in your Applications folder:
-
-```sh
-npm run tauri build
-```
-
-The finished app appears at `src-tauri/target/release/bundle/macos/Personal Word.app`.
-
-There is also a quicker browser preview, started with `npm run dev`. It opens at `http://localhost:1420`. **The preview keeps writing in your browser, not in the app's database.** Use it for a look around, not for real work.
 
 ## A short workflow
 
