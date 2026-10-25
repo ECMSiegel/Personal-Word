@@ -1,5 +1,9 @@
 # First milestone validation — October 14, 2026
 
+## Current status -- 2026-10-25 owner acceptance
+
+**Beta: all nine owner real-use gates passed, confirmed directly by the owner.** See [owner results](agent-work/2026-10-24-team-reconciliation/OWNER_TEST_RESULTS.md). Earlier dated statements below about pending owner testing or an unopened app describe the pre-acceptance state. Q001-Q004 were also resolved; the legacy PDF exporter remains, and signing/download distribution remains outside beta scope.
+
 This is a working local desktop slice, not a production durability certification.
 
 ## Confirmed behavior

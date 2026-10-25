@@ -7,8 +7,8 @@
     "generatedBy": "agent-dbd8 (Claude Sonnet worker T021)",
     "gitCommit": "ee2fe3ac78e94f82af2f533516e6d8710cd1d81d",
     "workingTree": "dirty: uncommitted beta work, pinned by sourceManifest",
-    "status": "incomplete",
-    "implementationStatus": "CLAIMED (automated evidence only; VERIFIED needs the owner's real-use confirmation)"
+    "status": "complete",
+    "implementationStatus": "VERIFIED for the nine owner real-use gates by direct owner confirmation on 2026-10-25; automated checks retain their recorded scope"
   },
   "sourceManifest": {
     "path": "docs/agent-work/2026-10-20-beta-roadmap/06-durability/SOURCE_MANIFEST.json",
@@ -332,40 +332,67 @@
   },
   "ownerGates": {
     "keyboardAndCommentAnchors": {
-      "state": "pending",
-      "note": "owner: keyboard-only editing and duplicate-comment jump in the real app"
+      "state": "passed",
+      "note": "owner: keyboard-only editing and duplicate-comment jump in the real app",
+      "reportedBy": "owner",
+      "reportFile": "docs/agent-work/2026-10-24-team-reconciliation/OWNER_TEST_RESULTS.md",
+      "reportSha256": "c36f87413ad19fee5f8fead6fef2239aba9859f50bb5ca7cff5511d0c7ee0922"
     },
     "closeRetry": {
-      "state": "pending",
-      "note": "owner: blocked-close retry"
+      "state": "passed",
+      "note": "owner: blocked-close retry",
+      "reportedBy": "owner",
+      "reportFile": "docs/agent-work/2026-10-24-team-reconciliation/OWNER_TEST_RESULTS.md",
+      "reportSha256": "c36f87413ad19fee5f8fead6fef2239aba9859f50bb5ca7cff5511d0c7ee0922"
     },
     "recoveredImage": {
-      "state": "pending",
-      "note": "owner: recovered image and its hash"
+      "state": "passed",
+      "note": "owner: recovered image and its hash",
+      "reportedBy": "owner",
+      "reportFile": "docs/agent-work/2026-10-24-team-reconciliation/OWNER_TEST_RESULTS.md",
+      "reportSha256": "c36f87413ad19fee5f8fead6fef2239aba9859f50bb5ca7cff5511d0c7ee0922"
     },
     "preRestoreSafetyCopy": {
-      "state": "pending",
-      "note": "owner: reopen the pre-restore safety copy"
+      "state": "passed",
+      "note": "owner: reopen the pre-restore safety copy",
+      "reportedBy": "owner",
+      "reportFile": "docs/agent-work/2026-10-24-team-reconciliation/OWNER_TEST_RESULTS.md",
+      "reportSha256": "c36f87413ad19fee5f8fead6fef2239aba9859f50bb5ca7cff5511d0c7ee0922"
     },
     "wordRendering": {
-      "state": "pending",
-      "note": "owner: open exported DOCX in Microsoft Word (not available to agents)"
+      "state": "passed",
+      "note": "owner: open exported DOCX in Microsoft Word (not available to agents)",
+      "reportedBy": "owner",
+      "reportFile": "docs/agent-work/2026-10-24-team-reconciliation/OWNER_TEST_RESULTS.md",
+      "reportSha256": "c36f87413ad19fee5f8fead6fef2239aba9859f50bb5ca7cff5511d0c7ee0922"
     },
     "appleSilicon": {
-      "state": "pending",
-      "note": "owner: run on Apple Silicon (agents only have Intel)"
+      "state": "passed",
+      "note": "owner: run on Apple Silicon (agents only have Intel)",
+      "reportedBy": "owner",
+      "reportFile": "docs/agent-work/2026-10-24-team-reconciliation/OWNER_TEST_RESULTS.md",
+      "reportSha256": "c36f87413ad19fee5f8fead6fef2239aba9859f50bb5ca7cff5511d0c7ee0922"
     },
     "voiceOverAndIme": {
-      "state": "pending",
-      "note": "owner: VoiceOver and input-method checks"
+      "state": "passed",
+      "note": "owner: VoiceOver and input-method checks",
+      "reportedBy": "owner",
+      "reportFile": "docs/agent-work/2026-10-24-team-reconciliation/OWNER_TEST_RESULTS.md",
+      "reportSha256": "c36f87413ad19fee5f8fead6fef2239aba9859f50bb5ca7cff5511d0c7ee0922"
     },
     "longSession": {
-      "state": "pending",
-      "note": "owner: long real writing session"
+      "state": "passed",
+      "note": "owner: long real writing session",
+      "reportedBy": "owner",
+      "reportFile": "docs/agent-work/2026-10-24-team-reconciliation/OWNER_TEST_RESULTS.md",
+      "reportSha256": "c36f87413ad19fee5f8fead6fef2239aba9859f50bb5ca7cff5511d0c7ee0922"
     },
     "webkitVisuals": {
-      "state": "pending",
-      "note": "owner: native WebKit light/dark visuals in the real app"
+      "state": "passed",
+      "note": "owner: native WebKit light/dark visuals in the real app",
+      "reportedBy": "owner",
+      "reportFile": "docs/agent-work/2026-10-24-team-reconciliation/OWNER_TEST_RESULTS.md",
+      "reportSha256": "c36f87413ad19fee5f8fead6fef2239aba9859f50bb5ca7cff5511d0c7ee0922"
     }
   }
 }

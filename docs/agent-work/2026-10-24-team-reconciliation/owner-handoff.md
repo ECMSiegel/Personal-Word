@@ -1,5 +1,9 @@
 # T023 -- owner hand-off and Definition-of-done check
 
+## Current status -- 2026-10-25 owner acceptance
+
+**Beta: all nine owner real-use gates passed, confirmed directly by the owner.** See [owner results](OWNER_TEST_RESULTS.md). Earlier dated statements below about pending owner testing or an unopened app describe the pre-acceptance state. Q001-Q004 were also resolved; the legacy PDF exporter remains, and signing/download distribution remains outside beta scope.
+
 Agent: agent-d5a8 (Claude Sonnet worker T023), 2026-10-25. Status of everything: **CLAIMED** (automated evidence only). Documentation and record-keeping only: no code, test, build, commit, install, or real-library access.
 
 ## 1. What I did

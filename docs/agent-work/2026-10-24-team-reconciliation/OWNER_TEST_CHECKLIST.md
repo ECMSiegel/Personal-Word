@@ -1,6 +1,6 @@
 # Personal Word -- owner real-use checklist (T023)
 
-Prepared 2026-10-25 by agent-d5a8. Implementation status of everything below: **CLAIMED**. Nothing here has been run by the owner, so **nothing is marked passed**. Every item ends with `Outcome: pending owner` and a line for you to fill in. Only your report can make an item VERIFIED.
+Prepared 2026-10-25 by agent-d5a8. Updated after the owner explicitly confirmed that all nine real-use gates passed: see [owner results](OWNER_TEST_RESULTS.md). The summary gates below are VERIFIED by owner report. Individual blank Result lines remain as the original worksheet; detailed per-step records were not supplied.
 
 The app under test (built by T021, inspected by Gate D T022):
 - Path: `/Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/src-tauri/target/release/bundle/macos/Personal Word.app`
@@ -247,14 +247,14 @@ Use a project with: a multi-paragraph footnote, a footnote that is extremely lon
 
 | Owner gate in `EVIDENCE.json` | Items | Outcome |
 |---|---|---|
-| keyboardAndCommentAnchors | B1, B2 | pending owner |
-| closeRetry | C1 | pending owner |
-| recoveredImage | C3, D1 | pending owner |
-| preRestoreSafetyCopy | C3 | pending owner |
-| wordRendering | G3 | pending owner |
-| appleSilicon | I4 | pending owner |
-| voiceOverAndIme | I1, I2 | pending owner |
-| longSession | I3 | pending owner |
-| webkitVisuals | I5 | pending owner |
+| keyboardAndCommentAnchors | B1, B2 | PASS -- owner-confirmed |
+| closeRetry | C1 | PASS -- owner-confirmed |
+| recoveredImage | C3, D1 | PASS -- owner-confirmed |
+| preRestoreSafetyCopy | C3 | PASS -- owner-confirmed |
+| wordRendering | G3 | PASS -- owner-confirmed |
+| appleSilicon | I4 | PASS -- owner-confirmed |
+| voiceOverAndIme | I1, I2 | PASS -- owner-confirmed |
+| longSession | I3 | PASS -- owner-confirmed |
+| webkitVisuals | I5 | PASS -- owner-confirmed |
 
-Also needed from you: answers to open questions Q001-Q004 (see `owner-handoff.md` section 4) and the decision on committing (nothing is committed; `git_commit` is false).
+Q001-Q004 are resolved, and the beta commits and README have been pushed. The owner confirmation closes the nine summary gates above.

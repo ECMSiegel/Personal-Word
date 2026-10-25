@@ -1,5 +1,9 @@
 # Personal Word roadmap
 
+## Current status -- 2026-10-25 owner acceptance
+
+**Beta: all nine owner real-use gates passed, confirmed directly by the owner.** See [owner results](docs/agent-work/2026-10-24-team-reconciliation/OWNER_TEST_RESULTS.md). Earlier dated statements below about pending owner testing or an unopened app describe the pre-acceptance state. Q001-Q004 were also resolved; the legacy PDF exporter remains, and signing/download distribution remains outside beta scope.
+
 Personal Word is an experimental Mac-first writing workspace. These are priorities, not promised delivery dates. The detailed [application improvement plan](docs/plans/application-improvement-plan.md) records implementation progress and incomplete acceptance criteria.
 
 ## Reliability and interchange first
