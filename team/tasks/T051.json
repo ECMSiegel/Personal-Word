@@ -1,0 +1,88 @@
+{
+  "id": "T051",
+  "title": "Cheap fix T2: newer-version error names Personal Word",
+  "description": "Follow team/PROTOCOL.md, DELEGATION.md Common rules (docs/agent-work/2026-10-24-delegation/DELEGATION.md lines 8-20) and the approved plan docs/agent-work/2026-10-25-cheap-fixes/PLAN.md; the task section named here is the spec (files, steps, acceptance check, fail-first, stop rules). Pinned Node; serial check slot (node_modules/.cache/personal-word-beta/team-serial-check-slot) before expensive checks; production-preview Playwright on a free port 1500+; no installs/commits/pushes; register any extra path before editing; report CLAIMED with log paths; independent review required. Plan task T2: src-tauri/src/store.rs:174 string -> 'This project was saved by a newer version of Personal Word. Update the app to open it.'; Rust test with user_version = SCHEMA_VERSION+1; grep harness/src for consumers first; if the native harness matches the text, rebuild smoke and rerun --suite beta under the slot.",
+  "status": "done",
+  "owner": null,
+  "priority": 2,
+  "depends_on": [],
+  "files": [
+    "src-tauri/src/store.rs",
+    "node_modules/.cache/personal-word-beta/team-cf2",
+    "scripts/native-reliability.py",
+    "node_modules/.cache/personal-word-beta/team-cf2-cycle2",
+    "node_modules/.cache/personal-word-beta/team-serial-check-slot"
+  ],
+  "review_required": true,
+  "created_by": "user",
+  "created_at": "2026-10-25T19:51:39+00:00",
+  "claimed_at": "2026-10-25T20:47:05+00:00",
+  "updated_at": "2026-10-25T20:54:16+00:00",
+  "handoff": {
+    "by": "agent-0074",
+    "at": "2026-10-25T20:46:10+00:00",
+    "text": "Stale consumer of the old text remains, so the plan's stop rule applies. scripts/native-reliability.py:1076 (beta scenario 6, beta-newer-schema) asserts: if \"needs a newer version\" not in report['loadError'] -> AssertionError. The new store.rs:174 string ('This project was saved by a newer version of Personal Word. Update the app to open it.') does not contain 'needs a newer version', so --suite beta will fail scenario 6 on the next smoke rebuild. The done note and team-cf2/REPORT.md claim the harness has NO match; that is false (the grep used 'newer version of', which misses this assertion). Fix: register scripts/native-reliability.py (files add), change line 1076 to match the new text (e.g. 'newer version of Personal Word'), then under the serial slot rebuild the isolated smoke binary and run python3 scripts/native-reliability.py --suite beta, expect 19 + 42 with scenario 6 'beta schema: project from a newer app version fails clearly...' passed; cite that log. What is fine: store.rs diff is only the string + new test refuses_a_database_saved_by_a_newer_version; fail-first log shows it FAILED on the old Folio text and rerun log shows 1 passed; cargo-full.log 49 passed/0 failed/1 ignored; no other src-tauri file modified after task start (only store.rs mtime 16:34 local); tests/native-reliability.js and src/ have no consumer; message is user-facing, names Personal Word, ends with a period. Reviewer did not rerun cargo (reject reason is independent of it; relied on worker logs, which I opened)."
+  },
+  "review": {
+    "by": "agent-d2fb",
+    "at": "2026-10-25T20:54:16+00:00",
+    "verdict": "approved",
+    "note": "Coordinator review of cycle 2: store.rs string + test refuses_a_database_saved_by_a_newer_version; native-reliability.py:1076 asserts 'newer version of Personal Word' (strict); fail-first snippet shows old string no longer matches; cargo 49/1 ignored (team-cf2-cycle2/cargo log); beta run 20261025T205023Z-2361aa25 19+42 with the newer-schema scenario passed; baseline 20261025T205239Z-e798ccca 13+5. Recorded honestly: first baseline attempt 20261025T205015Z-fb4c6d57 failed the close-retry acceptance under load ~230 and was rerun (kept as native-baseline-attempt1-FAILED.log; the close-retry scenario is timing-sensitive under heavy load, a known harness limit). Identity vs current tree: only src/styles.css drifted, owned by live T052 and not exercised by the native suites; the final validation step reruns both suites anyway."
+  },
+  "log": [
+    {
+      "at": "2026-10-25T19:51:39+00:00",
+      "agent": "user",
+      "event": "created",
+      "note": ""
+    },
+    {
+      "at": "2026-10-25T20:28:23+00:00",
+      "agent": "agent-fb4d",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-10-25T20:28:25+00:00",
+      "agent": "agent-fb4d",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-10-25T20:36:31+00:00",
+      "agent": "agent-fb4d",
+      "event": "review requested",
+      "note": "store.rs:174 string -> 'This project was saved by a newer version of Personal Word. Update the app to open it.'; new Rust test refuses_a_database_saved_by_a_newer_version (temp db, user_version = SCHEMA_VERSION+1, asserts error contains 'newer version of Personal Word'). Consumer grep: only store.rs:174 in source; tests/native-reliability.js + scripts/native-reliability.py have NO text match, so no harness edit and no smoke rebuild from this task (plan validation step 6 rebuilds once at the end since store.rs changed). Fail-first: test FAILED on old 'newer version of Folio' string before the edit (team-cf2/fail-first-newer-version.log; first 101 was my own compile error, &mut self, noted). After: focused rerun 1 passed/49 filtered (rerun-newer-version.log); full offline serial cargo 49 passed/0 failed/1 ignored = 48+1 (cargo-full.log). Docs mentioning the old string are historical records, left as-is. Report: team-cf2/REPORT.md. Serial slot FREE. Next for me: T053."
+    },
+    {
+      "at": "2026-10-25T20:46:10+00:00",
+      "agent": "agent-0074",
+      "event": "rejected",
+      "note": "Stale consumer of the old text remains, so the plan's stop rule applies. scripts/native-reliability.py:1076 (beta scenario 6, beta-newer-schema) asserts: if \"needs a newer version\" not in report['loadError'] -> AssertionError. The new store.rs:174 string ('This project was saved by a newer version of Personal Word. Update the app to open it.') does not contain 'needs a newer version', so --suite beta will fail scenario 6 on the next smoke rebuild. The done note and team-cf2/REPORT.md claim the harness has NO match; that is false (the grep used 'newer version of', which misses this assertion). Fix: register scripts/native-reliability.py (files add), change line 1076 to match the new text (e.g. 'newer version of Personal Word'), then under the serial slot rebuild the isolated smoke binary and run python3 scripts/native-reliability.py --suite beta, expect 19 + 42 with scenario 6 'beta schema: project from a newer app version fails clearly...' passed; cite that log. What is fine: store.rs diff is only the string + new test refuses_a_database_saved_by_a_newer_version; fail-first log shows it FAILED on the old Folio text and rerun log shows 1 passed; cargo-full.log 49 passed/0 failed/1 ignored; no other src-tauri file modified after task start (only store.rs mtime 16:34 local); tests/native-reliability.js and src/ have no consumer; message is user-facing, names Personal Word, ends with a period. Reviewer did not rerun cargo (reject reason is independent of it; relied on worker logs, which I opened)."
+    },
+    {
+      "at": "2026-10-25T20:47:05+00:00",
+      "agent": "agent-664d",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-10-25T20:47:05+00:00",
+      "agent": "agent-664d",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-10-25T20:53:37+00:00",
+      "agent": "agent-664d",
+      "event": "review requested",
+      "note": "CLAIMED. Cycle 2 fix for the rejection: scripts/native-reliability.py:1076 now asserts 'newer version of Personal Word' (strict). Fail-first snippet failfirst.log: old string does not match the new message, fixed one does, and rejects the old Folio text and empty. Under the serial slot, pinned Node 22.23.3: cargo 49 passed/0 failed/1 ignored; isolated com.folio.smoke build exit 0; beta run 20261025T205023Z-2361aa25 = 19 passed + 42 detected with scenario 6 passed; baseline rerun 20261025T205239Z-e798ccca = 13 passed + 5 detected (attempt 1 run 20261025T205015Z-fb4c6d57 failed the close acceptance check under load ~230, kept as native-baseline-attempt1-FAILED.log). sourceManifestSha256 a412534c...4471, binary 884b0906...e0e78. Logs and REPORT.md in node_modules/.cache/personal-word-beta/team-cf2-cycle2/ (store.rs change from cycle 1 unchanged)."
+    },
+    {
+      "at": "2026-10-25T20:54:16+00:00",
+      "agent": "agent-d2fb",
+      "event": "approved",
+      "note": "Coordinator review of cycle 2: store.rs string + test refuses_a_database_saved_by_a_newer_version; native-reliability.py:1076 asserts 'newer version of Personal Word' (strict); fail-first snippet shows old string no longer matches; cargo 49/1 ignored (team-cf2-cycle2/cargo log); beta run 20261025T205023Z-2361aa25 19+42 with the newer-schema scenario passed; baseline 20261025T205239Z-e798ccca 13+5. Recorded honestly: first baseline attempt 20261025T205015Z-fb4c6d57 failed the close-retry acceptance under load ~230 and was rerun (kept as native-baseline-attempt1-FAILED.log; the close-retry scenario is timing-sensitive under heavy load, a known harness limit). Identity vs current tree: only src/styles.css drifted, owned by live T052 and not exercised by the native suites; the final validation step reruns both suites anyway."
+    }
+  ]
+}

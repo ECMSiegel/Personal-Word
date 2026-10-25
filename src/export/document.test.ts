@@ -1,9 +1,9 @@
-import { it, expect } from "vitest";
+import { it, expect, vi } from "vitest";
 import { newProject } from "../model";
 import { documentBlocks } from "./document";
 import { exportDocx } from "./docx";
 import { exportPdf } from "./pdf";
-import { PDFArray, PDFDocument, PDFName } from "pdf-lib";
+import { PDFArray, PDFDocument, PDFName, PDFPage } from "pdf-lib";
 import JSZip from "jszip";
 import { createHash } from "node:crypto";
 import { createExportFixture } from "./export-fixtures";
@@ -65,7 +65,8 @@ it("numbers references by encounter and includes only cited sources", () => {
   const d = documentBlocks(fixture());
   expect(d.notes[0].number).toBe(1);
   expect(d.notes[0].text).toContain("Jane Smith");
-  expect(d.blocks[1].kind).toBe("pageBreak");
+  // blocks 0 and 1 are the project and section title headings, 2 the paragraph.
+  expect(d.blocks[3].kind).toBe("pageBreak");
   expect(d.bibliography.map((x) => x.id)).toEqual(["s"]);
 });
 it("uses automatic short notes in export notes", () => {
@@ -156,7 +157,8 @@ it("retains strike and nested list semantics in the shared document", () => {
       },
     ],
   };
-  const blocks = documentBlocks(p).blocks;
+  // The project and section title headings (T054) are not part of this list check.
+  const blocks = documentBlocks(p).blocks.filter((b) => b.kind !== "heading");
   expect(
     blocks.map((b) => ({
       kind: b.list?.kind,
@@ -437,8 +439,11 @@ const baseline = {
 };
 it("keeps documents without images or tables byte-identical to the pre-image exporters", async () => {
   const p = createExportFixture();
-  const zip = await JSZip.loadAsync(await (await exportDocx(p)).arrayBuffer());
-  expect(sha(JSON.stringify(documentBlocks(p)))).toBe(baseline.blocks);
+  // T054: Word and PDF now print titles; the pre-image blocks/DOCX hashes were taken without any,
+  // so they are checked on the same project with its titles blanked. Markdown/text print titles as before.
+  const untitled = { ...p, title: "", entries: p.entries.map((e) => ({ ...e, title: "" })) };
+  const zip = await JSZip.loadAsync(await (await exportDocx(untitled)).arrayBuffer());
+  expect(sha(JSON.stringify(documentBlocks(untitled)))).toBe(baseline.blocks);
   expect(sha(await zip.file("word/document.xml")!.async("string"))).toBe(baseline.doc);
   expect(sha(await zip.file("word/footnotes.xml")!.async("string"))).toBe(baseline.fn);
   expect(sha(projectMarkdown(p))).toBe(baseline.md);
@@ -446,7 +451,7 @@ it("keeps documents without images or tables byte-identical to the pre-image exp
 });
 it("fits images to the text width keeping aspect ratio and numbers table notes in document order", () => {
   const d = documentBlocks(mediaProject(), imageAssets());
-  const [, big, tbl, small] = d.blocks;
+  const [, big, tbl, small] = d.blocks.filter((b) => b.kind !== "heading");
   expect(big.kind).toBe("image");
   // Letter, default margins: 2000x1000 px would be 1500x750 pt; it must shrink.
   expect(big.image!.width).toBeLessThanOrEqual(612 - d.settings.marginInches * 144 + 0.001);
@@ -545,4 +550,161 @@ it("throws instead of clipping a table row taller than a page", async () => {
   await expect(exportPdf(p)).rejects.toThrow("taller than one PDF page");
   // DOCX can still flow it.
   await expect(exportDocx(p)).resolves.toBeInstanceOf(Blob);
+}, 30_000);
+// T054: section titles and the project title in Word and PDF.
+function titledProject() {
+  const p = fixture();
+  p.title = "Lighthouse Letters";
+  p.entries[0].title = "Opening";
+  p.entries.push({
+    ...p.entries[0],
+    id: "second",
+    title: "Second Watch",
+    content: { type: "doc", content: [para(text("Second section body."))] },
+  });
+  p.order.push("second");
+  return p;
+}
+const headingTexts = (p: ReturnType<typeof fixture>) =>
+  documentBlocks(p)
+    .blocks.filter((b) => b.kind === "heading")
+    .map((b) => `${b.level}:${b.runs.map((r) => r.text).join("")}`);
+const docxXml = async (p: ReturnType<typeof fixture>) =>
+  (await JSZip.loadAsync(await (await exportDocx(p)).arrayBuffer()))
+    .file("word/document.xml")!
+    .async("string");
+it("puts the project title and each section title in the shared document as headings", () => {
+  expect(headingTexts(titledProject())).toEqual([
+    "1:Lighthouse Letters",
+    "2:Opening",
+    "2:Second Watch",
+  ]);
+  const blocks = documentBlocks(titledProject()).blocks;
+  // Each section title sits directly before that section's own content.
+  expect(blocks.map((b) => (b.kind === "heading" ? "H" : b.kind))).toEqual([
+    "H", "H", "paragraph", "pageBreak", "paragraph", "H", "paragraph",
+  ]);
+});
+it("leaves untitled sections and untitled projects without a heading", () => {
+  const p = titledProject();
+  p.title = "  ";
+  p.entries[1].title = "";
+  expect(headingTexts(p)).toEqual(["2:Opening"]);
+});
+it("Chicago keeps the project title and the title-page section's title off the page", () => {
+  const p = titledProject();
+  p.templateId = "chicago";
+  // The first section is the title page; later sections keep their headings.
+  expect(headingTexts(p)).toEqual(["2:Second Watch"]);
+});
+it("Chicago PDF page 1 does not print the first section's title", async () => {
+  const p = titledProject();
+  p.templateId = "chicago";
+  const drawn: { text: string; page: number }[] = [];
+  const real = PDFPage.prototype.drawText;
+  vi.spyOn(PDFPage.prototype, "drawText").mockImplementation(function (this: PDFPage, t, o) {
+    drawn.push({ text: t, page: this.doc.getPages().indexOf(this) });
+    return real.call(this, t, o);
+  });
+  try {
+    await exportPdf(p);
+  } finally {
+    vi.restoreAllMocks();
+  }
+  const page1 = drawn.filter((d) => d.page === 0).map((d) => d.text).join("");
+  expect(page1).toContain("Writing with a note.");
+  expect(page1).not.toContain("Opening");
+  expect(page1).not.toContain("Lighthouse Letters");
+  expect(drawn.filter((d) => d.page > 0).map((d) => d.text).join("")).toContain("Second Watch");
+}, 30_000);
+it("Markdown and DOCX name the same project and section titles", () => {
+  const p = titledProject();
+  const markdownTitles = projectMarkdown(p)
+    .split("\n")
+    .filter((l) => /^#{1,2} /.test(l))
+    .map((l) => l.replace(/^#{1,2} /, ""))
+    .filter((t) => t !== "Notes" && t !== "Bibliography");
+  expect(headingTexts(p).map((h) => h.replace(/^\d:/, ""))).toEqual(markdownTitles);
+});
+it("DOCX writes the project title as Heading1 and each section title as Heading2", async () => {
+  const xml = await docxXml(titledProject());
+  const headingParagraph = (style: string, title: string) =>
+    new RegExp(`<w:p>(?:(?!</w:p>)[\\s\\S])*<w:pStyle w:val="${style}"/>(?:(?!</w:p>)[\\s\\S])*${title}`);
+  expect(xml).toMatch(headingParagraph("Heading1", "Lighthouse Letters"));
+  expect(xml).toMatch(headingParagraph("Heading2", "Opening"));
+  expect(xml).toMatch(headingParagraph("Heading2", "Second Watch"));
+  expect(xml.indexOf("Lighthouse Letters")).toBeLessThan(xml.indexOf("Opening"));
+  expect(xml.indexOf("Opening")).toBeLessThan(xml.indexOf("Writing with a note."));
+  expect(xml.indexOf("Second Watch")).toBeLessThan(xml.indexOf("Second section body."));
+});
+it("PDF page 1 prints the project title and the first section title, in order", async () => {
+  const drawn: { text: string; page: number }[] = [];
+  const real = PDFPage.prototype.drawText;
+  vi.spyOn(PDFPage.prototype, "drawText").mockImplementation(function (this: PDFPage, t, o) {
+    drawn.push({ text: t, page: this.doc.getPages().indexOf(this) });
+    return real.call(this, t, o);
+  });
+  try {
+    await exportPdf(titledProject());
+  } finally {
+    vi.restoreAllMocks();
+  }
+  const page1 = drawn.filter((d) => d.page === 0).map((d) => d.text).join("");
+  expect(page1).toContain("Lighthouse Letters");
+  expect(page1.indexOf("Lighthouse Letters")).toBeLessThan(page1.indexOf("Opening"));
+  expect(page1.indexOf("Opening")).toBeLessThan(page1.indexOf("Writing with a note."));
+  expect(drawn.filter((d) => d.page > 0).map((d) => d.text).join("")).toContain("Second Watch");
+}, 30_000);
+// Pre-fix hashes: produced by the pre-T054 documentBlocks (HEAD 72732d8) on this exact project.
+const sha256 = (v: string) => createHash("sha256").update(v).digest("hex");
+const UNTITLED_CHICAGO = {
+  docxDocument: "8f15422fbcf970745394193da8ba0399a4fca58743386425ed3172daf66fce3d",
+  pdfPages: 3,
+  pdfContent: "05e78737d83548047c4afa7aa2e8fbf05e24c5c81b79da20cdc9a3e1c408c09f",
+};
+it("a Chicago project whose only section has no title exports exactly as before", async () => {
+  const p = fixture();
+  p.templateId = "chicago";
+  p.entries[0].title = "";
+  const got = { docxDocument: sha256(await docxXml(p)) } as Record<string, unknown>;
+  const pdf = await PDFDocument.load(await (await exportPdf(p)).arrayBuffer());
+  const streams = pdf.getPages().flatMap((page) => {
+    const contents = page.node.Contents();
+    const refs = contents instanceof PDFArray ? contents.asArray() : [contents];
+    return refs.map((r) =>
+      new TextDecoder("latin1").decode(decodePDFRawStream(pdf.context.lookup(r) as PDFRawStream).decode()),
+    );
+  });
+  // pdf-lib names font resources with a random suffix; strip it before hashing.
+  got.pdfPages = pdf.getPageCount();
+  got.pdfContent = sha256(streams.join("\n").replace(/\/([A-Za-z]+)-[0-9]+ /g, "/$1 "));
+  expect(got).toEqual(UNTITLED_CHICAGO);
+}, 30_000);
+// T053: consecutive PDF images keep a gap instead of touching.
+it("leaves at least 12 pt between two stacked PDF images and keeps a single image's page count", async () => {
+  const p = mediaProject();
+  p.entries[0].content = {
+    type: "doc",
+    content: [image(PNG_ID, { width: 100, height: 100 }), image(PNG_ID, { width: 100, height: 100 })],
+  };
+  const drawn: { y: number; height: number }[] = [];
+  const realDrawImage = PDFPage.prototype.drawImage;
+  const spy = vi.spyOn(PDFPage.prototype, "drawImage").mockImplementation(function (this: PDFPage, img, o) {
+    drawn.push({ y: o!.y!, height: o!.height! });
+    return realDrawImage.call(this, img, o);
+  });
+  try {
+    const pdf = await PDFDocument.load(await (await exportPdf(p, undefined, imageAssets())).arrayBuffer());
+    expect(pdf.getPageCount()).toBe(1);
+    expect(drawn).toHaveLength(2);
+    // Page y grows upward: the first image's bottom edge is drawn[0].y, the second's top edge is y + height.
+    const gap = drawn[0].y - (drawn[1].y + drawn[1].height);
+    expect(gap).toBeGreaterThanOrEqual(12);
+    // A single image after a paragraph still exports to one page.
+    p.entries[0].content = { type: "doc", content: [para(text("Intro")), image(PNG_ID, { width: 100, height: 100 })] };
+    const single = await PDFDocument.load(await (await exportPdf(p, undefined, imageAssets())).arrayBuffer());
+    expect(single.getPageCount()).toBe(1);
+  } finally {
+    spy.mockRestore();
+  }
 }, 30_000);

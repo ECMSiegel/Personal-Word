@@ -62,8 +62,6 @@ export type ZoteroImportResult = Omit<CslImportResult, "review"> & {
 
 export const ZOTERO_LOOPBACK_ORIGIN = "http://127.0.0.1:23119";
 export const ZOTERO_MIN_POLL_INTERVAL_MS = 30_000;
-export const ZOTERO_TIMEOUT_MS = 12_000;
-export const ZOTERO_MAX_BYTES = 5 * 1024 * 1024;
 
 export const ZOTERO_COMPARED_FIELDS = [
   "kind",
@@ -237,157 +235,26 @@ export function buildZoteroUrl(request: ZoteroReadRequest): string {
   return parsed.toString();
 }
 
+export const ZOTERO_DESKTOP_ONLY = "Zotero refresh works in the desktop app only.";
+
 /**
- * Fetches items from the local Zotero API via native Tauri IPC if available,
- * or standard fetch in browser test preview.
+ * Fetches items from the local Zotero API through the native `zotero_read`
+ * command (which enforces the loopback, redirect, time and size limits).
+ * The browser preview never contacts Zotero.
  */
 export async function fetchZoteroItems(
   request: ZoteroReadRequest,
-  options?: { signal?: AbortSignal },
+  _options?: { signal?: AbortSignal },
 ): Promise<ZoteroReadResponse> {
   const url = buildZoteroUrl(request);
   checkZoteroUrl(url);
 
-  if (isNativeApp()) {
-    try {
-      return await invoke<ZoteroReadResponse>("zotero_read", { request });
-    } catch (error) {
-      throw new Error(String(error));
-    }
-  }
-
-  // Browser preview only (the desktop app uses the native command above). It
-  // applies the same limits as the native reader: no redirects, 12 s, 5 MiB.
-  const controller = new AbortController();
-  let timedOut = false;
-  const timer = setTimeout(() => {
-    timedOut = true;
-    controller.abort();
-  }, ZOTERO_TIMEOUT_MS);
-  const forwardAbort = () => controller.abort();
-  if (options?.signal?.aborted) controller.abort();
-  options?.signal?.addEventListener("abort", forwardAbort, { once: true });
+  if (!isNativeApp()) throw new Error(ZOTERO_DESKTOP_ONLY);
   try {
-    return await browserRead(url, request, controller.signal);
-  } catch (err) {
-    if (timedOut) throw new Error("Zotero did not answer within 12 seconds.");
-    throw err;
-  } finally {
-    clearTimeout(timer);
-    options?.signal?.removeEventListener("abort", forwardAbort);
+    return await invoke<ZoteroReadResponse>("zotero_read", { request });
+  } catch (error) {
+    throw new Error(String(error));
   }
-}
-
-const TOO_LARGE = "Zotero sent more than 5 MiB in one response, so the refresh was stopped.";
-
-async function readCappedText(response: Response): Promise<string> {
-  if (Number(response.headers.get("Content-Length")) > ZOTERO_MAX_BYTES) throw new Error(TOO_LARGE);
-  if (!response.body) {
-    const text = await response.text();
-    if (new TextEncoder().encode(text).length > ZOTERO_MAX_BYTES) throw new Error(TOO_LARGE);
-    return text;
-  }
-  const reader = response.body.getReader();
-  const decoder = new TextDecoder();
-  let total = 0;
-  let text = "";
-  for (;;) {
-    const { done, value } = await reader.read();
-    if (done) break;
-    total += value.byteLength;
-    if (total > ZOTERO_MAX_BYTES) {
-      await reader.cancel();
-      throw new Error(TOO_LARGE);
-    }
-    text += decoder.decode(value, { stream: true });
-  }
-  return text + decoder.decode();
-}
-
-async function browserRead(
-  url: string,
-  request: ZoteroReadRequest,
-  signal: AbortSignal,
-): Promise<ZoteroReadResponse> {
-  const headers: Record<string, string> = {
-    Accept: "application/json",
-  };
-  if (request.since !== undefined) {
-    headers["If-Modified-Since-Version"] = String(request.since);
-  }
-
-  let response: Response;
-  try {
-    response = await fetch(url, {
-      method: "GET",
-      headers,
-      redirect: "error",
-      signal,
-    });
-  } catch (err) {
-    if (signal.aborted) throw err;
-    throw new Error("Could not reach Zotero on 127.0.0.1:23119. Make sure Zotero is running.");
-  }
-
-  if (response.status === 304) {
-    return {
-      items: [],
-      version: request.since,
-      serverId: undefined,
-      nextStart: undefined,
-      totalResults: undefined,
-      notModified: true,
-    };
-  }
-
-  if (!response.ok) {
-    throw new Error(`Zotero answered with HTTP ${response.status}`);
-  }
-
-  const versionHeader = response.headers.get("Last-Modified-Version");
-  const version = versionHeader ? Number(versionHeader) : undefined;
-  const serverId = response.headers.get("Zotero-Server-ID") ?? undefined;
-  const totalHeader = response.headers.get("Total-Results");
-  const totalResults = totalHeader ? Number(totalHeader) : undefined;
-
-  let nextStart: number | undefined;
-  const linkHeader = response.headers.get("Link");
-  if (linkHeader) {
-    for (const link of linkHeader.split(",")) {
-      if (link.includes('rel="next"') || link.includes("rel=next")) {
-        const match = /start=(\d+)/.exec(link);
-        if (match) nextStart = Number(match[1]);
-      }
-    }
-  }
-
-  const text = await readCappedText(response);
-  let data: unknown;
-  try {
-    data = JSON.parse(text);
-  } catch {
-    throw new Error("Zotero sent a response that is not valid JSON.");
-  }
-  let items: Record<string, unknown>[] = [];
-  if (Array.isArray(data)) {
-    items = data as Record<string, unknown>[];
-  } else if (data && typeof data === "object") {
-    const obj = data as Record<string, unknown>;
-    if (Array.isArray(obj.items)) {
-      items = obj.items as Record<string, unknown>[];
-    } else {
-      items = [obj];
-    }
-  }
-
-  return {
-    items,
-    version,
-    serverId,
-    nextStart,
-    totalResults,
-    notModified: false,
-  };
 }
 
 export const ZOTERO_PAGE_SIZE = 100;

@@ -41,129 +41,34 @@ test("BibTeX file import displays 'Import sources' and loads sources cleanly", a
   await expect(page.locator(".source-item").filter({ hasText: "A Mathematical Theory of Communication" })).toBeVisible();
 });
 
-test("Zotero localhost refresh operates offline with mock route and protects local sources", async ({ page }) => {
-  let requests = 0;
-  // Mock Zotero local API route (strictly offline, zero external network calls)
-  await page.route("http://127.0.0.1:23119/api/**", async (route) => {
-    requests += 1;
-    const jsonResponse = [
-      {
-        id: "ZOTERO_REFRESH_1",
-        type: "book",
-        title: "Synthetic Zotero Item",
-        author: [{ family: "Localhost", given: "Tester" }],
-        issued: { "date-parts": [[2026]] },
-      },
-    ];
-    await route.fulfill({
-      status: 200,
-      contentType: "application/json",
-      headers: {
-        "Last-Modified-Version": "100",
-        "Total-Results": "1",
-      },
-      body: JSON.stringify(jsonResponse),
-    });
+test("Zotero refresh in the browser preview says it is desktop-only and never contacts Zotero", async ({ page }) => {
+  const zoteroRequests: string[] = [];
+  // Strictly offline: any request to the local Zotero address is recorded, then answered with an error.
+  await page.route("http://127.0.0.1:23119/**", async (route) => {
+    zoteroRequests.push(route.request().url());
+    await route.abort();
   });
 
-  await start(page, "Zotero Localhost Refresh");
+  await start(page, "Zotero Browser Preview");
 
-  // Verify default state: Zotero refresh is disabled / disconnected
   const statusEl = page.locator(".zotero-status");
-  await expect(statusEl).toBeVisible();
   await expect(statusEl).toHaveText("Zotero refresh: disabled");
 
-  // Connect local Zotero
-  const connectBtn = page.getByRole("button", { name: "Connect local Zotero" });
-  await expect(connectBtn).toBeVisible();
-  await connectBtn.click();
-
+  await page.getByRole("button", { name: "Connect local Zotero" }).click();
   await expect(statusEl).toHaveText("Local Zotero refresh enabled -- not yet contacted.");
-  expect(requests).toBe(0);
 
-  // Refresh from Zotero
-  const refreshBtn = page.getByRole("button", { name: "Refresh from Zotero" });
-  await expect(refreshBtn).toBeVisible();
-  await refreshBtn.click();
-
-  // Expect import review modal to open with the fetched items
-  await expect(page.getByRole("dialog", { name: "Import Zotero sources" })).toBeVisible();
-  await expect(statusEl).toHaveText("Connected to local Zotero -- received 1 item.");
-  expect(requests).toBeGreaterThan(0);
-  await expect(page.getByText("1 sources to add")).toBeVisible();
-  await expect(page.getByText("Add Synthetic Zotero Item")).toBeVisible();
-
-  // Add the source
-  await page.getByRole("button", { name: "Add sources", exact: true }).click();
-  await expect(page.locator(".source-item")).toHaveCount(1);
-  await expect(page.locator(".source-item").filter({ hasText: "Synthetic Zotero Item" })).toBeVisible();
-
-  // Disconnect
-  const disconnectBtn = page.getByRole("button", { name: "Disconnect" });
-  await expect(disconnectBtn).toBeVisible();
-  await disconnectBtn.click();
-
-  await expect(statusEl).toHaveText("Disconnected from local Zotero.");
-  // Local source is preserved offline
-  await expect(page.locator(".source-item")).toHaveCount(1);
-});
-
-test("Zotero refresh follows the next-page link and imports every page", async ({ page }) => {
-  const requested: string[] = [];
-  await page.route("http://127.0.0.1:23119/api/**", async (route) => {
-    const url = new URL(route.request().url());
-    requested.push(url.search);
-    const second = url.searchParams.get("start") === "1";
-    await route.fulfill({
-      status: 200,
-      contentType: "application/json",
-      headers: {
-        // Cross-origin: the page can only read these headers if the server exposes them.
-        "Access-Control-Expose-Headers": "Link, Total-Results, Last-Modified-Version",
-        "Last-Modified-Version": "100",
-        "Total-Results": "2",
-        ...(second ? {} : { Link: '<http://127.0.0.1:23119/api/users/0/items?start=1>; rel="next"' }),
-      },
-      body: JSON.stringify([
-        second
-          ? { id: "PAGE_TWO", type: "book", title: "Second Page Item" }
-          : { id: "PAGE_ONE", type: "book", title: "First Page Item" },
-      ]),
-    });
-  });
-
-  await start(page, "Zotero Pagination");
-  await page.getByRole("button", { name: "Connect local Zotero" }).click();
   await page.getByRole("button", { name: "Refresh from Zotero" }).click();
-
-  await expect(page.getByRole("dialog", { name: "Import Zotero sources" })).toBeVisible();
-  await expect(page.getByText("2 sources to add")).toBeVisible();
-  await expect(page.getByText("Add First Page Item")).toBeVisible();
-  await expect(page.getByText("Add Second Page Item")).toBeVisible();
-  expect(requested.filter((search) => search.includes("format=csljson"))).toHaveLength(2);
-});
-
-test("Zotero refresh stops with a message instead of showing part of the library", async ({ page }) => {
-  await page.route("http://127.0.0.1:23119/api/**", async (route) => {
-    await route.fulfill({
-      status: 200,
-      contentType: "application/json",
-      headers: {
-        "Access-Control-Expose-Headers": "Link, Total-Results, Last-Modified-Version",
-        "Last-Modified-Version": "100",
-        "Total-Results": "5",
-      },
-      body: JSON.stringify([{ id: "ONLY_ONE", type: "book", title: "Only Item Sent" }]),
-    });
-  });
-
-  await start(page, "Zotero Truncation");
-  await page.getByRole("button", { name: "Connect local Zotero" }).click();
-  await page.getByRole("button", { name: "Refresh from Zotero" }).click();
-
-  await expect(page.locator(".zotero-status")).toContainText("only part of your Zotero library arrived");
+  await expect(statusEl).toHaveText("Zotero refresh works in the desktop app only.");
   await expect(page.getByRole("dialog", { name: "Import Zotero sources" })).toHaveCount(0);
   await expect(page.locator(".source-item")).toHaveCount(0);
+  expect(zoteroRequests).toEqual([]);
+
+  // Refresh can be tried again and still says the same thing; Disconnect still works.
+  await page.getByRole("button", { name: "Refresh from Zotero" }).click();
+  await expect(statusEl).toHaveText("Zotero refresh works in the desktop app only.");
+  await page.getByRole("button", { name: "Disconnect" }).click();
+  await expect(statusEl).toHaveText("Disconnected from local Zotero.");
+  expect(zoteroRequests).toEqual([]);
 });
 
 test("Zotero local refresh explains the required desktop setting", async ({ page }) => {

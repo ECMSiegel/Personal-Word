@@ -1,0 +1,9 @@
+{
+  "id": "agent-efa9",
+  "label": "Claude Sonnet worker T052 cycle 2",
+  "joined_at": "2026-10-25T20:47:29+00:00",
+  "last_seen": "2026-10-25T21:02:37+00:00",
+  "status": "left",
+  "current_task": null,
+  "inbox_cursor": 0
+}

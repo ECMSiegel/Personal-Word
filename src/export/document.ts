@@ -261,9 +261,20 @@ export function documentBlocks(
     }
     (node.content ?? []).forEach((n) => visit(n, prefix, list, out, maxWidth));
   };
+  // Same title set as the Markdown export. The Chicago template leaves the
+  // project title to the writer's own first page; empty titles add nothing.
+  const titleBlock = (title: string, level: number): Block[] =>
+    title.trim() ? [{ kind: "heading", level, runs: [{ text: title }] }] : [];
+  if (project.templateId !== "chicago")
+    blocks.push(...titleBlock(project.title, 1));
   for (const id of project.order) {
     const e = project.entries.find((e) => e.id === id && e.kind === "section");
-    if (e) visit(e.content);
+    if (e) {
+      // On Chicago the first section is the title page, so it carries no heading.
+      if (!(project.templateId === "chicago" && id === project.order[0]))
+        blocks.push(...titleBlock(e.title, 2));
+      visit(e.content);
+    }
     if (project.templateId === "chicago" && id === project.order[0])
       blocks.push({ kind: "pageBreak", runs: [] });
   }

@@ -197,7 +197,7 @@ export function ProjectLibrary({
         </label>
       </div>
       <div className="import">
-        <span id="import-writing-label">Import writing -- text, Markdown, Markdown bundle (.zip), Word, or HTML (up to 20 MB)</span>
+        <span id="import-writing-label">Import writing -- text or Markdown (up to 5 MB), Word, HTML or Markdown bundle (.zip) (up to 20 MB)</span>
         <label className="import-choose" htmlFor="import-writing-text">
           Choose writing…
           <input

@@ -1,0 +1,46 @@
+{
+  "id": "T067",
+  "title": "Independently review T056",
+  "description": "Non-author review record for T056; owns only its cache folder and the serial slot",
+  "status": "done",
+  "owner": null,
+  "priority": 2,
+  "depends_on": [],
+  "files": [
+    "node_modules/.cache/personal-word-beta/team-cf7-review",
+    "node_modules/.cache/personal-word-beta/team-serial-check-slot"
+  ],
+  "review_required": false,
+  "created_by": "agent-a67f",
+  "created_at": "2026-10-25T21:07:45+00:00",
+  "claimed_at": "2026-10-25T21:11:11+00:00",
+  "updated_at": "2026-10-25T21:12:43+00:00",
+  "handoff": null,
+  "review": null,
+  "log": [
+    {
+      "at": "2026-10-25T21:07:45+00:00",
+      "agent": "agent-a67f",
+      "event": "created",
+      "note": ""
+    },
+    {
+      "at": "2026-10-25T21:11:11+00:00",
+      "agent": "agent-a67f",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-10-25T21:11:30+00:00",
+      "agent": "agent-a67f",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-10-25T21:12:43+00:00",
+      "agent": "agent-a67f",
+      "event": "done",
+      "note": "Reviewed and approved T056; logs in node_modules/.cache/personal-word-beta/team-cf7-review (unit, failfirst, tsc, build, browser, preflight, sha-start/end)."
+    }
+  ]
+}

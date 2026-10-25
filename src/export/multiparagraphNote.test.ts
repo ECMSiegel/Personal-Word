@@ -145,12 +145,18 @@ it("PDF still refuses unsupported scripts and overlong notes, with the same mess
 // running this exact fixture through the PRE-FIX pdf.ts / docx.ts (copies in
 // node_modules/.cache/personal-word-beta/team-t043/prefix/) and hashing the results:
 // DOCX word/footnotes.xml and word/document.xml, and the decoded PDF page content streams.
-const unchangedProject = () =>
-  project({
+const unchangedProject = () => {
+  const p = project({
     a: { text: "A short note." },
     b: { text: "", sourceId: "s", locator: "12" },
     c: { text: "A wrapped note. ".repeat(40), sourceId: "s", locator: "3" },
   });
+  // T054: Word and PDF now print the project and section titles. The pre-fix hashes below were
+  // taken before that, so this fixture carries no titles and still isolates the note output.
+  p.title = "";
+  p.entries[0].title = "";
+  return p;
+};
 const UNCHANGED = {
   docxFootnotes: "9ceb1cc2cccb1ad5dd7b810651d7b7338b853e2b7e67a97590c272929f30cc20",
   docxDocument: "3de52ed1ab8ee286534e02a167b53e08c285bb6c82e16069ba285e4156eb4511",

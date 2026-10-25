@@ -1073,7 +1073,7 @@ def run_beta_suite(timeout, run_id, root):
     check_untouched(sha_of_tree(target))
     if pid not in report["listing"]["damaged"] or any(p["id"] == pid for p in report["listing"]["projects"]):
         raise AssertionError("The newer-schema project should be listed as unreadable, not as a normal project")
-    if "needs a newer version" not in (report.get("loadError") or ""):
+    if "newer version of Personal Word" not in (report.get("loadError") or ""):
         raise AssertionError(f"Opening a newer-schema project did not fail clearly: {report.get('loadError')!r}")
     doctored_tree = sha_of_tree(target)
     first_file = sorted(path for path in doctored_tree if not path.endswith(("-wal", "-shm")))[0]

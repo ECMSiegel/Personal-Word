@@ -24,6 +24,13 @@ test("Markdown import is previewed, cancel is safe, and accepted writing survive
   await expect(editor).toContainText("https://example.invalid/image.png");
 });
 
+test("import label states the real per-format size limits", async ({ page }) => {
+  await page.goto("/");
+  await expect(page.locator("#import-writing-label")).toHaveText(
+    "Import writing -- text or Markdown (up to 5 MB), Word, HTML or Markdown bundle (.zip) (up to 20 MB)",
+  );
+});
+
 test("import dialog keeps focus inside, cancels on Escape, and never fetches source images", async ({ page }) => {
   let remoteRequests = 0;
   page.on("request", (r) => { if (r.url().startsWith("https://example.invalid")) remoteRequests++; });

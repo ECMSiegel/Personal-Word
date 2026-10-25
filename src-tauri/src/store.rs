@@ -171,7 +171,7 @@ impl Store {
             .pragma_query_value(None, "user_version", |r| r.get(0))
             .map_err(err)?;
         if version > SCHEMA_VERSION {
-            return Err("This project needs a newer version of Folio.".into());
+            return Err("This project was saved by a newer version of Personal Word. Update the app to open it.".into());
         }
         db.execute_batch(
             "PRAGMA journal_mode=WAL; PRAGMA synchronous=FULL; PRAGMA foreign_keys=ON;",
@@ -1529,6 +1529,21 @@ mod tests {
         s.save(&next).unwrap();
         assert_eq!(s.read(id).unwrap(), next);
         assert_eq!(s.version(id, "3", true).unwrap(), p);
+    }
+    #[test]
+    fn refuses_a_database_saved_by_a_newer_version() {
+        let t = tempfile::tempdir().unwrap();
+        let id = "6c1f3d4e-1b2a-4c3d-8e9f-0a1b2c3d4e5f";
+        fs::create_dir_all(t.path().join(id)).unwrap();
+        let db = Connection::open(t.path().join(id).join("project.sqlite3")).unwrap();
+        db.pragma_update(None, "user_version", SCHEMA_VERSION + 1).unwrap();
+        drop(db);
+        let mut s = Store::new(t.path().into()).unwrap();
+        let e = s.load(id).unwrap_err();
+        assert!(
+            e.contains("newer version of Personal Word"),
+            "unexpected error: {e}"
+        );
     }
     #[test]
     fn mirror_failure_can_be_retried_without_losing_commit() {

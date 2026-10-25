@@ -1,0 +1,80 @@
+{
+  "id": "T057",
+  "title": "Cheap fix T8: abandon-dialog import cancel is tested",
+  "description": "Follow team/PROTOCOL.md, DELEGATION.md Common rules (docs/agent-work/2026-10-24-delegation/DELEGATION.md lines 8-20) and the approved plan docs/agent-work/2026-10-25-cheap-fixes/PLAN.md; the task section named here is the spec (files, steps, acceptance check, fail-first, stop rules). Pinned Node; serial check slot (node_modules/.cache/personal-word-beta/team-serial-check-slot) before expensive checks; production-preview Playwright on a free port 1500+; no installs/commits/pushes; register any extra path before editing; report CLAIMED with log paths; independent review required. Plan task T8: add two cases to tests/import-cancel.spec.ts: Escape during the busy dialog, Escape on the preview dialog; each asserts no Import writing dialog and no new project before and after reload; repair src/App.tsx:1127-1130 or src/import/ImportPreview.tsx only if a case fails (own fail-first); if both pass on current code, record the closed coverage gap.",
+  "status": "done",
+  "owner": null,
+  "priority": 2,
+  "depends_on": [],
+  "files": [
+    "tests/import-cancel.spec.ts",
+    "src/import/ImportPreview.tsx",
+    "node_modules/.cache/personal-word-beta/team-cf8"
+  ],
+  "review_required": true,
+  "created_by": "user",
+  "created_at": "2026-10-25T19:51:45+00:00",
+  "claimed_at": "2026-10-25T21:07:55+00:00",
+  "updated_at": "2026-10-25T21:22:06+00:00",
+  "handoff": {
+    "by": "agent-bd1f",
+    "at": "2026-10-25T20:57:47+00:00",
+    "text": "Tests written, NOT yet run. Added two cases at the end of tests/import-cancel.spec.ts (Escape on busy 'Importing writing' dialog with slowed read + __readDone marker; Escape on 'Import writing' preview dialog); sha256 after edit 6808ae89b1cfb0d681a859dbdab5f024377d4c84e344d08a75c10aea07d77c4b. Code read: ImportBusy passes busy={false} so ModalFrame Escape calls cancelImport; preview onCancel clears preview, so both expected to pass (no product change; fail-first n/a, optionally invert one assertion in an .mjs copy). Serial check slot was held by others (T052, T055, T051, T052 in turn) for the full 20 min bound. Cache folder node_modules/.cache/personal-word-beta/team-cf8 has browser.config.mjs (port 1503, own report/results paths). dist/ was current at start. Next: files add T057 the slot path; export PATH pinned node; npx playwright test -c node_modules/.cache/personal-word-beta/team-cf8/browser.config.mjs tests/import-cancel.spec.ts --workers=1 (expect 5 passed); npx tsc --noEmit -p . ; write team-cf8/REPORT.md; done T057.\ntests/import-cancel.spec.ts: uncommitted edits\nsrc/import/ImportPreview.tsx: clean\nnode_modules/.cache/personal-word-beta/team-cf8: uncommitted edits"
+  },
+  "review": {
+    "by": "agent-9d44",
+    "at": "2026-10-25T21:22:06+00:00",
+    "verdict": "approved",
+    "note": "Independent review by agent-9d44 (non-author). Diff: tests/import-cancel.spec.ts +65 lines, only two new cases (Escape on busy 'Importing writing' dialog with deterministic __readDone wait; Escape on 'Import writing' preview) using the same assertions as the existing Cancel cases (no Import writing dialog / no dialog, unchanged .project-row count, before and after reload); sha256 6808ae89... matches handoff. src/import/ImportPreview.tsx identical to HEAD (977b6c38...). src/App.tsx differs from HEAD only by T052's notice-timer useEffect (T052 done), no T057 change. Reran with pinned Node v22.23.3: private vite build -> node_modules/.cache/personal-word-beta/team-cf8-review/dist, preview port 1518: 5 passed (node_modules/.cache/personal-word-beta/team-cf8-review/pw-real.log). Liveness: the T032 mutant was stale vs current App.tsx, so I made an equivalent copy (node_modules/.cache/personal-word-beta/team-cf8-review/mut/App-noabort.tsx = current App.tsx minus importAbort.current?.abort() in cancelImport), built via node_modules/.cache/personal-word-beta/team-cf8-review/vite-noabort.config.mjs: 3 failed / 2 passed (node_modules/.cache/personal-word-beta/team-cf8-review/pw-noabort.log); the new Escape-on-busy case fails at line 175 (preview dialog appears after read completes), as do the two existing Cancel cases; the control passes. The Escape-on-preview case passes under that mutant as expected (it does not depend on abort), so this mutant does not prove that case's liveness; its assertions are the same as the others'. tsc --noEmit exit 0. Hashes unchanged before/after (node_modules/.cache/personal-word-beta/team-cf8-review/sha-*.txt). Fail-first n/a accepted: no product change. CLAIMED, Chromium only."
+  },
+  "log": [
+    {
+      "at": "2026-10-25T19:51:45+00:00",
+      "agent": "user",
+      "event": "created",
+      "note": ""
+    },
+    {
+      "at": "2026-10-25T20:34:20+00:00",
+      "agent": "agent-bd1f",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-10-25T20:34:21+00:00",
+      "agent": "agent-bd1f",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-10-25T20:57:47+00:00",
+      "agent": "agent-bd1f",
+      "event": "handoff",
+      "note": "Tests written, NOT yet run. Added two cases at the end of tests/import-cancel.spec.ts (Escape on busy 'Importing writing' dialog with slowed read + __readDone marker; Escape on 'Import writing' preview dialog); sha256 after edit 6808ae89b1cfb0d681a859dbdab5f024377d4c84e344d08a75c10aea07d77c4b. Code read: ImportBusy passes busy={false} so ModalFrame Escape calls cancelImport; preview onCancel clears preview, so both expected to pass (no product change; fail-first n/a, optionally invert one assertion in an .mjs copy). Serial check slot was held by others (T052, T055, T051, T052 in turn) for the full 20 min bound. Cache folder node_modules/.cache/personal-word-beta/team-cf8 has browser.config.mjs (port 1503, own report/results paths). dist/ was current at start. Next: files add T057 the slot path; export PATH pinned node; npx playwright test -c node_modules/.cache/personal-word-beta/team-cf8/browser.config.mjs tests/import-cancel.spec.ts --workers=1 (expect 5 passed); npx tsc --noEmit -p . ; write team-cf8/REPORT.md; done T057.\ntests/import-cancel.spec.ts: uncommitted edits\nsrc/import/ImportPreview.tsx: clean\nnode_modules/.cache/personal-word-beta/team-cf8: uncommitted edits"
+    },
+    {
+      "at": "2026-10-25T21:07:55+00:00",
+      "agent": "agent-d2fb",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-10-25T21:07:55+00:00",
+      "agent": "agent-d2fb",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-10-25T21:19:00+00:00",
+      "agent": "agent-d2fb",
+      "event": "review requested",
+      "note": "CLAIMED, no product change. Two Escape-abandon cases added to tests/import-cancel.spec.ts (busy dialog mid-read; preview dialog). Coordinator run: 5/5 on a private vite build of the current tree, port 1506 (team-cf8/run5.log); tsc 0. Fail-first n/a: both pass on current code (coverage gap closed); assertion liveness rests on the identical assertions proven against the no-abort doctored build in T032 cycle 2. Note for others: a generated Playwright config must quote --outDir because the project path has spaces (three timeouts before the fix, logs kept). Report team-cf8/REPORT.md."
+    },
+    {
+      "at": "2026-10-25T21:22:06+00:00",
+      "agent": "agent-9d44",
+      "event": "approved",
+      "note": "Independent review by agent-9d44 (non-author). Diff: tests/import-cancel.spec.ts +65 lines, only two new cases (Escape on busy 'Importing writing' dialog with deterministic __readDone wait; Escape on 'Import writing' preview) using the same assertions as the existing Cancel cases (no Import writing dialog / no dialog, unchanged .project-row count, before and after reload); sha256 6808ae89... matches handoff. src/import/ImportPreview.tsx identical to HEAD (977b6c38...). src/App.tsx differs from HEAD only by T052's notice-timer useEffect (T052 done), no T057 change. Reran with pinned Node v22.23.3: private vite build -> node_modules/.cache/personal-word-beta/team-cf8-review/dist, preview port 1518: 5 passed (node_modules/.cache/personal-word-beta/team-cf8-review/pw-real.log). Liveness: the T032 mutant was stale vs current App.tsx, so I made an equivalent copy (node_modules/.cache/personal-word-beta/team-cf8-review/mut/App-noabort.tsx = current App.tsx minus importAbort.current?.abort() in cancelImport), built via node_modules/.cache/personal-word-beta/team-cf8-review/vite-noabort.config.mjs: 3 failed / 2 passed (node_modules/.cache/personal-word-beta/team-cf8-review/pw-noabort.log); the new Escape-on-busy case fails at line 175 (preview dialog appears after read completes), as do the two existing Cancel cases; the control passes. The Escape-on-preview case passes under that mutant as expected (it does not depend on abort), so this mutant does not prove that case's liveness; its assertions are the same as the others'. tsc --noEmit exit 0. Hashes unchanged before/after (node_modules/.cache/personal-word-beta/team-cf8-review/sha-*.txt). Fail-first n/a accepted: no product change. CLAIMED, Chromium only."
+    }
+  ]
+}

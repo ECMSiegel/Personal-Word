@@ -286,7 +286,7 @@ export async function exportPdf(
   ): (Line | "break")[] => {
     if (b.kind === "pageBreak") return inCell ? [] : ["break"];
     if (b.image)
-      return [{ runs: [], height: b.image.height + 6, notes: [], image: b.image }];
+      return [{ runs: [], height: b.image.height + 12, notes: [], image: b.image }];
     if (b.table) {
       if (inCell)
         throw new Error(
@@ -477,7 +477,7 @@ export async function exportPdf(
           page,
           line.image,
           margin + (width - line.image.width) / 2,
-          y + size - line.image.height,
+          y + size - line.image.height - 6,
         );
       else if (line.row) {
         const top = y + size;

@@ -1,6 +1,10 @@
 import { normalizeDoi } from "./identifiers";
-import type { Footnote, ResearchData, ResolvedNoteForm, Source } from "./types";
+import type { Footnote, ResearchData, ResolvedNoteForm, Source, SourceCreator } from "./types";
 export type CitationPart = { text: string; italic?: boolean };
+const naturalName = (creator: SourceCreator) =>
+  creator.literal || [[creator.given, creator.family].filter(Boolean).join(" "), creator.suffix].filter(Boolean).join(" ");
+const invertedName = (creator: SourceCreator) =>
+  creator.literal || [[creator.family, creator.given].filter(Boolean).join(", "), creator.suffix].filter(Boolean).join(", ");
 const surname = (name: string) => name.trim().split(/\s+/).at(-1) ?? name;
 const inverted = (name: string) => {
   const parts = name.trim().split(/\s+/);
@@ -9,13 +13,13 @@ const inverted = (name: string) => {
 function authors(s: Source, bib = false, short = false): string {
   const structured = s.creators?.filter((creator) => creator.role === "author");
   const a = structured?.length
-    ? structured.map((creator) => creator.literal || [creator.given, creator.family].filter(Boolean).join(" "))
+    ? structured.map(naturalName)
     : s.authors.filter(Boolean);
   const shortName = (index: number) => structured?.[index]
     ? structured[index].literal || structured[index].family || structured[index].given || ""
     : surname(a[index]);
   const firstInverted = structured?.[0]
-    ? structured[0].literal || [structured[0].family, structured[0].given].filter(Boolean).join(", ")
+    ? invertedName(structured[0])
     : inverted(a[0] ?? "");
   if (!a.length) return "";
   if (short)
@@ -32,9 +36,10 @@ function authors(s: Source, bib = false, short = false): string {
     (bib && a.length > 6 ? ", et al." : "")
   );
 }
+const endPeriod = (text: string) => (text.endsWith(".") ? text : text + ".");
 const namesForRole = (s: Source, role: string) => (s.creators ?? [])
   .filter((creator) => creator.role === role)
-  .map((creator) => creator.literal || [creator.given, creator.family].filter(Boolean).join(" ").trim())
+  .map((creator) => naturalName(creator).trim())
   .filter(Boolean);
 const joinNames = (names: string[]) => names.length < 2
   ? names[0] ?? ""
@@ -102,7 +107,7 @@ const oneStructuredAuthor = (s: Source) => {
   const found = s.creators?.filter((creator) => creator.role === "author") ?? [];
   if (found.length !== 1) return "";
   const person = found[0];
-  return person.literal?.trim() || [person.given?.trim(), person.family?.trim()].filter(Boolean).join(" ");
+  return person.literal?.trim() || [[person.given?.trim(), person.family?.trim()].filter(Boolean).join(" "), person.suffix?.trim()].filter(Boolean).join(" ");
 };
 const validHttpUrl = (value: string | undefined) => {
   if (!value?.trim()) return false;
@@ -156,7 +161,7 @@ const qualifiedSourceCitation = (
     const displayName = bib ? authors(s, true, false) : mode === "short" ? authors(s, false, true) : author;
     if (!displayName) return null;
     return [{ text: bib
-      ? `${displayName}. ${quote(title, ".")} PhD diss., ${institution}, ${year}. ProQuest (${number}).`
+      ? `${endPeriod(displayName)} ${quote(title, ".")} PhD diss., ${institution}, ${year}. ProQuest (${number}).`
       : mode === "short"
         ? `${displayName}, ${quote(short, locator ? "," : ".")}${locator ? ` ${locator}.` : ""}`
         : `${displayName}, ${quote(title, "")} (PhD diss., ${institution}, ${year}),${locator ? ` ${locator},` : ""} ProQuest (${number}).` }];
@@ -170,7 +175,7 @@ const qualifiedSourceCitation = (
     if (!displayName) return null;
     const formattedDate = chicagoDate(date);
     if (bib) return [
-      { text: `${displayName}. ${quote(title, ".")} ` },
+      { text: `${endPeriod(displayName)} ${quote(title, ".")} ` },
       { text: container, italic: true },
       { text: `, ${formattedDate}. ${s.url!.trim()}.` },
     ];
@@ -193,7 +198,7 @@ const qualifiedSourceCitation = (
     if (!displayName) return null;
     const formattedDate = chicagoDate(date);
     if (bib) return [
-      { text: `${displayName}. ${quote(title, ".")} Interview by ${interviewers[0]}. ` },
+      { text: `${endPeriod(displayName)} ${quote(title, ".")} Interview by ${interviewers[0]}. ` },
       { text: container, italic: true },
       { text: `, ${publisher}, ${formattedDate}. Audio, ${duration}. ${s.url!.trim()}.` },
     ];
@@ -215,7 +220,7 @@ const qualifiedSourceCitation = (
     const displayName = bib ? authors(s, true, false) : mode === "short" ? authors(s, false, true) : author;
     if (!displayName) return null;
     return [{ text: bib
-      ? `${displayName}. ${quote(title, ".")} ${event}, ${eventPlace}, ${eventDate}. Video, ${duration} ${s.url!.trim()}.`
+      ? `${endPeriod(displayName)} ${quote(title, ".")} ${event}, ${eventPlace}, ${eventDate}. Video, ${duration} ${s.url!.trim()}.`
       : mode === "short"
         ? `${displayName}, ${quote(short, locator ? "," : ".")}${locator ? ` ${locator}.` : ""}`
         : `${displayName}, ${quote(title, ",")} ${event}, ${eventPlace}, ${eventDate}, ${duration}, ${s.url!.trim()}.` }];
@@ -264,7 +269,7 @@ export function citationParts(
     short = mode === "short";
   const a = authors(s, bib, short);
   const parts: CitationPart[] = [];
-  if (a) parts.push({ text: a + (bib ? ". " : ", ") });
+  if (a) parts.push({ text: bib ? endPeriod(a) + " " : a + ", " });
   const title = s.title || "[Untitled source]";
   const noteTitle = short ? shortTitle(s) || title : title;
   parts.push({

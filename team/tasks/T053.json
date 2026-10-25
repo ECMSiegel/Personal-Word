@@ -1,0 +1,59 @@
+{
+  "id": "T053",
+  "title": "Cheap fix T4: gap between consecutive PDF images",
+  "description": "Follow team/PROTOCOL.md, DELEGATION.md Common rules (docs/agent-work/2026-10-24-delegation/DELEGATION.md lines 8-20) and the approved plan docs/agent-work/2026-10-25-cheap-fixes/PLAN.md; the task section named here is the spec (files, steps, acceptance check, fail-first, stop rules). Pinned Node; serial check slot (node_modules/.cache/personal-word-beta/team-serial-check-slot) before expensive checks; production-preview Playwright on a free port 1500+; no installs/commits/pushes; register any extra path before editing; report CLAIMED with log paths; independent review required. Plan task T4: src/export/pdf.ts:288-289 image line height +12 and draw offset -6 so a 6 pt gap sits above and below; unit test via drawImage spy asserts >= 12 pt between stacked images; single-image page-count guard unchanged; stop if any fixture's page count changes.",
+  "status": "done",
+  "owner": null,
+  "priority": 2,
+  "depends_on": [],
+  "files": [
+    "src/export/pdf.ts",
+    "src/export/document.test.ts",
+    "node_modules/.cache/personal-word-beta/team-cf4",
+    "node_modules/.cache/personal-word-beta/team-serial-check-slot"
+  ],
+  "review_required": true,
+  "created_by": "user",
+  "created_at": "2026-10-25T19:51:42+00:00",
+  "claimed_at": "2026-10-25T20:48:40+00:00",
+  "updated_at": "2026-10-25T21:06:42+00:00",
+  "handoff": null,
+  "review": {
+    "by": "agent-f7e4",
+    "at": "2026-10-25T21:06:42+00:00",
+    "verdict": "approved",
+    "note": "Independent review by agent-f7e4 (T066). (1) git diff src/export/pdf.ts vs HEAD 72732d8: exactly two lines, image line height +6 -> +12 and draw y - 6; nothing else. sha256 pdf.ts = 42ed9686... matches sha-after.txt. (2) T053 test (document.test.ts:663-690): drawImage spy on PDFPage.prototype, two stacked 100pt images, asserts 1 page, 2 draws, gap >= 12, then paragraph+single image = 1 page; spy restored in finally. Reviewed only T053's hunk (import of vi/PDFPage plus the appended test); the other document.test.ts hunks are T054's (now handed off/available) and were not judged here; document.test.ts sha no longer matches sha-after because of those T054 edits. (3) Own runs, pinned Node v22.23.3: npx vitest run src/export -> 6 files, 154 passed (current tree includes T054's in-progress edits; no failures at all); npx tsc --noEmit -p . -> 0 errors. (4) Fail-first rerun via the worker's alias config against pre-fix pdf.ts (pdf.prefix.ts == HEAD pdf.ts): only T053's test fails, 'expected 6 to be greater than or equal to 12'; 30 others pass. Plan's assumption 'gap 0' was wrong: pre-fix gap was 6 pt (the old +6 sat only below each image). (5) Stop rule: the pre-fix and post-fix runs of all document.test.ts page-count asserts are identical (incl. 600x600 x2 = 2 pages, line 544, unedited vs HEAD); multiparagraphNote UNCHANGED pdfPages also passes. No fixture's page count changed. (6) page-1.png viewed: clear white gap between the two images. Logs: node_modules/.cache/personal-word-beta/team-cf4-review/. Intended export change: images now sit 6 pt lower with 6 pt above/below. Status CLAIMED, not user-verified."
+  },
+  "log": [
+    {
+      "at": "2026-10-25T19:51:42+00:00",
+      "agent": "user",
+      "event": "created",
+      "note": ""
+    },
+    {
+      "at": "2026-10-25T20:48:40+00:00",
+      "agent": "agent-43f0",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-10-25T20:48:40+00:00",
+      "agent": "agent-43f0",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-10-25T21:04:24+00:00",
+      "agent": "agent-43f0",
+      "event": "review requested",
+      "note": "CLAIMED. pdf.ts: image line height +12, draw offset -6 (6 pt gap above/below). New document.test.ts test: drawImage spy, gap >= 12 pt between stacked images, page-count guard (1 page). Fail-first vs pre-fix pdf.ts copy: gap 6 < 12 fails; passes after fix. vitest src/export 154 pass, tsc 0 errors, rendered page viewed. Report: node_modules/.cache/personal-word-beta/team-cf4/REPORT.md"
+    },
+    {
+      "at": "2026-10-25T21:06:42+00:00",
+      "agent": "agent-f7e4",
+      "event": "approved",
+      "note": "Independent review by agent-f7e4 (T066). (1) git diff src/export/pdf.ts vs HEAD 72732d8: exactly two lines, image line height +6 -> +12 and draw y - 6; nothing else. sha256 pdf.ts = 42ed9686... matches sha-after.txt. (2) T053 test (document.test.ts:663-690): drawImage spy on PDFPage.prototype, two stacked 100pt images, asserts 1 page, 2 draws, gap >= 12, then paragraph+single image = 1 page; spy restored in finally. Reviewed only T053's hunk (import of vi/PDFPage plus the appended test); the other document.test.ts hunks are T054's (now handed off/available) and were not judged here; document.test.ts sha no longer matches sha-after because of those T054 edits. (3) Own runs, pinned Node v22.23.3: npx vitest run src/export -> 6 files, 154 passed (current tree includes T054's in-progress edits; no failures at all); npx tsc --noEmit -p . -> 0 errors. (4) Fail-first rerun via the worker's alias config against pre-fix pdf.ts (pdf.prefix.ts == HEAD pdf.ts): only T053's test fails, 'expected 6 to be greater than or equal to 12'; 30 others pass. Plan's assumption 'gap 0' was wrong: pre-fix gap was 6 pt (the old +6 sat only below each image). (5) Stop rule: the pre-fix and post-fix runs of all document.test.ts page-count asserts are identical (incl. 600x600 x2 = 2 pages, line 544, unedited vs HEAD); multiparagraphNote UNCHANGED pdfPages also passes. No fixture's page count changed. (6) page-1.png viewed: clear white gap between the two images. Logs: node_modules/.cache/personal-word-beta/team-cf4-review/. Intended export change: images now sit 6 pt lower with 6 pt above/below. Status CLAIMED, not user-verified."
+    }
+  ]
+}

@@ -11,6 +11,8 @@ Complete the remaining Personal Word beta roadmap, pass its review gates, and pr
 ## Scope
 Follow WP1-WP11 and review gates A-D in `docs/agent-work/2026-10-24-delegation/DELEGATION.md`, with the referenced beta roadmap and child plans governing behaviour as specified there. Inspect the current working tree, existing implementation reports, and review evidence before assigning tasks; preserve newer work and do not redo completed tasks. Use the delegation plan's file ownership and dependency order when registering tasks.
 
+Addendum 2026-10-25 (owner approved): also execute `docs/agent-work/2026-10-25-cheap-fixes/PLAN.md` tasks T1-T8 (eight small known limitations), one board task each, with its file ownership, fail-first rules and validation list. Defaults chosen by the owner for that plan's open questions: remove the browser-preview Zotero fetch path; Word and PDF print section titles always and the project title except on the Chicago template.
+
 ## Non-goals
 No signing or distribution work, publishing or pushing, new packages, unrelated redesign, or changes to real user data. Layout implementation beyond WP8 is conditional on WP8 passing its feasibility check; follow its stop rules if the probe fails.
 
@@ -57,6 +59,7 @@ Run expensive builds, Playwright, cargo, and native checks one at a time, in the
 - [x] A fresh normal Personal Word.app has been built and inspected for the correct identity and absence of smoke markers, and its current path is recorded.
 - [x] The owner's manual real-use test checklist is prepared, with implementation status CLAIMED pending owner confirmation.
 - [x] Every task on the team board is done and required independent reviews are complete.
+- [x] Cheap-fixes plan (2026-10-25) tasks T1-T8 are done with independent reviews, the plan's validation list has run, and README/validation.md no longer list the fixed items.
 
 ## Milestones
 1. Reconcile the current working tree and existing implementation/review reports before assigning remaining work.
@@ -64,3 +67,4 @@ Run expensive builds, Playwright, cargo, and native checks one at a time, in the
 3. Complete remaining wave 3 and review gate B.
 4. Run WP8 feasibility; continue with WP9-WP10 only if it passes, then complete review gate C or document the prescribed stop outcome.
 5. Complete WP11 final durability/evidence work and review gate D; prepare the fresh normal app and owner real-use test checklist.
+6. Cheap fixes (2026-10-25 addendum): T1-T8 of the cheap-fixes plan, then its validation list and evidence regeneration.

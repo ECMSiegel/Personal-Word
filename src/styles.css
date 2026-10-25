@@ -894,6 +894,12 @@ p {
 }
 
 .notice {
+  top: auto;
+  bottom: 16px;
+  left: auto;
+  right: 16px;
+  transform: none;
+  max-width: min(360px, 85vw);
   pointer-events: none;
 }
 .notice button {

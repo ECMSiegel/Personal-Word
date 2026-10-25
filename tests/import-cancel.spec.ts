@@ -141,3 +141,68 @@ test("a completed import still opens the preview dialog (control)", async ({ pag
   await dialog.getByRole("button", { name: "Cancel" }).click();
   await expect(page.getByRole("dialog")).toHaveCount(0);
 });
+
+test("pressing Escape on the Importing writing dialog cancels a slow import and leaves no preview dialog and no project", async ({ page }) => {
+  await page.addInitScript(() => {
+    const original = File.prototype.arrayBuffer;
+    File.prototype.arrayBuffer = function () {
+      return new Promise<void>((resolve) => setTimeout(resolve, 1500)).then(() => {
+        (window as unknown as { __readDone?: boolean }).__readDone = true;
+        return original.call(this);
+      });
+    };
+  });
+
+  await page.goto("/");
+  await expect(page.getByRole("button", { name: "Start new project" })).toBeVisible();
+  const before = await page.locator(".project-row").count();
+
+  await page.locator("#import-writing-text").setInputFiles({
+    name: "rich-sample.docx",
+    mimeType: DOCX_MIME,
+    buffer: fs.readFileSync(path.join(FIXTURES_DIR, "rich-sample.docx")),
+  });
+
+  // Escape (keyboard dismissal, not the Cancel button) while the busy dialog is shown.
+  const busy = page.getByRole("dialog", { name: "Importing writing" });
+  await expect(busy).toBeVisible();
+  await page.keyboard.press("Escape");
+  await expect(busy).toHaveCount(0);
+  await expect(page.getByRole("dialog", { name: "Import writing" })).toHaveCount(0);
+
+  await page.waitForFunction(() => (window as unknown as { __readDone?: boolean }).__readDone === true);
+  await settle(page);
+  await expect(page.getByRole("dialog", { name: "Import writing" })).toHaveCount(0);
+  await expect(page.getByRole("dialog")).toHaveCount(0);
+  expect(await page.locator(".project-row").count()).toBe(before);
+
+  await page.reload();
+  await expect(page.getByRole("button", { name: "Start new project" })).toBeVisible();
+  await expect(page.getByRole("dialog")).toHaveCount(0);
+  expect(await page.locator(".project-row").count()).toBe(before);
+});
+
+test("pressing Escape on the Import writing preview dialog abandons the import and creates no project", async ({ page }) => {
+  await page.goto("/");
+  await expect(page.getByRole("button", { name: "Start new project" })).toBeVisible();
+  const before = await page.locator(".project-row").count();
+
+  await page.locator("#import-writing-text").setInputFiles({
+    name: "rich-sample.docx",
+    mimeType: DOCX_MIME,
+    buffer: fs.readFileSync(path.join(FIXTURES_DIR, "rich-sample.docx")),
+  });
+
+  const dialog = page.getByRole("dialog", { name: "Import writing" });
+  await expect(dialog).toBeVisible();
+  await page.keyboard.press("Escape");
+  await expect(page.getByRole("dialog")).toHaveCount(0);
+  await settle(page);
+  await expect(page.getByRole("dialog")).toHaveCount(0);
+  expect(await page.locator(".project-row").count()).toBe(before);
+
+  await page.reload();
+  await expect(page.getByRole("button", { name: "Start new project" })).toBeVisible();
+  await expect(page.getByRole("dialog")).toHaveCount(0);
+  expect(await page.locator(".project-row").count()).toBe(before);
+});

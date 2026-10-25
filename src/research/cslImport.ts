@@ -74,7 +74,7 @@ const creators = (item: CslItem): SourceCreator[] =>
     return entries.flatMap((entry) => {
       if (!entry || typeof entry !== "object" || Array.isArray(entry)) return [];
       const person = entry as Record<string, unknown>;
-      const fields = Object.fromEntries(["given", "family", "literal"].flatMap((key) => {
+      const fields = Object.fromEntries(["given", "family", "literal", "suffix"].flatMap((key) => {
         const value = string(person[key]);
         return value ? [[key, value]] : [];
       }));

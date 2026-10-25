@@ -1,7 +1,7 @@
 {
  "schema": "personal-word-source-manifest/1",
- "generatedAt": "2026-10-25T10:17:25Z",
- "gitCommit": "ee2fe3ac78e94f82af2f533516e6d8710cd1d81d",
+ "generatedAt": "2026-10-25T21:49:23Z",
+ "gitCommit": "72732d8dbaf3f526e2e1d770ee56d45055bb38a7",
  "selection": {
   "dirs": [
    "src",
@@ -33,8 +33,8 @@
    "target"
   ]
  },
- "fileCount": 207,
- "manifestSha256": "24fa1a86893ba3a6cf4cc08471b222949c5b7ec9eaf34840e0bed5720928e97c",
+ "fileCount": 208,
+ "manifestSha256": "058bae4be78a0bf38a13a39a4a6d3979eb5b75602a4edfb1523b352590ff318e",
  "files": [
   {
    "path": "index.html",
@@ -66,7 +66,7 @@
   },
   {
    "path": "scripts/native-reliability.py",
-   "sha256": "0387db7fd8934989e151109ec5c4953a1aa1d743c240d7fff0aaed51e3441f1c"
+   "sha256": "14a097976434baada8e8823bd7ce3d097f21ea829661f0495d3a72191e4dc03c"
   },
   {
    "path": "scripts/native-smoke.py",
@@ -178,7 +178,7 @@
   },
   {
    "path": "src-tauri/src/store.rs",
-   "sha256": "5820a5bd3fd49c44f31e0a889902dece9955c981c421f22fd617604dd548855f"
+   "sha256": "5eb0dc9c4038069caaca59fb72903cde8451b17a2f84be2cd4b5c2f6d18af489"
   },
   {
    "path": "src-tauri/src/zotero.rs",
@@ -206,7 +206,7 @@
   },
   {
    "path": "src/App.tsx",
-   "sha256": "bb5adf15a726466dc060a0afe9fdd0f0071e8abee02a7ca9acadbe51833c32ad"
+   "sha256": "76c761311244ca6fbe4aea52c9fe349787ed742ffcb625b9f2019b6774bd7132"
   },
   {
    "path": "src/Writer.tsx",
@@ -270,7 +270,7 @@
   },
   {
    "path": "src/components/ProjectLibrary.tsx",
-   "sha256": "9430adf388b27b696fdc909ff7797ce99338086630b4c85c129fe85445f7dc77"
+   "sha256": "6423ae8b1cc86f51343f8264c805cdbd9c72ba31d021b39fb2645ca9590c9a7b"
   },
   {
    "path": "src/components/ProjectSidebar.tsx",
@@ -394,11 +394,11 @@
   },
   {
    "path": "src/export/document.test.ts",
-   "sha256": "e0766ff3264974b8e8eec22ad30e1a9b91e316f20bd5bb5826fe2ae7519ce583"
+   "sha256": "65eeb15be6a1444213e2ff4c0c819d8c8cf34e11c63622efc1ef92ee8a8e80b8"
   },
   {
    "path": "src/export/document.ts",
-   "sha256": "c9f008834e20b0cf2eed0fa37c1af7f25e3335008bf9057c8ee43d661d723dc1"
+   "sha256": "397d78bb11bc2241446599323a7344a4f98baab1fd8c481ad04df0695ba85480"
   },
   {
    "path": "src/export/docx.ts",
@@ -434,11 +434,11 @@
   },
   {
    "path": "src/export/multiparagraphNote.test.ts",
-   "sha256": "1a4e055d67e1eaac5d48a8428e4286e9fd0640955fe87513b9c9eb5aaee0a473"
+   "sha256": "eeeadd96cc07505ec94f435d1aef963ce3043e6704be1369c403fd6729bc4bce"
   },
   {
    "path": "src/export/pdf.ts",
-   "sha256": "52b0f958825a9e8091967813da7dd708742d624a200f524c56861e6c15361c32"
+   "sha256": "42ed96865cd508e29c7f2217c63b330bee8565c75307314c9364fa8748a4b482"
   },
   {
    "path": "src/export/textExport.test.ts",
@@ -582,7 +582,7 @@
   },
   {
    "path": "src/research/bibtexImport.test.ts",
-   "sha256": "67316bc66935e7f81023b766573eae0d5b3036c305896c096ae09095f6545cc7"
+   "sha256": "6d66eb3a9f4fd28472cc9a6274f7ce9ace0b4d1223e8b6c2e4ab30bbb84fa42f"
   },
   {
    "path": "src/research/bibtexImport.ts",
@@ -598,11 +598,11 @@
   },
   {
    "path": "src/research/citations.test.ts",
-   "sha256": "21ea8f69a5c327b4dcc4a85f3157b58114430153f4443aaf35c350a331f4bf6b"
+   "sha256": "d3e6defa799fb81d96eac82159f7b12ba02820d741c605f7926be27c93c382d9"
   },
   {
    "path": "src/research/citations.ts",
-   "sha256": "1bcfbdbac57c9a8ec7a93fcbc101ffb3109f860509133d7b2dca84266e82524b"
+   "sha256": "166dccbcd01c77c39ec288e748c7202444c64c428fdbe157e07241e1821b145c"
   },
   {
    "path": "src/research/cslImport.test.ts",
@@ -610,7 +610,7 @@
   },
   {
    "path": "src/research/cslImport.ts",
-   "sha256": "c92db8ebe43a997b567d285ca1f0581248b525f4028b90ecc6a7808fa4a8f7ac"
+   "sha256": "7bae49ca44d6f16083a7e542418a83df32bdadda3f34f8ea864a7e9a73481483"
   },
   {
    "path": "src/research/identifiers.ts",
@@ -654,7 +654,7 @@
   },
   {
    "path": "src/research/types.ts",
-   "sha256": "ef98ee60eb2b8027a18f8627dd69897f2a5052220b30be68c131c8568e3a6b22"
+   "sha256": "b4a90bb7f05007e95b9ef8f1b0e2516d4c897f4dfd019d57b3e7a29bbe904820"
   },
   {
    "path": "src/research/zotero.adversarial.test.ts",
@@ -662,11 +662,11 @@
   },
   {
    "path": "src/research/zotero.test.ts",
-   "sha256": "49f42b17aa50aa64921abc0c41887e26b8d39e083bd39bbd45f0365b42e276cc"
+   "sha256": "4426554e4397f1db24870bc7e1db52628893cd7e2156278c40d7ebb848dd87cc"
   },
   {
    "path": "src/research/zotero.ts",
-   "sha256": "123339e52df0176b8d0f8ab63e4184f71d9c740dcc6b99376f5f7d80b4465fe5"
+   "sha256": "69b43a3ffca99cf9e7b1268b62c84367e348377955ea1b3645abeb0b6910bc3e"
   },
   {
    "path": "src/save-queue.test.ts",
@@ -690,7 +690,7 @@
   },
   {
    "path": "src/styles.css",
-   "sha256": "8f2d7d0fea36f4ef7579abb4b190800bf596ab62487353643fa0c8179cca8a90"
+   "sha256": "9d8a13c614ccb5c5afd6a103f27b60893eaf48d526087ebaace65e27f11c6416"
   },
   {
    "path": "src/templates.ts",
@@ -794,11 +794,11 @@
   },
   {
    "path": "tests/import-cancel.spec.ts",
-   "sha256": "c7df18fdfe7823465f520c33025093f5112bda65147f2076cbb12850943a4c38"
+   "sha256": "6808ae89b1cfb0d681a859dbdab5f024377d4c84e344d08a75c10aea07d77c4b"
   },
   {
    "path": "tests/import.spec.ts",
-   "sha256": "6f1edc4c2558804fb0e861b39717f40b5bffc8af0cc01171b75c14db6a779bd0"
+   "sha256": "c5e0f77618932140998ec4355de6d98b5506481b7f1f1cecb77a830ffb2b1568"
   },
   {
    "path": "tests/layout.spec.ts",
@@ -819,6 +819,10 @@
   {
    "path": "tests/native-smoke.js",
    "sha256": "ecc447d281a5c95f7bee933433b4a64a6deb9912c68152abbb2f4c43ac47571b"
+  },
+  {
+   "path": "tests/notice.spec.ts",
+   "sha256": "054bbcca5eeb7758c4f8fcabefb69bdbfdecd31cd36121d5d985919b08168e7f"
   },
   {
    "path": "tests/performance.spec.ts",
@@ -854,7 +858,7 @@
   },
   {
    "path": "tests/zotero.spec.ts",
-   "sha256": "b3b38413cb8c5609d2c8e94d857c5ec70fa650ec648cd49339a7cc41297d65f8"
+   "sha256": "c6c7d92c500690ecfabc868a66a5ffb9da2a1e625ba6fe66efc70c5ef4dace71"
   },
   {
    "path": "tsconfig.json",

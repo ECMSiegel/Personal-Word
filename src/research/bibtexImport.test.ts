@@ -97,7 +97,7 @@ describe("BibTeX import", () => {
     expect(r.sources[0].creators).toEqual([
       { role: "author", given: "Ludwig", family: "van Beethoven" },
       { role: "author", given: "John", family: "von Neumann" },
-      { role: "author", given: "John Q.", family: "Smith" },
+      { role: "author", given: "John Q.", family: "Smith", suffix: "Jr." },
       { role: "author", given: "Jean Pierre", family: "Dupont" },
       { role: "author", family: "Plato" },
     ]);

@@ -1,0 +1,90 @@
+{
+  "id": "T054",
+  "title": "Cheap fix T5: section and project titles in Word and PDF",
+  "description": "Follow team/PROTOCOL.md, DELEGATION.md Common rules (docs/agent-work/2026-10-24-delegation/DELEGATION.md lines 8-20) and the approved plan docs/agent-work/2026-10-25-cheap-fixes/PLAN.md; the task section named here is the spec (files, steps, acceptance check, fail-first, stop rules). Pinned Node; serial check slot (node_modules/.cache/personal-word-beta/team-serial-check-slot) before expensive checks; production-preview Playwright on a free port 1500+; no installs/commits/pushes; register any extra path before editing; report CLAIMED with log paths; independent review required. Plan task T5: in src/export/document.ts:264-268 push a level-2 heading block with each section title before visiting it, and a level-1 heading with the project title before the loop except when templateId is chicago (read docx.ts ~236-300 and pdf.ts for the Chicago title page first); confirm DOCX/PDF render heading blocks; tests: DOCX document.xml and PDF page 1 contain the section title; unchanged-output guard for a Chicago project with an empty section title. Owner default: section titles always, project title except on Chicago.",
+  "status": "done",
+  "owner": null,
+  "priority": 2,
+  "depends_on": [],
+  "files": [
+    "src/export/document.ts",
+    "src/export/docx.ts",
+    "src/export/document.test.ts",
+    "node_modules/.cache/personal-word-beta/team-cf5",
+    "src/export/multiparagraphNote.test.ts",
+    "node_modules/.cache/personal-word-beta/team-serial-check-slot",
+    "node_modules/.cache/personal-word-beta/team-cf5-cycle2"
+  ],
+  "review_required": true,
+  "created_by": "user",
+  "created_at": "2026-10-25T19:51:43+00:00",
+  "claimed_at": "2026-10-25T21:07:40+00:00",
+  "updated_at": "2026-10-25T21:19:22+00:00",
+  "handoff": {
+    "by": "agent-014d",
+    "at": "2026-10-25T20:50:24+00:00",
+    "text": "REJECT (coordinator design call, Chicago title page). Requirement: in src/export/document.ts documentBlocks, when templateId === 'chicago' skip the level-2 heading for the FIRST section in project.order only (its content is the title page; document.ts inserts the page break after it); later sections keep their headings; keep everything else as is. Add a test in src/export/document.test.ts asserting the Chicago titledProject's first heading block is the second section's title ('2:Second Watch') and that PDF page-1 text (drawText spy) does not contain the first section's title ('Opening'); update the existing 'Chicago keeps the project title off the page' expectation accordingly. Confirm: npx vitest run src/export src/adversarial-wp3-exports.test.ts src/adversarial-wp7-exportpanel.test.ts (T054 tests all pass), plus fail-first of the new test via team-cf5/vitest.prefix.config.mjs. NOTE: src/export/document.test.ts is now registered to live T053 (agent-43f0): coordinate before editing. Everything else checked OK by agent-014d: diff matches spec (level-1 project title except chicago, level-2 per section, blank titles add nothing); docx.ts/pdf.ts untouched; the 3 edited old tests only skip/relocate heading blocks (blocks[1]->[3] is correct index, filters drop only title headings since fixtures have no content headings, pre-image test blanks titles on blocks/docx hashes while md/text still hashed titled); T043 fixture only blanks titles, constants unchanged. My runs (pinned Node 22.23.3, logs node_modules/.cache/personal-word-beta/team-cf5-review): export suite 8 files 187 passed + 1 failed that is T053's new PDF image-gap test (not T054); src/print 6 passed; tsc exit 0; prefix fail-first: 6 new title tests + edited 'numbers references' fail on pre-fix, and the Chicago empty-title guard PASSES on pre-fix code (so its constants are the pre-fix output) as does the T043 guard. page-1.png viewed: Lighthouse Letters / Opening / Second Watch bold headings."
+  },
+  "review": {
+    "by": "agent-bb61",
+    "at": "2026-10-25T21:19:22+00:00",
+    "verdict": "approved",
+    "note": "Independent cycle-2 review (agent-bb61, pinned Node 22.23.3, logs node_modules/.cache/personal-word-beta/team-cf5-review2). Diff document.ts vs HEAD: level-1 project title except chicago, level-2 per non-empty section title, Chicago skips only the project.order[0] section heading; pageBreak logic unchanged; docx.ts untouched; pdf.ts change is T053's image gap only. document.test.ts: cycle-1 tests intact, Chicago expectation now ['2:Second Watch'], new drawText page-1 test asserts no 'Opening'/'Lighthouse Letters' on page 1 and 'Second Watch' later; T053 image test present; no weakened assertions; multiparagraphNote.test.ts only blanks titles in the guard fixture. Runs: vitest export+wp3+wp7 8 files 189 passed; src/print 6 passed; tsc --noEmit exit 0. Fail-first vs cycle-1 copy (team-cf5-cycle2 alias config): exactly the 2 Chicago tests fail (Opening heading present / 'Opening' on page 1), 30 pass. HEAD-copy guard (team-cf5 alias config): untitled-Chicago guard, pre-image byte-identical guard and T043 note guard all pass on pre-fix code, so no silent change for blank-title projects. Rendered team-cf5-cycle2/artifacts/chicago.pdf: page 1 body only (no project or first-section title), page 2 bold 'Second Watch' heading. Hashes match sha-after.txt."
+  },
+  "log": [
+    {
+      "at": "2026-10-25T19:51:43+00:00",
+      "agent": "user",
+      "event": "created",
+      "note": ""
+    },
+    {
+      "at": "2026-10-25T19:58:27+00:00",
+      "agent": "agent-9ad0",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-10-25T19:59:09+00:00",
+      "agent": "agent-9ad0",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-10-25T20:47:09+00:00",
+      "agent": "agent-9ad0",
+      "event": "review requested",
+      "note": "CLAIMED. documentBlocks now pushes a level-1 project-title heading (not on templateId chicago) and a level-2 heading per non-empty section title, so DOCX (Heading1/Heading2), PDF and native print match Markdown's title set; docx.ts/pdf.ts unchanged. Tests: src/export document.test.ts +7 new; vitest src/export + adversarial wp3/wp7: 187 passed (180+7); src/print 6 passed; tsc exit 0. Fail-first vs HEAD copy via alias: 7 failed. Unchanged-output guard (Chicago, empty title): DOCX document.xml sha 8f15422f..., PDF 3 pages content sha 05e78737..., produced by pre-fix code. Edited 3 existing tests in document.test.ts (heading offsets/blank-title baselines) and multiparagraphNote.test.ts fixture (blank titles). FINDING: Chicago 'title page' is just the first section; its title (default 'Opening') now prints atop it. Report: node_modules/.cache/personal-word-beta/team-cf5/REPORT.md; render artifacts/page-1.png."
+    },
+    {
+      "at": "2026-10-25T20:50:24+00:00",
+      "agent": "agent-014d",
+      "event": "rejected",
+      "note": "REJECT (coordinator design call, Chicago title page). Requirement: in src/export/document.ts documentBlocks, when templateId === 'chicago' skip the level-2 heading for the FIRST section in project.order only (its content is the title page; document.ts inserts the page break after it); later sections keep their headings; keep everything else as is. Add a test in src/export/document.test.ts asserting the Chicago titledProject's first heading block is the second section's title ('2:Second Watch') and that PDF page-1 text (drawText spy) does not contain the first section's title ('Opening'); update the existing 'Chicago keeps the project title off the page' expectation accordingly. Confirm: npx vitest run src/export src/adversarial-wp3-exports.test.ts src/adversarial-wp7-exportpanel.test.ts (T054 tests all pass), plus fail-first of the new test via team-cf5/vitest.prefix.config.mjs. NOTE: src/export/document.test.ts is now registered to live T053 (agent-43f0): coordinate before editing. Everything else checked OK by agent-014d: diff matches spec (level-1 project title except chicago, level-2 per section, blank titles add nothing); docx.ts/pdf.ts untouched; the 3 edited old tests only skip/relocate heading blocks (blocks[1]->[3] is correct index, filters drop only title headings since fixtures have no content headings, pre-image test blanks titles on blocks/docx hashes while md/text still hashed titled); T043 fixture only blanks titles, constants unchanged. My runs (pinned Node 22.23.3, logs node_modules/.cache/personal-word-beta/team-cf5-review): export suite 8 files 187 passed + 1 failed that is T053's new PDF image-gap test (not T054); src/print 6 passed; tsc exit 0; prefix fail-first: 6 new title tests + edited 'numbers references' fail on pre-fix, and the Chicago empty-title guard PASSES on pre-fix code (so its constants are the pre-fix output) as does the T043 guard. page-1.png viewed: Lighthouse Letters / Opening / Second Watch bold headings."
+    },
+    {
+      "at": "2026-10-25T21:07:40+00:00",
+      "agent": "agent-b084",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-10-25T21:09:50+00:00",
+      "agent": "agent-b084",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-10-25T21:11:11+00:00",
+      "agent": "agent-b084",
+      "event": "review requested",
+      "note": "CLAIMED. Cycle 2: documentBlocks skips the level-2 heading for project.order[0] on templateId chicago (title page); later sections keep headings; project title still skipped on Chicago. document.test.ts: old Chicago test now expects ['2:Second Watch']; new PDF page-1 drawText test (no 'Opening'). Fail-first vs cycle-1 copy: 2 failed/30 passed, fix passes. export+wp3+wp7 189 passed (incl T053's), src/print 6, tsc 0. page-1.png viewed: no title on Chicago page 1. Report: node_modules/.cache/personal-word-beta/team-cf5/REPORT.md (Cycle 2), logs in team-cf5-cycle2."
+    },
+    {
+      "at": "2026-10-25T21:19:22+00:00",
+      "agent": "agent-bb61",
+      "event": "approved",
+      "note": "Independent cycle-2 review (agent-bb61, pinned Node 22.23.3, logs node_modules/.cache/personal-word-beta/team-cf5-review2). Diff document.ts vs HEAD: level-1 project title except chicago, level-2 per non-empty section title, Chicago skips only the project.order[0] section heading; pageBreak logic unchanged; docx.ts untouched; pdf.ts change is T053's image gap only. document.test.ts: cycle-1 tests intact, Chicago expectation now ['2:Second Watch'], new drawText page-1 test asserts no 'Opening'/'Lighthouse Letters' on page 1 and 'Second Watch' later; T053 image test present; no weakened assertions; multiparagraphNote.test.ts only blanks titles in the guard fixture. Runs: vitest export+wp3+wp7 8 files 189 passed; src/print 6 passed; tsc --noEmit exit 0. Fail-first vs cycle-1 copy (team-cf5-cycle2 alias config): exactly the 2 Chicago tests fail (Opening heading present / 'Opening' on page 1), 30 pass. HEAD-copy guard (team-cf5 alias config): untitled-Chicago guard, pre-image byte-identical guard and T043 note guard all pass on pre-fix code, so no silent change for blank-title projects. Rendered team-cf5-cycle2/artifacts/chicago.pdf: page 1 body only (no project or first-section title), page 2 bold 'Second Watch' heading. Hashes match sha-after.txt."
+    }
+  ]
+}

@@ -3,17 +3,17 @@
   "meta": {
     "target": "Personal Word 0.1.1 beta candidate (plan D2, team task T021)",
     "version": "0.1.1",
-    "generatedAt": "2026-10-25T10:17:25Z",
+    "generatedAt": "2026-10-25T21:49:23Z",
     "generatedBy": "agent-dbd8 (Claude Sonnet worker T021)",
-    "gitCommit": "ee2fe3ac78e94f82af2f533516e6d8710cd1d81d",
+    "gitCommit": "72732d8dbaf3f526e2e1d770ee56d45055bb38a7",
     "workingTree": "dirty: uncommitted beta work, pinned by sourceManifest",
     "status": "complete",
-    "implementationStatus": "VERIFIED for the nine owner real-use gates by direct owner confirmation on 2026-10-25; automated checks retain their recorded scope"
+    "implementationStatus": "VERIFIED for the nine owner real-use gates by direct owner confirmation on 2026-10-25; automated checks retain their recorded scope; cheap-fixes automated results of 2026-10-25 (task T070) are CLAIMED"
   },
   "sourceManifest": {
     "path": "docs/agent-work/2026-10-20-beta-roadmap/06-durability/SOURCE_MANIFEST.json",
-    "manifestSha256": "24fa1a86893ba3a6cf4cc08471b222949c5b7ec9eaf34840e0bed5720928e97c",
-    "fileCount": 207
+    "manifestSha256": "058bae4be78a0bf38a13a39a4a6d3979eb5b75602a4edfb1523b352590ff318e",
+    "fileCount": 208
   },
   "checks": {
     "tsc": {
@@ -21,8 +21,8 @@
       "logPath": "node_modules/.cache/personal-word-beta/team-t021/logs/1-tsc.log",
       "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
       "exitCode": 0,
-      "startedAt": "2026-10-25T09:32:40Z",
-      "endedAt": "2026-10-25T09:32:48Z",
+      "startedAt": "2026-10-25T21:27:18Z",
+      "endedAt": "2026-10-25T21:27:29Z",
       "state": "passed",
       "counts": {
         "errors": 0
@@ -32,45 +32,45 @@
     "build": {
       "command": "npm run build",
       "logPath": "node_modules/.cache/personal-word-beta/team-t021/logs/2-build.log",
-      "logSha256": "768edf178e17fee9f17fce5c1a0267cd1093918404af9b677de122ebb62908b5",
+      "logSha256": "d5de1840d1eb13c0696e46020e528e4435fc0c00198d0dfae62a3baebd712b53",
       "exitCode": 0,
-      "startedAt": "2026-10-25T09:32:48Z",
-      "endedAt": "2026-10-25T09:33:04Z",
+      "startedAt": "2026-10-25T21:27:29Z",
+      "endedAt": "2026-10-25T21:27:51Z",
       "state": "passed",
       "counts": {},
-      "resultLine": "\u2713 built in 7.66s"
+      "resultLine": "✓ built in 9.62s"
     },
     "unitTests": {
       "command": "npm test -- --no-file-parallelism --maxWorkers=1",
       "logPath": "node_modules/.cache/personal-word-beta/team-t021/logs/3-vitest.log",
-      "logSha256": "83e320bc0ac4e3f3c32524b4b0252cf5a3c9ab3d4b4ff8094b7af9e0ed10bd04",
+      "logSha256": "604a622cf0ec0828238cc74880ad5c4741d87193a49443e0ce173b8eb83a23c7",
       "exitCode": 0,
-      "startedAt": "2026-10-25T09:33:04Z",
-      "endedAt": "2026-10-25T09:33:25Z",
+      "startedAt": "2026-10-25T21:27:51Z",
+      "endedAt": "2026-10-25T21:28:17Z",
       "state": "passed",
       "counts": {
         "testFiles": 47,
-        "tests": 865
+        "tests": 872
       },
-      "resultLine": "Test Files 47 passed; Tests 865 passed"
+      "resultLine": "Test Files 47 passed; Tests 872 passed"
     },
     "playwright": {
       "command": "npx playwright test -c node_modules/.cache/personal-word-beta/team-t021/pw-1490.config.mjs --workers=1",
       "logPath": "node_modules/.cache/personal-word-beta/team-t021/logs/4-playwright.log",
-      "logSha256": "712f1cebca8002ca4003afa202ec96898e4319f82a087a5f14ca79ed8182fb27",
+      "logSha256": "3c3d3fee48c6397813602636643b997baffc7109088b5618ee2e7048f5aaf7e1",
       "exitCode": 0,
-      "startedAt": "2026-10-25T09:53:52Z",
-      "endedAt": "2026-10-25T09:56:40Z",
+      "startedAt": "2026-10-25T21:28:17Z",
+      "endedAt": "2026-10-25T21:32:24Z",
       "state": "passed",
       "counts": {
-        "expected": 112,
+        "expected": 120,
         "unexpected": 0,
         "flaky": 0,
         "skipped": 0,
-        "specFiles": 23
+        "specFiles": 24
       },
       "reportPath": "node_modules/.cache/personal-word-beta/team-t021/pw/report.json",
-      "reportSha256": "c4ad7cdd2be954b75552a176f0058981ac99b219a0177282b343139f42aceacb",
+      "reportSha256": "ade81d8535acd7fadfe83a915e1ed5e49cf33ac0b68e999c06862ceb003e7bf0",
       "perSpec": {
         "accessibility.spec.ts": {
           "passed": 4,
@@ -123,12 +123,12 @@
           "skipped": 0
         },
         "import-cancel.spec.ts": {
-          "passed": 3,
+          "passed": 5,
           "failed": 0,
           "skipped": 0
         },
         "import.spec.ts": {
-          "passed": 2,
+          "passed": 3,
           "failed": 0,
           "skipped": 0
         },
@@ -139,6 +139,11 @@
         },
         "markdown-roundtrip.spec.ts": {
           "passed": 11,
+          "failed": 0,
+          "skipped": 0
+        },
+        "notice.spec.ts": {
+          "passed": 7,
           "failed": 0,
           "skipped": 0
         },
@@ -183,12 +188,12 @@
           "skipped": 0
         },
         "zotero.spec.ts": {
-          "passed": 5,
+          "passed": 3,
           "failed": 0,
           "skipped": 0
         }
       },
-      "resultLine": "112 passed (2.8m)",
+      "resultLine": "120 passed (4.1m)",
       "failedSpecFiles": [],
       "config": "node_modules/.cache/personal-word-beta/team-t021/pw-1490.config.mjs (production preview, port 1490, workers 1, retries 0)",
       "deviation": "Recorded c2r-full.config.mjs uses port 1420, which a stray dev server holds; same settings on port 1490 with isolated report/results."
@@ -196,79 +201,79 @@
     "cargoTest": {
       "command": "cargo test --locked --offline --manifest-path src-tauri/Cargo.toml --jobs 1 -- --test-threads=1",
       "logPath": "node_modules/.cache/personal-word-beta/team-t021/logs/5-cargo.log",
-      "logSha256": "5836026f5e4517948a76eca021fb155f9bbb4ba09b36952d09bade763905eb7e",
+      "logSha256": "337fe6b545f71ef0876293541ae3bf7f61a71e0b7cf663b8120b6fc432f00d34",
       "exitCode": 0,
-      "startedAt": "2026-10-25T09:37:42Z",
-      "endedAt": "2026-10-25T09:37:53Z",
+      "startedAt": "2026-10-25T21:32:24Z",
+      "endedAt": "2026-10-25T21:34:24Z",
       "state": "passed",
       "counts": {
-        "passed": 48,
+        "passed": 49,
         "failed": 0,
         "ignored": 1
       },
-      "resultLine": "48 passed, 1 ignored across 3 test binaries"
+      "resultLine": "49 passed, 1 ignored across 3 test binaries"
     },
     "nativeSmokeBuild": {
       "command": "npm run tauri build -- --debug --features native-smoke --no-bundle --config {\"identifier\":\"com.folio.smoke\"}",
       "logPath": "node_modules/.cache/personal-word-beta/team-t021/logs/6-smoke-build.log",
-      "logSha256": "32e992224fa12c42a9de1b6cf6216f4237b88468f39f30ad05b19285491f0268",
+      "logSha256": "fcb56ca3dc519a72553f96a828dc54a5ea5e524324ac620406afb6131b519927",
       "exitCode": 0,
-      "startedAt": "2026-10-25T09:37:53Z",
-      "endedAt": "2026-10-25T09:38:54Z",
+      "startedAt": "2026-10-25T21:34:24Z",
+      "endedAt": "2026-10-25T21:35:47Z",
       "state": "passed",
       "counts": {},
-      "resultLine": "Finished `dev` profile [unoptimized + debuginfo] target(s) in 43.66s"
+      "resultLine": "Finished `dev` profile [unoptimized + debuginfo] target(s) in 1m 00s"
     },
     "nativeBaseline": {
       "command": "python3 scripts/native-reliability.py --suite baseline",
       "logPath": "node_modules/.cache/personal-word-beta/team-t021/logs/7-native-baseline.log",
-      "logSha256": "2d7c6466e6fddee70c1649dd70a671f25abc281b5f1bbf9ed3a8fa3905b703f2",
+      "logSha256": "afcbb8028e349753e3fbbce3d1727b16f7a1a654c37906ea6d90786d781760ab",
       "exitCode": 0,
-      "startedAt": "2026-10-25T09:38:54Z",
-      "endedAt": "2026-10-25T09:39:37Z",
+      "startedAt": "2026-10-25T21:35:47Z",
+      "endedAt": "2026-10-25T21:36:34Z",
       "state": "passed",
       "counts": {
         "passed": 13,
         "detected": 5
       },
-      "resultLine": "run 20261025T093854Z-eb139b9b: 13 passed + 5 negative controls detected"
+      "resultLine": "run 20261025T213548Z-f99053d6: 13 passed + 5 negative controls detected"
     },
     "nativeBeta": {
       "command": "python3 scripts/native-reliability.py --suite beta",
       "logPath": "node_modules/.cache/personal-word-beta/team-t021/logs/8-native-beta.log",
-      "logSha256": "809c23d8029be5a5d3ac7bfbbc04283dc1bc58e04f179def018d0b972a1eba3e",
+      "logSha256": "f8c5fb7c26bfe14638993215419b6c7dd8578c1fb2e4ddc4e5715d0eef029044",
       "exitCode": 0,
-      "startedAt": "2026-10-25T09:39:37Z",
-      "endedAt": "2026-10-25T09:40:41Z",
+      "startedAt": "2026-10-25T21:36:34Z",
+      "endedAt": "2026-10-25T21:37:44Z",
       "state": "passed",
       "counts": {
         "passed": 19,
         "detected": 42
       },
-      "resultLine": "run 20261025T093937Z-7c31d8de: 19 passed + 42 negative controls detected"
+      "resultLine": "run 20261025T213634Z-2cadf18d: 19 passed + 42 negative controls detected"
     },
     "saveBenchmark": {
       "command": "cargo test --release --locked --offline --manifest-path src-tauri/Cargo.toml --jobs 1 bench_save -- --ignored --nocapture",
       "logPath": "node_modules/.cache/personal-word-beta/team-t021/logs/9-bench.log",
-      "logSha256": "79d6a271c6fd5829f1f7845b52b6beb4d167bf90b51ef372f79f06c20f88659a",
+      "logSha256": "5e89385691c43580a94135c215fa3b499e564ea2fb01a6b8a4cbdf510ea6401a",
       "exitCode": 0,
-      "startedAt": "2026-10-25T09:40:44Z",
-      "endedAt": "2026-10-25T09:43:41Z",
+      "startedAt": "2026-10-25T21:37:44Z",
+      "endedAt": "2026-10-25T21:45:29Z",
       "state": "passed",
       "counts": {
-        "medianMs": 108.12,
-        "p95Ms": 117.98,
+        "medianMs": 99.86,
+        "p95Ms": 141.69,
         "acceptanceBoundMs": 150.0
       },
-      "resultLine": "median=108.12 ms p95=117.98 ms (bound 150 ms, src-tauri/src/store.rs bench_save test assert)"
+      "resultLine": "median=99.86 ms p95=141.69 ms (bound 150 ms, src-tauri/src/store.rs bench_save test assert)"
     },
     "normalReleaseBuild": {
       "command": "npm run tauri build",
       "logPath": "node_modules/.cache/personal-word-beta/team-t021/logs/10-release-build.log",
-      "logSha256": "150fb2aca0f4e025ad3df7f37e01b04eb1b9a989c5a4df6c47025108cc7033cd",
+      "logSha256": "e649592404907c6d0b6879c1dfd7c2f1616f94ed83207b22c454f5b2f32d65d6",
       "exitCode": 0,
-      "startedAt": "2026-10-25T09:43:41Z",
-      "endedAt": "2026-10-25T09:45:46Z",
+      "startedAt": "2026-10-25T21:45:29Z",
+      "endedAt": "2026-10-25T21:48:33Z",
       "state": "passed",
       "counts": {},
       "resultLine": "Finished 1 bundle: Personal Word.app (15.49 MiB)"
@@ -292,24 +297,24 @@
     "architecture": "x86_64",
     "host": "macOS-15.7.9-x86_64-i386-64bit-Mach-O",
     "diagnosticBinary": "src-tauri/target/debug/folio",
-    "diagnosticBinarySha256": "9d4c24feeb89d3332069bafc38c20a4aa55121f1108a7054baf77e80e10de3a4",
+    "diagnosticBinarySha256": "fa6e365a69d553fc48c2fda52a0852d44a3d5ae0c021641cc03261617a3857bb",
     "storage": "isolated com.folio.smoke profile folders under node_modules/.cache/personal-word-beta/d1; the real com.folio.writing library was never opened",
     "runs": {
       "baseline": {
-        "runId": "20261025T093854Z-eb139b9b",
-        "resultPath": "node_modules/.cache/personal-word-beta/d1/runs/20261025T093854Z-eb139b9b/result.json",
-        "resultSha256": "2d7c6466e6fddee70c1649dd70a671f25abc281b5f1bbf9ed3a8fa3905b703f2",
-        "manifestSha256": "7e07795970ee8195846170a408c43f9e70b4135aecebe4527e0a5d76926f3e94",
-        "binarySha256": "9d4c24feeb89d3332069bafc38c20a4aa55121f1108a7054baf77e80e10de3a4",
+        "runId": "20261025T213548Z-f99053d6",
+        "resultPath": "node_modules/.cache/personal-word-beta/d1/runs/20261025T213548Z-f99053d6/result.json",
+        "resultSha256": "afcbb8028e349753e3fbbce3d1727b16f7a1a654c37906ea6d90786d781760ab",
+        "manifestSha256": "5c22c12ada5da609820f863132b66d4ea83ab1cc414302463bf630c1a0b9443a",
+        "binarySha256": "fa6e365a69d553fc48c2fda52a0852d44a3d5ae0c021641cc03261617a3857bb",
         "passed": 13,
         "detected": 5
       },
       "beta": {
-        "runId": "20261025T093937Z-7c31d8de",
-        "resultPath": "node_modules/.cache/personal-word-beta/d1/runs/20261025T093937Z-7c31d8de/result.json",
-        "resultSha256": "809c23d8029be5a5d3ac7bfbbc04283dc1bc58e04f179def018d0b972a1eba3e",
-        "manifestSha256": "7e07795970ee8195846170a408c43f9e70b4135aecebe4527e0a5d76926f3e94",
-        "binarySha256": "9d4c24feeb89d3332069bafc38c20a4aa55121f1108a7054baf77e80e10de3a4",
+        "runId": "20261025T213634Z-2cadf18d",
+        "resultPath": "node_modules/.cache/personal-word-beta/d1/runs/20261025T213634Z-2cadf18d/result.json",
+        "resultSha256": "f8c5fb7c26bfe14638993215419b6c7dd8578c1fb2e4ddc4e5715d0eef029044",
+        "manifestSha256": "5c22c12ada5da609820f863132b66d4ea83ab1cc414302463bf630c1a0b9443a",
+        "binarySha256": "fa6e365a69d553fc48c2fda52a0852d44a3d5ae0c021641cc03261617a3857bb",
         "passed": 19,
         "detected": 42
       }
@@ -318,9 +323,9 @@
   "app": {
     "path": "src-tauri/target/release/bundle/macos/Personal Word.app",
     "executable": "src-tauri/target/release/bundle/macos/Personal Word.app/Contents/MacOS/folio",
-    "executableSha256": "66da1177a6b0063c88a34a8b4c6e58459f657d55bf2271d424582d121cb932f2",
-    "buildStartedAt": "2026-10-25T09:43:41Z",
-    "buildFinishedAt": "2026-10-25T09:45:46Z",
+    "executableSha256": "0daf16f8fd6d13fa609455282db0fdc1809af507e73555252609aa75f04a6141",
+    "buildStartedAt": "2026-10-25T21:45:29Z",
+    "buildFinishedAt": "2026-10-25T21:48:33Z",
     "bundleIdentifier": "com.folio.writing",
     "version": "0.1.1"
   },

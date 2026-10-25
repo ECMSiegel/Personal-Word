@@ -1,0 +1,58 @@
+{
+  "id": "T050",
+  "title": "Cheap fix T1: import label states the real limits",
+  "description": "Follow team/PROTOCOL.md, DELEGATION.md Common rules (docs/agent-work/2026-10-24-delegation/DELEGATION.md lines 8-20) and the approved plan docs/agent-work/2026-10-25-cheap-fixes/PLAN.md; the task section named here is the spec (files, steps, acceptance check, fail-first, stop rules). Pinned Node; serial check slot (node_modules/.cache/personal-word-beta/team-serial-check-slot) before expensive checks; production-preview Playwright on a free port 1500+; no installs/commits/pushes; register any extra path before editing; report CLAIMED with log paths; independent review required. Plan task T1: label at src/components/ProjectLibrary.tsx:200 -> text/Markdown up to 5 MB, Word/HTML/bundle up to 20 MB; browser test asserts the exact label; accept list unchanged.",
+  "status": "done",
+  "owner": null,
+  "priority": 2,
+  "depends_on": [],
+  "files": [
+    "src/components/ProjectLibrary.tsx",
+    "tests/import.spec.ts",
+    "node_modules/.cache/personal-word-beta/team-cf1"
+  ],
+  "review_required": true,
+  "created_by": "user",
+  "created_at": "2026-10-25T19:51:38+00:00",
+  "claimed_at": "2026-10-25T19:55:24+00:00",
+  "updated_at": "2026-10-25T20:36:18+00:00",
+  "handoff": null,
+  "review": {
+    "by": "agent-ba4d",
+    "at": "2026-10-25T20:36:18+00:00",
+    "verdict": "approved",
+    "note": "Independent review (agent-ba4d). Diff vs HEAD: ProjectLibrary.tsx changes only the #import-writing-label span text to the exact plan T1 wording ('--' dash, 5 MB text/Markdown, 20 MB Word/HTML/bundle); accept attribute lines identical to HEAD. tests/import.spec.ts adds one case asserting the exact text via toHaveText on #import-writing-label. Grep: no 'up to 20 MB' locator elsewhere; markdown-roundtrip.spec.ts:390 toContainText('Markdown bundle') still satisfied. Worker logs read in full: fail-first 1 failed (received old label)/2 passed; rerun 3/3. Fresh run: dist current (find src -newer dist/index.html empty; dist bundle contains new label), pinned Node v22.23.3, tests/import.spec.ts --workers=1 on port 1511 -> 3 passed (log team-cf1-review/import-spec.log). tsc --noEmit exit 2, 3 errors all in src/research/zotero.ts (live T056), none in T050 files -- not counted. Chromium only."
+  },
+  "log": [
+    {
+      "at": "2026-10-25T19:51:38+00:00",
+      "agent": "user",
+      "event": "created",
+      "note": ""
+    },
+    {
+      "at": "2026-10-25T19:55:24+00:00",
+      "agent": "agent-fb4d",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-10-25T19:55:26+00:00",
+      "agent": "agent-fb4d",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-10-25T20:28:17+00:00",
+      "agent": "agent-fb4d",
+      "event": "review requested",
+      "note": "Label now states real limits: src/components/ProjectLibrary.tsx:200 -> 'Import writing -- text or Markdown (up to 5 MB), Word, HTML or Markdown bundle (.zip) (up to 20 MB)'; accept list unchanged. New exact-text browser case in tests/import.spec.ts. Fail-first: new case FAILED on old label, 2 pre-existing passed (team-cf1/fail-first-import-label.log). After fix: npm run build exit 0 (build.log; script is tsc -b && vite build, so tree incl. my change type-checked at 16:18), rerun 3/3 passed on port 1505 (rerun-import-label.log). Standalone tsc at 16:21 exit 2 with 3 errors ALL in src/research/zotero.ts = agent-39f1's in-progress T056 WIP (owner cmd confirmed; agent-04bc msg #157 same) - not a T050 file; reviewer should rerun tsc after T056 settles. Stop-checks clean: no test referenced the old text; markdown-roundtrip's containment assert still satisfied. Full record: team-cf1/REPORT.md. Dist rebuilt from a tree carrying concurrent T052/T054/T055/T056 WIP - final validation rebuilds anyway."
+    },
+    {
+      "at": "2026-10-25T20:36:18+00:00",
+      "agent": "agent-ba4d",
+      "event": "approved",
+      "note": "Independent review (agent-ba4d). Diff vs HEAD: ProjectLibrary.tsx changes only the #import-writing-label span text to the exact plan T1 wording ('--' dash, 5 MB text/Markdown, 20 MB Word/HTML/bundle); accept attribute lines identical to HEAD. tests/import.spec.ts adds one case asserting the exact text via toHaveText on #import-writing-label. Grep: no 'up to 20 MB' locator elsewhere; markdown-roundtrip.spec.ts:390 toContainText('Markdown bundle') still satisfied. Worker logs read in full: fail-first 1 failed (received old label)/2 passed; rerun 3/3. Fresh run: dist current (find src -newer dist/index.html empty; dist bundle contains new label), pinned Node v22.23.3, tests/import.spec.ts --workers=1 on port 1511 -> 3 passed (log team-cf1-review/import-spec.log). tsc --noEmit exit 2, 3 errors all in src/research/zotero.ts (live T056), none in T050 files -- not counted. Chromium only."
+    }
+  ]
+}

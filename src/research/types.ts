@@ -1,5 +1,5 @@
 export const sourceKinds = ["book", "journal", "website", "chapter", "thesis", "report", "conference", "newspaper", "interview", "media", "other"] as const;
-export type SourceCreator = { role: string; given?: string; family?: string; literal?: string };
+export type SourceCreator = { role: string; given?: string; family?: string; literal?: string; suffix?: string };
 export type Source = {
   id: string;
   kind: typeof sourceKinds[number];

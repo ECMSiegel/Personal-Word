@@ -1,4 +1,14 @@
-import { describe, expect, it, vi } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
+
+const invokeMock = vi.hoisted(() => vi.fn());
+vi.mock("@tauri-apps/api/core", () => ({ invoke: invokeMock }));
+
+// Pretend to be the desktop app (isNativeApp looks for __TAURI_INTERNALS__ on window).
+const asDesktop = () => vi.stubGlobal("window", { __TAURI_INTERNALS__: {} });
+afterEach(() => {
+  vi.unstubAllGlobals();
+  invokeMock.mockReset();
+});
 import {
   checkZoteroUrl,
   fetchZoteroItems,
@@ -6,8 +16,7 @@ import {
   previewZoteroChanges,
   pollZoteroUpdates,
   computeZotero3WayDiff,
-  ZOTERO_MAX_BYTES,
-  ZOTERO_TIMEOUT_MS,
+  ZOTERO_DESKTOP_ONLY,
   type ZoteroOrigin,
 } from "./zotero";
 import type { Source } from "./types";
@@ -108,200 +117,76 @@ describe("fetchZoteroItems", () => {
     ).rejects.toThrow(/whitespace or control characters/);
   });
 
-  it("handles 304 not modified responses in browser mode", async () => {
-    const originalFetch = globalThis.fetch;
-    globalThis.fetch = vi.fn().mockResolvedValue({
-      status: 304,
-      ok: false,
-      headers: new Headers(),
-    });
-
-    try {
-      const res = await fetchZoteroItems({ resource: "users/0/items", since: 10 });
-      expect(res.notModified).toBe(true);
-      expect(res.items).toHaveLength(0);
-      expect(res.version).toBe(10);
-    } finally {
-      globalThis.fetch = originalFetch;
-    }
-  });
-
-  it("parses 200 responses with version and items in browser mode", async () => {
-    const originalFetch = globalThis.fetch;
-    const headers = new Headers();
-    headers.set("Last-Modified-Version", "42");
-    headers.set("Total-Results", "1");
-    headers.set("Link", '<http://127.0.0.1:23119/api/users/0/items?start=50>; rel="next"');
-
-    globalThis.fetch = vi.fn().mockResolvedValue(
-      new Response(JSON.stringify([{ id: "ITEM1", type: "book", title: "Test Book" }]), { status: 200, headers }),
+  it("refuses in the browser preview without any network call", async () => {
+    const fetchSpy = vi.fn();
+    vi.stubGlobal("fetch", fetchSpy);
+    await expect(fetchZoteroItems({ resource: "users/0/items" })).rejects.toThrow(
+      "Zotero refresh works in the desktop app only.",
     );
-
-    try {
-      const res = await fetchZoteroItems({ resource: "users/0/items" });
-      expect(res.notModified).toBe(false);
-      expect(res.version).toBe(42);
-      expect(res.totalResults).toBe(1);
-      expect(res.nextStart).toBe(50);
-      expect(res.items).toHaveLength(1);
-    } finally {
-      globalThis.fetch = originalFetch;
-    }
-  });
-});
-
-describe("fetchZoteroItems browser-preview limits", () => {
-  const withFetch = async (mock: typeof fetch, run: () => Promise<void>) => {
-    const originalFetch = globalThis.fetch;
-    globalThis.fetch = mock;
-    try {
-      await run();
-    } finally {
-      globalThis.fetch = originalFetch;
-    }
-  };
-
-  it("asks the browser to refuse redirects", async () => {
-    const mock = vi.fn().mockResolvedValue(new Response("[]", { status: 200 }));
-    await withFetch(mock as unknown as typeof fetch, async () => {
-      await fetchZoteroItems({ resource: "users/0/items" });
-      expect(mock).toHaveBeenCalledTimes(1);
-      expect(mock.mock.calls[0][1]).toMatchObject({ method: "GET", redirect: "error" });
-    });
+    expect(ZOTERO_DESKTOP_ONLY).toBe("Zotero refresh works in the desktop app only.");
+    expect(fetchSpy).not.toHaveBeenCalled();
+    expect(invokeMock).not.toHaveBeenCalled();
   });
 
-  it("gives up after the 12 second limit", async () => {
-    vi.useFakeTimers();
-    try {
-      const mock = vi.fn((_url: string, init?: RequestInit) =>
-        new Promise<Response>((_resolve, reject) => {
-          init!.signal!.addEventListener("abort", () => reject(new DOMException("Aborted", "AbortError")));
-        }),
-      );
-      await withFetch(mock as unknown as typeof fetch, async () => {
-        const pending = fetchZoteroItems({ resource: "users/0/items" });
-        const settled = expect(pending).rejects.toThrow(/12 seconds/);
-        await vi.advanceTimersByTimeAsync(ZOTERO_TIMEOUT_MS - 1);
-        expect(mock.mock.calls[0][1]?.signal?.aborted).toBe(false);
-        await vi.advanceTimersByTimeAsync(1);
-        await settled;
-      });
-    } finally {
-      vi.useRealTimers();
-    }
-  });
-
-  it("refuses a response whose Content-Length is over 5 MiB without reading it", async () => {
-    const headers = new Headers({ "Content-Length": String(ZOTERO_MAX_BYTES + 1) });
-    const mock = vi.fn().mockResolvedValue(new Response("[]", { status: 200, headers }));
-    await withFetch(mock as unknown as typeof fetch, async () => {
-      await expect(fetchZoteroItems({ resource: "users/0/items" })).rejects.toThrow(/5 MiB/);
-    });
-  });
-
-  it("stops reading a streamed body once it passes 5 MiB", async () => {
-    // Valid JSON 3 MiB over the cap, sent in 1 MiB chunks with no Content-Length.
-    const chunk = 1024 * 1024;
-    const text = '["' + "a".repeat(ZOTERO_MAX_BYTES + 3 * chunk) + '"]';
-    const bytes = new TextEncoder().encode(text);
-    let sent = 0;
-    const body = new ReadableStream<Uint8Array>({
-      pull(controller) {
-        if (sent >= bytes.length) return controller.close();
-        controller.enqueue(bytes.slice(sent, sent + chunk));
-        sent += chunk;
-      },
-    });
-    const mock = vi.fn().mockResolvedValue(new Response(body, { status: 200 }));
-    await withFetch(mock as unknown as typeof fetch, async () => {
-      await expect(fetchZoteroItems({ resource: "users/0/items" })).rejects.toThrow(/5 MiB/);
-      // Reading stopped at the cap instead of draining the whole body.
-      expect(sent).toBeLessThan(bytes.length);
-    });
-  });
-
-  it("still accepts a body of exactly 5 MiB", async () => {
-    const text = '["' + "a".repeat(ZOTERO_MAX_BYTES - 4) + '"]';
-    const mock = vi.fn().mockResolvedValue(new Response(text, { status: 200 }));
-    await withFetch(mock as unknown as typeof fetch, async () => {
-      const res = await fetchZoteroItems({ resource: "users/0/items" });
-      expect(res.items).toHaveLength(1);
-    });
+  it("reads through the native zotero_read command in the desktop app", async () => {
+    asDesktop();
+    const fetchSpy = vi.fn();
+    vi.stubGlobal("fetch", fetchSpy);
+    const response = { items: [{ id: "A" }], version: 42, notModified: false };
+    invokeMock.mockResolvedValue(response);
+    const request = { resource: "users/0/items", since: 10 };
+    await expect(fetchZoteroItems(request)).resolves.toBe(response);
+    expect(invokeMock).toHaveBeenCalledWith("zotero_read", { request });
+    expect(fetchSpy).not.toHaveBeenCalled();
   });
 });
 
 describe("fetchAllZoteroItems pagination", () => {
-  const page = (items: unknown[], headers: Record<string, string>) =>
-    new Response(JSON.stringify(items), { status: 200, headers });
+  // Native reader answers: paging data arrives as fields, not headers.
+  const page = (items: unknown[], extra: Record<string, unknown> = {}) => ({
+    items,
+    notModified: false,
+    ...extra,
+  });
 
   it("follows the next-page link until the library is complete", async () => {
-    const originalFetch = globalThis.fetch;
-    const mock = vi.fn()
-      .mockResolvedValueOnce(page([{ id: "A", type: "book", title: "Page one" }], {
-        "Total-Results": "2",
-        "Last-Modified-Version": "9",
-        Link: '<http://127.0.0.1:23119/api/users/0/items?start=1>; rel="next"',
-      }))
-      .mockResolvedValueOnce(page([{ id: "B", type: "book", title: "Page two" }], {
-        "Total-Results": "2",
-        "Last-Modified-Version": "9",
-      }));
-    globalThis.fetch = mock as unknown as typeof fetch;
-    try {
-      const res = await fetchAllZoteroItems({ resource: "users/0/items" });
-      expect(res.items.map((item) => item.id)).toEqual(["A", "B"]);
-      expect(res.version).toBe(9);
-      expect(res.nextStart).toBeUndefined();
-      expect(mock).toHaveBeenCalledTimes(2);
-      expect(String(mock.mock.calls[0][0])).toContain("limit=100");
-      expect(String(mock.mock.calls[1][0])).toMatch(/[?&]start=1(&|$)/);
-    } finally {
-      globalThis.fetch = originalFetch;
-    }
+    asDesktop();
+    invokeMock
+      .mockResolvedValueOnce(page([{ id: "A", type: "book", title: "Page one" }], { totalResults: 2, version: 9, nextStart: 1 }))
+      .mockResolvedValueOnce(page([{ id: "B", type: "book", title: "Page two" }], { totalResults: 2, version: 9 }));
+    const res = await fetchAllZoteroItems({ resource: "users/0/items" });
+    expect(res.items.map((item) => item.id)).toEqual(["A", "B"]);
+    expect(res.version).toBe(9);
+    expect(res.nextStart).toBeUndefined();
+    expect(invokeMock).toHaveBeenCalledTimes(2);
+    expect(invokeMock.mock.calls[0][1].request.limit).toBe(100);
+    expect(invokeMock.mock.calls[1][1].request.start).toBe(1);
   });
 
   it("stops with a message instead of returning part of the library when the page bound is hit", async () => {
-    const originalFetch = globalThis.fetch;
+    asDesktop();
     let start = 0;
-    const mock = vi.fn(async () => {
+    invokeMock.mockImplementation(async () => {
       start += 1;
-      return page([{ id: `K${start}`, type: "book", title: `Item ${start}` }], {
-        "Total-Results": "1000",
-        Link: `<http://127.0.0.1:23119/api/users/0/items?start=${start}>; rel="next"`,
-      });
+      return page([{ id: `K${start}`, type: "book", title: `Item ${start}` }], { totalResults: 1000, nextStart: start });
     });
-    globalThis.fetch = mock as unknown as typeof fetch;
-    try {
-      await expect(fetchAllZoteroItems({ resource: "users/0/items" }, { maxPages: 3 })).rejects.toThrow(
-        /more items than|only part/i,
-      );
-      expect(mock).toHaveBeenCalledTimes(3);
-    } finally {
-      globalThis.fetch = originalFetch;
-    }
+    await expect(fetchAllZoteroItems({ resource: "users/0/items" }, { maxPages: 3 })).rejects.toThrow(
+      /more items than|only part/i,
+    );
+    expect(invokeMock).toHaveBeenCalledTimes(3);
   });
 
-  it("stops with a message when a full page arrives without any paging headers", async () => {
-    const originalFetch = globalThis.fetch;
+  it("stops with a message when a full page arrives without any paging data", async () => {
+    asDesktop();
     const full = Array.from({ length: 100 }, (_, i) => ({ id: `F${i}`, type: "book", title: `Full ${i}` }));
-    globalThis.fetch = vi.fn().mockResolvedValue(page(full, {})) as unknown as typeof fetch;
-    try {
-      await expect(fetchAllZoteroItems({ resource: "users/0/items" })).rejects.toThrow(/only part/i);
-    } finally {
-      globalThis.fetch = originalFetch;
-    }
+    invokeMock.mockResolvedValue(page(full));
+    await expect(fetchAllZoteroItems({ resource: "users/0/items" })).rejects.toThrow(/only part/i);
   });
 
   it("stops with a message when Zotero reports more items than it sent", async () => {
-    const originalFetch = globalThis.fetch;
-    globalThis.fetch = vi.fn().mockResolvedValue(
-      page([{ id: "A", type: "book", title: "Only one" }], { "Total-Results": "5" }),
-    ) as unknown as typeof fetch;
-    try {
-      await expect(fetchAllZoteroItems({ resource: "users/0/items" })).rejects.toThrow(/only part/i);
-    } finally {
-      globalThis.fetch = originalFetch;
-    }
+    asDesktop();
+    invokeMock.mockResolvedValue(page([{ id: "A", type: "book", title: "Only one" }], { totalResults: 5 }));
+    await expect(fetchAllZoteroItems({ resource: "users/0/items" })).rejects.toThrow(/only part/i);
   });
 });
 

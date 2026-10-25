@@ -1,0 +1,83 @@
+{
+  "id": "T056",
+  "title": "Cheap fix T7: browser preview does not read Zotero",
+  "description": "Follow team/PROTOCOL.md, DELEGATION.md Common rules (docs/agent-work/2026-10-24-delegation/DELEGATION.md lines 8-20) and the approved plan docs/agent-work/2026-10-25-cheap-fixes/PLAN.md; the task section named here is the spec (files, steps, acceptance check, fail-first, stop rules). Pinned Node; serial check slot (node_modules/.cache/personal-word-beta/team-serial-check-slot) before expensive checks; production-preview Playwright on a free port 1500+; no installs/commits/pushes; register any extra path before editing; report CLAIMED with log paths; independent review required. Plan task T7 (owner default: remove the path): in src/research/zotero.ts fetchZoteroItems, when not desktop throw 'Zotero refresh works in the desktop app only.' before any network call; delete browserRead and constants only it used; ResearchPanel shows the message (theme variables, -- dashes); unit test spies globalThis.fetch and asserts no call; rewrite tests/zotero.spec.ts mocked-fetch cases to assert the message; keep URL-guard tests.",
+  "status": "done",
+  "owner": null,
+  "priority": 2,
+  "depends_on": [],
+  "files": [
+    "src/research/zotero.ts",
+    "src/research/ResearchPanel.tsx",
+    "src/research/zotero.test.ts",
+    "tests/zotero.spec.ts",
+    "node_modules/.cache/personal-word-beta/team-cf7",
+    "node_modules/.cache/personal-word-beta/team-serial-check-slot"
+  ],
+  "review_required": true,
+  "created_by": "user",
+  "created_at": "2026-10-25T19:51:45+00:00",
+  "claimed_at": "2026-10-25T20:42:46+00:00",
+  "updated_at": "2026-10-25T21:12:38+00:00",
+  "handoff": {
+    "by": "agent-39f1",
+    "at": "2026-10-25T20:41:47+00:00",
+    "text": "Edits all written, nothing run (serial slot held >30 min by T055/T052). Done: zotero.ts desktop-only throw + browserRead/readCappedText/TOO_LARGE/ZOTERO_TIMEOUT_MS/ZOTERO_MAX_BYTES removed (exports ZOTERO_DESKTOP_ONLY); zotero.test.ts rewritten (desktop-only no-fetch test, native invoke test, pagination via mocked invoke); tests/zotero.spec.ts mocked cases replaced by one desktop-only case; ResearchPanel.tsx needs no change (catch already shows err.message). Next: take slot, run fail-first (team-cf7/vitest.old.config.mjs aliases old zotero.ts), then npx vitest run src/research, tsc, npm run build, preview playwright on port 1502 (clone team-t005/browser.config.mjs) tests/zotero.spec.ts tests/research.spec.ts --workers=1; write REPORT.md (draft in team-cf7/REPORT.md); done T056. Do not redo edits. grep browserRead src is empty. src/research/zotero.ts: uncommitted edits\nsrc/research/ResearchPanel.tsx: clean\nsrc/research/zotero.test.ts: uncommitted edits\ntests/zotero.spec.ts: uncommitted edits\nnode_modules/.cache/personal-word-beta/team-cf7: uncommitted edits"
+  },
+  "review": {
+    "by": "agent-a67f",
+    "at": "2026-10-25T21:12:38+00:00",
+    "verdict": "approved",
+    "note": "APPROVED by agent-a67f (non-author; record T067). Reviewed only zotero.ts, zotero.test.ts, tests/zotero.spec.ts (+ ResearchPanel.tsx unchanged vs HEAD; its catch puts err.message in .zotero-status, satisfying plan step 2). Diff: fetchZoteroItems runs URL guard then throws ZOTERO_DESKTOP_ONLY when !isNativeApp() before any network call; browserRead/readCappedText/TOO_LARGE/ZOTERO_TIMEOUT_MS/ZOTERO_MAX_BYTES gone (grep src empty); ZOTERO_PAGE_SIZE/MAX_PAGES present; native invoke('zotero_read',{request}) path byte-identical in behaviour; URL-guard tests kept. My runs (pinned Node 22.23.3, logs node_modules/.cache/personal-word-beta/team-cf7-review): vitest src/research 11 files/193 passed; tsc exit 0; fail-first with worker's vitest.old.config.mjs (zotero.old.ts = HEAD except absolute import paths) 1 failed/25 passed, the no-fetch test failing because old code called the fetch spy ('reading status'); private vite build (src was newer than dist due to T054) -> bundle has the desktop-only text and not the old 5 MiB message; production-preview Playwright port 1517 zotero+research specs --workers=1 12 passed; nothing listened on 23119/1517 before, port 1517 free after. Hashes match sha-final.txt. Coverage: removed unit tests for redirect/12s/5MiB/304/200-parse covered deleted browser code; the same limits and 304 stay covered by src-tauri/src/zotero.rs tests (no redirects, 12s, 5MiB cap, reports_not_modified_for_a_304); pagination re-covered via mocked invoke; new native-invoke test. Lost by design: browser e2e of the successful refresh flow (Import Zotero sources dialog, item-count status, Add sources, retention after Disconnect, truncation status text) -- now provable only in the desktop app (C3 owner synthetic-Zotero check). Minor: _options/abort signal unused, as the native path never used it before."
+  },
+  "log": [
+    {
+      "at": "2026-10-25T19:51:45+00:00",
+      "agent": "user",
+      "event": "created",
+      "note": ""
+    },
+    {
+      "at": "2026-10-25T19:58:17+00:00",
+      "agent": "agent-39f1",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-10-25T19:58:21+00:00",
+      "agent": "agent-39f1",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-10-25T20:41:47+00:00",
+      "agent": "agent-39f1",
+      "event": "handoff",
+      "note": "Edits all written, nothing run (serial slot held >30 min by T055/T052). Done: zotero.ts desktop-only throw + browserRead/readCappedText/TOO_LARGE/ZOTERO_TIMEOUT_MS/ZOTERO_MAX_BYTES removed (exports ZOTERO_DESKTOP_ONLY); zotero.test.ts rewritten (desktop-only no-fetch test, native invoke test, pagination via mocked invoke); tests/zotero.spec.ts mocked cases replaced by one desktop-only case; ResearchPanel.tsx needs no change (catch already shows err.message). Next: take slot, run fail-first (team-cf7/vitest.old.config.mjs aliases old zotero.ts), then npx vitest run src/research, tsc, npm run build, preview playwright on port 1502 (clone team-t005/browser.config.mjs) tests/zotero.spec.ts tests/research.spec.ts --workers=1; write REPORT.md (draft in team-cf7/REPORT.md); done T056. Do not redo edits. grep browserRead src is empty. src/research/zotero.ts: uncommitted edits\nsrc/research/ResearchPanel.tsx: clean\nsrc/research/zotero.test.ts: uncommitted edits\ntests/zotero.spec.ts: uncommitted edits\nnode_modules/.cache/personal-word-beta/team-cf7: uncommitted edits"
+    },
+    {
+      "at": "2026-10-25T20:42:46+00:00",
+      "agent": "agent-652e",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-10-25T20:42:46+00:00",
+      "agent": "agent-652e",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-10-25T21:07:05+00:00",
+      "agent": "agent-652e",
+      "event": "review requested",
+      "note": "Browser preview no longer reads Zotero: fetchZoteroItems throws 'Zotero refresh works in the desktop app only.' before any network call; browserRead and its constants removed (restored ZOTERO_PAGE_SIZE/MAX_PAGES that were accidentally deleted -- that was the tsc error). Fail-first: old-code alias run fails the 'refuses in the browser preview' test (1 failed/25 passed). vitest src/research 193 passed; tsc exit 0; build exit 0; preview Playwright port 1502 zotero+research specs 12 passed; grep browserRead src empty. CLAIMED. Logs and REPORT.md in node_modules/.cache/personal-word-beta/team-cf7/ (failfirst.log, unit.log, tsc.log, build.log, browser.log, sha-final.txt)."
+    },
+    {
+      "at": "2026-10-25T21:12:38+00:00",
+      "agent": "agent-a67f",
+      "event": "approved",
+      "note": "APPROVED by agent-a67f (non-author; record T067). Reviewed only zotero.ts, zotero.test.ts, tests/zotero.spec.ts (+ ResearchPanel.tsx unchanged vs HEAD; its catch puts err.message in .zotero-status, satisfying plan step 2). Diff: fetchZoteroItems runs URL guard then throws ZOTERO_DESKTOP_ONLY when !isNativeApp() before any network call; browserRead/readCappedText/TOO_LARGE/ZOTERO_TIMEOUT_MS/ZOTERO_MAX_BYTES gone (grep src empty); ZOTERO_PAGE_SIZE/MAX_PAGES present; native invoke('zotero_read',{request}) path byte-identical in behaviour; URL-guard tests kept. My runs (pinned Node 22.23.3, logs node_modules/.cache/personal-word-beta/team-cf7-review): vitest src/research 11 files/193 passed; tsc exit 0; fail-first with worker's vitest.old.config.mjs (zotero.old.ts = HEAD except absolute import paths) 1 failed/25 passed, the no-fetch test failing because old code called the fetch spy ('reading status'); private vite build (src was newer than dist due to T054) -> bundle has the desktop-only text and not the old 5 MiB message; production-preview Playwright port 1517 zotero+research specs --workers=1 12 passed; nothing listened on 23119/1517 before, port 1517 free after. Hashes match sha-final.txt. Coverage: removed unit tests for redirect/12s/5MiB/304/200-parse covered deleted browser code; the same limits and 304 stay covered by src-tauri/src/zotero.rs tests (no redirects, 12s, 5MiB cap, reports_not_modified_for_a_304); pagination re-covered via mocked invoke; new native-invoke test. Lost by design: browser e2e of the successful refresh flow (Import Zotero sources dialog, item-count status, Add sources, retention after Disconnect, truncation status text) -- now provable only in the desktop app (C3 owner synthetic-Zotero check). Minor: _options/abort signal unused, as the native path never used it before."
+    }
+  ]
+}

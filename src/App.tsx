@@ -377,6 +377,11 @@ export default function App() {
   const [error, setError] = useState("");
   const [mirrorError, setMirrorError] = useState("");
   const [notice, setNotice] = useState("");
+  useEffect(() => {
+    if (!notice) return;
+    const timer = window.setTimeout(() => setNotice(""), 6000);
+    return () => window.clearTimeout(timer);
+  }, [notice]);
   const [nameDialog, setNameDialog] = useState<NameDialog | null>(null);
   const [query, setQuery] = useState("");
   const [versions, setVersions] = useState<Version[] | null>(null);

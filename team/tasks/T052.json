@@ -1,0 +1,89 @@
+{
+  "id": "T052",
+  "title": "Cheap fix T3: notice toast never covers panel buttons",
+  "description": "Follow team/PROTOCOL.md, DELEGATION.md Common rules (docs/agent-work/2026-10-24-delegation/DELEGATION.md lines 8-20) and the approved plan docs/agent-work/2026-10-25-cheap-fixes/PLAN.md; the task section named here is the spec (files, steps, acceptance check, fail-first, stop rules). Pinned Node; serial check slot (node_modules/.cache/personal-word-beta/team-serial-check-slot) before expensive checks; production-preview Playwright on a free port 1500+; no installs/commits/pushes; register any extra path before editing; report CLAIMED with log paths; independent review required. Plan task T3: move .notice (src/styles.css:711-716) to top centre under the tab bar, auto-dismiss after 6 s keeping the dismiss button (src/App.tsx:2287-2296); browser test: trigger a notice, open Settings, assert the toast's bounding box does not intersect the Export PDF button, click it; view light/dark screenshots (flat, square).",
+  "status": "done",
+  "owner": null,
+  "priority": 2,
+  "depends_on": [],
+  "files": [
+    "src/styles.css",
+    "src/App.tsx",
+    "tests/notice.spec.ts",
+    "node_modules/.cache/personal-word-beta/team-cf3",
+    "node_modules/.cache/personal-word-beta/team-serial-check-slot",
+    "node_modules/.cache/personal-word-beta/team-cf3-cycle2"
+  ],
+  "review_required": true,
+  "created_by": "user",
+  "created_at": "2026-10-25T19:51:41+00:00",
+  "claimed_at": "2026-10-25T20:53:39+00:00",
+  "updated_at": "2026-10-25T21:06:18+00:00",
+  "handoff": {
+    "by": "agent-a0b6",
+    "at": "2026-10-25T20:46:17+00:00",
+    "text": "REJECT. What passes: diff is exactly .notice top:56px/bottom:auto + 6 s auto-dismiss effect (dismiss button and role=status kept, .error-banner untouched); hashes match hash-final.txt; tsc red only in src/research/zotero.ts (T056); my vite build into node_modules/.cache/personal-word-beta/team-cf3-review/dist + tests/notice.spec.ts on port 1512 = 3 passed; fail-first .mjs copy = light+dark Export PDF fail, comments/research pass (as reported). Settings screenshots flat/square. WHY REJECT: the new top position collides with the editor view, where snapshot notices normally appear. At 1280x800 in the writing view (create project, Snapshot from the top bar) the toast (y 56-99) sits BEHIND the formatting toolbar (y ~75-107): the notice text is cut off/unreadable and its Dismiss notification button is hidden; the toast also overlaps the breadcrumb Rename section / Delete section buttons (long name) and its box intersects Paragraph style, Font family, Font size input, -/+ , Bold/Italic/Underline. Evidence: node_modules/.cache/personal-word-beta/team-cf3-review/measure.log and screenshots node_modules/.cache/personal-word-beta/team-cf3-review/measure/measure-1280-13.png, measure-1280-49.png, measure-1024-13.png (spec node_modules/.cache/personal-word-beta/team-cf3-review/measure/measure.spec.mjs, config node_modules/.cache/personal-word-beta/team-cf3-review/measure.config.mjs). tests/notice.spec.ts only checks the Settings panel, so it misses this. FIX + CONFIRM: pick a position that clears both the top bar/format bar and the settings action column (plan default: bottom-right corner, 16 px inset, or below the format bar), and add a case to tests/notice.spec.ts in the writing view at 1280x800 asserting the toast box does not intersect any visible button/input outside .notice and that document.elementFromPoint at the dismiss button centre is inside .notice; keep the Export PDF and comments/research cases; rerun the fail-first and view light/dark screenshots of the editor view too."
+  },
+  "review": {
+    "by": "agent-667f",
+    "at": "2026-10-25T21:06:18+00:00",
+    "verdict": "approved",
+    "note": "APPROVE (agent-667f, cycle 2). Diff vs HEAD: src/styles.css +6 lines only in .notice (top:auto; bottom:16px; left:auto; right:16px; transform:none; max-width:min(360px,85vw)); colours/border from shared theme-variable rule, border-radius:0 kept; .error-banner untouched. src/App.tsx +5 lines: 6 s setTimeout auto-dismiss effect with cleanup; dismiss button kept. Nothing else in either file. Hashes of styles.css/App.tsx/notice.spec.ts match team-cf3-cycle2/hash-final.txt. tests/notice.spec.ts: 7 cases; writing-view cases (1280x800, 1024x700, light+dark) iterate every visible button/input/select/textbox and assert no intersection, check elementFromPoint at dismiss centre is the dismiss button, and measure the last line's glyph range after scrolling. Stated limit (toast may sit over blank margin or the right end of a very long line for 6 s) accepted: no control covered, dismiss reachable. My runs (pinned Node v22.23.3): tsc --noEmit exit 0; vite build into team-cf3-review2/dist; notice.spec --workers=1 port 1515 = 7 passed; fail-first (my build + rejected top:56px centred CSS appended, port 1516) = 4 writing-view cases failed, 3 passed. Viewed worker shots notice-{light,dark}, notice-writing-1280-{light,dark}, notice-writing-1024-dark and my own notice-writing-1024-light: bottom-right, flat, square, clear of top bar, format bar and Export buttons, light/dark consistent; toast sits just above the word count without covering it. Note: plan step 1 said top centre, but the plan default and the cycle-1 rejection both point to bottom-right. Logs: node_modules/.cache/personal-word-beta/team-cf3-review2/."
+  },
+  "log": [
+    {
+      "at": "2026-10-25T19:51:41+00:00",
+      "agent": "user",
+      "event": "created",
+      "note": ""
+    },
+    {
+      "at": "2026-10-25T19:59:39+00:00",
+      "agent": "agent-9b0f",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-10-25T19:59:44+00:00",
+      "agent": "agent-9b0f",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-10-25T20:40:34+00:00",
+      "agent": "agent-9b0f",
+      "event": "review requested",
+      "note": "CLAIMED. .notice moved to top:56px (styles.css), 6 s auto-dismiss in App.tsx, tests/notice.spec.ts (3 cases). Fail-first: old position -> Export PDF light+dark fail; new -> notice 3 pass, +features+editor-toolbar 13 pass. tsc only errors in zotero.ts (T056). Built with vite --outDir (tsc blocked by T056). Report: node_modules/.cache/personal-word-beta/team-cf3/REPORT.md"
+    },
+    {
+      "at": "2026-10-25T20:46:17+00:00",
+      "agent": "agent-a0b6",
+      "event": "rejected",
+      "note": "REJECT. What passes: diff is exactly .notice top:56px/bottom:auto + 6 s auto-dismiss effect (dismiss button and role=status kept, .error-banner untouched); hashes match hash-final.txt; tsc red only in src/research/zotero.ts (T056); my vite build into node_modules/.cache/personal-word-beta/team-cf3-review/dist + tests/notice.spec.ts on port 1512 = 3 passed; fail-first .mjs copy = light+dark Export PDF fail, comments/research pass (as reported). Settings screenshots flat/square. WHY REJECT: the new top position collides with the editor view, where snapshot notices normally appear. At 1280x800 in the writing view (create project, Snapshot from the top bar) the toast (y 56-99) sits BEHIND the formatting toolbar (y ~75-107): the notice text is cut off/unreadable and its Dismiss notification button is hidden; the toast also overlaps the breadcrumb Rename section / Delete section buttons (long name) and its box intersects Paragraph style, Font family, Font size input, -/+ , Bold/Italic/Underline. Evidence: node_modules/.cache/personal-word-beta/team-cf3-review/measure.log and screenshots node_modules/.cache/personal-word-beta/team-cf3-review/measure/measure-1280-13.png, measure-1280-49.png, measure-1024-13.png (spec node_modules/.cache/personal-word-beta/team-cf3-review/measure/measure.spec.mjs, config node_modules/.cache/personal-word-beta/team-cf3-review/measure.config.mjs). tests/notice.spec.ts only checks the Settings panel, so it misses this. FIX + CONFIRM: pick a position that clears both the top bar/format bar and the settings action column (plan default: bottom-right corner, 16 px inset, or below the format bar), and add a case to tests/notice.spec.ts in the writing view at 1280x800 asserting the toast box does not intersect any visible button/input outside .notice and that document.elementFromPoint at the dismiss button centre is inside .notice; keep the Export PDF and comments/research cases; rerun the fail-first and view light/dark screenshots of the editor view too."
+    },
+    {
+      "at": "2026-10-25T20:53:39+00:00",
+      "agent": "agent-efa9",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-10-25T20:53:44+00:00",
+      "agent": "agent-efa9",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-10-25T21:02:37+00:00",
+      "agent": "agent-efa9",
+      "event": "review requested",
+      "note": "CLAIMED. Cycle 2: .notice moved to bottom-right (right:16px; bottom:16px; max-width 360px; no transform), clear of top bar, format bar and panel buttons. Spec adds writing-view cases 1280x800 and 1024x700 light+dark (no control under toast, dismiss button topmost, last line clear); kept Export PDF + comments/research. Fail-first: rejected top:56px CSS -> 4 writing-view cases fail. Real: tsc exit 0, notice+features+editor-toolbar 17 passed, notice 7/7. Report: node_modules/.cache/personal-word-beta/team-cf3/REPORT.md (Cycle 2); logs and shots in node_modules/.cache/personal-word-beta/team-cf3-cycle2/. npm run build not run (vite build used)."
+    },
+    {
+      "at": "2026-10-25T21:06:18+00:00",
+      "agent": "agent-667f",
+      "event": "approved",
+      "note": "APPROVE (agent-667f, cycle 2). Diff vs HEAD: src/styles.css +6 lines only in .notice (top:auto; bottom:16px; left:auto; right:16px; transform:none; max-width:min(360px,85vw)); colours/border from shared theme-variable rule, border-radius:0 kept; .error-banner untouched. src/App.tsx +5 lines: 6 s setTimeout auto-dismiss effect with cleanup; dismiss button kept. Nothing else in either file. Hashes of styles.css/App.tsx/notice.spec.ts match team-cf3-cycle2/hash-final.txt. tests/notice.spec.ts: 7 cases; writing-view cases (1280x800, 1024x700, light+dark) iterate every visible button/input/select/textbox and assert no intersection, check elementFromPoint at dismiss centre is the dismiss button, and measure the last line's glyph range after scrolling. Stated limit (toast may sit over blank margin or the right end of a very long line for 6 s) accepted: no control covered, dismiss reachable. My runs (pinned Node v22.23.3): tsc --noEmit exit 0; vite build into team-cf3-review2/dist; notice.spec --workers=1 port 1515 = 7 passed; fail-first (my build + rejected top:56px centred CSS appended, port 1516) = 4 writing-view cases failed, 3 passed. Viewed worker shots notice-{light,dark}, notice-writing-1280-{light,dark}, notice-writing-1024-dark and my own notice-writing-1024-light: bottom-right, flat, square, clear of top bar, format bar and Export buttons, light/dark consistent; toast sits just above the word count without covering it. Note: plan step 1 said top centre, but the plan default and the cycle-1 rejection both point to bottom-right. Logs: node_modules/.cache/personal-word-beta/team-cf3-review2/."
+    }
+  ]
+}

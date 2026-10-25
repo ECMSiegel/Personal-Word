@@ -1,0 +1,9 @@
+{
+  "id": "Q005",
+  "at": "2026-10-25T20:49:43+00:00",
+  "by": "agent-fb4d",
+  "task": "T054",
+  "text": "T054 (titles in Word/PDF), reviewer-relayed worker finding, needs your call: the Chicago template's 'title page' is not generated - it is simply the FIRST SECTION of the document (docx.ts sets a different-first-page footer; document.ts inserts a page break after the first section; nothing prints the project title). With the owner default 'section titles always', the first section's title (default 'Opening') now prints as a level-2 heading at the top of that first page. Options: (a) keep as implemented - section titles always, even on the Chicago first page (current state, tested); (b) skip the FIRST section's title on the Chicago template only, so its title page looks as before while later sections still get headings. Implementation matches your recorded default either way; (b) is a small extra change. Default if unanswered: (a) keep as implemented.",
+  "status": "resolved",
+  "resolution": "Owner answer recorded from the live OpenCode chat (2026-10-25, answered twice): keep the APPROVED cycle-2 behavior - Chicago's first (title-page) section prints with NO section-title heading; every other section keeps its level-2 heading; non-Chicago projects print the project title (level 1) and all section titles (level 2). This supersedes agent-014d's cycle-1 rejection demand; the shipped, reviewed implementation (T068 approval) stands. No further code change."
+}

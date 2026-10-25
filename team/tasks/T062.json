@@ -1,0 +1,45 @@
+{
+  "id": "T062",
+  "title": "Independently review T052 (no slot)",
+  "description": "Non-author review record for T052; owns only its cache folder; single short browser run announced via msg (slot held by T055). Supersedes T061.",
+  "status": "done",
+  "owner": null,
+  "priority": 2,
+  "depends_on": [],
+  "files": [
+    "node_modules/.cache/personal-word-beta/team-cf3-review"
+  ],
+  "review_required": false,
+  "created_by": "agent-a0b6",
+  "created_at": "2026-10-25T20:42:03+00:00",
+  "claimed_at": "2026-10-25T20:42:06+00:00",
+  "updated_at": "2026-10-25T20:46:22+00:00",
+  "handoff": null,
+  "review": null,
+  "log": [
+    {
+      "at": "2026-10-25T20:42:03+00:00",
+      "agent": "agent-a0b6",
+      "event": "created",
+      "note": ""
+    },
+    {
+      "at": "2026-10-25T20:42:06+00:00",
+      "agent": "agent-a0b6",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-10-25T20:42:07+00:00",
+      "agent": "agent-a0b6",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-10-25T20:46:22+00:00",
+      "agent": "agent-a0b6",
+      "event": "done",
+      "note": "T052 reviewed and rejected; evidence in node_modules/.cache/personal-word-beta/team-cf3-review"
+    }
+  ]
+}

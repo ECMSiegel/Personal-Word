@@ -121,3 +121,33 @@ describe("Chicago 18 common-source citations", () => {
     expect(formatCitation({ ...book, authors: ["Yu", "Lee", "Kim"] }, "short")).toMatch(/^Yu et al\., /);
   });
 });
+describe("name suffixes (Chicago 18)", () => {
+  const jr: Source = {
+    id: "jr",
+    kind: "book",
+    title: "Title",
+    authors: ["John Q. Smith"],
+    creators: [{ role: "author", given: "John Q.", family: "Smith", suffix: "Jr." }],
+    publisher: "Press",
+    year: "2020",
+  };
+  const plain: Source = { ...jr, id: "pl", creators: [{ role: "author", given: "John Quincy", family: "Smith" }] };
+  it("appends the suffix in note form and inverts it in the bibliography", () => {
+    expect(formatCitation(jr, "full", "5")).toContain("John Q. Smith Jr.");
+    expect(formatCitation(jr, "bibliography")).toBe("Smith, John Q., Jr. Title. Press, 2020.");
+    expect(formatCitation(jr, "short", "5")).toBe("Smith, Title, 5.");
+  });
+  it("ends a bibliography author block that already ends in a period with a single period", () => {
+    const initial: Source = { ...jr, id: "iq", creators: [{ role: "author", given: "John Q.", family: "Smith" }] };
+    expect(formatCitation(initial, "bibliography")).toBe("Smith, John Q. Title. Press, 2020.");
+    expect(formatCitation(initial, "full", "5")).toBe("John Q. Smith, Title (Press, 2020), 5.");
+  });
+  it("formats names not ending in a period exactly as before", () => {
+    expect(formatCitation(plain, "full", "5")).toBe("John Quincy Smith, Title (Press, 2020), 5.");
+    expect(formatCitation(plain, "short", "5")).toBe("Smith, Title, 5.");
+    expect(formatCitation(plain, "bibliography")).toBe("Smith, John Quincy. Title. Press, 2020.");
+    expect(formatCitation(book, "full", "45")).toBe("Charles Yu, Interior Chinatown (Pantheon Books, 2020), 45.");
+    expect(formatCitation(book, "short", "45")).toBe("Yu, Interior Chinatown, 45.");
+    expect(formatCitation(book, "bibliography")).toBe("Yu, Charles. Interior Chinatown. Pantheon Books, 2020.");
+  });
+});

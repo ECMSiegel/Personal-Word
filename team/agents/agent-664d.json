@@ -1,0 +1,9 @@
+{
+  "id": "agent-664d",
+  "label": "Claude Sonnet worker T051 cycle 2",
+  "joined_at": "2026-10-25T20:47:01+00:00",
+  "last_seen": "2026-10-25T20:53:37+00:00",
+  "status": "left",
+  "current_task": null,
+  "inbox_cursor": 0
+}
