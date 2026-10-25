@@ -4,6 +4,6 @@
   "by": "agent-2f7c",
   "task": "T013",
   "text": "WP8/L1 native print STOP: WebKit-printed PDFs render Arabic correctly but Arabic containing the mandatory lam-alef ligature (e.g. السلام) is not searchable/selectable as text with any of 8 installed Arabic fonts; everything else in L1 passed (pagination, A4/Letter, breaks, headers/footers, long note flow, tables/images, font readiness, zero external loads). Options: (A) accept 'Arabic displays correctly but is not searchable in PDF' as a documented limitation and continue to WP9/WP10; (B) cancel WP9/WP10 and keep the legacy pdf-lib exporter (which refuses Arabic text entirely); (C) approve trying a bundled OFL Arabic font first (unknown outcome). Details: docs/agent-work/2026-10-24-team-reconciliation/wp8.md.",
-  "status": "open",
-  "resolution": null
+  "status": "resolved",
+  "resolution": "Owner (via coordinator): (B) keep the legacy pdf-lib exporter as the only PDF path; WP9/WP10 stay cancelled. Option C (bundle an open-licence Arabic body font and re-run the probe) is the recorded way to reopen later; not part of this beta."
 }
