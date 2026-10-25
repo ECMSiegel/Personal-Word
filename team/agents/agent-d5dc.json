@@ -1,0 +1,9 @@
+{
+  "id": "agent-d5dc",
+  "label": "Claude Sonnet worker T046",
+  "joined_at": "2026-10-25T09:51:30+00:00",
+  "last_seen": "2026-10-25T09:57:06+00:00",
+  "status": "left",
+  "current_task": null,
+  "inbox_cursor": 137
+}

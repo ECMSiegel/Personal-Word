@@ -1,0 +1,61 @@
+{
+  "id": "T017",
+  "title": "Complete Review Gate C or document prescribed layout stop",
+  "description": "Follow team/PLAN.md, team/PROTOCOL.md, DELEGATION.md Common rules and applicable child plan; preserve current dirty work. This board records unfinished acceptance/repair, not permission to rebuild existing features. Inspect current implementation and earlier evidence first; fix only reproduced gaps in owned files, record exact commands/results and fail-first controls, and report CLAIMED. No installs, new packages, commits, pushes, publication, real-library access or destructive cleanup. Before expensive checks, acquire exclusive registered path node_modules/.cache/personal-word-beta/team-serial-check-slot via team.py files add; if another live task owns it, do independent work or hand off rather than overlap runs. Retain full logs and use pinned Node/offline serial Rust/production-preview Playwright. Independent review is required. Independent review L1-L3 against actual native files and output, ready-font/script/media/notes assertions, preview/save hashes and old-project opt-in compatibility. No editor/Word exact page parity claim. On WP8 STOP, review preserved legacy behavior and accurate unavailable warnings and document WP9/WP10 non-applicability. Do not waive genuine failures or missing required evidence. Append dated verdict to layout REVIEW.md; no code edits. Write the task report to docs/agent-work/2026-10-24-team-reconciliation/gate-c.md.",
+  "status": "done",
+  "owner": null,
+  "priority": 1,
+  "depends_on": [
+    "T016"
+  ],
+  "files": [
+    "docs/agent-work/2026-10-20-beta-roadmap/05-layout/REVIEW.md",
+    "docs/agent-work/2026-10-24-team-reconciliation/gate-c.md",
+    "node_modules/.cache/personal-word-beta/team-t017",
+    "node_modules/.cache/personal-word-beta/team-serial-check-slot"
+  ],
+  "review_required": true,
+  "created_by": "agent-45fb",
+  "created_at": "2026-10-24T22:19:05+00:00",
+  "claimed_at": "2026-10-25T07:38:58+00:00",
+  "updated_at": "2026-10-25T07:48:54+00:00",
+  "handoff": null,
+  "review": {
+    "by": "agent-b8ae",
+    "at": "2026-10-25T07:48:54+00:00",
+    "verdict": "approved",
+    "note": "Coordinator approval of the Gate C record (agent-c57f): spot-checked team-t017/probe-rerun.log (STOP on searchable-text only, 4 controls DETECTED), vitest-export.log 167/167, cargo-check-normal.log exit 0, artifacts gate-c.pdf/docx + 3 page PNGs present, 05-layout/REVIEW.md first 41 lines hash dd352246 unchanged with the Gate C section appended. Verdict 'PASS as a documented STOP' is consistent with T013/T014; findings F1 (T041), F2 (docs, for T020), F3 (compare pages not PDF hashes) carried forward."
+  },
+  "log": [
+    {
+      "at": "2026-10-24T22:19:05+00:00",
+      "agent": "agent-45fb",
+      "event": "created",
+      "note": ""
+    },
+    {
+      "at": "2026-10-25T07:38:58+00:00",
+      "agent": "agent-c57f",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-10-25T07:38:58+00:00",
+      "agent": "agent-c57f",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-10-25T07:46:46+00:00",
+      "agent": "agent-c57f",
+      "event": "review requested",
+      "note": "GATE C VERDICT: PASS as a documented STOP (CLAIMED). Report docs/agent-work/2026-10-24-team-reconciliation/gate-c.md; dated section appended to 05-layout/REVIEW.md (first 41 lines = T014 STOP section byte-identical, sha dd352246 before/after). No code edits. Logs node_modules/.cache/personal-word-beta/team-t017/. Checked: (1) src/export/pdf.ts sha ffef585b == git HEAD; script refusal pdf.ts:78-93 and overlong-note refusal pdf.ts:369-373 present; npx vitest run src/export src/adversarial-wp3-exports.test.ts exit 0, 6 files/167 (src/export alone 5/138); reviewer harness gatec-artifacts.test.ts 3/3 (Arabic rejected 'needs script shaping'; 600-sentence note rejected with exact message; DOCX still exports) and control copy 2/2 FAIL as expected (artifacts-control.log). (2) Legacy artifacts: artifacts/gate-c.pdf f361b921... (3 Letter pages, 5 embedded Noto Serif subsets, pdftoppm pages 1-3 viewed: notes, table+cell note, image, explicit break, bibliography, no clipping/overlap) and artifacts/gate-c.docx 7731c7ad... (XML: 1 drawing, 1 tbl, 3 footnoteReference, 2 page breaks; QuickLook thumbnail). (3) No public route: no render_pdf/nativePdf/printProbe/native-v2 reference outside src/print/; render_pdf only in the native-smoke handler (lib.rs:263); cargo check --locked --offline --jobs 1 normal and --features native-smoke exit 0, 0 warnings; binary a15f40b3 unchanged. (4) WP8: all 10 result.json identity hashes match -> no rebuild; python3 scripts/native-print-smoke.py --probe --timeout 420 -> run 20261025T074258Z-7930e721 PROBE_RESULT STOP failing only letter/a4 searchable-text, 4/4 controls detected; viewed letter-1 and note-flow-2. (5) Preservation: no deletions, capabilities/default.json df445a89 unchanged, Cargo.lock +5 folio edges only. (6) Wording: ExportPanel help, README:113-114, architecture:49, ROADMAP:8 accurate; personal-word-v2.md:16 'in-app PDF preview' = legacy pdf-lib preview, accurate. WP9/WP10 non-applicable (T015/T016 closed and reviewed; every L2/L3 file absent). FINDINGS: F1 overlong-note refusal has no repo test -> filed T041 (p3, src/export/document.test.ts); F2 docs/validation.md:256-300 off-board WP11 'Beta ... Qualification' lists 'print probe integration' (line 258) and unverified counts -> T020/T018/T021; F3 pdf-lib PDFs are timestamped, compare pages not hashes (T019). WP11 drift recorded not judged (gate-c.md section 5). Boundaries: Node/vitest, Poppler, QuickLook only; macOS 15.7.9 Intel; no normal app build; owner not VERIFIED. Reviewer: rerun row 4/5/14 commands from gate-c.md section 1; serial slot released by this done; no processes of mine remain."
+    },
+    {
+      "at": "2026-10-25T07:48:54+00:00",
+      "agent": "agent-b8ae",
+      "event": "approved",
+      "note": "Coordinator approval of the Gate C record (agent-c57f): spot-checked team-t017/probe-rerun.log (STOP on searchable-text only, 4 controls DETECTED), vitest-export.log 167/167, cargo-check-normal.log exit 0, artifacts gate-c.pdf/docx + 3 page PNGs present, 05-layout/REVIEW.md first 41 lines hash dd352246 unchanged with the Gate C section appended. Verdict 'PASS as a documented STOP' is consistent with T013/T014; findings F1 (T041), F2 (docs, for T020), F3 (compare pages not PDF hashes) carried forward."
+    }
+  ]
+}

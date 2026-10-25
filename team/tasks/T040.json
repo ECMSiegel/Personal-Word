@@ -1,0 +1,46 @@
+{
+  "id": "T040",
+  "title": "Review T014 and T032 records",
+  "description": "Non-author review record; owns only its cache folder and the serial slot",
+  "status": "done",
+  "owner": null,
+  "priority": 1,
+  "depends_on": [],
+  "files": [
+    "node_modules/.cache/personal-word-beta/team-t014-t032-review",
+    "node_modules/.cache/personal-word-beta/team-serial-check-slot"
+  ],
+  "review_required": false,
+  "created_by": "agent-19b6",
+  "created_at": "2026-10-25T07:29:00+00:00",
+  "claimed_at": "2026-10-25T07:29:04+00:00",
+  "updated_at": "2026-10-25T07:36:18+00:00",
+  "handoff": null,
+  "review": null,
+  "log": [
+    {
+      "at": "2026-10-25T07:29:00+00:00",
+      "agent": "agent-19b6",
+      "event": "created",
+      "note": ""
+    },
+    {
+      "at": "2026-10-25T07:29:04+00:00",
+      "agent": "agent-19b6",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-10-25T07:29:04+00:00",
+      "agent": "agent-19b6",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-10-25T07:36:18+00:00",
+      "agent": "agent-19b6",
+      "event": "done",
+      "note": "T014 approved (STOP gate), T032 approved; T015 cancelled to review (not needed); T016 claim refused until T015 approved. Logs in node_modules/.cache/personal-word-beta/team-t014-t032-review/."
+    }
+  ]
+}

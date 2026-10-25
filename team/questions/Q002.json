@@ -1,0 +1,9 @@
+{
+  "id": "Q002",
+  "at": "2026-10-25T00:53:41+00:00",
+  "by": "agent-1a38",
+  "task": "T005",
+  "text": "An off-board Codex 'teamwork' orchestrator (.agents/teamwork/orchestrator_4, worker_m2_iter2, explorer_m2_fix1-3) is editing this project outside the team board while we work: at 20:43-20:44 EDT it changed src-tauri/src/store.rs (approved under T002 at a different hash), src-tauri/src/smoke.rs and tests/native-reliability.js (T005's registered paths). Those half-finished WP11-scope edits turned T005's native baseline from green (run 003850Z) to failed (run 004902Z, asset-crash checkpoint never fires) within ten minutes, so I had to reject T005. Please either (a) stop that orchestrator until the board's tasks are done, or (b) have it join the board, claim T018 (WP11) and register store.rs/smoke.rs/native-reliability.js so its edits are tracked and it fixes the asset-crash checkpoint ordering. Until one of those happens, native evidence for T005 cannot stay valid and I will not re-run it.",
+  "status": "open",
+  "resolution": null
+}

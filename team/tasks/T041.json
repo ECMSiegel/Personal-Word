@@ -1,0 +1,58 @@
+{
+  "id": "T041",
+  "title": "Gate C F1: regression test for legacy PDF overlong-footnote refusal",
+  "description": "Gate C finding F1 (T017, docs/agent-work/2026-10-24-team-reconciliation/gate-c.md). src/export/pdf.ts:369-373 refuses a footnote that cannot fit on one page with 'A footnote is too long to fit on one PDF page. Export DOCX for flowing footnotes.' but no repo test asserts it (only the script-shaping refusal document.test.ts:234 and tall table row :525 are tested). Add one unit in src/export/document.test.ts: a project whose single note is 'A very long note sentence. '.repeat(600) must make exportPdf reject with that exact message, and exportDocx of the same project must still succeed. Fail-first: show it failing on an isolated copy of pdf.ts with that throw removed (see the reviewer harness and control in node_modules/.cache/personal-word-beta/team-t017/gatec-artifacts.test.ts, gatec-control.test.ts, artifacts-control.log). Do NOT edit src/export/pdf.ts (legacy exporter must stay byte-identical to HEAD, ffef585b). Pinned Node; npx vitest run src/export; report CLAIMED.",
+  "status": "done",
+  "owner": null,
+  "priority": 3,
+  "depends_on": [],
+  "files": [
+    "src/export/document.test.ts",
+    "node_modules/.cache/personal-word-beta/team-gatec-f1",
+    "node_modules/.cache/personal-word-beta/team-serial-check-slot"
+  ],
+  "review_required": true,
+  "created_by": "agent-c57f",
+  "created_at": "2026-10-25T07:45:05+00:00",
+  "claimed_at": "2026-10-25T07:49:04+00:00",
+  "updated_at": "2026-10-25T07:50:31+00:00",
+  "handoff": null,
+  "review": {
+    "by": "agent-b8ae",
+    "at": "2026-10-25T07:50:31+00:00",
+    "verdict": "approved",
+    "note": "Coordinator review: diff adds one unit asserting exportPdf rejects a 600-sentence footnote with the exact legacy message and exportDocx still produces a Blob; pdf.ts unchanged (ffef585b = HEAD); fail-first retained (team-gatec-f1/failfirst.log: 1 failed/22 passed against an aliased doctored pdf copy, 'promise resolved ... instead of rejecting'); my rerun npx vitest run src/export/document.test.ts = 23/23 (team-coordinator/t041-review/document-test.log)."
+  },
+  "log": [
+    {
+      "at": "2026-10-25T07:45:05+00:00",
+      "agent": "agent-c57f",
+      "event": "created",
+      "note": ""
+    },
+    {
+      "at": "2026-10-25T07:49:04+00:00",
+      "agent": "agent-4ad6",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-10-25T07:49:05+00:00",
+      "agent": "agent-4ad6",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-10-25T07:49:54+00:00",
+      "agent": "agent-4ad6",
+      "event": "review requested",
+      "note": "CLAIMED: added overlong-footnote refusal unit to src/export/document.test.ts (+16 lines). Asserts exportPdf rejects with 'A footnote is too long to fit on one PDF page. Export DOCX for flowing footnotes.' (note = 'A very long note sentence. '.repeat(600)) and exportDocx still yields a Blob. Fail-first on doctored pdf.ts copy (refusal disabled): exit 1, only new test failed (failfirst.log). Real: vitest document.test.ts 23/23 pass, tsc --noEmit exit 0. pdf.ts sha256 ffef585b... unchanged. Evidence: node_modules/.cache/personal-word-beta/team-gatec-f1/REPORT.md"
+    },
+    {
+      "at": "2026-10-25T07:50:31+00:00",
+      "agent": "agent-b8ae",
+      "event": "approved",
+      "note": "Coordinator review: diff adds one unit asserting exportPdf rejects a 600-sentence footnote with the exact legacy message and exportDocx still produces a Blob; pdf.ts unchanged (ffef585b = HEAD); fail-first retained (team-gatec-f1/failfirst.log: 1 failed/22 passed against an aliased doctored pdf copy, 'promise resolved ... instead of rejecting'); my rerun npx vitest run src/export/document.test.ts = 23/23 (team-coordinator/t041-review/document-test.log)."
+    }
+  ]
+}

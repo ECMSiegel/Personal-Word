@@ -242,6 +242,22 @@ it("rejects scripts that need shaping instead of exporting corrupted PDF text", 
   await expect(exportPdf(p)).rejects.toThrow("needs script shaping");
 });
 
+it("refuses a footnote too long for one legacy PDF page instead of truncating it, while DOCX still exports", async () => {
+  const p = fixture();
+  p.research!.footnotes = [
+    { id: "long", text: "A very long note sentence. ".repeat(600) },
+  ];
+  p.entries[0].content = {
+    type: "doc",
+    content: [para(text("Body"), note("long"))],
+  };
+  await expect(exportPdf(p)).rejects.toThrow(
+    "A footnote is too long to fit on one PDF page. Export DOCX for flowing footnotes.",
+  );
+  const docx = await exportDocx(p);
+  expect(docx.size).toBeGreaterThan(1000);
+}, 20_000);
+
 it("writes footnotes, strike, nested numbering, and hard breaks as native DOCX XML", async () => {
   const p = fixture();
   p.entries[0].content = {

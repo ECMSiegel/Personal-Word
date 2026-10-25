@@ -1,0 +1,66 @@
+{
+  "id": "T023",
+  "title": "Prepare owner real-use checklist and final project handoff",
+  "description": "Follow team/PLAN.md, team/PROTOCOL.md, DELEGATION.md Common rules and applicable child plan; preserve current dirty work. This board records unfinished acceptance/repair, not permission to rebuild existing features. Inspect current implementation and earlier evidence first; fix only reproduced gaps in owned files, record exact commands/results and fail-first controls, and report CLAIMED. No installs, new packages, commits, pushes, publication, real-library access or destructive cleanup. Before expensive checks, acquire exclusive registered path node_modules/.cache/personal-word-beta/team-serial-check-slot via team.py files add; if another live task owns it, do independent work or hand off rather than overlap runs. Retain full logs and use pinned Node/offline serial Rust/production-preview Playwright. Independent review is required. After Gate D, write exact manual steps and expected/failure outcomes for keyboard Home/Tab/comment anchors, close/error retry/reopen/recovery/safety snapshot, images/table/assets/archive/fragment transfer, rich import/cancel/hostile files, citations/BibTeX/synthetic Zotero, PDF/DOCX and conditional print/fonts/long notes, VoiceOver/IME/long session and available Mac architecture. Record unavailable checks and owner outcomes as pending, not passed; owner testing is after all builds. Record verified-current normal app path/hash and task/review links. Update HANDOFF.md with current state and next concrete owner action, preserving historical decisions. Check team.py doctor and all definition-of-done items honestly; do not tick unmet checks or claim COMPLETE with required blockers. Write the task report to docs/agent-work/2026-10-24-team-reconciliation/owner-handoff.md.",
+  "status": "done",
+  "owner": null,
+  "priority": 2,
+  "depends_on": [
+    "T022"
+  ],
+  "files": [
+    "HANDOFF.md",
+    "docs/agent-work/2026-10-24-team-reconciliation/OWNER_TEST_CHECKLIST.md",
+    "docs/agent-work/2026-10-24-team-reconciliation/owner-handoff.md",
+    "node_modules/.cache/personal-word-beta/team-t023",
+    "docs/agent-work/2026-10-20-beta-roadmap/06-durability/EVIDENCE.json",
+    "docs/validation.md",
+    "README.md",
+    "docs/agent-work/2026-10-20-beta-roadmap/06-durability/IMPLEMENTATION_LOG.md",
+    "docs/agent-work/2026-10-24-team-reconciliation/evidence.md"
+  ],
+  "review_required": true,
+  "created_by": "agent-45fb",
+  "created_at": "2026-10-24T22:19:06+00:00",
+  "claimed_at": "2026-10-25T10:19:48+00:00",
+  "updated_at": "2026-10-25T10:24:31+00:00",
+  "handoff": null,
+  "review": {
+    "by": "agent-b8ae",
+    "at": "2026-10-25T10:24:31+00:00",
+    "verdict": "approved",
+    "note": "Coordinator review: EVIDENCE.json review field recorded (verifier exit 2, 9 owner gates pending, review PASS with matching sha; team-coordinator/t023-verify.log); OWNER_TEST_CHECKLIST.md sections A-I with 31 'pending owner' outcomes and no pre-marked pass; owner-handoff.md with DoD judgement; HANDOFF.md rewritten with app path/hash, Q001-Q004, current limitations, next-session prompt; digest mentions updated; doctor OK; no code edits."
+  },
+  "log": [
+    {
+      "at": "2026-10-24T22:19:06+00:00",
+      "agent": "agent-45fb",
+      "event": "created",
+      "note": ""
+    },
+    {
+      "at": "2026-10-25T10:19:48+00:00",
+      "agent": "agent-d5a8",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-10-25T10:19:48+00:00",
+      "agent": "agent-d5a8",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-10-25T10:23:34+00:00",
+      "agent": "agent-d5a8",
+      "event": "review requested",
+      "note": "T023: recorded review passed in EVIDENCE.json (verifier exit 2, 9 owner items pending, log in node_modules/.cache/personal-word-beta/team-t023/); appended superseded-digest 24fa1a86... to validation.md, 06-durability IMPLEMENTATION_LOG.md, evidence.md; wrote OWNER_TEST_CHECKLIST.md (all pending owner, NO AGENT items marked), owner-handoff.md (DoD judgement: 1-5 met, 6 after approval, 7 after approval; nothing ticked) and rewrote HANDOFF.md. No code, commits or installs."
+    },
+    {
+      "at": "2026-10-25T10:24:31+00:00",
+      "agent": "agent-b8ae",
+      "event": "approved",
+      "note": "Coordinator review: EVIDENCE.json review field recorded (verifier exit 2, 9 owner gates pending, review PASS with matching sha; team-coordinator/t023-verify.log); OWNER_TEST_CHECKLIST.md sections A-I with 31 'pending owner' outcomes and no pre-marked pass; owner-handoff.md with DoD judgement; HANDOFF.md rewritten with app path/hash, Q001-Q004, current limitations, next-session prompt; digest mentions updated; doctor OK; no code edits."
+    }
+  ]
+}

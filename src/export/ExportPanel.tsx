@@ -6,7 +6,28 @@ import {
 import { saveExport, safeFilename, type ExportProject } from "./document";
 import { projectMarkdown, projectPlainText } from "./textExport";
 import { Dropdown } from "../components/Dropdown";
+import { storage } from "../storage";
+import { collectAssetIds } from "../assets/assets";
+import type { AssetId, PendingAsset } from "../assets/types";
 import "../research/research.css";
+
+async function collectAndResolveAssets(
+  project: ExportProject,
+): Promise<Map<AssetId, PendingAsset>> {
+  const ids = collectAssetIds(project);
+  const assets = new Map<AssetId, PendingAsset>();
+  for (const id of ids) {
+    try {
+      const asset = await storage.readAsset(project.id, id);
+      assets.set(id, asset);
+    } catch {
+      throw new Error(
+        `An image is missing from this export (asset ${id.slice(0, 12) || "unknown"}). Restore the image or remove it from the document before exporting.`,
+      );
+    }
+  }
+  return assets;
+}
 export function ExportPanel({
   project,
   onSettingsChange,
@@ -28,10 +49,11 @@ export function ExportPanel({
     setBusy(true);
     setMessage("");
     try {
+      const assets = await collectAndResolveAssets(project);
       const blob =
         format === "docx"
-          ? await (await import("./docx")).exportDocx(project)
-          : await (await import("./pdf")).exportPdf(project);
+          ? await (await import("./docx")).exportDocx(project, assets)
+          : await (await import("./pdf")).exportPdf(project, undefined, assets);
       const saved = await saveExport(
         blob,
         `${safeFilename(project.title)}.${format}`,
@@ -51,9 +73,10 @@ export function ExportPanel({
     setBusy(true);
     setMessage("");
     try {
+      const assets = await collectAndResolveAssets(project);
       const markdown = format === "markdown";
       const blob = new Blob(
-        [markdown ? projectMarkdown(project) : projectPlainText(project)],
+        [markdown ? projectMarkdown(project, assets) : projectPlainText(project, assets)],
         {
           type: markdown
             ? "text/markdown;charset=utf-8"
@@ -67,6 +90,28 @@ export function ExportPanel({
       setMessage(
         saved
           ? `${markdown ? "Markdown" : "Plain text"} exported.`
+          : "Export canceled.",
+      );
+    } catch (e) {
+      setMessage(e instanceof Error ? e.message : String(e));
+    } finally {
+      setBusy(false);
+    }
+  }
+  async function saveMarkdownBundle() {
+    setBusy(true);
+    setMessage("");
+    try {
+      const assets = await collectAndResolveAssets(project);
+      const { exportMarkdownBundle } = await import("./markdownBundle");
+      const blob = await exportMarkdownBundle(project, assets);
+      const saved = await saveExport(
+        blob,
+        `${safeFilename(project.title || "Untitled")}-markdown.zip`,
+      );
+      setMessage(
+        saved
+          ? "Markdown bundle exported."
           : "Export canceled.",
       );
     } catch (e) {
@@ -191,11 +236,17 @@ export function ExportPanel({
           disabled={busy}
           onClick={async () => {
             setBusy(true);
+            setMessage("");
             try {
-              const blob = await (await import("./pdf")).exportPdf(project);
+              const assets = await collectAndResolveAssets(project);
+              const blob = await (await import("./pdf")).exportPdf(
+                project,
+                undefined,
+                assets,
+              );
               setPreview(URL.createObjectURL(blob));
             } catch (e) {
-              setMessage(String(e));
+              setMessage(e instanceof Error ? e.message : String(e));
             } finally {
               setBusy(false);
             }
@@ -216,6 +267,13 @@ export function ExportPanel({
           onClick={() => saveText("markdown")}
         >
           Export Markdown
+        </button>
+        <button
+          className="settings-button"
+          disabled={busy}
+          onClick={() => saveMarkdownBundle()}
+        >
+          Markdown with images (.zip)
         </button>
         <button
           className="settings-button"

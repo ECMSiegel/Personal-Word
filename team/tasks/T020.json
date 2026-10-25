@@ -1,0 +1,68 @@
+{
+  "id": "T020",
+  "title": "Update beta documentation from current evidence",
+  "description": "Follow team/PLAN.md, team/PROTOCOL.md, DELEGATION.md Common rules and applicable child plan; preserve current dirty work. This board records unfinished acceptance/repair, not permission to rebuild existing features. Inspect current implementation and earlier evidence first; fix only reproduced gaps in owned files, record exact commands/results and fail-first controls, and report CLAIMED. No installs, new packages, commits, pushes, publication, real-library access or destructive cleanup. Before expensive checks, acquire exclusive registered path node_modules/.cache/personal-word-beta/team-serial-check-slot via team.py files add; if another live task owns it, do independent work or hand off rather than overlap runs. Retain full logs and use pinned Node/offline serial Rust/production-preview Playwright. Independent review is required. D2 documentation pass: update README.md, architecture/validation/recovery/publication-readiness/feature guide/ROADMAP and roadmap implementation log with precise implemented+tested behavior and unresolved limits. Correct stale text-only import/no-images/no-BibTeX/no-footnote-roundtrip claims only when task evidence supports it. Distinguish browser, native harness, actual artifacts and owner real use; no universal scripts/page parity/shutdown guarantee or distribution claim. Retain dated history; document conditional layout stop if applicable. Write the task report to docs/agent-work/2026-10-24-team-reconciliation/docs.md.",
+  "status": "done",
+  "owner": null,
+  "priority": 2,
+  "depends_on": [
+    "T019"
+  ],
+  "files": [
+    "README.md",
+    "docs/architecture.md",
+    "docs/validation.md",
+    "docs/recovery.md",
+    "docs/publication-readiness.md",
+    "docs/personal-word-v2.md",
+    "ROADMAP.md",
+    "docs/agent-work/2026-10-20-beta-roadmap/IMPLEMENTATION_LOG.md",
+    "docs/agent-work/2026-10-20-beta-roadmap/06-durability/IMPLEMENTATION_LOG.md",
+    "docs/agent-work/2026-10-24-team-reconciliation/docs.md",
+    "node_modules/.cache/personal-word-beta/team-t020"
+  ],
+  "review_required": true,
+  "created_by": "agent-45fb",
+  "created_at": "2026-10-24T22:19:05+00:00",
+  "claimed_at": "2026-10-25T09:16:55+00:00",
+  "updated_at": "2026-10-25T09:30:38+00:00",
+  "handoff": null,
+  "review": {
+    "by": "agent-b166",
+    "at": "2026-10-25T09:30:38+00:00",
+    "verdict": "approved",
+    "note": "Independent doc-accuracy review (agent-b166). Current hashes of all 10 registered files equal team-t020/end-state.txt; no registered path owned by another live task; judged current text (off-board + T020), diffed vs HEAD. Spot-checked against sources: 858/46 and Rust 48/1 ignored (wp11-matrix.md:75,77); 183/9 focused (:74); baseline 13+5 run 0cea2da3 and beta 19+42 run 642b9c8a (:80-81); rerun dadedb9c in T042 approval on T018; p95 116.57/130.43/124.37, median ~108, load ~2 (:64,83); D1 346.55 ON load 49 / 499.44 OFF load 107 (06-durability log :61); 26 of 28 fonts (feasibility.md:87, DECISIONS WP9/WP10 cancel); probe runs 642a1146/e51b1619/7930e721 (wp8.md, feasibility.md:41, gate-c.md:37); 180 export tests post-T043 (T043 approval); store.rs:174 'newer version of Folio' verified; ProjectLibrary.tsx:200 '(up to 20 MB)' vs manuscript.ts:7 5 MB (text path via docxImport.ts:895 fallback); archive = v2 .json (App.tsx Export portable project, projectArchive.ts:33); tblHeader/no PDF header repeat (artifact-acceptance.md:86,135); B3 DOCTYPE, B4 zip/Q003, B5 Zotero gaps (gate-b.md:106-108, wp6.md:139-157); render_pdf smoke-only/dead code (gate-c.md:33, feasibility.md:163); stage_assets + stale_portable_copy test exist in store.rs. Overclaim grep: every 'qualified/guarantee/page parity/exact PDF' use is negated or bounded. WP8 STOP, WP9/WP10 cancel, Q004, legacy-only PDF, smoke-only native path all stated. Both IMPLEMENTATION_LOGs append-only vs HEAD (D1 text intact). No new em dashes; Folio only in identifiers/the known string. Files changed since T020 start outside its paths are only T043's (multiparagraphNote.test.ts, tsbuildinfo) and team/. Non-blocking: (1) docs/personal-word-v2.md:55 'Duplicate IDs, normalized DOIs, or title/first-author combinations are skipped' is stale HEAD text vs sourceMerge.ts:107-139 (title/creator matches go to possibleMatches for review) and README; (2) README Zotero bullet (line ~131) dropped the opt-in 'Use repeat citation rules'/Ibid. sentence (feature present, ResearchPanel.tsx:686; still documented in v2 Note forms). Nits: validation.md WP8 'could not produce searchable Arabic' is the wording feasibility.md calls overstated (qualified in the next sentence); beta-roadmap log says 'T006 qualified'. Suggest folding (1)-(2) into T023 or a tiny follow-up."
+  },
+  "log": [
+    {
+      "at": "2026-10-24T22:19:05+00:00",
+      "agent": "agent-45fb",
+      "event": "created",
+      "note": ""
+    },
+    {
+      "at": "2026-10-25T09:16:55+00:00",
+      "agent": "agent-ac43",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-10-25T09:16:55+00:00",
+      "agent": "agent-ac43",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-10-25T09:25:40+00:00",
+      "agent": "agent-ac43",
+      "event": "review requested",
+      "note": "CLAIMED, docs only (no code/tests/HANDOFF/REVIEW touched, nothing committed). Rewrote off-board docs/validation.md beta section (removed 'qualified' and 'print probe integration'; board counts: 858 units/46 files, Rust 48+1 ignored, native baseline 13+5 20261025T084201Z-0cea2da3, beta 19+42 20261025T084244Z-642b9c8a, rerun 20261025T084746Z-dadedb9c; per-suite browser counts, no consolidated browser number; T021 manifest/normal build marked pending). README: alpha status as dated subsections, per-format import limits, Zotero/BibTeX limits, WP8 STOP + Q004, PDF header row/titles/image gap, benchmark p95 116.57/130.43/124.37 ms (one Intel Mac, ARM unmeasured). architecture/recovery: guarantee wording replaced by tests+measurements, recovery.md archive name fixed, rich-import/export/print-STOP paragraphs. v2/ROADMAP/publication-readiness: stale text-only, BibTeX, footnote-round-trip, in-app preview sentences corrected, dated 2026-10-25 sections. Appended dated sections to both IMPLEMENTATION_LOGs. T043 read as done (approved agent-7cc8) before wording: repaired and reviewed. Report: docs/agent-work/2026-10-24-team-reconciliation/docs.md; start/end hashes: node_modules/.cache/personal-word-beta/team-t020/{start,end}-state.txt. Paths: README.md, docs/architecture.md, docs/validation.md, docs/recovery.md, docs/publication-readiness.md, docs/personal-word-v2.md, ROADMAP.md, both IMPLEMENTATION_LOG.md, docs.md: uncommitted edits."
+    },
+    {
+      "at": "2026-10-25T09:30:38+00:00",
+      "agent": "agent-b166",
+      "event": "approved",
+      "note": "Independent doc-accuracy review (agent-b166). Current hashes of all 10 registered files equal team-t020/end-state.txt; no registered path owned by another live task; judged current text (off-board + T020), diffed vs HEAD. Spot-checked against sources: 858/46 and Rust 48/1 ignored (wp11-matrix.md:75,77); 183/9 focused (:74); baseline 13+5 run 0cea2da3 and beta 19+42 run 642b9c8a (:80-81); rerun dadedb9c in T042 approval on T018; p95 116.57/130.43/124.37, median ~108, load ~2 (:64,83); D1 346.55 ON load 49 / 499.44 OFF load 107 (06-durability log :61); 26 of 28 fonts (feasibility.md:87, DECISIONS WP9/WP10 cancel); probe runs 642a1146/e51b1619/7930e721 (wp8.md, feasibility.md:41, gate-c.md:37); 180 export tests post-T043 (T043 approval); store.rs:174 'newer version of Folio' verified; ProjectLibrary.tsx:200 '(up to 20 MB)' vs manuscript.ts:7 5 MB (text path via docxImport.ts:895 fallback); archive = v2 .json (App.tsx Export portable project, projectArchive.ts:33); tblHeader/no PDF header repeat (artifact-acceptance.md:86,135); B3 DOCTYPE, B4 zip/Q003, B5 Zotero gaps (gate-b.md:106-108, wp6.md:139-157); render_pdf smoke-only/dead code (gate-c.md:33, feasibility.md:163); stage_assets + stale_portable_copy test exist in store.rs. Overclaim grep: every 'qualified/guarantee/page parity/exact PDF' use is negated or bounded. WP8 STOP, WP9/WP10 cancel, Q004, legacy-only PDF, smoke-only native path all stated. Both IMPLEMENTATION_LOGs append-only vs HEAD (D1 text intact). No new em dashes; Folio only in identifiers/the known string. Files changed since T020 start outside its paths are only T043's (multiparagraphNote.test.ts, tsbuildinfo) and team/. Non-blocking: (1) docs/personal-word-v2.md:55 'Duplicate IDs, normalized DOIs, or title/first-author combinations are skipped' is stale HEAD text vs sourceMerge.ts:107-139 (title/creator matches go to possibleMatches for review) and README; (2) README Zotero bullet (line ~131) dropped the opt-in 'Use repeat citation rules'/Ibid. sentence (feature present, ResearchPanel.tsx:686; still documented in v2 Note forms). Nits: validation.md WP8 'could not produce searchable Arabic' is the wording feasibility.md calls overstated (qualified in the next sentence); beta-roadmap log says 'T006 qualified'. Suggest folding (1)-(2) into T023 or a tiny follow-up."
+    }
+  ]
+}

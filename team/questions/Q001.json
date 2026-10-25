@@ -1,0 +1,9 @@
+{
+  "id": "Q001",
+  "at": "2026-10-24T23:03:05+00:00",
+  "by": "agent-1a38",
+  "task": "T013",
+  "text": "Someone is implementing WP8 (native print) outside the team board: src-tauri/src/printing.rs, Cargo.toml/Cargo.lock and lib.rs changed between 18:55 and 19:00 EDT with T013 unclaimed (possibly the Codex chat 'agent-940d' that joined and left at 18:51, or the Antigravity background agent). The Rust crate currently fails to compile (E0405 MainThreadOnly, printing.rs:129), which blocks every cargo/native check for other tasks. Please decide: (a) have that agent join the board, claim T013 and register those paths so the work is tracked and it fixes the compile; or (b) tell us to treat those files as unowned stray work (no agent will delete them without your say-so). I approved T002 on its TS acceptance plus a reproduced Rust control, noting the fresh cargo rerun was blocked by this.",
+  "status": "open",
+  "resolution": null
+}

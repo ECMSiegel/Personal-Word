@@ -1,18 +1,21 @@
 #!/usr/bin/env python3
-"""Run the D1 native durability matrix against an already-built diagnostic app.
+"""Run the D1 native durability matrix (baseline) and the D2 beta matrix against an already-built diagnostic app.
 
 Every app process and SQLite library lives below node_modules/.cache, and this
 supervisor signals only process groups it created. It never builds the app or
 opens the user's com.folio.writing store.
 """
 import argparse
-from contextlib import contextmanager
+import base64
+from contextlib import closing, contextmanager
 from datetime import datetime, timezone
 import hashlib
 import json
 import os
 from pathlib import Path
 import platform
+import re
+import shutil
 import signal
 import sqlite3
 import subprocess
@@ -35,6 +38,7 @@ FIXED_INPUTS = (
     "package-lock.json",
     "tests/native-smoke.js",
     "tests/native-reliability.js",
+    "tests/fixtures/beta-synthetic-project.json",
 )
 
 
@@ -372,7 +376,759 @@ def assert_close_contract(report, observed_events):
         )
 
 
-def run_suite(timeout, run_id, root, identity):
+# ---------------------------------------------------------------------------------------------
+# D2 / WP11 beta suite. tests/fixtures/beta-synthetic-project.json is the only description of the
+# synthetic project (the unit tests and the Rust store test read the same file). Every expected
+# state below is derived from it here, in Python, and compared with what the killed or quit app left
+# on disk. The native script only executes steps; its own reports are never used as expectations.
+# ---------------------------------------------------------------------------------------------
+BETA_FIXTURE = ROOT / "tests/fixtures/beta-synthetic-project.json"
+# Literal anchors that do not come from the fixture file or from Rust, so a wrong id, extension or
+# image cannot be accepted just because every layer agrees with itself.
+BETA_ASSET_IDS = {
+    "png-section-drawing": "f6b373ee62d8abe053e1decceb83b38627e0ce3df932ce72729f10a2e6e8fc58",
+    "jpeg-sherd": "3d514a5fefae5717146a5a34587661bf8dc478f1228b7857e95cb8db669a82a9",
+    "png-late": "4f41c74697cfb0d0fef50823998e9119d3f1eb92f5d3764fed5d2a1051456de8",
+}
+BETA_ATTACHMENT_EXTENSIONS = {"image/png": "png", "image/jpeg": "jpg"}
+BETA_CLONE_ID = "7c1d4e8a-2b3f-4a5c-9d6e-0f1a2b3c4d5e"
+
+
+def deep(value):
+    return json.loads(json.dumps(value))
+
+
+def short(value, limit=90):
+    text = json.dumps(value, ensure_ascii=False, sort_keys=True)
+    return text if len(text) <= limit else text[: limit - 3] + "..."
+
+
+def first_difference(actual, expected, path="$"):
+    """Path of the first field where two JSON values differ, or None when they are identical."""
+    if type(actual) is not type(expected):
+        return f"{path}: {type(actual).__name__} {short(actual)} vs {type(expected).__name__} {short(expected)}"
+    if isinstance(actual, dict):
+        for key in sorted(set(actual) | set(expected)):
+            if key not in actual:
+                return f"{path}.{key}: missing (expected {short(expected[key])})"
+            if key not in expected:
+                return f"{path}.{key}: unexpected {short(actual[key])}"
+            found = first_difference(actual[key], expected[key], f"{path}.{key}")
+            if found:
+                return found
+        return None
+    if isinstance(actual, list):
+        if len(actual) != len(expected):
+            return f"{path}: length {len(actual)} vs {len(expected)}"
+        for index, (left, right) in enumerate(zip(actual, expected)):
+            found = first_difference(left, right, f"{path}[{index}]")
+            if found:
+                return found
+        return None
+    return None if actual == expected else f"{path}: {short(actual)} vs {short(expected)}"
+
+
+def require_equal(actual, expected, label):
+    """Canonical full-structure equality; the failure names the first differing field."""
+    if canonical(actual) != canonical(expected):
+        raise AssertionError(f"{label}: differs at {first_difference(actual, expected)}")
+
+
+class Beta:
+    """Expected states for the synthetic project, built only from the fixture file."""
+
+    def __init__(self):
+        self.fixture = json.loads(BETA_FIXTURE.read_text())
+        self.ids = self.fixture["ids"]
+        self.edits = self.fixture["edits"]
+        self.assets = {}
+        for item in self.fixture["assets"]:
+            data = base64.b64decode(item["data"])
+            if item["id"] != BETA_ASSET_IDS[item["name"]] or hashlib.sha256(data).hexdigest() != item["id"]:
+                raise AssertionError(f"Fixture asset {item['name']} does not match its recorded SHA-256")
+            if item["meta"]["byteLength"] != len(data):
+                raise AssertionError(f"Fixture asset {item['name']} has the wrong byte length")
+            self.assets[item["name"]] = {**item, "bytes": data, "extension": BETA_ATTACHMENT_EXTENSIONS[item["meta"]["mime"]]}
+        self.pid = self.ids["project"]
+        self.s1 = deep(self.fixture["initial"])
+        self.s2 = self.apply_edit(self.s1, self.edits["incremental"])
+        self.s3 = self.apply_edit(self.s2, self.edits["second"])
+        self.late = self.apply_edit(self.s1, self.edits["lateImage"])
+        self.merged = self.apply_edit(self.s1, self.edits["merge"])
+        # Crash-restore scenario: V1 content (S1) returned over S2 as revision 3.
+        self.restored_from_v1 = {**deep(self.s1), "revision": 3, "updatedAt": self.edits["restore"]["updatedAt"]}
+        for state in (self.s1, self.s2, self.s3, self.late, self.merged):
+            referenced = referenced_assets(state)
+            unknown = referenced - {item["id"] for item in self.assets.values()}
+            if unknown:
+                raise AssertionError(f"Fixture state references an image that is not in the fixture: {sorted(unknown)}")
+
+    @staticmethod
+    def apply_edit(project, edit):
+        nxt = deep(project)
+        nxt["revision"] += 1
+        nxt["updatedAt"] = edit["updatedAt"]
+        if edit.get("entryId"):
+            entry = next(e for e in nxt["entries"] if e["id"] == edit["entryId"])
+            entry.update(deep(edit["entry"]))
+        for patch in edit.get("sources", []):
+            next(s for s in nxt["research"]["sources"] if s["id"] == patch["id"]).update(deep(patch["set"]))
+        return nxt
+
+    def asset_id(self, name):
+        return self.assets[name]["id"]
+
+    def attachment_name(self, name):
+        return f"{self.assets[name]['id']}.{self.assets[name]['extension']}"
+
+
+def referenced_assets(project):
+    found = set()
+
+    def walk(node):
+        if isinstance(node, dict):
+            if node.get("type") == "image" and isinstance(node.get("attrs"), dict):
+                found.add(node["attrs"]["assetId"])
+            for child in node.get("content") or []:
+                walk(child)
+
+    for entry in project["entries"]:
+        walk(entry["content"])
+    return found
+
+
+def manuscript_text(project):
+    by_id = {entry["id"]: entry for entry in project["entries"]}
+    return "\n\n".join(f"{by_id[i]['title']}\n\n{by_id[i]['text']}\n" for i in project["order"])
+
+
+def fragments_text(project):
+    return "\n\n".join(
+        f"{entry['title']}\n\n{entry['text']}\n" for entry in project["entries"] if entry["kind"] == "fragment"
+    )
+
+
+class DiskState:
+    """Everything one project left on disk, read without the app (read-only SQLite, plain files)."""
+
+    def __init__(self, folder):
+        self.folder = folder
+        self.project = None
+        self.history = {}
+        self.snapshots = []
+        self.assets = {}
+        self.attachments = {}
+        self.snapshot_files = {}
+        self.mirror = None
+        self.manuscript = None
+        self.fragments = None
+        self.user_version = None
+
+
+def read_disk_state(work, project_id):
+    folder = work / "projects" / project_id
+    state = DiskState(folder)
+    database_path = folder / "project.sqlite3"
+    if not database_path.is_file():
+        raise AssertionError(f"Project database is missing: {database_path}")
+    with closing(sqlite3.connect(database_path.as_uri() + "?mode=ro", uri=True, timeout=5)) as database:
+        integrity = database.execute("PRAGMA integrity_check").fetchone()[0]
+        if integrity != "ok":
+            raise AssertionError(f"SQLite integrity_check returned {integrity!r}")
+        state.user_version = database.execute("PRAGMA user_version").fetchone()[0]
+        headers = database.execute("SELECT id,data FROM project").fetchall()
+        if len(headers) != 1 or headers[0][0] != project_id:
+            raise AssertionError(f"Expected exactly project {project_id}, found {[row[0] for row in headers]}")
+        rows = {entry_id: json.loads(data) for entry_id, data in database.execute("SELECT id,data FROM entries")}
+        header = json.loads(headers[0][1])
+        entry_ids = header.pop("entryIds")
+        if set(entry_ids) != set(rows):
+            raise AssertionError("Project header IDs differ from the persisted entry rows")
+        state.project = {**header, "entries": [rows[i] for i in entry_ids]}
+        for revision, header_json in database.execute("SELECT revision,header FROM history"):
+            old = json.loads(header_json)
+            old_ids = old.pop("entryIds")
+            blobs = {
+                entry_id: json.loads(data)
+                for entry_id, data in database.execute(
+                    "SELECT h.entry_id,b.data FROM history_entries h JOIN history_blobs b ON b.id=h.blob WHERE h.revision=?",
+                    [revision],
+                )
+            }
+            state.history[revision] = {**old, "entries": [blobs[i] for i in old_ids]}
+        for key, name, created_at, data in database.execute("SELECT id,name,created_at,data FROM snapshots ORDER BY rowid"):
+            state.snapshots.append({"id": key, "name": name, "createdAt": created_at, "project": json.loads(data)})
+        for asset_id, mime, length, width, height, data in database.execute(
+            "SELECT id,mime,byte_length,width,height,data FROM assets"
+        ):
+            state.assets[asset_id] = {"mime": mime, "byteLength": length, "width": width, "height": height, "data": bytes(data)}
+    attachments = folder / "attachments"
+    if attachments.is_dir():
+        state.attachments = {
+            path.name: hashlib.sha256(path.read_bytes()).hexdigest() for path in attachments.iterdir() if path.is_file()
+        }
+    snapshots = folder / "snapshots"
+    if snapshots.is_dir():
+        state.snapshot_files = {path.stem: json.loads(path.read_text()) for path in snapshots.glob("*.json")}
+    if (folder / "project.json").is_file():
+        state.mirror = json.loads((folder / "project.json").read_text())
+    if (folder / "manuscript.txt").is_file():
+        state.manuscript = (folder / "manuscript.txt").read_text()
+    if (folder / "fragments.txt").is_file():
+        state.fragments = (folder / "fragments.txt").read_text()
+    return state
+
+
+def check_project(state, expected, label):
+    require_equal(state.project, expected, f"{label}: SQLite project")
+
+
+def check_history(state, expected_by_revision, label):
+    for revision, expected in expected_by_revision.items():
+        if revision not in state.history:
+            raise AssertionError(f"{label}: automatic history has no row for revision {revision}")
+        require_equal(state.history[revision], expected, f"{label}: history revision {revision}")
+
+
+def check_snapshots(state, expected_by_name, label):
+    """Every named snapshot equals the expected complete project, its file copy equals its row, none are lost."""
+    for name, expected_projects in expected_by_name.items():
+        rows = [row for row in state.snapshots if row["name"] == name]
+        if len(rows) != len(expected_projects):
+            raise AssertionError(f"{label}: expected {len(expected_projects)} snapshot(s) named {name!r}, found {len(rows)}")
+        actual = sorted(canonical(row["project"]) for row in rows)
+        wanted = sorted(canonical(project) for project in expected_projects)
+        if actual != wanted:
+            index = next(i for i, (a, w) in enumerate(zip(actual, wanted)) if a != w)
+            raise AssertionError(
+                f"{label}: snapshot {name!r} differs at {first_difference(json.loads(actual[index]), json.loads(wanted[index]))}"
+            )
+        for row in rows:
+            copy = state.snapshot_files.get(row["id"])
+            if copy is None:
+                raise AssertionError(f"{label}: snapshot {name!r} has no file copy {row['id']}.json")
+            require_equal(copy, row["project"], f"{label}: snapshot {name!r} file copy")
+
+
+def check_assets(beta, state, stored, attached, label):
+    """The assets table holds exactly `stored` (name -> id, bytes, meta); attachments hold exactly `attached`, byte-exact."""
+    expected_ids = {beta.asset_id(name) for name in stored}
+    if set(state.assets) != expected_ids:
+        raise AssertionError(f"{label}: stored images {sorted(i[:8] for i in state.assets)} differ from {sorted(i[:8] for i in expected_ids)}")
+    for name in stored:
+        item = beta.assets[name]
+        row = state.assets[item["id"]]
+        meta = item["meta"]
+        if (row["mime"], row["byteLength"], row["width"], row["height"]) != (meta["mime"], meta["byteLength"], meta["width"], meta["height"]):
+            raise AssertionError(f"{label}: stored image {name} metadata differs")
+        if hashlib.sha256(row["data"]).hexdigest() != item["id"] or row["data"] != item["bytes"]:
+            raise AssertionError(f"{label}: stored image {name} bytes do not match their SHA-256")
+    wanted = {beta.attachment_name(name): beta.asset_id(name) for name in attached}
+    if set(state.attachments) != set(wanted):
+        raise AssertionError(f"{label}: attachment files {sorted(state.attachments)} differ from {sorted(wanted)}")
+    for file_name, asset_id in wanted.items():
+        if state.attachments[file_name] != asset_id:
+            raise AssertionError(f"{label}: attachment {file_name} bytes do not match their SHA-256")
+
+
+def check_mirror(state, expected, label):
+    """project.json and the text copies equal the expected project (independently rendered)."""
+    if state.mirror is None:
+        raise AssertionError(f"{label}: portable project.json is missing")
+    require_equal(state.mirror, expected, f"{label}: project.json")
+    if state.manuscript != manuscript_text(expected):
+        raise AssertionError(f"{label}: manuscript.txt differs from the expected rendering")
+    if state.fragments != fragments_text(expected):
+        raise AssertionError(f"{label}: fragments.txt differs from the expected rendering")
+
+
+def check_mirror_lags(state, committed, older, label):
+    """After a post-commit kill: SQLite has the new revision, project.json still shows the old one."""
+    if state.mirror is None:
+        raise AssertionError(f"{label}: expected the previous project.json to remain")
+    require_equal(state.mirror, older, f"{label}: project.json must still be the previous revision")
+    if state.mirror["revision"] >= committed["revision"]:
+        raise AssertionError(f"{label}: the portable copy did not lag the committed revision")
+
+
+def check_ui_restore(actual, target, prior, label):
+    """The app's restore of `target` over `prior`: identical except for the new revision, the project's
+    updatedAt, and the contentRevision the app stamps on entries whose body changed."""
+    revision = prior["revision"] + 1
+    if actual["revision"] != revision:
+        raise AssertionError(f"{label}: restored revision {actual['revision']}, expected {revision}")
+    got, wanted = deep(actual), deep(target)
+    wanted["revision"] = revision
+    got["updatedAt"] = wanted["updatedAt"] = "(restore time)"
+    prior_content = {e["id"]: canonical(e["content"]) for e in prior["entries"]}
+    changed = {e["id"] for e in target["entries"] if canonical(e["content"]) != prior_content[e["id"]]}
+    wanted_entries = {e["id"]: e for e in wanted["entries"]}
+    for entry in got["entries"]:
+        if entry["id"] in changed:
+            stamp = entry.pop("contentRevision", None)
+            if not isinstance(stamp, int) or isinstance(stamp, bool) or stamp < 1:
+                raise AssertionError(f"{label}: entry {entry['id'][-4:]} was not given a content revision ({stamp!r})")
+            wanted_entries[entry["id"]].pop("contentRevision", None)
+    require_equal(got, wanted, label)
+
+
+def sha_of_tree(folder):
+    """Relative path -> SHA-256 for every file below `folder` (journal sidecars excluded and reported separately)."""
+    return {
+        str(path.relative_to(folder)): hashlib.sha256(path.read_bytes()).hexdigest()
+        for path in sorted(folder.rglob("*"))
+        if path.is_file()
+    }
+
+
+def record_control(label, check, *args):
+    """Runs the same acceptance check the passing path uses against a deliberately wrong state: it must fail."""
+    try:
+        check(*args)
+    except AssertionError as error:
+        record_result({"scenario": label, "status": "detected", "reason": str(error)[:400]})
+        return
+    raise AssertionError(f"Negative control did not fail the acceptance check: {label}")
+
+
+class Doctor:
+    """Doctored copies of a finished scenario state. The live run files are never touched."""
+
+    def __init__(self, root):
+        self.root = root / "controls"
+        self.count = 0
+
+    def copy(self, work, project_id, label):
+        self.count += 1
+        destination = self.root / f"{self.count:02d}-{re.sub(r'[^A-Za-z0-9-]+', '-', label)}"
+        source = work / "projects" / project_id
+        target = destination / "projects" / project_id
+        target.mkdir(parents=True)
+        with closing(sqlite3.connect(source.as_uri() + "/project.sqlite3?mode=ro", uri=True)) as live:
+            with closing(sqlite3.connect(target / "project.sqlite3")) as copy:
+                live.backup(copy)
+        for name in ("attachments", "snapshots"):
+            if (source / name).is_dir():
+                shutil.copytree(source / name, target / name)
+        for name in ("project.json", "manuscript.txt", "fragments.txt"):
+            if (source / name).is_file():
+                shutil.copy2(source / name, target / name)
+        return destination
+
+    @staticmethod
+    def sql(destination, project_id, statement, parameters=()):
+        with closing(sqlite3.connect(destination / "projects" / project_id / "project.sqlite3")) as database:
+            database.execute(statement, parameters)
+            database.commit()
+
+    @staticmethod
+    def edit_json_row(destination, project_id, table, key_column, key, mutate):
+        with closing(sqlite3.connect(destination / "projects" / project_id / "project.sqlite3")) as database:
+            (data,) = database.execute(f"SELECT data FROM {table} WHERE {key_column}=?", [key]).fetchone()
+            value = json.loads(data)
+            mutate(value)
+            database.execute(f"UPDATE {table} SET data=? WHERE {key_column}=?", [json.dumps(value, ensure_ascii=False), key])
+            database.commit()
+
+
+def run_beta_suite(timeout, run_id, root):
+    """Lifecycle, fault-checkpoint, schema and control scenarios for the synthetic beta project."""
+    beta = Beta()
+    doctor = Doctor(root)
+    pid = beta.pid
+    ids = beta.ids
+    s1, s2, s3, late, merged = beta.s1, beta.s2, beta.s3, beta.late, beta.merged
+    both = ["png-section-drawing", "jpeg-sherd"]
+    everything = both + ["png-late"]
+
+    def control(work, label, mutate, check, project_id=pid):
+        """Doctor a copy of `work`'s current state, then require `check` to fail on it."""
+        destination = doctor.copy(work, project_id, label.replace(" ", "-")[:40])
+        mutate(destination)
+        record_control(f"beta control: {label}", lambda: check(read_disk_state(destination, project_id)))
+
+    def drop_project_field(field):
+        return lambda d: Doctor.edit_json_row(d, pid, "project", "id", pid, lambda v: v.pop(field))
+
+    def drop_entry_field(entry_id, field):
+        return lambda d: Doctor.edit_json_row(d, pid, "entries", "id", entry_id, lambda v: v.pop(field))
+
+    def delete_rows(statement, parameters=()):
+        return lambda d: Doctor.sql(d, pid, statement, parameters)
+
+    def flip_attachment(name):
+        def mutate(destination):
+            path = destination / "projects" / pid / "attachments" / beta.attachment_name(name)
+            data = path.read_bytes()
+            path.write_bytes(bytes([data[0] ^ 1]) + data[1:])
+        return mutate
+
+    def delete_attachment(name):
+        def mutate(destination):
+            (destination / "projects" / pid / "attachments" / beta.attachment_name(name)).unlink()
+        return mutate
+
+    def write_mirror(project):
+        def mutate(destination):
+            (destination / "projects" / pid / "project.json").write_text(json.dumps(project, indent=2, ensure_ascii=False))
+        return mutate
+
+    def set_project(project):
+        """Make a copy's SQLite rows show `project` (header and every entry)."""
+        def mutate(destination):
+            header = {k: v for k, v in project.items() if k != "entries"}
+            header["entryIds"] = [entry["id"] for entry in project["entries"]]
+            with closing(sqlite3.connect(destination / "projects" / pid / "project.sqlite3")) as database:
+                database.execute("UPDATE project SET revision=?, data=? WHERE id=?",
+                                 [project["revision"], json.dumps(header, ensure_ascii=False), pid])
+                for entry in project["entries"]:
+                    database.execute("UPDATE entries SET data=? WHERE id=?", [json.dumps(entry, ensure_ascii=False), entry["id"]])
+                database.commit()
+        return mutate
+
+    # ---- 1. Lifecycle: three native processes (create/edit/snapshot -> UI restore -> fresh start + import) ----
+    life = root / "beta-lifecycle"
+    life_run = f"{run_id}-beta-life"
+    report_a, log_a = run_to_exit("beta-lifecycle", life, life_run, timeout)
+    require_equal(report_a["afterCreate"], s1, "ordinary reload after creating the fixture")
+    require_equal(report_a["afterIncremental"], s2, "ordinary reload after the one-entry incremental save")
+    require_equal(report_a["afterSecond"], s3, "ordinary reload after the second incremental save")
+
+    def check_life_a(state):
+        check_project(state, s3, "lifecycle quit 1")
+        check_history(state, {1: s1, 2: s2}, "lifecycle quit 1")
+        check_snapshots(state, {"Beta snapshot A": [s2]}, "lifecycle quit 1")
+        check_assets(beta, state, both, both, "lifecycle quit 1")
+        check_mirror(state, s3, "lifecycle quit 1")
+
+    check_life_a(read_disk_state(life, pid))
+    control(life, "lifecycle drops a project field (goals)", drop_project_field("goals"), check_life_a)
+    control(life, "lifecycle drops an entry field (tags)", drop_entry_field(ids["sec1"], "tags"), check_life_a)
+    control(life, "lifecycle alters a source raw field", lambda d: Doctor.edit_json_row(
+        d, pid, "project", "id", pid,
+        lambda v: v["research"]["sources"][0]["cslData"].pop("rawUnknownField")), check_life_a)
+    control(life, "lifecycle loses an image row", delete_rows("DELETE FROM assets WHERE id=?", [beta.asset_id("jpeg-sherd")]), check_life_a)
+    control(life, "lifecycle flips an attachment byte", flip_attachment("png-section-drawing"), check_life_a)
+    control(life, "lifecycle loses an attachment file", delete_attachment("jpeg-sherd"), check_life_a)
+    control(life, "lifecycle loses a history row", delete_rows("DELETE FROM history WHERE revision=1"), check_life_a)
+    control(life, "lifecycle loses the named snapshot", delete_rows("DELETE FROM snapshots WHERE name='Beta snapshot A'"), check_life_a)
+    control(life, "lifecycle leaves a stale project.json", write_mirror(s2), check_life_a)
+
+    report_b, log_b = run_to_exit("beta-lifecycle-restore", life, life_run, timeout)
+    require_equal(report_b["beforeRestore"], s3, "opening the project in the UI must not rewrite it")
+
+    def check_life_b(state):
+        check_ui_restore(state.project, s2, s3, "UI restore of Beta snapshot A")
+        check_history(state, {1: s1, 2: s2, 3: s3}, "lifecycle restore")
+        check_snapshots(state, {"Beta snapshot A": [s2], "Before restoring Beta snapshot A": [s3]}, "lifecycle restore")
+        check_assets(beta, state, both, both, "lifecycle restore")
+        check_mirror(state, state.project, "lifecycle restore")
+
+    state_b = read_disk_state(life, pid)
+    check_life_b(state_b)
+    restored = state_b.project
+    require_equal(report_b["current"], restored, "reported restored project")
+    if report_b["safety"]["name"] != "Before restoring Beta snapshot A":
+        raise AssertionError("The generated safety snapshot has the wrong name")
+    require_equal(report_b["safety"]["project"], s3, "generated safety snapshot (complete pre-restore project)")
+    control(life, "restore loses the generated safety snapshot",
+            delete_rows("DELETE FROM snapshots WHERE name='Before restoring Beta snapshot A'"), check_life_b)
+    control(life, "restore changes a table cell", lambda d: Doctor.edit_json_row(
+        d, pid, "entries", "id", ids["sec1"],
+        lambda v: v["content"]["content"][3]["content"][1]["content"][1]["content"][0]["content"][0].update(text="0-46")), check_life_b)
+    control(life, "restore drops a comment anchor", lambda d: Doctor.edit_json_row(
+        d, pid, "project", "id", pid, lambda v: v["annotations"][0].pop("anchor")), check_life_b)
+
+    report_c, log_c = run_to_exit("beta-lifecycle-reopen", life, life_run, timeout)
+    require_equal(report_c["current"], restored, "a fresh native start reads the identical project")
+    for name in both:
+        if report_c["hashes"].get(beta.asset_id(name)) != beta.asset_id(name):
+            raise AssertionError(f"Fresh start read different bytes for image {name}")
+    if [v["name"] for v in report_c["versions"]].count("Before restoring Beta snapshot A") != 1:
+        raise AssertionError("The fresh start does not list exactly one generated safety snapshot")
+    require_equal(report_c["safety"]["project"], s3, "safety snapshot read by the fresh start")
+    check_life_b(read_disk_state(life, pid))
+    clone = {**deep(restored), "id": BETA_CLONE_ID, "revision": 1,
+             "title": restored["title"] + " (recovered)", "updatedAt": "2026-10-25T00:00:00.000Z"}
+    require_equal(report_c["imported"], clone, "reload of the project imported under a new identity")
+
+    def check_clone(state):
+        check_project(state, clone, "import under a new identity")
+        check_assets(beta, state, both, both, "import under a new identity")
+        check_mirror(state, clone, "import under a new identity")
+        if state.history:
+            raise AssertionError("A new identity starts without history rows")
+
+    check_clone(read_disk_state(life, BETA_CLONE_ID))
+    control(life, "new identity loses an image", lambda d: Doctor.sql(
+        d, BETA_CLONE_ID, "DELETE FROM assets WHERE id=?", [beta.asset_id("png-section-drawing")]), check_clone,
+        project_id=BETA_CLONE_ID)
+    record_result({
+        "scenario": "beta lifecycle: create, incremental saves, history, snapshot, UI restore with generated safety copy, fresh start, import under a new identity",
+        "status": "passed",
+        "finalRevision": restored["revision"],
+        "finalProjectSha256": hashlib.sha256(canonical(restored).encode()).hexdigest(),
+        "processLogs": [str(log_a), str(log_b), str(log_c)],
+    })
+
+    # ---- 2. Fault: asset staging vs content commit ----
+    work = root / "beta-asset-stage"
+    stage_run = f"{run_id}-beta-asset"
+    crash, checkpoint, crash_log = run_to_checkpoint("beta-crash-asset-stage", work, stage_run, "post-asset-stage", timeout)
+    require_equal(crash["baseline"], s1, "baseline before staging")
+
+    def check_stage_crash(state):
+        check_project(state, s1, "after staging crash (the content commit never happened)")
+        if state.history:
+            raise AssertionError("Staging alone must not create history rows")
+        check_assets(beta, state, everything, both, "after staging crash")
+        check_mirror(state, s1, "after staging crash")
+
+    check_stage_crash(read_disk_state(work, pid))
+    control(work, "staged image lost before the kill", delete_rows("DELETE FROM assets WHERE id=?", [beta.asset_id("png-late")]), check_stage_crash)
+    control(work, "staged image bytes corrupted", delete_rows("UPDATE assets SET data=zeroblob(73) WHERE id=?", [beta.asset_id("png-late")]), check_stage_crash)
+    control(work, "content visible although never committed", set_project(late), check_stage_crash)
+    restart, restart_log = run_to_exit("beta-asset-stage-restart", work, stage_run, timeout)
+    require_equal(restart["before"], s1, "restart after the staging crash")
+    if restart["lateHash"] != beta.asset_id("png-late"):
+        raise AssertionError("The staged image read back with different bytes")
+
+    def check_stage_recovered(state):
+        check_project(state, late, "content commit after the staging crash")
+        check_history(state, {1: s1}, "content commit after the staging crash")
+        check_assets(beta, state, everything, everything, "content commit after the staging crash")
+        check_mirror(state, late, "content commit after the staging crash")
+
+    check_stage_recovered(read_disk_state(work, pid))
+    control(work, "late image attachment missing after recovery", delete_attachment("png-late"), check_stage_recovered)
+    control(work, "content commit lost after recovery", set_project(s1), check_stage_recovered)
+    record_result({
+        "scenario": "beta fault: asset staging vs content commit (kill, restart, commit referencing the staged image)",
+        "status": "passed",
+        "checkpoint": checkpoint,
+        "databaseRevision": late["revision"],
+        "crashProcessLog": str(crash_log),
+        "restartProcessLog": str(restart_log),
+    })
+
+    # ---- 3. Fault: SQL transaction vs mirrors (portable-copy failure, then kill after commit) ----
+    work = root / "beta-sql-mirrors"
+    sql_run = f"{run_id}-beta-sql"
+    crash, checkpoint, crash_log = run_to_checkpoint("beta-crash-sql-mirrors", work, sql_run, "post-commit-pre-mirror", timeout)
+    mirror_error = crash.get("mirrorError") or ""
+    if "portable copy failed" not in mirror_error or "injected mirror write failure" not in mirror_error:
+        raise AssertionError(f"The injected portable-copy failure was not surfaced: {mirror_error!r}")
+    require_equal(crash["baseline"], s1, "baseline before the committed edit")
+    if checkpoint["revision"] != late["revision"]:
+        raise AssertionError("The kill did not land on the new revision's post-commit checkpoint")
+
+    def check_sql_crash(state):
+        check_project(state, late, "after post-commit kill (the committed edit survives)")
+        check_history(state, {1: s1}, "after post-commit kill")
+        check_assets(beta, state, everything, both, "after post-commit kill (new image stored, not yet attached)")
+        check_mirror_lags(state, late, s1, "after post-commit kill")
+
+    check_sql_crash(read_disk_state(work, pid))
+    control(work, "committed edit lost by the kill", set_project(s1), check_sql_crash)
+    control(work, "portable copy already current", write_mirror(late), check_sql_crash)
+    restart, restart_log = run_to_exit("beta-mirror-restart", work, sql_run, timeout)
+    require_equal(restart["current"], late, "restart after the post-commit kill")
+
+    def check_sql_recovered(state):
+        check_project(state, late, "mirror repair after restart")
+        check_history(state, {1: s1}, "mirror repair after restart")
+        check_assets(beta, state, everything, everything, "mirror repair after restart")
+        check_mirror(state, late, "mirror repair after restart")
+
+    check_sql_recovered(read_disk_state(work, pid))
+    control(work, "repair leaves the old project.json", write_mirror(s1), check_sql_recovered)
+    control(work, "repair misses the new image attachment", delete_attachment("png-late"), check_sql_recovered)
+    record_result({
+        "scenario": "beta fault: SQL transaction vs mirrors (surfaced portable-copy failure, kill after commit, repair on restart)",
+        "status": "passed",
+        "checkpoint": checkpoint,
+        "mirrorError": mirror_error,
+        "databaseRevision": late["revision"],
+        "crashProcessLog": str(crash_log),
+        "restartProcessLog": str(restart_log),
+    })
+
+    # ---- 4. Fault: source merge ----
+    work = root / "beta-source-merge"
+    merge_run = f"{run_id}-beta-merge"
+    crash, checkpoint, crash_log = run_to_checkpoint("beta-crash-source-merge", work, merge_run, "post-merge-safety-snapshot", timeout)
+    require_equal(crash["baseline"], s1, "baseline before the merge")
+    safety_name = "Before updating research sources"
+
+    def check_merge_crash(state):
+        check_project(state, s1, "after merge crash (nothing merged)")
+        if state.history:
+            raise AssertionError("A merge that never committed must not create history rows")
+        check_snapshots(state, {safety_name: [s1]}, "after merge crash")
+        check_assets(beta, state, both, both, "after merge crash")
+        check_mirror(state, s1, "after merge crash")
+
+    check_merge_crash(read_disk_state(work, pid))
+    control(work, "merge visible before its commit", set_project(merged), check_merge_crash)
+    control(work, "merge safety snapshot missing", delete_rows("DELETE FROM snapshots WHERE name=?", [safety_name]), check_merge_crash)
+    control(work, "merge safety snapshot holds merged sources", lambda d: Doctor.edit_json_row(
+        d, pid, "snapshots", "name", safety_name,
+        lambda v: v["research"]["sources"][1].update(title="Changed")), check_merge_crash)
+    restart, restart_log = run_to_exit("beta-merge-restart", work, merge_run, timeout)
+    require_equal(restart["before"], s1, "restart after the merge crash")
+    if [v["name"] for v in restart["survivors"]] != [safety_name]:
+        raise AssertionError(f"The crashed merge's safety snapshot is not the only snapshot: {restart['survivors']}")
+
+    def check_merge_done(state):
+        check_project(state, merged, "retried merge")
+        check_history(state, {1: s1}, "retried merge")
+        check_snapshots(state, {safety_name: [s1, s1]}, "retried merge (the crashed copy is kept)")
+        check_assets(beta, state, both, both, "retried merge")
+        check_mirror(state, merged, "retried merge")
+
+    check_merge_done(read_disk_state(work, pid))
+    control(work, "retried merge not committed", set_project(s1), check_merge_done)
+    control(work, "retry deleted the crashed safety copy", lambda d: Doctor.sql(
+        d, pid, "DELETE FROM snapshots WHERE rowid=(SELECT min(rowid) FROM snapshots WHERE name=?)", [safety_name]), check_merge_done)
+    record_result({
+        "scenario": "beta fault: source merge (kill after the safety snapshot, restart, retried merge)",
+        "status": "passed",
+        "checkpoint": checkpoint,
+        "databaseRevision": merged["revision"],
+        "crashProcessLog": str(crash_log),
+        "restartProcessLog": str(restart_log),
+    })
+
+    # ---- 5. Fault: restore ----
+    work = root / "beta-restore"
+    restore_run = f"{run_id}-beta-restore"
+    crash, checkpoint, crash_log = run_to_checkpoint("beta-crash-restore", work, restore_run, "post-restore-safety-snapshot", timeout)
+    require_equal(crash["baseline"], s2, "pre-restore project")
+    restore_name = "Before restoring Beta V1"
+
+    def check_restore_crash(state):
+        check_project(state, s2, "after restore crash (nothing restored)")
+        check_history(state, {1: s1}, "after restore crash")
+        check_snapshots(state, {"Beta V1": [s1], restore_name: [s2]}, "after restore crash")
+        check_assets(beta, state, both, both, "after restore crash")
+        check_mirror(state, s2, "after restore crash")
+
+    check_restore_crash(read_disk_state(work, pid))
+    control(work, "restored content visible before its commit", set_project(beta.restored_from_v1), check_restore_crash)
+    control(work, "pre-restore safety snapshot missing", delete_rows("DELETE FROM snapshots WHERE name=?", [restore_name]), check_restore_crash)
+    control(work, "named snapshot altered", lambda d: Doctor.edit_json_row(
+        d, pid, "snapshots", "name", "Beta V1", lambda v: v.pop("goals")), check_restore_crash)
+    restart, restart_log = run_to_exit("beta-restore-restart", work, restore_run, timeout)
+    require_equal(restart["before"], s2, "restart after the restore crash")
+    if restart["changed"] != [ids["sec2"]]:
+        raise AssertionError(f"The restore rewrote unexpected entries: {restart['changed']}")
+
+    def check_restore_done(state):
+        check_project(state, beta.restored_from_v1, "retried restore")
+        check_history(state, {1: s1, 2: s2}, "retried restore")
+        check_snapshots(state, {"Beta V1": [s1], restore_name: [s2, s2]}, "retried restore")
+        check_assets(beta, state, both, both, "retried restore")
+        check_mirror(state, beta.restored_from_v1, "retried restore")
+
+    check_restore_done(read_disk_state(work, pid))
+    control(work, "retried restore not committed", set_project(s2), check_restore_done)
+    record_result({
+        "scenario": "beta fault: snapshot restore (kill after the safety snapshot, restart, retried restore)",
+        "status": "passed",
+        "checkpoint": checkpoint,
+        "databaseRevision": beta.restored_from_v1["revision"],
+        "crashProcessLog": str(crash_log),
+        "restartProcessLog": str(restart_log),
+    })
+
+    # ---- 6. A project written by a newer app version: fail clearly, change nothing ----
+    work = root / "beta-newer-schema"
+    schema_run = f"{run_id}-beta-schema"
+    source = life / "projects" / pid
+    target = work / "projects" / pid
+    target.mkdir(parents=True)
+    with closing(sqlite3.connect(source.as_uri() + "/project.sqlite3?mode=ro", uri=True)) as live:
+        with closing(sqlite3.connect(target / "project.sqlite3")) as copy:
+            live.backup(copy)
+    for name in ("attachments", "snapshots"):
+        shutil.copytree(source / name, target / name)
+    for name in ("project.json", "manuscript.txt", "fragments.txt"):
+        shutil.copy2(source / name, target / name)
+    with closing(sqlite3.connect(target / "project.sqlite3")) as database:
+        database.execute("PRAGMA user_version=99")
+        database.commit()
+
+    def settled(tree):
+        return {path: digest for path, digest in tree.items() if not path.endswith(("-wal", "-shm"))}
+
+    before_tree = settled(sha_of_tree(target))
+
+    def check_untouched(tree):
+        after = settled(tree)
+        if after != before_tree:
+            changed = sorted(p for p in set(after) | set(before_tree) if after.get(p) != before_tree.get(p))
+            raise AssertionError(f"Opening a newer-schema project changed its files: {changed}")
+
+    report, log = run_to_exit("beta-newer-schema", work, schema_run, timeout)
+    check_untouched(sha_of_tree(target))
+    if pid not in report["listing"]["damaged"] or any(p["id"] == pid for p in report["listing"]["projects"]):
+        raise AssertionError("The newer-schema project should be listed as unreadable, not as a normal project")
+    if "needs a newer version" not in (report.get("loadError") or ""):
+        raise AssertionError(f"Opening a newer-schema project did not fail clearly: {report.get('loadError')!r}")
+    doctored_tree = sha_of_tree(target)
+    first_file = sorted(path for path in doctored_tree if not path.endswith(("-wal", "-shm")))[0]
+    doctored_tree[first_file] = "0" * 64
+    record_control("beta control: a changed file in a newer-schema project is detected", check_untouched, doctored_tree)
+    record_result({
+        "scenario": "beta schema: project from a newer app version fails clearly and every file stays byte-identical",
+        "status": "passed",
+        "error": report["loadError"],
+        "filesCompared": len(before_tree),
+        "processLog": str(log),
+    })
+
+    # ---- 7. Controls that drive the real app into a defect or a rejection ----
+    work = root / "beta-control-drop"
+    report, log = run_to_exit("beta-control-drop-metadata", work, f"{run_id}-beta-drop", timeout)
+    record_control("beta control: the app's drop-metadata fault fails the equality check used by the lifecycle",
+                   check_project, read_disk_state(work, pid), s2, "drop-metadata control")
+
+    work = root / "beta-control-table"
+    report, log = run_to_exit("beta-control-corrupt-table", work, f"{run_id}-beta-table", timeout)
+    if "same number of cells" not in (report.get("rejected") or ""):
+        raise AssertionError(f"A ragged table was not rejected clearly: {report.get('rejected')!r}")
+    state = read_disk_state(work, pid)
+    check_project(state, s1, "rejected ragged table leaves the project unchanged")
+    if state.history:
+        raise AssertionError("A rejected save must not archive a history row")
+    record_result({"scenario": "beta control: ragged table rejected, project unchanged", "status": "detected",
+                   "reason": report["rejected"], "processLog": str(log)})
+
+    work = root / "beta-control-missing-asset"
+    report, log = run_to_exit("beta-control-missing-asset", work, f"{run_id}-beta-missing", timeout)
+    if "missing from the project's storage" not in (report.get("rejected") or ""):
+        raise AssertionError(f"A reference to an unstored image was not rejected: {report.get('rejected')!r}")
+    state = read_disk_state(work, pid)
+    check_project(state, s1, "rejected missing image leaves the project unchanged")
+    check_assets(beta, state, both, both, "rejected missing image")
+    if state.history:
+        raise AssertionError("A rejected save must not archive a history row")
+    record_result({"scenario": "beta control: edit referencing an unstored image rejected, project unchanged", "status": "detected",
+                   "reason": report["rejected"], "processLog": str(log)})
+
+    work = root / "beta-control-merge-no-safety"
+    report, log = run_to_exit("beta-control-merge-no-safety", work, f"{run_id}-beta-nosafety", timeout)
+    if not report.get("safetyError"):
+        raise AssertionError("The skipped safety snapshot could still be read back")
+    state = read_disk_state(work, pid)
+    check_project(state, s1, "merge stopped without a readable safety copy")
+    record_control("beta control: a skipped merge safety snapshot fails the snapshot check",
+                   check_snapshots, state, {safety_name: [s1]}, "merge without safety copy")
+    record_result({"scenario": "beta control: merge stopped when its safety copy cannot be read", "status": "detected",
+                   "reason": report["safetyError"], "processLog": str(log)})
+
+
+def run_suite(timeout, run_id, root, identity, suite="baseline"):
     if platform.system() != "Darwin":
         raise RuntimeError("Native reliability requires macOS WebKit data-store isolation")
     if not BINARY.is_file():
@@ -579,6 +1335,72 @@ def run_suite(timeout, run_id, root, identity):
             "processLog": str(log_path),
         })
 
+    # Asset crash and recovery scenario
+    asset_work = root / "asset-crash"
+    asset_report, checkpoint, crash_log = run_to_checkpoint(
+        "asset-crash", asset_work, f"{run_id}-asset-crash", "post-asset-stage", timeout
+    )
+    staged_asset_id = asset_report["stagedAssetId"]
+    acknowledged_rev = asset_report["acknowledgedRevision"]
+
+    # 1. Verify SQLite state immediately after kill
+    db_path, db_before_restart = read_database(asset_work)
+    if db_before_restart["revision"] != acknowledged_rev:
+        raise AssertionError(
+            f"Asset crash changed project revision: expected {acknowledged_rev}, got {db_before_restart['revision']}"
+        )
+    if staged_asset_id in canonical(db_before_restart):
+        raise AssertionError("SQLite project contains uncommitted asset reference after staging kill")
+
+    # Verify SQLite assets table directly
+    uri = db_path.as_uri() + "?mode=ro"
+    with sqlite3.connect(uri, uri=True, timeout=5) as database:
+        asset_rows = database.execute(
+            "SELECT id, mime, byte_length, data FROM assets WHERE id=?", [staged_asset_id]
+        ).fetchall()
+        if len(asset_rows) != 1:
+            raise AssertionError("Staged asset is missing from SQLite assets table after kill")
+        aid, mime, byte_length, data = asset_rows[0]
+        if aid != staged_asset_id:
+            raise AssertionError("Asset table ID mismatch")
+        if hashlib.sha256(data).hexdigest() != staged_asset_id:
+            raise AssertionError("Staged asset data SHA-256 does not match ID")
+        if byte_length != len(data):
+            raise AssertionError("Asset byte_length does not match data length")
+        if mime != "image/png":
+            raise AssertionError(f"Expected mime image/png, got {mime}")
+
+    # 2. Restart app: verify clean open, no missing image, verify read_asset, save image project
+    restart_report, restart_log = run_to_exit(
+        "asset-restart", asset_work, f"{run_id}-asset-crash", timeout
+    )
+    if restart_report.get("readHash") != staged_asset_id:
+        raise AssertionError("read_asset after restart returned mismatched SHA-256")
+
+    # 3. Reopen in fresh process: verify image project and attachments mirror
+    reopen_report, reopen_log = run_to_exit(
+        "asset-reopen", asset_work, f"{run_id}-asset-crash", timeout
+    )
+    if reopen_report.get("readHash") != staged_asset_id:
+        raise AssertionError("read_asset on reopen returned mismatched SHA-256")
+
+    db_path, final_db = read_database(asset_work)
+    attachment_file = db_path.parent / "attachments" / f"{staged_asset_id}.png"
+    if not attachment_file.is_file():
+        raise AssertionError("Attachments mirror file is missing after saving image project")
+    if hashlib.sha256(attachment_file.read_bytes()).hexdigest() != staged_asset_id:
+        raise AssertionError("Attachments mirror file bytes do not match expected SHA-256")
+
+    record_result({
+        "scenario": "asset crash recovery: stage, kill, restart, reopen",
+        "status": "passed",
+        "stagedAssetId": staged_asset_id,
+        "databaseRevision": final_db["revision"],
+        "crashProcessLog": str(crash_log),
+        "restartProcessLog": str(restart_log),
+        "reopenProcessLog": str(reopen_log),
+    })
+
     # Each deliberately defective path runs only in its own test profile and isolated
     # library. A control counts as proven only when the same checker detects the defect.
     metadata_control = root / "control-metadata"
@@ -645,6 +1467,9 @@ def run_suite(timeout, run_id, root, identity):
     else:
         raise AssertionError("Acknowledged-revision acceptance check passed the premature SQL ack control")
 
+    if suite == "beta":
+        run_beta_suite(timeout, run_id, root)
+
     ACTIVE_SUMMARY["ok"] = all(item["status"] != "blocked" for item in results)
     ACTIVE_SUMMARY["status"] = "passed" if ACTIVE_SUMMARY["ok"] else "failed"
     persist_active_result()
@@ -655,7 +1480,7 @@ def run_suite(timeout, run_id, root, identity):
 def main():
     global ACTIVE_SUMMARY
     parser = argparse.ArgumentParser()
-    parser.add_argument("--suite", required=True, choices=["baseline"])
+    parser.add_argument("--suite", required=True, choices=["baseline", "beta"])
     parser.add_argument("--timeout", type=int, default=180, help="seconds allowed for each owned native app process")
     args = parser.parse_args()
     CACHE.mkdir(parents=True, exist_ok=True)
@@ -687,7 +1512,7 @@ def main():
     try:
         if identity_error:
             raise RuntimeError(identity_error)
-        return run_suite(args.timeout, run_id, root, identity)
+        return run_suite(args.timeout, run_id, root, identity, args.suite)
     except Exception as error:
         ACTIVE_SUMMARY.update({"ok": False, "status": "failed", "error": str(error)})
         persist_active_result()

@@ -1,0 +1,46 @@
+{
+  "id": "T036",
+  "title": "Inspect Gate B record T012",
+  "description": "Non-author inspection of the T012 gate record; owns only its cache folder and the serial slot",
+  "status": "done",
+  "owner": null,
+  "priority": 1,
+  "depends_on": [],
+  "files": [
+    "node_modules/.cache/personal-word-beta/team-t012-review",
+    "node_modules/.cache/personal-word-beta/team-serial-check-slot"
+  ],
+  "review_required": false,
+  "created_by": "agent-2d67",
+  "created_at": "2026-10-25T05:23:05+00:00",
+  "claimed_at": "2026-10-25T05:23:10+00:00",
+  "updated_at": "2026-10-25T05:27:03+00:00",
+  "handoff": null,
+  "review": null,
+  "log": [
+    {
+      "at": "2026-10-25T05:23:05+00:00",
+      "agent": "agent-2d67",
+      "event": "created",
+      "note": ""
+    },
+    {
+      "at": "2026-10-25T05:23:10+00:00",
+      "agent": "agent-2d67",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-10-25T05:23:10+00:00",
+      "agent": "agent-2d67",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-10-25T05:27:03+00:00",
+      "agent": "agent-2d67",
+      "event": "done",
+      "note": "T012 approved; slot released; no processes left"
+    }
+  ]
+}

@@ -88,6 +88,13 @@ pub fn smoke_close_window(window: tauri::Window) -> Result<(), String> {
     window.close().map_err(|error| error.to_string())
 }
 
+/// The synthetic D2 project, embedded so the harness, the unit tests and the Python
+/// checker all read one file (tests/fixtures/beta-synthetic-project.json).
+#[tauri::command]
+pub fn smoke_beta_fixture() -> String {
+    include_str!("../../tests/fixtures/beta-synthetic-project.json").to_string()
+}
+
 #[tauri::command]
 pub async fn diagnostic_profile_identity(app: tauri::AppHandle) -> Result<Value, String> {
     if app.config().identifier != "com.folio.smoke" {
@@ -140,7 +147,15 @@ pub fn take_fault(fault: Fault) -> bool {
 /// own process after reading the checkpoint file.
 #[tauri::command]
 pub fn arm_checkpoint(point: String) -> Result<(), String> {
-    if !["pre-commit", "post-commit-pre-mirror", "post-mirror"].contains(&point.as_str()) {
+    const VALID_CHECKPOINTS: &[&str] = &[
+        "pre-commit",
+        "post-commit-pre-mirror",
+        "post-mirror",
+        "post-asset-stage",
+        "post-merge-safety-snapshot",
+        "post-restore-safety-snapshot",
+    ];
+    if !VALID_CHECKPOINTS.contains(&point.as_str()) {
         return Err(format!("Unknown native checkpoint: {point}"));
     }
     fs::write(work_dir()?.join(format!("checkpoint-request-{point}")), b"armed")
@@ -304,14 +319,19 @@ pub fn seed_durability_metadata(
 }
 
 #[tauri::command]
-pub fn verify_safety_snapshot(app: tauri::AppHandle, project_id: String) -> Result<Value, String> {
+pub fn verify_safety_snapshot(
+    app: tauri::AppHandle,
+    project_id: String,
+    snapshot_name: Option<String>,
+) -> Result<Value, String> {
     let state = app.state::<crate::State>();
     let store = state.0.lock().map_err(|e| e.to_string())?;
     let versions = store.versions(&project_id, false)?;
+    let target = snapshot_name.unwrap_or_else(|| "Before restoring D1 baseline".to_string());
     let version = versions
         .iter()
-        .find(|version| version.name == "Before restoring D1 baseline")
-        .ok_or_else(|| "The generated pre-restore safety snapshot is missing".to_string())?;
+        .find(|version| version.name == target)
+        .ok_or_else(|| format!("The generated pre-restore safety snapshot is missing: {target}"))?;
     let project = store.version(&project_id, &version.id, false)?;
     Ok(json!({"name": version.name, "project": project}))
 }
@@ -382,12 +402,18 @@ pub fn configure<R: Runtime>(builder: tauri::Builder<R>) -> tauri::Builder<R> {
         let scenario = std::env::var("FOLIO_SMOKE_SCENARIO").unwrap_or_default();
         let run = std::env::var("FOLIO_SMOKE_RUN").unwrap_or_default();
         let invocation = std::env::var("FOLIO_SMOKE_INVOCATION").unwrap_or_default();
-        let script = if std::env::var("FOLIO_SMOKE_SCRIPT").unwrap_or_default()
-            == "native-reliability"
-        {
-            include_str!("../../tests/native-reliability.js")
-        } else {
-            include_str!("../../tests/native-smoke.js")
+        let script = match std::env::var("FOLIO_SMOKE_SCRIPT").unwrap_or_default().as_str() {
+            "native-reliability" => include_str!("../../tests/native-reliability.js").to_string(),
+            // The print probe's schema-generated fixtures are written by the harness as JSON.
+            "native-print" => format!(
+                "window.__SMOKE_PRINT_FIXTURES__={};{}",
+                std::env::var("FOLIO_SMOKE_PRINT_FIXTURES")
+                    .ok()
+                    .and_then(|path| fs::read_to_string(path).ok())
+                    .unwrap_or_else(|| "null".into()),
+                include_str!("../../tests/native-print.js")
+            ),
+            _ => include_str!("../../tests/native-smoke.js").to_string(),
         };
         let script = format!(
             "window.__SMOKE_PHASE__={};window.__SMOKE_SCENARIO__={};window.__SMOKE_RUN__={};window.__SMOKE_INVOCATION__={};window.__SMOKE_DATA_STORE_ID__={};{}",

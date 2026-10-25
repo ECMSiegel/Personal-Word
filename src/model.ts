@@ -112,17 +112,21 @@ export function entryWords(e: Entry): number {
 export function textOf(node: JSONContent): string {
   if (node.type === "text") return node.text ?? "";
   if (node.type === "hardBreak") return "\n";
-  return (node.content ?? [])
-    .map(textOf)
-    .join(
-      node.type === "doc" ||
+  if (node.type === "image") return (node.attrs?.alt as string) ?? "";
+  const sep =
+    node.type === "tableRow"
+      ? " "
+      : node.type === "doc" ||
         node.type === "bulletList" ||
         node.type === "orderedList" ||
         node.type === "blockquote" ||
-        node.type === "listItem"
+        node.type === "listItem" ||
+        node.type === "table" ||
+        node.type === "tableCell" ||
+        node.type === "tableHeader"
         ? "\n"
-        : "",
-    );
+        : "";
+  return (node.content ?? []).map(textOf).join(sep);
 }
 export function validateProject(value: unknown): asserts value is Project {
   const p = value as Project;
@@ -245,6 +249,7 @@ export function validateProject(value: unknown): asserts value is Project {
     )
       throw new Error("Project contains an invalid entry.");
     documentSchema.nodeFromJSON(e.content).check();
+    validateTableNesting(e.content);
     ids.add(e.id);
   }
   const sections = p.entries.filter((e) => e.kind === "section");
@@ -254,6 +259,15 @@ export function validateProject(value: unknown): asserts value is Project {
     sections.some((e) => !p.order.includes(e.id))
   )
     throw new Error("Project section order is invalid.");
+}
+
+// A cell's blockquote/list can contain a table even though direct table children
+// are excluded by the schema. Check descendants to enforce unnested tables.
+function validateTableNesting(node: JSONContent, insideTable = false): void {
+  if (node.type === "table" && insideTable)
+    throw new RangeError("Tables cannot be nested.");
+  for (const child of node.content ?? [])
+    validateTableNesting(child, insideTable || node.type === "table");
 }
 
 function validCommentAnchor(value: unknown): value is CommentAnchor {

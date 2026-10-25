@@ -21,6 +21,16 @@ export function CslImportPreview({ result, busy = false, onCancel, onAdd }: {
   onCancel: () => void;
   onAdd: (sources: SourceDraft[], updates: SourceFieldUpdate[]) => void;
 }) {
+  const isBibtex =
+    (result as { format?: string }).format === "bibtex" ||
+    (result.sources.length > 0 &&
+      result.sources.every((s) => s.lookupNote === "Imported from BibTeX"));
+
+  const getFieldLabel = (field: SourceImportField) =>
+    field === "cslData" && isBibtex
+      ? "Original BibTeX fields (replace)"
+      : fieldLabels[field];
+
   const sourceName = (id: string) => {
     const index = result.existingSources.findIndex((source) => source.id === id);
     const source = result.existingSources[index];
@@ -28,7 +38,16 @@ export function CslImportPreview({ result, busy = false, onCancel, onAdd }: {
     const names = source.creators?.filter((creator) => creator.role === "author").map((creator) => creator.literal || [creator.given, creator.family].filter(Boolean).join(" ")).filter(Boolean);
     return [`Record ${index + 1}`, source.title || "Untitled source", (names?.length ? names : source.authors).join("; "), source.year || source.publishedDate, source.container || source.journal || source.website].filter(Boolean).join(" -- ");
   };
-  const reasonLabels: Record<string, string> = { title: "title", creators: "creators", year: "year", kind: "source type", isbn: "ISBN", "external-id": "Zotero item", "unverified-csl-id": "CSL ID (not globally unique)", "conflicting-doi": "different DOIs" };
+  const reasonLabels: Record<string, string> = {
+    title: "title",
+    creators: "creators",
+    year: "year",
+    kind: "source type",
+    isbn: "ISBN",
+    "external-id": isBibtex ? "citation key" : "Zotero item",
+    "unverified-csl-id": "CSL ID (not globally unique)",
+    "conflicting-doi": "different DOIs",
+  };
   const exact = new Map(result.review.exactDuplicates.map((row) => [row.candidateIndex, row]));
   const possible = new Map(result.review.possibleMatches.map((row) => [row.candidateIndex, row]));
   const [selected, setSelected] = useState(() => result.sources.map((_, index) => !exact.has(index)));
@@ -37,11 +56,11 @@ export function CslImportPreview({ result, busy = false, onCancel, onAdd }: {
   const count = selected.filter(Boolean).length;
   const chosenUpdates: SourceFieldUpdate[] = Object.entries(updates).flatMap(([index, choice]) => choice.existingSourceId && choice.fields.length ? [{ candidateIndex: Number(index), ...choice }] : []);
   const pages = Math.max(1, Math.ceil(result.sources.length / 50));
-  return <ModalFrame title="Import Zotero sources" busy={busy} onCancel={onCancel}>
+  return <ModalFrame title={isBibtex ? "Import sources" : "Import Zotero sources"} busy={busy} onCancel={onCancel}>
     <p>{count} sources to add</p>
     <p>Review each record before adding. Identifier matches start unchecked; select one to keep both records. Field updates change only the fields you choose and keep existing notes linked to the same source.</p>
     {Object.keys(updates).length > 0 && <p>{chosenUpdates.length} existing sources to update. Manual citation text and unselected fields stay unchanged. A checked safety snapshot is kept first.</p>}
-    {Object.entries(result.skipped).length > 0 && <div><p>Invalid items skipped:</p><ul>{Object.entries(result.skipped).map(([type, n]) => <li key={type}>{n} {type}</li>)}</ul></div>}
+    {Object.entries(result.skipped).length > 0 && <div><p>Invalid items skipped:</p><ul>{Object.entries(result.skipped).map(([type, n]) => <li key={type}>{n} {type === "invalid" ? (isBibtex ? "sources" : "CSL items") : type}</li>)}</ul></div>}
     {result.warnings.length > 0 && <details><summary>Import warnings ({result.warnings.length})</summary><ul>{result.warnings.map((warning, i) => <li key={i}>{warning}</li>)}</ul></details>}
     <ol aria-label="Source preview" start={page * 50 + 1}>{result.sources.slice(page * 50, (page + 1) * 50).map((source, offset) => {
       const index = page * 50 + offset;
@@ -56,7 +75,7 @@ export function CslImportPreview({ result, busy = false, onCancel, onAdd }: {
         }} />Add {source.title}</label>
         <p>{source.authors.join("; ") || "No author"} -- {source.kind}{source.year ? ` -- ${source.year}` : ""}{source.edition ? ` -- edition ${source.edition}` : ""}</p>
         {source.doi && <p>DOI: {source.doi}</p>}
-        {duplicate && <p>Identifier match with {duplicate.existingSourceIds.map(sourceName).join("; ")} ({duplicate.matchedBy.map((method) => method === "doi" ? "DOI" : method === "external-id" ? "Zotero item" : "ISBN, edition and source type").join(", ")}). Unchecked keeps the existing record; checking adds a separate copy.</p>}
+        {duplicate && <p>Identifier match with {duplicate.existingSourceIds.map(sourceName).join("; ")} ({duplicate.matchedBy.map((method) => method === "doi" ? "DOI" : method === "external-id" ? (isBibtex ? "citation key" : "Zotero item") : "ISBN, edition and source type").join(", ")}). Unchecked keeps the existing record; checking adds a separate copy.</p>}
         {match && <p>Possible match: {match.matches.map((candidate) => `${sourceName(candidate.existingSourceId)} (${candidate.reasons.map((reason) => reasonLabels[reason] ?? reason).join(", ")})`).join("; ")}. Retained for your review.</p>}
         {targets.length > 0 && <>
           <button type="button" disabled={busy} aria-expanded={Boolean(update)} onClick={() => {
@@ -69,11 +88,11 @@ export function CslImportPreview({ result, busy = false, onCancel, onAdd }: {
               options={[{ value: "", label: "Choose an existing source" }, ...targets.map((id) => ({ value: id, label: sourceName(id) }))]}
               onChange={(existingSourceId) => setUpdates((values) => ({ ...values, [index]: { existingSourceId, fields: [] } }))} />
             {target && <fieldset disabled={busy}><legend>Choose fields to replace</legend>
-              <p>No fields are selected automatically. Original CSL fields is a whole-field replacement; its old raw fields are retained only in the safety snapshot.</p>
+              <p>No fields are selected automatically. {isBibtex ? "Original BibTeX fields" : "Original CSL fields"} is a whole-field replacement; its old raw fields are retained only in the safety snapshot.</p>
               {SOURCE_IMPORT_FIELDS.filter((field) => field === "authorsAndCreators" || source[field] !== undefined).map((field) => <div key={field}>
                 <label style={{ display: "inline-flex", alignItems: "center", gap: 8 }}><input style={{ display: "inline-block", width: "auto", margin: 0, padding: 0 }} type="checkbox" checked={update.fields.includes(field)}
-                  onChange={(event) => setUpdates((values) => ({ ...values, [index]: { ...values[index], fields: event.target.checked ? [...values[index].fields, field] : values[index].fields.filter((value) => value !== field) } }))} />Update {fieldLabels[field]} for {source.title}</label>
-                <details><summary>Compare {fieldLabels[field]}</summary><p style={{ overflowWrap: "anywhere" }}>Current: {display(fieldValue(target, field))}</p><p style={{ overflowWrap: "anywhere" }}>Imported: {display(fieldValue(source, field))}</p></details>
+                  onChange={(event) => setUpdates((values) => ({ ...values, [index]: { ...values[index], fields: event.target.checked ? [...values[index].fields, field] : values[index].fields.filter((value) => value !== field) } }))} />Update {getFieldLabel(field)} for {source.title}</label>
+                <details><summary>Compare {getFieldLabel(field)}</summary><p style={{ overflowWrap: "anywhere" }}>Current: {display(fieldValue(target, field))}</p><p style={{ overflowWrap: "anywhere" }}>Imported: {display(fieldValue(source, field))}</p></details>
               </div>)}
             </fieldset>}
           </div>}

@@ -1,0 +1,83 @@
+{
+  "id": "T033",
+  "title": "Gate B F2: honest Zotero Connect wording and local-API hint",
+  "description": "Gate B finding (T012, docs/agent-work/2026-10-24-team-reconciliation/gate-b.md). Follow team/PLAN.md, PROTOCOL.md, DELEGATION.md Common rules; pinned Node; serial slot; production-preview Playwright; fail-first shown before the fix; report CLAIMED; no installs/commits. F2: src/research/ResearchPanel.tsx ~801-860: 'Connect local Zotero' sets 'Connected to local Zotero (127.0.0.1:23119)' before any request, and nothing tells the user to enable Zotero's local API in Zotero's settings (04-research/PLAN.md C3 step 3). Show an enabled/not-yet-contacted state until a read succeeds and add a one-line settings hint. Check: tests/zotero.spec.ts asserts the hint and that 'Connected' appears only after a mocked successful read (fail first); vitest src/research, tsc, build, zotero+research specs. Synthetic mocks only; no real Zotero.",
+  "status": "done",
+  "owner": null,
+  "priority": 3,
+  "depends_on": [],
+  "files": [
+    "src/research/ResearchPanel.tsx",
+    "tests/zotero.spec.ts",
+    "node_modules/.cache/personal-word-beta/team-t033",
+    "docs/agent-work/2026-10-24-team-reconciliation/zotero-status.md",
+    "docs/agent-work/2026-10-24-team-reconciliation/gate-b-repairs.md",
+    "node_modules/.cache/personal-word-beta/team-serial-check-slot"
+  ],
+  "review_required": true,
+  "created_by": "agent-81ae",
+  "created_at": "2026-10-25T05:20:43+00:00",
+  "claimed_at": "2026-10-25T05:44:42+00:00",
+  "updated_at": "2026-10-25T06:06:10+00:00",
+  "handoff": {
+    "by": "agent-4d87",
+    "at": "2026-10-25T05:33:08+00:00",
+    "text": "Prepared scoped regression and proposed patch; NOT complete, no checks run. NEXT acquire serial-check slot after T034/agent-f22a releases it, then meaningful failing browser baseline with team-t033/baseline.config.mjs --grep \"localhost refresh operates|explains the required\". Current production source unchanged by this task; tests now assert enabled/not-yet-contacted + zero requests after Connect, Connected only after mocked read, and local API settings hint. Proposed minimal patch saved team-t033/ResearchPanel-proposed.tsx; compare source to ResearchPanel-before.tsx before applying, preserve newer work. Full steps/status in zotero-status.md. Do not count unexecuted expectations as fail-first. Then apply fix, build, vitest src/research, tsc, full zotero+research browser, controlled restore/final-restore; no real Zotero/network. Source defects statically confirmed. No task test/build processes running. Message79 asks slot owner to announce release.\nsrc/research/ResearchPanel.tsx: clean\ntests/zotero.spec.ts: uncommitted edits\nnode_modules/.cache/personal-word-beta/team-t033: uncommitted edits\ndocs/agent-work/2026-10-24-team-reconciliation/zotero-status.md: uncommitted edits"
+  },
+  "review": {
+    "by": "agent-12aa",
+    "at": "2026-10-25T06:06:10+00:00",
+    "verdict": "approved",
+    "note": "agent-12aa: diff vs team-t033/ResearchPanel-before.tsx (608b27c9) read: Connect shows 'Local Zotero refresh enabled -- not yet contacted.' with no request; 'Connected to local Zotero -- ...' only in the success branches (received N item/items, up to date, no items); error path shows error text; hint p.research-hint (existing class, var(--muted)) 'In Zotero, enable the local API in Settings > Advanced before refreshing.'; UI dashes '--'. Fail-first re-executed: vite build with a load() substitution of the before copy (node_modules/.cache/personal-word-beta/team-gateb-repairs-review/vite-t033pre.config.mjs, source untouched), zotero.spec on port 1476 exit 1, 2 failed (Received 'Connected to local Zotero (127.0.0.1:23119)'; hint not found), 3 passed. Current: vitest src/research 195/195; zotero+research 14/14 inside my 36/36 production-preview run; tsc 0. Settings label unverified (no real Zotero). CLAIMED. Logs node_modules/.cache/personal-word-beta/team-gateb-repairs-review/."
+  },
+  "log": [
+    {
+      "at": "2026-10-25T05:20:43+00:00",
+      "agent": "agent-81ae",
+      "event": "created",
+      "note": ""
+    },
+    {
+      "at": "2026-10-25T05:31:12+00:00",
+      "agent": "agent-4d87",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-10-25T05:31:13+00:00",
+      "agent": "agent-4d87",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-10-25T05:33:08+00:00",
+      "agent": "agent-4d87",
+      "event": "handoff",
+      "note": "Prepared scoped regression and proposed patch; NOT complete, no checks run. NEXT acquire serial-check slot after T034/agent-f22a releases it, then meaningful failing browser baseline with team-t033/baseline.config.mjs --grep \"localhost refresh operates|explains the required\". Current production source unchanged by this task; tests now assert enabled/not-yet-contacted + zero requests after Connect, Connected only after mocked read, and local API settings hint. Proposed minimal patch saved team-t033/ResearchPanel-proposed.tsx; compare source to ResearchPanel-before.tsx before applying, preserve newer work. Full steps/status in zotero-status.md. Do not count unexecuted expectations as fail-first. Then apply fix, build, vitest src/research, tsc, full zotero+research browser, controlled restore/final-restore; no real Zotero/network. Source defects statically confirmed. No task test/build processes running. Message79 asks slot owner to announce release.\nsrc/research/ResearchPanel.tsx: clean\ntests/zotero.spec.ts: uncommitted edits\nnode_modules/.cache/personal-word-beta/team-t033: uncommitted edits\ndocs/agent-work/2026-10-24-team-reconciliation/zotero-status.md: uncommitted edits"
+    },
+    {
+      "at": "2026-10-25T05:44:42+00:00",
+      "agent": "agent-f22a",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-10-25T05:44:47+00:00",
+      "agent": "agent-f22a",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-10-25T05:47:29+00:00",
+      "agent": "agent-f22a",
+      "event": "review requested",
+      "note": "F2 fixed (took over agent-4d87's handoff; their tests/zotero.spec.ts regression kept unchanged, sha256 b3b38413...; ResearchPanel.tsx was byte-identical to their before copy 608b27c9..., now 6210c3d5...). 'Connect local Zotero' now shows 'Local Zotero refresh enabled -- not yet contacted.' with no request; 'Connected to local Zotero -- received N item(s) / library is up to date / no items found' only after a successful read; one-line hint 'In Zotero, enable the local API in Settings > Advanced before refreshing.' (research-hint class; label unverified, no real Zotero). Fail-first on original source: playwright tests/zotero.spec.ts port 1474 exit 1, 2 failed (Expected 'Local Zotero refresh enabled -- not yet contacted.' Received 'Connected to local Zotero (127.0.0.1:23119)'; hint not found). After: vitest src/research 195/195 exit 0; zotero+research production-preview 14/14 exit 0 (browser-after.log); vite build exit 0. tsc exit 2 and npm run build exit 1 ONLY because of off-board src/print/nativePdf.test.ts (buildProbeFixtures missing), no errors in touched files. Logs node_modules/.cache/personal-word-beta/team-t033/; section in docs/agent-work/2026-10-24-team-reconciliation/gate-b-repairs.md. CLAIMED; Chromium only; no doctored-source restore cycle."
+    },
+    {
+      "at": "2026-10-25T06:06:10+00:00",
+      "agent": "agent-12aa",
+      "event": "approved",
+      "note": "agent-12aa: diff vs team-t033/ResearchPanel-before.tsx (608b27c9) read: Connect shows 'Local Zotero refresh enabled -- not yet contacted.' with no request; 'Connected to local Zotero -- ...' only in the success branches (received N item/items, up to date, no items); error path shows error text; hint p.research-hint (existing class, var(--muted)) 'In Zotero, enable the local API in Settings > Advanced before refreshing.'; UI dashes '--'. Fail-first re-executed: vite build with a load() substitution of the before copy (node_modules/.cache/personal-word-beta/team-gateb-repairs-review/vite-t033pre.config.mjs, source untouched), zotero.spec on port 1476 exit 1, 2 failed (Received 'Connected to local Zotero (127.0.0.1:23119)'; hint not found), 3 passed. Current: vitest src/research 195/195; zotero+research 14/14 inside my 36/36 production-preview run; tsc 0. Settings label unverified (no real Zotero). CLAIMED. Logs node_modules/.cache/personal-word-beta/team-gateb-repairs-review/."
+    }
+  ]
+}

@@ -1,0 +1,46 @@
+{
+  "id": "T047",
+  "title": "Independently review T046 and T021",
+  "description": "Non-author review record; owns only its cache folder and the serial slot",
+  "status": "done",
+  "owner": null,
+  "priority": 1,
+  "depends_on": [],
+  "files": [
+    "node_modules/.cache/personal-word-beta/team-t021-review",
+    "node_modules/.cache/personal-word-beta/team-serial-check-slot"
+  ],
+  "review_required": false,
+  "created_by": "agent-9e61",
+  "created_at": "2026-10-25T09:58:36+00:00",
+  "claimed_at": "2026-10-25T09:58:40+00:00",
+  "updated_at": "2026-10-25T10:07:52+00:00",
+  "handoff": null,
+  "review": null,
+  "log": [
+    {
+      "at": "2026-10-25T09:58:36+00:00",
+      "agent": "agent-9e61",
+      "event": "created",
+      "note": ""
+    },
+    {
+      "at": "2026-10-25T09:58:40+00:00",
+      "agent": "agent-9e61",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-10-25T09:58:40+00:00",
+      "agent": "agent-9e61",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-10-25T10:07:52+00:00",
+      "agent": "agent-9e61",
+      "event": "done",
+      "note": "T046 and T021 independently reviewed and approved (see their review notes). Reruns: tsc 0; vitest 47/865; native beta 20261025T100024Z-93ccb1f1 19+42; cargo 48/1; Playwright 112/112 port 1493; verifier exit 2 with 10 pending; 10 doctored controls as expected, R5 (verdict regex) carried to Gate D. Logs node_modules/.cache/personal-word-beta/team-t021-review/."
+    }
+  ]
+}

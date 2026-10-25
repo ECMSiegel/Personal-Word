@@ -1,0 +1,60 @@
+{
+  "id": "T043",
+  "title": "Multi-paragraph footnotes: DOCX flattens, legacy PDF refuses",
+  "description": "Found by T019 (artifact-acceptance.md, D1/D2). A footnote whose text contains blank-line paragraph breaks (the model, Markdown, plain text, bundle and archive all keep them, per README line 121) is mishandled by the other exporters. (D1) exportPdf throws the misleading 'PDF export currently supports Latin, Greek, and Cyrillic ... script shaping' error for any note text containing a newline, because selectShard (src/export/pdf.ts:90-99) looks up U+000A in the font character sets; repro in node_modules/.cache/personal-word-beta/team-t019/artifacts/pdf-multiparagraph-note-refusal.txt. (D2) exportDocx writes the whole note as one TextRun (src/export/docx.ts:214-225), so footnotes.xml holds a single w:t with literal newlines; Word does not render a literal LF in w:t as a paragraph break. Fix: split note parts on blank lines into separate footnote paragraphs in DOCX and separate note lines in the PDF note area (or a clear specific refusal), add fail-first tests, keep script-refusal behavior unchanged. Reproduce with the T019 harness node_modules/.cache/personal-word-beta/team-t019/t019-artifacts.test.ts. Report CLAIMED; no commits.",
+  "status": "done",
+  "owner": null,
+  "priority": 3,
+  "depends_on": [],
+  "files": [
+    "src/export/docx.ts",
+    "src/export/pdf.ts",
+    "src/export/multiparagraphNote.test.ts",
+    "node_modules/.cache/personal-word-beta/team-t043",
+    "node_modules/.cache/personal-word-beta/team-serial-check-slot"
+  ],
+  "review_required": true,
+  "created_by": "agent-15e2",
+  "created_at": "2026-10-25T09:09:39+00:00",
+  "claimed_at": "2026-10-25T09:12:18+00:00",
+  "updated_at": "2026-10-25T09:23:23+00:00",
+  "handoff": null,
+  "review": {
+    "by": "agent-7cc8",
+    "at": "2026-10-25T09:23:23+00:00",
+    "verdict": "approved",
+    "note": "Independent review (agent-7cc8). Diff vs HEAD (HEAD == pre-fix; prefix/ copies differ only in import paths): noteParagraphs splits on blank lines, single newline/CRLF -> space, no-newline fast path returns [parts] untouched; no LF/CR reaches segment/selectShard; PDF continuation paras wrap with firstIndent 12, drawing uses margin+(line.indent??0), old notes indent 0; DOCX one w:p per paragraph, footnoteRef only in first (footnote1.xml); shaping + overlong refusal text unchanged. Reruns (Node v22.23.3): vitest src/export+wp3+wp7 = 8 files/180 passed; tsc EXIT 0; npm run build EXIT 0 (dist/ rebuilt). Fail-first via worker prefix config: 6 failed|1 passed (PDF cases shaping message, overlong case gets shaping message, DOCX 1 w:p). Doctored config: guard fails (footnotes + pdfContent hashes differ) plus indent test. Own pre-fix hash run (team-t043-review/prefix-hash.test.ts) reproduces all 4 guard constants exactly. PNGs: 3 paragraphs legible, in order, 12pt indent visible, citation intact at end of last paragraph, no overlap with body or page number. Chicago: multi-paragraph notes with indented continuation paragraphs acceptable; citations not reflowed. Only these 3 src files changed since task start; no deletions; T043 file hashes equal sha-after.txt before and after review. Notes (non-blocking): DOCX continuation paragraphs have no indent, so PDF and DOCX look slightly different; the guard's font-suffix strip regex matches nothing in this fixture (hashes deterministic anyway). Logs: node_modules/.cache/personal-word-beta/team-t043-review/."
+  },
+  "log": [
+    {
+      "at": "2026-10-25T09:09:39+00:00",
+      "agent": "agent-15e2",
+      "event": "created",
+      "note": ""
+    },
+    {
+      "at": "2026-10-25T09:12:18+00:00",
+      "agent": "agent-0743",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-10-25T09:12:18+00:00",
+      "agent": "agent-0743",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-10-25T09:20:36+00:00",
+      "agent": "agent-0743",
+      "event": "review requested",
+      "note": "CLAIMED. pdf.ts/docx.ts split footnote text on blank lines (noteParagraphs helper; single newline -> space; no-newline notes take untouched fast path). PDF: separate note paragraphs, 12pt first-line indent, no \\n to shard lookup, refusals unchanged. DOCX: one w:p per paragraph, footnoteRef in first. New src/export/multiparagraphNote.test.ts (7 tests): fail-first 6 failed|1 passed vs pre-fix copies (guard passes pre-fix, fails on doctored copy); fixed: vitest src/export+wp3+wp7 = 180 passed, tsc EXIT 0, build EXIT 0. Unchanged-output: DOCX footnotes/document.xml sha + PDF page-content-stream sha match pre-fix constants. PNGs and report in node_modules/.cache/personal-word-beta/team-t043 (REPORT.md, artifacts/page-1.png). Not covered: Word rendering, WebKit."
+    },
+    {
+      "at": "2026-10-25T09:23:23+00:00",
+      "agent": "agent-7cc8",
+      "event": "approved",
+      "note": "Independent review (agent-7cc8). Diff vs HEAD (HEAD == pre-fix; prefix/ copies differ only in import paths): noteParagraphs splits on blank lines, single newline/CRLF -> space, no-newline fast path returns [parts] untouched; no LF/CR reaches segment/selectShard; PDF continuation paras wrap with firstIndent 12, drawing uses margin+(line.indent??0), old notes indent 0; DOCX one w:p per paragraph, footnoteRef only in first (footnote1.xml); shaping + overlong refusal text unchanged. Reruns (Node v22.23.3): vitest src/export+wp3+wp7 = 8 files/180 passed; tsc EXIT 0; npm run build EXIT 0 (dist/ rebuilt). Fail-first via worker prefix config: 6 failed|1 passed (PDF cases shaping message, overlong case gets shaping message, DOCX 1 w:p). Doctored config: guard fails (footnotes + pdfContent hashes differ) plus indent test. Own pre-fix hash run (team-t043-review/prefix-hash.test.ts) reproduces all 4 guard constants exactly. PNGs: 3 paragraphs legible, in order, 12pt indent visible, citation intact at end of last paragraph, no overlap with body or page number. Chicago: multi-paragraph notes with indented continuation paragraphs acceptable; citations not reflowed. Only these 3 src files changed since task start; no deletions; T043 file hashes equal sha-after.txt before and after review. Notes (non-blocking): DOCX continuation paragraphs have no indent, so PDF and DOCX look slightly different; the guard's font-suffix strip regex matches nothing in this fixture (hashes deterministic anyway). Logs: node_modules/.cache/personal-word-beta/team-t043-review/."
+    }
+  ]
+}

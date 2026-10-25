@@ -1,6 +1,10 @@
 # Source publication readiness
 
-Updated October 20, 2026. Scope: local source alpha, application version `0.1.0`, intended annotated tag `v0.1.0-alpha.1`. No remote, push, hosted release or binary distribution is authorized.
+Updated October 20, 2026; beta board note added October 25, 2026 (below). Scope: local source alpha, application version `0.1.0`, intended annotated tag `v0.1.0-alpha.1`. No remote, push, hosted release or binary distribution is authorized.
+
+## 2026-10-25 beta board note
+
+The qualification below is the October 19-20 source-alpha snapshot; its counts (164 unit tests, 49 Chromium scenarios, 19 Rust tests) are history. The beta board's results, kept separate by kind of evidence (browser, native harness, rendered artifacts, no owner real use), are in [validation.md](validation.md). The beta is not qualified for distribution: no fresh normal app build has been inspected (task T021 open), Gate D (T022) is open, hosted CI has never run, WebKit rendering and Microsoft Word output are unchecked, and no Apple silicon run exists. The native print probe ended in a documented STOP and the legacy PDF exporter is the only PDF path. Nothing here authorizes a push, tag, or binary distribution.
 
 ## Prepared locally
 

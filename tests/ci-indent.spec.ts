@@ -167,3 +167,111 @@ test("Screenplay Tab keeps cycling paragraph styles", async ({ page }) => {
     "parenthetical",
   );
 });
+
+async function enterEditorByKeyboard(page: any, editor: any) {
+  // Start outside the editor; only actual Tab input enters its contenteditable.
+  await page.getByRole("button", { name: "Bold (⌘B)", exact: true }).focus();
+  const journey: string[] = [];
+  for (let step = 0; step < 100; step += 1) {
+    await page.keyboard.press("Tab");
+    journey.push(await page.evaluate(() => document.activeElement?.getAttribute("aria-label") ?? document.activeElement?.textContent?.slice(0, 60) ?? ""));
+    if (await editor.evaluate((root: HTMLElement) => root === document.activeElement)) {
+      await test.info().attach("keyboard-focus-journey", { body: JSON.stringify(journey), contentType: "application/json" });
+      return;
+    }
+  }
+  throw new Error(`Keyboard could not reach writing editor: ${JSON.stringify(journey)}`);
+}
+
+test("Keyboard focus: Blank start indent survives undo, redo, save, and reload", async ({
+  page,
+}) => {
+  await createProject(page, "Blank indentation", "Blank");
+  const editor = page.getByRole("textbox", { name: "Writing editor" });
+  const paragraph = editor.locator("p").first();
+  await enterEditorByKeyboard(page, editor);
+  await savedEdit(page, async () => {
+    await editor.pressSequentially("A blank-template paragraph.");
+    await editor.press("Home");
+    // Browser Home updates the DOM selection before ProseMirror consumes it.
+    // Wait for the command's actual selection, not a transient DOM offset.
+    await expect
+      .poll(() =>
+        editor.evaluate((element: any) => ({
+          offset: element.editor.state.selection.$from.parentOffset,
+          empty: element.editor.state.selection.empty,
+          domOffset: window.getSelection()?.anchorOffset,
+        })),
+      )
+      .toEqual({ offset: 0, empty: true, domOffset: 0 });
+    await editor.press("Tab");
+  });
+
+  await expect(editor).toBeFocused();
+  await expect(paragraph).toHaveAttribute("style", /text-indent: 0\.5in/);
+  await expect(paragraph).not.toHaveAttribute("style", /margin-left/);
+
+  await savedEdit(page, () => editor.press("ControlOrMeta+z"));
+  await expect(paragraph).not.toHaveAttribute("style", /text-indent: 0\.5in/);
+  await savedEdit(page, () => editor.press("ControlOrMeta+Shift+z"));
+  await expect(paragraph).toHaveAttribute("style", /text-indent: 0\.5in/);
+
+  await page.reload();
+  await expect(editor).toContainText("A blank-template paragraph.");
+  await expect(editor.locator("p").first()).toHaveAttribute(
+    "style",
+    /text-indent: 0\.5in/,
+  );
+});
+
+test("Keyboard focus: Chicago inherited indent uses left indent and survives undo, redo, and reload", async ({
+  page,
+}) => {
+  await createProject(page, "Chicago indentation", "Chicago student paper");
+  const introduction = page.getByRole("button", {
+    name: /^Introduction \d+ words$/,
+  });
+  await introduction.click();
+  const editor = page.getByRole("textbox", { name: "Writing editor" });
+  const paragraph = editor.locator("p").first();
+  await enterEditorByKeyboard(page, editor);
+  await savedEdit(page, async () => {
+    await editor.pressSequentially("An inherited Chicago paragraph.");
+    await editor.press("Home");
+    // Browser Home updates the DOM selection before ProseMirror consumes it.
+    // Wait for the command's actual selection, not a transient DOM offset.
+    await expect
+      .poll(() =>
+        editor.evaluate((element: any) => ({
+          offset: element.editor.state.selection.$from.parentOffset,
+          empty: element.editor.state.selection.empty,
+          domOffset: window.getSelection()?.anchorOffset,
+        })),
+      )
+      .toEqual({ offset: 0, empty: true, domOffset: 0 });
+    await editor.press("Tab");
+  });
+
+  await expect(paragraph).toHaveAttribute("style", /margin-left: 0\.5in/);
+  await expect(paragraph).not.toHaveAttribute("style", /text-indent: 0\.5in/);
+
+  await savedEdit(page, () => editor.press("ControlOrMeta+z"));
+  await expect(paragraph).not.toHaveAttribute("style", /margin-left: 0\.5in/);
+  await savedEdit(page, () => editor.press("ControlOrMeta+Shift+z"));
+  await expect(paragraph).toHaveAttribute("style", /margin-left: 0\.5in/);
+
+  await page.reload();
+  await page
+    .getByRole("navigation", { name: "Open projects" })
+    .getByRole("button", { name: "Chicago indentation", exact: true })
+    .click();
+  await expect(introduction).toBeVisible();
+  await introduction.click();
+  const reloadedEditor = page.getByRole("textbox", { name: "Writing editor" });
+  await expect(reloadedEditor).toContainText("An inherited Chicago paragraph.");
+  await expect(reloadedEditor.locator("p").first()).toHaveAttribute(
+    "style",
+    /margin-left: 0\.5in/,
+  );
+});
+

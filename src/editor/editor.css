@@ -18,24 +18,86 @@
   text-decoration-thickness: 1.5px;
   text-underline-offset: 3px;
 }
-.writer .prose-repeat { text-decoration-color: var(--prose-repeat); }
-.writer .prose-passive { text-decoration-color: var(--prose-passive); }
-.writer .prose-filler { text-decoration-color: var(--prose-filler); }
-.writer .prose-long { text-decoration-color: var(--prose-long); }
-.prose-check-panel { min-width: 260px; max-width: min(420px, 80vw); }
-.prose-check-panel input[type="checkbox"] { width: 16px; height: 16px; accent-color: var(--accent); }
-.prose-issues { display: flex; flex-direction: column; gap: 4px; max-height: 260px; overflow: auto; }
-.prose-issues .toolbar-text-button { justify-content: flex-start; height: auto; min-height: 26px; gap: 8px; white-space: normal; text-align: left; }
-.prose-issues .toolbar-text-button span:last-child { color: var(--muted); }
-.prose-issue-row { display: flex; align-items: center; gap: 4px; }
-.prose-issue-select { flex: 1; min-width: 0; }
-.prose-issue-dismiss { border: 0; background: transparent; color: var(--muted); font: inherit; font-size: 11px; padding: 4px; cursor: pointer; }
-.prose-issue-dismiss:hover, .prose-issue-dismiss:focus-visible { color: var(--text); text-decoration: underline; }
-.prose-issue-pagination { display: flex; align-items: center; justify-content: space-between; gap: 8px; font-size: 12px; }
-.prose-issue-pagination .toolbar-text-button { padding: 4px 6px; }
-.prose-issue-pagination .toolbar-text-button:disabled { opacity: .5; cursor: default; }
+.writer .prose-repeat {
+  text-decoration-color: var(--prose-repeat);
+}
+.writer .prose-passive {
+  text-decoration-color: var(--prose-passive);
+}
+.writer .prose-filler {
+  text-decoration-color: var(--prose-filler);
+}
+.writer .prose-long {
+  text-decoration-color: var(--prose-long);
+}
+.prose-check-panel {
+  min-width: 260px;
+  max-width: min(420px, 80vw);
+}
+.prose-check-panel input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--accent);
+}
+.prose-issues {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  max-height: 260px;
+  overflow: auto;
+}
+.prose-issues .toolbar-text-button {
+  justify-content: flex-start;
+  height: auto;
+  min-height: 26px;
+  gap: 8px;
+  white-space: normal;
+  text-align: left;
+}
+.prose-issues .toolbar-text-button span:last-child {
+  color: var(--muted);
+}
+.prose-issue-row {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.prose-issue-select {
+  flex: 1;
+  min-width: 0;
+}
+.prose-issue-dismiss {
+  border: 0;
+  background: transparent;
+  color: var(--muted);
+  font: inherit;
+  font-size: 11px;
+  padding: 4px;
+  cursor: pointer;
+}
+.prose-issue-dismiss:hover,
+.prose-issue-dismiss:focus-visible {
+  color: var(--text);
+  text-decoration: underline;
+}
+.prose-issue-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 12px;
+}
+.prose-issue-pagination .toolbar-text-button {
+  padding: 4px 6px;
+}
+.prose-issue-pagination .toolbar-text-button:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
 @media (prefers-reduced-motion: reduce) {
-  .writer .focus-dim { transition: none; }
+  .writer .focus-dim {
+    transition: none;
+  }
 }
 .writer-scroll {
   flex: 1;
@@ -540,7 +602,11 @@
   border-radius: 0;
   background: transparent;
   color: var(--muted);
-  font-family: Futura, "Avenir Next", -apple-system, sans-serif;
+  font-family:
+    Futura,
+    "Avenir Next",
+    -apple-system,
+    sans-serif;
   font-size: 11px;
   line-height: inherit;
   cursor: pointer;
@@ -610,4 +676,99 @@
   background: var(--selection);
   opacity: 0.6;
   pointer-events: none;
+}
+
+/* Alt text field in popover */
+.writer .toolbar-popover .toolbar-input {
+  box-sizing: border-box;
+  width: 100%;
+  height: 26px;
+  padding: 2px 6px;
+  border: 1px solid var(--line);
+  border-radius: 0;
+  background: var(--paper);
+  color: var(--text);
+  font-family: inherit;
+  font-size: 12px;
+  outline: none;
+}
+.writer .toolbar-popover .toolbar-input:focus {
+  border-color: var(--accent);
+}
+
+/* Table controls button list */
+.writer .table-controls-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.writer .toolbar-text-button.is-danger {
+  color: var(--danger, #c53030);
+}
+.writer .toolbar-text-button.is-danger:hover {
+  background: var(--surface);
+}
+
+/* Reading view parity for tables and images */
+.read-document table,
+.read-prose table {
+  border-collapse: collapse;
+  table-layout: fixed;
+  width: 100%;
+  margin: 1.5em 0;
+  white-space: normal;
+}
+.read-document th,
+.read-document td,
+.read-prose th,
+.read-prose td {
+  position: relative;
+  min-width: 2em;
+  padding: 0.4em 0.6em;
+  border: 1px solid var(--line);
+  vertical-align: top;
+  text-align: left;
+  white-space: normal;
+  line-height: 1.5;
+}
+.read-document th,
+.read-prose th {
+  background: var(--surface);
+  font-weight: 600;
+}
+.read-prose td > :first-child,
+.read-prose th > :first-child,
+.read-document td > :first-child,
+.read-document th > :first-child {
+  margin-top: 0;
+}
+.read-prose td > :last-child,
+.read-prose th > :last-child,
+.read-document td > :last-child,
+.read-document th > :last-child {
+  margin-bottom: 0;
+}
+.read-document figure.doc-image,
+.read-prose figure.doc-image {
+  margin: 1.5em 0;
+  text-align: center;
+}
+.read-document figure.doc-image img,
+.read-prose figure.doc-image img {
+  max-width: 100%;
+  height: auto;
+  display: inline-block;
+}
+.read-document figure.doc-image .doc-image-alt,
+.read-prose figure.doc-image .doc-image-alt {
+  display: inline-block;
+  padding: 1em 1.5em;
+  border: 1px dashed var(--line);
+  color: var(--muted);
+  font-family:
+    Futura,
+    "Avenir Next",
+    -apple-system,
+    sans-serif;
+  font-size: 13px;
 }

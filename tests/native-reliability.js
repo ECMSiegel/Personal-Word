@@ -445,6 +445,475 @@
       return;
     }
 
+    // Asset staging crash scenario: stage asset, arm checkpoint, kill before content edit
+    if (scenario === "asset-crash") {
+      let id = localStorage.getItem("folio.d1.projectId");
+      if (!id) {
+        id = await createProject();
+        location.reload();
+        return;
+      }
+      await ensureProjectOpen();
+      const baseline = await invoke("load_project", { id });
+
+      // Minimal valid 1x1 PNG fixture (67 bytes)
+      const fixtureData = "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAIAAACQd1PeAAAADElEQVR4nGP4z8AAAAMBAQDJ/pLvAAAAAElFTkSuQmCC";
+      const fixtureBytes = Uint8Array.from(atob(fixtureData), (c) => c.charCodeAt(0));
+      const hashBuffer = await crypto.subtle.digest("SHA-256", fixtureBytes);
+      const fixtureId = Array.from(new Uint8Array(hashBuffer))
+        .map((b) => b.toString(16).padStart(2, "0"))
+        .join("");
+
+      const fixtureMeta = {
+        mime: "image/png",
+        byteLength: fixtureBytes.length,
+        width: 1,
+        height: 1,
+      };
+
+      // Report BEFORE staging: on the current tree (store.rs with the
+      // native-smoke checkpoint hook), stage_assets fires the
+      // "post-asset-stage" checkpoint right after its SQLite commit and
+      // blocks there until the supervisor resumes or kills the process.
+      // The supervisor requires report-2.json for this invocation to exist
+      // before the kill, and smoke_report writes it synchronously, so the
+      // report (which depends only on data known pre-stage) must be durable
+      // before the stage invoke can block. stagedMeta is the fixture meta
+      // itself; the stage result can no longer be observed here.
+      await report({
+        ok: true,
+        scenario,
+        projectId: id,
+        baseline,
+        acknowledgedRevision: baseline.revision,
+        stagedAssetId: fixtureId,
+        stagedMeta: fixtureMeta,
+      });
+
+      localStorage.setItem("folio.d1.stagedAssetId", fixtureId);
+      localStorage.setItem("folio.d1.stagedAssetBase64", fixtureData);
+
+      // Arm first, then stage: the checkpoint fires inside stage_assets
+      // (post-commit) and blocks; the supervisor kills this process once the
+      // checkpoint file and the report above are on disk.
+      await invoke("arm_checkpoint", { point: "post-asset-stage" });
+
+      await invoke("stage_assets", {
+        projectId: id,
+        assets: [{ id: fixtureId, meta: fixtureMeta, data: fixtureData }],
+      });
+      return;
+    }
+
+    // Asset restart: verify clean open, no missing image, verify read_asset, then insert image & save
+    if (scenario === "asset-restart") {
+      const id = await ensureProjectOpen();
+      const current = await invoke("load_project", { id });
+      const stagedAssetId = localStorage.getItem("folio.d1.stagedAssetId");
+      if (!stagedAssetId) throw Error("Staged asset ID missing from test storage");
+
+      // Verify no uncommitted asset reference in project JSON
+      if (JSON.stringify(current).includes(stagedAssetId)) {
+        throw Error("Project contains uncommitted asset reference after staging kill");
+      }
+
+      // Verify DOM editor contains baseline text and NO error banner
+      const editorText = editor()?.textContent || "";
+      if (!editorText.includes("Before restore content")) {
+        throw Error("Reopened editor does not contain the last acknowledged writing");
+      }
+      if (document.querySelector(".error-banner")) {
+        throw Error("Unexpected error banner visible on clean restart");
+      }
+
+      // Verify read_asset returns exact bytes matching SHA-256
+      const rawBytes = await invoke("read_asset", { projectId: id, assetId: stagedAssetId });
+      const rawUint8 = new Uint8Array(rawBytes);
+      const readHashBuf = await crypto.subtle.digest("SHA-256", rawUint8);
+      const readHash = Array.from(new Uint8Array(readHashBuf))
+        .map((b) => b.toString(16).padStart(2, "0"))
+        .join("");
+      if (readHash !== stagedAssetId) {
+        throw Error(`read_asset SHA-256 mismatch: expected ${stagedAssetId}, got ${readHash}`);
+      }
+
+      // Save an image project referencing this staged asset
+      const fileInput = document.querySelector('input[type="file"][accept*="image"]');
+      if (fileInput) {
+        const fixtureBase64 = localStorage.getItem("folio.d1.stagedAssetBase64");
+        const bytes = Uint8Array.from(atob(fixtureBase64), (c) => c.charCodeAt(0));
+        const dt = new DataTransfer();
+        dt.items.add(new File([bytes], "test.png", { type: "image/png" }));
+        fileInput.files = dt.files;
+        fileInput.dispatchEvent(new Event("change", { bubbles: true }));
+        await delay(100);
+        const altInput = await wait(
+          () => document.querySelector('input[aria-label="Image alternative text"]'),
+          "alt input dialog",
+        );
+        altInput.value = "Staged recovery test image";
+        altInput.dispatchEvent(new Event("input", { bubbles: true }));
+        altInput.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter", bubbles: true }));
+        await waitSavedAfterEdit();
+      }
+
+      const updated = await invoke("load_project", { id });
+      await cleanClose({
+        ok: true,
+        scenario,
+        projectId: id,
+        current: updated,
+        stagedAssetId,
+        readHash,
+        acknowledgedRevision: updated.revision,
+      });
+      return;
+    }
+
+    // Asset reopen: fresh process verification of saved image project
+    if (scenario === "asset-reopen") {
+      const id = await ensureProjectOpen();
+      const current = await invoke("load_project", { id });
+      const stagedAssetId = localStorage.getItem("folio.d1.stagedAssetId");
+
+      const rawBytes = await invoke("read_asset", { projectId: id, assetId: stagedAssetId });
+      const rawUint8 = new Uint8Array(rawBytes);
+      const readHashBuf = await crypto.subtle.digest("SHA-256", rawUint8);
+      const readHash = Array.from(new Uint8Array(readHashBuf))
+        .map((b) => b.toString(16).padStart(2, "0"))
+        .join("");
+
+      await cleanClose({
+        ok: true,
+        scenario,
+        projectId: id,
+        current,
+        stagedAssetId,
+        readHash,
+        acknowledgedRevision: current.revision,
+      });
+      return;
+    }
+
+    // --- D2 / WP11 beta scenarios -------------------------------------------------------------
+    // The synthetic project is one file shared with the unit tests, the Rust store test and the
+    // Python checker (tests/fixtures/beta-synthetic-project.json, embedded by smoke_beta_fixture).
+    // This script only executes steps and reports what the app returned. scripts/native-reliability.py
+    // derives every expected state from the same file and compares it with SQLite, history, snapshots,
+    // project.json and the attachments on disk, so nothing here is read back as its own expectation.
+    if (scenario.startsWith("beta-")) {
+      const fixture = JSON.parse(await invoke("smoke_beta_fixture"));
+      const { ids, edits } = fixture;
+      const projectId = ids.project;
+      const clone = (value) => JSON.parse(JSON.stringify(value));
+      const sortKeys = (value) =>
+        Array.isArray(value)
+          ? value.map(sortKeys)
+          : value && typeof value === "object"
+            ? Object.fromEntries(Object.keys(value).sort().map((key) => [key, sortKeys(value[key])]))
+            : value;
+      const same = (left, right) => JSON.stringify(sortKeys(left)) === JSON.stringify(sortKeys(right));
+      // The native save contract is camelCase and keeps entry ids in the header.
+      const headerOf = ({ entries, ...rest }) => ({ ...rest, entryIds: entries.map((entry) => entry.id) });
+      const entryIds = (project) => project.entries.map((entry) => entry.id);
+      const changeOf = (project, changedIds, baseRevision) => ({
+        header: headerOf(project),
+        entries: project.entries.filter((entry) => changedIds.includes(entry.id)),
+        baseRevision,
+      });
+      // One edit of the fixture: the next revision with a replaced entry body and/or patched sources.
+      const applyEdit = (project, edit) => {
+        const next = clone(project);
+        next.revision += 1;
+        next.updatedAt = edit.updatedAt;
+        if (edit.entryId) {
+          const index = next.entries.findIndex((entry) => entry.id === edit.entryId);
+          next.entries[index] = { ...next.entries[index], ...clone(edit.entry) };
+        }
+        for (const patch of edit.sources || []) {
+          Object.assign(next.research.sources.find((source) => source.id === patch.id), clone(patch.set));
+        }
+        return next;
+      };
+      const assetByName = (name) => fixture.assets.find((asset) => asset.name === name);
+      const upload = (name) => {
+        const { id, meta, data } = assetByName(name);
+        return { id, meta, data };
+      };
+      const hex = (buffer) =>
+        [...new Uint8Array(buffer)].map((byte) => byte.toString(16).padStart(2, "0")).join("");
+      const sha256 = async (bytes) => hex(await crypto.subtle.digest("SHA-256", bytes));
+      const readBytes = async (id, assetId) =>
+        new Uint8Array(await invoke("read_asset", { projectId: id, assetId }));
+      const toBase64 = (bytes) => {
+        let binary = "";
+        for (const byte of bytes) binary += String.fromCharCode(byte);
+        return btoa(binary);
+      };
+      const load = (id = projectId) => invoke("load_project", { id });
+      const failure = async (promise) => {
+        try {
+          await promise;
+          return null;
+        } catch (error) {
+          return String(error);
+        }
+      };
+      const waitAsync = async (fn, label, attempts = 500) => {
+        mark(`wait ${label}`);
+        for (let i = 0; i < attempts; i++) {
+          if (await fn()) {
+            mark(`ok ${label}`);
+            return true;
+          }
+          await delay(40);
+        }
+        throw Error(`Timed out: ${label}`);
+      };
+      // Creates the whole fixture through the import route: project and both referenced images in one transaction.
+      const createFixtureProject = async () => {
+        const s1 = clone(fixture.initial);
+        await invoke("create_project_with_assets", {
+          change: changeOf(s1, entryIds(s1), null),
+          assets: [upload("png-section-drawing"), upload("jpeg-sherd")],
+        });
+        return s1;
+      };
+      const saveEdit = async (project, edit, changedIds) => {
+        const next = applyEdit(project, edit);
+        await invoke("save_changes", { change: changeOf(next, changedIds, project.revision) });
+        return next;
+      };
+
+      // Lifecycle, process 1: create, ordinary reload, one-entry incremental saves, history, named snapshot.
+      if (scenario === "beta-lifecycle") {
+        const s1 = await createFixtureProject();
+        const afterCreate = await load();
+        const s2 = await saveEdit(s1, edits.incremental, [ids.sec2]);
+        const afterIncremental = await load();
+        await invoke("create_snapshot", { id: projectId, name: "Beta snapshot A" });
+        await saveEdit(s2, edits.second, [ids.sec2]);
+        const afterSecond = await load();
+        await invoke("flush_mirrors", { id: projectId });
+        await cleanClose({ ok: true, scenario, projectId, afterCreate, afterIncremental, afterSecond });
+        return;
+      }
+
+      // Lifecycle, process 2: the real UI restore generates the safety snapshot.
+      if (scenario === "beta-lifecycle-restore") {
+        await openProject(fixture.initial.title);
+        await wait(() => editor(), "beta fixture opened in the native UI");
+        const beforeRestore = await load();
+        await click("Snapshots & history");
+        const item = await wait(
+          () => [...document.querySelectorAll(".version-item")].find((node) => node.textContent.includes("Beta snapshot A")),
+          "Beta snapshot A in native history",
+        );
+        item.click();
+        await click("Restore this version");
+        await waitAsync(async () => (await load()).revision === beforeRestore.revision + 1, "restored project committed");
+        await wait(() => status() === "Saved", "restore acknowledged by SQLite");
+        await invoke("flush_mirrors", { id: projectId });
+        const current = await load();
+        const safety = await invoke("verify_safety_snapshot", {
+          projectId,
+          snapshotName: "Before restoring Beta snapshot A",
+        });
+        await cleanClose({ ok: true, scenario, projectId, beforeRestore, current, safety });
+        return;
+      }
+
+      // Lifecycle, process 3 (a fresh native start): reload, image bytes, then an import under a new identity.
+      if (scenario === "beta-lifecycle-reopen") {
+        const current = await load();
+        const hashes = {};
+        const uploads = [];
+        for (const asset of fixture.assets.slice(0, 2)) {
+          const bytes = await readBytes(projectId, asset.id);
+          hashes[asset.id] = await sha256(bytes);
+          uploads.push({ id: asset.id, meta: asset.meta, data: toBase64(bytes) });
+        }
+        const versions = await invoke("list_versions", { id: projectId, history: false });
+        const safety = await invoke("verify_safety_snapshot", {
+          projectId,
+          snapshotName: "Before restoring Beta snapshot A",
+        });
+        // What App.importProject does with a v2 archive: same content and bytes, new id and revision 1.
+        const cloneId = "7c1d4e8a-2b3f-4a5c-9d6e-0f1a2b3c4d5e";
+        const imported = {
+          ...clone(current),
+          id: cloneId,
+          revision: 1,
+          title: `${current.title} (recovered)`,
+          updatedAt: "2026-10-25T00:00:00.000Z",
+        };
+        await invoke("create_project_with_assets", {
+          change: changeOf(imported, entryIds(imported), null),
+          assets: uploads,
+        });
+        await invoke("flush_mirrors", { id: cloneId });
+        const importedLoaded = await load(cloneId);
+        await cleanClose({
+          ok: true, scenario, projectId, current, hashes, versions, safety, cloneId, imported: importedLoaded,
+        });
+        return;
+      }
+
+      // Asset staging vs content commit: the kill lands after the staged bytes are durable and before any edit uses them.
+      if (scenario === "beta-crash-asset-stage") {
+        await createFixtureProject();
+        await invoke("flush_mirrors", { id: projectId });
+        const baseline = await load();
+        await invoke("arm_checkpoint", { point: "post-asset-stage" });
+        await report({ ok: true, scenario, projectId, baseline });
+        await invoke("stage_assets", { projectId, assets: [upload("png-late")] });
+        return;
+      }
+      if (scenario === "beta-asset-stage-restart") {
+        const before = await load();
+        const lateHash = await sha256(await readBytes(projectId, assetByName("png-late").id));
+        const next = applyEdit(clone(fixture.initial), edits.lateImage);
+        await invoke("save_changes", { change: changeOf(next, [ids.sec2], before.revision) });
+        await invoke("flush_mirrors", { id: projectId });
+        const current = await load();
+        await cleanClose({ ok: true, scenario, projectId, before, lateHash, current });
+        return;
+      }
+
+      // SQL transaction vs mirrors: an injected portable-copy failure is surfaced and repaired, then the kill
+      // lands after SQLite committed an edit that adds an image reference and before project.json/attachments.
+      if (scenario === "beta-crash-sql-mirrors") {
+        const s1 = await createFixtureProject();
+        await invoke("flush_mirrors", { id: projectId });
+        await invoke("mark_mirrors_pending", { projectId });
+        await invoke("arm_fault", { fault: "mirror-write" });
+        const mirrorError = await failure(invoke("flush_mirrors", { id: projectId }));
+        await invoke("flush_mirrors", { id: projectId });
+        await invoke("stage_assets", { projectId, assets: [upload("png-late")] });
+        const baseline = await load();
+        const next = applyEdit(s1, edits.lateImage);
+        await invoke("arm_checkpoint", { point: "post-commit-pre-mirror" });
+        await report({ ok: true, scenario, projectId, baseline, mirrorError });
+        await invoke("save_changes", { change: changeOf(next, [ids.sec2], baseline.revision) });
+        return;
+      }
+      if (scenario === "beta-mirror-restart") {
+        const current = await load();
+        await invoke("flush_mirrors", { id: projectId });
+        await cleanClose({ ok: true, scenario, projectId, current });
+        return;
+      }
+
+      // Source merge: the kill lands after the safety snapshot is durable and before the merge commits.
+      if (scenario === "beta-crash-source-merge") {
+        await createFixtureProject();
+        await invoke("flush_mirrors", { id: projectId });
+        const baseline = await load();
+        await invoke("arm_checkpoint", { point: "post-merge-safety-snapshot" });
+        await report({ ok: true, scenario, projectId, baseline });
+        await invoke("create_snapshot", { id: projectId, name: "Before updating research sources" });
+        return;
+      }
+      if (scenario === "beta-merge-restart") {
+        const before = await load();
+        const survivors = await invoke("list_versions", { id: projectId, history: false });
+        // Retry as App.applySourceChoices does: a safety snapshot, a check that it equals the writing, one commit.
+        const key = await invoke("create_snapshot", { id: projectId, name: "Before updating research sources" });
+        const safety = await invoke("load_version", { id: projectId, key, history: false });
+        if (!same(safety, before))
+          throw Error("The safety snapshot did not match the current writing. No sources were updated.");
+        const merged = applyEdit(clone(fixture.initial), edits.merge);
+        await invoke("save_changes", { change: changeOf(merged, [], before.revision) });
+        await invoke("flush_mirrors", { id: projectId });
+        const current = await load();
+        await cleanClose({ ok: true, scenario, projectId, before, survivors, current });
+        return;
+      }
+
+      // Restore: the kill lands after the pre-restore safety snapshot and before the restored content commits.
+      if (scenario === "beta-crash-restore") {
+        const s1 = await createFixtureProject();
+        await invoke("flush_mirrors", { id: projectId });
+        await invoke("create_snapshot", { id: projectId, name: "Beta V1" });
+        await saveEdit(s1, edits.incremental, [ids.sec2]);
+        await invoke("flush_mirrors", { id: projectId });
+        const baseline = await load();
+        await invoke("arm_checkpoint", { point: "post-restore-safety-snapshot" });
+        await report({ ok: true, scenario, projectId, baseline });
+        await invoke("create_snapshot", { id: projectId, name: "Before restoring Beta V1" });
+        return;
+      }
+      if (scenario === "beta-restore-restart") {
+        const before = await load();
+        const versions = await invoke("list_versions", { id: projectId, history: false });
+        const target = versions.find((version) => version.name === "Beta V1");
+        if (!target) throw Error("The named snapshot did not survive the crash");
+        const v1 = await invoke("load_version", { id: projectId, key: target.id, history: false });
+        const safetyKey = await invoke("create_snapshot", { id: projectId, name: "Before restoring Beta V1" });
+        const safety = await invoke("load_version", { id: projectId, key: safetyKey, history: false });
+        if (!same(safety, before)) throw Error("The safety snapshot does not equal the pre-restore project");
+        const restored = { ...clone(v1), revision: before.revision + 1, updatedAt: edits.restore.updatedAt };
+        const changed = restored.entries
+          .filter((entry) => !same(entry, before.entries.find((candidate) => candidate.id === entry.id)))
+          .map((entry) => entry.id);
+        await invoke("save_changes", { change: changeOf(restored, changed, before.revision) });
+        await invoke("flush_mirrors", { id: projectId });
+        const current = await load();
+        await cleanClose({ ok: true, scenario, projectId, before, versions, changed, current });
+        return;
+      }
+
+      // Newer-schema project (the harness raised user_version on its own copy): fail clearly, change nothing.
+      if (scenario === "beta-newer-schema") {
+        const listing = await invoke("list_projects");
+        const loadError = await failure(load());
+        await cleanClose({ ok: true, scenario, projectId, listing, loadError });
+        return;
+      }
+
+      // Real-app controls for the Python checkers.
+      if (scenario === "beta-control-drop-metadata") {
+        const s1 = await createFixtureProject();
+        await invoke("arm_fault", { fault: "drop-metadata" });
+        await saveEdit(s1, edits.incremental, [ids.sec2]);
+        await invoke("flush_mirrors", { id: projectId });
+        const current = await load();
+        await cleanClose({ ok: true, scenario, projectId, current });
+        return;
+      }
+      if (scenario === "beta-control-corrupt-table") {
+        const s1 = await createFixtureProject();
+        const bad = clone(s1);
+        bad.revision += 1;
+        const table = bad.entries.find((entry) => entry.id === ids.sec1).content.content.find((node) => node.type === "table");
+        table.content[2].content.pop();
+        const rejected = await failure(invoke("save_changes", { change: changeOf(bad, [ids.sec1], s1.revision) }));
+        const current = await load();
+        await cleanClose({ ok: true, scenario, projectId, rejected, current });
+        return;
+      }
+      if (scenario === "beta-control-missing-asset") {
+        const s1 = await createFixtureProject();
+        const bad = applyEdit(s1, edits.lateImage);
+        const rejected = await failure(invoke("save_changes", { change: changeOf(bad, [ids.sec2], s1.revision) }));
+        const current = await load();
+        await cleanClose({ ok: true, scenario, projectId, rejected, current });
+        return;
+      }
+      if (scenario === "beta-control-merge-no-safety") {
+        await createFixtureProject();
+        await invoke("flush_mirrors", { id: projectId });
+        const before = await load();
+        await invoke("arm_fault", { fault: "skip-safety-snapshot" });
+        const key = await invoke("create_snapshot", { id: projectId, name: "Before updating research sources" });
+        // App.applySourceChoices reads the safety copy back and stops when it is missing: nothing is merged.
+        const safetyError = await failure(invoke("load_version", { id: projectId, key, history: false }));
+        const current = await load();
+        await cleanClose({ ok: true, scenario, projectId, before, safetyError, current });
+        return;
+      }
+    }
+
     throw Error(`Unknown native reliability scenario: ${scenario}`);
   } catch (error) {
     mark(`failed ${String(error)}`);

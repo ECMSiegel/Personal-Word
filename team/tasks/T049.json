@@ -1,0 +1,61 @@
+{
+  "id": "T049",
+  "title": "Gate D F2: docs still say final qualification and app build are not done",
+  "description": "Found by Gate D (T022, agent-9e61). T020 wrote the beta status before T021/T046 ran, so these now understate the current state (they are not dishonest, just stale): README.md:97 ('no beta app has been built and checked yet'), README.md:103-104 ('no single full-suite browser count'; '858 unit tests in 46 files ... full counts not re-recorded'), README.md:111 ('no fresh normal app build ... (task T021 is open)'); docs/validation.md:270-276 (858/46 table), :287 ('no single full-suite browser run on the final tree'), :307-308 (T021 'not done'; Gate D pending); ROADMAP.md:21 (T021/T022 open); docs/agent-work/2026-10-20-beta-roadmap/IMPLEMENTATION_LOG.md:80 (T021 still open); docs/agent-work/2026-10-20-beta-roadmap/06-durability/IMPLEMENTATION_LOG.md T021 entry (says Playwright 111/1 and verifier exit 1; the T046 rerun is only in evidence.md section 7). Update with dated additions (keep history lines) from these sources only: docs/agent-work/2026-10-24-team-reconciliation/evidence.md (sections 1-4, 7), node_modules/.cache/personal-word-beta/team-t021-review/ (Gate D reruns) and docs/agent-work/2026-10-20-beta-roadmap/06-durability/REVIEW.md: tsc 0; units 865 in 47 files; production-preview Playwright 112/112 across 23 spec files (one worker, retries 0, Chromium only); offline serial Rust 48 passed/1 ignored; native baseline 20261025T093854Z-eb139b9b 13+5 and beta 20261025T093937Z-7c31d8de 19+42 on source identity 7e07795970ee8195 (Gate D rerun 20261025T100024Z-93ccb1f1 19+42); save benchmark p95 117.98 ms; normal app src-tauri/target/release/bundle/macos/Personal Word.app, com.folio.writing 0.1.1 x86_64, binary sha256 66da1177a6b0063c..., no diagnostic markers; verifier exit 2 (owner items pending); Gate D verdict as written in REVIEW.md. Keep every limitation and owner-pending statement; never say 'beta ready' or VERIFIED. These files are not in SOURCE_MANIFEST.json, so no requalification is needed; reviewer checks each new number against the logs named. No product/test/script edits, no commits.",
+  "status": "done",
+  "owner": null,
+  "priority": 2,
+  "depends_on": [],
+  "files": [
+    "README.md",
+    "docs/validation.md",
+    "ROADMAP.md",
+    "docs/agent-work/2026-10-20-beta-roadmap/IMPLEMENTATION_LOG.md",
+    "docs/agent-work/2026-10-20-beta-roadmap/06-durability/IMPLEMENTATION_LOG.md",
+    "node_modules/.cache/personal-word-beta/team-t049"
+  ],
+  "review_required": true,
+  "created_by": "agent-9e61",
+  "created_at": "2026-10-25T10:10:40+00:00",
+  "claimed_at": "2026-10-25T10:16:38+00:00",
+  "updated_at": "2026-10-25T10:18:44+00:00",
+  "handoff": null,
+  "review": {
+    "by": "agent-b8ae",
+    "at": "2026-10-25T10:18:44+00:00",
+    "verdict": "approved",
+    "note": "Coordinator review: README :97-:122, validation.md :271-:344, ROADMAP :21-:24 and both logs now carry the Gate D numbers (865/47, 112/112, 48/1, native eb139b9b/7c31d8de/93ccb1f1, identity 7e077959, app 66da1177, verifier exit 2) with CLAIMED wording and owner-pending list; history kept; no code. One nit for T023: the manifest digest quoted (ed8ea16f) predates T048's regeneration (now 24fa1a86); T023 updates those mentions."
+  },
+  "log": [
+    {
+      "at": "2026-10-25T10:10:40+00:00",
+      "agent": "agent-9e61",
+      "event": "created",
+      "note": ""
+    },
+    {
+      "at": "2026-10-25T10:16:38+00:00",
+      "agent": "agent-ad87",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-10-25T10:16:38+00:00",
+      "agent": "agent-ad87",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-10-25T10:18:15+00:00",
+      "agent": "agent-ad87",
+      "event": "review requested",
+      "note": "Docs updated to Gate D state (CLAIMED, not beta ready): README.md status+Gate D subsection+Ibid sentence restored; docs/validation.md stale 858/46, no-single-run, T021-not-done lines marked superseded and 2026-10-25 Gate D section appended; ROADMAP.md Still-open fixed + Gate D paragraph; both IMPLEMENTATION_LOGs appended only. Numbers: 865/47, Playwright 112/112 x23, Rust 48/1, native 20261025T093854Z-eb139b9b 13+5, 20261025T093937Z-7c31d8de 19+42, rerun 20261025T100024Z-93ccb1f1, p95 117.98, app binary sha 66da1177..., verifier exit 2, 9 owner items, Q001-Q004. Docs only; checked against evidence.md/gate-d.md/REVIEW.md. Report+hashes: node_modules/.cache/personal-word-beta/team-t049/"
+    },
+    {
+      "at": "2026-10-25T10:18:44+00:00",
+      "agent": "agent-b8ae",
+      "event": "approved",
+      "note": "Coordinator review: README :97-:122, validation.md :271-:344, ROADMAP :21-:24 and both logs now carry the Gate D numbers (865/47, 112/112, 48/1, native eb139b9b/7c31d8de/93ccb1f1, identity 7e077959, app 66da1177, verifier exit 2) with CLAIMED wording and owner-pending list; history kept; no code. One nit for T023: the manifest digest quoted (ed8ea16f) predates T048's regeneration (now 24fa1a86); T023 updates those mentions."
+    }
+  ]
+}

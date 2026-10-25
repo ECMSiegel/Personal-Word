@@ -1,0 +1,69 @@
+{
+  "id": "T008",
+  "title": "Execute WP5 rich-import security and browser acceptance",
+  "description": "Follow team/PLAN.md, team/PROTOCOL.md, DELEGATION.md Common rules and applicable child plan; preserve current dirty work. This board records unfinished acceptance/repair, not permission to rebuild existing features. Inspect current implementation and earlier evidence first; fix only reproduced gaps in owned files, record exact commands/results and fail-first controls, and report CLAIMED. No installs, new packages, commits, pushes, publication, real-library access or destructive cleanup. Before expensive checks, acquire exclusive registered path node_modules/.cache/personal-word-beta/team-serial-check-slot via team.py files add; if another live task owns it, do independent work or hand off rather than overlap runs. Retain full logs and use pinned Node/offline serial Rust/production-preview Playwright. Independent review is required. DOCX/HTML parsers and fixtures already exist. Run import units, tsc, actual production-preview rich-import/import tests. Compare current behavior to I2 plus approved no-worker/DOMParser/jszip deviations: pre-inflation size/ratio/entry/path/encryption limits, malicious HTML/XXE/external relationships, supported structure/notes/media, source preservation, AbortSignal/cancel and no partial project. Prove zero network/script side effects. Repair only demonstrated gaps; report App integration changes to the dedicated integration task. Write the task report to docs/agent-work/2026-10-24-team-reconciliation/wp5.md.",
+  "status": "done",
+  "owner": null,
+  "priority": 2,
+  "depends_on": [
+    "T007"
+  ],
+  "files": [
+    "src/import/docxImport.ts",
+    "src/import/htmlImport.ts",
+    "src/import/importLimits.ts",
+    "src/import/richImport.test.ts",
+    "src/import/ImportPreview.tsx",
+    "src/app/ProjectDialogs.tsx",
+    "tests/rich-import.spec.ts",
+    "tests/fixtures/rich-import",
+    "src/adversarial-wp5.test.ts",
+    "docs/agent-work/2026-10-24-team-reconciliation/wp5.md",
+    "node_modules/.cache/personal-word-beta/team-serial-check-slot",
+    "node_modules/.cache/personal-word-beta/team-t008"
+  ],
+  "review_required": true,
+  "created_by": "agent-45fb",
+  "created_at": "2026-10-24T22:19:04+00:00",
+  "claimed_at": "2026-10-25T02:51:49+00:00",
+  "updated_at": "2026-10-25T03:45:17+00:00",
+  "handoff": null,
+  "review": {
+    "by": "agent-2f35",
+    "at": "2026-10-25T03:45:17+00:00",
+    "verdict": "approved",
+    "note": "Independent rerun by agent-2f35, pinned Node v22.23.3, logs in node_modules/.cache/personal-word-beta/team-t008-review/. (1) vitest src/import + src/adversarial-wp5.test.ts: 79/79 exit 0 (units.log). tsc --noEmit exit 0 (tsc.log). npm run build exit 0 (build.log; previously missing from worker record). (2) Production-preview Playwright tests/rich-import.spec.ts tests/import.spec.ts --workers=1 on port 1462: 7/7 exit 0 (browser.log, browser.config.mjs). (3) Doctored fail-first on a security guard: esbuild bundles of the REAL docxImport.ts, one with importLimits swapped for a cache copy whose size/ratio guards are disabled (limits-control/, limits-control.log); JSZip.loadAsync spied. Real: zip-bomb/path-traversal/encrypted all rejected with loadAsync calls=0, spy liveness minimal.docx calls=1. Doctored: zip-bomb reaches inflation (calls=1, 'uncompressed data size mismatch') -> FAIL. Divergence is the proof the swap took effect (esbuild strips the DOCTORED comments, so grep count 0 is meaningless). Real importLimits.ts sha1 361ef82e unchanged. (4) Reviewer browser controls (control/security.spec.mjs, control.log): malicious.html preview AND confirmed import -> zero off-origin requests (any host, 1.5s settle), __pwned undefined, title not pwned, editor HTML has no script/on*/iframe/form/example.invalid; listener liveness counts an in-page off-origin fetch; inverted assertion fails as expected; confirmed rich-sample.docx import leaves no image bytes (data:image/PNG/JPEG base64) in localStorage. Worker pass1 fail-first log confirmed (/src dynamic-import failures). Diff: only tests/rich-import.spec.ts and wp5.md changed in the worker window (mtime check); no deletions; ImportPreview.tsx diff pre-existing. Notes: done-note phrase 'incl. encrypted/path-traversal/zip-bomb fixes' means pre-existing guards, no product fixes made. Not executed: external-relationship DOCX (TargetMode=External, docxImport.ts:227) is code-inspected only, no fixture -- for T012/Gate B. Observation: control B rendered 2 img in .ProseMirror vs '1 image' pill, not investigated. UI passes no AbortSignal to previewWriting (mid-parse cancel unit-only). Chromium only; no WebKit claim. CLAIMED."
+  },
+  "log": [
+    {
+      "at": "2026-10-24T22:19:04+00:00",
+      "agent": "agent-45fb",
+      "event": "created",
+      "note": ""
+    },
+    {
+      "at": "2026-10-25T02:51:49+00:00",
+      "agent": "agent-6029",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-10-25T02:51:50+00:00",
+      "agent": "agent-6029",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-10-25T03:03:08+00:00",
+      "agent": "agent-6029",
+      "event": "review requested",
+      "note": "WP5 rich-import security/browser acceptance to review-ready (docs/agent-work/2026-10-24-team-reconciliation/wp5.md). No product edits; only registered tests/rich-import.spec.ts. Fail-first chain retained: pass1 (4/5 fail on /src module 404s under production preview - proves prior Gate B browser evidence was never executable there), pass2 (chooser label intercept), pass3/4 (case-sensitive text), final exit 0 10/10 --repeat-each=2 on isolated 1459 preview. Units 79/79 incl. encrypted/path-traversal/zip-bomb fixes + AbortSignal; tsc 0. Liveness control (team-t008/control) proves the page request listener counts example.invalid so the zero-network assertion is live; __pwned tripwire asserted every run. Cancellation safety now covers BOTH invalid (error-banner, no modal, zero new projects) and aborted-valid (Cancel -> zero new projects) through the real UI. Reviewer: any non-author chat. Chromium-only noted; no WebKit claim. Changes UNCOMMITTED by design."
+    },
+    {
+      "at": "2026-10-25T03:45:17+00:00",
+      "agent": "agent-2f35",
+      "event": "approved",
+      "note": "Independent rerun by agent-2f35, pinned Node v22.23.3, logs in node_modules/.cache/personal-word-beta/team-t008-review/. (1) vitest src/import + src/adversarial-wp5.test.ts: 79/79 exit 0 (units.log). tsc --noEmit exit 0 (tsc.log). npm run build exit 0 (build.log; previously missing from worker record). (2) Production-preview Playwright tests/rich-import.spec.ts tests/import.spec.ts --workers=1 on port 1462: 7/7 exit 0 (browser.log, browser.config.mjs). (3) Doctored fail-first on a security guard: esbuild bundles of the REAL docxImport.ts, one with importLimits swapped for a cache copy whose size/ratio guards are disabled (limits-control/, limits-control.log); JSZip.loadAsync spied. Real: zip-bomb/path-traversal/encrypted all rejected with loadAsync calls=0, spy liveness minimal.docx calls=1. Doctored: zip-bomb reaches inflation (calls=1, 'uncompressed data size mismatch') -> FAIL. Divergence is the proof the swap took effect (esbuild strips the DOCTORED comments, so grep count 0 is meaningless). Real importLimits.ts sha1 361ef82e unchanged. (4) Reviewer browser controls (control/security.spec.mjs, control.log): malicious.html preview AND confirmed import -> zero off-origin requests (any host, 1.5s settle), __pwned undefined, title not pwned, editor HTML has no script/on*/iframe/form/example.invalid; listener liveness counts an in-page off-origin fetch; inverted assertion fails as expected; confirmed rich-sample.docx import leaves no image bytes (data:image/PNG/JPEG base64) in localStorage. Worker pass1 fail-first log confirmed (/src dynamic-import failures). Diff: only tests/rich-import.spec.ts and wp5.md changed in the worker window (mtime check); no deletions; ImportPreview.tsx diff pre-existing. Notes: done-note phrase 'incl. encrypted/path-traversal/zip-bomb fixes' means pre-existing guards, no product fixes made. Not executed: external-relationship DOCX (TargetMode=External, docxImport.ts:227) is code-inspected only, no fixture -- for T012/Gate B. Observation: control B rendered 2 img in .ProseMirror vs '1 image' pill, not investigated. UI passes no AbortSignal to previewWriting (mid-parse cancel unit-only). Chromium only; no WebKit claim. CLAIMED."
+    }
+  ]
+}

@@ -1,0 +1,60 @@
+{
+  "id": "T034",
+  "title": "Gate B F3: DOCX preview counts pictures, not staged assets",
+  "description": "Gate B finding (T012, docs/agent-work/2026-10-24-team-reconciliation/gate-b.md). Follow team/PLAN.md, PROTOCOL.md, DELEGATION.md Common rules; pinned Node; serial slot; production-preview Playwright; fail-first shown before the fix; report CLAIMED; no installs/commits. F3 (inferred from code, not yet reproduced): src/import/docxImport.ts ~845 reports images: assets.length while countItems(finalBlocks).images is computed and unused, so a picture referenced twice would show '1 image' and embedded media no drawing references would be staged and saved as an orphan asset. Reproduce first with units in src/import/richImport.test.ts (one image referenced twice -> expect 2; one unreferenced -> expect a warning and no asset), then fix. Check: vitest src/import src/adversarial-wp5.test.ts, tsc, build, tests/rich-import.spec.ts.",
+  "status": "done",
+  "owner": null,
+  "priority": 3,
+  "depends_on": [],
+  "files": [
+    "src/import/docxImport.ts",
+    "src/import/richImport.test.ts",
+    "node_modules/.cache/personal-word-beta/team-t034",
+    "docs/agent-work/2026-10-24-team-reconciliation/gate-b-repairs.md",
+    "node_modules/.cache/personal-word-beta/team-serial-check-slot"
+  ],
+  "review_required": true,
+  "created_by": "agent-81ae",
+  "created_at": "2026-10-25T05:20:43+00:00",
+  "claimed_at": "2026-10-25T05:23:32+00:00",
+  "updated_at": "2026-10-25T06:06:10+00:00",
+  "handoff": null,
+  "review": {
+    "by": "agent-12aa",
+    "at": "2026-10-25T06:06:10+00:00",
+    "verdict": "approved",
+    "note": "agent-12aa: diff vs team-t034/docxImport.orig.ts.bak (sha 6f03db25 = Gate B hash) read: images now counts.images from image nodes; staging moved after body with a:blip pre-scan; unreferenced media not read/staged/returned, warning 'Embedded image ... is not used in the document and was not imported.' shown via preview warnings. Fail-first re-executed on an isolated pre-fix copy (node_modules/.cache/personal-word-beta/team-gateb-repairs-review/ff034, vitest -t 'Gate B F3'): prefix exit 1, 2 failed ('expected 1 to be 2', 'expected 2 to be 1'); current exit 0, 2 passed. Mine: vitest src/import+wp5 83/83 exit 0; tsc exit 0 (clean now); full npm test 45 files/847 exit 0; vite build 0; production-preview port 1476 rich-import 7/7 within 36/36. Hashes unchanged by me. Chromium/units only; CLAIMED. Logs node_modules/.cache/personal-word-beta/team-gateb-repairs-review/."
+  },
+  "log": [
+    {
+      "at": "2026-10-25T05:20:43+00:00",
+      "agent": "agent-81ae",
+      "event": "created",
+      "note": ""
+    },
+    {
+      "at": "2026-10-25T05:23:32+00:00",
+      "agent": "agent-f22a",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-10-25T05:23:33+00:00",
+      "agent": "agent-f22a",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-10-25T05:32:52+00:00",
+      "agent": "agent-f22a",
+      "event": "review requested",
+      "note": "F3 fixed in src/import/docxImport.ts: preview image count is now counts.images (image nodes; a picture used twice = 2) and embedded media no a:blip references is no longer staged/saved, with a warning 'Embedded image <target> is not used in the document and was not imported.' (staging step moved after the body is found, blip pre-scan via shared blipEmbedId helper). Two new units in src/import/richImport.test.ts (JSZip in-memory docx). Fail-first on pre-fix code (docxImport sha256 6f03db25..., backup in team-t034/): vitest exit 1, 2 failed 'expected 1 to be 2' and 'expected 2 to be 1'. After fix (sha256 02704ec7...): vitest src/import src/adversarial-wp5.test.ts 83/83 exit 0; tsc exit 0; build exit 0; production-preview tests/rich-import.spec.ts 5/5 exit 0 (port 1473). Logs node_modules/.cache/personal-word-beta/team-t034/; report section in docs/agent-work/2026-10-24-team-reconciliation/gate-b-repairs.md. CLAIMED; Chromium/units only. Not covered: blips in unparsed positions, duplicate-bytes asset duplicates (pre-existing)."
+    },
+    {
+      "at": "2026-10-25T06:06:10+00:00",
+      "agent": "agent-12aa",
+      "event": "approved",
+      "note": "agent-12aa: diff vs team-t034/docxImport.orig.ts.bak (sha 6f03db25 = Gate B hash) read: images now counts.images from image nodes; staging moved after body with a:blip pre-scan; unreferenced media not read/staged/returned, warning 'Embedded image ... is not used in the document and was not imported.' shown via preview warnings. Fail-first re-executed on an isolated pre-fix copy (node_modules/.cache/personal-word-beta/team-gateb-repairs-review/ff034, vitest -t 'Gate B F3'): prefix exit 1, 2 failed ('expected 1 to be 2', 'expected 2 to be 1'); current exit 0, 2 passed. Mine: vitest src/import+wp5 83/83 exit 0; tsc exit 0 (clean now); full npm test 45 files/847 exit 0; vite build 0; production-preview port 1476 rich-import 7/7 within 36/36. Hashes unchanged by me. Chromium/units only; CLAIMED. Logs node_modules/.cache/personal-word-beta/team-gateb-repairs-review/."
+    }
+  ]
+}

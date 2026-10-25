@@ -251,3 +251,94 @@ The planned serial checks are:
 5. Rebuild the normal app and verify its identifier is `com.folio.writing`, no diagnostic/fault hooks are present, and its executable is newer than the source inputs. Then record the owner's Intel native sidebar, close/reopen, and long-session checks. Apple silicon real-use, signed/notarized distribution, physical loss guarantees, and other human checks remain separate gates.
 
 The matrix does not assert that an uncommitted keystroke survives process termination. A report that an SQLite revision was committed does not establish that localStorage was durably flushed to disk, and a source-only pass does not satisfy the owner binary checks. Until the native matrix, benchmark, normal-binary inspection, and required owner results are recorded, D1 remains partial and no new binary reliability claim is made.
+
+
+## 2026-10-25 beta board -- evidence by kind (CLAIMED, not qualified)
+
+Task T020 rewrote this section on 2026-10-25. An earlier off-board draft here called the beta "qualified" and listed "print probe integration" as passed; it also quoted counts (818 tests in 44 files, 38 Rust tests, 18 + 8 native scenarios) that no board task produced. Those statements were removed. Nothing below is VERIFIED: VERIFIED needs the owner's confirmation in real use, and there is none yet. Every result is CLAIMED.
+
+The board keeps four kinds of evidence apart. A result of one kind does not stand in for another.
+
+1. **Browser** -- Chromium on a production preview (`npm run build`, then `vite preview` on a private port). Chromium is not WebKit, and browser storage is not the native SQLite store.
+2. **Native harness** -- the diagnostic `native-smoke` build with the isolated identifier `com.folio.smoke`, driven by `scripts/native-reliability.py`. It uses real SQLite and the real WebKit window, but only synthetic data, and it is not the normal app.
+3. **Rendered artifacts** -- exports from the real exporters, inspected as files (task T019). Poppler renders the PDF; the DOCX is read as XML and as a QuickLook thumbnail. Neither is Microsoft Word.
+4. **Owner real use** -- none yet.
+
+### Static and unit checks (current tree, task T018 and its review T042)
+| Check | Result | Source |
+|---|---|---|
+| `npx tsc --noEmit -p .` | exit 0 | `wp11-matrix.md` section 6 (`final-tsc.log`); reviewer rerun, T042 |
+| Full unit suite, `npm test -- --no-file-parallelism --maxWorkers=1` | **858 passed in 46 files** (T018 history; superseded by 865 in 47 files, see Gate D below) | `wp11-matrix.md` (`final-vitest-full.log`); reviewer rerun, T042 |
+| Focused durability units | 183 passed in 9 files | `wp11-matrix.md` |
+| Rust, `cargo test --locked --offline --jobs 1 -- --test-threads=1` | **48 passed, 0 failed, 1 ignored** (the 100,000-word benchmark) | `wp11-matrix.md`; reviewer rerun, T042 |
+
+The 858 / 46 count is the figure at the end of T018. Task T043 (see below) later edited `src/export` and added 7 tests (`src/export/multiparagraphNote.test.ts`); its reviewer's focused run of `src/export`, the WP3 export adversarial file and the WP7 export panel file passed 180 tests, tsc and `npm run build` exited 0. The full-suite counts after T043 were recorded by T021 and the Gate D rerun: 865 tests in 47 files (see the 2026-10-25 Gate D section below). Earlier counts (837 in 44 files at Gate B, 847 in 45 at T038, 164 in 17 for the October 19 alpha) are history, not current.
+
+### Native harness (isolated `com.folio.smoke`, synthetic data)
+| Suite | Run ID | Result | Source |
+|---|---|---|---|
+| baseline | `20261025T084201Z-0cea2da3` | 13 scenarios passed, 5 negative controls detected | `wp11-matrix.md` |
+| beta | `20261025T084244Z-642b9c8a` | 19 passed, 42 controls detected (61 entries; the 18 baseline entries run first) | `wp11-matrix.md` |
+| beta, independent rerun | `20261025T084746Z-dadedb9c` | 19 passed, 42 detected, same manifest `2d7538f3...` and binary `be95ad1a...` | T042 approval note on T018 |
+
+What the beta suite exercises, each time with a doctored-copy control that fails the same checker: a synthetic project (images, a table, notes, comments, goals, provenance) through creation, an incremental save, reload, history, mirrors, a named snapshot, a safety snapshot and an archive import; a kill after asset staging and before the edit that uses the asset; a kill after the SQL commit and before the portable copies, followed by repair; a kill after the safety snapshot during a source merge; a kill after the safety snapshot during a restore; and a project with a newer schema version, which must fail clearly and leave every file unchanged. The full matrix and its limits are in [wp11-matrix.md](agent-work/2026-10-24-team-reconciliation/wp11-matrix.md). Source merge and restore crashes drive the same store calls as the app; the CSL import dialog was not clicked natively. Older-schema migration is covered by Rust tests only.
+
+### Browser (Chromium, production preview)
+The per-task counts below are the history that led to the final run. On 2026-10-25 a single full-suite run on the final tree exists: 112 passed across 23 spec files (see the Gate D section below). The executed per-task counts, each from the task named:
+| Task / report | Specs | Result |
+|---|---|---|
+| T003 (`wp2.md`, `T003_REVIEW.md`) | `tests/assets.spec.ts` | 16/16 with `--repeat-each=2` after the saved-image repair |
+| T005 (`wp3.md`) | integrated asset cases | 18 passed |
+| T006 (`keyboard.md`) | `tests/ci-indent.spec.ts` (5), keyboard cases x10 (20), editor-toolbar and comments (6) | all passed; a doctored Home-to-End control failed both keyboard cases |
+| T011 / Gate B (`wave3-integration.md`, `gate-b.md`) | import 2, rich-import 5, markdown-roundtrip 11, research 9, zotero 4 | 31 passed; plus 3 review probes (image count, external image relationship, watcher liveness) |
+| T032-T035 review (`gate-b-repairs.md`) | import-cancel, import, rich-import, markdown-roundtrip, zotero, research | 36/36 for T033-T035; the T032 cancel spec was repaired and re-approved with import-cancel and import at 5/5 |
+| T019 (`artifact-acceptance.md`) | `tests/accessibility.spec.ts` | 4 passed |
+
+### Rendered artifacts (task T019, approved by T044)
+A synthetic project with images, a 46-row table, eight footnotes, a bibliography and mixed Latin, Greek and Cyrillic text was exported to PDF, DOCX, Markdown, plain text, a Markdown bundle and a portable archive, then compared across formats. All 12 PDF pages were viewed. See [artifact-acceptance.md](agent-work/2026-10-24-team-reconciliation/artifact-acceptance.md). Boundaries: PDF bytes carry a creation time, so compare content, not hashes; the DOCX was not opened in Word; the UI screenshots are Chromium, not WebKit; no VoiceOver, input-method or Apple silicon run.
+
+### Native print probe (WP8) -- a documented STOP, not a passed feature
+The native WKWebView print probe (task T013, reviewed in T014 and Gate C T017) paginated, drew headers and footers, flowed a long note and locked down external loads, but could not produce searchable Arabic. Words containing the lam-alef ligature were not found by PDFKit or `pdftotext`; 26 of the 28 installed fonts tried failed and only two decorative display fonts passed. Probe runs `20261025T070701Z-642a1146`, `20261025T072108Z-e51b1619` and `20261025T074258Z-7930e721` each ended `PROBE_RESULT: STOP`. The legacy pdf-lib exporter remains the only PDF path. WP9 and WP10 (exact PDF preview, flowing per-page footnotes) are cancelled pending owner question Q004. The native command exists only in the diagnostic smoke build. Records: [wp8.md](agent-work/2026-10-24-team-reconciliation/wp8.md), [feasibility.md](agent-work/2026-10-24-team-reconciliation/feasibility.md), [gate-c.md](agent-work/2026-10-24-team-reconciliation/gate-c.md). No claim of exact page parity is made.
+
+### Save benchmark
+The ignored 100,000-word active-entry delta-save benchmark was run three times in release mode with `fullfsync=ON` on this Intel Mac at load about 2: p95 116.57, 130.43 and 124.37 ms against the 150 ms budget, median about 108 ms (`node_modules/.cache/personal-word-beta/team-t018/logs/bench-release-{1,2,3}.log`; `wp11-matrix.md` section 5). This supersedes the earlier statement that the budget was not met (p95 346.55 ms with `fullfsync` on at load about 49, and 499.44 ms with it off at load about 107; D1 finding 3 in `agent-work/2026-10-20-beta-roadmap/06-durability/IMPLEMENTATION_LOG.md`, which stays as history, as does the "not met" line in `HANDOFF.md`). The D1 numbers were taken on a heavily loaded host. The new figures are one machine's measurements, not a guarantee. Apple silicon is unmeasured, and a loaded machine can still exceed the budget.
+
+### Still pending
+- Evidence manifest verification and the fresh normal `Personal Word.app` build: these were pending at T020 time and were run by task T021 on 2026-10-25 (see the Gate D section below). Gate D (T022) has reviewed them. The owner checklist (T023) was still open when this was written.
+- T043 (multi-paragraph footnotes) is no longer open: found by T019 (the legacy PDF exporter refused any note containing a newline, and DOCX wrote one run with literal line feeds), repaired and independently reviewed (approved by agent-7cc8, board status done). Notes are now split into separate paragraphs in both formats. Not checked: Word rendering; DOCX continuation paragraphs have no indent while PDF's are indented. Its logs are in `node_modules/.cache/personal-word-beta/team-t043/` and `team-t043-review/`.
+- Owner real use on the Intel Mac and on Apple silicon, Microsoft Word rendering, VoiceOver and input methods, long sessions, and physical power loss. Automated tests, native harness runs and rendered artifacts do not replace any of these. Physical power loss and hardware failure are not claimed; keep external backups.
+
+## 2026-10-25 Gate D -- final qualification (CLAIMED, not beta ready)
+
+Added by task T049 from `docs/agent-work/2026-10-24-team-reconciliation/evidence.md` (sections 1-4 and 7), `gate-d.md` and `docs/agent-work/2026-10-20-beta-roadmap/06-durability/REVIEW.md`. The earlier sections above are kept as history and the counts in them (858 units in 46 files; native runs `20261025T084201Z-0cea2da3`, `20261025T084244Z-642b9c8a`, `20261025T084746Z-dadedb9c`; "no single full-suite browser run") are superseded by this section. Nothing here is VERIFIED: only the owner's real use can make it so.
+
+Task T021 (agent-dbd8) ran the final qualification serially on the current tree with Node v22.23.3 and wrote the verifier; task T046 repaired one stale browser test and reran the browser suite; task T022 (Gate D, agent-9e61, independent) reran the key checks and wrote the verdict. **Verdict: PASS for automated acceptance; beta readiness pending owner real use.** No check failed in the final state, none was waived, and nothing blocked was counted as passed.
+
+| Check | Result | Log |
+|---|---|---|
+| `npx tsc --noEmit -p .` | exit 0 | T021 `logs/1-tsc.log`; Gate D rerun `team-t021-review/logs/1-tsc.log` |
+| Unit suite, `npm test -- --no-file-parallelism --maxWorkers=1` | **865 passed in 47 files** (858 in 46 before T043) | T021 `logs/3-vitest.log`; Gate D rerun `team-t021-review/logs/2-vitest.log` |
+| Production-preview Playwright, one worker, retries 0, Chromium only | **112 passed, 0 failed across 23 spec files** after T046 (T021's first run was 111/112; the failure was `tests/features.spec.ts:116` clicking a button that moved into the "More formatting" menu, repaired in T046 by using the spec's `toolbarButton()` helper) | `team-t046/`; Gate D rerun `team-t021-review/logs/4-playwright.log`, per-spec counts equal to `EVIDENCE.json` |
+| Rust, `cargo test --locked --offline --jobs 1 -- --test-threads=1` | 48 passed, 0 failed, 1 ignored (the 100,000-word benchmark) | T021 `logs/5-cargo.log`; Gate D rerun `team-t021-review/logs/3-cargo.log` |
+| Save benchmark, release mode | 100,000 words, 100 saves: median 108.12 ms, p95 117.98 ms (bound 150 ms); one Intel Mac at load about 2 | T021 `logs/9-bench.log` |
+| Native baseline | run `20261025T093854Z-eb139b9b`: 13 scenarios passed + 5 negative controls detected | T021 `logs/7-native-baseline.log` |
+| Native beta | run `20261025T093937Z-7c31d8de`: 19 passed + 42 negative controls detected | T021 `logs/8-native-beta.log` |
+| Native beta, Gate D reviewer rerun | run `20261025T100024Z-93ccb1f1`: 19 passed + 42 detected, same identity and binary | `team-t021-review/logs/5-native-beta.log` |
+| Native print matrix; `verify-release.py` | not run, not applicable (WP8 STOP, WP9/WP10 cancelled; release script needs a clean git tree and a DMG, distribution descoped) | -- |
+
+Native identity: both native suites and the reviewer rerun ran against source identity `7e07795970ee8195846170a408c43f9e70b4135aecebe4527e0a5d76926f3e94` (143 inputs) and the diagnostic binary `9d4c24feeb89d3332069bafc38c20a4aa55121f1108a7054baf77e80e10de3a4`, on `macOS-15.7.9-x86_64`, with the isolated `com.folio.smoke` profile only (the real `com.folio.writing` library was never opened). The evidence source manifest `docs/agent-work/2026-10-20-beta-roadmap/06-durability/SOURCE_MANIFEST.json` lists 207 files with digest `ed8ea16f12a9af75213b5a12b0e468ac65ca13c5bfed025d14671881d3cc9772` (superseded by `24fa1a86893ba3a6cf4cc08471b222949c5b7ec9eaf34840e0bed5720928e97c` after T048 regenerated the manifest; same 207 files, the digest is the manifest's own `manifestSha256` field, which the verifier recomputes) (regenerated by T046; the earlier digest `950a42bc...` is superseded). These documents are outside that manifest.
+
+### Normal app (task T021, inspected by Gate D)
+- Path: `src-tauri/target/release/bundle/macos/Personal Word.app` (absolute: `/Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/src-tauri/target/release/bundle/macos/Personal Word.app`), built with plain `npm run tauri build` (no features, no config override) on 2026-10-25 05:43-05:45 EDT; 15.49 MiB.
+- Main binary `Contents/MacOS/folio`: sha256 `66da1177a6b0063c88a34a8b4c6e58459f657d55bf2271d424582d121cb932f2`, Mach-O x86_64. `Info.plist`: name and display name "Personal Word", identifier `com.folio.writing`, version 0.1.1.
+- Marker scan of the whole binary (by T021 and again by Gate D): zero hits for the diagnostic smoke markers (`smoke_beta_fixture`, `post-asset-stage`, `post-merge-safety-snapshot`, `post-restore-safety-snapshot`, `FOLIO_SMOKE`, `com.folio.smoke`, `native-print`, `native-smoke` and others); the same scan finds them in the smoke binary, so the scan works.
+- Not signed, not notarized, not published. It has never been opened. Its first launch opens the real `com.folio.writing` library, so the owner does that, not an agent. The previous bundle (binary `86d9e980...`) was replaced; a copy is kept only in the cache folder for the stale-bundle control.
+
+### Evidence verifier
+`python3 scripts/verify-beta-evidence.py --evidence docs/agent-work/2026-10-20-beta-roadmap/06-durability/EVIDENCE.json --source-manifest docs/agent-work/2026-10-20-beta-roadmap/06-durability/SOURCE_MANIFEST.json` exits **2** ("consistent but incomplete"): no failed check, ten items pending (the independent review's own recording plus the nine owner items). Gate D's own run is `team-t021-review/logs/6-verify-real.log` (0 FAIL, 10 pending). Fail-first controls: T021 made 14 doctored or synthetic controls, each producing its own named reason; Gate D added more and found one weakness (the verifier accepted any "verdict: PASS" substring in a review file), filed as T048. Exit 0 is unreachable until the owner reports.
+
+### Still pending after Gate D (owner only; none may be recorded as passed by an agent)
+The nine owner items: keyboard-only editing and the duplicate-comment jump in the real app; blocked-close retry; the recovered image and its hash; reopening the pre-restore safety copy; Microsoft Word rendering of the exported DOCX; an Apple silicon run; VoiceOver and input methods; a long real writing session; native WebKit light/dark visuals. Open owner questions: Q001 (off-board WP8 edits), Q002 (off-board orchestrator edits), Q003 (zip header size limit, B4), Q004 (native print STOP options). The owner checklist (T023) and the verifier recording of the Gate D review (T048) are board work still outstanding when this was written.
+
+### Boundaries that stay in force
+Chromium only for browser results; Intel x86_64 and macOS 15.7.9 only; no Apple silicon, no hosted CI, no VoiceOver or input-method evidence; the DOCX was not opened in Word; kills are process kills at named checkpoints in an isolated store, not power loss or disk failure; the benchmark is one machine at low load; PDF tables do not repeat the header row, PDF images stack with no gap, DOCX and PDF omit project and section titles (see the artifact section above and the README limitations).

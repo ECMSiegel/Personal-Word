@@ -1,0 +1,68 @@
+{
+  "id": "T015",
+  "title": "Implement conditional WP9 exact PDF preview and font policy",
+  "description": "Follow team/PLAN.md, team/PROTOCOL.md, DELEGATION.md Common rules and applicable child plan; preserve current dirty work. This board records unfinished acceptance/repair, not permission to rebuild existing features. Inspect current implementation and earlier evidence first; fix only reproduced gaps in owned files, record exact commands/results and fail-first controls, and report CLAIMED. No installs, new packages, commits, pushes, publication, real-library access or destructive cleanup. Before expensive checks, acquire exclusive registered path node_modules/.cache/personal-word-beta/team-serial-check-slot via team.py files add; if another live task owns it, do independent work or hand off rather than overlap runs. Retain full logs and use pinned Node/offline serial Rust/production-preview Playwright. Independent review is required. CONDITIONAL: start implementation only with explicit reviewed WP8 PASS, not merely a done dependency. On STOP follow documented cancellation procedure with independent review; do not code. Execute L2: versioned opt-in native-v2, immutable snapshot/settings/assets/font identity, identical preview/save bytes, stale-preview blocking, local/portable font warnings and preserved legacy exports/settings. No font downloads or packages; unavailable coverage stays blocked. Run document/font/export units, actual print-preview browser tests, native --matrix, script/media/style fixtures and rendered DOCX/PDF inspection. Integrate only approved L2 owned contracts; preserve independent reading settings. Write the task report to docs/agent-work/2026-10-24-team-reconciliation/wp9.md.",
+  "status": "done",
+  "owner": null,
+  "priority": 2,
+  "depends_on": [
+    "T014"
+  ],
+  "files": [
+    "src/print/document.ts",
+    "src/print/fontPolicy.ts",
+    "src/print/PrintPreview.tsx",
+    "src/print/print.css",
+    "src/print/document.test.ts",
+    "src/print/fontPolicy.test.ts",
+    "tests/print-preview.spec.ts",
+    "src/export/ExportPanel.tsx",
+    "src/export/document.ts",
+    "src/research/types.ts",
+    "src/model.ts",
+    "src/components/ReadDocument.tsx",
+    "src/Writer.tsx",
+    "src-tauri/tauri.conf.json",
+    "THIRD_PARTY.md",
+    "docs/agent-work/2026-10-20-beta-roadmap/05-layout/IMPLEMENTATION_LOG.md",
+    "docs/agent-work/2026-10-24-team-reconciliation/wp9.md"
+  ],
+  "review_required": true,
+  "created_by": "agent-45fb",
+  "created_at": "2026-10-24T22:19:05+00:00",
+  "claimed_at": "2026-10-25T07:35:24+00:00",
+  "updated_at": "2026-10-25T07:36:49+00:00",
+  "handoff": null,
+  "review": {
+    "by": "agent-b8ae",
+    "at": "2026-10-25T07:36:49+00:00",
+    "verdict": "approved",
+    "note": "Coordinator approval of the documented cancellation: WP8 feasibility STOP (feasibility.md, 05-layout/REVIEW.md dated section, decision 'WP9/WP10 cancelled'); no implementation; legacy exporter retained; reopen path via Q004 A/C stated."
+  },
+  "log": [
+    {
+      "at": "2026-10-24T22:19:05+00:00",
+      "agent": "agent-45fb",
+      "event": "created",
+      "note": ""
+    },
+    {
+      "at": "2026-10-25T07:35:24+00:00",
+      "agent": "agent-19b6",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-10-25T07:35:25+00:00",
+      "agent": "agent-19b6",
+      "event": "review requested",
+      "note": "not needed: WP8 feasibility STOP (feasibility.md, 05-layout/REVIEW.md dated section, decision 'WP9/WP10 cancelled'); legacy exporter retained; reopen only if Q004 is answered A or C and a reviewed WP8 PASS follows"
+    },
+    {
+      "at": "2026-10-25T07:36:49+00:00",
+      "agent": "agent-b8ae",
+      "event": "approved",
+      "note": "Coordinator approval of the documented cancellation: WP8 feasibility STOP (feasibility.md, 05-layout/REVIEW.md dated section, decision 'WP9/WP10 cancelled'); no implementation; legacy exporter retained; reopen path via Q004 A/C stated."
+    }
+  ]
+}

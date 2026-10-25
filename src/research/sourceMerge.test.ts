@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { mergeSourceFields, reviewSourceImport, type SourceImportField } from "./sourceMerge";
+import { mergeSourceFields, reviewSourceImport, validateSourceMergeUpdates, type SourceImportField } from "./sourceMerge";
 import type { Source } from "./types";
 import type { SourceDraft } from "./lookup";
 
@@ -280,4 +280,46 @@ describe("mergeSourceFields", () => {
       expect(old).toEqual(before);
     },
   );
+});
+
+describe("validateSourceMergeUpdates", () => {
+  it("accepts valid non-conflicting updates", () => {
+    const sources = [existing("s1"), existing("s2")];
+    const updates = [
+      { candidateIndex: 0, existingSourceId: "s1", fields: ["title"] },
+      { candidateIndex: 1, existingSourceId: "s2", fields: ["year"] },
+    ];
+    expect(() => validateSourceMergeUpdates(sources, updates)).not.toThrow();
+  });
+
+  it("throws when multiple candidate updates target the same existing source", () => {
+    const sources = [existing("s1"), existing("s2")];
+    const updates = [
+      { candidateIndex: 0, existingSourceId: "s1", fields: ["title"] },
+      { candidateIndex: 1, existingSourceId: "s1", fields: ["year"] },
+    ];
+    expect(() => validateSourceMergeUpdates(sources, updates)).toThrow(
+      "Update an existing source from only one imported record at a time.",
+    );
+  });
+
+  it("throws when targeted source does not exist or is not unique", () => {
+    const sources = [existing("s1")];
+    const updates = [
+      { candidateIndex: 0, existingSourceId: "s-missing", fields: ["title"] },
+    ];
+    expect(() => validateSourceMergeUpdates(sources, updates)).toThrow(
+      "This source identity is not unique. Nothing was updated.",
+    );
+  });
+
+  it("throws when update fields array is empty", () => {
+    const sources = [existing("s1")];
+    const updates = [
+      { candidateIndex: 0, existingSourceId: "s1", fields: [] },
+    ];
+    expect(() => validateSourceMergeUpdates(sources, updates)).toThrow(
+      "Choose the fields to update first.",
+    );
+  });
 });

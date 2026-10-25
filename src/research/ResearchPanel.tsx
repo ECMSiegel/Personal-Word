@@ -10,6 +10,8 @@ import {
 } from "./citations";
 import { lookupIdentifier } from "./lookup";
 import { parseCslJson, type CslImportResult } from "./cslImport";
+import { parseBibtex } from "./bibtexImport";
+import { fetchAllZoteroItems, previewZoteroChanges } from "./zotero";
 import { CaptureQuote } from "./CaptureQuote";
 import { MAX_MANUSCRIPT_BYTES } from "../import/manuscript";
 import type { CitationPolicy, NoteForm } from "./types";
@@ -162,6 +164,9 @@ export function ResearchPanel({
   const [pendingFocus, setPendingFocus] = useState<string | null>(null);
   const [captureSourceId, setCaptureSourceId] = useState<string | undefined>();
   const [capturingQuote, setCapturingQuote] = useState(false);
+  const [zoteroConnected, setZoteroConnected] = useState(false);
+  const [zoteroLoading, setZoteroLoading] = useState(false);
+  const [zoteroMessage, setZoteroMessage] = useState<string>("");
   const importFile = useRef<HTMLInputElement>(null);
   const panel = useRef<HTMLElement>(null);
   const latest = useRef(data);
@@ -713,9 +718,9 @@ export function ResearchPanel({
           <input
             ref={importFile}
             type="file"
-            accept=".json,application/json"
+            accept=".json,application/json,.bib,.bibtex,text/x-bibtex"
             hidden
-            aria-label="Zotero CSL JSON file"
+            aria-label="Zotero CSL JSON file or BibTeX"
             onChange={async (event) => {
               const file = event.currentTarget.files?.[0];
               event.currentTarget.value = "";
@@ -723,10 +728,31 @@ export function ResearchPanel({
               try {
                 if (file.size > MAX_MANUSCRIPT_BYTES) throw new Error("Choose a file no larger than 5 MB.");
                 const text = new TextDecoder("utf-8", { fatal: true }).decode(await file.arrayBuffer());
-                const result = parseCslJson(text, latest.current.sources);
-                if (onImportCsl) onImportCsl(result);
+                const lowerName = file.name.toLowerCase();
+                const isBib = lowerName.endsWith(".bib") || lowerName.endsWith(".bibtex");
+                const isJson = lowerName.endsWith(".json");
+                if (isBib) {
+                  const result = parseBibtex(text, latest.current.sources);
+                  Object.assign(result, { format: "bibtex" });
+                  if (onImportCsl) onImportCsl(result);
+                } else if (isJson) {
+                  const result = parseCslJson(text, latest.current.sources);
+                  Object.assign(result, { format: "csl" });
+                  if (onImportCsl) onImportCsl(result);
+                } else {
+                  notify("Choose a .json, .bib, or .bibtex file.", true);
+                }
               } catch (error) {
-                notify(error instanceof Error ? error.message : "Could not read this CSL JSON file.", true);
+                const lowerName = file.name.toLowerCase();
+                const isBib = lowerName.endsWith(".bib") || lowerName.endsWith(".bibtex");
+                notify(
+                  error instanceof Error
+                    ? error.message
+                    : isBib
+                      ? "Could not read this BibTeX file."
+                      : "Could not read this CSL JSON file.",
+                  true,
+                );
               }
             }}
           />
@@ -769,7 +795,71 @@ export function ResearchPanel({
                 Import from Zotero…
               </button>
             </div>
-            <p className="research-hint">In Zotero, right-click a library or collection, choose Export, and pick CSL JSON.</p>
+            <p className="research-hint">In Zotero, export CSL JSON or BibTeX (.json, .bib, .bibtex).</p>
+            <div className="zotero-refresh-section" style={{ marginTop: 8 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+                {!zoteroConnected ? (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setZoteroConnected(true);
+                      setZoteroMessage("Local Zotero refresh enabled -- not yet contacted.");
+                    }}
+                  >
+                    Connect local Zotero
+                  </button>
+                ) : (
+                  <>
+                    <button
+                      type="button"
+                      disabled={zoteroLoading}
+                      onClick={async () => {
+                        setZoteroLoading(true);
+                        setZoteroMessage("Connecting to local Zotero…");
+                        try {
+                          const res = await fetchAllZoteroItems({ resource: "users/0/items" });
+                          setZoteroLoading(false);
+                          if (res.notModified) {
+                            setZoteroMessage("Connected to local Zotero -- library is up to date.");
+                          } else if (res.items.length === 0) {
+                            setZoteroMessage("Connected to local Zotero -- no items found.");
+                          } else {
+                            const result = previewZoteroChanges(latest.current.sources, res.items, res.version);
+                            setZoteroMessage(`Connected to local Zotero -- received ${res.items.length} ${res.items.length === 1 ? "item" : "items"}.`);
+                            if (onImportCsl) {
+                              onImportCsl(result);
+                            }
+                          }
+                        } catch (err) {
+                          setZoteroLoading(false);
+                          setZoteroMessage(err instanceof Error ? err.message : "Failed to refresh from Zotero.");
+                        }
+                      }}
+                    >
+                      {zoteroLoading ? "Refreshing…" : "Refresh from Zotero"}
+                    </button>
+                    <button
+                      type="button"
+                      disabled={zoteroLoading}
+                      onClick={() => {
+                        setZoteroConnected(false);
+                        setZoteroMessage("Disconnected from local Zotero.");
+                      }}
+                    >
+                      Disconnect
+                    </button>
+                  </>
+                )}
+                <span
+                  role="status"
+                  className="zotero-status"
+                  style={{ fontSize: "0.85em", color: "var(--muted)" }}
+                >
+                  {zoteroMessage || (!zoteroConnected ? "Zotero refresh: disabled" : "Local Zotero refresh enabled -- not yet contacted.")}
+                </span>
+              </div>
+              <p className="research-hint">In Zotero, enable the local API in Settings &gt; Advanced before refreshing.</p>
+            </div>
           </div>
           <p
             role="status"

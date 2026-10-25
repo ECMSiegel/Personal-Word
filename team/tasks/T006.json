@@ -1,0 +1,78 @@
+{
+  "id": "T006",
+  "title": "Resolve remaining keyboard-only Home/indent qualification",
+  "description": "Follow team/PLAN.md, team/PROTOCOL.md, DELEGATION.md Common rules and applicable child plan; preserve current dirty work. This board records unfinished acceptance/repair, not permission to rebuild existing features. Inspect current implementation and earlier evidence first; fix only reproduced gaps in owned files, record exact commands/results and fail-first controls, and report CLAIMED. No installs, new packages, commits, pushes, publication, real-library access or destructive cleanup. Before expensive checks, acquire exclusive registered path node_modules/.cache/personal-word-beta/team-serial-check-slot via team.py files add; if another live task owns it, do independent work or hand off rather than overlap runs. Retain full logs and use pinned Node/offline serial Rust/production-preview Playwright. Independent review is required. HANDOFF and editing log retain keyboard-only recent-focus/Home selection-observer uncertainty; pointer-text tests do not close it. Reproduce through real keyboard focus with DOM and ProseMirror selection evidence. Run actual ci-indent/editor-toolbar plus comment reattachment/reload paths from E1. Preserve single-Home/caret/style/undo/reload assertions; no sleeps/retries or weaker tests. Make minimal production repair only for a reproduced defect. Record hosted CI as unavailable without external authorization; do not dispatch or push. Write the task report to docs/agent-work/2026-10-24-team-reconciliation/keyboard.md.",
+  "status": "done",
+  "owner": null,
+  "priority": 1,
+  "depends_on": [
+    "T005"
+  ],
+  "files": [
+    "src/Writer.tsx",
+    "src/editor/indent.ts",
+    "src/editor/indent.test.ts",
+    "tests/ci-indent.spec.ts",
+    "tests/editor-toolbar.spec.ts",
+    "tests/comments.spec.ts",
+    "docs/agent-work/2026-10-24-team-reconciliation/keyboard.md",
+    "node_modules/.cache/personal-word-beta/team-serial-check-slot",
+    "node_modules/.cache/personal-word-beta/team-t006"
+  ],
+  "review_required": true,
+  "created_by": "agent-45fb",
+  "created_at": "2026-10-24T22:19:03+00:00",
+  "claimed_at": "2026-10-25T02:05:17+00:00",
+  "updated_at": "2026-10-25T02:29:48+00:00",
+  "handoff": null,
+  "review": {
+    "by": "agent-6029",
+    "at": "2026-10-25T02:29:48+00:00",
+    "verdict": "approved",
+    "note": "Approved agent-1a38's T006 qualification (report docs/agent-work/2026-10-24-team-reconciliation/keyboard.md). Verified claims against retained evidence: only tests/ci-indent.spec.ts changed (+108; no production diff from this task); team-t006/logs match the report - rerun.log build exit 0 + 5 passed incl. both keyboard cases, qualify.log 20 passed (--repeat-each=10, no sleeps/retries in source) + 6 passed editor-toolbar/comments, baseline.log retained honestly as a harness-locator error (not product evidence). Fail-first control verified by content: doctored Home->End copy fails both keyboard cases at the DOM anchorOffset-0 AND PM parentOffset-0 poll receiving 27/31 (control.log, exit 1) so the new assertions are live against the historically recorded observer symptom. Independent spot-execution by this reviewer under the registered slot, announced beforehand: fresh npm run build exit 0 (team-t006-review-build.log), then the two keyboard cases --repeat-each=2 on the config's isolated 1455 server -> 4/4 passed (review-spot2.log; a first attempt with an invalid --port CLI flag was my harness error, logged and rerun). No native WebKit coverage claimed and none approved - the report states this boundary and CLAIMED status correctly; hosted CI unavailable without authorization as recorded. Nothing dispatched/pushed; nothing committed."
+  },
+  "log": [
+    {
+      "at": "2026-10-24T22:19:03+00:00",
+      "agent": "agent-45fb",
+      "event": "created",
+      "note": ""
+    },
+    {
+      "at": "2026-10-25T01:21:16+00:00",
+      "agent": "agent-c436",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-10-25T01:21:16+00:00",
+      "agent": "agent-c436",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-10-25T02:05:17+00:00",
+      "agent": "agent-1a38",
+      "event": "reclaimed from agent-c436",
+      "note": ""
+    },
+    {
+      "at": "2026-10-25T02:05:41+00:00",
+      "agent": "agent-1a38",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-10-25T02:11:09+00:00",
+      "agent": "agent-1a38",
+      "event": "review requested",
+      "note": "Keyboard-only Home/indent qualified on the production preview (Chromium), no production code changed. Two maintained cases added to tests/ci-indent.spec.ts by agent-c436 (Tab from the Bold (⌘B) toolbar button into the editor, type, one Home, poll DOM anchorOffset 0 AND PM selection empty at parentOffset 0, then Tab; original style/undo/redo/acknowledged-save/reload assertions kept; no sleeps/retries). Executed by agent-1a38 after reclaiming the stale task: npm run build ok; ci-indent.spec.ts 5 passed (team-t006/rerun.log); the two keyboard cases --repeat-each=10 = 20 passed (qualify.log); editor-toolbar + comments specs 6 passed (qualify.log); doctored control copy with Home->End fails both keyboard cases at the offset-0 poll, received 27/31 (control.log). c436's first run failed only on a wrong locator name, kept as baseline.log (harness error, not product evidence). Report docs/agent-work/2026-10-24-team-reconciliation/keyboard.md. Not covered: native WebKit keyboard behaviour, hosted CI (unavailable without external authorization; nothing dispatched/pushed), owner real-use. CLAIMED."
+    },
+    {
+      "at": "2026-10-25T02:29:48+00:00",
+      "agent": "agent-6029",
+      "event": "approved",
+      "note": "Approved agent-1a38's T006 qualification (report docs/agent-work/2026-10-24-team-reconciliation/keyboard.md). Verified claims against retained evidence: only tests/ci-indent.spec.ts changed (+108; no production diff from this task); team-t006/logs match the report - rerun.log build exit 0 + 5 passed incl. both keyboard cases, qualify.log 20 passed (--repeat-each=10, no sleeps/retries in source) + 6 passed editor-toolbar/comments, baseline.log retained honestly as a harness-locator error (not product evidence). Fail-first control verified by content: doctored Home->End copy fails both keyboard cases at the DOM anchorOffset-0 AND PM parentOffset-0 poll receiving 27/31 (control.log, exit 1) so the new assertions are live against the historically recorded observer symptom. Independent spot-execution by this reviewer under the registered slot, announced beforehand: fresh npm run build exit 0 (team-t006-review-build.log), then the two keyboard cases --repeat-each=2 on the config's isolated 1455 server -> 4/4 passed (review-spot2.log; a first attempt with an invalid --port CLI flag was my harness error, logged and rerun). No native WebKit coverage claimed and none approved - the report states this boundary and CLAIMED status correctly; hosted CI unavailable without authorization as recorded. Nothing dispatched/pushed; nothing committed."
+    }
+  ]
+}

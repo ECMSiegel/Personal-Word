@@ -1,5 +1,37 @@
 import type { Entry, Project } from "../model";
 import type { ResearchData } from "../research/types";
+import { collectAssetIds } from "../assets/assets";
+import type { PendingAsset } from "../assets/types";
+
+export type FragmentAssetStorage = {
+  readAsset(projectId: string, id: string): Promise<PendingAsset>;
+  stageAssets(projectId: string, assets: PendingAsset[]): Promise<unknown>;
+};
+
+export async function copyFragmentAssets(
+  targetId: string,
+  sourceId: string,
+  fragment: Entry,
+  storage: FragmentAssetStorage,
+): Promise<PendingAsset[]> {
+  const ids = [...collectAssetIds(fragment.content)];
+  if (ids.length === 0) return [];
+  const assets = await Promise.all(
+    ids.map((id) => storage.readAsset(sourceId, id)),
+  );
+  await storage.stageAssets(targetId, assets);
+  return assets;
+}
+
+export async function importFragmentWithAssets(
+  target: Project,
+  source: Project,
+  fragment: Entry,
+  storage: FragmentAssetStorage,
+): Promise<Project> {
+  await copyFragmentAssets(target.id, source.id, fragment, storage);
+  return importFragment(target, source, fragment);
+}
 
 /** Import only notes referenced by the fragment, remapping IDs to avoid cross-project collisions. */
 export function importFragment(

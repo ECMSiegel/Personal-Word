@@ -1,0 +1,61 @@
+{
+  "id": "T046",
+  "title": "Repair stale features.spec.ts page-layout test (line spacing button now in overflow menu)",
+  "description": "T021 full production-preview Playwright (workers=1, retries 0, port 1490) failed exactly 1 of 112: tests/features.spec.ts:116 'page layout reflows long paragraphs and preserves undo and formatting' times out at line 128 clicking getByRole('button',{name:'Line and paragraph spacing'}). In the failure snapshot the button is inside the 'More formatting' overflow menu (toolbar now also holds Insert image/Insert table from WP2); the spec was last edited 2026-10-18 and passed in earlier runs (c2r-browser.log 2026-10-23) before Writer.tsx/editor.css changed on 2026-10-24 03:26. Likely a stale test, not a product bug, but unconfirmed: use the spec's own toolbarButton() helper (opens More formatting) for the spacing button, show it fails first on the old spec, then re-run the full spec file and the full suite. Log: node_modules/.cache/personal-word-beta/team-t021/logs/4-playwright.log; report: team-t021/pw/report.json; error context under team-t021/pw/results/. Editing tests/** changes the source manifest hashes, so after the fix T021's SOURCE_MANIFEST.json and Playwright evidence entry must be regenerated (see evidence.md). No product code changes, no commits.",
+  "status": "done",
+  "owner": null,
+  "priority": 2,
+  "depends_on": [],
+  "files": [
+    "tests/features.spec.ts",
+    "node_modules/.cache/personal-word-beta/team-t046",
+    "node_modules/.cache/personal-word-beta/team-serial-check-slot",
+    "docs/agent-work/2026-10-20-beta-roadmap/06-durability/EVIDENCE.json",
+    "docs/agent-work/2026-10-20-beta-roadmap/06-durability/SOURCE_MANIFEST.json",
+    "docs/agent-work/2026-10-24-team-reconciliation/evidence.md"
+  ],
+  "review_required": true,
+  "created_by": "agent-dbd8",
+  "created_at": "2026-10-25T09:40:47+00:00",
+  "claimed_at": "2026-10-25T09:51:35+00:00",
+  "updated_at": "2026-10-25T10:07:26+00:00",
+  "handoff": null,
+  "review": {
+    "by": "agent-9e61",
+    "at": "2026-10-25T10:07:26+00:00",
+    "verdict": "approved",
+    "note": "agent-9e61 independent review. Diff tests/features.spec.ts: 1 insertion/3 deletions, the direct getByRole click replaced by the spec's own toolbarButton() helper (opens More formatting); no assertion touched; team-t046/features.spec.ts.orig sha ec2c3e21 == git HEAD. Fail-first read: prefix-single.log fails at line 128 (exact T021 symptom), postfix-features-file.log 6/6. SOURCE_MANIFEST.json recomputed by my own code: 207 files, list digest ed8ea16f12a9af75... equals the declared digest, 0 mismatched/missing/extra. Native identity recomputed via native-reliability.source_inputs(): 143 inputs, 7e07795970ee8195 equal to both T021 runs, smoke binary 9d4c24fe unchanged. My own full production-preview Playwright (port 1493, 1 worker, retries 0, dist newer than src): 112 passed, 0 failed/flaky/skipped, 23 specs, per-spec counts identical to EVIDENCE.json (team-t021-review/logs/4-playwright.log, pw/report.json). Note: T046 rewrote team-t021/logs/4-playwright.log and pw/report.json (outside its registered paths, but as T021's evidence.md section 6 prescribed; FAILED originals kept in team-t046/logs). No src/** change."
+  },
+  "log": [
+    {
+      "at": "2026-10-25T09:40:47+00:00",
+      "agent": "agent-dbd8",
+      "event": "created",
+      "note": ""
+    },
+    {
+      "at": "2026-10-25T09:51:35+00:00",
+      "agent": "agent-d5dc",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-10-25T09:51:35+00:00",
+      "agent": "agent-d5dc",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-10-25T09:57:06+00:00",
+      "agent": "agent-d5dc",
+      "event": "review requested",
+      "note": "Fixed tests/features.spec.ts (line spacing via toolbarButton helper). Fail-first: pre-fix single-spec fail at line 128 (team-t046/logs/prefix-single.log), post-fix pass. Full prod-preview Playwright 112/112 passed, 23 specs. Manifest digest 950a42bc... -> ed8ea16f12a9af75213b5a12b0e468ac65ca13c5bfed025d14671881d3cc9772; EVIDENCE.json regenerated; verifier exit 2 with only the 10 pending items, no failed check; native identity 7e07795970ee8195 still valid. Report: node_modules/.cache/personal-word-beta/team-t046/REPORT.md. No product code, no commits. CLAIMED."
+    },
+    {
+      "at": "2026-10-25T10:07:26+00:00",
+      "agent": "agent-9e61",
+      "event": "approved",
+      "note": "agent-9e61 independent review. Diff tests/features.spec.ts: 1 insertion/3 deletions, the direct getByRole click replaced by the spec's own toolbarButton() helper (opens More formatting); no assertion touched; team-t046/features.spec.ts.orig sha ec2c3e21 == git HEAD. Fail-first read: prefix-single.log fails at line 128 (exact T021 symptom), postfix-features-file.log 6/6. SOURCE_MANIFEST.json recomputed by my own code: 207 files, list digest ed8ea16f12a9af75... equals the declared digest, 0 mismatched/missing/extra. Native identity recomputed via native-reliability.source_inputs(): 143 inputs, 7e07795970ee8195 equal to both T021 runs, smoke binary 9d4c24fe unchanged. My own full production-preview Playwright (port 1493, 1 worker, retries 0, dist newer than src): 112 passed, 0 failed/flaky/skipped, 23 specs, per-spec counts identical to EVIDENCE.json (team-t021-review/logs/4-playwright.log, pw/report.json). Note: T046 rewrote team-t021/logs/4-playwright.log and pw/report.json (outside its registered paths, but as T021's evidence.md section 6 prescribed; FAILED originals kept in team-t046/logs). No src/** change."
+    }
+  ]
+}

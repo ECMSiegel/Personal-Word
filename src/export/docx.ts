@@ -22,6 +22,27 @@ import {
   type ExportProject,
   type Inline,
 } from "./document";
+// A footnote's text may hold blank-line paragraph breaks (the model, Markdown and plain
+// text keep them). Split into paragraphs on blank lines; a single newline is a soft wrap
+// and becomes a space. Text without any newline is returned untouched, as one paragraph.
+function noteParagraphs(parts: Inline[]): Inline[][] {
+  if (!parts.some((p) => /[\r\n]/.test(p.text))) return [parts];
+  const paragraphs: Inline[][] = [[]];
+  for (const part of parts) {
+    const pieces = part.text
+      .replace(/\r\n?/g, "\n")
+      .split(/(?:[ \t]*\n){2,}[ \t]*/);
+    pieces.forEach((piece, i) => {
+      if (i > 0) paragraphs.push([]);
+      const current = paragraphs.at(-1)!;
+      let text = piece.replace(/[ \t]*\n[ \t]*/g, " ");
+      if (!current.length) text = text.trimStart();
+      if (text) current.push({ ...part, text });
+    });
+  }
+  const kept = paragraphs.filter((p) => p.some((r) => r.text.trim()));
+  return kept.length ? kept : [[]];
+}
 export async function exportDocx(
   project: ExportProject,
   assets: Map<AssetId, PendingAsset> = new Map(),
@@ -215,15 +236,16 @@ export async function exportDocx(
       d.notes.map((n) => [
         n.number,
         {
-          children: [
-            new Paragraph({
-              spacing: { line: 240 },
-              children: n.parts.map(
-                (p) =>
-                  new TextRun({ text: p.text, italics: p.italic, size: 20 }),
-              ),
-            }),
-          ],
+          children: noteParagraphs(n.parts).map(
+            (para) =>
+              new Paragraph({
+                spacing: { line: 240 },
+                children: para.map(
+                  (p) =>
+                    new TextRun({ text: p.text, italics: p.italic, size: 20 }),
+                ),
+              }),
+          ),
         },
       ]),
     ),

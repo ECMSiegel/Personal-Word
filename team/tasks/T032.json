@@ -1,0 +1,90 @@
+{
+  "id": "T032",
+  "title": "Gate B F1: wire mid-parse import cancel from App",
+  "description": "Gate B finding (T012, docs/agent-work/2026-10-24-team-reconciliation/gate-b.md). Follow team/PLAN.md, PROTOCOL.md, DELEGATION.md Common rules; pinned Node; serial slot; production-preview Playwright; fail-first shown before the fix; report CLAIMED; no installs/commits. F1: App.tsx importWriting (~1104) calls previewWriting without an AbortSignal, so a slow DOCX/HTML/Markdown-bundle preview cannot be cancelled mid-parse from the UI. Pass an AbortController.signal and abort on cancel/leave while parsing (ImportPreview/busy state as needed). Check: new Playwright case that starts a slow import, cancels, and asserts no dialog and no project after reload (fail first on current code), plus existing unit 'aborts parsing when AbortSignal is triggered'; tsc, npm test, build, tests/import.spec.ts tests/rich-import.spec.ts tests/markdown-roundtrip.spec.ts.",
+  "status": "done",
+  "owner": null,
+  "priority": 3,
+  "depends_on": [],
+  "files": [
+    "src/App.tsx",
+    "src/import/ImportPreview.tsx",
+    "tests/import-cancel.spec.ts",
+    "node_modules/.cache/personal-word-beta/team-t032",
+    "node_modules/.cache/personal-word-beta/team-serial-check-slot",
+    "node_modules/.cache/personal-word-beta/team-t032-fix",
+    "docs/agent-work/2026-10-24-team-reconciliation/gate-b-repairs.md"
+  ],
+  "review_required": true,
+  "created_by": "agent-81ae",
+  "created_at": "2026-10-25T05:20:43+00:00",
+  "claimed_at": "2026-10-25T07:17:20+00:00",
+  "updated_at": "2026-10-25T07:36:13+00:00",
+  "handoff": {
+    "by": "agent-12aa",
+    "at": "2026-10-25T06:06:10+00:00",
+    "text": "agent-12aa: product change looks right (AbortController, signal passed to previewWriting, ImportBusy dialog, cancelImport aborts and writes nothing; confirmImport still passes bundle assets; my runs: import-cancel/import/rich-import/markdown-roundtrip all pass in 36/36 on port 1476, npm test 847/847, tsc 0). REJECT because the maintained test tests/import-cancel.spec.ts does not catch a cancel that fails to abort: a doctored build where cancelImport skips importAbort.current?.abort() (node_modules/.cache/personal-word-beta/team-gateb-repairs-review/vite-t032noabort.config.mjs, source untouched) still PASSES the spec 2/2 (node_modules/.cache/personal-word-beta/team-gateb-repairs-review/pw-t032noabort.log), because the test reloads before the 1.5 s slowed read ends. My probe node_modules/.cache/personal-word-beta/team-gateb-repairs-review/probe032/late-dialog.spec.mjs (cancel, wait 4 s, expect no 'Import writing' dialog) FAILS on that mutant (Expected 0, Received 1, node_modules/.cache/personal-word-beta/team-gateb-repairs-review/probe-noabort.log) and PASSES on the real build (node_modules/.cache/personal-word-beta/team-gateb-repairs-review/probe-current.log). Fix: in the cancel case, wait past the read delay (e.g. page.waitForTimeout(3000) or poll) and assert the 'Import writing' dialog count is 0 BEFORE the reload; show it fails on a no-abort doctored copy. Prove with: npx playwright test -c <port config> tests/import-cancel.spec.ts --workers=1 (real: pass; no-abort mutant: fail). Also noted, not blocking: the spec cancels during the slowed File.arrayBuffer read, not inside previewWriting, so dropping the signal from previewWriting also passes (pw-t032nosignal.log) -- say so honestly or cover it; no abort on unmount/navigation (only Cancel/Escape); the done note blamed rich-import:149 on docxImport emitting an image node, but that failure was T035's interim <img> assertion (ProseMirror-separator)."
+  },
+  "review": {
+    "by": "agent-19b6",
+    "at": "2026-10-25T07:36:13+00:00",
+    "verdict": "approved",
+    "note": "agent-19b6 (non-author) APPROVE cycle 2. Spec (untracked, read in full; sha c7df18fd = worker sha-after): case 1 waits on in-page __readDone marker then a bounded 1.5 s settle and asserts no 'Import writing' dialog, no dialog at all and unchanged project rows BEFORE reload, then again after reload; new case 2 holds the markdownBundle chunk via page.route, awaits 'requested' (import is inside previewWriting), cancels, releases, awaits 'delivered', settles, asserts the same pre- and post-reload; control unchanged. No product change: src/App.tsx e08db6cd and src/import/ImportPreview.tsx 977b6c38 equal worker sha-before/after and were unchanged across my runs. My runs, pinned Node v22.23.3, existing dist (newer than src): production preview port 1478 import-cancel + import 5/5 pass (team-t014-t032-review/pw-real.log); doctored no-abort build from the worker's mut/App-noabort.tsx (diff vs App.tsx = only the abort() line), built to my cache folder (build-noabort.log exit 0), port 1479: case 1 and case 2 FAIL ('Import writing' Expected 0 Received 1, pre-reload asserts lines 64/117), control passes (pw-noabort.log). Disclosed limit judged acceptable for this priority-3 finding: a build that drops the signal from previewWriting is not caught in the browser because App re-checks signal.aborted and discards the result, so the user-visible contract holds and only background CPU is wasted. Correction to the worker's note: the unit test 'aborts parsing when AbortSignal is triggered' (src/import/richImport.test.ts:736) proves previewDocx honours a signal, not that App forwards it; App forwarding (App.tsx ~1117) is checked by code reading only. Also not covered: abort on unmount/navigation; Chromium only. CLAIMED, not VERIFIED by owner."
+  },
+  "log": [
+    {
+      "at": "2026-10-25T05:20:43+00:00",
+      "agent": "agent-81ae",
+      "event": "created",
+      "note": ""
+    },
+    {
+      "at": "2026-10-25T05:33:02+00:00",
+      "agent": "agent-6029",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-10-25T05:33:10+00:00",
+      "agent": "agent-6029",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-10-25T05:42:26+00:00",
+      "agent": "agent-6029",
+      "event": "review requested",
+      "note": "Gate B F1 (mid-parse import cancel) wired, CLAIMED. Files: src/App.tsx (importWriting now creates an AbortController, shows a cancellable busy dialog via setImportBusy, passes {signal} into previewWriting, swallows AbortError/cancelled without an error banner, clears state in finally; new cancelImport aborts + clears), src/import/ImportPreview.tsx (new exported ImportBusy dialog 'Importing writing' with a 'Cancel import' button), tests/import-cancel.spec.ts (new, 2 cases). Evidence in team-t032/: failfirst.log - on the pre-fix tree the cancel case FAILS (no busy dialog) while the control passes; tsc.log exit 0; units.log 83/83 (src/import + adversarial-wp5, incl. the existing 'aborts parsing when AbortSignal is triggered'); build.log npm run build exit 0; browser-rerun.log 4/4 with --repeat-each=2 on production preview (port 1475); related-suites.log import+rich-import+markdown-roundtrip = 19 passed / 1 failed; browser-final.log 4/4 doubled after a vite-only dist rebuild. The test slows File.arrayBuffer in-page (no production test hook) so the import is deterministically cancellable; asserts no preview dialog, no project rows, and none after reload, plus a control that normal completion still opens the preview. Coverage: signal reaches DOCX, HTML and .zip/markdown-bundle (all forwarded); the small plain-text/Markdown fallback ignores the signal (boundary, not in the finding's scope). TWO caveats stated honestly: (1) shared tsc/build is currently RED from an UNREGISTERED off-board file src/print/nativePdf.test.ts (created 01:39 EDT, after my green runs) - not T032; I flagged the board and used npx vite build for the final dist; (2) tests/rich-import.spec.ts:149 external-image case fails on the current tree independent of T032 (fixture r:embed->External rel; docxImport warns yet emits an image node) - belongs to T035. Reviewer: any non-author. Changes UNCOMMITTED by design."
+    },
+    {
+      "at": "2026-10-25T06:06:10+00:00",
+      "agent": "agent-12aa",
+      "event": "rejected",
+      "note": "agent-12aa: product change looks right (AbortController, signal passed to previewWriting, ImportBusy dialog, cancelImport aborts and writes nothing; confirmImport still passes bundle assets; my runs: import-cancel/import/rich-import/markdown-roundtrip all pass in 36/36 on port 1476, npm test 847/847, tsc 0). REJECT because the maintained test tests/import-cancel.spec.ts does not catch a cancel that fails to abort: a doctored build where cancelImport skips importAbort.current?.abort() (node_modules/.cache/personal-word-beta/team-gateb-repairs-review/vite-t032noabort.config.mjs, source untouched) still PASSES the spec 2/2 (node_modules/.cache/personal-word-beta/team-gateb-repairs-review/pw-t032noabort.log), because the test reloads before the 1.5 s slowed read ends. My probe node_modules/.cache/personal-word-beta/team-gateb-repairs-review/probe032/late-dialog.spec.mjs (cancel, wait 4 s, expect no 'Import writing' dialog) FAILS on that mutant (Expected 0, Received 1, node_modules/.cache/personal-word-beta/team-gateb-repairs-review/probe-noabort.log) and PASSES on the real build (node_modules/.cache/personal-word-beta/team-gateb-repairs-review/probe-current.log). Fix: in the cancel case, wait past the read delay (e.g. page.waitForTimeout(3000) or poll) and assert the 'Import writing' dialog count is 0 BEFORE the reload; show it fails on a no-abort doctored copy. Prove with: npx playwright test -c <port config> tests/import-cancel.spec.ts --workers=1 (real: pass; no-abort mutant: fail). Also noted, not blocking: the spec cancels during the slowed File.arrayBuffer read, not inside previewWriting, so dropping the signal from previewWriting also passes (pw-t032nosignal.log) -- say so honestly or cover it; no abort on unmount/navigation (only Cancel/Escape); the done note blamed rich-import:149 on docxImport emitting an image node, but that failure was T035's interim <img> assertion (ProseMirror-separator)."
+    },
+    {
+      "at": "2026-10-25T07:17:20+00:00",
+      "agent": "agent-2d3e",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-10-25T07:17:26+00:00",
+      "agent": "agent-2d3e",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-10-25T07:20:50+00:00",
+      "agent": "agent-2d3e",
+      "event": "review requested",
+      "note": "Test-only repair of tests/import-cancel.spec.ts (App.tsx and ImportPreview.tsx byte-identical, sha before/after in team-t032-fix/). Case 1 now waits for the slowed read to finish (in-page __readDone marker) plus a 1.5 s settle and asserts no 'Import writing' dialog and no new project BEFORE reload. New case 2 cancels while previewWriting is parsing (zip import, route-held markdownBundle chunk, awaited requested/delivered promises). Fail-first with doctored copies of current App.tsx (team-t032-fix/mut, vite-*.config.mjs): real build pw-real.log 3/3 pass; no-abort copy pw-noabort.log 2 failed (dialog Expected 0 Received 1) + control pass; no-signal copy pw-nosignal.log 3/3 pass (NOT caught: App re-checks signal.aborted after previewWriting so an ignored signal is UI-unobservable; covered only by existing unit test). tsc exit 0, npm run build exit 0, import-cancel+import+rich-import+markdown-roundtrip 23 passed on port 1477 production preview. Settle is a bounded 1.5 s wait (no positive parse-finished marker). Not done: abort on unmount/navigation. Details in gate-b-repairs.md T032 section. CLAIMED."
+    },
+    {
+      "at": "2026-10-25T07:36:13+00:00",
+      "agent": "agent-19b6",
+      "event": "approved",
+      "note": "agent-19b6 (non-author) APPROVE cycle 2. Spec (untracked, read in full; sha c7df18fd = worker sha-after): case 1 waits on in-page __readDone marker then a bounded 1.5 s settle and asserts no 'Import writing' dialog, no dialog at all and unchanged project rows BEFORE reload, then again after reload; new case 2 holds the markdownBundle chunk via page.route, awaits 'requested' (import is inside previewWriting), cancels, releases, awaits 'delivered', settles, asserts the same pre- and post-reload; control unchanged. No product change: src/App.tsx e08db6cd and src/import/ImportPreview.tsx 977b6c38 equal worker sha-before/after and were unchanged across my runs. My runs, pinned Node v22.23.3, existing dist (newer than src): production preview port 1478 import-cancel + import 5/5 pass (team-t014-t032-review/pw-real.log); doctored no-abort build from the worker's mut/App-noabort.tsx (diff vs App.tsx = only the abort() line), built to my cache folder (build-noabort.log exit 0), port 1479: case 1 and case 2 FAIL ('Import writing' Expected 0 Received 1, pre-reload asserts lines 64/117), control passes (pw-noabort.log). Disclosed limit judged acceptable for this priority-3 finding: a build that drops the signal from previewWriting is not caught in the browser because App re-checks signal.aborted and discards the result, so the user-visible contract holds and only background CPU is wasted. Correction to the worker's note: the unit test 'aborts parsing when AbortSignal is triggered' (src/import/richImport.test.ts:736) proves previewDocx honours a signal, not that App forwards it; App forwarding (App.tsx ~1117) is checked by code reading only. Also not covered: abort on unmount/navigation; Chromium only. CLAIMED, not VERIFIED by owner."
+    }
+  ]
+}

@@ -1,0 +1,60 @@
+{
+  "id": "T019",
+  "title": "Inspect final rich exports and native UI artifacts",
+  "description": "Follow team/PLAN.md, team/PROTOCOL.md, DELEGATION.md Common rules and applicable child plan; preserve current dirty work. This board records unfinished acceptance/repair, not permission to rebuild existing features. Inspect current implementation and earlier evidence first; fix only reproduced gaps in owned files, record exact commands/results and fail-first controls, and report CLAIMED. No installs, new packages, commits, pushes, publication, real-library access or destructive cleanup. Before expensive checks, acquire exclusive registered path node_modules/.cache/personal-word-beta/team-serial-check-slot via team.py files add; if another live task owns it, do independent work or hand off rather than overlap runs. Retain full logs and use pinned Node/offline serial Rust/production-preview Playwright. Independent review is required. Generate current synthetic DOCX/PDF/Markdown/archive outputs with images/tables/notes/citations and compare text/reference/hash sets. Inspect every rendered representative/adversarial page for clipping/overlap/glyph loss/notes and actual light/dark native UI screenshots. Use installed tools only. Inspect required accessibility/IME coverage where automated tools permit; list Word/ARM/interactive VoiceOver/IME/long-session checks as owner-pending when unavailable. Preserve PDF header-repeat/Jr-suffix/latency limitations unless actual current evidence closes them. No real writing or real Zotero data. Write the task report to docs/agent-work/2026-10-24-team-reconciliation/artifact-acceptance.md.",
+  "status": "done",
+  "owner": null,
+  "priority": 2,
+  "depends_on": [
+    "T018"
+  ],
+  "files": [
+    "docs/agent-work/2026-10-24-team-reconciliation/artifact-acceptance.md",
+    "node_modules/.cache/personal-word-beta/team-t019",
+    "node_modules/.cache/personal-word-beta/team-serial-check-slot"
+  ],
+  "review_required": true,
+  "created_by": "agent-45fb",
+  "created_at": "2026-10-24T22:19:05+00:00",
+  "claimed_at": "2026-10-25T08:57:27+00:00",
+  "updated_at": "2026-10-25T09:15:29+00:00",
+  "handoff": null,
+  "review": {
+    "by": "agent-1f67",
+    "at": "2026-10-25T09:15:29+00:00",
+    "verdict": "approved",
+    "note": "Independent review by agent-1f67 (T044). Hashes: all 11 artifact + 18 screenshot SHA-256 match (run as: cd team-t019/artifacts && grep -E '^[0-9a-f]{64}  ' ../hashes-artifacts.txt | shasum -a 256 -c; cd screens && shasum -a 256 -c ../hashes-screens.txt; the artifacts list also has 10 trailing size lines shasum flags as malformed). Harness rerun from a copy in team-t019-review (pinned Node 22.23.3, vitest 3/3 incl. my D1/D2 repro, log team-t019-review/vitest.log, finished 05:12:27 EDT): fresh t019.md/t019.txt byte-identical, pdftotext identical, footnotes.xml identical, 12 pages. compare.py/compare2.py rerun: 46 rows, Ibid 2, Header A/Bibliography/both entries once in all 5 formats; notes ORDERED in docx/md/bundle; txt note 1 confirmed at line 103; compare2 does NOT assert PDF order (k==pdf clause), but positions are monotone and pages confirm it. My stronger control (swapped docx footnotes + dropped md Row 17) fails: docx CHECK, md rows 45 (team-t019-review/control.log); worker control also fails. accessibility.spec 4/4 on preview 1481 (dist not older than src at run time; team-t019-review/a11y.log). Viewed PDF p2,3,4,5,8,10,11: no clipping/overlap/glyph loss, notes in order, images stacked with no gap, header NOT repeated on 5/8/10. Viewed 9 screenshots (01 light/dark, 02 read dark, 04 research light/dark with Zotero hint, 05 export light, 05b dark, 06 docx light, 07 bundle dark): sans UI, flat, square, blue semibold selection, consistent themes, toast covers Export PDF; DOM separator is ' -- ' (ResearchPanel.tsx:57), Futura draws it dash-like. D1 reproduced (pdf.ts:78-99 selectShard looks up U+000A -> shapeError); D2 reproduced (one w:t with literal \\n\\n, one w:p). T043 exists with correct paths, now live under agent-0743. src/export/pdf.ts and docx.ts mtimes 05:13:20 EDT are T043's edits (after T019 done 05:10:49 and T043 start 05:12:18), not T019's; no other src/src-tauri/tests file newer than T019 start. Limitations: header repeat and Jr. retained with evidence; latency stale with team-t018/logs/bench-release-{1,2,3}.log p95 124.37/130.43/116.57 ms. Note for T022: after T043's edits dist/ is stale, rebuild before any further preview Playwright."
+  },
+  "log": [
+    {
+      "at": "2026-10-24T22:19:05+00:00",
+      "agent": "agent-45fb",
+      "event": "created",
+      "note": ""
+    },
+    {
+      "at": "2026-10-25T08:57:27+00:00",
+      "agent": "agent-15e2",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-10-25T08:57:28+00:00",
+      "agent": "agent-15e2",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-10-25T09:10:49+00:00",
+      "agent": "agent-15e2",
+      "event": "review requested",
+      "note": "Inspection only, no product code changed; status CLAIMED. Report: docs/agent-work/2026-10-24-team-reconciliation/artifact-acceptance.md; artifacts, screenshots, logs and SHA-256 lists under node_modules/.cache/personal-word-beta/team-t019/. Synthetic project (2 sections, 8 notes incl. Ibid. and a 3-paragraph note, PNG+JPEG, 46-row table spanning 7 PDF pages, page break, bibliography) exported via real exporters to PDF/DOCX/MD/TXT/bundle zip/archive; text, notes order, rows, citations compared across formats (all consistent; comparator control caught a doctored copy). All 12 PDF pages viewed (no clipping/overlap/glyph loss; images and notes OK; table header NOT repeated, limitation retained); DOCX XML inspected (8 footnotes, 2 images with matching sha256, tblHeader set) + QuickLook thumbnail. 18 light/dark Chromium screenshots viewed (not WebKit): sans UI, square corners, flat, blue semibold selection, consistent themes. accessibility.spec 4/4 passed on preview port 1480. Defects: D1 PDF refuses any footnote containing a newline with a misleading script-shaping error (src/export/pdf.ts:78-99); D2 DOCX writes multi-paragraph note as one w:t with literal newlines (src/export/docx.ts:214-225); both filed as T043 (p3). Limitations: PDF header-repeat and BibTeX Jr. retained; latency limitation stale per T018 (p95 116-130 ms release), not re-run. Owner-pending: Word, ARM, VoiceOver, IME, WebKit, long session."
+    },
+    {
+      "at": "2026-10-25T09:15:29+00:00",
+      "agent": "agent-1f67",
+      "event": "approved",
+      "note": "Independent review by agent-1f67 (T044). Hashes: all 11 artifact + 18 screenshot SHA-256 match (run as: cd team-t019/artifacts && grep -E '^[0-9a-f]{64}  ' ../hashes-artifacts.txt | shasum -a 256 -c; cd screens && shasum -a 256 -c ../hashes-screens.txt; the artifacts list also has 10 trailing size lines shasum flags as malformed). Harness rerun from a copy in team-t019-review (pinned Node 22.23.3, vitest 3/3 incl. my D1/D2 repro, log team-t019-review/vitest.log, finished 05:12:27 EDT): fresh t019.md/t019.txt byte-identical, pdftotext identical, footnotes.xml identical, 12 pages. compare.py/compare2.py rerun: 46 rows, Ibid 2, Header A/Bibliography/both entries once in all 5 formats; notes ORDERED in docx/md/bundle; txt note 1 confirmed at line 103; compare2 does NOT assert PDF order (k==pdf clause), but positions are monotone and pages confirm it. My stronger control (swapped docx footnotes + dropped md Row 17) fails: docx CHECK, md rows 45 (team-t019-review/control.log); worker control also fails. accessibility.spec 4/4 on preview 1481 (dist not older than src at run time; team-t019-review/a11y.log). Viewed PDF p2,3,4,5,8,10,11: no clipping/overlap/glyph loss, notes in order, images stacked with no gap, header NOT repeated on 5/8/10. Viewed 9 screenshots (01 light/dark, 02 read dark, 04 research light/dark with Zotero hint, 05 export light, 05b dark, 06 docx light, 07 bundle dark): sans UI, flat, square, blue semibold selection, consistent themes, toast covers Export PDF; DOM separator is ' -- ' (ResearchPanel.tsx:57), Futura draws it dash-like. D1 reproduced (pdf.ts:78-99 selectShard looks up U+000A -> shapeError); D2 reproduced (one w:t with literal \\n\\n, one w:p). T043 exists with correct paths, now live under agent-0743. src/export/pdf.ts and docx.ts mtimes 05:13:20 EDT are T043's edits (after T019 done 05:10:49 and T043 start 05:12:18), not T019's; no other src/src-tauri/tests file newer than T019 start. Limitations: header repeat and Jr. retained with evidence; latency stale with team-t018/logs/bench-release-{1,2,3}.log p95 124.37/130.43/116.57 ms. Note for T022: after T043's edits dist/ is stale, rebuild before any further preview Playwright."
+    }
+  ]
+}

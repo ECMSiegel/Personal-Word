@@ -1,0 +1,46 @@
+{
+  "id": "T045",
+  "title": "Independently review T043",
+  "description": "Non-author review record for T043; owns only its cache folder and the serial slot",
+  "status": "done",
+  "owner": null,
+  "priority": 1,
+  "depends_on": [],
+  "files": [
+    "node_modules/.cache/personal-word-beta/team-t043-review",
+    "node_modules/.cache/personal-word-beta/team-serial-check-slot"
+  ],
+  "review_required": false,
+  "created_by": "agent-7cc8",
+  "created_at": "2026-10-25T09:21:27+00:00",
+  "claimed_at": "2026-10-25T09:21:30+00:00",
+  "updated_at": "2026-10-25T09:23:23+00:00",
+  "handoff": null,
+  "review": null,
+  "log": [
+    {
+      "at": "2026-10-25T09:21:27+00:00",
+      "agent": "agent-7cc8",
+      "event": "created",
+      "note": ""
+    },
+    {
+      "at": "2026-10-25T09:21:30+00:00",
+      "agent": "agent-7cc8",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-10-25T09:21:30+00:00",
+      "agent": "agent-7cc8",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-10-25T09:23:23+00:00",
+      "agent": "agent-7cc8",
+      "event": "done",
+      "note": "Reviewed and approved T043; logs in team-t043-review"
+    }
+  ]
+}

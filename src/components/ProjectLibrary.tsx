@@ -197,14 +197,14 @@ export function ProjectLibrary({
         </label>
       </div>
       <div className="import">
-        <span id="import-writing-label">Import writing -- text or Markdown (up to 5 MB)</span>
+        <span id="import-writing-label">Import writing -- text, Markdown, Markdown bundle (.zip), Word, or HTML (up to 20 MB)</span>
         <label className="import-choose" htmlFor="import-writing-text">
           Choose writing…
           <input
             id="import-writing-text"
             className="visually-hidden"
             type="file"
-            accept=".txt,.md,.markdown,text/plain,text/markdown"
+            accept=".txt,.md,.markdown,.zip,.docx,.html,.htm,text/plain,application/zip,text/markdown,application/vnd.openxmlformats-officedocument.wordprocessingml.document,text/html"
             aria-labelledby="import-writing-label"
             onChange={(e) => {
               const file = e.target.files?.[0];

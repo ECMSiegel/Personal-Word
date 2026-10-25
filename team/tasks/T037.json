@@ -1,0 +1,93 @@
+{
+  "id": "T037",
+  "title": "Independently review T034 DOCX picture-count repair",
+  "description": "Non-author review of T034 actual diff, original finding, regression and fail-first evidence. Inspect current DOCX importer/fixtures/tests and report; no implementation edits. Run fresh acceptance when shared slot is available, then approve/reject T034 with exact evidence and boundaries.",
+  "status": "done",
+  "owner": null,
+  "priority": 3,
+  "depends_on": [
+    "T012"
+  ],
+  "files": [
+    "docs/agent-work/2026-10-24-team-reconciliation/T034_REVIEW.md",
+    "node_modules/.cache/personal-word-beta/team-t034-independent-review"
+  ],
+  "review_required": true,
+  "created_by": "agent-a2ef",
+  "created_at": "2026-10-25T05:37:44+00:00",
+  "claimed_at": "2026-10-25T07:37:34+00:00",
+  "updated_at": "2026-10-25T07:38:53+00:00",
+  "handoff": {
+    "by": "agent-6029",
+    "at": "2026-10-25T06:03:55+00:00",
+    "text": "Independent T034 review, handed to me by agent-a2ef, now handed back with the source half complete and the runtime half clearly pending. DONE: T034 diff/source reviewed; source identity re-verified - src/import/docxImport.ts (02704ec7ae35796afb8a788504833e65eb0735fcb66161889ab2724902e21851) and src/import/richImport.test.ts (2071ee98b41f3f62e2ce259157a1a853dfed5e77ffb468baf4c6d9b455f4024f) still match agent-a2ef's team-t034-independent-review/source-inspected.json (no drift); fail-first log team-t034/failfirst-vitest.log genuinely shows both new image-count cases failing pre-fix (2->1 and 1->2). No defect found in the scoped source. PENDING (blocked on the shared serial slot, owned by T038/agent-12aa): fresh npx vitest run src/import src/adversarial-wp5.test.ts, npx tsc --noEmit -p ., npm run build, and production-preview tests/rich-import.spec.ts; then append results to T034_REVIEW.md and approve/reject T034. NEXT OWNER: after T038 releases the slot, run those four checks, confirm T034's two files are unchanged (hashes above), then decide. NOTE: tests/rich-import.spec.ts now also carries T035's external-image case (owned by agent-f22a) - re-run it as part of the rich-import suite but do not attribute its result to T034. Also note the shared tsc was transiently red from src/print/nativePdf.test.ts (T013, now clean). Status of owned/registered paths:\ndocs/agent-work/2026-10-24-team-reconciliation/T034_REVIEW.md: uncommitted edits (agent-a2ef's partial review; my pending section not yet appended)\nnode_modules/.cache/personal-word-beta/team-t034-independent-review: uncommitted edits (agent-a2ef's static artifacts)"
+  },
+  "review": {
+    "by": "agent-c57f",
+    "at": "2026-10-25T07:38:53+00:00",
+    "verdict": "approved",
+    "note": "agent-c57f (non-author) APPROVE 'not needed'. Checked: T034 status done, approved by agent-12aa at 06:06Z under T038 (done) with fresh runs; retained logs exist and read: team-gateb-repairs-review/ff034-prefix.log (isolated pre-fix copy exit 1, 2 failed: 'expected 2 to be 1' and 1->2), ff034-current.log (exit 0, 2 passed), units-import.log (4 files 83/83 exit 0); msg #97 lists the same logs. T034 sources unchanged since: docxImport.ts 02704ec7..., richImport.test.ts 2071ee98... equal team-t034-independent-review/source-inspected.json. No files written by the closure: T034_REVIEW.md mtime 05:38Z (agent-a2ef partial draft), cache folder only source-inspected.json 05:38Z. Caveat for T019/T021: T034_REVIEW.md still reads 'pending fresh qualification / No approval or rejection yet' -- it is a superseded draft; the authoritative T034 verdict is the T034 board review by agent-12aa (T038), not that file."
+  },
+  "log": [
+    {
+      "at": "2026-10-25T05:37:44+00:00",
+      "agent": "agent-a2ef",
+      "event": "created",
+      "note": ""
+    },
+    {
+      "at": "2026-10-25T05:37:53+00:00",
+      "agent": "agent-a2ef",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-10-25T05:37:53+00:00",
+      "agent": "agent-a2ef",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-10-25T05:38:42+00:00",
+      "agent": "agent-a2ef",
+      "event": "handoff",
+      "note": "Static independent review complete; no definite scoped finding, no approval yet. T034_REVIEW.md records actual backup diff inspection, recursive image-count/staging wiring, both JSZip regression assertions and retained fail-first evidence (2 meaningful pre-fix failures), author83units/type/build/5browser logs. NEXT acquire shared slot after T032 releases, run fresh import/adversarial units + tsc/build + isolated production rich-import browser; then approve/reject T034. No checks launched because T032 owns slot. Message83 asks its owner for release. Source hashes in team-t034-independent-review/source-inspected.json. No implementation edits. Do not claim source inspection as fresh runtime proof.\ndocs/agent-work/2026-10-24-team-reconciliation/T034_REVIEW.md: uncommitted edits\nnode_modules/.cache/personal-word-beta/team-t034-independent-review: uncommitted edits"
+    },
+    {
+      "at": "2026-10-25T06:02:56+00:00",
+      "agent": "agent-6029",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-10-25T06:02:57+00:00",
+      "agent": "agent-6029",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-10-25T06:03:55+00:00",
+      "agent": "agent-6029",
+      "event": "handoff",
+      "note": "Independent T034 review, handed to me by agent-a2ef, now handed back with the source half complete and the runtime half clearly pending. DONE: T034 diff/source reviewed; source identity re-verified - src/import/docxImport.ts (02704ec7ae35796afb8a788504833e65eb0735fcb66161889ab2724902e21851) and src/import/richImport.test.ts (2071ee98b41f3f62e2ce259157a1a853dfed5e77ffb468baf4c6d9b455f4024f) still match agent-a2ef's team-t034-independent-review/source-inspected.json (no drift); fail-first log team-t034/failfirst-vitest.log genuinely shows both new image-count cases failing pre-fix (2->1 and 1->2). No defect found in the scoped source. PENDING (blocked on the shared serial slot, owned by T038/agent-12aa): fresh npx vitest run src/import src/adversarial-wp5.test.ts, npx tsc --noEmit -p ., npm run build, and production-preview tests/rich-import.spec.ts; then append results to T034_REVIEW.md and approve/reject T034. NEXT OWNER: after T038 releases the slot, run those four checks, confirm T034's two files are unchanged (hashes above), then decide. NOTE: tests/rich-import.spec.ts now also carries T035's external-image case (owned by agent-f22a) - re-run it as part of the rich-import suite but do not attribute its result to T034. Also note the shared tsc was transiently red from src/print/nativePdf.test.ts (T013, now clean). Status of owned/registered paths:\ndocs/agent-work/2026-10-24-team-reconciliation/T034_REVIEW.md: uncommitted edits (agent-a2ef's partial review; my pending section not yet appended)\nnode_modules/.cache/personal-word-beta/team-t034-independent-review: uncommitted edits (agent-a2ef's static artifacts)"
+    },
+    {
+      "at": "2026-10-25T07:37:34+00:00",
+      "agent": "agent-b8ae",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-10-25T07:37:35+00:00",
+      "agent": "agent-b8ae",
+      "event": "review requested",
+      "note": "not needed: T034 was independently reviewed and approved by agent-12aa under record T038 (logs node_modules/.cache/personal-word-beta/team-gateb-repairs-review/, ff034-*.log); a second review record would duplicate it. No files written."
+    },
+    {
+      "at": "2026-10-25T07:38:53+00:00",
+      "agent": "agent-c57f",
+      "event": "approved",
+      "note": "agent-c57f (non-author) APPROVE 'not needed'. Checked: T034 status done, approved by agent-12aa at 06:06Z under T038 (done) with fresh runs; retained logs exist and read: team-gateb-repairs-review/ff034-prefix.log (isolated pre-fix copy exit 1, 2 failed: 'expected 2 to be 1' and 1->2), ff034-current.log (exit 0, 2 passed), units-import.log (4 files 83/83 exit 0); msg #97 lists the same logs. T034 sources unchanged since: docxImport.ts 02704ec7..., richImport.test.ts 2071ee98... equal team-t034-independent-review/source-inspected.json. No files written by the closure: T034_REVIEW.md mtime 05:38Z (agent-a2ef partial draft), cache folder only source-inspected.json 05:38Z. Caveat for T019/T021: T034_REVIEW.md still reads 'pending fresh qualification / No approval or rejection yet' -- it is a superseded draft; the authoritative T034 verdict is the T034 board review by agent-12aa (T038), not that file."
+    }
+  ]
+}

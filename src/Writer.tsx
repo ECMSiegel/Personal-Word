@@ -31,6 +31,8 @@ import {
   MessageSquarePlus,
   Minus,
   Plus,
+  Image as ImageIcon,
+  Table as TableIcon,
   type LucideIcon,
 } from "lucide-react";
 import {
@@ -52,7 +54,15 @@ import {
 } from "./editor/formatting";
 import "./editor/editor.css";
 import { documentExtensions } from "./editor/extensions";
-import { FocusMode, ProseCheck, focusModeKey, proseCheckKey, defaultProseRules, type ProseRules } from "./editor/writingAids";
+import { setImageSourceResolver } from "./editor/media";
+import {
+  FocusMode,
+  ProseCheck,
+  focusModeKey,
+  proseCheckKey,
+  defaultProseRules,
+  type ProseRules,
+} from "./editor/writingAids";
 import type { ProseIssue } from "./editor/proseCheck";
 import { changeIndent, indentKeys } from "./editor/indent";
 import { NumberInput, PanelButton } from "./editor/ToolbarControls";
@@ -67,7 +77,7 @@ import { ProseIssues } from "./components/ProseIssues";
 import type { DocumentSettings } from "./research/types";
 import { type Entry } from "./model";
 
-type ToolbarPanel = "spacing" | "setup" | "more" | "aids";
+type ToolbarPanel = "spacing" | "setup" | "more" | "aids" | "table";
 type ToolbarGroup =
   | "history"
   | "zoom"
@@ -76,6 +86,7 @@ type ToolbarGroup =
   | "size"
   | "marks"
   | "link"
+  | "insert"
   | "lists"
   | "indent"
   | "spacing"
@@ -93,6 +104,7 @@ const TOOLBAR_ORDER: ToolbarGroup[] = [
   "size",
   "marks",
   "link",
+  "insert",
   "lists",
   "indent",
   "spacing",
@@ -109,6 +121,7 @@ const OVERFLOW_ORDER: ToolbarGroup[] = [
   "view",
   "spacing",
   "indent",
+  "insert",
   "lists",
   "link",
   "marks",
@@ -149,6 +162,8 @@ export function Writer({
   onEdit,
   onExtract,
   onLink,
+  onInsertImage,
+  resolveAsset,
   layout: controlledLayout,
   onLayoutChange,
   onPageCountChange,
@@ -187,9 +202,20 @@ export function Writer({
   onToggleFocusMode?: () => void;
   onToggleProseCheck?: () => void;
   item: Entry;
-  onEdit: (content: JSONContent, text: string, transaction: Transaction) => void;
+  onEdit: (
+    content: JSONContent,
+    text: string,
+    transaction: Transaction,
+  ) => void;
   onExtract: (editor: Editor) => void;
   onLink: (current: string, apply: (url: string) => void) => void;
+  onInsertImage?: (file: File) => Promise<{
+    assetId: string;
+    alt: string;
+    width?: number | null;
+    height?: number | null;
+  } | null>;
+  resolveAsset?: (id: string) => Promise<string | null>;
 }) {
   const settingsRef = useRef(documentSettings);
   settingsRef.current = documentSettings;
@@ -199,12 +225,24 @@ export function Writer({
   proseCheckRef.current = proseCheck;
   const itemRef = useRef(item);
   itemRef.current = item;
-  const callbacksRef = useRef({ onToggleFocusMode, onToggleProseCheck, onExtract });
+  const callbacksRef = useRef({
+    onToggleFocusMode,
+    onToggleProseCheck,
+    onExtract,
+  });
   callbacksRef.current = { onToggleFocusMode, onToggleProseCheck, onExtract };
-  const analysisRevisionRef = useRef({ entryId: item.id, revision: item.contentRevision ?? 0 });
+  const analysisRevisionRef = useRef({
+    entryId: item.id,
+    revision: item.contentRevision ?? 0,
+  });
   if (analysisRevisionRef.current.entryId !== item.id) {
-    analysisRevisionRef.current = { entryId: item.id, revision: item.contentRevision ?? 0 };
-  } else if ((item.contentRevision ?? 0) > analysisRevisionRef.current.revision) {
+    analysisRevisionRef.current = {
+      entryId: item.id,
+      revision: item.contentRevision ?? 0,
+    };
+  } else if (
+    (item.contentRevision ?? 0) > analysisRevisionRef.current.revision
+  ) {
     analysisRevisionRef.current.revision = item.contentRevision ?? 0;
   }
   const [proseRules, setProseRules] = useState<ProseRules>(defaultProseRules);
@@ -213,7 +251,9 @@ export function Writer({
   const [proseIssues, setProseIssues] = useState<ProseIssue[]>([]);
   const [prosePending, setProsePending] = useState(false);
   const [proseUnavailable, setProseUnavailable] = useState(false);
-  const [dismissedIssues, setDismissedIssues] = useState<Set<string>>(() => new Set());
+  const [dismissedIssues, setDismissedIssues] = useState<Set<string>>(
+    () => new Set(),
+  );
   const dismissedIssuesRef = useRef(dismissedIssues);
   dismissedIssuesRef.current = dismissedIssues;
   const [prosePage, setProsePage] = useState(0);
@@ -252,19 +292,111 @@ export function Writer({
   const panelTriggers = useRef<
     Partial<Record<ToolbarPanel, HTMLButtonElement | null>>
   >({});
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const altInputRef = useRef<HTMLInputElement>(null);
+  const [pendingFile, setPendingFile] = useState<File | null>(null);
+  const [altText, setAltText] = useState("");
+  const [isInsertingImage, setIsInsertingImage] = useState(false);
+
+  useEffect(() => {
+    const cache = new Map<string, string>();
+    if (resolveAsset) {
+      setImageSourceResolver(async (assetId: string) => {
+        const cached = cache.get(assetId);
+        if (cached) return cached;
+        const url = await resolveAsset(assetId);
+        if (url) cache.set(assetId, url);
+        return url;
+      });
+    } else {
+      setImageSourceResolver(null);
+    }
+    return () => {
+      setImageSourceResolver(null);
+      for (const url of cache.values()) {
+        if (url.startsWith("blob:")) {
+          try {
+            URL.revokeObjectURL(url);
+          } catch {
+            // ignore
+          }
+        }
+      }
+      cache.clear();
+    };
+  }, [resolveAsset, item.id]);
+
+  useEffect(() => {
+    if (pendingFile) {
+      altInputRef.current?.focus();
+    }
+  }, [pendingFile]);
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file && (file.type === "image/png" || file.type === "image/jpeg")) {
+      setPendingFile(file);
+      setAltText("");
+    }
+  };
+
+  const handleCancelImage = () => {
+    setPendingFile(null);
+    setAltText("");
+    if (fileInputRef.current) fileInputRef.current.value = "";
+    editorRef.current?.chain().focus().run();
+  };
+
+  const handleCommitImage = async () => {
+    const editor = editorRef.current;
+    if (!pendingFile || !editor) return;
+    const file = pendingFile;
+    const customAlt = altText.trim();
+    setIsInsertingImage(true);
+    try {
+      if (onInsertImage) {
+        const res = await onInsertImage(file);
+        if (res && res.assetId) {
+          editor
+            .chain()
+            .focus()
+            .insertImage({
+              assetId: res.assetId,
+              alt: customAlt || res.alt || "",
+              width: res.width ?? null,
+              height: res.height ?? null,
+            })
+            .run();
+        }
+      }
+    } finally {
+      setIsInsertingImage(false);
+      setPendingFile(null);
+      setAltText("");
+      if (fileInputRef.current) fileInputRef.current.value = "";
+    }
+  };
   const geometry = paperGeometry(layout);
   const [, render] = useState(0);
   const initialContentRef = useRef(item.content);
   const editorRef = useRef<Editor | null>(null);
-  const editorExtensions = useMemo(() => [
+  const editorExtensions = useMemo(
+    () => [
       ...documentExtensions(),
       FocusMode.configure({ enabled: () => focusModeRef.current }),
       ProseCheck.configure({
         enabled: () => proseCheckRef.current,
-        getContext: () => ({ entryId: itemRef.current.id, revision: analysisRevisionRef.current.revision }),
+        getContext: () => ({
+          entryId: itemRef.current.id,
+          revision: analysisRevisionRef.current.revision,
+        }),
         getRules: () => proseRulesRef.current,
         getDismissed: () => dismissedIssuesRef.current,
-        onIssues: (issues) => { setProseIssues(issues); setProsePage(0); setProsePending(false); },
+        onIssues: (issues) => {
+          setProseIssues(issues);
+          setProsePage(0);
+          setProsePending(false);
+        },
         onPending: () => setProsePending(true),
         onUnavailable: () => setProseUnavailable(true),
       }),
@@ -273,8 +405,11 @@ export function Writer({
         () => (settingsRef.current?.firstLineIndent ? 0.5 : 0),
       ),
       Placeholder.configure({ placeholder: "" }),
-    ], []);
-  const editorProps = useMemo<EditorProps>(() => ({
+    ],
+    [],
+  );
+  const editorProps = useMemo<EditorProps>(
+    () => ({
       attributes: {
         class: "writing-surface",
         "aria-label": "Writing editor",
@@ -297,7 +432,8 @@ export function Writer({
           activeEditor
         ) {
           event.preventDefault();
-          const current = activeEditor.getAttributes("paragraph").paragraphStyle;
+          const current =
+            activeEditor.getAttributes("paragraph").paragraphStyle;
           const index = screenplayStyles.indexOf(current);
           const next =
             screenplayStyles[(index + (event.shiftKey ? 4 : 1) + 5) % 5];
@@ -319,7 +455,9 @@ export function Writer({
         }
         return false;
       },
-    }), []);
+    }),
+    [],
+  );
   const editor = useEditor({
     extensions: editorExtensions,
     content: initialContentRef.current,
@@ -328,7 +466,11 @@ export function Writer({
       if (transaction.docChanged) {
         if (analysisRevisionRef.current.entryId === itemRef.current.id)
           analysisRevisionRef.current.revision += 1;
-        else analysisRevisionRef.current = { entryId: itemRef.current.id, revision: (itemRef.current.contentRevision ?? 0) + 1 };
+        else
+          analysisRevisionRef.current = {
+            entryId: itemRef.current.id,
+            revision: (itemRef.current.contentRevision ?? 0) + 1,
+          };
         onEdit(editor.getJSON(), editor.getText(), transaction);
       }
     },
@@ -365,9 +507,11 @@ export function Writer({
   const [editingNote, setEditingNote] = useState<string | null>(null);
   useEffect(() => {
     if (!editor) return;
-    editor.view.dispatch(editor.state.tr
-      .setMeta(focusModeKey, "refresh")
-      .setMeta(proseCheckKey, "refresh"));
+    editor.view.dispatch(
+      editor.state.tr
+        .setMeta(focusModeKey, "refresh")
+        .setMeta(proseCheckKey, "refresh"),
+    );
   }, [editor, focusMode, proseCheck]);
   useEffect(() => {
     setProseUnavailable(false);
@@ -516,11 +660,19 @@ export function Writer({
     setOverflowCount(count);
   };
   const linkActive = editor?.isActive("link") ?? false;
+  const tableActive = editor?.isActive("table") ?? false;
   useLayoutEffect(() => {
     fitToolbar();
     // Group widths only change when these inputs do; measuring on every
     // keystroke forces a full layout and slows typing.
-  }, [editor, linkActive, documentSettings?.font, layout.mode, overflowCount]);
+  }, [
+    editor,
+    linkActive,
+    tableActive,
+    documentSettings?.font,
+    layout.mode,
+    overflowCount,
+  ]);
   useEffect(() => {
     const bar = barRef.current;
     if (!bar) return;
@@ -531,9 +683,11 @@ export function Writer({
   if (!editor) return null;
   const hidden = OVERFLOW_ORDER.slice(0, overflowCount);
   const closePanel = (name: ToolbarPanel) => {
-    setPanel(
-      name !== "more" && hidden.includes(name as ToolbarGroup) ? "more" : null,
-    );
+    const isHidden =
+      name === "table"
+        ? hidden.includes("insert")
+        : hidden.includes(name as ToolbarGroup);
+    setPanel(name !== "more" && isHidden ? "more" : null);
     panelTriggers.current[name]?.focus();
   };
   const paragraphAttrs = editor.getAttributes(
@@ -814,6 +968,183 @@ export function Writer({
             )}
           </>
         );
+      case "insert": {
+        return (
+          <>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/png,image/jpeg"
+              style={{ display: "none" }}
+              aria-hidden="true"
+              tabIndex={-1}
+              onChange={handleFileChange}
+            />
+            <span className="toolbar-anchor" data-toolbar-panel="">
+              <button
+                type="button"
+                className="toolbar-icon"
+                title="Insert image"
+                aria-label="Insert image"
+                aria-haspopup="dialog"
+                aria-expanded={pendingFile !== null}
+                onClick={() => fileInputRef.current?.click()}
+              >
+                <ImageIcon size={16} aria-hidden="true" />
+              </button>
+              {pendingFile && (
+                <div
+                  role="dialog"
+                  aria-label="Image alternative text"
+                  tabIndex={-1}
+                  className="toolbar-popover"
+                  onKeyDown={(e) => {
+                    if (e.key === "Escape") {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      handleCancelImage();
+                    }
+                  }}
+                >
+                  <div className="toolbar-popover-body">
+                    <span className="toolbar-field-title">
+                      {pendingFile.name}
+                    </span>
+                    <div className="toolbar-field">
+                      <span>Alt text</span>
+                      <input
+                        ref={altInputRef}
+                        type="text"
+                        className="toolbar-input"
+                        aria-label="Image alternative text"
+                        placeholder="Description for screen readers"
+                        value={altText}
+                        onChange={(e) => setAltText(e.target.value)}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter") {
+                            e.preventDefault();
+                            handleCommitImage();
+                          }
+                        }}
+                      />
+                    </div>
+                    <div
+                      style={{
+                        display: "flex",
+                        gap: "8px",
+                        justifyContent: "flex-end",
+                      }}
+                    >
+                      <button
+                        type="button"
+                        className="toolbar-text-button"
+                        onClick={handleCancelImage}
+                      >
+                        Cancel
+                      </button>
+                      <button
+                        type="button"
+                        className="toolbar-text-button"
+                        disabled={isInsertingImage}
+                        onClick={handleCommitImage}
+                      >
+                        {isInsertingImage ? "Inserting..." : "Insert"}
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </span>
+
+            {!tableActive ? (
+              <button
+                type="button"
+                className="toolbar-icon"
+                title="Insert table"
+                aria-label="Insert table"
+                onClick={() =>
+                  editor
+                    .chain()
+                    .focus()
+                    .insertTable({ rows: 3, cols: 3, withHeaderRow: true })
+                    .run()
+                }
+              >
+                <TableIcon size={16} aria-hidden="true" />
+              </button>
+            ) : (
+              <PanelButton
+                label="Table controls"
+                dialogLabel="Table controls"
+                icon={TableIcon}
+                open={panel === "table"}
+                onToggle={() => setPanel(panel === "table" ? null : "table")}
+                onEscape={() => closePanel("table")}
+                buttonRef={(el) => {
+                  panelTriggers.current.table = el;
+                }}
+              >
+                <div className="toolbar-popover-body">
+                  <span className="toolbar-field-title">Table controls</span>
+                  <div className="table-controls-grid">
+                    <button
+                      type="button"
+                      className="toolbar-text-button"
+                      onClick={() => editor.chain().focus().addRowAfter().run()}
+                    >
+                      Add row below
+                    </button>
+                    <button
+                      type="button"
+                      className="toolbar-text-button"
+                      onClick={() => editor.chain().focus().deleteRow().run()}
+                    >
+                      Delete row
+                    </button>
+                    <button
+                      type="button"
+                      className="toolbar-text-button"
+                      onClick={() =>
+                        editor.chain().focus().addColumnAfter().run()
+                      }
+                    >
+                      Add column after
+                    </button>
+                    <button
+                      type="button"
+                      className="toolbar-text-button"
+                      onClick={() =>
+                        editor.chain().focus().deleteColumn().run()
+                      }
+                    >
+                      Delete column
+                    </button>
+                    <button
+                      type="button"
+                      className="toolbar-text-button"
+                      onClick={() =>
+                        editor.chain().focus().toggleHeaderRow().run()
+                      }
+                    >
+                      Toggle header row
+                    </button>
+                    <button
+                      type="button"
+                      className="toolbar-text-button is-danger"
+                      onClick={() => {
+                        setPanel(null);
+                        editor.chain().focus().deleteTable().run();
+                      }}
+                    >
+                      Delete table
+                    </button>
+                  </div>
+                </div>
+              </PanelButton>
+            )}
+          </>
+        );
+      }
       case "lists":
         return lists.map(iconButton);
       case "indent":
@@ -939,7 +1270,14 @@ export function Writer({
       case "aids": {
         return (
           <>
-            <button type="button" className="toolbar-icon" title="Focus mode" aria-label="Focus mode" aria-pressed={focusMode} onClick={() => onToggleFocusMode?.()}>
+            <button
+              type="button"
+              className="toolbar-icon"
+              title="Focus mode"
+              aria-label="Focus mode"
+              aria-pressed={focusMode}
+              onClick={() => onToggleFocusMode?.()}
+            >
               <Focus size={16} aria-hidden="true" />
             </button>
             <PanelButton
@@ -949,21 +1287,50 @@ export function Writer({
               open={panel === "aids"}
               onToggle={() => setPanel(panel === "aids" ? null : "aids")}
               onEscape={() => closePanel("aids")}
-              buttonRef={(el) => { panelTriggers.current.aids = el; }}
+              buttonRef={(el) => {
+                panelTriggers.current.aids = el;
+              }}
             >
               <div className="toolbar-popover-body prose-check-panel">
-                <label className="toolbar-field"><span>On</span><input type="checkbox" checked={proseCheck} onChange={() => onToggleProseCheck?.()} /></label>
+                <label className="toolbar-field">
+                  <span>On</span>
+                  <input
+                    type="checkbox"
+                    checked={proseCheck}
+                    onChange={() => onToggleProseCheck?.()}
+                  />
+                </label>
                 <ProseIssues
-                  issues={proseIssues.filter(issue => !dismissedIssues.has(issue.id ?? ""))}
+                  issues={proseIssues.filter(
+                    (issue) => !dismissedIssues.has(issue.id ?? ""),
+                  )}
                   rules={proseRules}
                   pending={prosePending}
                   unavailable={proseUnavailable}
                   page={prosePage}
-                  excerpt={(issue) => editor.state.doc.textBetween(issue.from, issue.to, " ")}
-                  onRuleChange={(rule, enabled) => setProseRules(current => ({ ...current, [rule]: enabled }))}
+                  excerpt={(issue) =>
+                    editor.state.doc.textBetween(issue.from, issue.to, " ")
+                  }
+                  onRuleChange={(rule, enabled) =>
+                    setProseRules((current) => ({
+                      ...current,
+                      [rule]: enabled,
+                    }))
+                  }
                   onPageChange={setProsePage}
-                  onSelect={(issue) => editor.chain().focus().setTextSelection({ from: issue.from, to: issue.to }).scrollIntoView().run()}
-                  onDismiss={(issue) => setDismissedIssues(current => new Set(current).add(issue.id ?? ""))}
+                  onSelect={(issue) =>
+                    editor
+                      .chain()
+                      .focus()
+                      .setTextSelection({ from: issue.from, to: issue.to })
+                      .scrollIntoView()
+                      .run()
+                  }
+                  onDismiss={(issue) =>
+                    setDismissedIssues((current) =>
+                      new Set(current).add(issue.id ?? ""),
+                    )
+                  }
                 />
               </div>
             </PanelButton>
@@ -1048,7 +1415,9 @@ export function Writer({
             isMore
             open={
               panel === "more" ||
-              (panel !== null && hidden.includes(panel as ToolbarGroup))
+              (panel !== null &&
+                (hidden.includes(panel as ToolbarGroup) ||
+                  (panel === "table" && hidden.includes("insert"))))
             }
             onToggle={() => setPanel(panel === "more" ? null : "more")}
             onEscape={() => closePanel("more")}

@@ -1,0 +1,46 @@
+{
+  "id": "T042",
+  "title": "Independently review T018",
+  "description": "Non-author review record for T018; owns only its cache folder and the serial slot",
+  "status": "done",
+  "owner": null,
+  "priority": 1,
+  "depends_on": [],
+  "files": [
+    "node_modules/.cache/personal-word-beta/team-t018-review",
+    "node_modules/.cache/personal-word-beta/team-serial-check-slot"
+  ],
+  "review_required": false,
+  "created_by": "agent-5a7e",
+  "created_at": "2026-10-25T08:47:21+00:00",
+  "claimed_at": "2026-10-25T08:47:26+00:00",
+  "updated_at": "2026-10-25T08:55:54+00:00",
+  "handoff": null,
+  "review": null,
+  "log": [
+    {
+      "at": "2026-10-25T08:47:21+00:00",
+      "agent": "agent-5a7e",
+      "event": "created",
+      "note": ""
+    },
+    {
+      "at": "2026-10-25T08:47:26+00:00",
+      "agent": "agent-5a7e",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-10-25T08:47:26+00:00",
+      "agent": "agent-5a7e",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-10-25T08:55:54+00:00",
+      "agent": "agent-5a7e",
+      "event": "done",
+      "note": "T018 reviewed and approved; logs in node_modules/.cache/personal-word-beta/team-t018-review/logs/. Own scratch left in place: rust-copy and a 2.6 GB rust-target copy (removable by the owner)."
+    }
+  ]
+}

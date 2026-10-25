@@ -1,0 +1,59 @@
+{
+  "id": "T048",
+  "title": "Gate D F1: verifier must read the final review verdict, not any 'verdict: PASS' substring",
+  "description": "Found by Gate D (T022, agent-9e61; control node_modules/.cache/personal-word-beta/team-t021-review/controls/R5-*). scripts/verify-beta-evidence.py check_review() accepts a review as passed when the file contains the regex verdict:?\\**\\s*\\**(passed|pass) ANYWHERE, so a FAIL review that merely mentions an earlier gate ('Gate A verdict: PASS') is accepted (R5: exit 2 instead of REVIEW-CLAIM-UNBACKED). Repair (only this function plus its controls): require one final-verdict line (e.g. the first markdown heading line matching '^#+ Verdict:' or an explicit 'Final verdict:' line) and accept only if that line begins with PASS; anything else -> REVIEW-CLAIM-UNBACKED. Fail-first: rerun R5 and a copy of the real Gate D 06-durability/REVIEW.md claimed passed with its sha256 BEFORE the fix (R5 accepted) and AFTER (R5 rejected, real Gate D review still accepted). Then, because scripts/** is in the source manifest, rerun evidence.md section 6 steps 2-4 only (write-source-manifest; make_evidence.py; verifier) and show exit 2 with only the pending items; no native or app rebuild needed (src/**, src-tauri/** untouched). If T022 is approved by then, set EVIDENCE.json review to {state: passed, reviewer: agent-9e61, reviewFile: docs/agent-work/2026-10-20-beta-roadmap/06-durability/REVIEW.md, reviewFileSha256: <current sha256>} and show exit 2 with exactly the 9 owner items; otherwise leave it pending and tell T023. No product code, no commits.",
+  "status": "done",
+  "owner": null,
+  "priority": 2,
+  "depends_on": [],
+  "files": [
+    "scripts/verify-beta-evidence.py",
+    "docs/agent-work/2026-10-20-beta-roadmap/06-durability/SOURCE_MANIFEST.json",
+    "docs/agent-work/2026-10-20-beta-roadmap/06-durability/EVIDENCE.json",
+    "node_modules/.cache/personal-word-beta/team-gated-f1"
+  ],
+  "review_required": true,
+  "created_by": "agent-9e61",
+  "created_at": "2026-10-25T10:10:28+00:00",
+  "claimed_at": "2026-10-25T10:16:38+00:00",
+  "updated_at": "2026-10-25T10:18:21+00:00",
+  "handoff": null,
+  "review": {
+    "by": "agent-b8ae",
+    "at": "2026-10-25T10:18:21+00:00",
+    "verdict": "approved",
+    "note": "Coordinator review: review_verdict_lines() anchors to '#.. Verdict:' / 'Final verdict:' headings only; post-R5 and post-noverdict controls reject with REVIEW-CLAIM-UNBACKED, post-real accepts; my own run of the fixed verifier on the regenerated EVIDENCE.json/SOURCE_MANIFEST.json (digest 24fa1a86) exits 2 with exactly 10 pending (independentReview + 9 owner) and no failure (team-coordinator/t048-verify.log); verifier sha f9ba955b; REVIEW.md sha still 0065be67; native identity unchanged."
+  },
+  "log": [
+    {
+      "at": "2026-10-25T10:10:28+00:00",
+      "agent": "agent-9e61",
+      "event": "created",
+      "note": ""
+    },
+    {
+      "at": "2026-10-25T10:16:38+00:00",
+      "agent": "agent-f277",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-10-25T10:16:38+00:00",
+      "agent": "agent-f277",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-10-25T10:17:49+00:00",
+      "agent": "agent-f277",
+      "event": "review requested",
+      "note": "check_review() anchors to '## Verdict:'/'## Final verdict:' headings, all must begin PASS, else REVIEW-CLAIM-UNBACKED. Fail-first: old verifier accepted R5 and no-verdict review (exit 2); fixed rejects both (exit 1); real Gate D REVIEW.md with sha 0065be67 still accepted. Manifest ed8ea16f->24fa1a86893ba3a6 regenerated, EVIDENCE.json rebuilt (review pending, NOT written by me: T023 must record state passed, reviewer agent-9e61, reviewFile docs/agent-work/2026-10-20-beta-roadmap/06-durability/REVIEW.md, reviewFileSha256 0065be67a7b12980cdeec5b5c303d1d65736c5168de3829c374ba7c679c582e2). Verifier exit 2, 10 pending (review + 9 owner), native identity unchanged. Report: node_modules/.cache/personal-word-beta/team-gated-f1/REPORT.md"
+    },
+    {
+      "at": "2026-10-25T10:18:21+00:00",
+      "agent": "agent-b8ae",
+      "event": "approved",
+      "note": "Coordinator review: review_verdict_lines() anchors to '#.. Verdict:' / 'Final verdict:' headings only; post-R5 and post-noverdict controls reject with REVIEW-CLAIM-UNBACKED, post-real accepts; my own run of the fixed verifier on the regenerated EVIDENCE.json/SOURCE_MANIFEST.json (digest 24fa1a86) exits 2 with exactly 10 pending (independentReview + 9 owner) and no failure (team-coordinator/t048-verify.log); verifier sha f9ba955b; REVIEW.md sha still 0065be67; native identity unchanged."
+    }
+  ]
+}

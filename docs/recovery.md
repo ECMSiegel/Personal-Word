@@ -15,9 +15,9 @@ When closing the app, Personal Word flushes pending edits and portable copies. I
 
 ## Make and verify a backup
 
-1. Use the **Export portable project** button to save a complete `.json` copy. Store it somewhere separate from the Mac's application-data folder.
-2. To check that the copy can be read without replacing the current project, import it as a new project. Compare its sections and research material, then keep or close the test copy as appropriate.
-3. For a folder backup, open **Settings > Storage location**, quit Personal Word, then copy the complete project folder to another disk or backup service. Do not copy only `project.sqlite3` while the app is open; SQLite may also have committed data in its WAL file.
+1. Use the **Export portable project** button to save a complete `.json` copy (text, metadata and embedded images). The file is a version 2 archive. A **Markdown with images (.zip)** export also carries the pictures, but not the comments, snapshots, history or full source records, so it is not a full backup. Store the copy somewhere separate from the Mac's application-data folder.
+2. To check that the copy can be read without replacing the current project, import it as a new project. Compare its sections, research material, and image attachments, then keep or close the test copy as appropriate.
+3. For a folder backup, open **Settings > Storage location**, quit Personal Word, then copy the complete project folder (including `project.sqlite3`, `project.json`, `manuscript.txt`, `fragments.txt`, and the `attachments/` folder containing image binaries) to another disk or backup service. Do not copy only `project.sqlite3` while the app is open; SQLite may also have committed data in its WAL file.
 4. Keep more than one dated backup when the writing matters. A snapshot, portable mirror, or previous-session database backup on this Mac cannot protect against loss of the Mac or its drive.
 
 ## Recover after an interruption
@@ -26,8 +26,12 @@ When opening a project, Personal Word checks its saved database and any local re
 
 Before restoring an older version, Personal Word creates a safety snapshot of the current project. Open **Snapshots & history** to inspect versions. A restore is a new project revision; the safety snapshot is available there if you need to return to the pre-restore state.
 
-If a project fails to open or SQLite reports damage, do not delete or replace its folder. Quit the app, copy the entire folder to a separate location, and preserve the JSON mirror and any `previous-session.sqlite3` file before trying an import or restore. Importing a JSON mirror creates a separate project so the original remains available for comparison.
+If a project fails to open or SQLite reports damage, do not delete or replace its folder. Quit the app, copy the entire folder to a separate location, and preserve the JSON mirror, the `attachments/` directory, and any `previous-session.sqlite3` file before trying an import or restore. Importing a JSON mirror creates a separate project so the original remains available for comparison.
 
 ## Limits
 
-The recovery journal is written synchronously to WebView local storage, but WebKit schedules its disk writes and Personal Word cannot fsync that store. The SQLite commit is the save acknowledgement; a hard kill or power loss can still lose an uncommitted edit, and a sudden loss may also outrun the operating system or storage hardware. macOS `fullfsync` settings request stronger SQLite flush behavior, but they do not guarantee survival of hardware failure or power interruption. Keep external backups.
+The recovery journal is written synchronously to WebView local storage, but WebKit schedules its disk writes and Personal Word cannot fsync that store. The SQLite commit is the save acknowledgement; an uncommitted keystroke does not survive a sudden termination.
+
+Isolated native tests killed the app at checkpoints between asset staging and the edit that uses the asset, between the SQLite commit and the portable copies (the copies were repaired on the next start), during a research-source merge, and during a snapshot restore, and checked that the project and a safety snapshot came back intact (task T018; run IDs in [validation.md](validation.md)). These runs used the diagnostic build, synthetic data and an owned process, so they are narrower than a real shutdown. SQLite WAL with macOS `fullfsync=ON` and `checkpoint_fullfsync=ON` asks macOS for its stronger flush on commits and checkpoints.
+
+On this Intel Mac at low load, saving a 100,000-word document's one edited section measured 116.57 / 130.43 / 124.37 ms at the 95th percentile in three runs, inside the 150 ms target. That is a measurement on one machine; Apple silicon is unmeasured, and a heavily loaded Mac was slower in an earlier run (347 to 499 ms). While a save is in progress, typing is held in memory and in the recovery journal. A save acknowledgement and the journal are not an external backup. Sudden physical power loss, a kernel panic or storage hardware failure cannot be guaranteed against; external backups remain necessary.

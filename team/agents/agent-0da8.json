@@ -1,0 +1,9 @@
+{
+  "id": "agent-0da8",
+  "label": "Claude Sonnet worker T010",
+  "joined_at": "2026-10-25T04:19:40+00:00",
+  "last_seen": "2026-10-25T04:47:40+00:00",
+  "status": "left",
+  "current_task": null,
+  "inbox_cursor": 63
+}

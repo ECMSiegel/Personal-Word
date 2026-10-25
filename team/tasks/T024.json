@@ -1,0 +1,60 @@
+{
+  "id": "T024",
+  "title": "Independently review T004 Markdown note acceptance",
+  "description": "Review T004 as a non-author using team-review and team/PROTOCOL.md. Inspect its description, done note, current scoped diff/source and retained fail-first/hash logs; check all registered source paths for new live owners. Do not edit T004 source/report files or rerun mutants in shared source. Rerun npx tsc --noEmit -p . and npx vitest run src/import src/export src/adversarial-wp4.test.ts with pinned Node, serially under the registered shared slot, retaining full logs in the owned review cache. Spot-check that negative-control logs show assertion failures and restored source hash matches current exporter. Write docs/agent-work/2026-10-24-team-reconciliation/T004_REVIEW.md with findings, evidence scope and approve/reject rationale, then record the T004 review through team.py. This task owns only its review report/cache and serial-check slot, not implementation files. No installs/commits/pushes/native launches. Submit the review record itself for another agent to inspect; never approve own work or T002, which this chat authored.",
+  "status": "done",
+  "owner": null,
+  "priority": 1,
+  "depends_on": [
+    "T001"
+  ],
+  "files": [
+    "docs/agent-work/2026-10-24-team-reconciliation/T004_REVIEW.md",
+    "node_modules/.cache/personal-word-beta/team-t004-independent-review",
+    "node_modules/.cache/personal-word-beta/team-serial-check-slot"
+  ],
+  "review_required": true,
+  "created_by": "agent-07d0",
+  "created_at": "2026-10-24T22:53:05+00:00",
+  "claimed_at": "2026-10-24T22:53:11+00:00",
+  "updated_at": "2026-10-24T23:36:40+00:00",
+  "handoff": null,
+  "review": {
+    "by": "agent-6029",
+    "at": "2026-10-24T23:36:40+00:00",
+    "verdict": "approved",
+    "note": "Approved agent-07d0's T004 review record. Non-author reviewed with pinned Node under the registered slot; report docs/agent-work/2026-10-24-team-reconciliation/T004_REVIEW.md inspected. Spot-checked without repeating suites: review cache logs present (typecheck.log, focused.log tail: Tests 197 passed (197), 18.76s), source-before.json/source-after.json zero-mismatch claim consistent with manifests present, current src/export/textExport.ts SHA-256 equals the reported restored/original hash 87827f71... (verified fresh), author negative-control logs (doctored-noindent.log, doctored-refs-at-end.log, fail-first-hashes.log) exist in team-t004/. Boundary unchanged: T004 stays CLAIMED-narrow (unit/typecheck only); browser/native/artifact gates remain separate. Nonblocking '23 vs 21 cases' doc note stands as written in the report."
+  },
+  "log": [
+    {
+      "at": "2026-10-24T22:53:05+00:00",
+      "agent": "agent-07d0",
+      "event": "created",
+      "note": ""
+    },
+    {
+      "at": "2026-10-24T22:53:11+00:00",
+      "agent": "agent-07d0",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-10-24T22:53:12+00:00",
+      "agent": "agent-07d0",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-10-24T22:57:01+00:00",
+      "agent": "agent-07d0",
+      "event": "review requested",
+      "note": "Completed non-author T004 review and recorded its approval through team.py. Review report docs/agent-work/2026-10-24-team-reconciliation/T004_REVIEW.md; tsc exit0, focused import/export/adversarial WP4 197 tests/9files passed, source-before/source-after manifests have zero mismatches, scoped diffcheck and team doctor passed. Logs under team-t004-independent-review. Inspected authors negative-control assertion failures and restored source hash; no shared source mutations. Record itself is ready for another agent to inspect; no need to reimplement or repeat unchanged tests without a new concern. No app/browser/native qualification claimed. Slot released on submission."
+    },
+    {
+      "at": "2026-10-24T23:36:40+00:00",
+      "agent": "agent-6029",
+      "event": "approved",
+      "note": "Approved agent-07d0's T004 review record. Non-author reviewed with pinned Node under the registered slot; report docs/agent-work/2026-10-24-team-reconciliation/T004_REVIEW.md inspected. Spot-checked without repeating suites: review cache logs present (typecheck.log, focused.log tail: Tests 197 passed (197), 18.76s), source-before.json/source-after.json zero-mismatch claim consistent with manifests present, current src/export/textExport.ts SHA-256 equals the reported restored/original hash 87827f71... (verified fresh), author negative-control logs (doctored-noindent.log, doctored-refs-at-end.log, fail-first-hashes.log) exist in team-t004/. Boundary unchanged: T004 stays CLAIMED-narrow (unit/typecheck only); browser/native/artifact gates remain separate. Nonblocking '23 vs 21 cases' doc note stands as written in the report."
+    }
+  ]
+}

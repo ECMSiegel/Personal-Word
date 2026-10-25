@@ -1,0 +1,68 @@
+{
+  "id": "T010",
+  "title": "Execute WP7 Markdown bundle round-trip acceptance",
+  "description": "Follow team/PLAN.md, team/PROTOCOL.md, DELEGATION.md Common rules and applicable child plan; preserve current dirty work. This board records unfinished acceptance/repair, not permission to rebuild existing features. Inspect current implementation and earlier evidence first; fix only reproduced gaps in owned files, record exact commands/results and fail-first controls, and report CLAIMED. No installs, new packages, commits, pushes, publication, real-library access or destructive cleanup. Before expensive checks, acquire exclusive registered path node_modules/.cache/personal-word-beta/team-serial-check-slot via team.py files add; if another live task owns it, do independent work or hand off rather than overlap runs. Retain full logs and use pinned Node/offline serial Rust/production-preview Playwright. Independent review is required. Existing bundle implementation/tests are present. Run export/import units, tsc and actual production-preview markdown-roundtrip tests. Verify image/table/multiline note/reference round trip, manifest/version/hash identity, inflation/path/size limits, missing-asset visible error and zero remote loads. Repair only reproduced gaps; coordinate ImportDraft cross-file needs through integration task. Write the task report to docs/agent-work/2026-10-24-team-reconciliation/wp7.md.",
+  "status": "done",
+  "owner": null,
+  "priority": 2,
+  "depends_on": [
+    "T008",
+    "T009"
+  ],
+  "files": [
+    "src/export/markdownBundle.ts",
+    "src/export/markdownBundle.test.ts",
+    "src/export/markdownBundle.adversarial.test.ts",
+    "src/export/markdownBundle.schema.test.ts",
+    "src/export/ExportPanel.tsx",
+    "src/adversarial-wp7-exportpanel.test.ts",
+    "tests/markdown-roundtrip.spec.ts",
+    "docs/agent-work/2026-10-24-team-reconciliation/wp7.md",
+    "node_modules/.cache/personal-word-beta/team-t010",
+    "node_modules/.cache/personal-word-beta/team-serial-check-slot"
+  ],
+  "review_required": true,
+  "created_by": "agent-45fb",
+  "created_at": "2026-10-24T22:19:04+00:00",
+  "claimed_at": "2026-10-25T04:19:45+00:00",
+  "updated_at": "2026-10-25T04:53:39+00:00",
+  "handoff": null,
+  "review": {
+    "by": "agent-fabe",
+    "at": "2026-10-25T04:53:39+00:00",
+    "verdict": "approved",
+    "note": "Approved by agent-fabe (independent, non-author). Diffs vs pre-task snapshot team-t009-review2/doctor/src (hashes match start-stat.txt a4f51956/c3296531/539640ef): only markdownBundle.ts (manifest format/version reject + manifest-listed asset missing from archive rejected; id/byteLength mismatch = warning), ExportPanel.tsx (safeFilename on bundle name), schema test (+6 tests); diff -rq of src shows no other change; spec rewritten to drive real UI (#import-writing-text -> ImportPreview -> Insert table/image -> Settings -> 'Markdown with images (.zip)' download) with page.on('request') off-origin recorder asserted [] plus liveness test. Leniency judged acceptable: I3 'verify hashes' is met by assets/<sha> byte SHA-256 check that throws (c4); manifest id/byteLength are redundant metadata. Minor non-blocking gap: in the manifest loop an id/path mismatch hits 'continue' before the missing-from-archive check, so a tampered-id entry whose file is absent only warns. My runs (pinned Node v22.23.3, logs node_modules/.cache/personal-word-beta/team-t010-review/): units.log vitest src/export src/import src/adversarial-wp7-exportpanel.test.ts 9 files 187/187; tsc.log exit 0 empty; build.log exit 0 (markdownBundle-C0iInxh_.js chunk); browser.log production preview port 1467 --workers=1 exit 0, 8 expected, 0 unexpected/0 skipped; report shows test 8 expectedStatus=failed status=failed (dialog not found) so it turns red once T011 routes .zip. Doctored copy node_modules/.cache/personal-word-beta/team-t010-review/doctor (version check disabled): doctored-version-check-removed.log 1 failed ('rejects a manifest from a newer bundle version') / 93 passed. Hashes of all 7 T010 files + textExport.ts identical before/after (hashes-before/after.txt) and equal to controls-summary.txt restore hashes. No deletions; no localStorage use in bundle/ExportPanel; missing asset -> error, 0 downloads. Chromium only, no native run; CLAIMED. T011: see wp7.md list; also use dynamic import of markdownBundle in previewWriting to keep the dist chunk the spec loads, and remove test.fail."
+  },
+  "log": [
+    {
+      "at": "2026-10-24T22:19:04+00:00",
+      "agent": "agent-45fb",
+      "event": "created",
+      "note": ""
+    },
+    {
+      "at": "2026-10-25T04:19:45+00:00",
+      "agent": "agent-0da8",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-10-25T04:19:45+00:00",
+      "agent": "agent-0da8",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-10-25T04:47:40+00:00",
+      "agent": "agent-0da8",
+      "event": "review requested",
+      "note": "WP7 acceptance CLAIMED. Report: docs/agent-work/2026-10-24-team-reconciliation/wp7.md; logs node_modules/.cache/personal-word-beta/team-t010/. Pinned Node v22.23.3. Results: vitest src/export src/import src/adversarial-wp7-exportpanel.test.ts exit 0 (187 tests, units-final.log); tsc exit 0; npm run build exit 0; production-preview Playwright tests/markdown-roundtrip.spec.ts --workers=1 port 1466 exit 0, 8 passed (browser-final2.log). Spec retargeted from dev /src imports to real UI export (import input->modal->insert table/image->Settings->Markdown with images (.zip)->download) + re-import via the production markdownBundle chunk; asserts image/table/2-paragraph note/reference positions/manifest v1 + sha256 per asset, limits, missing-asset error with 0 downloads, zero off-origin requests (liveness-proven). Defects repaired: D1 manifest format/version/missing-asset now validated on import (5 unit tests failed pre-fix, unit-manifest-prefix.log); D2 bundle download name now safeFilename (browser test failed pre-fix, browser-pass7-prefix-filename.log). Fail-first controls c1,c2,c4,c5,c6,c7 + manifest loop all fail when doctored; sha256 restored identical (controls-summary.txt). c3/c3b not failing: third check in textExport.ts. NOT COVERED / for T011: bundle import is not wired in the app (ProjectLibrary accept lacks .zip; previewWriting/App.importWriting never call importMarkdownBundle; ImportDraft.format union lacks 'Markdown bundle') - last spec test is test.fail until fixed; Chromium only; no native run. Registered files: src/export/markdownBundle.ts uncommitted edits; markdownBundle.schema.test.ts uncommitted edits; ExportPanel.tsx uncommitted edits; tests/markdown-roundtrip.spec.ts uncommitted edits; others clean."
+    },
+    {
+      "at": "2026-10-25T04:53:39+00:00",
+      "agent": "agent-fabe",
+      "event": "approved",
+      "note": "Approved by agent-fabe (independent, non-author). Diffs vs pre-task snapshot team-t009-review2/doctor/src (hashes match start-stat.txt a4f51956/c3296531/539640ef): only markdownBundle.ts (manifest format/version reject + manifest-listed asset missing from archive rejected; id/byteLength mismatch = warning), ExportPanel.tsx (safeFilename on bundle name), schema test (+6 tests); diff -rq of src shows no other change; spec rewritten to drive real UI (#import-writing-text -> ImportPreview -> Insert table/image -> Settings -> 'Markdown with images (.zip)' download) with page.on('request') off-origin recorder asserted [] plus liveness test. Leniency judged acceptable: I3 'verify hashes' is met by assets/<sha> byte SHA-256 check that throws (c4); manifest id/byteLength are redundant metadata. Minor non-blocking gap: in the manifest loop an id/path mismatch hits 'continue' before the missing-from-archive check, so a tampered-id entry whose file is absent only warns. My runs (pinned Node v22.23.3, logs node_modules/.cache/personal-word-beta/team-t010-review/): units.log vitest src/export src/import src/adversarial-wp7-exportpanel.test.ts 9 files 187/187; tsc.log exit 0 empty; build.log exit 0 (markdownBundle-C0iInxh_.js chunk); browser.log production preview port 1467 --workers=1 exit 0, 8 expected, 0 unexpected/0 skipped; report shows test 8 expectedStatus=failed status=failed (dialog not found) so it turns red once T011 routes .zip. Doctored copy node_modules/.cache/personal-word-beta/team-t010-review/doctor (version check disabled): doctored-version-check-removed.log 1 failed ('rejects a manifest from a newer bundle version') / 93 passed. Hashes of all 7 T010 files + textExport.ts identical before/after (hashes-before/after.txt) and equal to controls-summary.txt restore hashes. No deletions; no localStorage use in bundle/ExportPanel; missing asset -> error, 0 downloads. Chromium only, no native run; CLAIMED. T011: see wp7.md list; also use dynamic import of markdownBundle in previewWriting to keep the dist chunk the spec loads, and remove test.fail."
+    }
+  ]
+}

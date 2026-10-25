@@ -250,6 +250,61 @@ describe("whole-project text exports", () => {
       expect(output).not.toMatch(/(?:p\. p\.|p\. ch\.)/);
     }
   });
+
+  it("indents continuation paragraphs of multi-paragraph footnote definitions by 4 spaces", () => {
+    const p = fixture();
+    p.research!.footnotes = [
+      { id: "note", text: "First paragraph.\n\nSecond paragraph.\nLine 2 of second paragraph.\n\nThird paragraph." },
+    ];
+    const output = projectMarkdown(p);
+    expect(output).toContain(
+      "[^1]: First paragraph.\n\n    Second paragraph.\n    Line 2 of second paragraph.\n\n    Third paragraph."
+    );
+  });
+
+  it("escapes special markdown characters across continuation lines in multi-paragraph footnotes", () => {
+    const p = fixture();
+    p.research!.footnotes = [
+      { id: "note", text: "Para 1.\n\n*italic* and [link]\n> quote line\n- list item" },
+    ];
+    const output = projectMarkdown(p);
+    expect(output).toContain(
+      "[^1]: Para 1.\n\n    \\*italic\\* and \\[link\\]\n    \\> quote line\n    \\- list item"
+    );
+  });
+
+  it("round-trips multi-paragraph footnotes through export and manuscript re-import", () => {
+    const p = fixture();
+    const second = {
+      ...p.entries[0],
+      id: "second",
+      title: "Section Two",
+      content: {
+        type: "doc",
+        content: [
+          {
+            type: "paragraph",
+            content: [
+              { type: "text", text: "Second section claim" },
+              { type: "footnoteReference", attrs: { id: "note2" } },
+            ],
+          },
+        ],
+      },
+    };
+    p.entries.push(second);
+    p.order.push(second.id);
+    p.research!.footnotes = [
+      { id: "note", text: "Note one para 1.\n\nNote one para 2 continuation." },
+      { id: "note2", text: "Note two single paragraph." },
+    ];
+    const output = projectMarkdown(p);
+    const imported = parseManuscript(output, "draft.md");
+    expect(imported.research?.footnotes).toHaveLength(2);
+    expect(imported.research?.footnotes[0].text).toBe("Note one para 1.\n\nNote one para 2 continuation.");
+    expect(imported.research?.footnotes[1].text).toBe("Note two single paragraph.");
+    expect(imported.entries[0].text).not.toContain("Note one para 2 continuation.");
+  });
 });
 
 describe("images and tables in text exports", () => {

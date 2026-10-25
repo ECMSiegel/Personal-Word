@@ -1,0 +1,66 @@
+{
+  "id": "T002",
+  "title": "Close WP1 storage/model acceptance gaps",
+  "description": "Follow team/PLAN.md, team/PROTOCOL.md, DELEGATION.md Common rules and applicable child plan; preserve current dirty work. This board records unfinished acceptance/repair, not permission to rebuild existing features. Inspect current implementation and earlier evidence first; fix only reproduced gaps in owned files, record exact commands/results and fail-first controls, and report CLAIMED. No installs, new packages, commits, pushes, publication, real-library access or destructive cleanup. Before expensive checks, acquire exclusive registered path node_modules/.cache/personal-word-beta/team-serial-check-slot via team.py files add; if another live task owns it, do independent work or hand off rather than overlap runs. Retain full logs and use pinned Node/offline serial Rust/production-preview Playwright. Independent review is required. Check existing storage adapters and model text/validation against WP1, including native IPC shapes and browser IndexedDB. Existing APIs and tests are present. Run npx vitest run src/model.test.ts src/storage.test.ts src/assets plus tsc. Cover missing/hash-mismatched/cross-project assets and legacy metadata only where existing evidence is insufficient; no speculative rewrite. Write the task report to docs/agent-work/2026-10-24-team-reconciliation/wp1.md.",
+  "status": "done",
+  "owner": null,
+  "priority": 1,
+  "depends_on": [
+    "T001"
+  ],
+  "files": [
+    "src/storage.ts",
+    "src/model.ts",
+    "src/model.test.ts",
+    "src/storage.test.ts",
+    "src/adversarial-wp1.test.ts",
+    "docs/agent-work/2026-10-24-team-reconciliation/wp1.md",
+    "node_modules/.cache/personal-word-beta/team-serial-check-slot",
+    "node_modules/.cache/personal-word-beta/team-t002",
+    "src-tauri/src/store.rs"
+  ],
+  "review_required": true,
+  "created_by": "agent-45fb",
+  "created_at": "2026-10-24T22:19:03+00:00",
+  "claimed_at": "2026-10-24T22:22:32+00:00",
+  "updated_at": "2026-10-24T23:03:03+00:00",
+  "handoff": null,
+  "review": {
+    "by": "agent-1a38",
+    "at": "2026-10-24T23:03:03+00:00",
+    "verdict": "approved",
+    "note": "APPROVED by agent-1a38 (Claude Code; did not author T002). Checked: diff of src/storage.ts, src/model.ts, src-tauri/src/store.rs and the three test files against the wp1.md report (requireBrowserAssets before project/history writes in save and createProjectWithAssets; validateTableNesting after schema check; validate_node_in_context with inside_table flag; tests as described); current SHA-256 of all six paths equals team-t002/source-hashes.json; every T002 log result line matches the report (153 baseline, 3 failed/87 before and with restored defects, 155 fixed, Rust 0/1 before, 35/1 ignored fixed, preserved binary fails again, 812+1 timeout default, 814 serial, build ok). Reran in this session (team-t002-review/rerun.log, pinned Node v22.23.3): tsc exit 0; npx vitest run src/model.test.ts src/storage.test.ts src/assets src/adversarial-wp1.test.ts = 4 files / 155 passed; preserved pre-fix binary native-before-test --exact tables_must_be_rectangular_unmerged_and_unnested still FAILS at store.rs:1654 (control reproduced). NOT reproducible now: a fresh cargo test of the current store.rs, because the crate no longer compiles -- unregistered src-tauri/src/printing.rs (19:00) plus Cargo.toml/Cargo.lock/lib.rs edits (18:55-18:56) owned by no live task fail with E0405 MainThreadOnly. Those files postdate T002's Rust evidence (18:39-18:44) and are outside T002's paths; the Rust fix rests on T002's logs plus my control rerun. Mocked-IPC/browser-only boundary stands as the report says."
+  },
+  "log": [
+    {
+      "at": "2026-10-24T22:19:03+00:00",
+      "agent": "agent-45fb",
+      "event": "created",
+      "note": ""
+    },
+    {
+      "at": "2026-10-24T22:22:32+00:00",
+      "agent": "agent-74f2",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-10-24T22:22:33+00:00",
+      "agent": "agent-74f2",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-10-24T22:44:44+00:00",
+      "agent": "agent-74f2",
+      "event": "review requested",
+      "note": "CLAIMED: report docs/agent-work/2026-10-24-team-reconciliation/wp1.md. Fixed reproduced browser save acceptance of missing/cross-project image references before project/history writes, and indirect nested-table validation bypass in model + Rust store (registered store.rs before editing). Replaced ineffective boolean-only adversarial assertion; added two browser save preservation/retry regressions and positive quoted-table controls. Fail/fix/restored-defect/final-fix TS evidence: 3 assertion failures before/with defects, final 155 focused pass. Native assertion failed before repair; full fixed Rust 35 pass/1 ignored, preserved pre-fix binary fails again, current focused Rust passes. tsc noEmit and npm build pass; full serial npm units 814 pass. Retain default npm run with 812 pass/1 PDF timeout at 5s under heavy load as failed evidence; no timeout/assertion weakening. All full logs and six source hashes in node_modules/.cache/personal-word-beta/team-t002/. No app/native GUI/browser acceptance claimed; T003/T005 downstream. Independent review required; serial-check slot is released on submission."
+    },
+    {
+      "at": "2026-10-24T23:03:03+00:00",
+      "agent": "agent-1a38",
+      "event": "approved",
+      "note": "APPROVED by agent-1a38 (Claude Code; did not author T002). Checked: diff of src/storage.ts, src/model.ts, src-tauri/src/store.rs and the three test files against the wp1.md report (requireBrowserAssets before project/history writes in save and createProjectWithAssets; validateTableNesting after schema check; validate_node_in_context with inside_table flag; tests as described); current SHA-256 of all six paths equals team-t002/source-hashes.json; every T002 log result line matches the report (153 baseline, 3 failed/87 before and with restored defects, 155 fixed, Rust 0/1 before, 35/1 ignored fixed, preserved binary fails again, 812+1 timeout default, 814 serial, build ok). Reran in this session (team-t002-review/rerun.log, pinned Node v22.23.3): tsc exit 0; npx vitest run src/model.test.ts src/storage.test.ts src/assets src/adversarial-wp1.test.ts = 4 files / 155 passed; preserved pre-fix binary native-before-test --exact tables_must_be_rectangular_unmerged_and_unnested still FAILS at store.rs:1654 (control reproduced). NOT reproducible now: a fresh cargo test of the current store.rs, because the crate no longer compiles -- unregistered src-tauri/src/printing.rs (19:00) plus Cargo.toml/Cargo.lock/lib.rs edits (18:55-18:56) owned by no live task fail with E0405 MainThreadOnly. Those files postdate T002's Rust evidence (18:39-18:44) and are outside T002's paths; the Rust fix rests on T002's logs plus my control rerun. Mocked-IPC/browser-only boundary stands as the report says."
+    }
+  ]
+}

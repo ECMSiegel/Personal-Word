@@ -1,5 +1,5 @@
 import { expect, it } from "vitest";
-import { textOf, newProject, validateProject, isValidGoalDeadline } from "./model";
+import { textOf, words, newProject, validateProject, isValidGoalDeadline } from "./model";
 it("preserves paragraph boundaries in quoted and list fragment exports", () => {
   const paragraph = (text: string) => ({
     type: "paragraph",
@@ -107,4 +107,188 @@ it.each([ { creators: "bad" }, { creators: [{ role: 7 }] }, { creators: [{ role:
   const p = newProject("Sources");
   p.research!.sources.push({ id: "s", kind: "book", title: "T", authors: [], ...fields } as never);
   expect(() => validateProject(p)).toThrow("Invalid research source.");
+});
+
+const validAssetId = "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef";
+
+it("extracts image alt text as its own block in textOf and includes it in word count", () => {
+  const doc = {
+    type: "doc",
+    content: [
+      { type: "paragraph", content: [{ type: "text", text: "Before image" }] },
+      { type: "image", attrs: { assetId: validAssetId, alt: "A scenic mountain landscape" } },
+      { type: "paragraph", content: [{ type: "text", text: "After image" }] },
+    ],
+  };
+  expect(textOf(doc)).toBe("Before image\nA scenic mountain landscape\nAfter image");
+  expect(words(textOf(doc))).toBe(8);
+});
+
+it("extracts empty string for image with no alt text and adds no phantom words", () => {
+  const doc = {
+    type: "doc",
+    content: [
+      { type: "paragraph", content: [{ type: "text", text: "First" }] },
+      { type: "image", attrs: { assetId: validAssetId } },
+      { type: "paragraph", content: [{ type: "text", text: "Second" }] },
+    ],
+  };
+  expect(textOf(doc)).toBe("First\n\nSecond");
+  expect(words(textOf(doc))).toBe(2);
+});
+
+it("separates table cells with whitespace and table rows with newlines in textOf", () => {
+  const doc = {
+    type: "doc",
+    content: [
+      {
+        type: "table",
+        content: [
+          {
+            type: "tableRow",
+            content: [
+              { type: "tableHeader", content: [{ type: "paragraph", content: [{ type: "text", text: "Col A" }] }] },
+              { type: "tableHeader", content: [{ type: "paragraph", content: [{ type: "text", text: "Col B" }] }] },
+            ],
+          },
+          {
+            type: "tableRow",
+            content: [
+              { type: "tableCell", content: [{ type: "paragraph", content: [{ type: "text", text: "Val 1" }] }] },
+              { type: "tableCell", content: [{ type: "paragraph", content: [{ type: "text", text: "Val 2" }] }] },
+            ],
+          },
+        ],
+      },
+    ],
+  };
+  expect(textOf(doc)).toBe("Col A Col B\nVal 1 Val 2");
+  expect(words(textOf(doc))).toBe(8);
+});
+
+it("handles empty table cells without corrupting word count", () => {
+  const doc = {
+    type: "doc",
+    content: [
+      {
+        type: "table",
+        content: [
+          {
+            type: "tableRow",
+            content: [
+              { type: "tableCell", content: [{ type: "paragraph", content: [{ type: "text", text: "Alpha" }] }] },
+              { type: "tableCell", content: [{ type: "paragraph" }] },
+              { type: "tableCell", content: [{ type: "paragraph", content: [{ type: "text", text: "Beta" }] }] },
+            ],
+          },
+        ],
+      },
+    ],
+  };
+  expect(textOf(doc)).toBe("Alpha  Beta");
+  expect(words(textOf(doc))).toBe(2);
+});
+
+it("validates project containing valid image and table nodes", () => {
+  const p = newProject("Valid Media");
+  p.entries[0].content = {
+    type: "doc",
+    content: [
+      {
+        type: "image",
+        attrs: { assetId: validAssetId, alt: "Alt text", width: 400, height: 300, title: null },
+      },
+      {
+        type: "table",
+        content: [
+          {
+            type: "tableRow",
+            content: [
+              {
+                type: "tableCell",
+                attrs: { colspan: 1, rowspan: 1 },
+                content: [{ type: "paragraph", content: [{ type: "text", text: "Cell text" }] }],
+              },
+            ],
+          },
+        ],
+      },
+    ],
+  };
+  p.entries[0].text = textOf(p.entries[0].content);
+  expect(() => validateProject(p)).not.toThrow();
+  const quotedTable = p.entries[0].content.content![1];
+  p.entries[0].content = {
+    type: "doc",
+    content: [{ type: "blockquote", content: [quotedTable] }],
+  };
+  p.entries[0].text = textOf(p.entries[0].content);
+  expect(() => validateProject(p)).not.toThrow();
+});
+
+it("rejects nested tables inside a table cell", () => {
+  const p = newProject("Nested Table");
+  p.entries[0].content = {
+    type: "doc",
+    content: [
+      {
+        type: "table",
+        content: [
+          {
+            type: "tableRow",
+            content: [
+              {
+                type: "tableCell",
+                attrs: { colspan: 1, rowspan: 1 },
+                content: [
+                  {
+                    type: "table",
+                    content: [
+                      {
+                        type: "tableRow",
+                        content: [
+                          {
+                            type: "tableCell",
+                            attrs: { colspan: 1, rowspan: 1 },
+                            content: [{ type: "paragraph", content: [{ type: "text", text: "Deep" }] }],
+                          },
+                        ],
+                      },
+                    ],
+                  },
+                ],
+              },
+            ],
+          },
+        ],
+      },
+    ],
+  };
+  p.entries[0].text = textOf(p.entries[0].content);
+  expect(() => validateProject(p)).toThrow(RangeError);
+});
+
+it.each([
+  ["empty string", ""],
+  ["short hex", "0123456789abcdef"],
+  ["63 chars", "a".repeat(63)],
+  ["65 chars", "a".repeat(65)],
+  ["uppercase hex", "A".repeat(64)],
+  ["non-hex chars", "g".repeat(64)],
+  ["undefined", undefined],
+  ["number", 12345],
+  ["null", null],
+])("rejects image with invalid assetId (%s)", (_desc, badId) => {
+  const p = newProject("Bad Asset");
+  p.entries[0].content = {
+    type: "doc",
+    content: [
+      {
+        type: "image",
+        attrs: { assetId: badId as unknown as string, alt: "Bad" },
+      },
+    ],
+  };
+  p.entries[0].text = textOf(p.entries[0].content);
+  expect(() => validateProject(p)).toThrow(RangeError);
 });

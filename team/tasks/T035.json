@@ -1,0 +1,60 @@
+{
+  "id": "T035",
+  "title": "Gate B F4: maintained test for external DOCX relationships",
+  "description": "Gate B finding (T012, docs/agent-work/2026-10-24-team-reconciliation/gate-b.md). Follow team/PLAN.md, PROTOCOL.md, DELEGATION.md Common rules; pinned Node; serial slot; production-preview Playwright; fail-first shown before the fix; report CLAIMED; no installs/commits. F4: the External image/hyperlink relationship path (docxImport.ts ~223-235) is exercised only by the Gate B review probe node_modules/.cache/personal-word-beta/team-t012/probe/gateb-probe.spec.mjs (P2 + P3 liveness). Port it as a maintained production-preview case in tests/rich-import.spec.ts with a committed fixture (warning shown, zero off-origin requests before and after confirm, no example.invalid in the editor), shown failing against a doctored copy. Also rename the case at tests/rich-import.spec.ts:34 whose title says 'WebKit/Chromium' though only Chromium runs. Check: tests/rich-import.spec.ts --workers=1 on a production preview.",
+  "status": "done",
+  "owner": null,
+  "priority": 3,
+  "depends_on": [],
+  "files": [
+    "tests/rich-import.spec.ts",
+    "tests/fixtures/rich-import/external-image.docx",
+    "node_modules/.cache/personal-word-beta/team-t035",
+    "docs/agent-work/2026-10-24-team-reconciliation/gate-b-repairs.md",
+    "node_modules/.cache/personal-word-beta/team-serial-check-slot"
+  ],
+  "review_required": true,
+  "created_by": "agent-81ae",
+  "created_at": "2026-10-25T05:20:44+00:00",
+  "claimed_at": "2026-10-25T05:33:19+00:00",
+  "updated_at": "2026-10-25T06:06:10+00:00",
+  "handoff": null,
+  "review": {
+    "by": "agent-12aa",
+    "at": "2026-10-25T06:06:10+00:00",
+    "verdict": "approved",
+    "note": "agent-12aa: fixture tests/fixtures/rich-import/external-image.docx (sha d80fdcd7) inspected with python zipfile: document.xml.rels has rId9 Type=image Target=https://example.invalid/remote.png TargetMode=External, body a:blip r:embed=rId9, media removed, rId3 external hyperlink. New case asserts warning, no image pill, zero off-origin requests before and after confirm, no example.invalid, 0 figure.doc-image, link href kept; liveness case counts an in-page fetch. Title at :34 now 'Chromium (production preview)'. Re-executed worker's inverted.spec.mjs (copied to node_modules/.cache/personal-word-beta/team-gateb-repairs-review/inv035, port 1476): exit 1, 5/5 failed on the inverted assertions. Real spec 7/7 pass in my 36/36 run. T032's report of :149 failing was the interim <img> assertion (ProseMirror-separator), not a product defect. CLAIMED. Logs node_modules/.cache/personal-word-beta/team-gateb-repairs-review/."
+  },
+  "log": [
+    {
+      "at": "2026-10-25T05:20:44+00:00",
+      "agent": "agent-81ae",
+      "event": "created",
+      "note": ""
+    },
+    {
+      "at": "2026-10-25T05:33:19+00:00",
+      "agent": "agent-f22a",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-10-25T05:33:21+00:00",
+      "agent": "agent-f22a",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-10-25T05:44:38+00:00",
+      "agent": "agent-f22a",
+      "event": "review requested",
+      "note": "F4: tests/rich-import.spec.ts now has a maintained production-preview case for an External image relationship (new committed fixture tests/fixtures/rich-import/external-image.docx, sha256 d80fdcd7..., from rich-sample.docx via team-t035/make-external-image.mjs): warning 'External image reference (https://example.invalid/remote.png) was omitted' shown, no image pill, zero off-origin requests before AND after confirm, no example.invalid / no figure.doc-image in the editor, external hyperlink kept as https://example.com link; plus a liveness case (in-page fetch counted by the same watcher). Old 'WebKit/Chromium' test title renamed to Chromium (production preview). Fail-first: team-t035/doctored/inverted.spec.mjs, 5 single-assertion-inverted variants, exit 1, 5 failed on the inverted assertions (doctored.log). Real run: playwright tests/rich-import.spec.ts --workers=1 port 1474 exit 0, 7 passed (browser.log); an earlier run failed 1 on my own over-strict <img> count (ProseMirror-separator), fixed to figure.doc-image (browser-run1-fail.log). Spec sha256 aa1c053e... -> 7ff71393.... No product code changed. CLAIMED; Chromium only. Report section in docs/agent-work/2026-10-24-team-reconciliation/gate-b-repairs.md."
+    },
+    {
+      "at": "2026-10-25T06:06:10+00:00",
+      "agent": "agent-12aa",
+      "event": "approved",
+      "note": "agent-12aa: fixture tests/fixtures/rich-import/external-image.docx (sha d80fdcd7) inspected with python zipfile: document.xml.rels has rId9 Type=image Target=https://example.invalid/remote.png TargetMode=External, body a:blip r:embed=rId9, media removed, rId3 external hyperlink. New case asserts warning, no image pill, zero off-origin requests before and after confirm, no example.invalid, 0 figure.doc-image, link href kept; liveness case counts an in-page fetch. Title at :34 now 'Chromium (production preview)'. Re-executed worker's inverted.spec.mjs (copied to node_modules/.cache/personal-word-beta/team-gateb-repairs-review/inv035, port 1476): exit 1, 5/5 failed on the inverted assertions. Real spec 7/7 pass in my 36/36 run. T032's report of :149 failing was the interim <img> assertion (ProseMirror-separator), not a product defect. CLAIMED. Logs node_modules/.cache/personal-word-beta/team-gateb-repairs-review/."
+    }
+  ]
+}

@@ -15,8 +15,12 @@ export type ImageAttrs = {
 /** Turns a stored asset id into a displayable (object) URL; null when the bytes are missing. */
 export type ImageSourceResolver = (assetId: string) => Promise<string | null>;
 let resolver: ImageSourceResolver | null = null;
+const resolverListeners = new Set<() => void>();
 export function setImageSourceResolver(fn: ImageSourceResolver | null) {
+  if (resolver === fn) return;
   resolver = fn;
+  // NodeViews can mount before the project installs its resolver in an effect.
+  for (const refresh of resolverListeners) refresh();
 }
 
 const dimension = (value: unknown) => {
@@ -135,6 +139,7 @@ export const Image = Node.create({
         );
       };
       paint();
+      resolverListeners.add(load);
       load();
       return {
         dom,
@@ -148,6 +153,7 @@ export const Image = Node.create({
         },
         destroy() {
           alive = false;
+          resolverListeners.delete(load);
         },
       };
     };

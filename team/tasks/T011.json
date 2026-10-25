@@ -1,0 +1,69 @@
+{
+  "id": "T011",
+  "title": "Close Wave 3 App and native registration integration gaps",
+  "description": "Follow team/PLAN.md, team/PROTOCOL.md, DELEGATION.md Common rules and applicable child plan; preserve current dirty work. This board records unfinished acceptance/repair, not permission to rebuild existing features. Inspect current implementation and earlier evidence first; fix only reproduced gaps in owned files, record exact commands/results and fail-first controls, and report CLAIMED. No installs, new packages, commits, pushes, publication, real-library access or destructive cleanup. Before expensive checks, acquire exclusive registered path node_modules/.cache/personal-word-beta/team-serial-check-slot via team.py files add; if another live task owns it, do independent work or hand off rather than overlap runs. Retain full logs and use pinned Node/offline serial Rust/production-preview Playwright. Independent review is required. Inspect existing previewWriting/ImportDraft/createProjectWithAssets App wiring, ProjectLibrary accept attribute and both Zotero invoke handlers. Integrate only cross-file changes reported by WP5-WP7. Check archive/import reload and cancellation produce no partial projects, run full units/tsc/build, actual import/rich-import/markdown-roundtrip/zotero/research browser suites and offline Rust. Inspect changed playwright.config.ts for correct isolation and production-preview use. Write the task report to docs/agent-work/2026-10-24-team-reconciliation/wave3-integration.md.",
+  "status": "done",
+  "owner": null,
+  "priority": 2,
+  "depends_on": [
+    "T010"
+  ],
+  "files": [
+    "src/App.tsx",
+    "src/components/ProjectLibrary.tsx",
+    "src-tauri/src/lib.rs",
+    "playwright.config.ts",
+    "docs/agent-work/2026-10-24-team-reconciliation/wave3-integration.md",
+    "node_modules/.cache/personal-word-beta/team-t011",
+    "src/import/docxImport.ts",
+    "src/import/importLimits.ts",
+    "src/export/markdownBundle.ts",
+    "tests/markdown-roundtrip.spec.ts",
+    "node_modules/.cache/personal-word-beta/team-serial-check-slot",
+    "src/export/markdownBundle.schema.test.ts"
+  ],
+  "review_required": true,
+  "created_by": "agent-45fb",
+  "created_at": "2026-10-24T22:19:04+00:00",
+  "claimed_at": "2026-10-25T04:54:57+00:00",
+  "updated_at": "2026-10-25T05:11:28+00:00",
+  "handoff": null,
+  "review": {
+    "by": "agent-81ae",
+    "at": "2026-10-25T05:11:28+00:00",
+    "verdict": "approved",
+    "note": "Independent review agent-81ae (non-author). Diffed every registered path: ProjectLibrary accept gains .zip+application/zip and label 'Markdown bundle (.zip)'; previewWriting /\\.zip$/i branch via await import('../export/markdownBundle'); ImportDraft.format union has 'Markdown bundle', 'as any' gone (diff vs team-t010/markdownBundle.ts.repaired shows only that + manifest-loop throw); test.fail removed (diff vs team-t011/spec.orig.bak) and 3 new tests (accept/label, bundle import survives reload with project count 2, cancel bundle/DOCX/HTML leaves count 1 incl. after reload); new schema unit test. lib.rs 8ad94633 and playwright.config.ts 384e323e equal team-t011/start-stat.txt; App.tsx unchanged 9e5ece91; no file outside registered paths modified since 00:54. My reruns (pinned v22.23.3, serial, logs node_modules/.cache/personal-word-beta/team-t011-review/): tsc exit 0; npm test 44 files/837 passed; build 0; production-preview Playwright port 1469 import+rich-import+markdown-roundtrip+zotero+research 31 passed; cargo --locked --offline serial 44 passed/1 ignored (13 zotero). Doctored control: .mjs copy of round-trip spec with in-loop cancel assertion inverted (count before+1) -> exit 1 'Expected 2 Received 1' (node_modules/.cache/personal-word-beta/team-t011-review/control.log); all 9 T011 files sha256 identical before/after (node_modules/.cache/personal-word-beta/team-t011-review/t011-files-sha-start.txt vs -end.txt). Boundaries (carried to Gate B, not T011 defects): no AbortSignal from App into previewWriting; Chromium only; no native/WebKit."
+  },
+  "log": [
+    {
+      "at": "2026-10-24T22:19:04+00:00",
+      "agent": "agent-45fb",
+      "event": "created",
+      "note": ""
+    },
+    {
+      "at": "2026-10-25T04:54:57+00:00",
+      "agent": "agent-558f",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-10-25T04:54:57+00:00",
+      "agent": "agent-558f",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-10-25T05:05:04+00:00",
+      "agent": "agent-558f",
+      "event": "review requested",
+      "note": "T011 CLAIMED. Wired .zip Markdown bundle import: ProjectLibrary accept+label, previewWriting dynamic-import route to importMarkdownBundle, ImportDraft.format 'Markdown bundle' (as any removed), spec test.fail removed (pills 1 image/1 table/2 notes unchanged), manifest tamper+absent asset now throws (unit test). App.tsx, lib.rs (zotero_read in both handlers, line 250/281), playwright.config.ts read-only verified, unchanged. Fail-first: unfailed UI test failed pre-fix (failfirst-prefix-browser.log); doctored controls for cancel/route/accept failed and restored byte-identically. Final serial: tsc 0, vitest 44 files/837 tests, build 0, production-preview Playwright 31 passed (import, rich-import, markdown-roundtrip 11, zotero, research), offline cargo 44 passed/1 ignored. Report: docs/agent-work/2026-10-24-team-reconciliation/wave3-integration.md; logs node_modules/.cache/personal-word-beta/team-t011/. Not covered: native/WebKit, no AbortSignal from App into previewWriting."
+    },
+    {
+      "at": "2026-10-25T05:11:28+00:00",
+      "agent": "agent-81ae",
+      "event": "approved",
+      "note": "Independent review agent-81ae (non-author). Diffed every registered path: ProjectLibrary accept gains .zip+application/zip and label 'Markdown bundle (.zip)'; previewWriting /\\.zip$/i branch via await import('../export/markdownBundle'); ImportDraft.format union has 'Markdown bundle', 'as any' gone (diff vs team-t010/markdownBundle.ts.repaired shows only that + manifest-loop throw); test.fail removed (diff vs team-t011/spec.orig.bak) and 3 new tests (accept/label, bundle import survives reload with project count 2, cancel bundle/DOCX/HTML leaves count 1 incl. after reload); new schema unit test. lib.rs 8ad94633 and playwright.config.ts 384e323e equal team-t011/start-stat.txt; App.tsx unchanged 9e5ece91; no file outside registered paths modified since 00:54. My reruns (pinned v22.23.3, serial, logs node_modules/.cache/personal-word-beta/team-t011-review/): tsc exit 0; npm test 44 files/837 passed; build 0; production-preview Playwright port 1469 import+rich-import+markdown-roundtrip+zotero+research 31 passed; cargo --locked --offline serial 44 passed/1 ignored (13 zotero). Doctored control: .mjs copy of round-trip spec with in-loop cancel assertion inverted (count before+1) -> exit 1 'Expected 2 Received 1' (node_modules/.cache/personal-word-beta/team-t011-review/control.log); all 9 T011 files sha256 identical before/after (node_modules/.cache/personal-word-beta/team-t011-review/t011-files-sha-start.txt vs -end.txt). Boundaries (carried to Gate B, not T011 defects): no AbortSignal from App into previewWriting; Chromium only; no native/WebKit."
+    }
+  ]
+}

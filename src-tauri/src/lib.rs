@@ -1,8 +1,12 @@
 #[cfg(feature = "native-smoke")]
 mod smoke;
 mod lookup;
+mod zotero;
 mod assets;
 mod store;
+// Layout L1 print probe: the command is registered only in native-smoke builds.
+#[cfg_attr(not(feature = "native-smoke"), allow(dead_code))]
+mod printing;
 use std::sync::{
     atomic::{AtomicBool, Ordering},
     Mutex,
@@ -245,6 +249,7 @@ pub fn run() {
         export_bytes,
         delete_project,
         lookup::lookup_fetch,
+        zotero::zotero_read,
         smoke::smoke_report,
         smoke::diagnostic_profile_identity,
         smoke::smoke_close_window,
@@ -254,7 +259,9 @@ pub fn run() {
         smoke::seed_durability_metadata,
         smoke::verify_safety_snapshot,
         smoke::sqlite_sync_settings,
-        smoke::mark_mirrors_pending
+        smoke::mark_mirrors_pending,
+        smoke::smoke_beta_fixture,
+        printing::render_pdf
     ]);
     #[cfg(not(feature = "native-smoke"))]
     let builder = builder.invoke_handler(tauri::generate_handler![
@@ -273,7 +280,8 @@ pub fn run() {
         export_file,
         export_bytes,
         delete_project,
-        lookup::lookup_fetch
+        lookup::lookup_fetch,
+        zotero::zotero_read
     ]);
     #[cfg(feature = "native-smoke")]
     let builder = builder.on_window_event(|_, event| {

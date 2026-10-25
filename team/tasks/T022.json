@@ -1,0 +1,61 @@
+{
+  "id": "T022",
+  "title": "Complete Review Gate D and return any final findings",
+  "description": "Follow team/PLAN.md, team/PROTOCOL.md, DELEGATION.md Common rules and applicable child plan; preserve current dirty work. This board records unfinished acceptance/repair, not permission to rebuild existing features. Inspect current implementation and earlier evidence first; fix only reproduced gaps in owned files, record exact commands/results and fail-first controls, and report CLAIMED. No installs, new packages, commits, pushes, publication, real-library access or destructive cleanup. Before expensive checks, acquire exclusive registered path node_modules/.cache/personal-word-beta/team-serial-check-slot via team.py files add; if another live task owns it, do independent work or hand off rather than overlap runs. Retain full logs and use pinned Node/offline serial Rust/production-preview Playwright. Independent review is required. Independent review request/approved plans/current diff/task reports/evidence/logs and actual current artifact hashes; fresh focused reruns plus one fail-first spot check. Confirm sequential full qualification and artifact/native limits are accurately represented. Review evidence verifier rejects doctored reports and normal app has no diagnostics. Write final D2 REVIEW.md with explicit automated acceptance and owner-pending boundaries; never require fabricated owner pass or claim beta ready with blockers. No code edits; return concrete defects as scoped repair tasks, require rerun of affected qualification before approval. Keep git_commit=false; do not commit or push. Write the task report to docs/agent-work/2026-10-24-team-reconciliation/gate-d.md.",
+  "status": "done",
+  "owner": null,
+  "priority": 1,
+  "depends_on": [
+    "T021"
+  ],
+  "files": [
+    "docs/agent-work/2026-10-20-beta-roadmap/06-durability/REVIEW.md",
+    "docs/agent-work/2026-10-24-team-reconciliation/gate-d.md",
+    "node_modules/.cache/personal-word-beta/team-t022",
+    "node_modules/.cache/personal-word-beta/team-serial-check-slot"
+  ],
+  "review_required": true,
+  "created_by": "agent-45fb",
+  "created_at": "2026-10-24T22:19:06+00:00",
+  "claimed_at": "2026-10-25T10:07:52+00:00",
+  "updated_at": "2026-10-25T10:16:27+00:00",
+  "handoff": null,
+  "review": {
+    "by": "agent-b8ae",
+    "at": "2026-10-25T10:16:27+00:00",
+    "verdict": "approved",
+    "note": "Coordinator approval of the Gate D record (agent-9e61): REVIEW.md sha256 0065be67... with verdict 'PASS (automated acceptance); beta readiness pending owner real use', off-board draft superseded with backups, evidence table, identities (manifest ed8ea16f, native 7e077959, app binary 66da1177), reviewer reruns (865 units, 112/112 browser, 48 Rust, beta 19+42 run 20261025T100024Z-93ccb1f1), fail-first spot checks incl. the verifier weakness filed as T048, docs understatement filed as T049, DoD assessed without ticking, owner-pending list explicit. gate-d.md present. No code edits."
+  },
+  "log": [
+    {
+      "at": "2026-10-24T22:19:06+00:00",
+      "agent": "agent-45fb",
+      "event": "created",
+      "note": ""
+    },
+    {
+      "at": "2026-10-25T10:07:52+00:00",
+      "agent": "agent-9e61",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-10-25T10:07:52+00:00",
+      "agent": "agent-9e61",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-10-25T10:14:37+00:00",
+      "agent": "agent-9e61",
+      "event": "review requested",
+      "note": "Gate D verdict: PASS (automated acceptance); beta readiness pending owner real use. Review: docs/agent-work/2026-10-20-beta-roadmap/06-durability/REVIEW.md sha256 0065be67a7b12980cdeec5b5c303d1d65736c5168de3829c374ba7c679c582e2 (replaces the off-board draft that flipped the committed D1 'CHANGES REQUIRED' to an unbacked 'PASSED'; copies in node_modules/.cache/personal-word-beta/team-t022/draft-backup/). Task report: docs/agent-work/2026-10-24-team-reconciliation/gate-d.md. Fresh reruns (pinned Node v22.23.3, serial, logs team-t021-review/): tsc 0; vitest 47 files/865; cargo offline serial 48/0/1 ignored; prod-preview Playwright port 1493 112/112, 23 specs, per-spec = EVIDENCE.json; native --suite beta 20261025T100024Z-93ccb1f1 19+42 on identity 7e07795970ee8195 / binary 9d4c24fe; verifier exit 2 with 10 pending, and on a copy with review recorded for this REVIEW.md exit 2, [PASS] review, exactly 9 owner items (team-t022/logs/verify-review-recorded.log; also proves the source manifest still matches). App: Personal Word.app folio sha256 66da1177a6b0063c..., x86_64, com.folio.writing 0.1.1, fresh, 0 of 11 markers (own strings+grep scan). Artifacts regenerated with current pdf.ts/docx.ts (T019 harness copy, D1 workaround removed): PDF exports unmodified project with no refusal; 8 of 12 pages viewed incl. p.2 three-paragraph note (indented continuations) and p.5/p.10 table continuation (no repeated header: retained limit); footnotes.xml id 4 = 3 w:p; md/txt byte-identical to T019's. Fail-first: pre-fix pdf.ts/docx.ts from git HEAD under current multiparagraphNote.test.ts -> 6 failed|1 passed; current 7 passed. Verifier controls on copies: SOURCE-HASH-MISMATCH, BLOCKED-CLAIMED-PASSED, APP-STALE-SMOKE, NATIVE-IDENTITY-STALE, SCHEMA-FORBIDDEN-FIELD x3, CHECK-LOG-FAILED; R5 (FAIL review mentioning 'Gate A verdict: PASS') wrongly accepted -> finding. Diff: all 128 changed product/test/doc paths trace to board tasks (team-t022/logs/hunk-trace.txt). Findings filed: T048 (p2) verifier verdict parsing; T049 (p2) stale status lines in README/validation/ROADMAP/implementation logs. Neither touches src/** or src-tauri/**; no requalification beyond T048's manifest/evidence regeneration. DoD: 1,3,5 met; 2 met on approval; 4 pending T049; 6 pending T023; 7 pending T022/T023/T048/T049; blocked none. T023 must record: app path + sha 66da1177...; EVIDENCE.json review {state passed, reviewer agent-9e61, reviewFile 06-durability/REVIEW.md, reviewFileSha256 current sha} AFTER T048 regenerates EVIDENCE.json; HANDOFF.md stale 347/499 ms line. Side effects disclosed in gate-d.md section 6 (three empty files I created by a quoting slip were removed; pre-existing strays /Users/ethansiegel/Local and Projects/VC, Projects/Project touched, not deleted). No code edits, no commits, real library untouched. CLAIMED."
+    },
+    {
+      "at": "2026-10-25T10:16:27+00:00",
+      "agent": "agent-b8ae",
+      "event": "approved",
+      "note": "Coordinator approval of the Gate D record (agent-9e61): REVIEW.md sha256 0065be67... with verdict 'PASS (automated acceptance); beta readiness pending owner real use', off-board draft superseded with backups, evidence table, identities (manifest ed8ea16f, native 7e077959, app binary 66da1177), reviewer reruns (865 units, 112/112 browser, 48 Rust, beta 19+42 run 20261025T100024Z-93ccb1f1), fail-first spot checks incl. the verifier weakness filed as T048, docs understatement filed as T049, DoD assessed without ticking, owner-pending list explicit. gate-d.md present. No code edits."
+    }
+  ]
+}

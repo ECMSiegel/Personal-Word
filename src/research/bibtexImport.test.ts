@@ -112,6 +112,26 @@ describe("BibTeX import", () => {
   it("decodes common LaTeX", () => {
     expect(texToText("{\\\"u}ber \\c{c}a \\~n \\ss{} \\'{\\i} \\v{s} 10--20 a---b \\&")).toBe("über ça ñ ß í š 10–20 a—b &");
   });
+  it("renders composer-macro titles verbatim instead of dropping the command (fail-first: \\TeX used to yield 'The book')", () => {
+    // Reproduced from tests/fixtures/sample.bib and the BibTeX import
+    // production-preview browser case: title = {The {\TeX}book}.
+    expect(texToText("The {\\TeX}book")).toBe("The TeXbook");
+    expect(texToText("\\LaTeX")).toBe("LaTeX");
+    // LaTeX swallows the space after a control word, so "A \BibTeX primer"
+    // renders "A BibTeXprimer" (same rule the file already applies to \ss{}).
+    expect(texToText("A \\BibTeX primer")).toBe("A BibTeXprimer");
+    const r = parseBibtex(`@book{knuth1984texbook, title = {The {\\TeX}book}, author = {Knuth, Donald E.}, year = 1984}`);
+    expect(r.sources[0].title).toBe("The TeXbook");
+  });
+  it("keeps unknown macro names as text and warns about them", () => {
+    expect(texToText("The {\\METAFONT}book")).toBe("The METAFONTbook");
+    expect(texToText("\\XeTeX")).toBe("XeTeX");
+    // Formatting commands still just keep their argument.
+    expect(texToText("An \\emph{important} \\textbf{study}")).toBe("An important study");
+    const r = parseBibtex(`@book{mf, title = {The {\\METAFONT}book}, author = {Knuth, Donald E.}, year = 1986}`);
+    expect(r.sources[0].title).toBe("The METAFONTbook");
+    expect(r.warnings.some((w) => w.includes("\\METAFONT") && w.includes("The METAFONTbook"))).toBe(true);
+  });
   it("resolves crossref for a missing booktitle", () => {
     const r = parseBibtex(`@incollection{c1, title={Ch}, author={A, B}, crossref={book1}, pages={1--2}}
 @book{book1, title={The Big Book}, publisher={P}, year=2001}`);

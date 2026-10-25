@@ -1,0 +1,97 @@
+{
+  "id": "T003",
+  "title": "Execute WP2 editor and reading-view acceptance",
+  "description": "Follow team/PLAN.md, team/PROTOCOL.md, DELEGATION.md Common rules and applicable child plan; preserve current dirty work. This board records unfinished acceptance/repair, not permission to rebuild existing features. Inspect current implementation and earlier evidence first; fix only reproduced gaps in owned files, record exact commands/results and fail-first controls, and report CLAIMED. No installs, new packages, commits, pushes, publication, real-library access or destructive cleanup. Before expensive checks, acquire exclusive registered path node_modules/.cache/personal-word-beta/team-serial-check-slot via team.py files add; if another live task owns it, do independent work or hand off rather than overlap runs. Retain full logs and use pinned Node/offline serial Rust/production-preview Playwright. Independent review is required. Existing Writer/ReadDocument/table/image UI is present. Run actual production-preview tests/assets.spec.ts (not --list), tsc and relevant units. Check keyboard table row/column/header/delete controls, inline alt input, Blob URL lifecycle, reload persistence, reading image/table rendering and actual light/dark screenshots. Fix only demonstrated WP2 gaps. Write the task report to docs/agent-work/2026-10-24-team-reconciliation/wp2.md.",
+  "status": "done",
+  "owner": null,
+  "priority": 1,
+  "depends_on": [
+    "T001"
+  ],
+  "files": [
+    "src/Writer.tsx",
+    "src/components/ReadDocument.tsx",
+    "src/components/ReadDocument.test.ts",
+    "src/editor/editor.css",
+    "tests/assets.spec.ts",
+    "src/adversarial-wp2.test.ts",
+    "src/adversarial-wp2-1.test.ts",
+    "docs/agent-work/2026-10-24-team-reconciliation/wp2.md",
+    "node_modules/.cache/personal-word-beta/team-serial-check-slot",
+    "src/editor/tables.ts",
+    "src/editor/media.ts",
+    "node_modules/.cache/personal-word-beta/team-t003-repair"
+  ],
+  "review_required": true,
+  "created_by": "agent-45fb",
+  "created_at": "2026-10-24T22:19:03+00:00",
+  "claimed_at": "2026-10-24T23:44:18+00:00",
+  "updated_at": "2026-10-25T00:08:26+00:00",
+  "handoff": {
+    "by": "agent-aa30",
+    "at": "2026-10-24T23:43:25+00:00",
+    "text": "P2 confirmed saved-image display failure after normal Projects -> reopen. Report: docs/agent-work/2026-10-24-team-reconciliation/T003_REVIEW.md. Fresh tsc/123 units/build/8 assets browser cases pass, but unmocked cached reopen.spec.mjs asserts stored asset exists and then fails because reopened editor img has no src (hidden placeholder). Reproduce: pinned Node npx playwright test -c node_modules/.cache/personal-word-beta/team-t003-independent-review/reopen.config.mjs --workers=1. Preserve bytes/IDs; fix resolver registration/NodeView refresh on re-entry, add maintained regression, register media.ts/App paths as needed before edits and coordinate T005. NodeViews currently load only at construction/asset-ID change while resolver is installed by effects (inferred cause). No data loss established; async URL cleanup concern is static only. No source was edited by reviewer; all negative/positive logs and source hashes retained."
+  },
+  "review": {
+    "by": "agent-1a38",
+    "at": "2026-10-25T00:08:26+00:00",
+    "verdict": "approved",
+    "note": "APPROVED by agent-1a38 (Claude Code; authored neither WP2 nor the repair). Read: wp2.md, T003_REVIEW.md, diffs of Writer.tsx (resolver effect with per-project blob cache + revoke on cleanup, file-input image insert with inline alt field, keyboard-reachable Table controls popover), ReadDocument.tsx (ReadImage with alive guard, table/th/td rendering), editor.css, tables.ts (DOM-caret-first Tab/Shift-Tab with collapsed in-cell caret; toggleHeader('row') first-row semantics, documented and overridable), media.ts repair (resolverListeners refresh on setImageSourceResolver, removed on destroy, token guard kept); tests/assets.spec.ts ninth case is a real reopen + full reload check with naturalWidth decode. Inspected the four light/dark PNGs: flat, square, theme-consistent; editor shows alt caption under a loaded image while reader shows alt only on failure (observation, not blocking). Verified team-t003-repair logs: baseline-valid 1 failed at reopened src, fixed 1 passed, restored-defect 1 failed again, final-assets 9 passed, final-units 814, builds ok; current five hashes equal final-source-hashes.json and media.ts equals media-fixed.ts. Reran in this session (team-t003-review/rerun.log, Node v22.23.3): tsc 0; focused units 10 files/123 passed; npm run build ok 9.88s; tests/assets.spec.ts on isolated port 1450 = 9 passed; the independent reviewer's reopen.spec.mjs on 1451 = 1 passed against the current build (it failed pre-fix in T025). Not done by me: doctoring shared source (reviewer rule); native WebKit, keyboard-only Home edge (T006) and owner real-use remain open. CLAIMED."
+  },
+  "log": [
+    {
+      "at": "2026-10-24T22:19:03+00:00",
+      "agent": "agent-45fb",
+      "event": "created",
+      "note": ""
+    },
+    {
+      "at": "2026-10-24T22:23:09+00:00",
+      "agent": "agent-6029",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-10-24T22:23:19+00:00",
+      "agent": "agent-6029",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-10-24T23:36:08+00:00",
+      "agent": "agent-6029",
+      "event": "review requested",
+      "note": "WP2 editor/reading-view acceptance to review-ready. Report: docs/agent-work/2026-10-24-team-reconciliation/wp2.md. Evidence: first executed browser run exposed 2 real failures (fixed; fail-first chain of 4 runs retained in node_modules/.cache/personal-word-beta/wp2/*.log). Final: 16/16 Playwright (--repeat-each=2, fresh build), 123/123 focused units, tsc clean, light+dark editor/reading screenshots captured and inspected (isolated production preview on 1447; stray dev server had squatted 1420, logged). Two decisions for reviewers: (1) TableKeys now DOM-caret-first navigation, no cross-cell ranges; (2) toggleHeaderRow switched to modern toggleHeader(row) first-row semantics instead of deprecated caret-row variant that created a second header row - overridable, see 'decision record' in wp2.md. Details in wp2.md; changes UNCOMMITTED by design."
+    },
+    {
+      "at": "2026-10-24T23:43:25+00:00",
+      "agent": "agent-aa30",
+      "event": "rejected",
+      "note": "P2 confirmed saved-image display failure after normal Projects -> reopen. Report: docs/agent-work/2026-10-24-team-reconciliation/T003_REVIEW.md. Fresh tsc/123 units/build/8 assets browser cases pass, but unmocked cached reopen.spec.mjs asserts stored asset exists and then fails because reopened editor img has no src (hidden placeholder). Reproduce: pinned Node npx playwright test -c node_modules/.cache/personal-word-beta/team-t003-independent-review/reopen.config.mjs --workers=1. Preserve bytes/IDs; fix resolver registration/NodeView refresh on re-entry, add maintained regression, register media.ts/App paths as needed before edits and coordinate T005. NodeViews currently load only at construction/asset-ID change while resolver is installed by effects (inferred cause). No data loss established; async URL cleanup concern is static only. No source was edited by reviewer; all negative/positive logs and source hashes retained."
+    },
+    {
+      "at": "2026-10-24T23:44:18+00:00",
+      "agent": "agent-aa30",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-10-24T23:44:19+00:00",
+      "agent": "agent-aa30",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-10-24T23:49:56+00:00",
+      "agent": "agent-aa30",
+      "event": "review requested",
+      "note": "WP2 resubmitted with saved-image reopen repair. media.ts refreshes mounted image NodeViews when project resolver is registered, removes listeners on destroy, and retains stale-response guards. Added maintained valid-PNG test for Projects -> reopen -> full reload with asset ID/blob source/naturalWidth assertions. Fail-first: baseline failed at reopened src, fixed target passed, exact original media restored+rebuilt and failed again for same reason, fixed source restored byte-identically and final build passed. Final production assets 9/9 (14.7s), all units 814/44 (23.19s), build/tsc passed. Detailed commands/logs/limits appended wp2.md; cache team-t003-repair. Existing 4 light/dark screenshots inspected in independent review; no layout changes. Browser evidence only, CLAIMED pending native/owner qualification. No App/storage/native-print/package changes. This chat authored the repair and must NOT approve T003 under any identity. Another chat must independently review full original WP2+repair; serial slot now released."
+    },
+    {
+      "at": "2026-10-25T00:08:26+00:00",
+      "agent": "agent-1a38",
+      "event": "approved",
+      "note": "APPROVED by agent-1a38 (Claude Code; authored neither WP2 nor the repair). Read: wp2.md, T003_REVIEW.md, diffs of Writer.tsx (resolver effect with per-project blob cache + revoke on cleanup, file-input image insert with inline alt field, keyboard-reachable Table controls popover), ReadDocument.tsx (ReadImage with alive guard, table/th/td rendering), editor.css, tables.ts (DOM-caret-first Tab/Shift-Tab with collapsed in-cell caret; toggleHeader('row') first-row semantics, documented and overridable), media.ts repair (resolverListeners refresh on setImageSourceResolver, removed on destroy, token guard kept); tests/assets.spec.ts ninth case is a real reopen + full reload check with naturalWidth decode. Inspected the four light/dark PNGs: flat, square, theme-consistent; editor shows alt caption under a loaded image while reader shows alt only on failure (observation, not blocking). Verified team-t003-repair logs: baseline-valid 1 failed at reopened src, fixed 1 passed, restored-defect 1 failed again, final-assets 9 passed, final-units 814, builds ok; current five hashes equal final-source-hashes.json and media.ts equals media-fixed.ts. Reran in this session (team-t003-review/rerun.log, Node v22.23.3): tsc 0; focused units 10 files/123 passed; npm run build ok 9.88s; tests/assets.spec.ts on isolated port 1450 = 9 passed; the independent reviewer's reopen.spec.mjs on 1451 = 1 passed against the current build (it failed pre-fix in T025). Not done by me: doctoring shared source (reviewer rule); native WebKit, keyboard-only Home edge (T006) and owner real-use remain open. CLAIMED."
+    }
+  ]
+}

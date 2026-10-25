@@ -145,6 +145,26 @@ export function reviewSourceImport(
   return { newSources, exactDuplicates, possibleMatches, warnings: [...new Set(warnings)] };
 }
 
+export function validateSourceMergeUpdates(
+  sources: Source[],
+  updates: Array<{ candidateIndex: number; existingSourceId: string; fields: string[] }>,
+): void {
+  const replacements = new Set<string>();
+  for (const update of updates) {
+    const targets = (sources || []).filter((s) => s.id === update.existingSourceId);
+    if (targets.length !== 1) {
+      throw new Error("This source identity is not unique. Nothing was updated.");
+    }
+    if (replacements.has(update.existingSourceId)) {
+      throw new Error("Update an existing source from only one imported record at a time.");
+    }
+    if (!update.fields || !update.fields.length) {
+      throw new Error("Choose the fields to update first.");
+    }
+    replacements.add(update.existingSourceId);
+  }
+}
+
 const normalizeText = (value: string): string => value.normalize("NFKC").trim().replace(/\s+/g, " ").toLowerCase();
 
 function verifiedExternalId(value: string | undefined): string | null {

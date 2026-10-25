@@ -12,6 +12,7 @@ import {
   resolveCommentAnchor,
   withCommentRevisions,
 } from "./commentAnchors";
+import betaFixture from "../../tests/fixtures/beta-synthetic-project.json";
 
 const schema = getSchema(documentExtensions());
 const entryId = "entry-1";
@@ -492,5 +493,40 @@ describe("persistent comment anchors", () => {
     expect(updated.annotations).toHaveLength(1);
     expect(updated.annotations?.[0].anchor?.status).toBe("detached");
     expect(updated.annotations?.[0].quote).toBe("Removed");
+  });
+
+  // D2 durability fixture: two comments on the same phrase and one across an emoji/ZWJ sequence.
+  describe("synthetic beta project anchors", () => {
+    const fx = betaFixture as unknown as { ids: { sec1: string }; initial: Project };
+    const sec1 = fx.initial.entries.find((e) => e.id === fx.ids.sec1)!;
+    const attached = (fx.initial.annotations ?? []).filter((a) => a.anchor?.status === "attached");
+
+    it("moves duplicate and Unicode anchors together when text is inserted before them", () => {
+      const doc = schema.nodeFromJSON(sec1.content);
+      const { apply } = selectionTransaction(doc as never);
+      const transaction = apply((tr) => tr.insertText("Added ", 1));
+      const mapped = mapCommentAnchors(attached, fx.ids.sec1, transaction, sec1.contentRevision! + 1);
+      expect(mapped.map((a) => a.anchor!.status)).toEqual(["attached", "attached", "attached"]);
+      attached.forEach((original, index) => {
+        const range = resolveCommentAnchor(mapped[index], transaction.doc);
+        expect(range, original.id).toEqual({ from: original.anchor!.from + 6, to: original.anchor!.to + 6 });
+        expect(transaction.doc.textBetween(range!.from, range!.to, "\n")).toBe(original.quote);
+      });
+    });
+
+    it("detaches only the duplicate whose text was deleted and keeps the other and the Unicode one attached", () => {
+      const doc = schema.nodeFromJSON(sec1.content);
+      const second = attached[1].anchor!;
+      const { apply } = selectionTransaction(doc as never);
+      const transaction = apply((tr) => tr.delete(second.from, second.to));
+      const mapped = mapCommentAnchors(attached, fx.ids.sec1, transaction, sec1.contentRevision! + 1);
+      const byId = Object.fromEntries(mapped.map((a) => [a.id, a]));
+      expect(byId["c-dup-1"].anchor!.status).toBe("attached");
+      expect(byId["c-dup-2"].anchor!.status).toBe("detached");
+      expect(byId["c-unicode"].anchor!.status).toBe("attached");
+      expect(transaction.doc.textBetween(
+        resolveCommentAnchor(byId["c-unicode"], transaction.doc)!.from,
+        resolveCommentAnchor(byId["c-unicode"], transaction.doc)!.to, "\n")).toBe(attached[2].quote);
+    });
   });
 });

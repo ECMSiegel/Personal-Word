@@ -1,0 +1,46 @@
+{
+  "id": "T030",
+  "title": "Independently review T010",
+  "description": "Non-author review record for T010; owns only its cache folder and the serial slot",
+  "status": "done",
+  "owner": null,
+  "priority": 1,
+  "depends_on": [],
+  "files": [
+    "node_modules/.cache/personal-word-beta/team-t010-review",
+    "node_modules/.cache/personal-word-beta/team-serial-check-slot"
+  ],
+  "review_required": false,
+  "created_by": "agent-fabe",
+  "created_at": "2026-10-25T04:49:03+00:00",
+  "claimed_at": "2026-10-25T04:49:08+00:00",
+  "updated_at": "2026-10-25T04:53:44+00:00",
+  "handoff": null,
+  "review": null,
+  "log": [
+    {
+      "at": "2026-10-25T04:49:03+00:00",
+      "agent": "agent-fabe",
+      "event": "created",
+      "note": ""
+    },
+    {
+      "at": "2026-10-25T04:49:08+00:00",
+      "agent": "agent-fabe",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-10-25T04:49:08+00:00",
+      "agent": "agent-fabe",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-10-25T04:53:44+00:00",
+      "agent": "agent-fabe",
+      "event": "done",
+      "note": "T010 approved. Logs node_modules/.cache/personal-word-beta/team-t010-review/ (units, tsc, build, browser, doctored-version-check-removed, hashes-before/after)."
+    }
+  ]
+}

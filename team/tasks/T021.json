@@ -1,0 +1,64 @@
+{
+  "id": "T021",
+  "title": "Build strict beta evidence verifier and current normal app",
+  "description": "Follow team/PLAN.md, team/PROTOCOL.md, DELEGATION.md Common rules and applicable child plan; preserve current dirty work. This board records unfinished acceptance/repair, not permission to rebuild existing features. Inspect current implementation and earlier evidence first; fix only reproduced gaps in owned files, record exact commands/results and fail-first controls, and report CLAIMED. No installs, new packages, commits, pushes, publication, real-library access or destructive cleanup. Before expensive checks, acquire exclusive registered path node_modules/.cache/personal-word-beta/team-serial-check-slot via team.py files add; if another live task owns it, do independent work or hand off rather than overlap runs. Retain full logs and use pinned Node/offline serial Rust/production-preview Playwright. Independent review is required. Create scripts/verify-beta-evidence.py and D2 EVIDENCE.json plus exact source/artifact manifest. No signing/notary/download fields: descoped. Use passed/failed/blocked/not-run honestly; owner outcomes remain pending and may keep beta-readiness command nonzero, without blocking concrete owner-testing preparation. Reject doctored missing-native, blocked Word claimed passed, source mismatch, smoke binary and missing asset cases individually. Run final sequential tsc/build/full units/full production-preview Playwright/offline Rust/isolated baseline+beta and applicable native print matrix, retaining full logs. Rebuild normal npm run tauri build after all diagnostics; inspect actual app identity/version/freshness/no-smoke markers and hash manifest. No installs, stale bundle substitution or release-readiness claim on blocked checks. Write the task report to docs/agent-work/2026-10-24-team-reconciliation/evidence.md.",
+  "status": "done",
+  "owner": null,
+  "priority": 1,
+  "depends_on": [
+    "T020"
+  ],
+  "files": [
+    "scripts/verify-beta-evidence.py",
+    "docs/agent-work/2026-10-20-beta-roadmap/06-durability/EVIDENCE.json",
+    "docs/agent-work/2026-10-20-beta-roadmap/06-durability/SOURCE_MANIFEST.json",
+    "docs/agent-work/2026-10-20-beta-roadmap/06-durability/IMPLEMENTATION_LOG.md",
+    "docs/agent-work/2026-10-24-team-reconciliation/evidence.md",
+    "node_modules/.cache/personal-word-beta/team-t021",
+    "node_modules/.cache/personal-word-beta/team-serial-check-slot"
+  ],
+  "review_required": true,
+  "created_by": "agent-45fb",
+  "created_at": "2026-10-24T22:19:06+00:00",
+  "claimed_at": "2026-10-25T09:32:07+00:00",
+  "updated_at": "2026-10-25T10:07:45+00:00",
+  "handoff": null,
+  "review": {
+    "by": "agent-9e61",
+    "at": "2026-10-25T10:07:45+00:00",
+    "verdict": "approved",
+    "note": "agent-9e61 independent review (record T047, logs node_modules/.cache/personal-word-beta/team-t021-review/). Every EVIDENCE.json log opened and hash-matched: tsc empty/exit 0; build 'built in 7.66s'; vitest 47 files/865; Playwright (post-T046) 112/112, 23 per-spec counts; cargo 48/1 ignored; smoke build Finished; baseline 20261025T093854Z-eb139b9b 13+5 and beta 20261025T093937Z-7c31d8de 19+42 (result.json sha 2d7c6466/809c23d8, manifest 7e077959, binary 9d4c24fe); bench median 108.12 p95 117.98 (bound 150); release build Finished 1 bundle. My reruns (pinned Node v22.23.3, serial): tsc exit 0; vitest 47 files/865 passed; native --suite beta without rebuild (identity matched) run 20261025T100024Z-93ccb1f1 19 passed + 42 detected, same manifest/binary, no folio process left; cargo --locked --offline --jobs 1 --test-threads=1 48 passed/0 failed/1 ignored (smoke binary sha identical before/after); full prod-preview Playwright port 1493 112 passed, per-spec equal to EVIDENCE.json. App: Personal Word.app/Contents/MacOS/folio sha256 66da1177a6b0063c..., Mach-O x86_64, mtime 05:45:46 EDT (after build start 09:43:41Z), no app input newer, Info.plist Personal Word/com.folio.writing/0.1.1/0.1.1; my strings + byte-grep scan of all 11 markers: 0 hits (same scan finds them in the smoke binary: control). Verifier read fully; real run exit 2, exactly the 10 pending items, no FAIL (logs/6-verify-real.log). Re-executed controls on copies (controls/SUMMARY.txt): source-hash-mismatch -> SOURCE-HASH-MISMATCH, blocked Word claimed passed -> BLOCKED-CLAIMED-PASSED, smoke binary as app -> APP-STALE-SMOKE; extra: older native run substituted -> NATIVE-IDENTITY-STALE; nested notarization/download/codesign keys -> SCHEMA-FORBIDDEN-FIELD; failed Playwright report claimed passed -> CHECK-LOG-FAILED; review is only read when evidence claims passed (draft REVIEW.md never auto-read). Scope: only tests/features.spec.ts (T046) and scripts/verify-beta-evidence.py newer than T021 start; nothing under src/ or src-tauri/src/. Old Oct-24 bundle copy present (86d9e980). FINDING carried to Gate D (not a reason to reject; not a T021 spec item): check_review's regex accepts any 'verdict: PASS' substring, so a FAIL review mentioning an earlier gate's PASS is accepted (control R5, exit 2 instead of REVIEW-CLAIM-UNBACKED) -- will be filed under T022 as a p2 verifier repair. Minor: 06-durability/IMPLEMENTATION_LOG.md T021 entry still says 111/1 and exit 1 (T046 update lives only in evidence.md section 7)."
+  },
+  "log": [
+    {
+      "at": "2026-10-24T22:19:06+00:00",
+      "agent": "agent-45fb",
+      "event": "created",
+      "note": ""
+    },
+    {
+      "at": "2026-10-25T09:32:07+00:00",
+      "agent": "agent-dbd8",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-10-25T09:32:10+00:00",
+      "agent": "agent-dbd8",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-10-25T09:50:12+00:00",
+      "agent": "agent-dbd8",
+      "event": "review requested",
+      "note": "T021 done (CLAIMED, candidate INCOMPLETE; no beta-ready claim). Full report: docs/agent-work/2026-10-24-team-reconciliation/evidence.md; logs, helpers and controls in node_modules/.cache/personal-word-beta/team-t021/. Serial run on the current tree (whole run took about 15 min, machine load about 2): tsc 0 errors; build ok; units 47 files / 865 tests passed; full production-preview Playwright (port 1490 instead of the squatted 1420, 1 worker, retries 0) 111 passed / 1 FAILED = tests/features.spec.ts:116 \"page layout reflows long paragraphs and preserves undo and formatting\" (clicks \"Line and paragraph spacing\", which now lives in the More formatting overflow; a cache copy using the spec's own toolbarButton() helper passes, so it is a stale test; recorded as failed, not retried; follow-up task T046 p2 files tests/features.spec.ts); offline serial cargo 48 passed / 1 ignored; isolated smoke rebuild ok; native baseline run 20261025T093854Z-eb139b9b 13 passed + 5 detected; native beta run 20261025T093937Z-7c31d8de 19 passed + 42 detected (both identity manifest 7e07795970ee8195, x86_64, diagnostic binary 9d4c24fe...); save benchmark median 108.12 / p95 117.98 ms (bound 150); native print matrix not-run / not applicable (WP8 STOP); verify-release.py not run (needs clean git and a DMG). Normal app: src-tauri/target/release/bundle/macos/Personal Word.app, com.folio.writing, 0.1.1, x86_64, main binary sha256 66da1177a6b0063c88a34a8b4c6e58459f657d55bf2271d424582d121cb932f2, newer than the build start and all sources, 0 diagnostic markers. Verifier scripts/verify-beta-evidence.py rewritten (the inherited draft could only pass or crash and read the off-board REVIEW.md); SOURCE_MANIFEST.json 207 files, digest 950a42bcee0c9a6bfe12fd339ba5110f1a19149a4fb2a112a8e75d9ff5f80d70; EVIDENCE.json regenerated from my logs. The real verifier run exits 1 ONLY because of the failed Playwright check; once T046 is fixed and steps 1-4 of evidence.md section 6 are rerun it exits 2 with just 10 items pending: independentReview (pending T022), keyboardAndCommentAnchors, closeRetry, recoveredImage, preRestoreSafetyCopy, wordRendering, appleSilicon, voiceOverAndIme, longSession, webkitVisuals. 14 fail-first / synthetic controls (controls/SUMMARY.txt) each gave their own named reason: NATIVE-ARCH-MISSING, BLOCKED-CLAIMED-PASSED, SOURCE-HASH-MISMATCH, APP-STALE-SMOKE (x2), APP-STALE, PATH-MISSING (x2), COUNT-MISMATCH, SCHEMA-FORBIDDEN-FIELD, REVIEW-CLAIM-UNBACKED, STATUS-OVERCLAIM; synthetic all-passed exits 0, synthetic Playwright-passed exits 2. Not re-inspected here: light/dark screenshots and rendered exports (T019 deliverable; T043 changed pdf.ts/docx.ts after). Not covered: owner outcomes, Apple Silicon, native WebKit visuals, Word, VoiceOver/IME, power loss. Any edit under src/**, src-tauri/src/**, tests/native-*.js invalidates the native runs and the app; edits to tests/** or scripts/** only change the manifest. No commits, installs or signing; real writing library untouched; 06-durability/REVIEW.md untouched.\nscripts/verify-beta-evidence.py: uncommitted edits\ndocs/agent-work/2026-10-20-beta-roadmap/06-durability/EVIDENCE.json: uncommitted edits\ndocs/agent-work/2026-10-20-beta-roadmap/06-durability/SOURCE_MANIFEST.json: uncommitted edits\ndocs/agent-work/2026-10-20-beta-roadmap/06-durability/IMPLEMENTATION_LOG.md: uncommitted edits\ndocs/agent-work/2026-10-24-team-reconciliation/evidence.md: uncommitted edits"
+    },
+    {
+      "at": "2026-10-25T10:07:45+00:00",
+      "agent": "agent-9e61",
+      "event": "approved",
+      "note": "agent-9e61 independent review (record T047, logs node_modules/.cache/personal-word-beta/team-t021-review/). Every EVIDENCE.json log opened and hash-matched: tsc empty/exit 0; build 'built in 7.66s'; vitest 47 files/865; Playwright (post-T046) 112/112, 23 per-spec counts; cargo 48/1 ignored; smoke build Finished; baseline 20261025T093854Z-eb139b9b 13+5 and beta 20261025T093937Z-7c31d8de 19+42 (result.json sha 2d7c6466/809c23d8, manifest 7e077959, binary 9d4c24fe); bench median 108.12 p95 117.98 (bound 150); release build Finished 1 bundle. My reruns (pinned Node v22.23.3, serial): tsc exit 0; vitest 47 files/865 passed; native --suite beta without rebuild (identity matched) run 20261025T100024Z-93ccb1f1 19 passed + 42 detected, same manifest/binary, no folio process left; cargo --locked --offline --jobs 1 --test-threads=1 48 passed/0 failed/1 ignored (smoke binary sha identical before/after); full prod-preview Playwright port 1493 112 passed, per-spec equal to EVIDENCE.json. App: Personal Word.app/Contents/MacOS/folio sha256 66da1177a6b0063c..., Mach-O x86_64, mtime 05:45:46 EDT (after build start 09:43:41Z), no app input newer, Info.plist Personal Word/com.folio.writing/0.1.1/0.1.1; my strings + byte-grep scan of all 11 markers: 0 hits (same scan finds them in the smoke binary: control). Verifier read fully; real run exit 2, exactly the 10 pending items, no FAIL (logs/6-verify-real.log). Re-executed controls on copies (controls/SUMMARY.txt): source-hash-mismatch -> SOURCE-HASH-MISMATCH, blocked Word claimed passed -> BLOCKED-CLAIMED-PASSED, smoke binary as app -> APP-STALE-SMOKE; extra: older native run substituted -> NATIVE-IDENTITY-STALE; nested notarization/download/codesign keys -> SCHEMA-FORBIDDEN-FIELD; failed Playwright report claimed passed -> CHECK-LOG-FAILED; review is only read when evidence claims passed (draft REVIEW.md never auto-read). Scope: only tests/features.spec.ts (T046) and scripts/verify-beta-evidence.py newer than T021 start; nothing under src/ or src-tauri/src/. Old Oct-24 bundle copy present (86d9e980). FINDING carried to Gate D (not a reason to reject; not a T021 spec item): check_review's regex accepts any 'verdict: PASS' substring, so a FAIL review mentioning an earlier gate's PASS is accepted (control R5, exit 2 instead of REVIEW-CLAIM-UNBACKED) -- will be filed under T022 as a p2 verifier repair. Minor: 06-durability/IMPLEMENTATION_LOG.md T021 entry still says 111/1 and exit 1 (T046 update lives only in evidence.md section 7)."
+    }
+  ]
+}

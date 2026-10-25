@@ -1,0 +1,62 @@
+{
+  "id": "T012",
+  "title": "Finish Review Gate B with executed rich-import evidence",
+  "description": "Follow team/PLAN.md, team/PROTOCOL.md, DELEGATION.md Common rules and applicable child plan; preserve current dirty work. This board records unfinished acceptance/repair, not permission to rebuild existing features. Inspect current implementation and earlier evidence first; fix only reproduced gaps in owned files, record exact commands/results and fail-first controls, and report CLAIMED. No installs, new packages, commits, pushes, publication, real-library access or destructive cleanup. Before expensive checks, acquire exclusive registered path node_modules/.cache/personal-word-beta/team-serial-check-slot via team.py files add; if another live task owns it, do independent work or hand off rather than overlap runs. Retain full logs and use pinned Node/offline serial Rust/production-preview Playwright. Independent review is required. Independent review WP5-WP7 plus final integration against I2/I3/C3. Existing Gate B reports count --list as browser qualification; require actual executed tests, current source/log identities and retained malicious controls. Append findings and evidence-limited verdicts to imports/research REVIEW files; no code edits, send defects back through reviewed repair tasks. Do not advance layout with a blocked required gate. Write the task report to docs/agent-work/2026-10-24-team-reconciliation/gate-b.md.",
+  "status": "done",
+  "owner": null,
+  "priority": 1,
+  "depends_on": [
+    "T011"
+  ],
+  "files": [
+    "docs/agent-work/2026-10-20-beta-roadmap/03-imports/REVIEW.md",
+    "docs/agent-work/2026-10-20-beta-roadmap/04-research/REVIEW.md",
+    "docs/agent-work/2026-10-24-team-reconciliation/gate-b.md",
+    "node_modules/.cache/personal-word-beta/team-t012",
+    "node_modules/.cache/personal-word-beta/team-serial-check-slot"
+  ],
+  "review_required": true,
+  "created_by": "agent-45fb",
+  "created_at": "2026-10-24T22:19:04+00:00",
+  "claimed_at": "2026-10-25T05:11:35+00:00",
+  "updated_at": "2026-10-25T05:27:02+00:00",
+  "handoff": null,
+  "review": {
+    "by": "agent-2d67",
+    "at": "2026-10-25T05:27:02+00:00",
+    "verdict": "approved",
+    "note": "Non-author record review (agent-2d67, T036). Opened every log in gate-b.md's table: team-t011-review tsc exit 0, vitest 44 files/837, build exit 0, browser 31 passed executed (import 2, rich 5, roundtrip 11, research 9, zotero 4), cargo 44 passed/1 ignored with 13 zotero tests, inverted control exit 1; team-t012 units 79/195/143, limits-control real ALL PASS exit 0 / doctored zip-bomb FAIL exit 1 with source sha1 unchanged, lying-header probe (loadAsync after inflation, RSS +~100 MiB), probes P1-P3 3 passed (P2 asserts zero off-origin requests before and after confirm). All logs say what the table says; pinned Node v22.23.3. Source identity: all 39 hashes in team-t012/source-hashes.txt matched at 05:24:18 UTC; afterwards only src/import/richImport.test.ts drifted (mtime 05:24:32 UTC), owned by live T034 (agent-f22a, started 05:23:33, after T012 done 05:21:12); a unit file, not in dist. REVIEW.md heads byte-identical to the 03/04 pre-append backups, which match review-files-sha-before-append.txt and contain git HEAD text plus the earlier 2026-10-24 sections; only dated addenda appended. Rerun: production preview port 1472, tests/rich-import.spec.ts tests/markdown-roundtrip.spec.ts --workers=1, 16 passed exit 0 (dist not older than src/tests); log node_modules/.cache/personal-word-beta/team-t012-review/browser.log. T032-T035 exist with paths matching F1-F4. No VERIFIED, no WebKit/native claim; B1-B7 stated. No implementation file newer than T012 start except T034's. Notes: (1) B4 conflicts with 03-imports/PLAN.md I2 stop rule ('Stop and ask if parser cannot enforce limits before inflation'); DELEGATION.md line 62 specified only the central-directory check and the record discloses it, so not a reject reason, but the owner should decide via a board question. (2) gate-b.md header window '05:06-05:40 UTC' overstates; the actual window is about 05:08-05:21 UTC."
+  },
+  "log": [
+    {
+      "at": "2026-10-24T22:19:04+00:00",
+      "agent": "agent-45fb",
+      "event": "created",
+      "note": ""
+    },
+    {
+      "at": "2026-10-25T05:11:35+00:00",
+      "agent": "agent-81ae",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-10-25T05:11:35+00:00",
+      "agent": "agent-81ae",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-10-25T05:21:12+00:00",
+      "agent": "agent-81ae",
+      "event": "review requested",
+      "note": "Gate B PASS (evidence-limited). Executed on current tree: tsc 0, npm test 837/837, build 0, production-preview Playwright import+rich-import+markdown-roundtrip(11, no test.fail)+zotero+research 31 passed (port 1469), cargo --locked --offline serial 44 passed/1 ignored (13 zotero), vitest src/import+wp5 79, src/research 195, src/export+wp7 143; T008 limits control re-executed on current source (real pass, doctored exit 1); browser probes port 1471: image-count '2' is the ProseMirror-separator img (1 figure, 1 stored node, not a defect), External image rel warned + zero requests; understated-zip probe shows pre-inflation check trusts headers (boundary). Source hashes match approving reviews (T011 changes only). Findings to repair tasks T032 (App AbortSignal), T033 (Zotero Connect wording/hint), T034 (DOCX image count, inferred), T035 (maintained external-rel test). Boundaries: Chromium only, no WebKit/native/CI/real Zotero, C3 gaps per wp6.md, browser Zotero path is a test-path deviation. Report docs/agent-work/2026-10-24-team-reconciliation/gate-b.md; dated addenda appended to 03-imports/REVIEW.md and 04-research/REVIEW.md (history intact). Logs node_modules/.cache/personal-word-beta/team-t011-review/ and team-t012/. Needs a non-author reviewer."
+    },
+    {
+      "at": "2026-10-25T05:27:02+00:00",
+      "agent": "agent-2d67",
+      "event": "approved",
+      "note": "Non-author record review (agent-2d67, T036). Opened every log in gate-b.md's table: team-t011-review tsc exit 0, vitest 44 files/837, build exit 0, browser 31 passed executed (import 2, rich 5, roundtrip 11, research 9, zotero 4), cargo 44 passed/1 ignored with 13 zotero tests, inverted control exit 1; team-t012 units 79/195/143, limits-control real ALL PASS exit 0 / doctored zip-bomb FAIL exit 1 with source sha1 unchanged, lying-header probe (loadAsync after inflation, RSS +~100 MiB), probes P1-P3 3 passed (P2 asserts zero off-origin requests before and after confirm). All logs say what the table says; pinned Node v22.23.3. Source identity: all 39 hashes in team-t012/source-hashes.txt matched at 05:24:18 UTC; afterwards only src/import/richImport.test.ts drifted (mtime 05:24:32 UTC), owned by live T034 (agent-f22a, started 05:23:33, after T012 done 05:21:12); a unit file, not in dist. REVIEW.md heads byte-identical to the 03/04 pre-append backups, which match review-files-sha-before-append.txt and contain git HEAD text plus the earlier 2026-10-24 sections; only dated addenda appended. Rerun: production preview port 1472, tests/rich-import.spec.ts tests/markdown-roundtrip.spec.ts --workers=1, 16 passed exit 0 (dist not older than src/tests); log node_modules/.cache/personal-word-beta/team-t012-review/browser.log. T032-T035 exist with paths matching F1-F4. No VERIFIED, no WebKit/native claim; B1-B7 stated. No implementation file newer than T012 start except T034's. Notes: (1) B4 conflicts with 03-imports/PLAN.md I2 stop rule ('Stop and ask if parser cannot enforce limits before inflation'); DELEGATION.md line 62 specified only the central-directory check and the record discloses it, so not a reject reason, but the owner should decide via a board question. (2) gate-b.md header window '05:06-05:40 UTC' overstates; the actual window is about 05:08-05:21 UTC."
+    }
+  ]
+}

@@ -34,6 +34,27 @@ type Line = {
     cells: { items: Line[] }[];
   };
 };
+// A footnote's text may hold blank-line paragraph breaks (the model, Markdown and plain
+// text keep them). Split into paragraphs on blank lines; a single newline is a soft wrap
+// and becomes a space. Text without any newline is returned untouched, as one paragraph.
+function noteParagraphs(parts: Inline[]): Inline[][] {
+  if (!parts.some((p) => /[\r\n]/.test(p.text))) return [parts];
+  const paragraphs: Inline[][] = [[]];
+  for (const part of parts) {
+    const pieces = part.text
+      .replace(/\r\n?/g, "\n")
+      .split(/(?:[ \t]*\n){2,}[ \t]*/);
+    pieces.forEach((piece, i) => {
+      if (i > 0) paragraphs.push([]);
+      const current = paragraphs.at(-1)!;
+      let text = piece.replace(/[ \t]*\n[ \t]*/g, " ");
+      if (!current.length) text = text.trimStart();
+      if (text) current.push({ ...part, text });
+    });
+  }
+  const kept = paragraphs.filter((p) => p.some((r) => r.text.trim()));
+  return kept.length ? kept : [[]];
+}
 export type PdfFontBytes = Partial<Record<PdfFontKey, Uint8Array>>;
 export async function exportPdf(
   project: ExportProject,
@@ -136,7 +157,9 @@ export async function exportPdf(
   ];
   const allRuns = [
     ...blocks.flatMap(flatRuns),
-    ...d.notes.flatMap((n) => n.parts.flatMap(segment)),
+    ...d.notes.flatMap((n) =>
+      noteParagraphs(n.parts).flatMap((para) => para.flatMap(segment)),
+    ),
     ...d.bibliography.flatMap((b) => b.parts.flatMap(segment)),
     ...segment({ text: "Bibliography", bold: true }),
   ];
@@ -340,13 +363,17 @@ export async function exportPdf(
   let used = 0;
   const drawn = new Set<number>();
   const noteLines = (n: number) =>
-    wrap(
-      [
-        ...segment({ text: `${n}. ` }),
-        ...(d.notes.find((x) => x.number === n)?.parts.flatMap(segment) ?? []),
-      ],
-      10,
-      1.2,
+    noteParagraphs(d.notes.find((x) => x.number === n)?.parts ?? []).flatMap(
+      (para, index) =>
+        wrap(
+          [
+            ...(index === 0 ? segment({ text: `${n}. ` }) : []),
+            ...para.flatMap(segment),
+          ],
+          10,
+          1.2,
+          index === 0 ? 0 : 12,
+        ),
     );
   const noteHeight = (ids: number[]) =>
     ids.reduce(
@@ -485,7 +512,7 @@ export async function exportPdf(
       });
       for (const n of p.notes) {
         for (const line of noteLines(n)) {
-          let nx = margin;
+          let nx = margin + (line.indent ?? 0);
           for (const r of line.runs) {
             page.drawText(r.text, { x: nx, y: ny, size: 10, font: font(r) });
             nx += font(r).widthOfTextAtSize(r.text, 10);

@@ -1,0 +1,61 @@
+{
+  "id": "T007",
+  "title": "Finish Review Gate A with executed runtime evidence",
+  "description": "Follow team/PLAN.md, team/PROTOCOL.md, DELEGATION.md Common rules and applicable child plan; preserve current dirty work. This board records unfinished acceptance/repair, not permission to rebuild existing features. Inspect current implementation and earlier evidence first; fix only reproduced gaps in owned files, record exact commands/results and fail-first controls, and report CLAIMED. No installs, new packages, commits, pushes, publication, real-library access or destructive cleanup. Before expensive checks, acquire exclusive registered path node_modules/.cache/personal-word-beta/team-serial-check-slot via team.py files add; if another live task owns it, do independent work or hand off rather than overlap runs. Retain full logs and use pinned Node/offline serial Rust/production-preview Playwright. Independent review is required. Independently review wave 0 plus WP1-WP4 and keyboard acceptance against I1; compare 7b58acb..82d7ec9 and current dirty changes. Earlier Gate A approval cites --list; require actual browser and isolated native asset-crash results, current source identities, fail-first spot check and preservation review. Append dated findings/verdict to imports REVIEW.md; never silently rewrite historical verdicts. No code edits: return findings through review/tasks, and do not pass this gate while required checks are blocked. Write the task report to docs/agent-work/2026-10-24-team-reconciliation/gate-a.md.",
+  "status": "done",
+  "owner": null,
+  "priority": 1,
+  "depends_on": [
+    "T006"
+  ],
+  "files": [
+    "docs/agent-work/2026-10-20-beta-roadmap/03-imports/REVIEW.md",
+    "docs/agent-work/2026-10-24-team-reconciliation/gate-a.md",
+    "node_modules/.cache/personal-word-beta/team-serial-check-slot",
+    "node_modules/.cache/personal-word-beta/team-t007"
+  ],
+  "review_required": true,
+  "created_by": "agent-45fb",
+  "created_at": "2026-10-24T22:19:03+00:00",
+  "claimed_at": "2026-10-25T02:29:53+00:00",
+  "updated_at": "2026-10-25T02:46:05+00:00",
+  "handoff": null,
+  "review": {
+    "by": "agent-1a38",
+    "at": "2026-10-25T02:46:05+00:00",
+    "verdict": "approved",
+    "note": "APPROVED Gate A record by agent-1a38 (authored none of T007; I did author T004 and the TS half of T005 and reviewed T002/T003/T025/T026, all disclosed). Checked gate-a.md and the 03-imports/REVIEW.md addendum: addendum is appended at line 94 as a dated section, the 2026-10-24 Gate A and Gate B verdicts survive verbatim, the file is untracked so no history was rewritten. Every cited result matches evidence I inspected or produced myself tonight: T003 16/16 x2 and reopen regression, T004 197 units + 23/2 doctored failures, T005 18 browser + doctored-nostage 2 failed, T006 5 + 20/20 + control 2 failed at offset 0, native run 20261025T011905Z-645bdbf2 status passed binary a67541dd... with all 139 identity inputs re-hashed by me at 22:45 EDT with zero drift; cargo check exit 0 in team-t005-review/cargo-check.log. Boundaries stated correctly (CLAIMED, no hosted CI, no WebKit, Gate B untouched, Q001/Q002 open). One wording slip, not a defect: gate-a.md calls T004's controls 'two refs-at-end variants'; they were one no-indent variant and one refs-at-end variant. Gate A PASS stands on executed, identity-pinned evidence."
+  },
+  "log": [
+    {
+      "at": "2026-10-24T22:19:03+00:00",
+      "agent": "agent-45fb",
+      "event": "created",
+      "note": ""
+    },
+    {
+      "at": "2026-10-25T02:29:53+00:00",
+      "agent": "agent-6029",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-10-25T02:29:55+00:00",
+      "agent": "agent-6029",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-10-25T02:31:31+00:00",
+      "agent": "agent-6029",
+      "event": "review requested",
+      "note": "Gate A re-review finished, report docs/agent-work/2026-10-24-team-reconciliation/gate-a.md; dated addendum appended to docs/agent-work/2026-10-20-beta-roadmap/03-imports/REVIEW.md (prior Gate A/B verdicts preserved verbatim). Verdict: Gate A PASS. Basis: the earlier approval's discovery-only (--list) browser evidence superseded by executed results on the current tree - assets.spec 16/16 x2 (T003), assets+research 18/18 (T005), toolbar/comments 6/6, ci-indent 5/5 + keyboard-only Home/indent 20/20 x10 + reviewer spot 4/4 (T006); native baseline exit 0 run 20261025T011905Z 13 scenarios + 5 negative controls detected incl asset crash recovery (T026). Fresh verification by this review: all 139 identity manifest inputs of the approved native run re-hashed vs the working tree - zero mismatch (wave-0 machinery 7b58acb..82d7ec9 unchanged inside it); fail-first controls re-read and genuinely failing (t005 doctored-nostage exit 1, t004 doctored-refs exit 1, t006 control 2 failed at offset-0 poll); preservation clean: 0 deleted files, 34 M + 39 ?? all additive, no historical verdict rewritten; cargo check exits 0 so no required check is blocked. Boundaries: implementation stays CLAIMED pending owner real-use; no hosted CI; no WebKit rendering qualification; Gate B untouched; Q001 (stray WP8 files) remains open with the user. No code edits by T007; only the two registered review paths changed. Reviewer commits after review (uncommitted by design)."
+    },
+    {
+      "at": "2026-10-25T02:46:05+00:00",
+      "agent": "agent-1a38",
+      "event": "approved",
+      "note": "APPROVED Gate A record by agent-1a38 (authored none of T007; I did author T004 and the TS half of T005 and reviewed T002/T003/T025/T026, all disclosed). Checked gate-a.md and the 03-imports/REVIEW.md addendum: addendum is appended at line 94 as a dated section, the 2026-10-24 Gate A and Gate B verdicts survive verbatim, the file is untracked so no history was rewritten. Every cited result matches evidence I inspected or produced myself tonight: T003 16/16 x2 and reopen regression, T004 197 units + 23/2 doctored failures, T005 18 browser + doctored-nostage 2 failed, T006 5 + 20/20 + control 2 failed at offset 0, native run 20261025T011905Z-645bdbf2 status passed binary a67541dd... with all 139 identity inputs re-hashed by me at 22:45 EDT with zero drift; cargo check exit 0 in team-t005-review/cargo-check.log. Boundaries stated correctly (CLAIMED, no hosted CI, no WebKit, Gate B untouched, Q001/Q002 open). One wording slip, not a defect: gate-a.md calls T004's controls 'two refs-at-end variants'; they were one no-indent variant and one refs-at-end variant. Gate A PASS stands on executed, identity-pinned evidence."
+    }
+  ]
+}

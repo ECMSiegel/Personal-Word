@@ -168,6 +168,15 @@ function projectParts(project: ExportProject) {
   return { research, numbers, notes, citedSourceIds };
 }
 
+function formatMarkdownFootnote(number: number, text: string): string {
+  const [firstPara = "", ...rest] = text.split(/\n{2,}/);
+  const first = `[^${number}]: ${escapeMarkdown(firstPara)}`;
+  const continuation = rest.map((para) =>
+    para.split("\n").map((l) => "    " + escapeMarkdown(l)).join("\n")
+  );
+  return [first, ...continuation].join("\n\n");
+}
+
 export function projectMarkdown(project: ExportProject, assets: Assets = new Map()): string {
   const { research, numbers, notes, citedSourceIds } = projectParts(project);
   const sections: string[] = [`# ${escapeMarkdown(project.title)}`];
@@ -176,7 +185,7 @@ export function projectMarkdown(project: ExportProject, assets: Assets = new Map
     if (!entry) continue;
     sections.push(`## ${escapeMarkdown(entry.title)}`, ...markdownBlocks(entry.content, numbers, research, "", assets));
   }
-  if (notes.length) sections.push("## Notes", ...notes.map((note) => `[^${note.number}]: ${escapeMarkdown(note.text)}`));
+  if (notes.length) sections.push("## Notes", ...notes.map((note) => formatMarkdownFootnote(note.number, note.text)));
   const bib = project.documentSettings?.bibliography === false
     ? []
     : bibliography({ ...research, sources: research.sources.filter((source) => citedSourceIds.has(source.id)) });

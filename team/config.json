@@ -1,0 +1,7 @@
+{
+  "stale_minutes": 30,
+  "lock_timeout_seconds": 10,
+  "lock_stale_seconds": 20,
+  "review_default": true,
+  "git_commit": false
+}

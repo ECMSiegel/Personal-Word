@@ -50,7 +50,7 @@ import { resolveCitationContext, type SectionReferences } from "./research/noteF
 import { buildQuoteInsertion, createCommentAnchor, migrateLegacyCommentAnchor, resolveCommentAnchor, withCommentRevisions } from "./editor/commentAnchors";
 import { CslImportPreview, type SourceFieldUpdate } from "./research/CslImportPreview";
 import type { CslImportResult } from "./research/cslImport";
-import { mergeSourceFields } from "./research/sourceMerge";
+import { mergeSourceFields, validateSourceMergeUpdates } from "./research/sourceMerge";
 import { ProjectTabs } from "./components/ProjectTabs";
 import { ResearchPanel } from "./research/ResearchPanel";
 import { defaultDocumentSettings } from "./research/types";
@@ -60,14 +60,20 @@ import { TemplatePicker } from "./research/TemplatePicker";
 import { CommentsPanel } from "./organization/CommentsPanel";
 import { FragmentLibrary } from "./organization/FragmentLibrary";
 import { RevisionComparison } from "./organization/RevisionComparison";
-import { previewManuscript, MAX_MANUSCRIPT_BYTES, type ManuscriptPreview } from "./import/manuscript";
-import { ImportPreview } from "./import/ImportPreview";
+import type { ManuscriptPreview } from "./import/manuscript";
+import { ImportPreview, ImportBusy, type ImportDraft } from "./import/ImportPreview";
+import { previewWriting } from "./import/docxImport";
 import { ProjectDialogs, type NameDialog, type ChoiceDialog } from "./app/ProjectDialogs";
 import "./organization/organization.css";
 import {
+  copyFragmentAssets,
   importFragment,
   mergeMissingResearch,
 } from "./organization/operations";
+import { setImageSourceResolver } from "./editor/media";
+import { createPendingAsset } from "./assets/assets";
+import type { PendingAsset } from "./assets/types";
+import { createProjectArchive, readProjectArchive } from "./projectArchive";
 
 function readPreference<T>(key: string, fallback: T): T {
   try {
@@ -258,10 +264,99 @@ export default function App() {
     // Capture only on opening/day/profile changes, never on each writing edit.
   }, [project?.id, goalDay, goalContext]);
   const current = useRef<Project | null>(null);
+  const imageCache = useRef<Map<string, string>>(new Map());
+  const createdBlobUrls = useRef<Set<string>>(new Set());
+  const assetBytesCache = useRef<Map<string, PendingAsset>>(new Map());
+
+  useEffect(() => {
+    if (!project?.id) {
+      setImageSourceResolver(null);
+      return;
+    }
+
+    const projectId = project.id;
+    const resolver = async (assetId: string): Promise<string | null> => {
+      try {
+        const asset =
+          assetBytesCache.current.get(assetId) ??
+          (await storage.readAsset(projectId, assetId));
+        assetBytesCache.current.set(assetId, asset);
+        const url = URL.createObjectURL(
+          new Blob([asset.bytes as unknown as BlobPart], { type: asset.meta.mime }),
+        );
+        createdBlobUrls.current.add(url);
+        imageCache.current.set(assetId, url);
+        return url;
+      } catch {
+        return null;
+      }
+    };
+
+    setImageSourceResolver(resolver);
+
+    return () => {
+      setImageSourceResolver(null);
+      for (const url of createdBlobUrls.current) {
+        try {
+          URL.revokeObjectURL(url);
+        } catch {
+          // ignore
+        }
+      }
+      createdBlobUrls.current.clear();
+      imageCache.current.clear();
+      assetBytesCache.current.clear();
+    };
+  }, [project?.id]);
+
+  const resolveAsset = useCallback(
+    async (assetId: string): Promise<string | null> => {
+      if (!current.current?.id) return null;
+      const projectId = current.current.id;
+      try {
+        const asset =
+          assetBytesCache.current.get(assetId) ??
+          (await storage.readAsset(projectId, assetId));
+        assetBytesCache.current.set(assetId, asset);
+        const url = URL.createObjectURL(
+          new Blob([asset.bytes as unknown as BlobPart], { type: asset.meta.mime }),
+        );
+        createdBlobUrls.current.add(url);
+        imageCache.current.set(assetId, url);
+        return url;
+      } catch {
+        return null;
+      }
+    },
+    [],
+  );
+
+  const onInsertImage = useCallback(async (file: File) => {
+    if (!current.current?.id) return null;
+    const projectId = current.current.id;
+    try {
+      const bytes = new Uint8Array(await file.arrayBuffer());
+      const pendingAsset = await createPendingAsset(bytes);
+      await storage.stageAssets(projectId, [pendingAsset]);
+      assetBytesCache.current.set(pendingAsset.id, pendingAsset);
+      return {
+        assetId: pendingAsset.id,
+        alt: "",
+        width: pendingAsset.meta.width,
+        height: pendingAsset.meta.height,
+      };
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err);
+      setError(msg);
+      throw err;
+    }
+  }, []);
   const [library, setLibrary] = useState<Summary[]>([]);
   const [damagedJournals, setDamagedJournals] = useState<DamagedJournal[]>([]);
   const [damagedFolders, setDamagedFolders] = useState<string[]>([]);
-  const [importPreview, setImportPreview] = useState<ManuscriptPreview | null>(null);
+  const [importPreview, setImportPreview] = useState<ImportDraft | ManuscriptPreview | null>(null);
+  const [importBusy, setImportBusy] = useState<{ filename: string } | null>(null);
+  const importAbort = useRef<AbortController | null>(null);
   const [cslImportPreview, setCslImportPreview] = useState<(CslImportResult & { projectId: string }) | null>(null);
   const [choice, setChoice] = useState<ChoiceDialog | null>(null);
   const [active, setActive] = useState("");
@@ -990,43 +1085,58 @@ export default function App() {
       },
     });
   const importProject = async (file: File) => {
-    const p: unknown = JSON.parse(await file.text());
-    validateProject(p);
+    const text = await file.text();
+    const { project: p, assets } = await readProjectArchive(text);
     await queue.flush();
-    const imported = {
+    const imported: Project = {
       ...p,
       id: crypto.randomUUID(),
       revision: 1,
       title: p.title + " (recovered)",
       updatedAt: now(),
     };
-    setVersions(null);
-    setPreview(null);
-    setQuery("");
-    setMode("write");
-    apply(imported);
-    setActive(imported.order[0] ?? "");
-    setTarget(imported.order[0] ?? "");
-    localStorage.setItem("folio.lastProject", imported.id);
-    await queue.flush();
+    await storage.createProjectWithAssets(imported, assets);
+    queue.open(imported.id, imported);
+    enter(imported, false);
   };
   const importWriting = async (file: File) => {
-    if (file.size > MAX_MANUSCRIPT_BYTES) throw new Error("Manuscripts must be 5 MB or smaller.");
-    setImportPreview(previewManuscript(await file.arrayBuffer(), file.name));
+    // Mid-parse cancellation (Gate B F1 / T032): the preview may take a while
+    // for large DOCX/HTML files, so show a cancellable "Importing writing"
+    // dialog and pass an AbortSignal into previewWriting.
+    const controller = new AbortController();
+    importAbort.current?.abort();
+    importAbort.current = controller;
+    setImportBusy({ filename: file.name });
+    try {
+      const buffer = await file.arrayBuffer();
+      if (controller.signal.aborted) return;
+      const draft = await previewWriting(buffer, file.name, {
+        signal: controller.signal,
+      });
+      if (controller.signal.aborted) return;
+      setImportPreview(draft);
+    } catch (e) {
+      // A cancelled import is not an error: leave no dialog and no project.
+      if (controller.signal.aborted || (e as { name?: string })?.name === "AbortError") return;
+      throw e;
+    } finally {
+      if (importAbort.current === controller) importAbort.current = null;
+      setImportBusy(null);
+    }
+  };
+  const cancelImport = () => {
+    importAbort.current?.abort();
+    importAbort.current = null;
+    setImportBusy(null);
   };
   const confirmImport = async (title: string) => {
     if (!importPreview) return;
     const imported = { ...importPreview.project, title };
     await queue.flush();
-    setVersions(null);
-    setPreview(null);
-    setQuery("");
-    setMode("write");
-    apply(imported);
-    setActive(imported.order[0] ?? "");
-    setTarget(imported.order[0] ?? "");
-    localStorage.setItem("folio.lastProject", imported.id);
-    await queue.flush();
+    const assets = ("assets" in importPreview && Array.isArray(importPreview.assets)) ? importPreview.assets : [];
+    await storage.createProjectWithAssets(imported, assets);
+    queue.open(imported.id, imported);
+    enter(imported, false);
     setImportPreview(null);
   };
   const goLibrary = () =>
@@ -1176,12 +1286,11 @@ export default function App() {
         throw new Error("The project changed. Review this source import again.");
     };
     const research = before.research ?? { sources: [], notes: [], footnotes: [] };
+    validateSourceMergeUpdates(research.sources, updates);
     const replacements = new Map<string, ReturnType<typeof mergeSourceFields>>();
     for (const update of updates) {
       const candidate = result.sources[update.candidateIndex];
       const targets = research.sources.filter((source) => source.id === update.existingSourceId);
-      if (targets.length !== 1)
-        throw new Error("This source identity is not unique. Nothing was updated.");
       const source = targets[0];
       const shown = result.existingSources.find((source) => source.id === update.existingSourceId);
       const exact = result.review.exactDuplicates.find((row) => row.candidateIndex === update.candidateIndex);
@@ -1189,9 +1298,6 @@ export default function App() {
       const allowed = exact?.existingSourceIds ?? possible?.matches.map((row) => row.existingSourceId) ?? [];
       if (!candidate || !source || !shown || !allowed.includes(source.id) || signature(source) !== signature(shown))
         throw new Error("A source changed or no longer matches this preview. Review the import again.");
-      if (replacements.has(source.id))
-        throw new Error("Update an existing source from only one imported record at a time.");
-      if (!update.fields.length) throw new Error("Choose the fields to update first.");
       replacements.set(source.id, mergeSourceFields(source, candidate, update.fields));
     }
     const nextResearch = { ...research, sources: [
@@ -1565,11 +1671,14 @@ export default function App() {
                     aria-label="Export portable project"
                     title="Export complete project JSON"
                     onClick={() =>
-                      download(
-                        project.title + ".json",
-                        JSON.stringify(current.current, null, 2),
-                        "application/json",
-                      )
+                      void run(async () => {
+                        const p = current.current ?? project;
+                        if (!p) return;
+                        const archive = await createProjectArchive(p, (id) =>
+                          storage.readAsset(p.id, id),
+                        );
+                        download(p.title + ".json", archive, "application/json");
+                      })
                     }
                   >
                     <Download size={17} />
@@ -1809,6 +1918,7 @@ export default function App() {
                           <ReadDocument
                             content={e.content}
                             numbers={footnoteNumbers}
+                            resolveAsset={resolveAsset}
                           />
                         ) : (
                           "This section is waiting for words."
@@ -1856,6 +1966,8 @@ export default function App() {
                     onToggleFocusMode={() => setFocusMode((value) => !value)}
                     onToggleProseCheck={() => setProseCheck((value) => !value)}
                     item={item}
+                    resolveAsset={resolveAsset}
+                    onInsertImage={onInsertImage}
                     documentSettings={project.documentSettings}
                     footnoteNumbers={footnoteNumbers}
                     footnotes={(project.research?.footnotes ?? [])
@@ -2026,8 +2138,13 @@ export default function App() {
                     }))
                   }
                   onCopy={(source, fragment) => {
-                    mutate((p) => importFragment(p, source, fragment));
-                    setNotice("Fragment copied with its source references.");
+                    void run(async () => {
+                      const target = current.current;
+                      if (!target) return;
+                      await copyFragmentAssets(target.id, source.id, fragment, storage);
+                      mutate((p) => importFragment(p, source, fragment));
+                      setNotice("Fragment copied with its source references.");
+                    });
                   }}
                   activeId={mode === "write" ? item?.id : undefined}
                   onEdit={(id, content, text) =>
@@ -2179,6 +2296,7 @@ export default function App() {
           </div>
         )}
         <ProjectDialogs name={nameDialog} choice={choice} busy={busy} setName={setNameDialog} setChoice={setChoice} setBusy={setBusy} run={run} />
+        {importBusy && <ImportBusy filename={importBusy.filename} onCancel={cancelImport} />}
         {importPreview && <ImportPreview preview={importPreview} busy={busy} onCancel={() => setImportPreview(null)} onImport={(title) => {
           setBusy(true);
           void run(() => confirmImport(title)).finally(() => setBusy(false));

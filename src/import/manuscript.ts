@@ -1,5 +1,7 @@
 import MarkdownIt, { type Token } from "markdown-it";
 import { newProject, textOf, validateProject, type Project } from "../model";
+import { emptyResearch } from "../research/types";
+import { parseMarkdownNotes } from "./markdownNotes";
 import type { JSONContent } from "@tiptap/react";
 
 export const MAX_MANUSCRIPT_BYTES = 5 * 1024 * 1024;
@@ -70,10 +72,19 @@ function inspectText(text: string, filename: string): ManuscriptPreview {
   const project = newProject(manuscriptTitle(filename));
   const normalized = text.replace(/^\uFEFF/, "").replace(/\r\n?/g, "\n");
   const isMarkdown = /\.(md|markdown)$/i.test(filename);
-  const paragraphs: JSONContent[] = isMarkdown ? [] : normalized.split(/\n\s*\n/).map((p) => ({
-    type: "paragraph", content: p ? p.split("\n").flatMap((line, i) => [...(i ? [{ type: "hardBreak" }] : []), ...(line ? [{ type: "text", text: line }] : [])]) : [],
-  }));
-  project.entries[0].content = isMarkdown ? markdownDocument(normalized, warnings) : { type: "doc", content: paragraphs };
+  if (isMarkdown) {
+    const notes = parseMarkdownNotes(normalized, (md) => markdownDocument(md, warnings));
+    project.entries[0].content = notes.document;
+    if (notes.footnotes.length > 0) {
+      project.research = { ...(project.research ?? emptyResearch()), footnotes: notes.footnotes };
+    }
+    for (const warning of notes.warnings) warnings.add(warning);
+  } else {
+    const paragraphs: JSONContent[] = normalized.split(/\n\s*\n/).map((p) => ({
+      type: "paragraph", content: p ? p.split("\n").flatMap((line, i) => [...(i ? [{ type: "hardBreak" }] : []), ...(line ? [{ type: "text", text: line }] : [])]) : [],
+    }));
+    project.entries[0].content = { type: "doc", content: paragraphs };
+  }
   project.entries[0].text = textOf(project.entries[0].content);
   validateProject(project);
   return { project, warnings: [...warnings], format: isMarkdown ? "Markdown" : "Plain text", filename };

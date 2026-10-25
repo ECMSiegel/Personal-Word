@@ -1,0 +1,63 @@
+{
+  "id": "T016",
+  "title": "Implement conditional WP10 flowing per-page footnotes",
+  "description": "Follow team/PLAN.md, team/PROTOCOL.md, DELEGATION.md Common rules and applicable child plan; preserve current dirty work. This board records unfinished acceptance/repair, not permission to rebuild existing features. Inspect current implementation and earlier evidence first; fix only reproduced gaps in owned files, record exact commands/results and fail-first controls, and report CLAIMED. No installs, new packages, commits, pushes, publication, real-library access or destructive cleanup. Before expensive checks, acquire exclusive registered path node_modules/.cache/personal-word-beta/team-serial-check-slot via team.py files add; if another live task owns it, do independent work or hand off rather than overlap runs. Retain full logs and use pinned Node/offline serial Rust/production-preview Playwright. Independent review is required. CONDITIONAL on explicit WP8 PASS and completed WP9; cancel without coding on documented STOP. Execute L3 exactly: native measured grapheme-safe lines, per-page note allocation, continued segments with exact coverage, bounded monotonic pagination, labels/oversized object policies and no clipping. Do not rewrite live editor columns. Run pagination/footnote units, native print --matrix, negative controls for advancement/reserve, inspect all adversarial rendered pages and identical preview/save bytes. Write the task report to docs/agent-work/2026-10-24-team-reconciliation/wp10.md.",
+  "status": "done",
+  "owner": null,
+  "priority": 2,
+  "depends_on": [
+    "T015"
+  ],
+  "files": [
+    "src/print/pagination.ts",
+    "src/print/pagination.test.ts",
+    "src/print/footnotes.ts",
+    "src/print/footnotes.test.ts",
+    "tests/fixtures/print",
+    "src/print/document.ts",
+    "src/print/print.css",
+    "tests/native-print.js",
+    "scripts/native-print-smoke.py",
+    "src/export/document.test.ts",
+    "docs/agent-work/2026-10-20-beta-roadmap/05-layout/IMPLEMENTATION_LOG.md",
+    "docs/agent-work/2026-10-24-team-reconciliation/wp10.md"
+  ],
+  "review_required": true,
+  "created_by": "agent-45fb",
+  "created_at": "2026-10-24T22:19:05+00:00",
+  "claimed_at": "2026-10-25T07:36:49+00:00",
+  "updated_at": "2026-10-25T07:38:52+00:00",
+  "handoff": null,
+  "review": {
+    "by": "agent-c57f",
+    "at": "2026-10-25T07:38:52+00:00",
+    "verdict": "approved",
+    "note": "agent-c57f (non-author) APPROVE cancellation. Checked: decision 'WP9/WP10 cancelled: WP8 feasibility STOP' (agent-f459, 07:27Z) prescribes exactly this claim/done-not-needed/review path; T014 STOP gate approved by agent-19b6; T015 cancelled and approved first (dependency order respected); Q004 still open so 05-layout/PLAN.md default (legacy exporter, no WP9/WP10) applies. No files written: every WP10-only path is absent (src/print/pagination.ts, pagination.test.ts, footnotes.ts, footnotes.test.ts, tests/fixtures/print, src/print/document.ts, print.css, wp10.md); shared paths predate the 07:36Z claim (tests/native-print.js 05:53Z, scripts/native-print-smoke.py 07:05Z, 05-layout/IMPLEMENTATION_LOG.md 07:12Z, src/export/document.test.ts 2026-10-24); src/print holds only T013's nativePdf.ts/nativePdf.test.ts/printProbe.ts. Note accurate. Reopen only via Q004 A/C plus a new reviewed PASS."
+  },
+  "log": [
+    {
+      "at": "2026-10-24T22:19:05+00:00",
+      "agent": "agent-45fb",
+      "event": "created",
+      "note": ""
+    },
+    {
+      "at": "2026-10-25T07:36:49+00:00",
+      "agent": "agent-b8ae",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-10-25T07:36:49+00:00",
+      "agent": "agent-b8ae",
+      "event": "review requested",
+      "note": "not needed: WP8 feasibility STOP (feasibility.md, 05-layout/REVIEW.md dated section, decision 'WP9/WP10 cancelled'); legacy exporter retained; reopen only if Q004 is answered A or C and a reviewed WP8 PASS follows; no implementation performed"
+    },
+    {
+      "at": "2026-10-25T07:38:52+00:00",
+      "agent": "agent-c57f",
+      "event": "approved",
+      "note": "agent-c57f (non-author) APPROVE cancellation. Checked: decision 'WP9/WP10 cancelled: WP8 feasibility STOP' (agent-f459, 07:27Z) prescribes exactly this claim/done-not-needed/review path; T014 STOP gate approved by agent-19b6; T015 cancelled and approved first (dependency order respected); Q004 still open so 05-layout/PLAN.md default (legacy exporter, no WP9/WP10) applies. No files written: every WP10-only path is absent (src/print/pagination.ts, pagination.test.ts, footnotes.ts, footnotes.test.ts, tests/fixtures/print, src/print/document.ts, print.css, wp10.md); shared paths predate the 07:36Z claim (tests/native-print.js 05:53Z, scripts/native-print-smoke.py 07:05Z, 05-layout/IMPLEMENTATION_LOG.md 07:12Z, src/export/document.test.ts 2026-10-24); src/print holds only T013's nativePdf.ts/nativePdf.test.ts/printProbe.ts. Note accurate. Reopen only via Q004 A/C plus a new reviewed PASS."
+    }
+  ]
+}

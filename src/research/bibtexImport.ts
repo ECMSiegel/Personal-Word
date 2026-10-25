@@ -213,7 +213,17 @@ const MARKS: Record<string, string> = {
 const SYMBOLS: Record<string, string> = {
   ss: "ß", ae: "æ", AE: "Æ", oe: "œ", OE: "Œ", o: "ø", O: "Ø", aa: "å", AA: "Å", l: "ł", L: "Ł",
   i: "i", j: "j", ldots: "…", textendash: "–", textemdash: "—", textquoteright: "’", textquoteleft: "‘",
+  // Title macros that produce their names verbatim (e.g. {\TeX}book
+  // must render "The TeXbook", not "The book" -- reproduced via
+  // tests/fixtures/sample.bib and the BibTeX import browser case).
+  TeX: "TeX", LaTeX: "LaTeX", BibTeX: "BibTeX",
 };
+
+// Formatting commands whose argument is the text: the command itself is dropped.
+const FORMATTING = new Set([
+  "emph", "textit", "textbf", "textsc", "textsl", "textup", "textrm", "textsf", "texttt", "textnormal",
+  "mbox", "url", "enquote", "mkbibquote", "mkbibemph", "mkbibitalic", "mkbibbold",
+]);
 
 /** Index of the "}" matching the "{" at `open`, or -1. */
 function matchBrace(s: string, open: number): number {
@@ -226,8 +236,11 @@ function matchBrace(s: string, open: number): number {
   return -1;
 }
 
-/** Plain text from common LaTeX: accents, symbols, dashes, quotes; protective braces are dropped. */
-export function texToText(input: string): string {
+/**
+ * Plain text from common LaTeX: accents, symbols, dashes, quotes; protective braces are dropped.
+ * Unknown commands keep their name as text (no TeX is evaluated); their names go into `unknown`.
+ */
+export function texToText(input: string, unknown?: Set<string>): string {
   const s = input;
   let out = "";
   let i = 0;
@@ -238,7 +251,7 @@ export function texToText(input: string): string {
     if (s[at] === "{") {
       const end = matchBrace(s, at);
       if (end === -1) return at;
-      arg = texToText(s.slice(at + 1, end));
+      arg = texToText(s.slice(at + 1, end), unknown);
       next = end + 1;
     } else if (s[at] === "\\" && /[ij]/.test(s[at + 1] ?? "") && !/[A-Za-z]/.test(s[at + 2] ?? "")) {
       arg = s[at + 1];
@@ -263,6 +276,10 @@ export function texToText(input: string): string {
         if (Object.hasOwn(MARKS, name) && name.length === 1) i = accent(MARKS[name], j);
         else {
           if (Object.hasOwn(SYMBOLS, name)) out += SYMBOLS[name];
+          else if (!FORMATTING.has(name)) {
+            out += name;
+            unknown?.add(name);
+          }
           i = j;
         }
       } else if (Object.hasOwn(MARKS, n)) {
@@ -332,15 +349,15 @@ const isLowerWord = (word: string) => {
   return !!c && c !== "{" && c !== "\\" && c === c.toLowerCase() && c !== c.toUpperCase();
 };
 
-function parseName(raw: string): CslName | null {
+function parseName(raw: string, unknown?: Set<string>): CslName | null {
   const text = words(raw).join(" ");
   if (!text) return null;
   if (text.startsWith("{") && matchBrace(text, 0) === text.length - 1) {
-    const literal = texToText(text);
+    const literal = texToText(text, unknown);
     return literal ? { literal } : null;
   }
   const parts = splitTopLevel(text, ",");
-  const decode = (value: string) => texToText(value);
+  const decode = (value: string) => texToText(value, unknown);
   if (parts.length === 1) {
     const tokens = words(text);
     if (tokens.length === 1) return { family: decode(tokens[0]) };
@@ -363,7 +380,7 @@ function parseName(raw: string): CslName | null {
 }
 
 /** Returns names and whether the list ended with "and others". */
-function parseNames(raw: string): { names: CslName[]; etAl: boolean } {
+function parseNames(raw: string, unknown?: Set<string>): { names: CslName[]; etAl: boolean } {
   const groups: string[][] = [[]];
   for (const word of words(raw)) {
     if (word.toLowerCase() === "and") groups.push([]);
@@ -374,7 +391,7 @@ function parseNames(raw: string): { names: CslName[]; etAl: boolean } {
   for (const group of groups) {
     const text = group.join(" ");
     if (text.toLowerCase() === "others") { etAl = true; continue; }
-    const name = parseName(text);
+    const name = parseName(text, unknown);
     if (name) names.push(name);
   }
   return { names, etAl };
@@ -412,10 +429,11 @@ function buildItem(entry: RawEntry, byKey: Crossref, warnings: string[]): Record
     const parentTitle = parent.fields.get("title");
     if (parentTitle && !fields.has("booktitle")) fields.set("booktitle", parentTitle);
   }
+  const unknown = new Set<string>();
   const text = (...names: string[]): string | undefined => {
     for (const name of names) {
       const value = fields.get(name);
-      if (value !== undefined) { const t = texToText(value); if (t) return t; }
+      if (value !== undefined) { const t = texToText(value, unknown); if (t) return t; }
     }
     return undefined;
   };
@@ -438,7 +456,7 @@ function buildItem(entry: RawEntry, byKey: Crossref, warnings: string[]): Record
   for (const [field, role] of [["author", "author"], ["editor", "editor"], ["translator", "translator"]] as const) {
     const value = fields.get(field);
     if (value === undefined) continue;
-    const parsed = parseNames(value);
+    const parsed = parseNames(value, unknown);
     if (parsed.names.length) item[role] = parsed.names;
     if (parsed.etAl) {
       etAl = true;
@@ -485,6 +503,10 @@ function buildItem(entry: RawEntry, byKey: Crossref, warnings: string[]): Record
   const accessedMatch = accessed ? /^(\d{4})-(\d{2})-(\d{2})/.exec(accessed) : null;
   if (accessedMatch) item.accessed = { "date-parts": [accessedMatch.slice(1).map(Number)] };
 
+  if (unknown.size) {
+    const list = [...unknown].map((name) => `\\${name}`).join(", ");
+    warnings.push(`“${title}” uses LaTeX commands this app does not know (${list}); their names were kept as text. Check the imported text.`);
+  }
   // Everything the file said, unmodified (macros expanded), so nothing is lost.
   item.bibtex = { key: entry.key, type: entry.type, fields: Object.fromEntries(fields), ...(etAl ? { etAl: true } : {}) };
   return item;

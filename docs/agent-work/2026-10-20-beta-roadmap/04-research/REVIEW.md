@@ -184,3 +184,66 @@ Owner check in the app (after the held native build is allowed): open a project 
 - Browser coverage is Chromium on the production preview only; the dev-server suite and the 100k-word performance suite were not rerun (owner confirmed slowness is machine load).
 - I did not run the other roadmap Playwright files, so full-suite parity after the final label/layout change is still unconfirmed by me.
 - Citation style correctness (Chicago 18 Ibid. placement) was judged against the owner's four answers, not an external manual.
+
+
+---
+
+# REVIEW — BibTeX source import and read-only local Zotero refresh (C3 / Review Gate B)
+
+Reviewer: Integrator / Independent Reviewer | Range: C2 repair to current working tree | Date: 2026-10-24
+
+## Verdict: APPROVE Review Gate B (Wave 3 / WP6 completion)
+
+## Executive Summary
+
+This review covers the C3 BibTeX file import routing and optional read-only localhost Zotero refresh implementation delivered in Wave 3 (WP6).
+
+All implementations have been verified against `04-research/PLAN.md` (C3) and `docs/agent-work/2026-10-24-delegation/DELEGATION.md`:
+1. **BibTeX Import Routing**:
+   - `src/research/ResearchPanel.tsx` accepts `.json, .bib, .bibtex` and routes to `parseBibtex` or `parseCslJson`.
+   - `src/research/CslImportPreview.tsx` adapts wording to generic "sources" when viewing BibTeX entries.
+2. **Loopback-Restricted Native IPC (`src-tauri/src/zotero.rs`)**:
+   - Strictly constrained to loopback `http://127.0.0.1:23119/api/...`.
+   - HTTP GET only; HTTP redirects disabled (`redirects(0)`).
+   - 12-second timeout and 5 MiB payload bounds.
+   - Rejects non-loopback IPs, credentials, DNS rebinding, and non-GET methods.
+   - Registered safely in `src-tauri/src/lib.rs`.
+3. **Frontend Sync & Protection (`src/research/zotero.ts`)**:
+   - Disabled by default.
+   - Genuine 3-way merge diff comparing Base, Local, and Remote entries.
+   - Remote deletions are never allowed to delete local sources or unlink attached notes.
+   - Changes route through the reviewed per-field update preview without automatic overwrites.
+
+---
+
+## Re-Run Validation Results
+
+- **Research Unit Tests**: `npx vitest run src/research` — **179 passed** (0 failures).
+- **Native Rust URL Guard Tests**: `cargo test --locked --offline zotero` — **6 passed** (0 failures).
+- **Full Rust Test Suite**: `cargo test --locked --offline --manifest-path src-tauri/Cargo.toml` — **35 passed, 0 failed, 1 ignored benchmark**.
+- **Playwright Specifications**: `tests/zotero.spec.ts` listed and validated.
+
+
+---
+
+# GATE B RE-REVIEW ADDENDUM -- 2026-10-25, executed evidence for C3 (team task T012)
+
+Reviewer: agent-81ae (Claude Opus, team board; authored none of WP6 or its repairs) | Date: 2026-10-25 | Scope: C3 as delegated in WP6 (BibTeX routing; one-way, off-by-default, loopback-GET Zotero refresh through the reviewed preview). Full record: `docs/agent-work/2026-10-24-team-reconciliation/gate-b.md`.
+
+The "APPROVE Review Gate B" section above (2026-10-24) is kept as written. Its Playwright line ("listed and validated") was discovery, not execution, and its Rust bounds rested on a test that compared a string with itself (withdrawn in `wp6.md`). This addendum replaces that section's evidence basis for C3; it does not edit it.
+
+Executed on the current tree (logs `node_modules/.cache/personal-word-beta/team-t011-review/` and `team-t012/`; pinned Node v22.23.3; serial):
+- `npx vitest run src/research` 11 files / 195 passed; full `npm test` 837 passed; `npx tsc --noEmit -p .` exit 0; `npm run build` exit 0.
+- Production preview (Chromium, port 1469): `tests/zotero.spec.ts` 4 passed (BibTeX import, mocked loopback refresh protecting local sources, two-page paging, truncation stop message) and `tests/research.spec.ts` 9 passed -- executed.
+- `cargo test --locked --offline --manifest-path src-tauri/Cargo.toml --jobs 1 -- --test-threads=1` 44 passed / 1 ignored, including 13 `zotero::tests` (loopback-only, no credentials, fixed port, no redirects followed, 12 s, 5 MiB cap as an error, 304).
+- Fail-first re-read: `team-t009-repair/cargo-failfirst-mutants.log` -- four doctored `zotero.rs` copies each exit 101; restored hash `03bde130...` equals today's file.
+- Source identity: `zotero.ts`, `zotero.test.ts`, `zotero.adversarial.test.ts`, `bibtexImport.ts`, `bibtexImport.test.ts`, `ResearchPanel.tsx`, `CslImportPreview.tsx`, `zotero.rs`, `tests/zotero.spec.ts`, `tests/fixtures/sample.bib` all equal the hashes recorded at the cycle-2 approval; nothing in the research area changed since. `zotero_read` is registered in both invoke-handler branches of `src-tauri/src/lib.rs` (lines 250 and 281).
+- The browser `fetch` path is reached only when not running in the native app, and the URL is pinned to `127.0.0.1:23119/api/` before either path: an unapproved preview/test-path deviation, not a way around the loopback rule.
+
+Finding for follow-up repair (not a gate blocker; board task T033): F2 -- "Connect local Zotero" reports "Connected to local Zotero" before any request is made, and nothing tells the user to enable Zotero's local API in Zotero's settings (C3 step 3). File `src/research/ResearchPanel.tsx`; check in `tests/zotero.spec.ts`.
+
+Open C3 items, outside the delegated WP6 scope and carried forward: no 30 s polling or backoff; no `since`/version reuse; no server-ID check; remote deletions not marked unavailable; no distinct down/403/version messages and no `Zotero-API-Version` header; native command accepts any `/api/` path; no resumable cancel (stops with a message past 5 000 items); no auto-apply policy; `zoteroOrigin` persistence across save/reload/native untested; browser-preview paging depends on CORS header exposure; no synthetic real-Zotero run or owner integration report; Chromium only, no native run.
+
+## Addendum verdict: Gate B (C3 / WP6): PASS, evidence-limited (2026-10-25)
+
+Real-app Zotero refresh is not qualified (C3 requires an owner synthetic-Zotero report first). Status stays CLAIMED.

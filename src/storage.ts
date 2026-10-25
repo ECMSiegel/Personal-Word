@@ -5,8 +5,20 @@ import {
   type Version,
   validateProject,
 } from "./model";
-import type { Change } from "./save-queue";
-export const desktop = isTauri();
+import { type Change, headerOf } from "./save-queue";
+import { type AssetMeta, type PendingAsset } from "./assets/types";
+import {
+  browserAssetStore,
+  collectAssetIds,
+  inspectImage,
+  isAssetId,
+  toBase64,
+  verifyPendingAsset,
+} from "./assets/assets";
+export let desktop = isTauri();
+export function setDesktopForTesting(val: boolean) {
+  desktop = val;
+}
 const prefix = "folio.preview.";
 function read<T>(key: string, fallback: T): T {
   const data = localStorage.getItem(prefix + key);
@@ -14,6 +26,14 @@ function read<T>(key: string, fallback: T): T {
 }
 function write(key: string, value: unknown) {
   localStorage.setItem(prefix + key, JSON.stringify(value));
+}
+async function requireBrowserAssets(project: Project): Promise<void> {
+  for (const id of collectAssetIds(project)) {
+    if (!(await browserAssetStore.get(project.id, id)))
+      throw new Error(
+        "An image in this edit is missing from the project's storage; nothing was saved. Your recovery journal has been kept.",
+      );
+  }
 }
 export type Listing = { projects: Summary[]; damaged: string[] };
 export const storage = {
@@ -60,6 +80,7 @@ export const storage = {
           JSON.stringify(old) !== JSON.stringify(project)))
     )
       throw new Error("Conflicting revision. Recovery journal retained.");
+    await requireBrowserAssets(project);
     if (old && old.revision < project.revision) {
       const history = read<Project[]>("history." + project.id, []);
       write("history." + project.id, [old, ...history].slice(0, 100));
@@ -110,5 +131,79 @@ export const storage = {
     return desktop
       ? invoke("storage_path")
       : "Browser preview storage -- use the desktop app for SQLite and portable files.";
+  },
+  async stageAssets(
+    projectId: string,
+    assets: PendingAsset[],
+  ): Promise<AssetMeta[]> {
+    if (desktop) {
+      const uploads = assets.map((a) => ({
+        id: a.id,
+        meta: a.meta,
+        data: toBase64(a.bytes),
+      }));
+      return invoke<AssetMeta[]>("stage_assets", {
+        projectId,
+        assets: uploads,
+      });
+    }
+    for (const asset of assets) {
+      await browserAssetStore.put(projectId, asset);
+    }
+    return assets.map((a) => a.meta);
+  },
+  async readAsset(projectId: string, id: string): Promise<PendingAsset> {
+    if (desktop) {
+      const buf = await invoke<ArrayBuffer | Uint8Array>("read_asset", {
+        projectId,
+        assetId: id,
+      });
+      const bytes = buf instanceof Uint8Array ? buf : new Uint8Array(buf);
+      const meta = inspectImage(bytes);
+      const asset: PendingAsset = { id, meta, bytes };
+      await verifyPendingAsset(asset);
+      return asset;
+    }
+    if (!isAssetId(id)) {
+      throw new Error("Invalid image identifier");
+    }
+    const asset = await browserAssetStore.get(projectId, id);
+    if (!asset) {
+      throw new Error("This image is not stored in the project.");
+    }
+    return asset;
+  },
+  async createProjectWithAssets(
+    project: Project,
+    assets: PendingAsset[],
+  ): Promise<void> {
+    validateProject(project);
+    if (desktop) {
+      const change: Change = {
+        header: headerOf(project),
+        entries: project.entries,
+        baseRevision: null,
+      };
+      const uploads = assets.map((a) => ({
+        id: a.id,
+        meta: a.meta,
+        data: toBase64(a.bytes),
+      }));
+      return invoke("create_project_with_assets", {
+        change,
+        assets: uploads,
+      });
+    }
+    const existing = read<Project | null>("project." + project.id, null);
+    if (existing) {
+      throw new Error(
+        "A project with this identity already exists; nothing was replaced.",
+      );
+    }
+    for (const asset of assets) {
+      await browserAssetStore.put(project.id, asset);
+    }
+    await requireBrowserAssets(project);
+    write("project." + project.id, project);
   },
 };

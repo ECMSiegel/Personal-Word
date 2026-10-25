@@ -1,0 +1,61 @@
+{
+  "id": "T014",
+  "title": "Review WP8 feasibility and enforce conditional layout gate",
+  "description": "Follow team/PLAN.md, team/PROTOCOL.md, DELEGATION.md Common rules and applicable child plan; preserve current dirty work. This board records unfinished acceptance/repair, not permission to rebuild existing features. Inspect current implementation and earlier evidence first; fix only reproduced gaps in owned files, record exact commands/results and fail-first controls, and report CLAIMED. No installs, new packages, commits, pushes, publication, real-library access or destructive cleanup. Before expensive checks, acquire exclusive registered path node_modules/.cache/personal-word-beta/team-serial-check-slot via team.py files add; if another live task owns it, do independent work or hand off rather than overlap runs. Retain full logs and use pinned Node/offline serial Rust/production-preview Playwright. Independent review is required. Independently inspect actual native PDF output, page boxes/text/shaping/readiness/privacy and negative controls. Append explicit PASS or STOP to layout REVIEW.md. If STOP: keep legacy exports; log plan-prescribed non-applicability and cancel WP9/WP10 through decide plus normal claim/done/review commands, with reason and no implementation. Do not treat a stopped probe as a pass or let dependency completion alone authorize WP9/WP10. If unexpected dependency/design conflict requires owner decision, open question and block affected work. Write the task report to docs/agent-work/2026-10-24-team-reconciliation/feasibility.md.",
+  "status": "done",
+  "owner": null,
+  "priority": 1,
+  "depends_on": [
+    "T013"
+  ],
+  "files": [
+    "docs/agent-work/2026-10-20-beta-roadmap/05-layout/REVIEW.md",
+    "docs/agent-work/2026-10-24-team-reconciliation/feasibility.md",
+    "node_modules/.cache/personal-word-beta/team-t014",
+    "node_modules/.cache/personal-word-beta/team-serial-check-slot"
+  ],
+  "review_required": true,
+  "created_by": "agent-45fb",
+  "created_at": "2026-10-24T22:19:05+00:00",
+  "claimed_at": "2026-10-25T07:26:36+00:00",
+  "updated_at": "2026-10-25T07:30:20+00:00",
+  "handoff": null,
+  "review": {
+    "by": "agent-19b6",
+    "at": "2026-10-25T07:30:20+00:00",
+    "verdict": "approved",
+    "note": "agent-19b6 (non-author) APPROVE STOP gate. Checked: feasibility.md + dated STOP section in 05-layout/REVIEW.md match T013 evidence: probe-rerun.log run 20261025T072108Z-e51b1619 fails only letter/a4 searchable-text (missing 'السلام عليكم'), every other assertion PASS, all 4 checker controls DETECTED; font-untried.log: 18 more fonts fail, Diwan Kufi/Diwan Thuluth pass (Thuluth drops the space), with worker's 8 -> 26/28 fail (note: one of the 28, Noto Naskh, was not installed and fell back, as feasibility.md discloses). No rerun needed: all 10 identity hashes in result.json (binary a15f40b3, printing.rs 0ac9a4d6, ...) equal current files. Viewed pages letter-1/2, a4-1, note-flow-2, hostile-1: rendering matches report (Arabic joined, CJK, table, swatch, Sheet n of N bands, PWS069-120 continuation, inert hostile chrome). Plan default correctly applied while Q004 open (05-layout/PLAN.md L1 'Default if unanswered'): src/export/pdf.ts sha ffef585b == git HEAD; render_pdf only in the native-smoke generate_handler (lib.rs:263); no render_pdf/nativePdf/printProbe reference under src/export, src/components, App.tsx, Writer.tsx. T014 registered only docs + cache, no code. Decision 'WP9/WP10 cancelled: WP8 feasibility STOP' logged with reopen path via Q004 A/C. Log: node_modules/.cache/personal-word-beta/team-t014-t032-review/t014-identity.log. CLAIMED, not VERIFIED by the owner."
+  },
+  "log": [
+    {
+      "at": "2026-10-24T22:19:05+00:00",
+      "agent": "agent-45fb",
+      "event": "created",
+      "note": ""
+    },
+    {
+      "at": "2026-10-25T07:26:36+00:00",
+      "agent": "agent-f459",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-10-25T07:26:36+00:00",
+      "agent": "agent-f459",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-10-25T07:27:57+00:00",
+      "agent": "agent-f459",
+      "event": "review requested",
+      "note": "GATE VERDICT: STOP for L1/WP8 (CLAIMED). Wrote docs/agent-work/2026-10-24-team-reconciliation/feasibility.md and created docs/agent-work/2026-10-20-beta-roadmap/05-layout/REVIEW.md with a dated 2026-10-25 STOP section. No code edits. Basis: independent rerun without rebuild (identity matched binary a15f40b3) python3 scripts/native-print-smoke.py --probe --timeout 420 -> run 20261025T072108Z-e51b1619 PROBE_RESULT: STOP -- failing: letter:searchable-text, a4:searchable-text; all other assertions pass, all 4 checker controls detected; all 8 page PNGs viewed. Arabic lam-alef not searchable (PDFKit 0 hits) with 26 of 28 installed Arabic-capable fonts (all body-text faces); only decorative Diwan Kufi/Diwan Thuluth keep it (team-t013-review/font-untried.log) -- corrects wp8.md's 'cannot produce searchable Arabic' to 'font-dependent'. Q004 still open, so plan default applied: legacy pdf-lib exporter retained (src/export/pdf.ts clean vs HEAD), native path smoke-build-only/unavailable, no parity claim. Cancellation: decide 'WP9/WP10 cancelled: WP8 feasibility STOP' logged; claim T015 refused (exit 2: T015 depends on T014, in_progress) -- so AFTER T014 is approved, the next agent must: claim T015 -> done T015 --note 'not needed: WP8 STOP per feasibility.md; legacy exporter retained; reopen only on Q004 A/C with a reviewed PASS' -> another agent approves -> same for T016. Gate C (T017) must review preserved legacy behaviour and document WP9/WP10 non-applicability. Reviewer of T014: read feasibility.md sections 3-6; rerun the probe command above (about 1 min, no rebuild while identity matches) and the font experiment python3 node_modules/.cache/personal-word-beta/team-t013-review/font-search-untried.py <run> <new-out-dir> <pdfsearch>. Evidence logs: node_modules/.cache/personal-word-beta/team-t013-review/. No processes running; serial slot released on done."
+    },
+    {
+      "at": "2026-10-25T07:30:20+00:00",
+      "agent": "agent-19b6",
+      "event": "approved",
+      "note": "agent-19b6 (non-author) APPROVE STOP gate. Checked: feasibility.md + dated STOP section in 05-layout/REVIEW.md match T013 evidence: probe-rerun.log run 20261025T072108Z-e51b1619 fails only letter/a4 searchable-text (missing 'السلام عليكم'), every other assertion PASS, all 4 checker controls DETECTED; font-untried.log: 18 more fonts fail, Diwan Kufi/Diwan Thuluth pass (Thuluth drops the space), with worker's 8 -> 26/28 fail (note: one of the 28, Noto Naskh, was not installed and fell back, as feasibility.md discloses). No rerun needed: all 10 identity hashes in result.json (binary a15f40b3, printing.rs 0ac9a4d6, ...) equal current files. Viewed pages letter-1/2, a4-1, note-flow-2, hostile-1: rendering matches report (Arabic joined, CJK, table, swatch, Sheet n of N bands, PWS069-120 continuation, inert hostile chrome). Plan default correctly applied while Q004 open (05-layout/PLAN.md L1 'Default if unanswered'): src/export/pdf.ts sha ffef585b == git HEAD; render_pdf only in the native-smoke generate_handler (lib.rs:263); no render_pdf/nativePdf/printProbe reference under src/export, src/components, App.tsx, Writer.tsx. T014 registered only docs + cache, no code. Decision 'WP9/WP10 cancelled: WP8 feasibility STOP' logged with reopen path via Q004 A/C. Log: node_modules/.cache/personal-word-beta/team-t014-t032-review/t014-identity.log. CLAIMED, not VERIFIED by the owner."
+    }
+  ]
+}

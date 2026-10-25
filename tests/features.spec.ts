@@ -123,9 +123,7 @@ test("page layout reflows long paragraphs and preserves undo and formatting", as
     "A long sentence with enough words to flow across paper. ".repeat(300),
   );
   await editor.press("ControlOrMeta+a");
-  await page
-    .getByRole("button", { name: "Line and paragraph spacing" })
-    .click();
+  await (await toolbarButton(page, "Line and paragraph spacing")).click();
   await page.getByRole("button", { name: "Double", exact: true }).click();
   await page.keyboard.press("Escape");
   await (await toolbarButton(page, "Page view")).click();

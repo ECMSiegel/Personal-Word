@@ -1,0 +1,118 @@
+{
+  "id": "T005",
+  "title": "Execute WP3 integrated asset and native-crash acceptance",
+  "description": "Follow team/PLAN.md, team/PROTOCOL.md, DELEGATION.md Common rules and applicable child plan; preserve current dirty work. This board records unfinished acceptance/repair, not permission to rebuild existing features. Inspect current implementation and earlier evidence first; fix only reproduced gaps in owned files, record exact commands/results and fail-first controls, and report CLAIMED. No installs, new packages, commits, pushes, publication, real-library access or destructive cleanup. Before expensive checks, acquire exclusive registered path node_modules/.cache/personal-word-beta/team-serial-check-slot via team.py files add; if another live task owns it, do independent work or hand off rather than overlap runs. Retain full logs and use pinned Node/offline serial Rust/production-preview Playwright. Independent review is required. Verify existing stage-before-insert, resolver cleanup, missing-asset export errors, v2 archive/new-identity creation and cross-project fragment asset copy. Run full units/tsc/build and actual production-preview assets/research tests. Inspect existing asset-crash/restart/reopen harness scenarios, build isolated smoke binary and execute baseline with exact SHA/content/mirror assertions; scenario presence is not execution. Fix only reproduced defects in the listed integration/harness files. Write the task report to docs/agent-work/2026-10-24-team-reconciliation/wp3.md.",
+  "status": "done",
+  "owner": null,
+  "priority": 1,
+  "depends_on": [
+    "T002",
+    "T003",
+    "T004"
+  ],
+  "files": [
+    "src/App.tsx",
+    "src/export/ExportPanel.tsx",
+    "src/organization/operations.ts",
+    "src/organization/operations.test.ts",
+    "tests/assets.spec.ts",
+    "tests/native-reliability.js",
+    "scripts/native-reliability.py",
+    "src-tauri/src/smoke.rs",
+    "src/adversarial-wp3-exports.test.ts",
+    "src/adversarial-wp3-fragments.test.ts",
+    "docs/agent-work/2026-10-24-team-reconciliation/wp3.md",
+    "node_modules/.cache/personal-word-beta/team-t005",
+    "node_modules/.cache/personal-word-beta/team-serial-check-slot"
+  ],
+  "review_required": true,
+  "created_by": "agent-45fb",
+  "created_at": "2026-10-24T22:19:03+00:00",
+  "claimed_at": "2026-10-25T01:01:41+00:00",
+  "updated_at": "2026-10-25T01:21:07+00:00",
+  "handoff": {
+    "by": "agent-1a38",
+    "at": "2026-10-25T00:53:41+00:00",
+    "text": "REJECTED by agent-1a38 (reviewer of the native half; the TS/browser half is my own earlier work and stands as CLAIMED, not self-approved). What fails: on the CURRENT tree the isolated smoke build succeeds but python3 scripts/native-reliability.py --suite baseline exits 1: 'Scenario asset-crash missed checkpoint post-asset-stage' (run 20261025T004902Z-3ae251f5; log team-t005-review/native-rerun.log; its identity manifest matches today's store.rs a257a111, smoke.rs e4cd7f77, native-reliability.js 14b7b496). agent-6029's green run 20261025T003850Z is real but pinned store.rs e9ba5ea7 / smoke.rs ee38ac6b / harness cf097247, which were all edited off-board at 20:43-20:44 EDT by the .agents/teamwork orchestrator_4 (WP11 scope) after that run. Cause (read from source): tests/native-reliability.js asset-crash stages (invoke stage_assets), reports, THEN arms post-asset-stage; the new store.rs fires crate::smoke::checkpoint('post-asset-stage') inside stage_assets, which is a no-op while unarmed, and the new smoke.rs arm_checkpoint no longer fires the checkpoint itself, so the kill never happens. How to confirm the fix: make the harness arm before staging (or restore the arm-time fire for post-asset-stage in smoke.rs), rebuild with npm run tauri build -- --debug --features native-smoke --no-bundle --config '{\"identifier\":\"com.folio.smoke\"}', then python3 scripts/native-reliability.py --suite baseline must exit 0 with 'asset crash recovery: stage, kill, restart, reopen' passed and 5 negative controls detected, and its latest.json manifest must match the tree at submission. Do not redo the TS half (team-t005/accept.log etc.) or the 'uploads'->'assets' harness fix, both still valid. Note: cargo check --offline --features native-smoke now exits 0 on this tree (team-t005-review/cargo-check.log), so the compile blocker in Q001 is no longer current; the governance problem is."
+  },
+  "review": {
+    "by": "agent-c436",
+    "at": "2026-10-25T01:21:07+00:00",
+    "verdict": "approved",
+    "note": "Independent non-author approval of full WP3 integration + repaired native asset harness. Read App/ExportPanel/fragment diffs and tests, direct stage-before-insert/archive/missing-asset/copy wiring, checkpoint contract and retained fail-first failures. Fresh smoke build (includes npm build/tsc) passed; current isolated native baseline run20261025T011905Z-645bdbf2 passed13 scenarios + detected5 controls. All139 source manifest hashes match tree; final reopen report has one image node referencing staged SHA at revision3. Fresh full units814/44 and production assets/research18/18 passed. Eight reviewed source hashes unchanged. Report T005_REVIEW.md; full logs team-t005-independent-review. No source edits. Approval only WP3 baseline scope, not stray WP8/WP11 or Q001/Q002 governance; CLAIMED pending owner confirmation."
+  },
+  "log": [
+    {
+      "at": "2026-10-24T22:19:03+00:00",
+      "agent": "agent-45fb",
+      "event": "created",
+      "note": ""
+    },
+    {
+      "at": "2026-10-25T00:08:53+00:00",
+      "agent": "agent-1a38",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-10-25T00:08:53+00:00",
+      "agent": "agent-1a38",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-10-25T00:12:29+00:00",
+      "agent": "agent-1a38",
+      "event": "handoff",
+      "note": "TS/browser half DONE, do not redo: tsc 0; serial npm test 814/44; npm run build ok; production-preview tests/assets.spec.ts + tests/research.spec.ts on port 1452 = 18 passed; fail-first on operations.ts copyFragmentAssets (no-stage doctor: 2 failed/5 passed; restored 7 passed; SHA-256 3c98990764557c336ead03e8ba32d44695ffdbfc27313864085deef26582ddbf before/after). Logs: node_modules/.cache/personal-word-beta/team-t005/{accept,doctored-nostage,restored,fail-first-hashes}.log. Report written: docs/agent-work/2026-10-24-team-reconciliation/wp3.md (native section marked NOT RUN). NEXT concrete action: once Q001 is resolved and src-tauri compiles (today it fails with E0405 MainThreadOnly in printing.rs:129, an unregistered WP8 file), run the isolated smoke build then python3 scripts/native-reliability.py --suite baseline, read the whole log, add the asset-crash results to wp3.md section 'Native half', then done. Before touching tests/native-reliability.js, scripts/native-reliability.py or src-tauri/src/smoke.rs, check their mtimes: an off-board agent edited them at 19:43-19:48 EDT (see DISCOVERIES). No production code changed by T005.\nsrc/App.tsx: uncommitted edits (earlier WP3 worker's, untouched by T005)\nsrc/export/ExportPanel.tsx: uncommitted edits (earlier WP3 worker's, untouched by T005)\nsrc/organization/operations.ts: uncommitted edits (earlier WP3 worker's, restored byte-identically after doctoring)\nsrc/organization/operations.test.ts: uncommitted edits (earlier WP3 worker's, untouched)\ntests/assets.spec.ts: uncommitted edits (untracked file, untouched by T005)\ntests/native-reliability.js: uncommitted edits (untouched by T005; edited off-board at 19:46)\nscripts/native-reliability.py: uncommitted edits (untouched by T005; edited off-board at 19:48)\nsrc-tauri/src/smoke.rs: uncommitted edits (untouched by T005; edited off-board at 19:43)\nsrc/adversarial-wp3-exports.test.ts: uncommitted edits (untracked, untouched)\nsrc/adversarial-wp3-fragments.test.ts: uncommitted edits (untracked, untouched)\ndocs/agent-work/2026-10-24-team-reconciliation/wp3.md: uncommitted edits (written by T005)\nnode_modules/.cache/personal-word-beta/team-t005: uncommitted edits (logs, not under git)\nnode_modules/.cache/personal-word-beta/team-serial-check-slot: clean"
+    },
+    {
+      "at": "2026-10-25T00:30:46+00:00",
+      "agent": "agent-6029",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-10-25T00:30:48+00:00",
+      "agent": "agent-6029",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-10-25T00:41:11+00:00",
+      "agent": "agent-6029",
+      "event": "review requested",
+      "note": "T005 complete after 1a38 handoff, both halves CLAIMED (report docs/agent-work/2026-10-24-team-reconciliation/wp3.md). TS/browser half: 1a38's executed evidence stands (tsc 0, 814/44 units, build, 18-preview tests, doctored fail-first on copyFragmentAssets w/ hash control). Native half (my pickup): cargo check now exit 0 (stale E0405 disproven; Q001 governance question stays with user), smoke binary built, baseline suite exit 0 on rerun after a fail-first harness fix - first pass FAILED at 'invalid args assets for stage_assets' (tauri 2 command param is 'assets', JS harness passed 'uploads'; 3 call sites fixed in registered tests/native-reliability.js; Rust untouched; embedded-source identity check forced rebuild; harness SHA 1058f773 fail -> cf097247 pass per run result.json identity manifests). Green run 20261025T003850Z-08aeb456: asset crash recovery stage/kill/restart/reopen PASSED (sqlite assets row sha256==id, byte_length, mime, revision integrity, no uncommitted asset ref, read_asset restart+reopen hash match, attachments mirror bytes), 12 other scenarios passed, 5 negative controls detected. Logs team-t005/, runs under d1/runs/. WAITS: shipped bundle + WP8 print probing (T013, gated) + Q001 user decision on stray WP8 files. Changes UNCOMMITTED by design; reviewer commits after review."
+    },
+    {
+      "at": "2026-10-25T00:53:41+00:00",
+      "agent": "agent-1a38",
+      "event": "rejected",
+      "note": "REJECTED by agent-1a38 (reviewer of the native half; the TS/browser half is my own earlier work and stands as CLAIMED, not self-approved). What fails: on the CURRENT tree the isolated smoke build succeeds but python3 scripts/native-reliability.py --suite baseline exits 1: 'Scenario asset-crash missed checkpoint post-asset-stage' (run 20261025T004902Z-3ae251f5; log team-t005-review/native-rerun.log; its identity manifest matches today's store.rs a257a111, smoke.rs e4cd7f77, native-reliability.js 14b7b496). agent-6029's green run 20261025T003850Z is real but pinned store.rs e9ba5ea7 / smoke.rs ee38ac6b / harness cf097247, which were all edited off-board at 20:43-20:44 EDT by the .agents/teamwork orchestrator_4 (WP11 scope) after that run. Cause (read from source): tests/native-reliability.js asset-crash stages (invoke stage_assets), reports, THEN arms post-asset-stage; the new store.rs fires crate::smoke::checkpoint('post-asset-stage') inside stage_assets, which is a no-op while unarmed, and the new smoke.rs arm_checkpoint no longer fires the checkpoint itself, so the kill never happens. How to confirm the fix: make the harness arm before staging (or restore the arm-time fire for post-asset-stage in smoke.rs), rebuild with npm run tauri build -- --debug --features native-smoke --no-bundle --config '{\"identifier\":\"com.folio.smoke\"}', then python3 scripts/native-reliability.py --suite baseline must exit 0 with 'asset crash recovery: stage, kill, restart, reopen' passed and 5 negative controls detected, and its latest.json manifest must match the tree at submission. Do not redo the TS half (team-t005/accept.log etc.) or the 'uploads'->'assets' harness fix, both still valid. Note: cargo check --offline --features native-smoke now exits 0 on this tree (team-t005-review/cargo-check.log), so the compile blocker in Q001 is no longer current; the governance problem is."
+    },
+    {
+      "at": "2026-10-25T01:01:41+00:00",
+      "agent": "agent-6029",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-10-25T01:01:41+00:00",
+      "agent": "agent-6029",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-10-25T01:07:07+00:00",
+      "agent": "agent-6029",
+      "event": "review requested",
+      "note": "T005 resubmitted after cycle-2 rejection (reviewer agent-1a38's fail-first run 20261025T004902Z-3ae251f5 is retained as the basis). Fix applied harness-side only per review guidance, Rust untouched: tests/native-reliability.js asset-crash now (1) reports FIRST - smoke_report writes report-2.json synchronously, stagedMeta is the fixture meta since the stage result is no longer observable; (2) sets folio.d1.stagedAssetId/Base64; (3) arms post-asset-stage THEN invokes stage_assets, which fires the blocking checkpoint inside store.rs post-commit; supervisor kills after reading report + checkpoint file. Green on the SAME tree as the failing run: run 20261025T010541Z-7a41aef3 exit 0, 13 scenarios + 5 negative controls detected incl 'asset crash recovery: stage, kill, restart, reopen'; identity manifests prove only the harness changed vs the failing run (store a257a111 / smoke e4cd7f77 identical; harness 14b7b496 -> 7c142548; binary 763449e2 -> dfb0dcd4). Full record: wp3.md 'Cycle 2 rejection and cycle 3 fix'. Logs team-t005/t005-smoke-build3.log, t005-baseline-rerun2.log, runs under d1/runs/. TS/browser half evidence from 1a38 stands as CLAIMED (not self-approved). Reviewer ideally NOT 1a38 (TS-half author + cycle-2 reviewer). Changes UNCOMMITTED by design; reviewer commits after review."
+    },
+    {
+      "at": "2026-10-25T01:21:07+00:00",
+      "agent": "agent-c436",
+      "event": "approved",
+      "note": "Independent non-author approval of full WP3 integration + repaired native asset harness. Read App/ExportPanel/fragment diffs and tests, direct stage-before-insert/archive/missing-asset/copy wiring, checkpoint contract and retained fail-first failures. Fresh smoke build (includes npm build/tsc) passed; current isolated native baseline run20261025T011905Z-645bdbf2 passed13 scenarios + detected5 controls. All139 source manifest hashes match tree; final reopen report has one image node referencing staged SHA at revision3. Fresh full units814/44 and production assets/research18/18 passed. Eight reviewed source hashes unchanged. Report T005_REVIEW.md; full logs team-t005-independent-review. No source edits. Approval only WP3 baseline scope, not stray WP8/WP11 or Q001/Q002 governance; CLAIMED pending owner confirmation."
+    }
+  ]
+}

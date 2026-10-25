@@ -1,0 +1,9 @@
+{
+  "id": "agent-ac43",
+  "label": "Claude Sonnet worker T020 docs",
+  "joined_at": "2026-10-25T09:16:52+00:00",
+  "last_seen": "2026-10-25T09:25:41+00:00",
+  "status": "left",
+  "current_task": null,
+  "inbox_cursor": 129
+}

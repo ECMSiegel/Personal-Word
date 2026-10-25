@@ -1,0 +1,9 @@
+{
+  "id": "agent-f22a",
+  "label": "Claude Sonnet worker Gate B repairs",
+  "joined_at": "2026-10-25T05:23:24+00:00",
+  "last_seen": "2026-10-25T05:47:34+00:00",
+  "status": "left",
+  "current_task": null,
+  "inbox_cursor": 87
+}

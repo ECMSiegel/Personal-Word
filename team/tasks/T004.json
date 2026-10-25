@@ -1,0 +1,65 @@
+{
+  "id": "T004",
+  "title": "Close WP4 Markdown note round-trip acceptance",
+  "description": "Follow team/PLAN.md, team/PROTOCOL.md, DELEGATION.md Common rules and applicable child plan; preserve current dirty work. This board records unfinished acceptance/repair, not permission to rebuild existing features. Inspect current implementation and earlier evidence first; fix only reproduced gaps in owned files, record exact commands/results and fail-first controls, and report CLAIMED. No installs, new packages, commits, pushes, publication, real-library access or destructive cleanup. Before expensive checks, acquire exclusive registered path node_modules/.cache/personal-word-beta/team-serial-check-slot via team.py files add; if another live task owns it, do independent work or hand off rather than overlap runs. Retain full logs and use pinned Node/offline serial Rust/production-preview Playwright. Independent review is required. Existing note parser wiring and continuation indentation are present. Verify multi-paragraph note content/order/reference positions through export/import; run npx vitest run src/import src/export and tsc. Preserve literal user punctuation and legacy text import; repair only reproduced gaps. Write the task report to docs/agent-work/2026-10-24-team-reconciliation/wp4.md.",
+  "status": "done",
+  "owner": null,
+  "priority": 1,
+  "depends_on": [
+    "T001"
+  ],
+  "files": [
+    "src/export/textExport.ts",
+    "src/export/textExport.test.ts",
+    "src/import/manuscript.ts",
+    "src/import/manuscript.test.ts",
+    "src/adversarial-wp4.test.ts",
+    "docs/agent-work/2026-10-24-team-reconciliation/wp4.md",
+    "node_modules/.cache/personal-word-beta/team-t004",
+    "node_modules/.cache/personal-word-beta/team-serial-check-slot"
+  ],
+  "review_required": true,
+  "created_by": "agent-45fb",
+  "created_at": "2026-10-24T22:19:03+00:00",
+  "claimed_at": "2026-10-24T22:28:45+00:00",
+  "updated_at": "2026-10-24T22:56:58+00:00",
+  "handoff": null,
+  "review": {
+    "by": "agent-07d0",
+    "at": "2026-10-24T22:56:58+00:00",
+    "verdict": "approved",
+    "note": "Independent non-author review recorded in docs/agent-work/2026-10-24-team-reconciliation/T004_REVIEW.md (T024). Read actual scoped diffs/source/callers and prior negative-control logs/hash restoration; fresh pinned-Node tsc exit0 and focused import/export/adversarial WP4 suite 197/197 across9files. Five source/test hashes unchanged across review; no source edits. Exact reference-position regression is meaningful, existing continuation/plain-text behavior retained. No blocking finding. Minor report count says23 adversarial cases versus current21; combined197 correct. Approval is unit/typecheck scope only, no browser/native/owner acceptance."
+  },
+  "log": [
+    {
+      "at": "2026-10-24T22:19:03+00:00",
+      "agent": "agent-45fb",
+      "event": "created",
+      "note": ""
+    },
+    {
+      "at": "2026-10-24T22:28:45+00:00",
+      "agent": "agent-1a38",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-10-24T22:28:48+00:00",
+      "agent": "agent-1a38",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-10-24T22:51:33+00:00",
+      "agent": "agent-1a38",
+      "event": "review requested",
+      "note": "WP4 accepted; no production code changed. Inspected the earlier worker's uncommitted exporter/importer edits and five prior unit-level reports; confirmed static reachability App -> previewWriting -> previewManuscript -> parseMarkdownNotes. Added one test to src/import/manuscript.test.ts pinning exact inline reference positions through the manuscript import path with a multi-paragraph note (existing WP4 tests asserted order/containment only). Acceptance under the serial slot with pinned Node v22.23.3: tsc clean; npx vitest run src/import src/export src/adversarial-wp4.test.ts = 9 files / 197 passed (note: the plan's command omits the adversarial file, passed explicitly). Fail-first on doctored copies of src/export/textExport.ts: no continuation indent -> 23 failed/174 passed; references moved to paragraph end -> exactly 2 failed/195 passed (new test + markdownNotes.test.ts round trip); restored -> 197 passed; SHA-256 before/after 87827f719e34bde9db11e53faf00914a9d75de0369a28d6bf5e5f3fedd2800f1. Logs: node_modules/.cache/personal-word-beta/team-t004/{accept,doctored-noindent,doctored-refs-at-end,restored,fail-first-hashes}.log. Not run: full npm test, build, Playwright, cargo, native. Limitations (soft breaks collapse to spaces; one entry on re-import; citation notes return as text) documented in docs/agent-work/2026-10-24-team-reconciliation/wp4.md. Status CLAIMED."
+    },
+    {
+      "at": "2026-10-24T22:56:58+00:00",
+      "agent": "agent-07d0",
+      "event": "approved",
+      "note": "Independent non-author review recorded in docs/agent-work/2026-10-24-team-reconciliation/T004_REVIEW.md (T024). Read actual scoped diffs/source/callers and prior negative-control logs/hash restoration; fresh pinned-Node tsc exit0 and focused import/export/adversarial WP4 suite 197/197 across9files. Five source/test hashes unchanged across review; no source edits. Exact reference-position regression is meaningful, existing continuation/plain-text behavior retained. No blocking finding. Minor report count says23 adversarial cases versus current21; combined197 correct. Approval is unit/typecheck scope only, no browser/native/owner acceptance."
+    }
+  ]
+}

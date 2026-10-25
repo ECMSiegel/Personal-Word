@@ -340,6 +340,9 @@ impl Store {
             .map_err(err)?;
         insert_assets(&tx, &verified)?;
         tx.commit().map_err(err)?;
+        // Staged bytes are durable here; no edit references them yet.
+        #[cfg(feature = "native-smoke")]
+        crate::smoke::checkpoint("post-asset-stage", 0)?;
         Ok(verified.into_iter().map(|a| a.meta).collect())
     }
     /// Creates a new project and its images in one transaction.
@@ -555,7 +558,7 @@ impl Store {
             return Err("Give this snapshot a name.".into());
         }
         #[cfg(feature = "native-smoke")]
-        if name.starts_with("Before restoring ")
+        if (name.starts_with("Before restoring ") || name == "Before updating research sources")
             && crate::smoke::take_fault(crate::smoke::Fault::SkipSafetySnapshot)
         {
             return Ok(Uuid::new_v4().to_string());
@@ -572,6 +575,15 @@ impl Store {
         let dir = self.dir(id)?.join("snapshots");
         fs::create_dir_all(&dir).map_err(err)?;
         atomic(&dir.join(format!("{key}.json")), data.as_bytes())?;
+        // The safety copy is complete and durable here; the merge or restore it protects has not started.
+        #[cfg(feature = "native-smoke")]
+        {
+            if name == "Before updating research sources" {
+                crate::smoke::checkpoint("post-merge-safety-snapshot", p.revision)?;
+            } else if name.starts_with("Before restoring ") {
+                crate::smoke::checkpoint("post-restore-safety-snapshot", p.revision)?;
+            }
+        }
         Ok(key)
     }
     pub fn versions(&self, id: &str, history: bool) -> Result<Vec<Version>> {
@@ -1046,6 +1058,9 @@ fn validate_entry(e: &Entry) -> Result<()> {
     validate_node(&e.content, 0)
 }
 fn validate_node(node: &Value, depth: usize) -> Result<()> {
+    validate_node_in_context(node, depth, false)
+}
+fn validate_node_in_context(node: &Value, depth: usize, inside_table: bool) -> Result<()> {
     if depth > 100 {
         return Err("Rich text nesting is too deep".into());
     }
@@ -1053,6 +1068,9 @@ fn validate_node(node: &Value, depth: usize) -> Result<()> {
         .get("type")
         .and_then(Value::as_str)
         .ok_or("Missing rich text node type")?;
+    if kind == "table" && inside_table {
+        return Err("Tables cannot be nested".into());
+    }
     let inline = ["text", "hardBreak", "footnoteReference"];
     let blocks = [
         "paragraph",
@@ -1146,7 +1164,7 @@ fn validate_node(node: &Value, depth: usize) -> Result<()> {
         if !allowed {
             return Err("Invalid rich text structure".into());
         }
-        validate_node(child, depth + 1)?;
+        validate_node_in_context(child, depth + 1, inside_table || kind == "table")?;
     }
     Ok(())
 }
@@ -1647,6 +1665,11 @@ mod tests {
         assert!(validate_node(&table(vec![row(vec![merged])]), 0).unwrap_err().contains("Merged"));
         let nested = serde_json::json!({"type":"tableCell","content":[{"type":"table","content":[row(vec![cell("tableCell")])]}]});
         assert!(validate_node(&table(vec![row(vec![nested])]), 0).is_err());
+        let inner = serde_json::json!({"type":"table","content":[row(vec![cell("tableCell")])]});
+        let quoted = serde_json::json!({"type":"blockquote","content":[inner.clone()]});
+        assert!(validate_node(&serde_json::json!({"type":"doc","content":[quoted.clone()]}), 0).is_ok());
+        let indirect = serde_json::json!({"type":"tableCell","content":[quoted]});
+        assert!(validate_node(&table(vec![row(vec![indirect])]), 0).is_err(), "Nested table hidden in a blockquote must be rejected");
         let bad_image = serde_json::json!({"type":"doc","content":[{"type":"image","attrs":{"assetId":"https://example.com/x.png"}}]});
         assert!(validate_node(&bad_image, 0).unwrap_err().contains("Invalid image"));
     }
@@ -1860,6 +1883,142 @@ mod tests {
         );
     }
 
+    // D2 synthetic project: tests/fixtures/beta-synthetic-project.json is the single source for the
+    // TypeScript tests, this store test and the native harness (scripts/native-reliability.py).
+    fn beta_fixture() -> Value {
+        serde_json::from_str(include_str!("../../tests/fixtures/beta-synthetic-project.json")).unwrap()
+    }
+    /// The next revision after one fixture edit: a replaced entry body or patched research sources.
+    fn beta_edit(project: &Value, edit: &Value) -> Value {
+        let mut next = project.clone();
+        next["revision"] = (project["revision"].as_i64().unwrap() + 1).into();
+        next["updatedAt"] = edit["updatedAt"].clone();
+        if let Some(entry_id) = edit["entryId"].as_str() {
+            let entry = next["entries"].as_array_mut().unwrap().iter_mut().find(|e| e["id"] == entry_id).unwrap();
+            for (key, value) in edit["entry"].as_object().unwrap() {
+                entry[key] = value.clone();
+            }
+        }
+        for patch in edit["sources"].as_array().into_iter().flatten() {
+            let source = next["research"]["sources"].as_array_mut().unwrap().iter_mut().find(|s| s["id"] == patch["id"]).unwrap();
+            for (key, value) in patch["set"].as_object().unwrap() {
+                source[key] = value.clone();
+            }
+        }
+        next
+    }
+    fn beta_change(project: &Value, changed: &[&str], base: Option<i64>) -> Change {
+        let p: Project = serde_json::from_value(project.clone()).unwrap();
+        Change {
+            header: p.header(),
+            entries: p.entries.iter().filter(|e| changed.contains(&e.id.as_str())).cloned().collect(),
+            base_revision: base,
+        }
+    }
+    fn beta_uploads(fixture: &Value, names: &[&str]) -> Vec<AssetUpload> {
+        fixture["assets"].as_array().unwrap().iter()
+            .filter(|a| names.contains(&a["name"].as_str().unwrap()))
+            .map(|a| serde_json::from_value(a.clone()).unwrap())
+            .collect()
+    }
+    #[test]
+    fn beta_synthetic_project_survives_every_store_route() {
+        let fixture = beta_fixture();
+        let s1 = fixture["initial"].clone();
+        let id = s1["id"].as_str().unwrap().to_string();
+        let ids = &fixture["ids"];
+        let (sec1, sec2, frag) = (ids["sec1"].as_str().unwrap(), ids["sec2"].as_str().unwrap(), ids["frag"].as_str().unwrap());
+        let edits = &fixture["edits"];
+        let t = tempfile::tempdir().unwrap();
+        let mut s = Store::new(t.path().into()).unwrap();
+        let canon = |p: Project| serde_json::to_value(p).unwrap();
+
+        // Both referenced images travel with the new project in one transaction.
+        s.create_project_with_assets(&beta_change(&s1, &[sec1, sec2, frag], None), &beta_uploads(&fixture, &["png-section-drawing", "jpeg-sherd"])).unwrap();
+        assert_eq!(canon(s.read(&id).unwrap()), s1, "creation must store the whole fixture");
+
+        // One changed entry through an incremental save, then history, snapshots and restore.
+        let s2 = beta_edit(&s1, &edits["incremental"]);
+        s.save_changes(&beta_change(&s2, &[sec2], Some(1))).unwrap();
+        assert_eq!(canon(s.read(&id).unwrap()), s2);
+        assert_eq!(canon(s.version(&id, "1", true).unwrap()), s1, "history row for the prior revision");
+        let named = s.snapshot(&id, "Beta snapshot A").unwrap();
+        assert_eq!(canon(s.version(&id, &named, false).unwrap()), s2);
+        let s3 = beta_edit(&s2, &edits["second"]);
+        s.save_changes(&beta_change(&s3, &[sec2], Some(2))).unwrap();
+        let safety = s.snapshot(&id, "Before restoring Beta snapshot A").unwrap();
+        assert_eq!(canon(s.version(&id, &safety, false).unwrap()), s3, "the safety copy is the complete pre-restore project");
+        let mut restored = s2.clone();
+        restored["revision"] = 4.into();
+        restored["updatedAt"] = edits["restore"]["updatedAt"].clone();
+        s.save_changes(&beta_change(&restored, &[sec2], Some(3))).unwrap();
+        assert_eq!(canon(s.read(&id).unwrap()), restored);
+
+        // Portable copies: project.json equals SQLite and each referenced image lands byte-exact.
+        let (mut s, mirrored) = mirror(s, &id);
+        mirrored.unwrap();
+        let dir = t.path().join(&id);
+        let json: Value = serde_json::from_slice(&fs::read(dir.join("project.json")).unwrap()).unwrap();
+        assert_eq!(json, restored);
+        let attachment = |name: &str| {
+            let a = fixture["assets"].as_array().unwrap().iter().find(|a| a["name"] == name).unwrap();
+            let ext = crate::assets::extension(a["meta"]["mime"].as_str().unwrap());
+            (a["id"].as_str().unwrap().to_string(), dir.join("attachments").join(format!("{}.{ext}", a["id"].as_str().unwrap())))
+        };
+        for name in ["png-section-drawing", "jpeg-sherd"] {
+            let (asset_id, path) = attachment(name);
+            assert_eq!(crate::assets::tests::id_of(&fs::read(path).unwrap()), asset_id, "{name} attachment hash");
+        }
+        assert!(!attachment("png-late").1.exists(), "an unreferenced image has no attachment yet");
+
+        // An image staged first and referenced by a later edit reaches the attachments on the next pass.
+        let late = beta_uploads(&fixture, &["png-late"]);
+        s.stage_assets(&id, &late).unwrap();
+        assert_eq!(canon(s.read(&id).unwrap()), restored, "staging alone must not change the project");
+        let finished = beta_edit(&restored, &edits["lateImage"]);
+        s.save_changes(&beta_change(&finished, &[sec2], Some(4))).unwrap();
+        let (_, mirrored) = mirror(s, &id);
+        mirrored.unwrap();
+        let (late_id, late_path) = attachment("png-late");
+        assert_eq!(crate::assets::tests::id_of(&fs::read(late_path).unwrap()), late_id);
+
+        // A fresh process sees the identical canonical project.
+        let mut reopened = Store::new(t.path().into()).unwrap();
+        let loaded = canon(reopened.load(&id).unwrap());
+        assert_eq!(loaded, finished);
+        let json: Value = serde_json::from_slice(&fs::read(dir.join("project.json")).unwrap()).unwrap();
+        assert_eq!(json, finished);
+
+        // Optional: keep this real store output so scripts/native-reliability.py's disk readers can be
+        // checked against it without a WebView (see docs/agent-work/2026-10-24-team-reconciliation/wp11-matrix.md).
+        if let Ok(target) = std::env::var("FOLIO_BETA_DUMP_DIR") {
+            fn copy_tree(from: &Path, to: &Path) {
+                fs::create_dir_all(to).unwrap();
+                for item in fs::read_dir(from).unwrap() {
+                    let item = item.unwrap();
+                    if item.path().is_dir() {
+                        copy_tree(&item.path(), &to.join(item.file_name()));
+                    } else {
+                        fs::copy(item.path(), to.join(item.file_name())).unwrap();
+                    }
+                }
+            }
+            copy_tree(&dir, &Path::new(&target).join("projects").join(&id));
+        }
+
+        // Controls: the comparison is not vacuous, and the native payload contract is camelCase with UUID ids.
+        let mut dropped = finished.clone();
+        dropped.as_object_mut().unwrap().remove("goals");
+        assert_ne!(dropped, loaded, "a dropped project field must be visible");
+        let mut dropped = finished.clone();
+        dropped["entries"][0].as_object_mut().unwrap().remove("tags");
+        assert_ne!(dropped, loaded, "a dropped entry field must be visible");
+        let snake = serde_json::json!({"header": {"id": id, "title": "x", "created_at": "a", "updated_at": "b", "revision": 2, "order": [], "entry_ids": []}, "entries": [], "base_revision": 1});
+        assert!(serde_json::from_value::<Change>(snake).is_err(), "snake_case save payloads must be rejected");
+        let mut not_uuid = beta_change(&finished, &[sec2], None).entries.remove(0);
+        not_uuid.id = "sec-beta-1".into();
+        assert!(validate_entry(&not_uuid).is_err(), "entry ids must be UUIDs");
+    }
     #[cfg(target_os = "macos")]
     #[test]
     fn macos_database_connections_enable_fullfsync_and_checkpoint_fullfsync() {

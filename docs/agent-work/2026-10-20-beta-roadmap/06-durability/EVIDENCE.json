@@ -1,0 +1,371 @@
+{
+  "schema": "personal-word-beta-evidence/2",
+  "meta": {
+    "target": "Personal Word 0.1.1 beta candidate (plan D2, team task T021)",
+    "version": "0.1.1",
+    "generatedAt": "2026-10-25T10:17:25Z",
+    "generatedBy": "agent-dbd8 (Claude Sonnet worker T021)",
+    "gitCommit": "ee2fe3ac78e94f82af2f533516e6d8710cd1d81d",
+    "workingTree": "dirty: uncommitted beta work, pinned by sourceManifest",
+    "status": "incomplete",
+    "implementationStatus": "CLAIMED (automated evidence only; VERIFIED needs the owner's real-use confirmation)"
+  },
+  "sourceManifest": {
+    "path": "docs/agent-work/2026-10-20-beta-roadmap/06-durability/SOURCE_MANIFEST.json",
+    "manifestSha256": "24fa1a86893ba3a6cf4cc08471b222949c5b7ec9eaf34840e0bed5720928e97c",
+    "fileCount": 207
+  },
+  "checks": {
+    "tsc": {
+      "command": "npx tsc --noEmit -p .",
+      "logPath": "node_modules/.cache/personal-word-beta/team-t021/logs/1-tsc.log",
+      "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "exitCode": 0,
+      "startedAt": "2026-10-25T09:32:40Z",
+      "endedAt": "2026-10-25T09:32:48Z",
+      "state": "passed",
+      "counts": {
+        "errors": 0
+      },
+      "resultLine": "tsc --noEmit exited 0 with no output"
+    },
+    "build": {
+      "command": "npm run build",
+      "logPath": "node_modules/.cache/personal-word-beta/team-t021/logs/2-build.log",
+      "logSha256": "768edf178e17fee9f17fce5c1a0267cd1093918404af9b677de122ebb62908b5",
+      "exitCode": 0,
+      "startedAt": "2026-10-25T09:32:48Z",
+      "endedAt": "2026-10-25T09:33:04Z",
+      "state": "passed",
+      "counts": {},
+      "resultLine": "\u2713 built in 7.66s"
+    },
+    "unitTests": {
+      "command": "npm test -- --no-file-parallelism --maxWorkers=1",
+      "logPath": "node_modules/.cache/personal-word-beta/team-t021/logs/3-vitest.log",
+      "logSha256": "83e320bc0ac4e3f3c32524b4b0252cf5a3c9ab3d4b4ff8094b7af9e0ed10bd04",
+      "exitCode": 0,
+      "startedAt": "2026-10-25T09:33:04Z",
+      "endedAt": "2026-10-25T09:33:25Z",
+      "state": "passed",
+      "counts": {
+        "testFiles": 47,
+        "tests": 865
+      },
+      "resultLine": "Test Files 47 passed; Tests 865 passed"
+    },
+    "playwright": {
+      "command": "npx playwright test -c node_modules/.cache/personal-word-beta/team-t021/pw-1490.config.mjs --workers=1",
+      "logPath": "node_modules/.cache/personal-word-beta/team-t021/logs/4-playwright.log",
+      "logSha256": "712f1cebca8002ca4003afa202ec96898e4319f82a087a5f14ca79ed8182fb27",
+      "exitCode": 0,
+      "startedAt": "2026-10-25T09:53:52Z",
+      "endedAt": "2026-10-25T09:56:40Z",
+      "state": "passed",
+      "counts": {
+        "expected": 112,
+        "unexpected": 0,
+        "flaky": 0,
+        "skipped": 0,
+        "specFiles": 23
+      },
+      "reportPath": "node_modules/.cache/personal-word-beta/team-t021/pw/report.json",
+      "reportSha256": "c4ad7cdd2be954b75552a176f0058981ac99b219a0177282b343139f42aceacb",
+      "perSpec": {
+        "accessibility.spec.ts": {
+          "passed": 4,
+          "failed": 0,
+          "skipped": 0
+        },
+        "appearance.spec.ts": {
+          "passed": 1,
+          "failed": 0,
+          "skipped": 0
+        },
+        "assets.spec.ts": {
+          "passed": 9,
+          "failed": 0,
+          "skipped": 0
+        },
+        "ci-indent.spec.ts": {
+          "passed": 5,
+          "failed": 0,
+          "skipped": 0
+        },
+        "comments.spec.ts": {
+          "passed": 2,
+          "failed": 0,
+          "skipped": 0
+        },
+        "editor-toolbar.spec.ts": {
+          "passed": 4,
+          "failed": 0,
+          "skipped": 0
+        },
+        "features.spec.ts": {
+          "passed": 6,
+          "failed": 0,
+          "skipped": 0
+        },
+        "footnotes.spec.ts": {
+          "passed": 1,
+          "failed": 0,
+          "skipped": 0
+        },
+        "fragments-panel.spec.ts": {
+          "passed": 5,
+          "failed": 0,
+          "skipped": 0
+        },
+        "housekeeping.spec.ts": {
+          "passed": 4,
+          "failed": 0,
+          "skipped": 0
+        },
+        "import-cancel.spec.ts": {
+          "passed": 3,
+          "failed": 0,
+          "skipped": 0
+        },
+        "import.spec.ts": {
+          "passed": 2,
+          "failed": 0,
+          "skipped": 0
+        },
+        "layout.spec.ts": {
+          "passed": 6,
+          "failed": 0,
+          "skipped": 0
+        },
+        "markdown-roundtrip.spec.ts": {
+          "passed": 11,
+          "failed": 0,
+          "skipped": 0
+        },
+        "performance.spec.ts": {
+          "passed": 5,
+          "failed": 0,
+          "skipped": 0
+        },
+        "research-library.spec.ts": {
+          "passed": 8,
+          "failed": 0,
+          "skipped": 0
+        },
+        "research.spec.ts": {
+          "passed": 9,
+          "failed": 0,
+          "skipped": 0
+        },
+        "revisions.spec.ts": {
+          "passed": 4,
+          "failed": 0,
+          "skipped": 0
+        },
+        "rich-import.spec.ts": {
+          "passed": 7,
+          "failed": 0,
+          "skipped": 0
+        },
+        "sidebar-selection.spec.ts": {
+          "passed": 3,
+          "failed": 0,
+          "skipped": 0
+        },
+        "writing-aids.spec.ts": {
+          "passed": 5,
+          "failed": 0,
+          "skipped": 0
+        },
+        "writing.spec.ts": {
+          "passed": 3,
+          "failed": 0,
+          "skipped": 0
+        },
+        "zotero.spec.ts": {
+          "passed": 5,
+          "failed": 0,
+          "skipped": 0
+        }
+      },
+      "resultLine": "112 passed (2.8m)",
+      "failedSpecFiles": [],
+      "config": "node_modules/.cache/personal-word-beta/team-t021/pw-1490.config.mjs (production preview, port 1490, workers 1, retries 0)",
+      "deviation": "Recorded c2r-full.config.mjs uses port 1420, which a stray dev server holds; same settings on port 1490 with isolated report/results."
+    },
+    "cargoTest": {
+      "command": "cargo test --locked --offline --manifest-path src-tauri/Cargo.toml --jobs 1 -- --test-threads=1",
+      "logPath": "node_modules/.cache/personal-word-beta/team-t021/logs/5-cargo.log",
+      "logSha256": "5836026f5e4517948a76eca021fb155f9bbb4ba09b36952d09bade763905eb7e",
+      "exitCode": 0,
+      "startedAt": "2026-10-25T09:37:42Z",
+      "endedAt": "2026-10-25T09:37:53Z",
+      "state": "passed",
+      "counts": {
+        "passed": 48,
+        "failed": 0,
+        "ignored": 1
+      },
+      "resultLine": "48 passed, 1 ignored across 3 test binaries"
+    },
+    "nativeSmokeBuild": {
+      "command": "npm run tauri build -- --debug --features native-smoke --no-bundle --config {\"identifier\":\"com.folio.smoke\"}",
+      "logPath": "node_modules/.cache/personal-word-beta/team-t021/logs/6-smoke-build.log",
+      "logSha256": "32e992224fa12c42a9de1b6cf6216f4237b88468f39f30ad05b19285491f0268",
+      "exitCode": 0,
+      "startedAt": "2026-10-25T09:37:53Z",
+      "endedAt": "2026-10-25T09:38:54Z",
+      "state": "passed",
+      "counts": {},
+      "resultLine": "Finished `dev` profile [unoptimized + debuginfo] target(s) in 43.66s"
+    },
+    "nativeBaseline": {
+      "command": "python3 scripts/native-reliability.py --suite baseline",
+      "logPath": "node_modules/.cache/personal-word-beta/team-t021/logs/7-native-baseline.log",
+      "logSha256": "2d7c6466e6fddee70c1649dd70a671f25abc281b5f1bbf9ed3a8fa3905b703f2",
+      "exitCode": 0,
+      "startedAt": "2026-10-25T09:38:54Z",
+      "endedAt": "2026-10-25T09:39:37Z",
+      "state": "passed",
+      "counts": {
+        "passed": 13,
+        "detected": 5
+      },
+      "resultLine": "run 20261025T093854Z-eb139b9b: 13 passed + 5 negative controls detected"
+    },
+    "nativeBeta": {
+      "command": "python3 scripts/native-reliability.py --suite beta",
+      "logPath": "node_modules/.cache/personal-word-beta/team-t021/logs/8-native-beta.log",
+      "logSha256": "809c23d8029be5a5d3ac7bfbbc04283dc1bc58e04f179def018d0b972a1eba3e",
+      "exitCode": 0,
+      "startedAt": "2026-10-25T09:39:37Z",
+      "endedAt": "2026-10-25T09:40:41Z",
+      "state": "passed",
+      "counts": {
+        "passed": 19,
+        "detected": 42
+      },
+      "resultLine": "run 20261025T093937Z-7c31d8de: 19 passed + 42 negative controls detected"
+    },
+    "saveBenchmark": {
+      "command": "cargo test --release --locked --offline --manifest-path src-tauri/Cargo.toml --jobs 1 bench_save -- --ignored --nocapture",
+      "logPath": "node_modules/.cache/personal-word-beta/team-t021/logs/9-bench.log",
+      "logSha256": "79d6a271c6fd5829f1f7845b52b6beb4d167bf90b51ef372f79f06c20f88659a",
+      "exitCode": 0,
+      "startedAt": "2026-10-25T09:40:44Z",
+      "endedAt": "2026-10-25T09:43:41Z",
+      "state": "passed",
+      "counts": {
+        "medianMs": 108.12,
+        "p95Ms": 117.98,
+        "acceptanceBoundMs": 150.0
+      },
+      "resultLine": "median=108.12 ms p95=117.98 ms (bound 150 ms, src-tauri/src/store.rs bench_save test assert)"
+    },
+    "normalReleaseBuild": {
+      "command": "npm run tauri build",
+      "logPath": "node_modules/.cache/personal-word-beta/team-t021/logs/10-release-build.log",
+      "logSha256": "150fb2aca0f4e025ad3df7f37e01b04eb1b9a989c5a4df6c47025108cc7033cd",
+      "exitCode": 0,
+      "startedAt": "2026-10-25T09:43:41Z",
+      "endedAt": "2026-10-25T09:45:46Z",
+      "state": "passed",
+      "counts": {},
+      "resultLine": "Finished 1 bundle: Personal Word.app (15.49 MiB)"
+    },
+    "nativePrintMatrix": {
+      "command": "python3 scripts/native-print-smoke.py --matrix",
+      "logPath": "",
+      "resultLine": "",
+      "state": "not-run",
+      "applicable": false,
+      "reason": "WP8 feasibility gate returned STOP (Arabic lam-alef not searchable in WebKit-printed PDFs); WP9/WP10 cancelled, legacy pdf-lib exporter retained. See docs/agent-work/2026-10-20-beta-roadmap/05-layout/REVIEW.md and team/DECISIONS.md 'WP9/WP10 cancelled'."
+    }
+  },
+  "notApplicable": {
+    "verifyReleaseScript": {
+      "state": "not-run",
+      "reason": "scripts/verify-release.py needs a clean git checkout (git diff --quiet HEAD), a DMG and release metadata; the tree has uncommitted work and distribution is descoped by the owner."
+    }
+  },
+  "native": {
+    "architecture": "x86_64",
+    "host": "macOS-15.7.9-x86_64-i386-64bit-Mach-O",
+    "diagnosticBinary": "src-tauri/target/debug/folio",
+    "diagnosticBinarySha256": "9d4c24feeb89d3332069bafc38c20a4aa55121f1108a7054baf77e80e10de3a4",
+    "storage": "isolated com.folio.smoke profile folders under node_modules/.cache/personal-word-beta/d1; the real com.folio.writing library was never opened",
+    "runs": {
+      "baseline": {
+        "runId": "20261025T093854Z-eb139b9b",
+        "resultPath": "node_modules/.cache/personal-word-beta/d1/runs/20261025T093854Z-eb139b9b/result.json",
+        "resultSha256": "2d7c6466e6fddee70c1649dd70a671f25abc281b5f1bbf9ed3a8fa3905b703f2",
+        "manifestSha256": "7e07795970ee8195846170a408c43f9e70b4135aecebe4527e0a5d76926f3e94",
+        "binarySha256": "9d4c24feeb89d3332069bafc38c20a4aa55121f1108a7054baf77e80e10de3a4",
+        "passed": 13,
+        "detected": 5
+      },
+      "beta": {
+        "runId": "20261025T093937Z-7c31d8de",
+        "resultPath": "node_modules/.cache/personal-word-beta/d1/runs/20261025T093937Z-7c31d8de/result.json",
+        "resultSha256": "809c23d8029be5a5d3ac7bfbbc04283dc1bc58e04f179def018d0b972a1eba3e",
+        "manifestSha256": "7e07795970ee8195846170a408c43f9e70b4135aecebe4527e0a5d76926f3e94",
+        "binarySha256": "9d4c24feeb89d3332069bafc38c20a4aa55121f1108a7054baf77e80e10de3a4",
+        "passed": 19,
+        "detected": 42
+      }
+    }
+  },
+  "app": {
+    "path": "src-tauri/target/release/bundle/macos/Personal Word.app",
+    "executable": "src-tauri/target/release/bundle/macos/Personal Word.app/Contents/MacOS/folio",
+    "executableSha256": "66da1177a6b0063c88a34a8b4c6e58459f657d55bf2271d424582d121cb932f2",
+    "buildStartedAt": "2026-10-25T09:43:41Z",
+    "buildFinishedAt": "2026-10-25T09:45:46Z",
+    "bundleIdentifier": "com.folio.writing",
+    "version": "0.1.1"
+  },
+  "review": {
+    "state": "passed",
+    "reviewer": "agent-9e61",
+    "reviewFile": "docs/agent-work/2026-10-20-beta-roadmap/06-durability/REVIEW.md",
+    "reviewFileSha256": "0065be67a7b12980cdeec5b5c303d1d65736c5168de3829c374ba7c679c582e2"
+  },
+  "ownerGates": {
+    "keyboardAndCommentAnchors": {
+      "state": "pending",
+      "note": "owner: keyboard-only editing and duplicate-comment jump in the real app"
+    },
+    "closeRetry": {
+      "state": "pending",
+      "note": "owner: blocked-close retry"
+    },
+    "recoveredImage": {
+      "state": "pending",
+      "note": "owner: recovered image and its hash"
+    },
+    "preRestoreSafetyCopy": {
+      "state": "pending",
+      "note": "owner: reopen the pre-restore safety copy"
+    },
+    "wordRendering": {
+      "state": "pending",
+      "note": "owner: open exported DOCX in Microsoft Word (not available to agents)"
+    },
+    "appleSilicon": {
+      "state": "pending",
+      "note": "owner: run on Apple Silicon (agents only have Intel)"
+    },
+    "voiceOverAndIme": {
+      "state": "pending",
+      "note": "owner: VoiceOver and input-method checks"
+    },
+    "longSession": {
+      "state": "pending",
+      "note": "owner: long real writing session"
+    },
+    "webkitVisuals": {
+      "state": "pending",
+      "note": "owner: native WebKit light/dark visuals in the real app"
+    }
+  }
+}
