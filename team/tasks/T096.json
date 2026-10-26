@@ -1,0 +1,85 @@
+{
+  "id": "T096",
+  "title": "UI critique (Low): sidebar labels wrap at the 190 px minimum width",
+  "description": "At the minimum sidebar width (190 px, ProjectSidebar.tsx:177/589) 'Snapshots & history' wraps to two lines (button height 36 px vs 21 px for Comments and Read manuscript, measured) and the 'Personal Word' brand heading wraps too; the entry word count is hidden at that width. Pre-existing (noted in T076's review), not caused by the palette work. Screenshot: docs/agent-work/2026-10-25-ui-polish/screens/browser-writing-sidebar-190-light-plain.png. Suggested: raise the minimum to the width where every fixed label fits on one line, or let these labels ellipsize with a title tooltip. Reference: Ulysses and Bear truncate sidebar labels on one line rather than wrapping.",
+  "status": "done",
+  "owner": null,
+  "priority": 3,
+  "depends_on": [],
+  "files": [
+    "src/styles.css",
+    "src/components/ProjectSidebar.tsx"
+  ],
+  "review_required": true,
+  "created_by": "agent-7088",
+  "created_at": "2026-10-26T05:08:30+00:00",
+  "claimed_at": "2026-10-26T05:39:51+00:00",
+  "updated_at": "2026-10-26T05:44:46+00:00",
+  "handoff": {
+    "by": "agent-7e75",
+    "at": "2026-10-26T05:39:15+00:00",
+    "text": "Regression: the pre-T096 critique capture docs/agent-work/2026-10-25-ui-polish/screens/browser-writing-sidebar-190-light-plain.png (sidebar 190 css px) shows 'Manuscript' (selected, semibold) in full on one line; ui-t96/shots/sidebar-190-{light,dark}.png now show 'Manuscr...'. Also truncated at 190: 'Personal W...' (brand) and 'Snapshots & hi...'; Fragments, Research, Read manuscript, Comments, Settings, 'Reveal sidebar on hover' are full. 270 px shots: nothing truncated. Fix: inside the existing @container (max-width: 240px) block, hide the reserved reorder-button space (or collapse the chevron gap) for group headings so 'Manuscript', 'Fragments', 'Research' render in full at 190 px; keep the ellipsis only as a last resort for longer labels such as 'Snapshots & history'. The new test in tests/sidebar-selection.spec.ts must also assert that those three group headings are not truncated (.group-label scrollWidth <= clientWidth). Rest checked: span.group-label wrapper and container-query rules (nowrap/ellipsis, brand display:block, hover checkbox flex-shrink:0) match the note; data-group/BookMarked are T076; no font-size change in T096 rules; fail-first log shows 'Personal Word is one line' expected 1 got 2; tsc 0 under pinned Node. Browser suite not rerun by reviewer (rejection does not depend on it)."
+  },
+  "review": {
+    "by": "agent-d03c",
+    "at": "2026-10-26T05:44:46+00:00",
+    "verdict": "approved",
+    "note": "Cycle 2 OK. Viewed 5 shots-c2: at 190 px Manuscript, Fragments, Research, Read manuscript, Comments, Snapshots & history, Settings, hover-setting all full; only brand ellipsizes (Personal W...). Hovered Manuscript: actions overlay right of the label, touching the final t but no letters covered; chevron visible. CSS inside @container max-width 240px only, tokens only, no font-size change, actions absolute with var(--sidebar) bg, pointer-events none until hover/focus-within; so 270 px unchanged (270 shot shows actions in normal flow with reserved space). Failfirst-c2 log fails on cycle-1 CSS. tsc 0; own rebuild port 1598, 4 specs 27 passed one worker no retries. Minor: the two reorder arrows stay hidden at 190 (pre-existing)."
+  },
+  "log": [
+    {
+      "at": "2026-10-26T05:08:30+00:00",
+      "agent": "agent-7088",
+      "event": "created",
+      "note": ""
+    },
+    {
+      "at": "2026-10-26T05:35:04+00:00",
+      "agent": "agent-abe3",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-10-26T05:35:04+00:00",
+      "agent": "agent-abe3",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-10-26T05:37:58+00:00",
+      "agent": "agent-abe3",
+      "event": "review requested",
+      "note": "Group labels wrapped in span.group-label (ProjectSidebar.tsx); in the existing @container (max-width:240px) block in styles.css: nowrap+overflow hidden+ellipsis on .group-label, .sidebar .brand (display:block, was flex so ellipsis did not apply), .sidebar-hover-setting. No font size change, no label text change, no tooltip. At 190px all group-title rows 21px, entry row 33px, brand 26px, hover checkbox row 27px (incl. padding), all single line, fonts >=12. Side effect: 'Manuscript' and 'Snapshots & hi...' and 'Personal W...' ellipsize at 190. Test added to tests/sidebar-selection.spec.ts; fail-first failed on current tree ('Personal Word is one line' expected 1 got 2), log node_modules/.cache/personal-word-beta/ui-t96/failfirst.log. tsc 0; vitest 15/15; browser 27/27 (sidebar-selection, layout, accessibility, appearance; final.log). Shots (4, viewed): ui-t96/shots/sidebar-{190,270}-{light,dark}.png. Serial slot not taken."
+    },
+    {
+      "at": "2026-10-26T05:39:15+00:00",
+      "agent": "agent-7e75",
+      "event": "rejected",
+      "note": "Regression: the pre-T096 critique capture docs/agent-work/2026-10-25-ui-polish/screens/browser-writing-sidebar-190-light-plain.png (sidebar 190 css px) shows 'Manuscript' (selected, semibold) in full on one line; ui-t96/shots/sidebar-190-{light,dark}.png now show 'Manuscr...'. Also truncated at 190: 'Personal W...' (brand) and 'Snapshots & hi...'; Fragments, Research, Read manuscript, Comments, Settings, 'Reveal sidebar on hover' are full. 270 px shots: nothing truncated. Fix: inside the existing @container (max-width: 240px) block, hide the reserved reorder-button space (or collapse the chevron gap) for group headings so 'Manuscript', 'Fragments', 'Research' render in full at 190 px; keep the ellipsis only as a last resort for longer labels such as 'Snapshots & history'. The new test in tests/sidebar-selection.spec.ts must also assert that those three group headings are not truncated (.group-label scrollWidth <= clientWidth). Rest checked: span.group-label wrapper and container-query rules (nowrap/ellipsis, brand display:block, hover checkbox flex-shrink:0) match the note; data-group/BookMarked are T076; no font-size change in T096 rules; fail-first log shows 'Personal Word is one line' expected 1 got 2; tsc 0 under pinned Node. Browser suite not rerun by reviewer (rejection does not depend on it)."
+    },
+    {
+      "at": "2026-10-26T05:39:51+00:00",
+      "agent": "agent-a84e",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-10-26T05:39:52+00:00",
+      "agent": "agent-a84e",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-10-26T05:42:58+00:00",
+      "agent": "agent-a84e",
+      "event": "review requested",
+      "note": "Cycle 2. styles.css only (inside @container max-width 240px): .group-heading position:relative; .group-actions now absolute (right = space-5+space-1, sidebar bg, pointer-events none until group hover/focus-within) so the actions no longer reserve width; opacity reveal on hover/focus-within unchanged; chevron stays visible and in place. Cycle-1 nowrap+ellipsis and span.group-label kept. No font-size change, tokens only. At 190 px: Manuscript, Fragments, Research, Read manuscript, Comments, Snapshots & history, Settings, hover checkbox row all FULL; only the brand ellipsizes ('Personal W...'). Reviewer's own list had 'Snapshots & hi...' truncated; now full. Test extended in tests/sidebar-selection.spec.ts: .group-label scrollWidth<=clientWidth for the 3 groups at 190, and from the Manuscript title Tab reaches Hide Manuscript (chevron), Show Manuscript cards, New section, with .group-actions opacity 1. Note: the two reorder arrows stay display:none at narrow width as before (pre-existing), so the 'three buttons' are chevron, view toggle, add. Fail-first: node_modules/.cache/personal-word-beta/ui-t96/failfirst-c2.log (1 failed, 'Manuscript label is not truncated' false on the cycle-1 CSS). Checks under pinned Node: tsc 0; vitest 15/15; private build ui-t96/dist port 1595, sidebar-selection+layout+accessibility+appearance 27/27 one worker no retries (final-c2.log). Shots (5, viewed): ui-t96/shots-c2/sidebar-190-{light,dark}-{selected,hover}.png and sidebar-270-light-selected.png; in the selected/hover shots the pointer sits on Manuscript so its actions show over the label tail without moving it. Serial slot not taken."
+    },
+    {
+      "at": "2026-10-26T05:44:46+00:00",
+      "agent": "agent-d03c",
+      "event": "approved",
+      "note": "Cycle 2 OK. Viewed 5 shots-c2: at 190 px Manuscript, Fragments, Research, Read manuscript, Comments, Snapshots & history, Settings, hover-setting all full; only brand ellipsizes (Personal W...). Hovered Manuscript: actions overlay right of the label, touching the final t but no letters covered; chevron visible. CSS inside @container max-width 240px only, tokens only, no font-size change, actions absolute with var(--sidebar) bg, pointer-events none until hover/focus-within; so 270 px unchanged (270 shot shows actions in normal flow with reserved space). Failfirst-c2 log fails on cycle-1 CSS. tsc 0; own rebuild port 1598, 4 specs 27 passed one worker no retries. Minor: the two reorder arrows stay hidden at 190 (pre-existing)."
+    }
+  ]
+}

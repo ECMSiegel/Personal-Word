@@ -1,0 +1,99 @@
+.library-search {
+  display: inline-flex;
+  align-items: center;
+  width: 28px;
+  height: 28px;
+  flex: none;
+  overflow: hidden;
+  border: 1px solid transparent;
+  border-radius: 0;
+  transition:
+    width var(--duration-morph) var(--ease-spring),
+    border-color var(--duration-morph) ease;
+}
+.library-search[data-open] {
+  width: 220px;
+  border-color: var(--line);
+}
+.library-search:focus-within {
+  outline: var(--focus-ring);
+  outline-offset: var(--focus-offset);
+}
+.library-search > button {
+  flex: none;
+  width: 26px;
+  height: 26px;
+  padding: 0;
+}
+.library-search > button:focus-visible {
+  outline: none;
+}
+.library-search > input {
+  flex: 1;
+  min-width: 0;
+  height: 100%;
+  padding: 0 var(--space-2) 0 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: inherit;
+  font-size: var(--type-small);
+}
+.library .library-search > input:focus-visible {
+  outline: none;
+  border: 0;
+}
+
+.create-project > .primary {
+  position: relative;
+  z-index: 9;
+}
+.create-panel {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 8;
+  filter: drop-shadow(0 6px 18px var(--shadow));
+}
+.create-panel-body {
+  box-sizing: border-box;
+  min-width: max(220px, var(--trigger-w));
+  padding: calc(var(--trigger-h) + var(--space-1)) 0 var(--space-1);
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 0;
+  font-size: var(--type-small);
+  clip-path: inset(0);
+  transition: clip-path var(--duration-morph) var(--ease-spring);
+}
+@starting-style {
+  .create-panel-body {
+    clip-path: inset(
+      0 calc(100% - var(--trigger-w)) calc(100% - var(--trigger-h)) 0
+    );
+  }
+}
+.create-panel-body > button {
+  display: flex;
+  width: 100%;
+  justify-content: flex-start;
+  padding: var(--space-2) var(--space-3);
+  font-size: var(--type-small);
+  white-space: nowrap;
+  color: var(--text);
+  opacity: 1;
+}
+.create-panel-body > button:focus-visible {
+  outline-offset: -2px;
+}
+.create-panel-rule {
+  height: 1px;
+  margin: var(--space-1) 0;
+  background: var(--line);
+}
+
+.library[data-dropping] {
+  outline: 2px dashed var(--accent);
+  outline-offset: calc(-1 * var(--space-2));
+  background: color-mix(in srgb, var(--accent) 6%, var(--paper));
+}

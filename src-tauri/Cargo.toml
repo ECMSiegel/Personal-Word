@@ -38,6 +38,7 @@ objc2-web-kit = { version = "0.3.2", default-features = false, features = [
     "WKNavigationAction",
     "WKNavigationDelegate",
     "WKPreferences",
+    "WKSnapshotConfiguration",
     "WKUserContentController",
     "WKUserScript",
     "WKWebView",
@@ -46,7 +47,10 @@ objc2-web-kit = { version = "0.3.2", default-features = false, features = [
     "WKWebsiteDataStore",
 ] }
 objc2-app-kit = { version = "0.3.2", default-features = false, features = [
+    "NSBitmapImageRep",
     "NSGraphics",
+    "NSImage",
+    "NSImageRep",
     "NSPrintInfo",
     "NSPrintOperation",
     "NSResponder",
@@ -54,6 +58,7 @@ objc2-app-kit = { version = "0.3.2", default-features = false, features = [
     "NSWindow",
 ] }
 objc2-foundation = { version = "0.3.2", default-features = false, features = [
+    "NSData",
     "NSDate",
     "NSDictionary",
     "NSError",

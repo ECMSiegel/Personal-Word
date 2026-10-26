@@ -11,8 +11,9 @@ Personal Word is a Mac-first Tauri 2 app with React, TypeScript, Tiptap, and Rus
 - Never delete user projects or recovery data to make tests pass. Use isolated test storage.
 
 ## Product and UI
+- Read docs/design-system.md before changing any CSS.
 - Product name: Personal Word. All interface text is sans serif, preferring locally installed Futura then Avenir/system fonts. Document typeface is independently configurable.
-- Flat, restrained surfaces; square corners; no decorative folders/quills, curved selection connectors, slogans, or heavy footer strips. Selected sidebar entries are blue and semibold.
+- Flat, restrained surfaces; square corners; no decorative folders/quills, curved selection connectors, slogans, or heavy footer strips. Selected sidebar entries are semibold: blue in the Plain palette, their section tint in Color.
 - UI dash separators are '--'. Do not rewrite punctuation in user documents, citations, code, or paths.
 - Live system light/dark appearance and reduced-motion behavior apply throughout.
 - Sidebar width and pin/hover behavior are global. Feature order and collection list/card views are per project. Cards remain in the sidebar and adapt to its width.

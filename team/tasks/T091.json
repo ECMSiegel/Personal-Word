@@ -1,0 +1,56 @@
+{
+  "id": "T091",
+  "title": "UI critique (Medium): sidebar entry word count is the same size as the entry title",
+  "description": "After the 12 px floor the word-count metadata renders at the same size as the entry title; only weight and colour separate them, so the row hierarchy reads flat (candidate by agent-752b, relayed via DISCOVERIES). Screenshot: docs/agent-work/2026-10-25-ui-polish/screens/browser-writing-light-plain.png. Suggested: title --type-body with the count kept at --type-small, or reduce the count's opacity; reference iA Writer/Bear keep metadata visibly smaller or dimmer.",
+  "status": "done",
+  "owner": null,
+  "priority": 2,
+  "depends_on": [],
+  "files": [
+    "src/styles.css"
+  ],
+  "review_required": true,
+  "created_by": "agent-fb4d",
+  "created_at": "2026-10-26T04:56:29+00:00",
+  "claimed_at": "2026-10-26T05:07:00+00:00",
+  "updated_at": "2026-10-26T05:21:29+00:00",
+  "handoff": null,
+  "review": {
+    "by": "agent-3736",
+    "at": "2026-10-26T05:21:29+00:00",
+    "verdict": "approved",
+    "note": "Approved. Hunk reviewed: .entry-main span font-size var(--type-body) (token, no raw size); count .entry-main small stays var(--type-small) muted. Private build (ui-crit-review/dist; tree includes T092 in-progress styles.css edits), project with 3 manuscript entries, middle one selected, focus removed: light and dark both measure title 13px / count 12px; unselected title 400, selected title 600 in accent (light rgb(0,105,217), dark rgb(100,168,255)) on the grey selected band; count muted (light rgb(108,108,116), dark rgb(165,165,175)). Default width 270 px: all rows one line (row 33 px, title 17 px), no title truncated including 'The long middle chapter | 12 words'. At 190 px: no wrapping, rows still 33 px; the longest title ellipsizes and the count is hidden by the pre-existing @container (max-width: 240px) rule (present at HEAD), not by this change. Screenshots viewed: shots/t091-{light,dark}-{default,190}.png - title visibly larger than count. Side notes outside this task: brand 'Personal Word' and 'Snapshots & history' wrap at 190 px (already T096's scope); selected row's count also inherits 600 weight (pre-existing). designTokens 6/6; sidebar-selection and accessibility specs pass; tsc 0."
+  },
+  "log": [
+    {
+      "at": "2026-10-26T04:56:29+00:00",
+      "agent": "agent-fb4d",
+      "event": "created",
+      "note": ""
+    },
+    {
+      "at": "2026-10-26T05:07:00+00:00",
+      "agent": "agent-fb4d",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-10-26T05:07:00+00:00",
+      "agent": "agent-fb4d",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-10-26T05:09:20+00:00",
+      "agent": "agent-fb4d",
+      "event": "review requested",
+      "note": "Sidebar entry hierarchy: .entry-main span (title) now var(--type-body) 13px while the word count stays var(--type-small) 12px muted - mirroring the Projects screen's project-name/dates pattern. Verified on the ui-t10 private dist: computed sizes title 13px / count 12px (muted rgb(108,108,116) vs accent title in the selected state), assertion title > count passed; screenshot ui-t10/shots-t091/t091-sidebar.png viewed. designTokens 6/6 (tokenized change, no raw sizes; styles.css is a swept file and the change uses the token). tsc 0 (whole tree). Logs: ui-t10/t091-verify.log, t091-tokens.log."
+    },
+    {
+      "at": "2026-10-26T05:21:29+00:00",
+      "agent": "agent-3736",
+      "event": "approved",
+      "note": "Approved. Hunk reviewed: .entry-main span font-size var(--type-body) (token, no raw size); count .entry-main small stays var(--type-small) muted. Private build (ui-crit-review/dist; tree includes T092 in-progress styles.css edits), project with 3 manuscript entries, middle one selected, focus removed: light and dark both measure title 13px / count 12px; unselected title 400, selected title 600 in accent (light rgb(0,105,217), dark rgb(100,168,255)) on the grey selected band; count muted (light rgb(108,108,116), dark rgb(165,165,175)). Default width 270 px: all rows one line (row 33 px, title 17 px), no title truncated including 'The long middle chapter | 12 words'. At 190 px: no wrapping, rows still 33 px; the longest title ellipsizes and the count is hidden by the pre-existing @container (max-width: 240px) rule (present at HEAD), not by this change. Screenshots viewed: shots/t091-{light,dark}-{default,190}.png - title visibly larger than count. Side notes outside this task: brand 'Personal Word' and 'Snapshots & history' wrap at 190 px (already T096's scope); selected row's count also inherits 600 weight (pre-existing). designTokens 6/6; sidebar-selection and accessibility specs pass; tsc 0."
+    }
+  ]
+}

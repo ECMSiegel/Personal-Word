@@ -1,0 +1,69 @@
+{
+  "id": "T075",
+  "title": "UI polish T4: appearance setting System/Light/Dark",
+  "description": "Segmented row in Settings, folio.workspace.appearance key, data-theme on html, Cmd+Shift+L, no flash; owner answer 2: ALSO add core:window:allow-set-theme and call setTheme so the Mac title bar follows (plan T4). Follow docs/agent-work/2026-10-25-ui-polish/PLAN.md exactly (its section for this task: Files, Interfaces, Steps, Acceptance check, Fail-first, Stop-and-ask, plus the five answered Open questions). Protocol: serial check slot via files add before expensive checks, pinned Node, quoted --outDir, no installs, no commits, status CLAIMED, independent review required.",
+  "status": "done",
+  "owner": null,
+  "priority": 1,
+  "depends_on": [
+    "T073"
+  ],
+  "files": [
+    "src/appearance.ts,src/appearance.test.ts,src/components/Segmented.tsx,src/components/segmented.css,src/main.tsx,src/App.tsx,src/styles.css,src/designTokens.test.ts,tests/appearance.spec.ts,src-tauri/capabilities/default.json,node_modules/.cache/personal-word-beta/ui-t4",
+    "src/appearance.ts",
+    "src/appearance.test.ts",
+    "src/components/Segmented.tsx",
+    "src/components/segmented.css",
+    "src/main.tsx",
+    "src/App.tsx",
+    "src/styles.css",
+    "src/designTokens.test.ts",
+    "tests/appearance.spec.ts",
+    "src-tauri/capabilities/default.json",
+    "node_modules/.cache/personal-word-beta/team-serial-check-slot"
+  ],
+  "review_required": true,
+  "created_by": "agent-0fc3",
+  "created_at": "2026-10-26T01:49:57+00:00",
+  "claimed_at": "2026-10-26T02:55:12+00:00",
+  "updated_at": "2026-10-26T03:12:03+00:00",
+  "handoff": null,
+  "review": {
+    "by": "agent-a9bb",
+    "at": "2026-10-26T03:12:03+00:00",
+    "verdict": "approved",
+    "note": "APPROVED (status stays CLAIMED; owner real use not done). Evidence in node_modules/.cache/personal-word-beta/ui-t4-review/. CODE: key exactly folio.workspace.appearance, stored {theme,palette}, parse per-field fallback; main.tsx applies data-theme before createRoot; dark block under @media dark :root:not([data-theme=light]) + :root[data-theme=dark] (color-scheme dark) + :root[data-theme=light]{color-scheme:light}; Segmented = role=group + aria-pressed buttons as the PLAN interface specifies (reviewer brief asked radiogroup/aria-checked: plan governs, noted), square, tokens only, arrows wrap, focus ring via global T2 recipe; Settings row has no caption; setTheme lazy-imported, only when desktop, System->null, errors swallowed; capability line exactly core:window:allow-set-theme; Cmd/Ctrl+Shift+L: no collision (App binds s,\\\\,k,Shift+n,Shift+s; Writer Shift+f,Shift+x; no native menu in lib.rs). FAIL-FIRST: read all 3 logs (unit: module missing; browser: 5 new fail/2 old pass on pre-T075 build; parity: --muted doctored fails). Reproduced parity fail on scratch copy ui-t4-review/parity (--line doctored in data-theme=dark block -> 1 failed; undoctored 5/5). RERUN pinned Node 22.23.3: tsc exit 0; vitest appearance+designTokens 10/10; Playwright appearance+notice+sidebar-selection+features+layout+accessibility on ui-t4/dist port 1567, 1 worker, 0 retries: 33/33 (ui-t4-review/browser.log); dist newer than every src/tests file. FIRST PAINT (ui-t4-review/firstpaint.json, Chromium): stored dark under light OS -> data-theme set at 25ms while #root had 0 children, html bg rgb(32,32,35), first-paint 32ms; light under dark OS -> all 14 colour tokens equal the light values, color-scheme light; garbage/partial/missing tolerated, no page errors. NATIVE: slot unowned; smoke rebuild EXIT 0 (capability accepted), Cargo.lock shasum unchanged; native-screens 8 PNGs exit 0 (OS is Dark). Hashes light/dark: projects cb77024/dddf0da, writing b0f1047/9eee8bd, research f5558aa/342fad2, settings 72b825d/90065d8 -- all 4 pairs differ (pre-T075 ui-t0/native-final: all 4 pairs byte-identical, dataTheme null). Reports: light dataTheme=light prefersDark=false; dark dataTheme=dark prefersDark=true. Viewed all 8: light set light (incl. native selects), dark set dark; Settings shows System/Light/Dark square row, selected blue semibold, no caption. dataTheme surviving the script reload = WKWebView localStorage round-trips the key. prefersDark=false under a Dark OS = WKWebView appearance changed, i.e. setTheme(light) ran natively with the capability granted (indirect). FINDING (non-blocking, follow-up suggested): parity test covers only the two dark blocks the plan names; on a scratch copy deleting :root[data-theme=light] still passes 5/5 (then Light under dark OS keeps color-scheme 'light dark' -> dark native controls/scrollbars); suggest asserting the light block exists with color-scheme light and that light and dark colour-token name sets match. Minor: spec (e) checks .settings-help only inside the row (verified visually instead). UNPROVEN: actual title-bar colour (snapshot shows only the WebView), Cmd+Shift+L inside WKWebView (native-screens does not press it), no-flash in WKWebView (first-paint measured in Chromium only), live System follow in the native app."
+  },
+  "log": [
+    {
+      "at": "2026-10-26T01:49:57+00:00",
+      "agent": "agent-0fc3",
+      "event": "created",
+      "note": ""
+    },
+    {
+      "at": "2026-10-26T02:55:12+00:00",
+      "agent": "agent-3f67",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-10-26T02:55:12+00:00",
+      "agent": "agent-3f67",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-10-26T03:04:16+00:00",
+      "agent": "agent-3f67",
+      "event": "review requested",
+      "note": "T4 appearance setting done, status CLAIMED. New: src/appearance.ts(+test), src/components/Segmented.tsx + segmented.css (square, tokens only, ArrowLeft/Right/Up/Down move focus+choice, T073 focus ring/selected recipe; only added justify-self:start so the row hugs its buttons). Key folio.workspace.appearance in WebView localStorage ({theme,palette}); applied to html data-theme in main.tsx before React renders. App.tsx: state+effect (apply, persist, and on desktop only getCurrentWindow().setTheme(light|dark|null) via lazy import, errors swallowed; browser build no-op via existing 'desktop' check), Settings>General Appearance row System/Light/Dark with no caption, shortcut Cmd/Ctrl+Shift+L (NOT Cmd+Option+L; flips effective Light/Dark). styles.css: comments updated, dark block now @media dark :root:not([data-theme=light]) + :root[data-theme=dark] (color-scheme dark) + :root[data-theme=light]. src-tauri/capabilities/default.json adds core:window:allow-set-theme. designTokens.test.ts: dark-block parity test. tests/appearance.spec.ts: original 2 tests untouched + 5 new (Dark under light sticks after reload and key parses to {theme:dark,palette:plain}; Light under dark; System follows OS live; Cmd/Ctrl+Shift+L twice on Projects; no caption/border-radius 0/focus ring/arrow keys). Fail-first: appearance.test.ts failed before module existed (ui-t4/failfirst-unit.log, exit 1); 5 new browser tests failed on baseline App.tsx build (no Dark button; ui-t4/failfirst-browser.log, 2 old pass 5 new fail); parity test failed on doctored copy (--muted changed, ui-t4/failfirst-parity.log, exit 1), styles.css restored, cmp identical. Checks (pinned Node 22.23.3): tsc exit 0; vitest appearance+designTokens 10/10; npm test --no-file-parallelism --maxWorkers=1 49 files 882 tests pass exit 0 (ran before the one-line segmented.css justify-self tweak; relevant unit tests rerun after, pass); private production preview port 1567 one worker no retries: appearance+notice+sidebar-selection+features 23/23 pass exit 0 after final CSS (earlier wider run incl layout+accessibility 33/33 also pass). cargo test not run: only capabilities JSON changed in src-tauri by me; instead 'cargo check --locked --offline --jobs 1' exit 0 (tauri-build validates the permission id; Cargo.lock untouched). Other src-tauri files show modified from other tasks, not mine. Shots 1440x900 in ui-t4/shots (light-system, dark-system, forced-dark-under-light, forced-light-under-dark, forced-dark-focus + crops): viewed; three square-cornered buttons, no caption, selected state accent+600 on surface bg, 2px accent focus ring visible. Notice shots in ui-t4/notice-shots. Logs: node_modules/.cache/personal-word-beta/ui-t4/*.log. Only the native app can prove: title bar following the choice via setTheme (capability compiles, runtime untested), no-flash on launch in WKWebView, Cmd+Shift+L not being intercepted natively (no app menu in lib.rs binds it; unverified), WKWebView localStorage persistence of the key. Browser results are Chromium only. Not changed: palette (T5), docs/design-system.md already describes this."
+    },
+    {
+      "at": "2026-10-26T03:12:03+00:00",
+      "agent": "agent-a9bb",
+      "event": "approved",
+      "note": "APPROVED (status stays CLAIMED; owner real use not done). Evidence in node_modules/.cache/personal-word-beta/ui-t4-review/. CODE: key exactly folio.workspace.appearance, stored {theme,palette}, parse per-field fallback; main.tsx applies data-theme before createRoot; dark block under @media dark :root:not([data-theme=light]) + :root[data-theme=dark] (color-scheme dark) + :root[data-theme=light]{color-scheme:light}; Segmented = role=group + aria-pressed buttons as the PLAN interface specifies (reviewer brief asked radiogroup/aria-checked: plan governs, noted), square, tokens only, arrows wrap, focus ring via global T2 recipe; Settings row has no caption; setTheme lazy-imported, only when desktop, System->null, errors swallowed; capability line exactly core:window:allow-set-theme; Cmd/Ctrl+Shift+L: no collision (App binds s,\\\\,k,Shift+n,Shift+s; Writer Shift+f,Shift+x; no native menu in lib.rs). FAIL-FIRST: read all 3 logs (unit: module missing; browser: 5 new fail/2 old pass on pre-T075 build; parity: --muted doctored fails). Reproduced parity fail on scratch copy ui-t4-review/parity (--line doctored in data-theme=dark block -> 1 failed; undoctored 5/5). RERUN pinned Node 22.23.3: tsc exit 0; vitest appearance+designTokens 10/10; Playwright appearance+notice+sidebar-selection+features+layout+accessibility on ui-t4/dist port 1567, 1 worker, 0 retries: 33/33 (ui-t4-review/browser.log); dist newer than every src/tests file. FIRST PAINT (ui-t4-review/firstpaint.json, Chromium): stored dark under light OS -> data-theme set at 25ms while #root had 0 children, html bg rgb(32,32,35), first-paint 32ms; light under dark OS -> all 14 colour tokens equal the light values, color-scheme light; garbage/partial/missing tolerated, no page errors. NATIVE: slot unowned; smoke rebuild EXIT 0 (capability accepted), Cargo.lock shasum unchanged; native-screens 8 PNGs exit 0 (OS is Dark). Hashes light/dark: projects cb77024/dddf0da, writing b0f1047/9eee8bd, research f5558aa/342fad2, settings 72b825d/90065d8 -- all 4 pairs differ (pre-T075 ui-t0/native-final: all 4 pairs byte-identical, dataTheme null). Reports: light dataTheme=light prefersDark=false; dark dataTheme=dark prefersDark=true. Viewed all 8: light set light (incl. native selects), dark set dark; Settings shows System/Light/Dark square row, selected blue semibold, no caption. dataTheme surviving the script reload = WKWebView localStorage round-trips the key. prefersDark=false under a Dark OS = WKWebView appearance changed, i.e. setTheme(light) ran natively with the capability granted (indirect). FINDING (non-blocking, follow-up suggested): parity test covers only the two dark blocks the plan names; on a scratch copy deleting :root[data-theme=light] still passes 5/5 (then Light under dark OS keeps color-scheme 'light dark' -> dark native controls/scrollbars); suggest asserting the light block exists with color-scheme light and that light and dark colour-token name sets match. Minor: spec (e) checks .settings-help only inside the row (verified visually instead). UNPROVEN: actual title-bar colour (snapshot shows only the WebView), Cmd+Shift+L inside WKWebView (native-screens does not press it), no-flash in WKWebView (first-paint measured in Chromium only), live System follow in the native app."
+    }
+  ]
+}

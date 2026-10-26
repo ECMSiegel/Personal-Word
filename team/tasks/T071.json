@@ -1,0 +1,56 @@
+{
+  "id": "T071",
+  "title": "UI polish T0: native WebKit screenshots from the smoke build",
+  "description": "Add smoke-only smoke_snapshot command + tests/native-screens.js + scripts/native-screens.py (plan T0). Owner answer 5: build it. Follow docs/agent-work/2026-10-25-ui-polish/PLAN.md exactly (its section for this task: Files, Interfaces, Steps, Acceptance check, Fail-first, Stop-and-ask, plus the five answered Open questions). Protocol: serial check slot via files add before expensive checks, pinned Node, quoted --outDir, no installs, no commits, status CLAIMED, independent review required.",
+  "status": "done",
+  "owner": null,
+  "priority": 1,
+  "depends_on": [],
+  "files": [
+    "src-tauri/Cargo.toml,src-tauri/src/smoke.rs,src-tauri/src/lib.rs,tests/native-screens.js,scripts/native-screens.py,node_modules/.cache/personal-word-beta/ui-t0"
+  ],
+  "review_required": true,
+  "created_by": "agent-0fc3",
+  "created_at": "2026-10-26T01:49:54+00:00",
+  "claimed_at": "2026-10-26T01:51:17+00:00",
+  "updated_at": "2026-10-26T02:36:58+00:00",
+  "handoff": null,
+  "review": {
+    "by": "agent-d571",
+    "at": "2026-10-26T02:36:58+00:00",
+    "verdict": "approved",
+    "note": "Approved (agent-d571, Opus). Code: mod smoke is cfg(feature=native-smoke) (lib.rs:1-2); smoke_snapshot added only to the smoke generate_handler list (lib.rs:257); name checked byte-wise = ^[a-z0-9-]{1,40}$ before any path use, written only to FOLIO_SMOKE_DIR/screens/<name>.png (no / or . possible, no traversal); async command blocks on recv_timeout(15s) off the main thread, with_webview dispatches to main; non-mac Err('Native snapshots need macOS'). Cargo.toml diff = exactly the 5 plan feature flags; Cargo.lock diff empty. native-screens arm uses format! to inject FOLIO_SMOKE_PALETTE (documented deviation, same pattern/risk as the native-print arm; launcher passes json.dumps of an argparse choice). Launcher mirrors native-reliability.py launch/stop (env, new session, killpg) and refuses without src-tauri/target/debug/folio; validates identity, protocol, isolated data store, invocation, run, ok, 4 screen paths. Evidence: fail-first.log exit 1 'Native report belongs to None' at 21:57:26, before the first smoke rebuild (22:05) - before/light/report-2.json has scenario None, ok False (default smoke script). Owner cargo.log 49 passed/1 ignored. Reruns (slot marker was FREE, no build): cargo test --locked --offline --jobs 1 serial -> 49 passed, 0 failed, 1 ignored (bench_save_100k ignored), exit 0 (ui-t0-review-logs/cargo.log); native-screens.py --out ui-t0-review against the existing smoke binary (mtime 22:13:56, newer than smoke.rs 21:57 and native-screens.js 22:12) -> '8 native screenshots written', exit 0 (ui-t0-review-logs/screens.log). PNGs: all 16 (owner native-final + mine) are 1240x840 px = 1240 points at 1x, meeting the plan floor 'at least 1240 points'; not 2x because the window lands on the 1x external QHD monitor (built-in Retina is main but asleep) - inferred from system_profiler, so expect 2480 px only when the window is on the Retina panel. Light/dark pairs byte-identical by shasum (expected pre-T4: reports record prefersDark true, dataTheme null), so viewing projects-light, writing-dark, research-light, settings-dark (owner set) plus writing-light, settings-dark (my set) covers all pixels. Viewed: native WebKit rendering (macOS native select popups and date field in Settings), Futura UI, system dark; Projects empty library with import rows; writing 'Screens fixture' two lines, 16 words, Opening selected blue semibold; Research panel with manual source 'A synthetic source'; Project settings General + Goals, Settings selected blue. Document text is Futura, not Times: expected, Blank template sets font 'sans' (templates.ts). Not blank, not the browser build. Notes: (1) launcher overwrites any FOLIO_SMOKE_PALETTE env - plan Validation 7 must use '--palette color' (discovery logged); report does not record palette. (2) Registered paths still the one comma-joined string; owner did not add individual paths per #225; diff stays within the named files. (3) git status: everything else belongs to T072/T074/T077/plan folder; scripts/__pycache__ predates. No smoke rebuild by me. Status CLAIMED, not VERIFIED."
+  },
+  "log": [
+    {
+      "at": "2026-10-26T01:49:54+00:00",
+      "agent": "agent-0fc3",
+      "event": "created",
+      "note": ""
+    },
+    {
+      "at": "2026-10-26T01:51:17+00:00",
+      "agent": "agent-fb4d",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-10-26T01:51:18+00:00",
+      "agent": "agent-fb4d",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-10-26T02:15:44+00:00",
+      "agent": "agent-fb4d",
+      "event": "review requested",
+      "note": "Native WebKit screenshot mechanism done (plan T0). smoke_snapshot async command (with_webview -> WKWebView takeSnapshotWithConfiguration via RcBlock, TIFF->NSBitmapImageRep->PNG, 15s recv_timeout, writes FOLIO_SMOKE_DIR/screens/<name>.png; non-mac returns Err('Native snapshots need macOS')); Cargo.toml feature flags only (WKSnapshotConfiguration, NSImage/NSImageRep/NSBitmapImageRep, NSData) on already-locked crates; native-screens match arm (palette injected via FOLIO_SMOKE_PALETTE using the established native-print env-to-script pattern - noted deviation); tests/native-screens.js harness (appearance set + reload, diagnostic identity check, 4 captures, prefersDark/dataTheme recorded); scripts/native-screens.py launcher (--out/--timeout/--palette, isolated stores sha256(run+scenario), full report validation). Fail-first: exit 1 on old binary ('Native report belongs to None', ui-t0/fail-first.log). Acceptance: cargo 49/1 unchanged (ui-t0/cargo.log); smoke rebuild exit 0; capture run exit 0 -> 8 PNGs at 1240x840 px (1240 points wide, acceptance floor) in ui-t0/native-final; ALL EIGHT VIEWED: empty Projects library (T050 label renders), writing with two real paragraphs (16 words), Research panel (T056/T076 wording + manual source), Settings General+Goals; light/dark pairs currently identical because T4 is not landed - reports record prefersDark=true/dataTheme=null for both, per plan interface. Slot path still held by T072 - coordinated via OWNER marker (now FREE). Report: ui-t0/REPORT.md."
+    },
+    {
+      "at": "2026-10-26T02:36:58+00:00",
+      "agent": "agent-d571",
+      "event": "approved",
+      "note": "Approved (agent-d571, Opus). Code: mod smoke is cfg(feature=native-smoke) (lib.rs:1-2); smoke_snapshot added only to the smoke generate_handler list (lib.rs:257); name checked byte-wise = ^[a-z0-9-]{1,40}$ before any path use, written only to FOLIO_SMOKE_DIR/screens/<name>.png (no / or . possible, no traversal); async command blocks on recv_timeout(15s) off the main thread, with_webview dispatches to main; non-mac Err('Native snapshots need macOS'). Cargo.toml diff = exactly the 5 plan feature flags; Cargo.lock diff empty. native-screens arm uses format! to inject FOLIO_SMOKE_PALETTE (documented deviation, same pattern/risk as the native-print arm; launcher passes json.dumps of an argparse choice). Launcher mirrors native-reliability.py launch/stop (env, new session, killpg) and refuses without src-tauri/target/debug/folio; validates identity, protocol, isolated data store, invocation, run, ok, 4 screen paths. Evidence: fail-first.log exit 1 'Native report belongs to None' at 21:57:26, before the first smoke rebuild (22:05) - before/light/report-2.json has scenario None, ok False (default smoke script). Owner cargo.log 49 passed/1 ignored. Reruns (slot marker was FREE, no build): cargo test --locked --offline --jobs 1 serial -> 49 passed, 0 failed, 1 ignored (bench_save_100k ignored), exit 0 (ui-t0-review-logs/cargo.log); native-screens.py --out ui-t0-review against the existing smoke binary (mtime 22:13:56, newer than smoke.rs 21:57 and native-screens.js 22:12) -> '8 native screenshots written', exit 0 (ui-t0-review-logs/screens.log). PNGs: all 16 (owner native-final + mine) are 1240x840 px = 1240 points at 1x, meeting the plan floor 'at least 1240 points'; not 2x because the window lands on the 1x external QHD monitor (built-in Retina is main but asleep) - inferred from system_profiler, so expect 2480 px only when the window is on the Retina panel. Light/dark pairs byte-identical by shasum (expected pre-T4: reports record prefersDark true, dataTheme null), so viewing projects-light, writing-dark, research-light, settings-dark (owner set) plus writing-light, settings-dark (my set) covers all pixels. Viewed: native WebKit rendering (macOS native select popups and date field in Settings), Futura UI, system dark; Projects empty library with import rows; writing 'Screens fixture' two lines, 16 words, Opening selected blue semibold; Research panel with manual source 'A synthetic source'; Project settings General + Goals, Settings selected blue. Document text is Futura, not Times: expected, Blank template sets font 'sans' (templates.ts). Not blank, not the browser build. Notes: (1) launcher overwrites any FOLIO_SMOKE_PALETTE env - plan Validation 7 must use '--palette color' (discovery logged); report does not record palette. (2) Registered paths still the one comma-joined string; owner did not add individual paths per #225; diff stays within the named files. (3) git status: everything else belongs to T072/T074/T077/plan folder; scripts/__pycache__ predates. No smoke rebuild by me. Status CLAIMED, not VERIFIED."
+    }
+  ]
+}

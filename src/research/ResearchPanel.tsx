@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 import { ChevronRight } from "lucide-react";
 import { Dropdown, type DropdownOption } from "../components/Dropdown";
 import {
@@ -69,6 +69,12 @@ function Cite({ parts }: { parts: CitationPart[] }) {
     </>
   );
 }
+
+const ZOTERO_HINT =
+  "In Zotero, enable the local API in Settings > Advanced before refreshing.";
+
+const LOOKUP_PRIVACY =
+  "Look up sends only this identifier to Crossref, Open Library, or the website.";
 
 function Field({
   id,
@@ -164,6 +170,10 @@ export function ResearchPanel({
   const [pendingFocus, setPendingFocus] = useState<string | null>(null);
   const [captureSourceId, setCaptureSourceId] = useState<string | undefined>();
   const [capturingQuote, setCapturingQuote] = useState(false);
+  const lookupTipId = useId();
+  const zoteroTipId = useId();
+  const [zoteroTipShown, setZoteroTipShown] = useState(false);
+  const [lookupTipShown, setLookupTipShown] = useState(false);
   const [zoteroConnected, setZoteroConnected] = useState(false);
   const [zoteroLoading, setZoteroLoading] = useState(false);
   const [zoteroMessage, setZoteroMessage] = useState<string>("");
@@ -334,16 +344,14 @@ export function ResearchPanel({
             </div>
           </div>
         )}
-        <div className="cite-preview">
-          <span className="field-label">Preview</span>
-          <p className="citation-preview">
-            {parts.length ? (
+        {parts.length > 0 && (
+          <div className="cite-preview">
+            <span className="field-label">Preview</span>
+            <p className="citation-preview">
               <Cite parts={parts} />
-            ) : (
-              "Write a note or choose a source."
-            )}
-          </p>
-        </div>
+            </p>
+          </div>
+        )}
         {linked && (
           <div className="item-actions">
             <button
@@ -441,7 +449,7 @@ export function ResearchPanel({
           ))}
           {!source.creators?.some((creator) => creator.role === "author") && <Field
             id={fieldId("authors")} label="Authors" multiline wide
-            help="One name per line, first name first" value={source.authors.join("\n")}
+            placeholder="One name per line, first name first" value={source.authors.join("\n")}
             onChange={(value) => patch({ authors: value.split("\n") })}
           />}
           <Field
@@ -757,7 +765,7 @@ export function ResearchPanel({
             }}
           />
           <div className="research-add">
-            <div className="research-lookup">
+            <div className="research-lookup" style={{ position: "relative" }}>
               <input
                 type="text"
                 aria-label="DOI, ISBN, or web address"
@@ -776,14 +784,22 @@ export function ResearchPanel({
                 className="button-primary"
                 disabled={busy || !input.trim()}
                 onClick={() => void runLookup()}
+                title={LOOKUP_PRIVACY}
+                aria-describedby={lookupTipId}
+                onFocus={() => setLookupTipShown(true)}
+                onBlur={() => setLookupTipShown(false)}
               >
                 Look up
               </button>
+              <span
+                id={lookupTipId}
+                role="tooltip"
+                className="lookup-tip"
+                data-shown={lookupTipShown ? "true" : undefined}
+              >
+                {LOOKUP_PRIVACY}
+              </span>
             </div>
-            <p className="research-privacy">
-              Look up sends only this identifier to Crossref, Open Library, or
-              the website.
-            </p>
             <div className="research-actions">
               <button type="button" onClick={() => { setCaptureSourceId(undefined); setCapturingQuote(true); }}>
                 Capture quote
@@ -795,12 +811,15 @@ export function ResearchPanel({
                 Import from Zotero…
               </button>
             </div>
-            <p className="research-hint">In Zotero, export CSL JSON or BibTeX (.json, .bib, .bibtex).</p>
-            <div className="zotero-refresh-section" style={{ marginTop: 8 }}>
+            <div className="zotero-refresh-section" style={{ marginTop: 8, position: "relative" }}>
               <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
                 {!zoteroConnected ? (
                   <button
                     type="button"
+                    title={ZOTERO_HINT}
+                    aria-describedby={zoteroTipId}
+                    onFocus={() => setZoteroTipShown(true)}
+                    onBlur={() => setZoteroTipShown(false)}
                     onClick={() => {
                       setZoteroConnected(true);
                       setZoteroMessage("Local Zotero refresh enabled -- not yet contacted.");
@@ -853,12 +872,19 @@ export function ResearchPanel({
                 <span
                   role="status"
                   className="zotero-status"
-                  style={{ fontSize: "0.85em", color: "var(--muted)" }}
+                  style={{ fontSize: "var(--type-small)", color: "var(--muted)" }}
                 >
                   {zoteroMessage || (!zoteroConnected ? "Zotero refresh: disabled" : "Local Zotero refresh enabled -- not yet contacted.")}
                 </span>
               </div>
-              <p className="research-hint">In Zotero, enable the local API in Settings &gt; Advanced before refreshing.</p>
+              <span
+                id={zoteroTipId}
+                role="tooltip"
+                className="lookup-tip"
+                data-shown={zoteroTipShown ? "true" : undefined}
+              >
+                {ZOTERO_HINT}
+              </span>
             </div>
           </div>
           <p

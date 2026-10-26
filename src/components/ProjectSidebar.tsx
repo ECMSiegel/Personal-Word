@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import {
   ArrowDown,
   ArrowUp,
+  BookMarked,
   BookOpen,
   ChevronDown,
   FileText,
@@ -227,6 +228,7 @@ export function ProjectSidebar(props: Props) {
           (views[id] ? "cards-view" : "list-view") +
           (collapsed[id] ? " is-collapsed" : "")
         }
+        data-group={id}
         key={id}
         onDragOver={(e) => e.preventDefault()}
         onDrop={(e) => {
@@ -256,10 +258,11 @@ export function ProjectSidebar(props: Props) {
           >
             {id === "manuscript" && <FileText size={15} />}
             {id === "fragments" && <Layers size={15} />}
+            {id === "research" && <BookMarked size={15} />}
             {id === "read" && <BookOpen size={15} />}
             {id === "comments" && <MessageSquare size={15} />}
             {id === "history" && <History size={15} />}
-            {labels[id]}
+            <span className="group-label">{labels[id]}</span>
           </button>
           {collapsibleGroups.includes(id) && (
             <button

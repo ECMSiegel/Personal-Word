@@ -1,0 +1,63 @@
+{
+  "id": "T082",
+  "title": "UI polish validation: plan Validation list steps 1-10",
+  "description": "Run the UI polish plan's Validation list on the final tree: tsc, serial units, build, full Playwright production preview (port 1550), cargo 55/0/1, smoke rebuild + baseline/beta suites, native-screens.py both palettes (16 PNGs viewed), normal app rebuild + marker scan, owner hand-check sheet prepared, CLAIMED. Follow docs/agent-work/2026-10-25-ui-polish/PLAN.md exactly (its section for this task: Files, Interfaces, Steps, Acceptance check, Fail-first, Stop-and-ask, plus the five answered Open questions). Protocol: serial check slot via files add before expensive checks, pinned Node, quoted --outDir, no installs, no commits, status CLAIMED, independent review required.",
+  "status": "done",
+  "owner": null,
+  "priority": 1,
+  "depends_on": [
+    "T081"
+  ],
+  "files": [
+    "docs/agent-work/2026-10-25-ui-polish/VALIDATION.md,node_modules/.cache/personal-word-beta/ui-final",
+    "docs/agent-work/2026-10-25-ui-polish/VALIDATION.md",
+    "node_modules/.cache/personal-word-beta/ui-final",
+    "docs/evidence/readme",
+    "docs/validation.md",
+    "node_modules/.cache/personal-word-beta/team-serial-check-slot"
+  ],
+  "review_required": true,
+  "created_by": "agent-0fc3",
+  "created_at": "2026-10-26T01:49:59+00:00",
+  "claimed_at": "2026-10-26T05:49:45+00:00",
+  "updated_at": "2026-10-26T06:12:10+00:00",
+  "handoff": null,
+  "review": {
+    "by": "agent-f0a8",
+    "at": "2026-10-26T06:12:10+00:00",
+    "verdict": "approved",
+    "note": "Re-verified from primary evidence in node_modules/.cache/personal-word-beta/ui-final: tsc log v22.23.3 EXIT 0; vitest 51 files/899 passed EXIT 0; build EXIT 0; browser-report.json stats expected 166, unexpected 0, skipped 0, flaky 0; browser.config.mjs testDir=real tests/, workers 1, retries 0, webServer preview --outDir \"./dist\" port 1550; cargo 55 passed/0 failed/1 ignored; smoke build EXIT 0. d1/runs result.json: baseline 20261026T060417Z-1233af68 ok=true passed 13+5 detected, beta 20261026T060516Z-9d1bb0f0 ok=true 19+42 detected, both contain smoke hash 62ed849b... (recomputed on src-tauri/target/debug/folio, matches). 16 native PNGs all 1240x840; README PNGs all 2880x1800. Info.plist com.folio.writing 0.1.1/0.1.1. Recomputed release folio sha256 af849a85582797ab1440acfd8cddf6af79fa1c979e42e3b7b4f6d587778052f4. Own marker scan: smoke_snapshot/native-screens/com.folio.smoke/FOLIO_SMOKE release 0 each, debug 10/2/8/12. No file under src/ or src-tauri/src/ is newer than the release binary. Cheap reruns on pinned Node: tsc exit 0; 4 new unit files 27/27 pass. Viewed 6 native PNGs (projects plain/color light+dark, settings color light, writing plain dark) and all 4 README PNGs: Lighthouse Ledgers sample, no fixture names, writing shots say Saved; projects-light browser-preview footer is acceptable since README line 67 says the shots come from the browser preview. VALIDATION.md hand-check sheet covers step 9 a-e with Result: ____ lines, CLAIMED throughout, linked from docs/validation.md. git status: nothing new outside T082 paths beyond earlier UI-polish task files. Non-blocking notes: README alt text for writing-light says 'footnote at the bottom of the page' and research-light says 'Chicago note and bibliography entry' but neither is visible in the shots (README not in T082 paths); docs/validation.md 'How each was checked' still names the T080 native runs, the T082 paragraph names the new ones (fine)."
+  },
+  "log": [
+    {
+      "at": "2026-10-26T01:49:59+00:00",
+      "agent": "agent-0fc3",
+      "event": "created",
+      "note": ""
+    },
+    {
+      "at": "2026-10-26T05:49:45+00:00",
+      "agent": "agent-b0c5",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-10-26T05:49:45+00:00",
+      "agent": "agent-b0c5",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-10-26T06:09:44+00:00",
+      "agent": "agent-b0c5",
+      "event": "review requested",
+      "note": "T082 final validation, all CLAIMED, nothing failed, no reruns. 1 tsc exit0 node v22.23.3. 2 vitest 51 files/899 tests pass. 3 build exit0. 4 Playwright full tests/ folder, prod preview ./dist port1550, 1 worker no retries: 166 passed, 0 fail/skip/flaky (4.5m). 5 cargo 55 passed/0 failed/1 ignored. 6 smoke rebuild exit0; baseline run 20261026T060417Z-1233af68 exit0 (13 passed+5 detected); beta run 20261026T060516Z-9d1bb0f0 exit0 (19+42). 7 native-screens plain and --palette color: 16 PNGs viewed, 1 line each in VALIDATION.md (dark Plain primary low contrast = known T087; research-dark captured mid-'Saving...'). 8 normal app src-tauri/target/release/bundle/macos/Personal Word.app, com.folio.writing 0.1.1, binary sha256 af849a85582797ab1440acfd8cddf6af79fa1c979e42e3b7b4f6d587778052f4; 4 smoke markers 0 hits (debug binary 10/2/8/12); read_dropped_file 2. README PNGs regenerated 2880x1800 from prod preview of ./dist, Plain, Lighthouse Ledgers + Field notes sample, source spec node_modules/.cache/personal-word-beta/ui-final/readme-capture.spec.mjs, all four viewed; footnote text sits below the visible fold (marker shows). Wrote docs/agent-work/2026-10-25-ui-polish/VALIDATION.md (results table, 16 PNG notes, owner hand-check sheet 13 items) and replaced 'pending T082' in docs/validation.md. Logs in node_modules/.cache/personal-word-beta/ui-final/. Not proven: Finder drag, title bar theme, Cmd+Shift+L, Reduce Motion in Mac app. No commits."
+    },
+    {
+      "at": "2026-10-26T06:12:10+00:00",
+      "agent": "agent-f0a8",
+      "event": "approved",
+      "note": "Re-verified from primary evidence in node_modules/.cache/personal-word-beta/ui-final: tsc log v22.23.3 EXIT 0; vitest 51 files/899 passed EXIT 0; build EXIT 0; browser-report.json stats expected 166, unexpected 0, skipped 0, flaky 0; browser.config.mjs testDir=real tests/, workers 1, retries 0, webServer preview --outDir \"./dist\" port 1550; cargo 55 passed/0 failed/1 ignored; smoke build EXIT 0. d1/runs result.json: baseline 20261026T060417Z-1233af68 ok=true passed 13+5 detected, beta 20261026T060516Z-9d1bb0f0 ok=true 19+42 detected, both contain smoke hash 62ed849b... (recomputed on src-tauri/target/debug/folio, matches). 16 native PNGs all 1240x840; README PNGs all 2880x1800. Info.plist com.folio.writing 0.1.1/0.1.1. Recomputed release folio sha256 af849a85582797ab1440acfd8cddf6af79fa1c979e42e3b7b4f6d587778052f4. Own marker scan: smoke_snapshot/native-screens/com.folio.smoke/FOLIO_SMOKE release 0 each, debug 10/2/8/12. No file under src/ or src-tauri/src/ is newer than the release binary. Cheap reruns on pinned Node: tsc exit 0; 4 new unit files 27/27 pass. Viewed 6 native PNGs (projects plain/color light+dark, settings color light, writing plain dark) and all 4 README PNGs: Lighthouse Ledgers sample, no fixture names, writing shots say Saved; projects-light browser-preview footer is acceptable since README line 67 says the shots come from the browser preview. VALIDATION.md hand-check sheet covers step 9 a-e with Result: ____ lines, CLAIMED throughout, linked from docs/validation.md. git status: nothing new outside T082 paths beyond earlier UI-polish task files. Non-blocking notes: README alt text for writing-light says 'footnote at the bottom of the page' and research-light says 'Chicago note and bibliography entry' but neither is visible in the shots (README not in T082 paths); docs/validation.md 'How each was checked' still names the T080 native runs, the T082 paragraph names the new ones (fine)."
+    }
+  ]
+}

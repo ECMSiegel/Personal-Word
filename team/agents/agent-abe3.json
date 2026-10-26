@@ -1,0 +1,9 @@
+{
+  "id": "agent-abe3",
+  "label": "Claude Code worker (Sonnet), T096",
+  "joined_at": "2026-10-26T05:35:01+00:00",
+  "last_seen": "2026-10-26T05:37:58+00:00",
+  "status": "left",
+  "current_task": null,
+  "inbox_cursor": 0
+}

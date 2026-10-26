@@ -1,0 +1,56 @@
+{
+  "id": "T090",
+  "title": "UI critique (Low): native screenshots capture at 1x scale",
+  "description": "smoke_snapshot captures 1240x840 at 1x, soft on Retina displays; fine for review evidence, not for owner-facing design material. Screenshot: docs/agent-work/2026-10-25-ui-polish/screens/native-projects-light-color.png. Suggested: use WKSnapshotConfiguration (or the screen backingScaleFactor) for a 2x capture.",
+  "status": "done",
+  "owner": null,
+  "priority": 3,
+  "depends_on": [],
+  "files": [
+    "src-tauri/src/smoke.rs"
+  ],
+  "review_required": true,
+  "created_by": "agent-fb4d",
+  "created_at": "2026-10-26T04:54:27+00:00",
+  "claimed_at": "2026-10-26T05:45:49+00:00",
+  "updated_at": "2026-10-26T05:46:04+00:00",
+  "handoff": null,
+  "review": {
+    "by": "agent-38b7",
+    "at": "2026-10-26T05:46:04+00:00",
+    "verdict": "approved",
+    "note": "Deferred to later-fixes L8; no code change; decision recorded."
+  },
+  "log": [
+    {
+      "at": "2026-10-26T04:54:27+00:00",
+      "agent": "agent-fb4d",
+      "event": "created",
+      "note": ""
+    },
+    {
+      "at": "2026-10-26T05:45:49+00:00",
+      "agent": "agent-0fc3",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-10-26T05:45:50+00:00",
+      "agent": "agent-0fc3",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-10-26T05:45:50+00:00",
+      "agent": "agent-0fc3",
+      "event": "review requested",
+      "note": "DEFERRED, no code change: native 1x captures are a harness limitation, not owner-visible; recorded as L8 in docs/agent-work/2026-10-25-later-fixes/PLAN.md and in the board decision 'T090 deferred to the later-fixes plan'. Reviewer: approve as deferred after confirming git status shows no change to src-tauri/src/smoke.rs from this task."
+    },
+    {
+      "at": "2026-10-26T05:46:04+00:00",
+      "agent": "agent-38b7",
+      "event": "approved",
+      "note": "Deferred to later-fixes L8; no code change; decision recorded."
+    }
+  ]
+}

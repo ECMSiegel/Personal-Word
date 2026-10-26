@@ -161,7 +161,7 @@ test("search, rename, editor, and prose preview text remain selectable", async (
   await page.getByRole("button", { name: "Save", exact: true }).click();
   const manuscriptRows = manuscriptGroup.locator(".entry-row");
   await expect(manuscriptRows).toHaveCount(2);
-  await manuscriptRows.nth(0).dragTo(manuscriptRows.nth(1));
+  await manuscriptRows.nth(0).dragTo(manuscriptRows.nth(1), { sourcePosition: { x: 6, y: 6 } });
   await expect(manuscriptRows.first()).toContainText("Second preview section");
 });
 
@@ -230,4 +230,85 @@ test("sidebar drag, resize, collapse, pin, and keyboard controls still work", as
   await expect(page.getByRole("button", { name: "Pin sidebar" })).toBeVisible();
   await page.getByRole("button", { name: "Pin sidebar" }).click();
   await expect(page.getByRole("button", { name: "Unpin sidebar" })).toBeVisible();
+});
+
+test("at the 190 px minimum sidebar width every row stays on one line", async ({
+  page,
+}) => {
+  await page.addInitScript(() =>
+    localStorage.setItem(
+      "folio.workspace.sidebar",
+      JSON.stringify({ width: 190, pinned: true, hover: true }),
+    ),
+  );
+  await createProject(page, "Narrow sidebar");
+  expect(
+    await page.locator(".sidebar").evaluate((el) => el.getBoundingClientRect().width),
+  ).toBe(190);
+  const rows = await page.evaluate(() => {
+    const targets = [
+      ...document.querySelectorAll<HTMLElement>(
+        ".sidebar .group-title, .sidebar .entry-main, .sidebar .brand, .sidebar .sidebar-hover-setting",
+      ),
+    ];
+    return targets.map((el) => {
+      const walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT);
+      const tops = new Set<number>();
+      for (let node = walker.nextNode(); node; node = walker.nextNode()) {
+        if (!node.textContent?.trim()) continue;
+        const range = document.createRange();
+        range.selectNodeContents(node);
+        for (const rect of range.getClientRects()) tops.add(Math.round(rect.top));
+      }
+      const style = getComputedStyle(el);
+      return {
+        label: (el.textContent ?? "").trim(),
+        kind: el.className,
+        lines: tops.size,
+        height: Math.round(el.getBoundingClientRect().height),
+        font: parseFloat(style.fontSize),
+      };
+    });
+  });
+  const labels = rows.map((r) => r.label);
+  expect(labels).toContain("Snapshots & history");
+  expect(labels).toContain("Personal Word");
+  for (const row of rows) {
+    expect(row.lines, row.label + " is one line").toBe(1);
+    expect(row.font, row.label + " font size").toBeGreaterThanOrEqual(12);
+  }
+  const titleHeights = new Set(
+    rows.filter((r) => r.kind.includes("group-title")).map((r) => r.height),
+  );
+  expect([...titleHeights], "group title rows share one height").toHaveLength(1);
+  const entryHeights = new Set(
+    rows.filter((r) => r.kind.includes("entry-main")).map((r) => r.height),
+  );
+  expect(entryHeights.size).toBeLessThanOrEqual(1);
+  const clipped = await page.evaluate(() =>
+    ["Manuscript", "Fragments", "Research"].map((name) => {
+      const el = [...document.querySelectorAll<HTMLElement>(".sidebar .group-label")].find(
+        (e) => e.textContent?.trim() === name,
+      );
+      return { name, found: !!el, fits: !!el && el.scrollWidth <= el.clientWidth };
+    }),
+  );
+  for (const c of clipped) {
+    expect(c.found, c.name + " heading exists").toBe(true);
+    expect(c.fits, c.name + " label is not truncated").toBe(true);
+  }
+  const heading = page.locator(".sidebar .group-heading", {
+    has: page.getByRole("button", { name: "Hide Manuscript" }),
+  });
+  await heading.locator(".group-title").focus();
+  const reached: string[] = [];
+  for (let i = 0; i < 3; i += 1) {
+    await page.keyboard.press("Tab");
+    reached.push(
+      await page.evaluate(() => document.activeElement?.getAttribute("aria-label") ?? ""),
+    );
+  }
+  expect(reached).toEqual(["Hide Manuscript", "Show Manuscript cards", "New section"]);
+  const actions = heading.locator(".group-actions");
+  expect(await actions.evaluate((el) => getComputedStyle(el).opacity)).toBe("1");
 });

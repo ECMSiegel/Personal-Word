@@ -39,7 +39,7 @@
 }
 .fragment-count {
   margin: 10px 0 0;
-  font-size: 11px;
+  font-size: var(--type-small);
   color: var(--muted);
 }
 .fragment-empty {
@@ -70,12 +70,12 @@
 }
 .fragment-meta {
   display: block;
-  font-size: 11px;
+  font-size: var(--type-small);
   color: var(--muted);
 }
 .fragment-note {
   margin: 0;
-  font-size: 11px;
+  font-size: var(--type-small);
   color: var(--muted);
 }
 .fragment-body {

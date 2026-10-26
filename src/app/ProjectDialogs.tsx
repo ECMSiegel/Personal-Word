@@ -1,7 +1,7 @@
 import { useLayoutEffect, useRef, useId, type ReactNode } from "react";
 
 export type NameDialog = { title: string; label: string; value: string; action: (name: string) => Promise<void> | void };
-export type ChoiceDialog = { title: string; body: string; actions: { label: string; run: () => Promise<void> | void; primary?: boolean; keep?: boolean }[] };
+export type ChoiceDialog = { title: string; body: string; actions: { label: string; run: () => Promise<void> | void; primary?: boolean; destructive?: boolean; keep?: boolean }[] };
 
 /** Owns dialog focus only; project mutations and asynchronous state remain in App. */
 export function ModalFrame({ title, busy = false, onCancel, children }: { title: string; busy?: boolean; onCancel: () => void; children: ReactNode }) {
@@ -42,7 +42,7 @@ export function ProjectDialogs({ name, choice, busy, setName, setChoice, setBusy
     </ModalFrame>}
     {choice && <ModalFrame key="choice" title={choice.title} busy={busy} onCancel={() => setChoice(null)}>
       <p className="dialog-body">{choice.body}</p><div className="dialog-actions"><button type="button" disabled={busy} onClick={() => setChoice(null)}>Cancel</button>
-        {choice.actions.map((a) => <button key={a.label} type="button" className={a.primary ? "primary" : ""} disabled={busy} onClick={() => { setBusy(true); void run(async () => { await a.run(); if (!a.keep) setChoice(null); }).finally(() => setBusy(false)); }}>{a.label}</button>)}
+        {choice.actions.map((a) => <button key={a.label} type="button" className={a.primary ? "primary" + (a.destructive ? " destructive" : "") : ""} disabled={busy} onClick={() => { setBusy(true); void run(async () => { await a.run(); if (!a.keep) setChoice(null); }).finally(() => setBusy(false)); }}>{a.label}</button>)}
       </div>
     </ModalFrame>}
   </>;

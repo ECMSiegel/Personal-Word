@@ -1,0 +1,115 @@
+{
+  "id": "T081",
+  "title": "UI polish T11: docs and README",
+  "description": "README workflow/captions, design-system.md, validation.md dated section, limitations.md, changelog.md, architecture.md UI paragraph, refreshed docs/evidence/readme PNGs from T10 (plan T11). Follow docs/agent-work/2026-10-25-ui-polish/PLAN.md exactly (its section for this task: Files, Interfaces, Steps, Acceptance check, Fail-first, Stop-and-ask, plus the five answered Open questions). Protocol: serial check slot via files add before expensive checks, pinned Node, quoted --outDir, no installs, no commits, status CLAIMED, independent review required.",
+  "status": "done",
+  "owner": null,
+  "priority": 1,
+  "depends_on": [],
+  "files": [
+    "README.md,docs/design-system.md,docs/validation.md,docs/limitations.md,docs/changelog.md,docs/architecture.md,docs/evidence/readme",
+    "README.md",
+    "docs/design-system.md",
+    "docs/validation.md",
+    "docs/limitations.md",
+    "docs/changelog.md",
+    "docs/architecture.md",
+    "docs/evidence/readme"
+  ],
+  "review_required": true,
+  "created_by": "agent-0fc3",
+  "created_at": "2026-10-26T01:49:59+00:00",
+  "claimed_at": "2026-10-26T05:48:38+00:00",
+  "updated_at": "2026-10-26T05:48:57+00:00",
+  "handoff": {
+    "by": "agent-129c",
+    "at": "2026-10-26T05:48:20+00:00",
+    "text": "One fix only: the app labels are 'Import a file…' and 'Recover from a project.json file…' with the single ellipsis character (src/components/ProjectLibrary.tsx:272,281). README.md:91, docs/changelog.md:7 and docs/validation.md:368 write three ASCII dots. Replace with the exact characters in those three files (and docs/limitations.md/design-system.md if present). Everything else checked passes: README grep clean, design-system colours/no-fade/190px/Q007 consistent, validation section and run IDs, limitations 3+8 items accurate, changelog 2026-10-26, architecture paragraph complete, links resolve, all CLAIMED. Cmd/Ctrl+Shift+L matches README's existing Cmd/Ctrl convention and the plan step; accepted."
+  },
+  "review": {
+    "by": "agent-7c22",
+    "at": "2026-10-26T05:48:57+00:00",
+    "verdict": "approved",
+    "note": "Ellipsis character now matches the app in all three files; cycle-1 checks stand."
+  },
+  "log": [
+    {
+      "at": "2026-10-26T01:49:59+00:00",
+      "agent": "agent-0fc3",
+      "event": "created",
+      "note": ""
+    },
+    {
+      "at": "2026-10-26T01:50:32+00:00",
+      "agent": "agent-0fc3",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-10-26T01:50:32+00:00",
+      "agent": "agent-0fc3",
+      "event": "blocked",
+      "note": "Q006: Coordinator holds T081 (docs) until T083 (critique) is done; T081 was created without that dependency."
+    },
+    {
+      "at": "2026-10-26T05:45:07+00:00",
+      "agent": "agent-0fc3",
+      "event": "unblocked",
+      "note": ""
+    },
+    {
+      "at": "2026-10-26T05:45:08+00:00",
+      "agent": "agent-0fc3",
+      "event": "handoff",
+      "note": "released"
+    },
+    {
+      "at": "2026-10-26T05:45:42+00:00",
+      "agent": "agent-bffc",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-10-26T05:45:42+00:00",
+      "agent": "agent-bffc",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-10-26T05:47:08+00:00",
+      "agent": "agent-bffc",
+      "event": "review requested",
+      "note": "Files: README.md (Projects screen/search/create panel/drop paragraph, Appearance+Palette paragraph, captions, projects-light caption), docs/design-system.md (T085 darkened Color light values, no item fade-in rule T086, 190 px sidebar rule T096, status line), docs/validation.md (UI polish 2026-10-26 section, final validation pending T082), docs/limitations.md (3 Part 1 limits, 8 Part 2 dated items), docs/changelog.md (2026-10-26), docs/architecture.md (Interface layer paragraph). PNGs replaced from screens/: projects-light<-browser-projects-light-plain, writing-light<-browser-writing-light-plain, writing-dark<-browser-writing-dark-plain (all 2880x1800). research-light.png NOT replaced: screens/ only has Color research, and it still shows the Zotero caption removed by T094, so the old file stays; needs a fresh capture. README grep: only line 152 (Status link). All CLAIMED."
+    },
+    {
+      "at": "2026-10-26T05:48:20+00:00",
+      "agent": "agent-129c",
+      "event": "rejected",
+      "note": "One fix only: the app labels are 'Import a file…' and 'Recover from a project.json file…' with the single ellipsis character (src/components/ProjectLibrary.tsx:272,281). README.md:91, docs/changelog.md:7 and docs/validation.md:368 write three ASCII dots. Replace with the exact characters in those three files (and docs/limitations.md/design-system.md if present). Everything else checked passes: README grep clean, design-system colours/no-fade/190px/Q007 consistent, validation section and run IDs, limitations 3+8 items accurate, changelog 2026-10-26, architecture paragraph complete, links resolve, all CLAIMED. Cmd/Ctrl+Shift+L matches README's existing Cmd/Ctrl convention and the plan step; accepted."
+    },
+    {
+      "at": "2026-10-26T05:48:38+00:00",
+      "agent": "agent-0fc3",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-10-26T05:48:38+00:00",
+      "agent": "agent-0fc3",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-10-26T05:48:39+00:00",
+      "agent": "agent-0fc3",
+      "event": "review requested",
+      "note": "Cycle 2 (coordinator): the three panel-item names in README.md, docs/changelog.md and docs/validation.md now use the ellipsis character exactly as src/components/ProjectLibrary.tsx renders them ('Import a file…', 'Recover from a project.json file…'); no other change. Cycle-1 content by agent-bffc stands. The four docs/evidence/readme PNGs are regenerated by T082 with a realistic sample project (decision). Prove: grep -c 'Import a file…' across the three files -> 1 each; grep 'Import a file\\.\\.\\.' -> none."
+    },
+    {
+      "at": "2026-10-26T05:48:57+00:00",
+      "agent": "agent-7c22",
+      "event": "approved",
+      "note": "Ellipsis character now matches the app in all three files; cycle-1 checks stand."
+    }
+  ]
+}

@@ -314,3 +314,46 @@ test("citation rules agree across page notes, preview and reader through section
   await page.reload();
   await reader(reordered);
 });
+
+test("helper captions are gone; hints live in placeholder and a keyboard-reachable tooltip", async ({
+  page,
+}) => {
+  const privacy =
+    "Look up sends only this identifier to Crossref, Open Library, or the website.";
+  await page.goto("/");
+  await create(page, "No captions");
+  const editor = page.getByRole("textbox", { name: "Writing editor" });
+  await editor.fill("Evidence here.");
+  await openResearch(page);
+
+  // Empty footnote: no "Write a note or choose a source." caption.
+  await page.getByRole("button", { name: "Insert footnote at cursor" }).click();
+  await expect(page.getByLabel("Footnote text", { exact: true })).toBeVisible();
+  await expect(page.getByText("Write a note or choose a source.")).toHaveCount(0);
+
+  // Zotero export hint is not visible text.
+  await expect(page.getByText("In Zotero, export CSL JSON or BibTeX")).toHaveCount(0);
+  await expect(page.locator(".research-privacy")).toHaveCount(0);
+
+  // Authors hint is a placeholder only.
+  await page.getByRole("button", { name: "Enter manually" }).click();
+  await expect(page.getByLabel("Authors", { exact: true })).toHaveAttribute(
+    "placeholder",
+    "One name per line, first name first",
+  );
+  await expect(page.getByText("One name per line, first name first")).toHaveCount(0);
+
+  // Privacy line: keyboard-reachable tooltip on Look up.
+  const input = page.getByRole("textbox", { name: "DOI, ISBN, or web address" });
+  await input.fill("10.1000/xyz");
+  await page.keyboard.press("Tab");
+  const lookup = page.getByRole("button", { name: "Look up", exact: true });
+  await expect(lookup).toBeFocused();
+  await expect(lookup).toHaveAttribute("title", privacy);
+  const tip = page.getByRole("tooltip", { name: privacy });
+  await expect(tip).toBeVisible();
+  await expect(tip).toHaveText(privacy);
+  const tipId = await tip.getAttribute("id");
+  expect(tipId).toBeTruthy();
+  await expect(lookup).toHaveAttribute("aria-describedby", tipId!);
+});

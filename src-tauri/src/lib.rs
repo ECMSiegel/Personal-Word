@@ -3,6 +3,7 @@ mod smoke;
 mod lookup;
 mod zotero;
 mod assets;
+mod dropped;
 mod store;
 // Layout L1 print probe: the command is registered only in native-smoke builds.
 #[cfg_attr(not(feature = "native-smoke"), allow(dead_code))]
@@ -203,6 +204,7 @@ pub fn run() {
                 Mutex::new(()),
             ));
             app.manage(ExitAllowed(AtomicBool::new(false)));
+            app.manage(dropped::DroppedPaths::default());
             let handle = app.handle().clone();
             std::thread::spawn(move || loop {
                 std::thread::sleep(MIRROR_INTERVAL);
@@ -250,10 +252,12 @@ pub fn run() {
         delete_project,
         lookup::lookup_fetch,
         zotero::zotero_read,
+        dropped::read_dropped_file,
         smoke::smoke_report,
         smoke::diagnostic_profile_identity,
         smoke::smoke_close_window,
         smoke::smoke_progress,
+        smoke::smoke_snapshot,
         smoke::arm_fault,
         smoke::arm_checkpoint,
         smoke::seed_durability_metadata,
@@ -281,10 +285,18 @@ pub fn run() {
         export_bytes,
         delete_project,
         lookup::lookup_fetch,
-        zotero::zotero_read
+        zotero::zotero_read,
+        dropped::read_dropped_file
     ]);
-    #[cfg(feature = "native-smoke")]
-    let builder = builder.on_window_event(|_, event| {
+    // The one window-event handler for both builds: remember the latest drop's
+    // paths so read_dropped_file can read only those.
+    let builder = builder.on_window_event(|window, event| {
+        if let tauri::WindowEvent::DragDrop(tauri::DragDropEvent::Drop { paths, .. }) = event {
+            if let Ok(mut dropped) = window.state::<dropped::DroppedPaths>().0.lock() {
+                *dropped = paths.clone();
+            }
+        }
+        #[cfg(feature = "native-smoke")]
         if matches!(event, tauri::WindowEvent::CloseRequested { .. }) {
             smoke::record_window_close();
         }

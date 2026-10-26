@@ -1,0 +1,87 @@
+{
+  "id": "T077",
+  "title": "UI polish T6: remove helper captions",
+  "description": "Drop captions per plan T6; owner answer 3: keep the two file error messages, DROP the Zotero export hint into the placeholder; privacy line becomes keyboard-reachable tooltip; update tests/research.spec.ts. Follow docs/agent-work/2026-10-25-ui-polish/PLAN.md exactly (its section for this task: Files, Interfaces, Steps, Acceptance check, Fail-first, Stop-and-ask, plus the five answered Open questions). Protocol: serial check slot via files add before expensive checks, pinned Node, quoted --outDir, no installs, no commits, status CLAIMED, independent review required.",
+  "status": "done",
+  "owner": null,
+  "priority": 1,
+  "depends_on": [],
+  "files": [
+    "src/research/ResearchPanel.tsx,src/research/research.css,tests/research.spec.ts,node_modules/.cache/personal-word-beta/ui-t6",
+    "src/research/ResearchPanel.tsx",
+    "tests/research.spec.ts",
+    "node_modules/.cache/personal-word-beta/ui-t6"
+  ],
+  "review_required": true,
+  "created_by": "agent-0fc3",
+  "created_at": "2026-10-26T01:49:58+00:00",
+  "claimed_at": "2026-10-26T02:11:25+00:00",
+  "updated_at": "2026-10-26T02:13:50+00:00",
+  "handoff": {
+    "by": "agent-55f8",
+    "at": "2026-10-26T02:10:54+00:00",
+    "text": "REJECT (small fix). Everything else is good: captions removed as plan T6 + owner answer 3 (preview empty-state gone, Authors help -> placeholder, Zotero export hint dropped with the accept filter carrying the types, .research-privacy <p> gone); both file error messages kept (ResearchPanel.tsx:742,756); ProjectLibrary.tsx unchanged, browser-only line at :220 intact; no punctuation rewrites. Tooltip has title + aria-describedby + role=tooltip, shows on keyboard focus. Fail-first OK (failfirst.log fails at :332 'Write a note or choose a source.' count 1). run3.log 21 passed. My rerun, pinned Node 22.23.3: tsc exit 0; tests/research.spec.ts on owner dist (cloned config ui-t6-review, port 1571, 1 worker, 0 retries) 10 passed. Screenshots 1440x900 light+dark (ui-t6-review/lookup-tip-*.png): tip legible, not clipped, 12px, square, 1px --line border, --paper bg; tip top 228.5 below Look up/DOI bottom 226.5, no overlap with either (it does cover the Capture quote/Import row while focused -- acceptable for a tooltip). WHY REJECTED (deviation condition 3): the inline LOOKUP_TIP_SHOWN hardcodes sizes: (1) fontSize 'var(--type-small, 11px)' has an 11px fallback below the 12px floor -> 'var(--type-small)'; (2) padding 'var(--space-1, 4px) var(--space-2, 8px)' -> 'var(--space-1) var(--space-2)'; (3) marginTop: 2 (raw px) -> remove it (plan spec has no margin). Tokens are defined in styles.css:18,23,24 so fallbacks are unneeded. (4) The note must state that the .lookup-tip rule moves into research.css and the orphan .research-privacy rule (research.css:128) is removed in a follow-up once T072 releases research.css; note T081 (docs) does not register research.css, so name a follow-up task, not T081. Duplicate comma-joined path entry on T077 is harmless. Stray untracked notice-*.png files in the project root (22:00-22:01) are not on T077's paths; origin unknown, not attributed to this task. Browser/Chromium only; WebKit not checked."
+  },
+  "review": {
+    "by": "agent-3115",
+    "at": "2026-10-26T02:13:50+00:00",
+    "verdict": "approved",
+    "note": "APPROVE cycle 2. Lines 75-84 have no 11px/4px/8px/marginTop; only var(--type-small), var(--space-1), var(--space-2), var(--paper), var(--line), var(--muted). Diff limited to caption/tooltip changes from cycles 1-2. T084 exists (available, depends T072, registers tests/notice.spec.ts) for moving the rule into research.css and dropping orphan .research-privacy. Pinned Node 22.23.3: tsc exit 0; rebuilt ui-t6/dist, tests/research.spec.ts on port 1571, 1 worker, 0 retries: 10 passed. git status: nothing new outside T077 paths (notice-*.png in root predate it, T084 covers them). Chromium only, not WebKit."
+  },
+  "log": [
+    {
+      "at": "2026-10-26T01:49:58+00:00",
+      "agent": "agent-0fc3",
+      "event": "created",
+      "note": ""
+    },
+    {
+      "at": "2026-10-26T01:51:57+00:00",
+      "agent": "agent-2889",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-10-26T01:51:57+00:00",
+      "agent": "agent-2889",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-10-26T02:08:18+00:00",
+      "agent": "agent-2889",
+      "event": "review requested",
+      "note": "T6 done (CLAIMED). Removed: 'Write a note or choose a source.' (whole .cite-preview now renders only when parts.length), Authors help caption (now placeholder 'One name per line, first name first'), visible 'In Zotero, export CSL JSON or BibTeX (.json, .bib, .bibtex).' (content stays in the file input accept filter; aria-label unchanged because existing specs getByLabel it), the research-privacy <p>. Kept the two file error messages and browser-only storage line (ProjectLibrary untouched). Privacy text is now title + aria-describedby on Look up, with <span role=tooltip class=lookup-tip> shown on button focus. DEVIATION: src/research/research.css is owned by live T072 so I did NOT edit it; tooltip hidden/shown styles are inline in ResearchPanel.tsx (const LOOKUP_TIP_*; show via onFocus/onBlur state). The orphan .research-privacy rule remains in css (harmless; T072 owner/T11 may drop it). Also files add refused for research.css for that reason. New test 'helper captions are gone...' fail-first: failed at (a) on pre-change tree, log node_modules/.cache/personal-word-beta/ui-t6/failfirst.log. After: tsc exit 0; research+research-library+zotero specs 21 passed, exit 0 (run3.log), vite build exit 0. Did not take serial slot (it showed unowned but I used private outDir dist + config port 1570, 1 worker, 0 retries). Browser/Chromium only, not WebKit; tooltip look not screenshot-reviewed. No commits."
+    },
+    {
+      "at": "2026-10-26T02:10:54+00:00",
+      "agent": "agent-55f8",
+      "event": "rejected",
+      "note": "REJECT (small fix). Everything else is good: captions removed as plan T6 + owner answer 3 (preview empty-state gone, Authors help -> placeholder, Zotero export hint dropped with the accept filter carrying the types, .research-privacy <p> gone); both file error messages kept (ResearchPanel.tsx:742,756); ProjectLibrary.tsx unchanged, browser-only line at :220 intact; no punctuation rewrites. Tooltip has title + aria-describedby + role=tooltip, shows on keyboard focus. Fail-first OK (failfirst.log fails at :332 'Write a note or choose a source.' count 1). run3.log 21 passed. My rerun, pinned Node 22.23.3: tsc exit 0; tests/research.spec.ts on owner dist (cloned config ui-t6-review, port 1571, 1 worker, 0 retries) 10 passed. Screenshots 1440x900 light+dark (ui-t6-review/lookup-tip-*.png): tip legible, not clipped, 12px, square, 1px --line border, --paper bg; tip top 228.5 below Look up/DOI bottom 226.5, no overlap with either (it does cover the Capture quote/Import row while focused -- acceptable for a tooltip). WHY REJECTED (deviation condition 3): the inline LOOKUP_TIP_SHOWN hardcodes sizes: (1) fontSize 'var(--type-small, 11px)' has an 11px fallback below the 12px floor -> 'var(--type-small)'; (2) padding 'var(--space-1, 4px) var(--space-2, 8px)' -> 'var(--space-1) var(--space-2)'; (3) marginTop: 2 (raw px) -> remove it (plan spec has no margin). Tokens are defined in styles.css:18,23,24 so fallbacks are unneeded. (4) The note must state that the .lookup-tip rule moves into research.css and the orphan .research-privacy rule (research.css:128) is removed in a follow-up once T072 releases research.css; note T081 (docs) does not register research.css, so name a follow-up task, not T081. Duplicate comma-joined path entry on T077 is harmless. Stray untracked notice-*.png files in the project root (22:00-22:01) are not on T077's paths; origin unknown, not attributed to this task. Browser/Chromium only; WebKit not checked."
+    },
+    {
+      "at": "2026-10-26T02:11:25+00:00",
+      "agent": "agent-0fc3",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-10-26T02:11:25+00:00",
+      "agent": "agent-0fc3",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-10-26T02:11:51+00:00",
+      "agent": "agent-0fc3",
+      "event": "review requested",
+      "note": "Cycle 2 after agent-55f8 reject: LOOKUP_TIP_SHOWN now uses var(--type-small) and var(--space-1) var(--space-2) with no fallbacks and no marginTop; tsc 0; no other change (tests unchanged, 10 passed in the reviewer's rerun of cycle 1). Follow-up T084 (depends T072) moves the rule into research.css, removes the orphan .research-privacy rule and stops the notice spec writing PNGs into the project root. Prove: sed -n 79,84p src/research/ResearchPanel.tsx shows no '11px', '4px', '8px' or marginTop; npx tsc --noEmit -p . exit 0."
+    },
+    {
+      "at": "2026-10-26T02:13:50+00:00",
+      "agent": "agent-3115",
+      "event": "approved",
+      "note": "APPROVE cycle 2. Lines 75-84 have no 11px/4px/8px/marginTop; only var(--type-small), var(--space-1), var(--space-2), var(--paper), var(--line), var(--muted). Diff limited to caption/tooltip changes from cycles 1-2. T084 exists (available, depends T072, registers tests/notice.spec.ts) for moving the rule into research.css and dropping orphan .research-privacy. Pinned Node 22.23.3: tsc exit 0; rebuilt ui-t6/dist, tests/research.spec.ts on port 1571, 1 worker, 0 retries: 10 passed. git status: nothing new outside T077 paths (notice-*.png in root predate it, T084 covers them). Chromium only, not WebKit."
+    }
+  ]
+}

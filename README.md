@@ -44,7 +44,7 @@ For a browser-only preview, run `npm run dev` and open `http://localhost:1420`. 
 
 > **Beta.** Personal Word is early software for local writing; keep your own backups and see [Status, limits and history](#status-limits-and-history).
 
-![A Chicago-style paper open in Personal Word, with a footnote at the bottom of the page](docs/evidence/readme/writing-light.png)
+![A Chicago-style paper open in Personal Word, with a footnote marker in the text](docs/evidence/readme/writing-light.png)
 
 ## Who it is for
 
@@ -58,11 +58,11 @@ It also includes story and screenplay templates. It is not a replacement for Mic
 
 ## What it looks like
 
-| Sources and citations beside the draft | Dark mode follows macOS |
+| Sources and citations beside the draft | Dark mode follows macOS or your choice |
 | --- | --- |
-| ![Research panel showing a source with its Chicago note and bibliography entry](docs/evidence/readme/research-light.png) | ![The writing screen in dark mode](docs/evidence/readme/writing-dark.png) |
+| ![Research panel showing a book source and the bibliography section](docs/evidence/readme/research-light.png) | ![The writing screen in dark mode](docs/evidence/readme/writing-dark.png) |
 
-![The project library listing two projects](docs/evidence/readme/projects-light.png)
+![The Projects screen with a search button, the Start new project button and a sort control](docs/evidence/readme/projects-light.png)
 
 These screenshots come from the browser preview, using made-up writing. The installed Mac app uses Apple's WebKit engine, so small rendering details can differ.
 
@@ -87,6 +87,10 @@ Distribution preparation is recorded in [Mac distribution status](docs/distribut
 4. **Cite it.** Put the cursor where the note belongs and choose **Cite here**. A numbered footnote appears in the text and at the bottom of the page. New projects shorten repeated citations automatically; existing projects keep that option off until enabled. Choose a Short title and override a note to Always full or Always short when needed. **Capture quote** saves a passage with its page and can insert both quotation and citation together.
 5. **Take a snapshot.** Before a big revision, choose **Snapshot** at the top right and name it. **Snapshots & history** lets you compare versions side by side and restore a section or a single paragraph.
 6. **Export.** Open **Settings** in the sidebar and scroll to **Export document**. Choose **Export DOCX** for an editable Word file with real footnotes, or **Export PDF**. **Export Markdown** and **Export plain text** include the whole project, including notes, fragments, and research notes. **Markdown with images (.zip)** adds the pictures and a checksum manifest, and can be imported again.
+
+The **Projects** screen has a search button that opens a field and filters the list by title. **Start new project** opens a panel listing the templates, then **Import a file…** and **Recover from a project.json file…**. You can also drag one `.txt`, `.md`, `.docx`, `.html` or `.zip` file onto the Projects screen to open the import preview; Cancel creates nothing.
+
+**Appearance:** in **Settings > General**, choose Appearance (System, Light or Dark) and Palette (Plain or Color). Cmd/Ctrl+Shift+L switches between Light and Dark. System follows macOS live; Color adds section tints in the sidebar and colored buttons without changing the document area.
 
 Set manuscript/daily word goals and a deadline in **Settings > Goals**. The toolbar offers **Focus mode** (Cmd/Ctrl+Shift+F) and an optional local **Prose check** with a keyboard-accessible issue list.
 

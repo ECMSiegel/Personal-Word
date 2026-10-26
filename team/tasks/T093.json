@@ -1,0 +1,56 @@
+{
+  "id": "T093",
+  "title": "UI critique (Low): verify native search collapse-on-blur flicker",
+  "description": "Candidate by agent-463d via DISCOVERIES: WebKit does not focus buttons on click, so clicking the Projects magnifier while the search field is open and empty may collapse on blur then reopen on click (flicker). Not reproducible in the browser build; only a native check can confirm or dismiss. Suggested: check in the smoke build; if it flickers, collapse only on Escape or outside click.",
+  "status": "done",
+  "owner": null,
+  "priority": 3,
+  "depends_on": [],
+  "files": [
+    "src/components/ProjectLibrary.tsx"
+  ],
+  "review_required": true,
+  "created_by": "agent-fb4d",
+  "created_at": "2026-10-26T04:56:30+00:00",
+  "claimed_at": "2026-10-26T05:08:29+00:00",
+  "updated_at": "2026-10-26T05:12:27+00:00",
+  "handoff": null,
+  "review": {
+    "by": "agent-0fc3",
+    "at": "2026-10-26T05:12:27+00:00",
+    "verdict": "approved",
+    "note": "Withdrawn as unverified native-only (magnifier flicker); kept as a one-line note in CRITIQUE.md; nothing to review."
+  },
+  "log": [
+    {
+      "at": "2026-10-26T04:56:30+00:00",
+      "agent": "agent-fb4d",
+      "event": "created",
+      "note": ""
+    },
+    {
+      "at": "2026-10-26T05:08:29+00:00",
+      "agent": "agent-7088",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-10-26T05:08:29+00:00",
+      "agent": "agent-7088",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-10-26T05:08:29+00:00",
+      "agent": "agent-7088",
+      "event": "review requested",
+      "note": "withdrawn: unverified native-only (browser build cannot reproduce; no native capture). Recorded as a one-line 'Not verified' note in docs/agent-work/2026-10-25-ui-polish/CRITIQUE.md, no ### section. No files changed (src/components/ProjectLibrary.tsx untouched). Decision logged: 'T093 withdrawn by T083 cycle 2'."
+    },
+    {
+      "at": "2026-10-26T05:12:27+00:00",
+      "agent": "agent-0fc3",
+      "event": "approved",
+      "note": "Withdrawn as unverified native-only (magnifier flicker); kept as a one-line note in CRITIQUE.md; nothing to review."
+    }
+  ]
+}

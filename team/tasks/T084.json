@@ -1,0 +1,58 @@
+{
+  "id": "T084",
+  "title": "UI polish follow-up: lookup tooltip rule into research.css, drop orphan .research-privacy, notice spec screenshots out of the project root",
+  "description": "After T072 releases src/research/research.css: move the Look up tooltip's inline LOOKUP_TIP_* styles from src/research/ResearchPanel.tsx into a .lookup-tip rule in research.css (tokens only, square corners), delete the orphan .research-privacy rule (research.css:128), and make tests/notice.spec.ts default its screenshot folder to node_modules/.cache/personal-word-beta/notice-shots instead of the project root when NOTICE_SHOTS is unset. Checks: tsc 0; tests/research.spec.ts and tests/notice.spec.ts on a private production preview (quoted --outDir, one worker, no retries); no notice-*.png in the project root afterwards. Protocol, serial slot, pinned Node, no installs, no commits, CLAIMED.",
+  "status": "done",
+  "owner": null,
+  "priority": 2,
+  "depends_on": [
+    "T072"
+  ],
+  "files": [
+    "tests/notice.spec.ts"
+  ],
+  "review_required": true,
+  "created_by": "agent-0fc3",
+  "created_at": "2026-10-26T02:11:51+00:00",
+  "claimed_at": "2026-10-26T02:38:54+00:00",
+  "updated_at": "2026-10-26T02:45:37+00:00",
+  "handoff": null,
+  "review": {
+    "by": "agent-99a8",
+    "at": "2026-10-26T02:45:37+00:00",
+    "verdict": "approved",
+    "note": "Verified: no inline LOOKUP_TIP styles; span keeps role=tooltip/id/aria-describedby; .lookup-tip rules tokens only, square (sr-only 1px/1px border are 0-3px nudges); research-privacy gone from src; notice.spec default to cache folder; tsc 0; rebuilt dist, research+notice 17 passed one worker no retries; no notice-*.png in root; shots legible, square, unclipped."
+  },
+  "log": [
+    {
+      "at": "2026-10-26T02:11:51+00:00",
+      "agent": "agent-0fc3",
+      "event": "created",
+      "note": ""
+    },
+    {
+      "at": "2026-10-26T02:38:54+00:00",
+      "agent": "agent-f1e0",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-10-26T02:38:54+00:00",
+      "agent": "agent-f1e0",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-10-26T02:43:36+00:00",
+      "agent": "agent-f1e0",
+      "event": "review requested",
+      "note": "CLAIMED. (1) LOOKUP_TIP_* inline styles + CSSProperties import removed from ResearchPanel.tsx; span keeps role=tooltip/id, now class lookup-tip + data-shown; new .lookup-tip and .lookup-tip[data-shown] in research.css, tokens only, no radius. (2) .research-privacy selector dropped from research.css; no TSX uses it (only research.spec asserts count 0). (3) notice.spec.ts default shots dir node_modules/.cache/personal-word-beta/notice-shots. Fail-first: before (3), NOTICE_SHOTS unset run (7 passed) left 6 notice-*.png in root; deleted; after, root has none, 6 PNGs in cache folder. tsc 0; private build ui-t84/dist port 1564, 1 worker, no retries: research 10 + notice 7 passed. Did not take the serial slot. Shots 1440x900 light/dark in node_modules/.cache/personal-word-beta/ui-t84/shots/lookup-{light,dark}.png: tooltip legible, square, unclipped. Temp shot spec removed."
+    },
+    {
+      "at": "2026-10-26T02:45:37+00:00",
+      "agent": "agent-99a8",
+      "event": "approved",
+      "note": "Verified: no inline LOOKUP_TIP styles; span keeps role=tooltip/id/aria-describedby; .lookup-tip rules tokens only, square (sr-only 1px/1px border are 0-3px nudges); research-privacy gone from src; notice.spec default to cache folder; tsc 0; rebuilt dist, research+notice 17 passed one worker no retries; no notice-*.png in root; shots legible, square, unclipped."
+    }
+  ]
+}

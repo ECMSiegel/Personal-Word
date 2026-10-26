@@ -11,6 +11,11 @@ async function create(page: any, title: string, advanceClock = 0) {
 }
 const settings = (page: any) => page.locator(".group-title").filter({hasText:/^Settings$/}).click();
 const manuscript = (page: any) => page.locator(".group-title").filter({hasText:/^Manuscript$/}).click();
+const goalOptionLabel: Record<string, string> = { manuscript: "Manuscript", "manuscript-and-fragments": "Manuscript and fragments", local: "Local day", utc: "UTC day" };
+const pick = async (page: any, control: string, value: string) => {
+  await page.getByLabel(control, { exact: true }).click();
+  await page.getByRole("option", { name: goalOptionLabel[value], exact: true }).click();
+};
 
 test("goal scope and day preferences persist and start explicit fresh baselines", async ({page}) => {
   const session=await page.context().newCDPSession(page);
@@ -24,13 +29,13 @@ test("goal scope and day preferences persist and start explicit fresh baselines"
   await editor.fill("one two three");
   await settings(page);
   await page.getByLabel("Daily word goal",{exact:true}).fill("10");
-  await page.getByLabel("Goal scope",{exact:true}).selectOption("manuscript-and-fragments");
+  await pick(page,"Goal scope","manuscript-and-fragments");
   await expect(page.getByLabel("Writing goals",{exact:true})).toContainText("0 of 10 today");
   await manuscript(page);
   await editor.fill("one two three four five");
   await expect(page.getByLabel("Writing goals",{exact:true})).toContainText("2 of 10 today");
   await settings(page);
-  await page.getByLabel("Goal day",{exact:true}).selectOption("utc");
+  await pick(page,"Goal day","utc");
   await expect(page.getByLabel("Writing goals",{exact:true})).toContainText("0 of 10 today");
   await manuscript(page);
   await editor.fill("one two three four five six");
@@ -38,14 +43,14 @@ test("goal scope and day preferences persist and start explicit fresh baselines"
   await expect(page.getByText("Saved",{exact:true})).toBeVisible();
   await page.reload();
   await settings(page);
-  await expect(page.getByLabel("Goal scope",{exact:true})).toHaveValue("manuscript-and-fragments");
-  await expect(page.getByLabel("Goal day",{exact:true})).toHaveValue("utc");
+  await expect(page.getByLabel("Goal scope",{exact:true})).toContainText("Manuscript and fragments");
+  await expect(page.getByLabel("Goal day",{exact:true})).toContainText("UTC day");
   await expect(page.getByLabel("Writing goals",{exact:true})).toContainText("1 of 10 today");
-  await page.getByLabel("Goal day",{exact:true}).selectOption("local");
+  await pick(page,"Goal day","local");
   await expect(page.getByLabel("Writing goals",{exact:true})).toContainText("0 of 10 today");
-  await page.getByLabel("Goal day",{exact:true}).selectOption("utc");
+  await pick(page,"Goal day","utc");
   await expect(page.getByLabel("Writing goals",{exact:true})).toContainText("0 of 10 today");
-  await page.getByLabel("Goal day",{exact:true}).selectOption("local");
+  await pick(page,"Goal day","local");
   await manuscript(page);
   await editor.fill("one two three four five six seven");
   await expect(page.getByLabel("Writing goals",{exact:true})).toContainText("1 of 10 today");
@@ -67,7 +72,7 @@ for (const mode of ["local", "utc"] as const) {
     await editor.fill("one");
     await settings(page);
     await page.getByLabel("Daily word goal", { exact: true }).fill("10");
-    if (mode === "utc") await page.getByLabel("Goal day", { exact: true }).selectOption("utc");
+    if (mode === "utc") await pick(page,"Goal day","utc");
     await manuscript(page);
     await editor.fill("one two");
     // Legacy local goals retain the opening zero-word baseline; selecting UTC

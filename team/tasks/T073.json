@@ -1,0 +1,65 @@
+{
+  "id": "T073",
+  "title": "UI polish T2: complete interaction states",
+  "description": "Hover, focus-visible, active, disabled, selected for every control; reduced motion tested (plan T2). Follow docs/agent-work/2026-10-25-ui-polish/PLAN.md exactly (its section for this task: Files, Interfaces, Steps, Acceptance check, Fail-first, Stop-and-ask, plus the five answered Open questions). Protocol: serial check slot via files add before expensive checks, pinned Node, quoted --outDir, no installs, no commits, status CLAIMED, independent review required.",
+  "status": "done",
+  "owner": null,
+  "priority": 1,
+  "depends_on": [
+    "T072"
+  ],
+  "files": [
+    "src/styles.css,src/components/dropdown.css,src/editor/editor.css,src/designTokens.test.ts,tests/appearance.spec.ts,node_modules/.cache/personal-word-beta/ui-t2",
+    "src/styles.css",
+    "src/components/dropdown.css",
+    "src/editor/editor.css",
+    "src/designTokens.test.ts",
+    "tests/appearance.spec.ts",
+    "node_modules/.cache/personal-word-beta/ui-t2",
+    "node_modules/.cache/personal-word-beta/team-serial-check-slot"
+  ],
+  "review_required": true,
+  "created_by": "agent-0fc3",
+  "created_at": "2026-10-26T01:49:56+00:00",
+  "claimed_at": "2026-10-26T02:38:53+00:00",
+  "updated_at": "2026-10-26T02:54:18+00:00",
+  "handoff": null,
+  "review": {
+    "by": "agent-e034",
+    "at": "2026-10-26T02:54:18+00:00",
+    "verdict": "approved",
+    "note": "Independent review (agent-e034), pinned Node v22.23.3, logs in node_modules/.cache/personal-word-beta/ui-t2-review/. DIFF: --focus-ring/--focus-offset/--pressed/--disabled-opacity on :root only, not repeated in the dark block; acceptable because they are var()-based and resolve on :root after the dark --accent/--line override (dark shots show the #64a8ff ring). hover :not(:disabled), :active pressed (button, .primary 0.88, dropdown, toolbar icon/extract/dropdown, sidebar), disabled recipe, ring via tokens in all three files, checkbox accent-color, input hover border, .segmented selected bg; flat rows' :active (0,4,0)/(0,4,1) beats .sidebar button:active (0,3,1) so no grey box. No border-radius or raw colour added; reduced-motion block identical to HEAD; .selected still accent+600. Document typography rule bodies (.writing-surface/.read-prose/.manuscript-read/.read-title/.preview-content) identical to HEAD (19/19 rules). Remaining editor.css 2px outlines are footnote-overflow and ProseMirror selected node (off-limits; equal width). FAIL-FIRST: reproduced. ui-t1-review/dist (22:34:41, before T073 claim 22:38:53 and failfirst-unit.log 22:39:32; contains no --focus-ring) on port 1566: new case FAILED at the pressed assertion (expected rgb(220,221,226), got rgb(245,245,247)); unit fail-first log shows 1 failed 3 passed. MARKDOWN-ROUNDTRIP: serial slot unowned; npm run build into ./dist then markdown-roundtrip.spec.ts on ./dist (port 1568): 11 passed, so the 4 earlier failures were the private-outDir hash artifact. RERUN: tsc 0; vitest designTokens 4 passed; appearance+sidebar-selection+notice+layout+accessibility+editor-toolbar on ui-t2/dist (port 1563, 1 worker, 0 retries): 26 passed incl. the new case. SHOTS (8 + 2 zooms): ring 2px, square, unclipped in both themes; sidebar inset ring fully inside the row; Sort ring tight against the label, all four sides intact (not clipped); Undo/Redo visibly dimmed. No pressed screenshot exists: pressed judged from computed values only. Pre-existing, not T073: on the focused Opening row the hover move arrows overlap '0 words'. git status: everything outside T073 paths explained by T071/T072/T074/T077/T084 and the board. Not proven: native WebKit, N1 SMOKE checkpoint. CLAIMED."
+  },
+  "log": [
+    {
+      "at": "2026-10-26T01:49:56+00:00",
+      "agent": "agent-0fc3",
+      "event": "created",
+      "note": ""
+    },
+    {
+      "at": "2026-10-26T02:38:53+00:00",
+      "agent": "agent-d7ac",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-10-26T02:38:54+00:00",
+      "agent": "agent-d7ac",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-10-26T02:49:44+00:00",
+      "agent": "agent-d7ac",
+      "event": "review requested",
+      "note": "T2 states: tokens --focus-ring/--focus-offset/--pressed/--disabled-opacity; hover only :not(:disabled); :active for button, .primary (brightness .88), .dropdown-button, toolbar icon/extract/dropdown, flat sidebar rows (transparent+accent); disabled recipe; 2px focus ring everywhere (sidebar ring inset -2px since sidebar clips overflow, found in shots); checkbox accent-color; input hover border; .segmented selected bg; reduced-motion block unchanged. Fail-first: unit new case failed on pre-edit CSS (1 failed/3 passed) log ui-t2/failfirst-unit.log; the new Playwright case was NOT run on the T1 tree (not proven to fail first). After: vitest designTokens 4/4, tsc 0. Full browser suite (port 1563, 1 worker): 118 passed 4 failed; the 4 are markdown-roundtrip specs that read repo ./dist/assets chunk hash while my private dist has another hash (env artifact of private outDir, not CSS; not rerun against ./dist). After the sidebar focus tweak reran appearance, sidebar-selection, notice, layout, accessibility, editor-toolbar: 26 passed, exit 0. Logs/shots in node_modules/.cache/personal-word-beta/ui-t2/ (browser-full.log, browser-rerun.log, shots/). 8 Chromium shots 1440x900 light+dark viewed; rings visible, square, unclipped. Not proven: native WebKit, N1 smoke checkpoint (SMOKE/T0 tool not run, not in my brief), Color palette selected tint (T5). CLAIMED."
+    },
+    {
+      "at": "2026-10-26T02:54:18+00:00",
+      "agent": "agent-e034",
+      "event": "approved",
+      "note": "Independent review (agent-e034), pinned Node v22.23.3, logs in node_modules/.cache/personal-word-beta/ui-t2-review/. DIFF: --focus-ring/--focus-offset/--pressed/--disabled-opacity on :root only, not repeated in the dark block; acceptable because they are var()-based and resolve on :root after the dark --accent/--line override (dark shots show the #64a8ff ring). hover :not(:disabled), :active pressed (button, .primary 0.88, dropdown, toolbar icon/extract/dropdown, sidebar), disabled recipe, ring via tokens in all three files, checkbox accent-color, input hover border, .segmented selected bg; flat rows' :active (0,4,0)/(0,4,1) beats .sidebar button:active (0,3,1) so no grey box. No border-radius or raw colour added; reduced-motion block identical to HEAD; .selected still accent+600. Document typography rule bodies (.writing-surface/.read-prose/.manuscript-read/.read-title/.preview-content) identical to HEAD (19/19 rules). Remaining editor.css 2px outlines are footnote-overflow and ProseMirror selected node (off-limits; equal width). FAIL-FIRST: reproduced. ui-t1-review/dist (22:34:41, before T073 claim 22:38:53 and failfirst-unit.log 22:39:32; contains no --focus-ring) on port 1566: new case FAILED at the pressed assertion (expected rgb(220,221,226), got rgb(245,245,247)); unit fail-first log shows 1 failed 3 passed. MARKDOWN-ROUNDTRIP: serial slot unowned; npm run build into ./dist then markdown-roundtrip.spec.ts on ./dist (port 1568): 11 passed, so the 4 earlier failures were the private-outDir hash artifact. RERUN: tsc 0; vitest designTokens 4 passed; appearance+sidebar-selection+notice+layout+accessibility+editor-toolbar on ui-t2/dist (port 1563, 1 worker, 0 retries): 26 passed incl. the new case. SHOTS (8 + 2 zooms): ring 2px, square, unclipped in both themes; sidebar inset ring fully inside the row; Sort ring tight against the label, all four sides intact (not clipped); Undo/Redo visibly dimmed. No pressed screenshot exists: pressed judged from computed values only. Pre-existing, not T073: on the focused Opening row the hover move arrows overlap '0 words'. git status: everything outside T073 paths explained by T071/T072/T074/T077/T084 and the board. Not proven: native WebKit, N1 SMOKE checkpoint. CLAIMED."
+    }
+  ]
+}

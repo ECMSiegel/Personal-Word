@@ -1,0 +1,86 @@
+{
+  "id": "T074",
+  "title": "UI polish T3: design system doc",
+  "description": "docs/design-system.md from the plan's token, state, caption and dash rules; one pointer line in AGENTS.md (plan T3). Follow docs/agent-work/2026-10-25-ui-polish/PLAN.md exactly (its section for this task: Files, Interfaces, Steps, Acceptance check, Fail-first, Stop-and-ask, plus the five answered Open questions). Protocol: serial check slot via files add before expensive checks, pinned Node, quoted --outDir, no installs, no commits, status CLAIMED, independent review required.",
+  "status": "done",
+  "owner": null,
+  "priority": 1,
+  "depends_on": [],
+  "files": [
+    "docs/design-system.md,AGENTS.md",
+    "docs/design-system.md",
+    "AGENTS.md"
+  ],
+  "review_required": true,
+  "created_by": "agent-0fc3",
+  "created_at": "2026-10-26T01:49:56+00:00",
+  "claimed_at": "2026-10-26T01:54:07+00:00",
+  "updated_at": "2026-10-26T01:54:38+00:00",
+  "handoff": {
+    "by": "agent-f40c",
+    "at": "2026-10-26T01:53:48+00:00",
+    "text": "Reject on one point only: the doc still says selection is blue in both palettes, contradicting the resolved Q007 board decision (semibold always; blue in Plain, section tint in Color). Fix: (1) docs/design-system.md line 74, replace the whole 'Rule conflict: ... without authorizing that conflicting selection change.' sentence with: 'Selected sidebar entries are always semibold: blue in Plain; in Color the selected row and its icon take the section tint (--tint-manuscript, --tint-fragments, --tint-research); Read, Comments, History and Settings stay --accent (Q007).' (2) line 88, replace 'Keep selected sidebar entries blue and semibold under the project rule; see the Color selection conflict above.' with 'Selected sidebar entries are semibold: blue in the Plain palette, their section tint in Color.' (3) Optionally amend AGENTS.md line 15 'Selected sidebar entries are blue and semibold.' to 'Selected sidebar entries are semibold: blue in the Plain palette, their section tint in Color.' (the exact Q007 wording; the decision allows it). Everything else passes: all 30 token names, folio.workspace.appearance, data-theme/data-palette values, src/main.tsx before render + src/App.tsx effect, dark-block parity via src/designTokens.test.ts match the plan; 12 px minimum (line 12; consider saying 'No UI text below 12 px' outright), spacing scale + snapping, five-state recipe, keyboard path, no-captions rule, '--' dash rule, document typography/--prose-* out of scope all present; 100 lines (<=140); AGENTS.md diff is exactly one pointer line; no stray files from this task (scripts/__pycache__ predates it)."
+  },
+  "review": {
+    "by": "agent-66f5",
+    "at": "2026-10-26T01:54:38+00:00",
+    "verdict": "approved",
+    "note": "Cycle 2 verified: 'section tint' has 3 hits (doc 74, 88; AGENTS.md 16); line 74 no longer starts 'Rule conflict'; AGENTS.md diff is exactly the pointer line plus the one amended sentence; doc still 100 lines, token table intact; git status shows no stray files from this task (other entries belong to other tasks/predate it)."
+  },
+  "log": [
+    {
+      "at": "2026-10-26T01:49:56+00:00",
+      "agent": "agent-0fc3",
+      "event": "created",
+      "note": ""
+    },
+    {
+      "at": "2026-10-26T01:50:16+00:00",
+      "agent": "agent-9115",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-10-26T01:50:23+00:00",
+      "agent": "agent-9115",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-10-26T01:51:54+00:00",
+      "agent": "agent-9115",
+      "event": "review requested",
+      "note": "Created docs/design-system.md (100 lines) covering approved T1/T2 tokens/states and T4/T5 appearance contract, colour tables, document exclusions, captions, UI dashes, native/browser proof limits. Added exactly one Product and UI pointer in AGENTS.md. Acceptance: grep token/key pattern count 7 (>=6), AGENTS pointer exactly one at line14, wc100 (<=140), git diff --check exit0. Documentation-only: evidence rung2 present/referenced, no runtime/build/native claims, fail-first n/a per T3. Implementation is explicitly in progress. Q007 records AGENTS blue-selection vs plan Color green/orange conflict; followed AGENTS and noted it as T3 default requires. No commits. Registered individual paths to correct original comma-path entry."
+    },
+    {
+      "at": "2026-10-26T01:53:48+00:00",
+      "agent": "agent-f40c",
+      "event": "rejected",
+      "note": "Reject on one point only: the doc still says selection is blue in both palettes, contradicting the resolved Q007 board decision (semibold always; blue in Plain, section tint in Color). Fix: (1) docs/design-system.md line 74, replace the whole 'Rule conflict: ... without authorizing that conflicting selection change.' sentence with: 'Selected sidebar entries are always semibold: blue in Plain; in Color the selected row and its icon take the section tint (--tint-manuscript, --tint-fragments, --tint-research); Read, Comments, History and Settings stay --accent (Q007).' (2) line 88, replace 'Keep selected sidebar entries blue and semibold under the project rule; see the Color selection conflict above.' with 'Selected sidebar entries are semibold: blue in the Plain palette, their section tint in Color.' (3) Optionally amend AGENTS.md line 15 'Selected sidebar entries are blue and semibold.' to 'Selected sidebar entries are semibold: blue in the Plain palette, their section tint in Color.' (the exact Q007 wording; the decision allows it). Everything else passes: all 30 token names, folio.workspace.appearance, data-theme/data-palette values, src/main.tsx before render + src/App.tsx effect, dark-block parity via src/designTokens.test.ts match the plan; 12 px minimum (line 12; consider saying 'No UI text below 12 px' outright), spacing scale + snapping, five-state recipe, keyboard path, no-captions rule, '--' dash rule, document typography/--prose-* out of scope all present; 100 lines (<=140); AGENTS.md diff is exactly one pointer line; no stray files from this task (scripts/__pycache__ predates it)."
+    },
+    {
+      "at": "2026-10-26T01:54:07+00:00",
+      "agent": "agent-0fc3",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-10-26T01:54:07+00:00",
+      "agent": "agent-0fc3",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-10-26T01:54:16+00:00",
+      "agent": "agent-0fc3",
+      "event": "review requested",
+      "note": "Cycle 2 after agent-f40c reject: design-system.md line 74 and line 88 now state the Q007 rule (semibold always; blue in Plain; section tint in Color); AGENTS.md line 16 sentence amended to the same wording per the Q007 decision. No other change. Prove: grep -n 'section tint' docs/design-system.md AGENTS.md -> 3 hits; git diff AGENTS.md shows the pointer line plus that one sentence."
+    },
+    {
+      "at": "2026-10-26T01:54:38+00:00",
+      "agent": "agent-66f5",
+      "event": "approved",
+      "note": "Cycle 2 verified: 'section tint' has 3 hits (doc 74, 88; AGENTS.md 16); line 74 no longer starts 'Rule conflict'; AGENTS.md diff is exactly the pointer line plus the one amended sentence; doc still 100 lines, token table intact; git status shows no stray files from this task (other entries belong to other tasks/predate it)."
+    }
+  ]
+}

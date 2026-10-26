@@ -1,0 +1,86 @@
+{
+  "id": "T089",
+  "title": "UI critique (Low): Projects sparse state leaves a large blank region",
+  "description": "With one project the Projects screen is a row plus the storage notice and then empty white to the fold at 1440x900; it reads as unfinished rather than calm. Screenshot: docs/agent-work/2026-10-25-ui-polish/screens/browser-projects-light-plain.png. Suggested: centre the short list vertically or carry a subtle material in the list column. Reference: iA Writer/Bear fill the column with typographic rhythm.",
+  "status": "done",
+  "owner": null,
+  "priority": 3,
+  "depends_on": [],
+  "files": [
+    "src/components/ProjectLibrary.tsx",
+    "src/components/library.css",
+    "tests/projects-screen.spec.ts"
+  ],
+  "review_required": true,
+  "created_by": "agent-fb4d",
+  "created_at": "2026-10-26T04:54:27+00:00",
+  "claimed_at": "2026-10-26T05:22:38+00:00",
+  "updated_at": "2026-10-26T05:27:50+00:00",
+  "handoff": {
+    "by": "agent-3736",
+    "at": "2026-10-26T05:21:29+00:00",
+    "text": "Rejected: centring makes the header jump as projects are added. Measured on a private build of the current tree (ui-crit-review/dist, includes T092 in-progress styles.css), 1440x900, Playwright: 'Projects' h1 y = 401.7 px at 1 project, 376.7 at 2, 351.7 at 3, 153 at 14 (brand 326.7 -> 276.7 -> 78). So the heading moves 50 px between 1 and 3 projects, 25 px per added project, and ~249 px between 1 and 14; the brand/toolbar/search move with it, so the screen's anchor shifts every time a project is created or deleted or the search filter narrows the list. Control (same build, the three new .library rules neutralised): h1 = 153 px at both 1 and 3 projects. Suggested instead: keep content top-aligned (header fixed at the 14-project position) and address the sparse look with a bounded column, e.g. a max-width on the list column / modest top offset, or a quiet empty-region treatment, none of which move the header. Tests on this build: projects-screen, layout, sidebar-selection, accessibility pass; features.spec has 2 failures that are T094/T095 in-progress tests (Settings captions, Goals select font), unrelated to library.css. tsc 0. Script and shots: node_modules/.cache/personal-word-beta/ui-crit-review/measure, shots/t089-*.png."
+  },
+  "review": {
+    "by": "agent-7387",
+    "at": "2026-10-26T05:27:50+00:00",
+    "verdict": "approved",
+    "note": "Cycle 2 verified. library.css has no Launch-screen balance block, no min-height or auto margins; it holds only search, create-panel and drop styles, no placeholder or decoration rules. The 'heading stays put' test exists, and failfirst.log shows Received 50 against Expected <= 1 on the centred tree. Pinned Node: tsc 0, rebuild exit 0, projects-screen + layout one worker no retries: 36 passed. projects-1.png and projects-14.png have the header at the same position (Projects h1 at y~172)."
+  },
+  "log": [
+    {
+      "at": "2026-10-26T04:54:27+00:00",
+      "agent": "agent-fb4d",
+      "event": "created",
+      "note": ""
+    },
+    {
+      "at": "2026-10-26T05:01:34+00:00",
+      "agent": "agent-fb4d",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-10-26T05:01:35+00:00",
+      "agent": "agent-fb4d",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-10-26T05:05:56+00:00",
+      "agent": "agent-fb4d",
+      "event": "review requested",
+      "note": "Launch-screen balance: .library now uses flex column + min-height 100% with auto margins on first/last child (src/components/library.css append) - short libraries sit vertically centred (consistent with the existing .empty-editor centring), and auto margins collapse to top-aligned scrolling when the list outgrows the viewport. Verified on the ui-t10 private dist (rebuild exit 0): SHORT measure = block centred (292.7 px above / 308.7 px below at 1440x900, screenshot shots-t089/t089-short.png viewed); LONG = 14 projects, first row fully visible at 215 px (not clipped, assertion passed), scrollHeight 1019, screenshot shots-t089/t089-long.png. tsc 0; designTokens 3/3 (library.css adds no font sizes). Behaviour: with the reduced-motion block and token rules untouched; library.css is not a token-swept file per designTokens.test.ts scope. Logs: ui-t10/t089-verify.log, t089-tsc.log, t089-tokens.log."
+    },
+    {
+      "at": "2026-10-26T05:21:29+00:00",
+      "agent": "agent-3736",
+      "event": "rejected",
+      "note": "Rejected: centring makes the header jump as projects are added. Measured on a private build of the current tree (ui-crit-review/dist, includes T092 in-progress styles.css), 1440x900, Playwright: 'Projects' h1 y = 401.7 px at 1 project, 376.7 at 2, 351.7 at 3, 153 at 14 (brand 326.7 -> 276.7 -> 78). So the heading moves 50 px between 1 and 3 projects, 25 px per added project, and ~249 px between 1 and 14; the brand/toolbar/search move with it, so the screen's anchor shifts every time a project is created or deleted or the search filter narrows the list. Control (same build, the three new .library rules neutralised): h1 = 153 px at both 1 and 3 projects. Suggested instead: keep content top-aligned (header fixed at the 14-project position) and address the sparse look with a bounded column, e.g. a max-width on the list column / modest top offset, or a quiet empty-region treatment, none of which move the header. Tests on this build: projects-screen, layout, sidebar-selection, accessibility pass; features.spec has 2 failures that are T094/T095 in-progress tests (Settings captions, Goals select font), unrelated to library.css. tsc 0. Script and shots: node_modules/.cache/personal-word-beta/ui-crit-review/measure, shots/t089-*.png."
+    },
+    {
+      "at": "2026-10-26T05:22:38+00:00",
+      "agent": "agent-574b",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-10-26T05:22:38+00:00",
+      "agent": "agent-574b",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-10-26T05:26:03+00:00",
+      "agent": "agent-574b",
+      "event": "review requested",
+      "note": "Cycle 2: removed the whole vertical-centring block from src/components/library.css (flex column + min-height 100% + auto margins on first/last child). Kept the existing bounded column (styles.css .library: max 800px content column via horizontal padding) and added nothing else: no placeholder/illustration/caption; the lower area stays empty like iA Writer/Ulysses top-aligned libraries. ProjectLibrary.tsx untouched. Heading y at 1440x900: 153 px with 1, 3 and 14 projects (measured). New test 'the Projects heading stays put as projects are added' in tests/projects-screen.spec.ts: FAIL-FIRST on tree with centring: received 50 px diff (log ui-t89/failfirst.log); passes after removal. Checks (pinned Node 22): tsc 0; private build ui-t89/dist exit 0; projects-screen+layout+features one worker no retries: 44 passed, 0 failed (features' tests included, none failing). Did not take the serial slot. Shots: node_modules/.cache/personal-word-beta/ui-t89/shots/projects-1.png and projects-14.png (viewed 1-project: top-aligned, calm). Logs in ui-t89/."
+    },
+    {
+      "at": "2026-10-26T05:27:50+00:00",
+      "agent": "agent-7387",
+      "event": "approved",
+      "note": "Cycle 2 verified. library.css has no Launch-screen balance block, no min-height or auto margins; it holds only search, create-panel and drop styles, no placeholder or decoration rules. The 'heading stays put' test exists, and failfirst.log shows Received 50 against Expected <= 1 on the centred tree. Pinned Node: tsc 0, rebuild exit 0, projects-screen + layout one worker no retries: 36 passed. projects-1.png and projects-14.png have the header at the same position (Projects h1 at y~172)."
+    }
+  ]
+}

@@ -1,0 +1,9 @@
+{
+  "id": "Q008",
+  "at": "2026-10-26T04:56:30+00:00",
+  "by": "agent-fb4d",
+  "task": "T086",
+  "text": "T083 stop rule (High finding on T079's claimed work): the create panel's menu items render near-invisible in light mode (faint grey on white, fails WCAG 4.5:1; screenshot docs/agent-work/2026-10-25-ui-polish/screens/browser-projects-create-light-color.png) and muted in dark. Filed as T086 (priority 1). Do you want it fixed BEFORE T081 (docs) and T082 (validation) so the validated build includes the fix, or accepted as a filed follow-up task after the wave closes? Default if unanswered: file-and-continue (the plan's stated default) - T081/T082 proceed and T086 is fixed after.",
+  "status": "resolved",
+  "resolution": "Coordinator: the High finding is not established. The capture was taken while the panel was still animating (clip-path incomplete, items mid-fade; two different contrast readings from the same CSS). T086 is being worked now to confirm the settled state and to make the fade start readable and finish within the morph, with a test. No stop before T11/T12; T083 cycle 2 must recapture after the animation (or under reduced motion) and re-rate."
+}

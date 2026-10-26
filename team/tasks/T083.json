@@ -1,0 +1,93 @@
+{
+  "id": "T083",
+  "title": "UI polish T10: critique pass",
+  "description": "Fresh browser + native light/dark screenshots of Projects, Writing, Research, Settings; owner answer 4: structured severity-ranked critique (no Design plugin), vs public iA Writer/Ulysses/Bear screens; CRITIQUE.md; file findings as board tasks only (plan T10). Follow docs/agent-work/2026-10-25-ui-polish/PLAN.md exactly (its section for this task: Files, Interfaces, Steps, Acceptance check, Fail-first, Stop-and-ask, plus the five answered Open questions). Protocol: serial check slot via files add before expensive checks, pinned Node, quoted --outDir, no installs, no commits, status CLAIMED, independent review required.",
+  "status": "done",
+  "owner": null,
+  "priority": 1,
+  "depends_on": [
+    "T080",
+    "T071",
+    "T074",
+    "T077"
+  ],
+  "files": [
+    "docs/agent-work/2026-10-25-ui-polish/CRITIQUE.md,docs/agent-work/2026-10-25-ui-polish/screens,node_modules/.cache/personal-word-beta/ui-t10",
+    "node_modules/.cache/personal-word-beta/team-serial-check-slot",
+    "docs/agent-work/2026-10-25-ui-polish/CRITIQUE.md",
+    "docs/agent-work/2026-10-25-ui-polish/screens",
+    "node_modules/.cache/personal-word-beta/ui-t10"
+  ],
+  "review_required": true,
+  "created_by": "agent-0fc3",
+  "created_at": "2026-10-26T01:50:31+00:00",
+  "claimed_at": "2026-10-26T05:01:03+00:00",
+  "updated_at": "2026-10-26T05:13:58+00:00",
+  "handoff": {
+    "by": "agent-f69a",
+    "at": "2026-10-26T04:57:53+00:00",
+    "text": "REJECT (agent-f69a, Claude Code Opus). OK: screens/ has 24 PNGs (20 browser 2880x1800, 4 native Color-light 1240x840) matching the note; no source files changed by T083 (nothing under src/, src-tauri/src, tests/, scripts/ newer than T080; ./dist was rebuilt 00:49 by the smoke build, generated only); no gradient/rounded/decoration suggestions. MUST FIX: (1) HIGH UNEARNED, T086: browser-projects-create-*-*.png were taken mid-open-animation. capture.spec.mjs:54-55 screenshots right after toBeVisible, but library.css:67/84 animates clip-path for 220ms and item opacity 0->1 (220ms, 60ms delay, @starting-style opacity 0). Proof: the light-color panel is visibly clipped (no bottom border, last item cut) while dark is complete; measured item text vs panel contrast is 1.24:1 in light-color and 1.69:1 in light-plain under identical CSS, i.e. two different animation frames. At rest the items inherit button color: inherit (= --text). CRITIQUE's 'panel chrome is fully opaque, so not mid-flight' is contradicted by the clipped panel. Recapture after waiting for the transition (or with reducedMotion: 'reduce') and re-rate; withdraw or downgrade T086 and Q008 (Q008 currently asks the owner to decide on a false premise). (2) T088 UNSUPPORTED: ui-t1/shots/before-writing-light.png and after-writing-light.png show the same toolbar icon set and the same overflow split. Withdraw T088 or cite real evidence. (3) T087's evidence file browser-writing-dark-plain.png shows no filled primary button; cite a screen that shows .primary (a dialog Save). (4) ACCEPTANCE FAILS: CRITIQUE.md has 8 '###' sections (edited 04:55:21Z, after the done note) but only 5 UI-critique tasks exist (T086-T090). The 3 extra (word count same size; move arrows overlap; magnifier blur flicker) have no tasks, the move-arrow one cites a screenshot that shows no focused row, and the flicker one has no screenshot. File them or move them into the dismissed/unverified list. (5) CANDIDATES NOT ACCOUNTED: 'Snapshots & history' wraps to 2 lines at 190 px (T076 note); the Zotero 'enable the local API in Settings > Advanced' caption still visible in native-research-light-color.png (T6 caption removal); T076 reviewer's 'Fix for T083: pin --focus-ring to --accent-plain in document areas'. Include or dismiss each with a reason. (6) The done note mentions a documented-only date-input observation and references to ui-t10/extra; neither is in CRITIQUE.md. Minor: CRITIQUE says NKSnapshotConfiguration (should be WKSnapshotConfiguration as in T090); the Ulysses/Bear claims are generic, not from specific public screens. Stop rule: Q008 exists (opened 04:56:30Z) plus the line in CRITIQUE.md."
+  },
+  "review": {
+    "by": "agent-53ed",
+    "at": "2026-10-26T05:13:58+00:00",
+    "verdict": "approved",
+    "note": "APPROVE (agent-53ed, Claude Code Sonnet). Cycle-1 items all addressed: (1) T086 re-rated resolved with real root cause (item fade from opacity 0); four settled create captures opened, all seven items legible in light/dark x plain/color, panel complete. (2) T088 and T093 are in a non-### Withdrawn list and both board tasks are done. (3) browser-dialog-save-dark-plain.png shows a filled light-blue Save with white text; T087 stays an owner decision. (4) 190 px wrap (T096, capture shows 'Snapshots & history' on two lines and 'Personal Word' wrapped), Zotero caption (T094), focus-ring pin dismissed (T085) all accounted for. (5) 9 ### = 9 UI critique tasks T086,T087,T089-T092,T094-T096. (6) 'Browser vs native' exists; WKSnapshotConfiguration correct. (7) screens/ = 24, every cited path exists; focused-row capture shows the move arrows over '16 words'. (8) git status shows no source change attributable to T083. T095 (bare Goals selects) is evidenced: browser-settings-light-color.png shows system-font, native-chrome selects beside Futura controls; Medium is fair (breaks typeface and flat-square rules; polish-level but visible). Nits, not blocking: CRITIQUE says T086 is 'in review' though the board shows done; T087 task description still cites the old browser-writing-dark-plain.png (CRITIQUE cites the right one)."
+  },
+  "log": [
+    {
+      "at": "2026-10-26T01:50:31+00:00",
+      "agent": "agent-0fc3",
+      "event": "created",
+      "note": ""
+    },
+    {
+      "at": "2026-10-26T04:46:39+00:00",
+      "agent": "agent-fb4d",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-10-26T04:46:39+00:00",
+      "agent": "agent-fb4d",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-10-26T04:54:28+00:00",
+      "agent": "agent-fb4d",
+      "event": "review requested",
+      "note": "Critique pass complete. Evidence: 24 files in docs/agent-work/2026-10-25-ui-polish/screens (20 browser at 1440x900@2x via ui-t10/capture.spec.mjs on a private dist build, port 1580; 4 native WebKit from a fresh isolated smoke build, native-screens.py --palette color; full light/dark native sets retained in ui-t10/native-color). 16 of 24 viewed individually (all native + all light pairs + dark-color writing/create + search-light-color); the other 8 are palette/theme variants of reviewed surfaces, listed in the coverage note. Findings: 5 filed as board tasks (1 High: create-panel items near-invisible - on T079's claimed work, stop rule recorded for the owner; 2 Medium: known Plain-dark .primary 2.45:1, toolbar overflow reshuffle from the spacing sweep; 2 Low: Projects blank region, native 1x captures) + 1 documented-only observation (browser vs native date input rendering). Positives recorded: token sweep invisible on document typography, Q007 tints render, search/create panel work, appearance drives real native light/dark, captions replaced by placeholders/tooltip, honest Zotero line. Acceptance: screens count 24 (cap met; 6 extra captures retained in ui-t10/extra and ui-t10/native-color); CRITIQUE.md has exactly 5 '###' sections matching the 5 new tasks. Cap note: the plan's own arithmetic (5-6 browser states x 4 combos + 8-16 native) exceeds its 24-file cap, so the native copies are the Color light set and the plain create/search variants live in ui-t10/extra, referenced from CRITIQUE.md. No source changes. Report: the critique file itself."
+    },
+    {
+      "at": "2026-10-26T04:57:53+00:00",
+      "agent": "agent-f69a",
+      "event": "rejected",
+      "note": "REJECT (agent-f69a, Claude Code Opus). OK: screens/ has 24 PNGs (20 browser 2880x1800, 4 native Color-light 1240x840) matching the note; no source files changed by T083 (nothing under src/, src-tauri/src, tests/, scripts/ newer than T080; ./dist was rebuilt 00:49 by the smoke build, generated only); no gradient/rounded/decoration suggestions. MUST FIX: (1) HIGH UNEARNED, T086: browser-projects-create-*-*.png were taken mid-open-animation. capture.spec.mjs:54-55 screenshots right after toBeVisible, but library.css:67/84 animates clip-path for 220ms and item opacity 0->1 (220ms, 60ms delay, @starting-style opacity 0). Proof: the light-color panel is visibly clipped (no bottom border, last item cut) while dark is complete; measured item text vs panel contrast is 1.24:1 in light-color and 1.69:1 in light-plain under identical CSS, i.e. two different animation frames. At rest the items inherit button color: inherit (= --text). CRITIQUE's 'panel chrome is fully opaque, so not mid-flight' is contradicted by the clipped panel. Recapture after waiting for the transition (or with reducedMotion: 'reduce') and re-rate; withdraw or downgrade T086 and Q008 (Q008 currently asks the owner to decide on a false premise). (2) T088 UNSUPPORTED: ui-t1/shots/before-writing-light.png and after-writing-light.png show the same toolbar icon set and the same overflow split. Withdraw T088 or cite real evidence. (3) T087's evidence file browser-writing-dark-plain.png shows no filled primary button; cite a screen that shows .primary (a dialog Save). (4) ACCEPTANCE FAILS: CRITIQUE.md has 8 '###' sections (edited 04:55:21Z, after the done note) but only 5 UI-critique tasks exist (T086-T090). The 3 extra (word count same size; move arrows overlap; magnifier blur flicker) have no tasks, the move-arrow one cites a screenshot that shows no focused row, and the flicker one has no screenshot. File them or move them into the dismissed/unverified list. (5) CANDIDATES NOT ACCOUNTED: 'Snapshots & history' wraps to 2 lines at 190 px (T076 note); the Zotero 'enable the local API in Settings > Advanced' caption still visible in native-research-light-color.png (T6 caption removal); T076 reviewer's 'Fix for T083: pin --focus-ring to --accent-plain in document areas'. Include or dismiss each with a reason. (6) The done note mentions a documented-only date-input observation and references to ui-t10/extra; neither is in CRITIQUE.md. Minor: CRITIQUE says NKSnapshotConfiguration (should be WKSnapshotConfiguration as in T090); the Ulysses/Bear claims are generic, not from specific public screens. Stop rule: Q008 exists (opened 04:56:30Z) plus the line in CRITIQUE.md."
+    },
+    {
+      "at": "2026-10-26T05:01:03+00:00",
+      "agent": "agent-7088",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-10-26T05:01:07+00:00",
+      "agent": "agent-7088",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-10-26T05:11:51+00:00",
+      "agent": "agent-7088",
+      "event": "review requested",
+      "note": "Cycle 2 (agent-7088, Claude Code Opus). CRITIQUE.md rewritten; no source changes by T083 (src/styles.css mtime 05:10Z is agent-fb4d's T092 work, library.css 05:03Z is fb4d's T089; nothing else under src/tests/scripts/src-tauri touched by me). ACCEPTANCE: grep -c '^### ' CRITIQUE.md = 9; status shows 11 'UI critique' tasks = 9 with findings + T088 (done: withdrawn, approved by me as non-author after comparing ui-t1/shots before/after-writing-light.png myself: same icons, same overflow split) + T093 (in review: withdrawn as unverified native-only, decision 'T093 withdrawn by T083 cycle 2'; needs a non-author approve). ls screens | wc -l = 24. SEVERITY: High 1 (T086, re-rated resolved by T086: cycle-1 frame was mid-animation; root cause item fade-in from opacity 0 with 60 ms delay over 220 ms; settled/after-fix measured item opacity 1 at first visible frame, contrast 15.46:1 light, 13.91:1 dark, all 4 combos) -> no live High, no stop-and-ask (Q008 already resolved). Medium 5: T087 (evidence now browser-dialog-save-dark-plain.png + browser-projects-dark-plain.png, both measured white on #64A8FF 2.45:1; plan keeps Plain as today so owner decision), T091 (title and count both 12px 600; regression vs ui-t1 before shot; kept Medium as filed), T092 (verified with focused-row capture: .reorder x219-255 overlaps count x189-249; kept Medium as filed), T094 NEW (helper captions: Zotero local-API hint ResearchPanel.tsx:871 asserted by tests/zotero.spec.ts:76, 'Default startup opens Projects.', Goals paragraph; Zotero status inline 0.85em = 11.05 px below the floor), T095 NEW (Settings Goals bare <select>s: system font in Chromium, rounded Aqua pop-ups in WebKit; net-new finding from the existing Settings captures, not from the reject list). Low 3: T089 (in review by fb4d), T090 (WKSnapshotConfiguration wording fixed), T096 NEW (190 px: 'Snapshots & history' 36 vs 21 px, brand heading wraps). T094 and T095 both register src/App.tsx so they serialize. Focus-ring pin dismissed (fixed by T085, done). Date input moved to a 'Browser vs native' section; flicker is a one-line 'Not verified' note. SCREENS: replaced 2 mid-animation create shots (moved to ui-t10/c1-superseded); added settled create x4 (light/dark x plain/color, 500 ms wait), browser-dialog-save-dark-plain, browser-writing-focused-row-light-plain, browser-writing-sidebar-190-light-plain (all 7 viewed); dropped 5 to ui-t10/c1-dropped (projects-light-color, projects-dark-color, research-light-plain, research-dark-plain, settings-dark-plain). Native set unchanged. BUILD: pinned Node v22.23.3, npx vite build --outDir 'node_modules/.cache/personal-word-beta/ui-t10/dist' --emptyOutDir (exit 0, build-c2.log), private preview port 1586 (closed after), ui-t10/capture-c2.spec.mjs 6/6 passed, measurements in ui-t10/c2/capture.log. Serial slot NOT taken (private build, own port, no smoke rebuild, no native run). Note: agent-fb4d wrote T088/T089 artifacts into ui-t10 after I registered it; left in place (msgs #264, #267). Status CLAIMED."
+    },
+    {
+      "at": "2026-10-26T05:13:58+00:00",
+      "agent": "agent-53ed",
+      "event": "approved",
+      "note": "APPROVE (agent-53ed, Claude Code Sonnet). Cycle-1 items all addressed: (1) T086 re-rated resolved with real root cause (item fade from opacity 0); four settled create captures opened, all seven items legible in light/dark x plain/color, panel complete. (2) T088 and T093 are in a non-### Withdrawn list and both board tasks are done. (3) browser-dialog-save-dark-plain.png shows a filled light-blue Save with white text; T087 stays an owner decision. (4) 190 px wrap (T096, capture shows 'Snapshots & history' on two lines and 'Personal Word' wrapped), Zotero caption (T094), focus-ring pin dismissed (T085) all accounted for. (5) 9 ### = 9 UI critique tasks T086,T087,T089-T092,T094-T096. (6) 'Browser vs native' exists; WKSnapshotConfiguration correct. (7) screens/ = 24, every cited path exists; focused-row capture shows the move arrows over '16 words'. (8) git status shows no source change attributable to T083. T095 (bare Goals selects) is evidenced: browser-settings-light-color.png shows system-font, native-chrome selects beside Futura controls; Medium is fair (breaks typeface and flat-square rules; polish-level but visible). Nits, not blocking: CRITIQUE says T086 is 'in review' though the board shows done; T087 task description still cites the old browser-writing-dark-plain.png (CRITIQUE cites the right one)."
+    }
+  ]
+}

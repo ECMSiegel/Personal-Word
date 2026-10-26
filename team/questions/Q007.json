@@ -1,0 +1,9 @@
+{
+  "id": "Q007",
+  "at": "2026-10-26T01:51:36+00:00",
+  "by": "agent-9115",
+  "task": "T074",
+  "text": "UI-polish T5 specifies green Fragments and orange Research selected rows in Color, but project AGENTS.md requires selected sidebar entries blue and semibold. T3 documentation follows AGENTS.md and notes the conflict as its default requires. Should Color selection be an explicit exception to the blue rule, or should only the group icons receive the green/orange tint?",
+  "status": "resolved",
+  "resolution": "Color selection is an explicit exception: selected sidebar entries are always semibold; in Plain they are blue (today's rule); in Color the selected row and its icon take the section tint (Manuscript blue, Fragments green, Research orange). T074 may amend the AGENTS.md sentence to 'Selected sidebar entries are semibold: blue in the Plain palette, their section tint in Color.' and docs/design-system.md states the same. T076 (T5) implements it as the plan says."
+}

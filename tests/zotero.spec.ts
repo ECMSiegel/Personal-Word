@@ -73,5 +73,17 @@ test("Zotero refresh in the browser preview says it is desktop-only and never co
 
 test("Zotero local refresh explains the required desktop setting", async ({ page }) => {
   await start(page, "Zotero API hint");
-  await expect(page.getByText("In Zotero, enable the local API in Settings > Advanced before refreshing.", { exact: true })).toBeVisible();
+  const hint = "In Zotero, enable the local API in Settings > Advanced before refreshing.";
+  // No visible helper caption under the control; the hint lives in the button's tooltip.
+  await expect(page.locator("p.research-hint").filter({ hasText: "local API" })).toHaveCount(0);
+  const connect = page.getByRole("button", { name: "Connect local Zotero" });
+  await expect(connect).toHaveAttribute("title", hint);
+  const tipId = await connect.getAttribute("aria-describedby");
+  expect(tipId).toBeTruthy();
+  await expect(page.locator(`[id="${tipId}"]`)).toHaveText(hint);
+  await connect.focus();
+  await expect(page.locator(`[id="${tipId}"]`)).toBeVisible();
+  // Status text meets the 12 px UI floor.
+  const size = await page.locator(".zotero-status").evaluate((el) => parseFloat(getComputedStyle(el).fontSize));
+  expect(size).toBeGreaterThanOrEqual(12);
 });

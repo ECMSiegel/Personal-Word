@@ -71,7 +71,7 @@
   background: transparent;
   color: var(--muted);
   font: inherit;
-  font-size: 11px;
+  font-size: var(--type-small);
   padding: 4px;
   cursor: pointer;
 }
@@ -166,15 +166,18 @@
 .writer .format-bar .extract:focus-visible,
 .writer .format-bar .toolbar-text-button:focus-visible,
 .writer .format-bar .toolbar-presets button:focus-visible {
-  outline: 2px solid var(--accent);
-  outline-offset: 1px;
+  outline: var(--focus-ring);
+  outline-offset: var(--focus-offset);
   z-index: 1;
 }
 .writer .format-bar .toolbar-icon:hover:not(:disabled) {
   background: var(--surface);
 }
+.writer .format-bar .toolbar-icon:active:not(:disabled) {
+  background: var(--pressed);
+}
 .writer .format-bar .toolbar-icon:disabled {
-  opacity: 0.35;
+  opacity: var(--disabled-opacity);
 }
 .writer .format-bar .toolbar-icon[aria-pressed="true"] {
   color: var(--accent);
@@ -191,9 +194,12 @@
   border-radius: 0;
   font-size: 12px;
 }
-.writer .format-bar .dropdown-button:hover,
+.writer .format-bar .dropdown-button:hover:not(:disabled),
 .writer .format-bar .dropdown-button[aria-expanded="true"] {
   background: var(--surface);
+}
+.writer .format-bar .dropdown-button:active:not(:disabled) {
+  background: var(--pressed);
 }
 .writer .format-bar .extract {
   display: inline-flex;
@@ -212,8 +218,11 @@
 .writer .format-bar .extract:hover:not(:disabled) {
   background: var(--surface);
 }
+.writer .format-bar .extract:active:not(:disabled) {
+  background: var(--pressed);
+}
 .writer .format-bar .extract:disabled {
-  opacity: 0.35;
+  opacity: var(--disabled-opacity);
 }
 @container (max-width: 1400px) {
   .writer .format-bar .extract span {
@@ -278,7 +287,7 @@
 }
 .writer .toolbar-field-title {
   color: var(--muted);
-  font-size: 11px;
+  font-size: var(--type-small);
 }
 .writer .toolbar-field-unit {
   display: inline-flex;

@@ -1,0 +1,63 @@
+{
+  "id": "T078",
+  "title": "UI polish T7: Projects screen search",
+  "description": "Magnifier expands into a field, filters by title, Escape collapses, keyboard reachable; new library.css and tests/projects-screen.spec.ts (plan T7). Follow docs/agent-work/2026-10-25-ui-polish/PLAN.md exactly (its section for this task: Files, Interfaces, Steps, Acceptance check, Fail-first, Stop-and-ask, plus the five answered Open questions). Protocol: serial check slot via files add before expensive checks, pinned Node, quoted --outDir, no installs, no commits, status CLAIMED, independent review required.",
+  "status": "done",
+  "owner": null,
+  "priority": 1,
+  "depends_on": [
+    "T076"
+  ],
+  "files": [
+    "src/components/ProjectLibrary.tsx,src/components/library.css,tests/projects-screen.spec.ts,node_modules/.cache/personal-word-beta/ui-t7",
+    "src/components/ProjectLibrary.tsx",
+    "src/components/library.css",
+    "tests/projects-screen.spec.ts",
+    "node_modules/.cache/personal-word-beta/ui-t7",
+    "node_modules/.cache/personal-word-beta/team-serial-check-slot"
+  ],
+  "review_required": true,
+  "created_by": "agent-0fc3",
+  "created_at": "2026-10-26T01:49:58+00:00",
+  "claimed_at": "2026-10-26T03:44:38+00:00",
+  "updated_at": "2026-10-26T03:58:08+00:00",
+  "handoff": null,
+  "review": {
+    "by": "agent-463d",
+    "at": "2026-10-26T03:58:08+00:00",
+    "verdict": "approved",
+    "note": "Independent review (agent-463d). Diff: ProjectLibrary.tsx hunks are T7 only; one .library-search element morphs 28->220px (width var(--duration-morph) var(--ease-spring)), first child of .library-display before Sort as plan step 2; button aria-label 'Search projects' + aria-expanded + aria-controls, input type=text role=searchbox aria-label 'Filter projects by title', tabIndex -1 when closed; filter trim+toLocaleLowerCase; Escape clears/collapses/refocuses; square (radius 0), tokens only, ring via --focus-ring on :focus-within; styles.css has 0 library-search hits; specificity override is one extra .library class. 'No matching projects.' is plan step 1 text (result state, not a caption). Fail-first: ui-t7/failfirst.log 4 failed. Rerun pinned Node v22.23.3: tsc 0; Playwright vs ui-t7/dist (built 23:54:03, after last source edit 23:53:46) port 1575, workers 1, retries 0, projects-screen+import+import-cancel+features+appearance+accessibility+layout+housekeeping: 45 passed 0 failed (ui-t7-review/acceptance.log; housekeeping 4/4 now covered). All 6 shots viewed: square, ring visible light+dark, no caption, aligned with Sort. Probe (ui-t7-review/probe.json): at 850 and 1440 px toolbar height 39 collapsed and expanded, all items same top (no wrap), Sort label x unchanged (598/908), first row stays at 215, no horizontal scroll; Tab from expanded field -> Sort dropdown button. Minor, non-blocking: button 26x26px is a raw px not named in the plan (28 minus border); keyboard test uses button.focus() rather than Tab-to-button; native WebKit unproven - Safari does not focus buttons on click, so clicking the magnifier while open+empty may collapse on blur then reopen on click (check in the T9/T10 native pass). Status CLAIMED, browser Chromium only."
+  },
+  "log": [
+    {
+      "at": "2026-10-26T01:49:58+00:00",
+      "agent": "agent-0fc3",
+      "event": "created",
+      "note": ""
+    },
+    {
+      "at": "2026-10-26T03:44:38+00:00",
+      "agent": "agent-81a0",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-10-26T03:44:38+00:00",
+      "agent": "agent-81a0",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-10-26T03:55:11+00:00",
+      "agent": "agent-81a0",
+      "event": "review requested",
+      "note": "CLAIMED. T7 Projects search: ProjectLibrary.tsx (magnifier button + role=searchbox input in .library-search, title filter case-insensitive/trimmed, 'No matching projects.', Escape clears+collapses+refocuses button, blur-empty collapses, tabIndex -1 when closed), new src/components/library.css (28px->220px width morph via --duration-morph/--ease-spring, square, --focus-ring on focus-within; styles.css untouched), new tests/projects-screen.spec.ts (4 tests, exports createProject helper). Fail-first: pre-T7 build, 4/4 failed (no .library-search), log node_modules/.cache/personal-word-beta/ui-t7/failfirst.log. After: tsc exit 0; build exit 0; Playwright projects-screen+import+import-cancel+features+appearance+accessibility+layout 41 passed, 0 failed (workers=1, port 1574), log node_modules/.cache/personal-word-beta/ui-t7/acceptance.log. Shots 1440x900 light+dark (collapsed/expanded/filtered) in node_modules/.cache/personal-word-beta/ui-t7/shots viewed: square, ring visible, no caption, aligned with Sort (centres equal), toolbar box identical collapsed vs expanded (no jump); at 850px width the display row stays one line. Fixed a focus underline from global input rule by raising specificity. Unproven: native WebKit rendering and the Tauri app (browser Chromium only); housekeeping.spec.ts from the plan's Acceptance not run (task asked for the other list). Open width 220 per plan."
+    },
+    {
+      "at": "2026-10-26T03:58:08+00:00",
+      "agent": "agent-463d",
+      "event": "approved",
+      "note": "Independent review (agent-463d). Diff: ProjectLibrary.tsx hunks are T7 only; one .library-search element morphs 28->220px (width var(--duration-morph) var(--ease-spring)), first child of .library-display before Sort as plan step 2; button aria-label 'Search projects' + aria-expanded + aria-controls, input type=text role=searchbox aria-label 'Filter projects by title', tabIndex -1 when closed; filter trim+toLocaleLowerCase; Escape clears/collapses/refocuses; square (radius 0), tokens only, ring via --focus-ring on :focus-within; styles.css has 0 library-search hits; specificity override is one extra .library class. 'No matching projects.' is plan step 1 text (result state, not a caption). Fail-first: ui-t7/failfirst.log 4 failed. Rerun pinned Node v22.23.3: tsc 0; Playwright vs ui-t7/dist (built 23:54:03, after last source edit 23:53:46) port 1575, workers 1, retries 0, projects-screen+import+import-cancel+features+appearance+accessibility+layout+housekeeping: 45 passed 0 failed (ui-t7-review/acceptance.log; housekeeping 4/4 now covered). All 6 shots viewed: square, ring visible light+dark, no caption, aligned with Sort. Probe (ui-t7-review/probe.json): at 850 and 1440 px toolbar height 39 collapsed and expanded, all items same top (no wrap), Sort label x unchanged (598/908), first row stays at 215, no horizontal scroll; Tab from expanded field -> Sort dropdown button. Minor, non-blocking: button 26x26px is a raw px not named in the plan (28 minus border); keyboard test uses button.focus() rather than Tab-to-button; native WebKit unproven - Safari does not focus buttons on click, so clicking the magnifier while open+empty may collapse on blur then reopen on click (check in the T9/T10 native pass). Status CLAIMED, browser Chromium only."
+    }
+  ]
+}

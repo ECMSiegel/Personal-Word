@@ -15,6 +15,9 @@ Part 1 lists what is still true today. Part 2 lists issues that were fixed, newe
 - **Zotero refresh scope.** The optional refresh is off by default, read-only, and limited to your own Mac (127.0.0.1:23119); every change goes through the review dialog. It works in the desktop app only; the browser preview shows a desktop-only message and makes no network read. It has no distinct "Zotero is off" message and has never been run against a real Zotero. Updates to a matched source preserve identity and linked notes, leave unselected local fields intact, and require a checked safety snapshot. No fields are selected automatically; replacing original CSL data replaces that whole field.
 - **Imports have size caps and cannot carry everything.** Plain text and Markdown files (up to 5 MB) keep their structure, but images, tables and raw HTML inside them arrive as visible literal text with a warning. HTML, Word (.docx) and Markdown-with-images (.zip) bundle files (up to 20 MB) import headings, lists, links, notes, rectangular tables and PNG/JPEG images through a preview dialog. They check the zip's declared sizes before unpacking, parse HTML without running it, and never fetch an outside image (it is omitted with a warning). Cancel creates nothing. A bundle's checksums are verified on import. Merged or nested table cells are not supported, and the app has no live multi-user collaboration or tracked changes. **Cancel import** discards the result of a slow parse and creates nothing; abandoning the dialog with Escape (while reading or at the preview) is covered by browser tests (2026-10-25), but abandoning it by leaving the screen is not. The XML check refuses only external DOCTYPE declarations.
 - **Writing aids are optional heuristics.** Prose checks can be wrong; they never correct text. Goals count manuscript sections only, and daily baselines reset by the local date. When a section has an extreme number of flagged words, only the issues nearest the cursor are shown (the panel says so) so typing stays responsive.
+- **Native title bar follows the in-app theme only in the Mac app.** The choice of Light or Dark is passed to the window title bar through Tauri; browser builds do nothing, and only the Mac app shows whether it matches.
+- **Drag-and-drop import is checked in the browser, not by hand on the Mac.** The Mac path (Tauri drop event, the dropped-file read command, the highlight in WebKit) has native suite runs but no hand drag from Finder yet; the owner check is pending.
+- **Native screenshots are 1x.** The native capture tool saves 1240x840 pixels, soft on Retina displays; the open create panel is not captured natively.
 
 ### (b) Known issues still open
 
@@ -29,6 +32,15 @@ Part 1 lists what is still true today. Part 2 lists issues that were fixed, newe
 ## Part 2 -- Resolved issues
 
 Newest first. Task IDs are board tasks.
+
+- 2026-10-26 -- T091: sidebar entry titles are 13 px and their word counts 12 px muted, so the row reads as title then count.
+- 2026-10-26 -- T092: the move arrows no longer cover the word count; the count fades out while the arrows show.
+- 2026-10-26 -- T095: Goal scope and Goal day in Settings use the app's own dropdown, in the interface font with square corners.
+- 2026-10-26 -- T094: helper captions removed from Settings (startup line, Goals paragraph) and Research (the Zotero hint is now a keyboard-reachable tooltip on Connect local Zotero); the Zotero status line is 12 px.
+- 2026-10-26 -- T096: sidebar labels no longer wrap at the 190 px minimum width; group headings show in full and only the brand may ellipsize.
+- 2026-10-26 -- T086: the create-panel items no longer fade in; they are fully visible from the first frame.
+- 2026-10-26 -- T089: a short Projects list is centred vertically instead of leaving a blank page below it.
+- 2026-10-26 -- T077: four helper captions removed from Research (the empty-citation line, the Authors caption, the Zotero export hint, which now lives in the file field's accept filter, and the privacy paragraph).
 
 - 2026-10-25 -- Native print probe stopped (T013, T014, Gate C T017); the legacy PDF exporter was kept by owner decision (Q004).
 - 2026-10-25 -- T057: import cancel and Escape-abandon paths now have browser test coverage.

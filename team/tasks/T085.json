@@ -1,0 +1,112 @@
+{
+  "id": "T085",
+  "title": "UI polish follow-up 2: pin focus ring in document areas, palette test reads surfaces, harness cleanup catch",
+  "description": "Three findings from the T076 review (agent-2f1b), none owner-visible yet: (1) in src/styles.css add '--focus-ring: 2px solid var(--accent-plain)' to the document pin rule (.writer-scroll, .manuscript-read, .preview-content) so Color never recolours focus outlines inside the document; extend src/palette.test.ts or designTokens.test.ts with an assertion for it. (2) src/palette.test.ts: read --paper, --surface, --sidebar and the selected-row surface from the CSS blocks instead of hardcoded hex. (3) scripts/native-screens.py stop_owned: also catch PermissionError (and log it) around killpg so a Color run does not exit 1 during cleanup after all PNGs were written. Checks: tsc 0; vitest palette+designTokens; the appearance spec on a private preview (quoted --outDir, one worker, no retries); for (3) run native-screens.py --palette color once against the existing smoke binary (no rebuild) -> exit 0. Protocol, serial slot, pinned Node, no installs, no commits, CLAIMED.",
+  "status": "done",
+  "owner": null,
+  "priority": 2,
+  "depends_on": [
+    "T079"
+  ],
+  "files": [
+    "scripts/native-screens.py",
+    "docs/agent-work/2026-10-25-ui-polish/PLAN.md",
+    "tests/appearance.spec.ts"
+  ],
+  "review_required": true,
+  "created_by": "agent-0fc3",
+  "created_at": "2026-10-26T03:44:31+00:00",
+  "claimed_at": "2026-10-26T04:25:36+00:00",
+  "updated_at": "2026-10-26T04:31:45+00:00",
+  "handoff": {
+    "by": "agent-cdeb",
+    "at": "2026-10-26T04:25:16+00:00",
+    "text": "Contrast math and vitest are fine (all 5 light tints >= 4.51 on #fff/#f5f5f7/#eeeff2/#E2E3E6; vitest palette+designTokens+appearance 18 pass). But tests/appearance.spec.ts (Color palette light test, line 221) still asserts the OLD Color light values and FAILS on a private preview build: 12 passed, 1 failed at line 232 (saved check expects rgb(31,120,54), now rgb(30,116,52)). Stale expectations at lines 232,235-237,241-248,259,276 (old #0065d3 rgb(0,101,211) -> new #0062cd rgb(0,98,205); old green rgb(31,120,54) -> rgb(30,116,52); old orange rgb(153,89,0) -> #955600 rgb(149,86,0); check any warning/danger text too). Fix: update those rgb values in tests/appearance.spec.ts (add it to T085 paths via files add), rerun the spec -> 13 passed, and rerun the Playwright focus-ring/screenshot check. Note: tsc currently fails only on T080's src/import/dropImport.test.ts (missing ./dropImport), not T085."
+  },
+  "review": {
+    "by": "agent-28de",
+    "at": "2026-10-26T04:31:45+00:00",
+    "verdict": "approved",
+    "note": "Cycle 3 verified. appearance.spec.ts has no old rgb values left (0,101,211 / 31,120,54 / 153,89,0); expectations use 0,98,205 / 30,116,52 / 149,86,0, no assertion removed or loosened. Rebuilt ui-t85-review and ran the spec (port 1581, 1 worker, 0 retries): 13 passed. Color palette: probe button inside .writer-scroll focus outline = rgb(0,105,217) light, rgb(100,168,255) dark, 2px (toolbar sits outside .writer-scroll, so a button was injected). Projects screen light Color Start new project bg rgb(0,114,239). 1440x900 light Color Writing screenshot with Fragments entry selected: green clearly visible and legible (ui-t85-review/shots/color-light-fragments-writing.png). tsc and vitest palette+designTokens run."
+  },
+  "log": [
+    {
+      "at": "2026-10-26T03:44:31+00:00",
+      "agent": "agent-0fc3",
+      "event": "created",
+      "note": ""
+    },
+    {
+      "at": "2026-10-26T04:20:27+00:00",
+      "agent": "agent-d231",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-10-26T04:20:28+00:00",
+      "agent": "agent-d231",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-10-26T04:22:38+00:00",
+      "agent": "agent-d231",
+      "event": "review requested",
+      "note": "(1) styles.css pin rule sets --focus-ring: 2px solid var(--accent-plain); palette.test.ts assertion failed first (undefined), passes after; Playwright: focused button in .writer-scroll outline rgb(0,105,217) light / rgb(100,168,255) dark = Plain accent, root Color accent differs. (2) palette.test.ts reads --paper/--surface/--sidebar and selected-row surface (text 6% over sidebar, parsed from .entry-row.selected) from CSS; scratch copy with --surface #777777 -> failures cite #777777 (1.23). REAL FINDING: computed selected-row surface #E2E3E6 (old hardcode #E8E8EB was off) gives Color light accent/danger/success/warning/tints 4.30-4.32:1 < 4.5, so 'passes AA against every light surface' FAILS (dark passes); not fixed (needs colour/design decision). (3) stop_owned also catches PermissionError (logs, continues); fail-first n/a: depends on process-group state. native-screens.py --palette color run once: exit 0, 8 PNGs. tsc 0; vitest palette+designTokens 12 pass, 1 fail (the AA finding); appearance spec 13 passed. CLAIMED, not committed."
+    },
+    {
+      "at": "2026-10-26T04:23:05+00:00",
+      "agent": "agent-0fc3",
+      "event": "rejected",
+      "note": "Cycle 1 submitted with src/palette.test.ts failing (Color light tints 4.30-4.32:1 on the real selected-row surface #E2E3E6). Fix per the plan's rule (darken only where contrast fails): darken the Color LIGHT hexes minimally until every pair is >= 4.5 on all four light surfaces incl. #E2E3E6, update the planned-hex assertion and the plan's T5 table note, keep dark values. Coordinator takes cycle 2."
+    },
+    {
+      "at": "2026-10-26T04:23:05+00:00",
+      "agent": "agent-0fc3",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-10-26T04:23:05+00:00",
+      "agent": "agent-0fc3",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-10-26T04:23:40+00:00",
+      "agent": "agent-0fc3",
+      "event": "review requested",
+      "note": "Cycle 2 (coordinator): Color LIGHT hexes darkened minimally so every pair is >= 4.5:1 on the real selected-row surface #E2E3E6 (accent/tint-manuscript #0062cd 4.51, danger #cc0a00 4.53, success/tint-fragments #1e7434 4.54, warning #7b6300 4.51, tint-research #955600 4.53); fills and dark values unchanged; planned-hex assertion updated; PLAN.md T5 amendment note added. Cycle-1 work by agent-d231 stands (focus-ring pin + test, surfaces read from CSS, PermissionError catch; native --palette color run exit 0). vitest palette+designTokens: all pass; tsc 0. Prove: npx vitest run src/palette.test.ts -> 0 failed; grep -c '#0062cd' src/styles.css -> 2 (accent + tint-manuscript)."
+    },
+    {
+      "at": "2026-10-26T04:25:16+00:00",
+      "agent": "agent-cdeb",
+      "event": "rejected",
+      "note": "Contrast math and vitest are fine (all 5 light tints >= 4.51 on #fff/#f5f5f7/#eeeff2/#E2E3E6; vitest palette+designTokens+appearance 18 pass). But tests/appearance.spec.ts (Color palette light test, line 221) still asserts the OLD Color light values and FAILS on a private preview build: 12 passed, 1 failed at line 232 (saved check expects rgb(31,120,54), now rgb(30,116,52)). Stale expectations at lines 232,235-237,241-248,259,276 (old #0065d3 rgb(0,101,211) -> new #0062cd rgb(0,98,205); old green rgb(31,120,54) -> rgb(30,116,52); old orange rgb(153,89,0) -> #955600 rgb(149,86,0); check any warning/danger text too). Fix: update those rgb values in tests/appearance.spec.ts (add it to T085 paths via files add), rerun the spec -> 13 passed, and rerun the Playwright focus-ring/screenshot check. Note: tsc currently fails only on T080's src/import/dropImport.test.ts (missing ./dropImport), not T085."
+    },
+    {
+      "at": "2026-10-26T04:25:36+00:00",
+      "agent": "agent-0fc3",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-10-26T04:25:37+00:00",
+      "agent": "agent-0fc3",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-10-26T04:26:12+00:00",
+      "agent": "agent-0fc3",
+      "event": "review requested",
+      "note": "Cycle 3: tests/appearance.spec.ts rgb expectations updated to the darkened light Color values (0,98,205 / 30,116,52 / 149,86,0; 10 replacements, no assertion weakened); rerun on ui-t85-review (port 1581): 13 passed. Cycle-2 content unchanged. Remaining reviewer checks from cycle 2 still owed: focus-ring inside .writer-scroll equals Plain accent in Color; Start new project fill unchanged; one Color light Writing screenshot with a Fragments entry selected."
+    },
+    {
+      "at": "2026-10-26T04:31:45+00:00",
+      "agent": "agent-28de",
+      "event": "approved",
+      "note": "Cycle 3 verified. appearance.spec.ts has no old rgb values left (0,101,211 / 31,120,54 / 153,89,0); expectations use 0,98,205 / 30,116,52 / 149,86,0, no assertion removed or loosened. Rebuilt ui-t85-review and ran the spec (port 1581, 1 worker, 0 retries): 13 passed. Color palette: probe button inside .writer-scroll focus outline = rgb(0,105,217) light, rgb(100,168,255) dark, 2px (toolbar sits outside .writer-scroll, so a button was injected). Projects screen light Color Start new project bg rgb(0,114,239). 1440x900 light Color Writing screenshot with Fragments entry selected: green clearly visible and legible (ui-t85-review/shots/color-light-fragments-writing.png). tsc and vitest palette+designTokens run."
+    }
+  ]
+}

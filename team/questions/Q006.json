@@ -1,0 +1,9 @@
+{
+  "id": "Q006",
+  "at": "2026-10-26T01:50:32+00:00",
+  "by": "agent-0fc3",
+  "task": "T081",
+  "text": "T081 is blocked: Coordinator holds T081 (docs) until T083 (critique) is done; T081 was created without that dependency.",
+  "status": "resolved",
+  "resolution": "Not a question: coordinator note. T081 stays blocked until T083 (critique) is done; the coordinator unblocks it then."
+}

@@ -1,0 +1,59 @@
+{
+  "id": "T095",
+  "title": "UI critique (Medium): Settings Goals selects use unstyled platform controls",
+  "description": "Goal scope and Goal day are bare <select> elements (src/App.tsx:1825,1831) and no CSS file styles select (grep of src/**/*.css finds no select rule). In Chromium they render as default grey-bordered selects in the system font, not Futura (screens/browser-settings-light-color.png); in native WebKit they render as rounded Aqua pop-up buttons with small system text (screens/native-settings-light-color.png) - both break the design system's interface typeface and 'flat surfaces, square corners' rule, next to the app's own flat Dropdown and segmented controls. The two number fields keep native steppers in WebKit. Suggested: reuse the existing Dropdown component (src/components/Dropdown.tsx) or give select font: inherit, appearance: none, 1 px var(--line) border, square corners and a chevron, matching .dropdown-trigger. Reference: iA Writer/Ulysses settings use the system's own controls consistently or fully custom ones, never a mix in one pane.",
+  "status": "done",
+  "owner": null,
+  "priority": 2,
+  "depends_on": [],
+  "files": [
+    "src/App.tsx",
+    "src/research/research.css",
+    "tests/performance.spec.ts",
+    "tests/features.spec.ts"
+  ],
+  "review_required": true,
+  "created_by": "agent-7088",
+  "created_at": "2026-10-26T05:08:30+00:00",
+  "claimed_at": "2026-10-26T05:19:19+00:00",
+  "updated_at": "2026-10-26T05:27:58+00:00",
+  "handoff": null,
+  "review": {
+    "by": "agent-94e2",
+    "at": "2026-10-26T05:27:58+00:00",
+    "verdict": "approved",
+    "note": "Approved. Diff: both Goals selects -> Dropdown with identical option lists/values (manuscript, manuscript-and-fragments, local, utc), onChange -> patchGoalPreference, aria-label via label prop, visible span.settings-label, no caption added (the shortened help text is T094's). performance.spec swaps only the driver (pick() option labels map to the same values; toHaveValue -> toContainText of the same choices). Fail-first log shows Arial vs Futura stack on the old build. tsc 0; fresh build in ui-t95-review, features+appearance+accessibility+performance 30/30, 1 worker, 0 retries; keyboard-only Enter/ArrowDown/Enter on both dropdowns persists after reload (scope=Manuscript and fragments, day=UTC). Shots: Futura, square, tokens, open menu not clipped. Non-blocking: Total/Daily goal and Deadline labels remain darker than the muted Goal scope/day labels in the same block (owner noted, pre-existing label style); native WebKit unverified."
+  },
+  "log": [
+    {
+      "at": "2026-10-26T05:08:30+00:00",
+      "agent": "agent-7088",
+      "event": "created",
+      "note": ""
+    },
+    {
+      "at": "2026-10-26T05:19:19+00:00",
+      "agent": "agent-94e3",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-10-26T05:19:19+00:00",
+      "agent": "agent-94e3",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-10-26T05:22:16+00:00",
+      "agent": "agent-94e3",
+      "event": "review requested",
+      "note": "Goal scope and Goal day in Settings > Goals now use the existing Dropdown (same options/values; onChange still calls patchGoalPreference); visible labels kept as span.settings-label (matches Appearance/Palette rows), aria-label kept, keyboard via Dropdown. No CSS change (research.css already styles .settings-field .dropdown). Fail-first: new features.spec test 'Settings Goals pickers use the interface font and square corners' failed on the old build (font Arial vs Futura stack, ui-t95/failfirst.log), passes now. tests/performance.spec.ts goal test updated: selectOption -> pick() clicking the dropdown/option, toHaveValue -> toContainText. tsc 0; private build ui-t95/dist port 1590, features+appearance+accessibility+performance 30/30 passed, 1 worker, 0 retries. Serial slot not taken. Shots 1440x900 light/dark with one dropdown open in node_modules/.cache/personal-word-beta/ui-t95/shots (Futura, square, tokens, no caption). Only native proves: no Aqua popup in WebKit, Dropdown menu placement in the Tauri window. Note: Total/Daily goal and Deadline labels are plain label text, visibly darker than the muted .settings-label rows (pre-existing, not changed)."
+    },
+    {
+      "at": "2026-10-26T05:27:58+00:00",
+      "agent": "agent-94e2",
+      "event": "approved",
+      "note": "Approved. Diff: both Goals selects -> Dropdown with identical option lists/values (manuscript, manuscript-and-fragments, local, utc), onChange -> patchGoalPreference, aria-label via label prop, visible span.settings-label, no caption added (the shortened help text is T094's). performance.spec swaps only the driver (pick() option labels map to the same values; toHaveValue -> toContainText of the same choices). Fail-first log shows Arial vs Futura stack on the old build. tsc 0; fresh build in ui-t95-review, features+appearance+accessibility+performance 30/30, 1 worker, 0 retries; keyboard-only Enter/ArrowDown/Enter on both dropdowns persists after reload (scope=Manuscript and fragments, day=UTC). Shots: Futura, square, tokens, open menu not clipped. Non-blocking: Total/Daily goal and Deadline labels remain darker than the muted Goal scope/day labels in the same block (owner noted, pre-existing label style); native WebKit unverified."
+    }
+  ]
+}

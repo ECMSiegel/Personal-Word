@@ -43,7 +43,7 @@ for (const scheme of ["light", "dark"] as const) {
     const toast = (await page.locator(".notice").boundingBox())!;
     const button = (await pdf.boundingBox())!;
     expect(intersects(toast, button), `toast ${JSON.stringify(toast)} vs button ${JSON.stringify(button)}`).toBe(false);
-    await page.screenshot({ path: `${process.env.NOTICE_SHOTS ?? "."}/notice-${scheme}.png` });
+    await page.screenshot({ path: `${process.env.NOTICE_SHOTS ?? "node_modules/.cache/personal-word-beta/notice-shots"}/notice-${scheme}.png` });
     const download = page.waitForEvent("download");
     await pdf.click();
     expect((await download).suggestedFilename()).toMatch(/\.pdf$/);
@@ -125,7 +125,7 @@ for (const size of [
       });
       expect(editorBox).toBeTruthy();
       expect(intersects(toast, textBox), `last line ${JSON.stringify(textBox)} vs toast ${JSON.stringify(toast)}`).toBe(false);
-      await page.screenshot({ path: `${process.env.NOTICE_SHOTS ?? "."}/notice-writing-${size.width}-${scheme}.png` });
+      await page.screenshot({ path: `${process.env.NOTICE_SHOTS ?? "node_modules/.cache/personal-word-beta/notice-shots"}/notice-writing-${size.width}-${scheme}.png` });
     });
   }
 }

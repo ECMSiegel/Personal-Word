@@ -122,15 +122,41 @@
   align-items: flex-end;
   gap: 8px 10px;
 }
+.lookup-tip {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  border: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+.lookup-tip[data-shown] {
+  top: 100%;
+  left: 0;
+  z-index: 5;
+  width: auto;
+  height: auto;
+  margin: 0;
+  padding: var(--space-1) var(--space-2);
+  border: 1px solid var(--line);
+  overflow: visible;
+  clip: auto;
+  white-space: normal;
+  background: var(--paper);
+  color: var(--muted);
+  font-size: var(--type-small);
+}
 .research-lookup input {
   flex: 1 1 180px;
 }
-.research-privacy,
 .research-hint,
 .research-help,
 .field-help {
   margin: 0;
-  font-size: 11px;
+  font-size: var(--type-small);
   line-height: 1.5;
   color: var(--muted);
 }
@@ -184,7 +210,7 @@
   font-weight: 600;
 }
 .source-text small {
-  font-size: 11px;
+  font-size: var(--type-small);
   color: var(--muted);
 }
 .source-toggle svg {
@@ -213,7 +239,7 @@
 }
 .field > label,
 .field-label {
-  font-size: 11px;
+  font-size: var(--type-small);
   color: var(--muted);
 }
 .research-fields {

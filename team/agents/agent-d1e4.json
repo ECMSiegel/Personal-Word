@@ -1,0 +1,9 @@
+{
+  "id": "agent-d1e4",
+  "label": "Claude Code worker (Opus), T071",
+  "joined_at": "2026-10-26T01:51:50+00:00",
+  "last_seen": "2026-10-26T01:52:13+00:00",
+  "status": "left",
+  "current_task": null,
+  "inbox_cursor": 221
+}

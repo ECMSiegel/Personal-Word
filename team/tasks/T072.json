@@ -1,0 +1,88 @@
+{
+  "id": "T072",
+  "title": "UI polish T1: type scale and spacing tokens",
+  "description": "Five-step type scale and six-step spacing scale as CSS variables, sweep styles.css/dropdown.css, 12px floor, designTokens.test.ts (plan T1). Follow docs/agent-work/2026-10-25-ui-polish/PLAN.md exactly (its section for this task: Files, Interfaces, Steps, Acceptance check, Fail-first, Stop-and-ask, plus the five answered Open questions). Protocol: serial check slot via files add before expensive checks, pinned Node, quoted --outDir, no installs, no commits, status CLAIMED, independent review required.",
+  "status": "done",
+  "owner": null,
+  "priority": 1,
+  "depends_on": [],
+  "files": [
+    "src/styles.css,src/components/dropdown.css,src/editor/editor.css,src/research/research.css,src/organization/organization.css,src/organization/fragments.css,src/designTokens.test.ts,node_modules/.cache/personal-word-beta/ui-t1",
+    "src/styles.css",
+    "src/components/dropdown.css",
+    "src/editor/editor.css",
+    "src/research/research.css",
+    "src/organization/organization.css",
+    "src/organization/fragments.css",
+    "src/designTokens.test.ts",
+    "node_modules/.cache/personal-word-beta/ui-t1",
+    "node_modules/.cache/personal-word-beta/team-serial-check-slot",
+    "tests/sidebar-selection.spec.ts"
+  ],
+  "review_required": true,
+  "created_by": "agent-0fc3",
+  "created_at": "2026-10-26T01:49:55+00:00",
+  "claimed_at": "2026-10-26T02:30:30+00:00",
+  "updated_at": "2026-10-26T02:37:44+00:00",
+  "handoff": {
+    "by": "agent-3dc4",
+    "at": "2026-10-26T02:29:58+00:00",
+    "text": "T072 (UI polish T1) is DONE EXCEPT one Stop-and-ask: tests/sidebar-selection.spec.ts:79.\nDONE and on disk (uncommitted): tokens added at src/styles.css :root (type 12/13/15/19/28, space 4/8/12/16/24/32, --ease-spring, --duration-morph); font and 4-32px spacing sweep of styles.css (68 font sizes, 130 spacing literals) and dropdown.css; 12px floor at the nine listed lines (editor 74,281; research 133,187,216; organization 117; fragments 42,73,78); new src/designTokens.test.ts. Document rules (.writing-surface/.read-prose/.manuscript-read/.read-title/.preview-content, 19 blocks) verified byte-identical to HEAD.\nEvidence: fail-first node_modules/.cache/personal-word-beta/ui-t1/failfirst.log (3 failed on untouched CSS: 68 font sizes, 130 spacing literals, 44 sub-12 sizes). After: designTokens 3 passed; npm test serial 875 passed (872+3) exit 0 (unit.log); tsc exit 0 (tsc2.log; first tsc run hit T077's mid-edit ResearchPanel.tsx); grep 10/11px = 0 and 0. Browser, private build dist + port 1561: full tests/ run browser.log = 107 passed, 14 failed; explained: (a) 4 markdown-roundtrip = stale project dist/assets chunk hash in the spec, rerun with cwd dist symlink = 11 passed (after-md-rerun.log); (b) notice 1280x800 dark = load flake (baseline build also failed the same line 109 under load), quiet rerun 7 passed (after-notice-rerun.log); (c) 7 research-library + 1 zotero = T077's in-flight ResearchPanel.tsx edit (Zotero file label); HEAD TSX + my CSS build passes all of them (headtsx-research-zotero-sidebar.log); (d) sidebar-selection.spec.ts:79 = REAL regression from my sweep.\nOPEN: sidebar-selection.spec.ts:79 fails 3/3 after, passes 3/3 before (before-sidebar79-x3.log, after-sidebar79-x3.log). Cause measured (geom.mjs): cards-view row padding 10->12 and preview font 11->12 make the preview wrap to 2 lines; the row centre, where Playwright dragTo grabs, now lands on .entry-preview, whose pointerdown deliberately disables row dragging. Fix needs a test change (dragTo source position, e.g. sourcePosition {x:6,y:6} at tests/sidebar-selection.spec.ts ~line 165) which the plan says to stop and ask about. Coordinator agent-0fc3 was messaged (#234), no reply yet. Default if approved: that one-line test edit (no assertion weakened), then done.\nScreenshots before/after (Projects, Writing, Research, Settings x light/dark, 1440x900): ui-t1/shots/{before,after}-*.png; viewed writing light before/after, projects light, research dark, settings dark after: no overflow/clipping; document text identical.\nNot run by me: nothing else outstanding for T1 acceptance. Slot: released on handoff.\nsrc/styles.css: uncommitted edits\nsrc/components/dropdown.css: uncommitted edits\nsrc/editor/editor.css: uncommitted edits\nsrc/research/research.css: uncommitted edits\nsrc/organization/organization.css: uncommitted edits\nsrc/organization/fragments.css: uncommitted edits\nsrc/designTokens.test.ts: uncommitted edits\nnode_modules/.cache/personal-word-beta/ui-t1: uncommitted edits\nnode_modules/.cache/personal-word-beta/team-serial-check-slot: clean"
+  },
+  "review": {
+    "by": "agent-752b",
+    "at": "2026-10-26T02:37:44+00:00",
+    "verdict": "approved",
+    "note": "Independent review (agent-752b, Opus). Primary evidence, logs in node_modules/.cache/personal-word-beta/ui-t1-review/. (1) Diff: :root token block = plan T1 Interfaces verbatim (12/13/15/19/28, 4..32, --ease-spring, --duration-morph); styles.css +13 lines = token block only, 291 rules before/after with identical selector order; dropdown.css 14 rules identical selectors. Mechanical mapping check of every changed line vs the plan table: styles.css 191 + dropdown.css 6 changed lines, 0 mismaps (7 lines my line-regex could not parse were checked by hand: multi-line font shorthands 40/26/29/30px->display, 23px->title; one-line rules 12px->space-3, 20px->space-5, 13px->body). Rule-level parse: no px font sizes and no 4-32 px padding/margin/gap literal left outside excluded selectors. 19 document blocks (.writing-surface/.read-prose/.manuscript-read/.read-title/.preview-content) byte-identical to HEAD. Other four css files: exactly the nine floor edits (editor 74,281; research 133,187,216; organization 117; fragments 42,73,78), nothing else. grep font-size 1[01]px: one hit, editor.css:610 .footnote-source = page footnote (document), excluded by plan Context and test step 6(c); plan-conformant. sidebar-selection.spec.ts: only the sourcePosition {x:6,y:6} on line 164, assertion unchanged; row still draggable, preview drag guard at ProjectSidebar.tsx:381-386 explains the cause. (2) designTokens.test.ts asserts all three rules (not just parse). Fail-first reproduced independently on HEAD CSS in a scratch copy: 3/3 failed, 68/130/44 (matches failfirst.log, which postdates the test file). Doctored copy with one violation per rule: each case fails with exactly that one item. (3) Pinned Node v22.23.3: tsc exit 0; designTokens 3 passed; npm test serial 48 files / 875 passed, exit 0 (slot unowned). (4) Private build ui-t1-review/dist, port 1562, one worker, no retries: sidebar-selection, notice, editor-toolbar, features, research, zotero, research-library = 41/41 passed; notice PNGs went to ui-t1-review/notice-shots, none in project root. Worker's full-suite log: layout.spec and accessibility.spec all green; its 14 failures are exactly the 5 claimed buckets (4 md-roundtrip, 1 notice, 7 research-library, 1 zotero, 1 sidebar). (5) Shots viewed (before/after): projects light+dark, writing light+dark, research dark, settings light. Nothing clipped or overlapping; document text pixel-identical in writing and research. Secondary text visibly larger (breadcrumb, row word counts, status bar, 'Reveal sidebar on hover' 10/11->12; sidebar brand 17->19; sidebar rows drift down ~14 px): intended floor, but note the row meta ('14 words') now equals the entry title size, so hierarchy rests on weight/colour only -- a T10 critique candidate, not a T1 defect. Coverage limits: Projects shots show an empty library, so the project list and sidebar cards view are not in the shots (cards view is covered by the specs); dialogs/.panel-heading h2 (23->19) not shot; after-research-dark also contains T077's caption removal. (6) git status accounted for: T071 src-tauri/scripts/native-screens.* live (agent-fb4d); T074 docs/design-system.md + AGENTS.md and T077 ResearchPanel.tsx/research.spec.ts done; plan folder; scripts/__pycache__ pre-existing; team/ files tool-written. Process note: the stop-and-ask was answered by the coordinator's logged decision, not the owner. Chromium only; native WebKit not proven. Status CLAIMED."
+  },
+  "log": [
+    {
+      "at": "2026-10-26T01:49:55+00:00",
+      "agent": "agent-0fc3",
+      "event": "created",
+      "note": ""
+    },
+    {
+      "at": "2026-10-26T01:51:56+00:00",
+      "agent": "agent-3dc4",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-10-26T01:51:57+00:00",
+      "agent": "agent-3dc4",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-10-26T02:29:58+00:00",
+      "agent": "agent-3dc4",
+      "event": "handoff",
+      "note": "T072 (UI polish T1) is DONE EXCEPT one Stop-and-ask: tests/sidebar-selection.spec.ts:79.\nDONE and on disk (uncommitted): tokens added at src/styles.css :root (type 12/13/15/19/28, space 4/8/12/16/24/32, --ease-spring, --duration-morph); font and 4-32px spacing sweep of styles.css (68 font sizes, 130 spacing literals) and dropdown.css; 12px floor at the nine listed lines (editor 74,281; research 133,187,216; organization 117; fragments 42,73,78); new src/designTokens.test.ts. Document rules (.writing-surface/.read-prose/.manuscript-read/.read-title/.preview-content, 19 blocks) verified byte-identical to HEAD.\nEvidence: fail-first node_modules/.cache/personal-word-beta/ui-t1/failfirst.log (3 failed on untouched CSS: 68 font sizes, 130 spacing literals, 44 sub-12 sizes). After: designTokens 3 passed; npm test serial 875 passed (872+3) exit 0 (unit.log); tsc exit 0 (tsc2.log; first tsc run hit T077's mid-edit ResearchPanel.tsx); grep 10/11px = 0 and 0. Browser, private build dist + port 1561: full tests/ run browser.log = 107 passed, 14 failed; explained: (a) 4 markdown-roundtrip = stale project dist/assets chunk hash in the spec, rerun with cwd dist symlink = 11 passed (after-md-rerun.log); (b) notice 1280x800 dark = load flake (baseline build also failed the same line 109 under load), quiet rerun 7 passed (after-notice-rerun.log); (c) 7 research-library + 1 zotero = T077's in-flight ResearchPanel.tsx edit (Zotero file label); HEAD TSX + my CSS build passes all of them (headtsx-research-zotero-sidebar.log); (d) sidebar-selection.spec.ts:79 = REAL regression from my sweep.\nOPEN: sidebar-selection.spec.ts:79 fails 3/3 after, passes 3/3 before (before-sidebar79-x3.log, after-sidebar79-x3.log). Cause measured (geom.mjs): cards-view row padding 10->12 and preview font 11->12 make the preview wrap to 2 lines; the row centre, where Playwright dragTo grabs, now lands on .entry-preview, whose pointerdown deliberately disables row dragging. Fix needs a test change (dragTo source position, e.g. sourcePosition {x:6,y:6} at tests/sidebar-selection.spec.ts ~line 165) which the plan says to stop and ask about. Coordinator agent-0fc3 was messaged (#234), no reply yet. Default if approved: that one-line test edit (no assertion weakened), then done.\nScreenshots before/after (Projects, Writing, Research, Settings x light/dark, 1440x900): ui-t1/shots/{before,after}-*.png; viewed writing light before/after, projects light, research dark, settings dark after: no overflow/clipping; document text identical.\nNot run by me: nothing else outstanding for T1 acceptance. Slot: released on handoff.\nsrc/styles.css: uncommitted edits\nsrc/components/dropdown.css: uncommitted edits\nsrc/editor/editor.css: uncommitted edits\nsrc/research/research.css: uncommitted edits\nsrc/organization/organization.css: uncommitted edits\nsrc/organization/fragments.css: uncommitted edits\nsrc/designTokens.test.ts: uncommitted edits\nnode_modules/.cache/personal-word-beta/ui-t1: uncommitted edits\nnode_modules/.cache/personal-word-beta/team-serial-check-slot: clean"
+    },
+    {
+      "at": "2026-10-26T02:30:30+00:00",
+      "agent": "agent-0fc3",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-10-26T02:30:30+00:00",
+      "agent": "agent-0fc3",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-10-26T02:31:36+00:00",
+      "agent": "agent-0fc3",
+      "event": "review requested",
+      "note": "Cycle 2 (coordinator, after agent-3dc4 handoff): the only open item was the stop-and-ask on tests/sidebar-selection.spec.ts:164; decision logged ('T072 stop-and-ask: sidebar drag test start offset'): dragTo now starts at sourcePosition {x:6,y:6}; assertion unchanged. Rebuilt the ui-t1 private dist and reran the spec: 3 passed (ui-t1/c2-sidebar.log). All of agent-3dc4's work stands: tokens (type 12/13/15/19/28, space 4..32, --ease-spring, --duration-morph), sweep of 68 font sizes and 130 spacing literals in styles.css + dropdown.css, 12 px floor at the 9 listed lines, document rule blocks byte-identical to HEAD, src/designTokens.test.ts 3 cases; fail-first ui-t1/failfirst.log (3/3 failed on untouched CSS: 68/130/44); after: designTokens 3 passed, npm test serial 875 passed, tsc 0; full browser suite 107/121 with the 14 explained (4 markdown-roundtrip stale dist hash -> 11 passed on rerun, 1 notice load flake -> 7 passed on rerun, 8 research-library/zotero from T077's in-flight edit -> pass against HEAD tsx, 1 sidebar -> fixed in cycle 2); before/after shots ui-t1/shots. CLAIMED; WebKit not proven."
+    },
+    {
+      "at": "2026-10-26T02:37:44+00:00",
+      "agent": "agent-752b",
+      "event": "approved",
+      "note": "Independent review (agent-752b, Opus). Primary evidence, logs in node_modules/.cache/personal-word-beta/ui-t1-review/. (1) Diff: :root token block = plan T1 Interfaces verbatim (12/13/15/19/28, 4..32, --ease-spring, --duration-morph); styles.css +13 lines = token block only, 291 rules before/after with identical selector order; dropdown.css 14 rules identical selectors. Mechanical mapping check of every changed line vs the plan table: styles.css 191 + dropdown.css 6 changed lines, 0 mismaps (7 lines my line-regex could not parse were checked by hand: multi-line font shorthands 40/26/29/30px->display, 23px->title; one-line rules 12px->space-3, 20px->space-5, 13px->body). Rule-level parse: no px font sizes and no 4-32 px padding/margin/gap literal left outside excluded selectors. 19 document blocks (.writing-surface/.read-prose/.manuscript-read/.read-title/.preview-content) byte-identical to HEAD. Other four css files: exactly the nine floor edits (editor 74,281; research 133,187,216; organization 117; fragments 42,73,78), nothing else. grep font-size 1[01]px: one hit, editor.css:610 .footnote-source = page footnote (document), excluded by plan Context and test step 6(c); plan-conformant. sidebar-selection.spec.ts: only the sourcePosition {x:6,y:6} on line 164, assertion unchanged; row still draggable, preview drag guard at ProjectSidebar.tsx:381-386 explains the cause. (2) designTokens.test.ts asserts all three rules (not just parse). Fail-first reproduced independently on HEAD CSS in a scratch copy: 3/3 failed, 68/130/44 (matches failfirst.log, which postdates the test file). Doctored copy with one violation per rule: each case fails with exactly that one item. (3) Pinned Node v22.23.3: tsc exit 0; designTokens 3 passed; npm test serial 48 files / 875 passed, exit 0 (slot unowned). (4) Private build ui-t1-review/dist, port 1562, one worker, no retries: sidebar-selection, notice, editor-toolbar, features, research, zotero, research-library = 41/41 passed; notice PNGs went to ui-t1-review/notice-shots, none in project root. Worker's full-suite log: layout.spec and accessibility.spec all green; its 14 failures are exactly the 5 claimed buckets (4 md-roundtrip, 1 notice, 7 research-library, 1 zotero, 1 sidebar). (5) Shots viewed (before/after): projects light+dark, writing light+dark, research dark, settings light. Nothing clipped or overlapping; document text pixel-identical in writing and research. Secondary text visibly larger (breadcrumb, row word counts, status bar, 'Reveal sidebar on hover' 10/11->12; sidebar brand 17->19; sidebar rows drift down ~14 px): intended floor, but note the row meta ('14 words') now equals the entry title size, so hierarchy rests on weight/colour only -- a T10 critique candidate, not a T1 defect. Coverage limits: Projects shots show an empty library, so the project list and sidebar cards view are not in the shots (cards view is covered by the specs); dialogs/.panel-heading h2 (23->19) not shot; after-research-dark also contains T077's caption removal. (6) git status accounted for: T071 src-tauri/scripts/native-screens.* live (agent-fb4d); T074 docs/design-system.md + AGENTS.md and T077 ResearchPanel.tsx/research.spec.ts done; plan folder; scripts/__pycache__ pre-existing; team/ files tool-written. Process note: the stop-and-ask was answered by the coordinator's logged decision, not the owner. Chromium only; native WebKit not proven. Status CLAIMED."
+    }
+  ]
+}

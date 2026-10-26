@@ -1,4 +1,4 @@
-/* System appearance is intentionally live: no persisted theme override. */
+/* Appearance: System follows macOS live; Light and Dark come from data-theme on html (src/appearance.ts). */
 :root {
   color-scheme: light dark;
   --paper: #ffffff;
@@ -7,32 +7,116 @@
   --line: #dcdde2;
   --text: #242428;
   --muted: #6c6c74;
-  --accent: #0069d9;
+  --accent-plain: #0069d9;
+  --accent: var(--accent-plain);
   --selection: #dceaff;
-  --danger: #b42318;
+  --danger-plain: #b42318;
+  --danger: var(--danger-plain);
   --prose-repeat: #b42318;
   --prose-passive: #805300;
   --prose-filler: #005c7a;
   --prose-long: #653e9b;
   --shadow: #00000018;
+  --type-small: 12px;
+  --type-body: 13px;
+  --type-large: 15px;
+  --type-title: 19px;
+  --type-display: 28px;
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --ease-spring: cubic-bezier(0.34, 1.4, 0.64, 1);
+  --duration-morph: 220ms;
+  --focus-ring: 2px solid var(--accent);
+  --focus-offset: 1px;
+  --pressed: var(--line);
+  --disabled-opacity: 0.35;
 }
 @media (prefers-color-scheme: dark) {
-  :root {
+  :root:not([data-theme="light"]) {
     --paper: #202023;
     --surface: #28282c;
     --sidebar: #252529;
     --line: #404046;
     --text: #ededf0;
     --muted: #a5a5af;
-    --accent: #64a8ff;
+    --accent-plain: #64a8ff;
     --selection: #263e5d;
-    --danger: #ff958d;
+    --danger-plain: #ff958d;
     --prose-repeat: #ff8178;
     --prose-passive: #f0bd55;
     --prose-filler: #65c8eb;
     --prose-long: #c0a0ff;
     --shadow: #00000055;
   }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --paper: #202023;
+  --surface: #28282c;
+  --sidebar: #252529;
+  --line: #404046;
+  --text: #ededf0;
+  --muted: #a5a5af;
+  --accent-plain: #64a8ff;
+  --selection: #263e5d;
+  --danger-plain: #ff958d;
+  --prose-repeat: #ff8178;
+  --prose-passive: #f0bd55;
+  --prose-filler: #65c8eb;
+  --prose-long: #c0a0ff;
+  --shadow: #00000055;
+}
+:root[data-theme="light"] {
+  color-scheme: light;
+}
+/* Palette: Plain keeps the tokens above; Color overrides them (data-palette on html). */
+:root[data-palette="color"] {
+  --accent: #0062cd;
+  --accent-fill: #0072ef;
+  --on-accent: #ffffff;
+  --danger: #cc0a00;
+  --danger-fill: #ed0d00;
+  --success: #1e7434;
+  --warning: #7b6300;
+  --tint-manuscript: #0062cd;
+  --tint-fragments: #1e7434;
+  --tint-research: #955600;
+}
+@media (prefers-color-scheme: dark) {
+  :root[data-palette="color"]:not([data-theme="light"]) {
+    --accent: #41a0ff;
+    --accent-fill: #0074e8;
+    --on-accent: #ffffff;
+    --danger: #ff6d65;
+    --danger-fill: #ec0d00;
+    --success: #30d158;
+    --warning: #ffd60a;
+    --tint-manuscript: #41a0ff;
+    --tint-fragments: #30d158;
+    --tint-research: #ff9f0a;
+  }
+}
+:root[data-palette="color"][data-theme="dark"] {
+  --accent: #41a0ff;
+  --accent-fill: #0074e8;
+  --on-accent: #ffffff;
+  --danger: #ff6d65;
+  --danger-fill: #ec0d00;
+  --success: #30d158;
+  --warning: #ffd60a;
+  --tint-manuscript: #41a0ff;
+  --tint-fragments: #30d158;
+  --tint-research: #ff9f0a;
+}
+/* The document areas keep today's accent and danger colours in every palette. */
+:root[data-palette="color"] :is(.writer-scroll, .manuscript-read, .preview-content) {
+  --accent: var(--accent-plain);
+  --danger: var(--danger-plain);
+  --focus-ring: 2px solid var(--accent-plain);
 }
 :root {
   font-family:
@@ -44,7 +128,7 @@
   color: var(--text);
   background: var(--paper);
   font-synthesis: none;
-  font-size: 13px;
+  font-size: var(--type-body);
 }
 * {
   box-sizing: border-box;
@@ -64,19 +148,25 @@ button {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 7px;
+  gap: var(--space-2);
   border-radius: 0;
 }
-button:hover {
+button:hover:not(:disabled) {
   background: var(--surface);
 }
-button:disabled {
-  opacity: 0.35;
+button:active:not(:disabled) {
+  background: var(--pressed);
+}
+button:disabled,
+input:disabled,
+textarea:disabled,
+.dropdown-button:disabled {
+  opacity: var(--disabled-opacity);
   cursor: default;
 }
 button:focus-visible {
-  outline: 1px solid var(--accent);
-  outline-offset: 1px;
+  outline: var(--focus-ring);
+  outline-offset: var(--focus-offset);
 }
 input:not([type="checkbox"]):focus-visible,
 textarea:focus-visible {
@@ -84,8 +174,15 @@ textarea:focus-visible {
   border-bottom: 1px solid var(--accent);
 }
 input[type="checkbox"]:focus-visible {
-  outline: 1px solid var(--accent);
-  outline-offset: 1px;
+  outline: var(--focus-ring);
+  outline-offset: var(--focus-offset);
+}
+input[type="checkbox"] {
+  accent-color: var(--accent);
+}
+input:not([type="checkbox"]):hover:not(:disabled),
+textarea:hover:not(:disabled) {
+  border-color: var(--muted);
 }
 button[aria-pressed="true"] {
   background: transparent;
@@ -96,7 +193,7 @@ input {
   border: 1px solid var(--line);
   border-radius: 0;
   background: var(--paper);
-  padding: 8px;
+  padding: var(--space-2);
   color: inherit;
 }
 svg {
@@ -137,7 +234,7 @@ p {
   border-right: 1px solid var(--line);
   display: flex;
   flex-direction: column;
-  padding: 25px 14px 0;
+  padding: var(--space-5) var(--space-4) 0;
   -webkit-user-select: none;
   user-select: none;
 }
@@ -155,20 +252,20 @@ p {
 .brand {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: var(--space-2);
   font-family: Futura, sans-serif;
-  font-size: 25px;
+  font-size: var(--type-display);
   letter-spacing: -1px;
   color: var(--text);
-  padding: 0 12px;
+  padding: 0 var(--space-3);
 }
 .project-switch {
   justify-content: space-between;
   text-align: left;
   font-weight: 600;
-  font-size: 14px;
-  margin: 32px 5px 3px;
-  padding: 8px;
+  font-size: var(--type-large);
+  margin: var(--space-6) var(--space-1) 3px;
+  padding: var(--space-2);
 }
 .project-switch span {
   overflow: hidden;
@@ -178,10 +275,10 @@ p {
 .local-label {
   display: flex;
   align-items: center;
-  gap: 6px;
-  font-size: 11px;
+  gap: var(--space-2);
+  font-size: var(--type-small);
   color: var(--muted);
-  margin-left: 14px;
+  margin-left: var(--space-4);
 }
 .local-label span {
   height: 5px;
@@ -192,8 +289,8 @@ p {
 .search {
   display: flex;
   align-items: center;
-  gap: 5px;
-  margin: 27px 5px 25px;
+  gap: var(--space-1);
+  margin: var(--space-5) var(--space-1) var(--space-5);
   color: var(--muted);
 }
 .search input {
@@ -201,23 +298,23 @@ p {
   width: 100%;
   border: 0;
   background: transparent;
-  font-size: 12px;
-  padding: 5px;
+  font-size: var(--type-small);
+  padding: var(--space-1);
 }
 .search kbd {
-  font-size: 10px;
+  font-size: var(--type-small);
   white-space: nowrap;
 }
 .group-heading {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  font-size: 10px;
+  font-size: var(--type-small);
   letter-spacing: 1.3px;
   color: var(--text);
   font-weight: 600;
-  padding: 0 10px;
-  margin-bottom: 8px;
+  padding: 0 var(--space-3);
+  margin-bottom: var(--space-2);
 }
 .group-heading button {
   padding: 3px;
@@ -233,10 +330,10 @@ p {
 }
 .entry-main {
   width: 100%;
-  padding: 10px 11px;
+  padding: var(--space-3) var(--space-3);
   justify-content: flex-start;
   text-align: left;
-  font-size: 12px;
+  font-size: var(--type-small);
   min-width: 0;
 }
 .entry-main span {
@@ -244,13 +341,23 @@ p {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  /* Title steps up from the row's small size so the word count reads as
+     metadata, mirroring the Projects screen's name/dates hierarchy. */
+  font-size: var(--type-body);
 }
 .entry-main svg {
   color: var(--muted);
 }
 .entry-main small {
-  font-size: 10px;
+  font-size: var(--type-small);
   color: var(--muted);
+  /* The reveal of the reorder arrows replaces the count rather than
+     covering it; reduced motion makes this an instant swap. */
+  transition: opacity 120ms ease;
+}
+.entry-row:hover .entry-main small,
+.entry-row:focus-within .entry-main small {
+  opacity: 0;
 }
 .selected {
   background: var(--line);
@@ -268,41 +375,41 @@ p {
   opacity: 1;
 }
 .reorder button {
-  padding: 6px 3px;
+  padding: var(--space-2) 3px;
 }
 .read-button {
-  font-size: 11px;
+  font-size: var(--type-small);
   color: var(--text);
   justify-content: flex-start;
-  margin: 9px 5px 0;
-  padding: 8px;
+  margin: var(--space-2) var(--space-1) 0;
+  padding: var(--space-2);
 }
 .fragment-heading {
   margin-top: 35px;
 }
 .empty-hint {
-  font-size: 12px;
+  font-size: var(--type-small);
   line-height: 1.7;
   color: var(--muted);
-  padding: 8px 11px;
+  padding: var(--space-2) var(--space-3);
 }
 .sidebar-bottom {
   margin-top: auto;
   border-top: 1px solid var(--line);
-  padding: 14px 0;
+  padding: var(--space-4) 0;
 }
 .sidebar-bottom > button {
-  font-size: 12px;
+  font-size: var(--type-small);
   justify-content: flex-start;
-  padding: 9px 11px;
+  padding: var(--space-2) var(--space-3);
   width: 100%;
 }
 .sidebar-bottom > div {
   display: flex;
   justify-content: space-between;
   color: var(--muted);
-  font-size: 10px;
-  padding: 15px 11px 0;
+  font-size: var(--type-small);
+  padding: var(--space-4) var(--space-3) 0;
 }
 .workspace {
   flex: 1;
@@ -320,30 +427,30 @@ p {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 24px;
-  gap: 12px;
+  padding: 0 var(--space-5);
+  gap: var(--space-3);
 }
 .topbar > div {
   display: flex;
   align-items: center;
-  gap: 15px;
+  gap: var(--space-4);
   min-width: 0;
 }
 .topbar button {
-  padding: 7px;
+  padding: var(--space-2);
 }
 .breadcrumb {
   display: inline-flex;
   align-items: center;
   gap: 2px;
-  font-size: 11px;
+  font-size: var(--type-small);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
   color: var(--muted);
 }
 .topbar .breadcrumb button {
-  padding: 2px 4px;
+  padding: 2px var(--space-1);
 }
 .breadcrumb .delete-entry {
   padding: 2px;
@@ -354,15 +461,15 @@ p {
   opacity: 1;
 }
 .breadcrumb > span {
-  margin: 0 12px;
+  margin: 0 var(--space-3);
   color: var(--muted);
 }
 .save-status {
-  font-size: 10px;
+  font-size: var(--type-small);
   color: var(--muted);
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: var(--space-1);
   white-space: nowrap;
 }
 .save-status.error {
@@ -375,9 +482,9 @@ p {
   border-radius: 50%;
 }
 .snapshot-button {
-  font-size: 11px;
+  font-size: var(--type-small);
   border: 1px solid var(--line);
-  padding: 6px 9px !important;
+  padding: var(--space-2) var(--space-2) !important;
 }
 .editor-area {
   flex: 1;
@@ -386,25 +493,25 @@ p {
   flex-direction: column;
 }
 .eyebrow {
-  font-size: 10px;
+  font-size: var(--type-small);
   letter-spacing: 1.9px;
   color: var(--muted);
   font-weight: 500;
-  margin-bottom: 14px;
+  margin-bottom: var(--space-4);
 }
 .origin {
-  font-size: 11px;
+  font-size: var(--type-small);
   color: var(--muted);
-  margin-top: 14px;
+  margin-top: var(--space-4);
 }
 .format-bar {
   display: flex;
   align-items: center;
   gap: 2px;
-  padding: 7px 0;
+  padding: var(--space-2) 0;
   border-top: 1px solid var(--line);
   border-bottom: 1px solid var(--line);
-  margin: 0 7px 25px;
+  margin: 0 var(--space-2) var(--space-5);
   flex-wrap: wrap;
   position: sticky;
   top: 0;
@@ -412,18 +519,18 @@ p {
   z-index: 1;
 }
 .format-bar button {
-  padding: 6px;
+  padding: var(--space-2);
   color: var(--text);
 }
 .separator {
   height: 17px;
   width: 1px;
   background: var(--line);
-  margin: 0 6px;
+  margin: 0 var(--space-2);
 }
 .format-bar .extract {
   margin-left: auto;
-  font-size: 10px;
+  font-size: var(--type-small);
 }
 .writing-surface {
   font-family: Futura, "Avenir Next", sans-serif;
@@ -475,36 +582,36 @@ p {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 0 27px;
-  font-size: 10px;
+  padding: 0 var(--space-5);
+  font-size: var(--type-small);
   color: var(--muted);
 }
 .statusbar > div {
   display: flex;
-  gap: 18px;
+  gap: var(--space-4);
   align-items: center;
 }
 .statusbar button {
-  font-size: 10px;
-  padding: 4px;
+  font-size: var(--type-small);
+  padding: var(--space-1);
 }
 .restore-fragment {
   border-top: 1px solid var(--line);
   margin-top: 36px;
-  padding-top: 20px;
+  padding-top: var(--space-5);
   display: flex;
   align-items: center;
-  gap: 8px;
-  font-size: 11px;
+  gap: var(--space-2);
+  font-size: var(--type-small);
   flex-wrap: wrap;
 }
 .restore-fragment > span {
   width: 100%;
   color: var(--muted);
-  margin-bottom: 6px;
+  margin-bottom: var(--space-2);
 }
 .restore-fragment button {
-  padding: 8px;
+  padding: var(--space-2);
   color: var(--text);
 }
 .focus .sidebar {
@@ -513,10 +620,10 @@ p {
 .primary {
   background: var(--text);
   color: var(--paper);
-  padding: 10px 16px;
-  font-size: 12px;
+  padding: var(--space-3) var(--space-4);
+  font-size: var(--type-small);
 }
-.primary:hover {
+.primary:hover:not(:disabled) {
   background: var(--text);
 }
 .library {
@@ -529,17 +636,17 @@ p {
 }
 .brand > span {
   font-family: -apple-system, sans-serif;
-  font-size: 12px;
+  font-size: var(--type-small);
   color: var(--muted);
   letter-spacing: 0;
-  margin-left: 15px;
+  margin-left: var(--space-4);
 }
 .library-heading {
   margin-top: 80px;
 }
 .library h1 {
   font:
-    40px Futura,
+    var(--type-display) Futura,
     sans-serif;
   letter-spacing: -1px;
   color: var(--text);
@@ -549,7 +656,7 @@ p {
   line-height: 1.8;
 }
 .project-list {
-  margin: 38px 0 25px;
+  margin: 38px 0 var(--space-5);
 }
 .project-row {
   display: flex;
@@ -557,7 +664,7 @@ p {
   border-top: 1px solid var(--line);
 }
 .project-row > button:first-child {
-  padding: 18px 0;
+  padding: var(--space-4) 0;
   flex: 1;
   justify-content: flex-start;
   border-radius: 0;
@@ -567,88 +674,67 @@ p {
   flex: 1;
 }
 .delete-entry {
-  padding: 7px;
+  padding: var(--space-2);
   color: var(--muted);
 }
 .delete-entry:hover {
   color: var(--danger);
 }
 .breadcrumb-title {
-  font-size: 11px;
+  font-size: var(--type-small);
   color: inherit;
-  padding: 2px 4px;
+  padding: 2px var(--space-1);
 }
 .damaged {
-  margin: 0 0 25px;
-  padding: 16px;
+  margin: 0 0 var(--space-5);
+  padding: var(--space-4);
   border: 1px solid var(--muted);
   background: var(--surface);
 }
 .damaged-row {
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 10px 0;
+  gap: var(--space-3);
+  padding: var(--space-3) 0;
 }
 .damaged-row > span {
   flex: 1;
 }
 .damaged-row strong {
   display: block;
-  font-size: 13px;
+  font-size: var(--type-body);
   font-weight: 500;
 }
 .damaged-row small {
   display: block;
-  font-size: 11px;
+  font-size: var(--type-small);
   color: var(--muted);
-  margin-top: 4px;
+  margin-top: var(--space-1);
   word-break: break-all;
 }
 .damaged-row button {
-  font-size: 11px;
+  font-size: var(--type-small);
   border: 1px solid var(--line);
-  padding: 6px 9px;
+  padding: var(--space-2) var(--space-2);
 }
 .dialog-body {
-  font-size: 13px;
+  font-size: var(--type-body);
   line-height: 1.5;
   color: var(--text);
-  margin: -10px 0 26px;
+  margin: -10px 0 var(--space-5);
 }
 .project-list strong,
 .project-list small {
   display: block;
 }
 .project-list strong {
-  font-size: 14px;
+  font-size: var(--type-large);
   font-weight: 500;
 }
 .project-list small {
-  font-size: 11px;
+  font-size: var(--type-small);
   color: var(--muted);
-  margin-top: 6px;
-}
-.import {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  gap: 4px 14px;
-  font-size: 12px;
-  color: var(--muted);
-}
-.import-choose {
-  color: var(--accent);
-  cursor: pointer;
-  position: relative;
-}
-.import-choose:hover {
-  text-decoration: underline;
-  text-underline-offset: 3px;
-}
-.import-choose:focus-within {
-  outline: 1px solid var(--accent);
-  outline-offset: 3px;
+  margin-top: var(--space-2);
 }
 .visually-hidden {
   position: absolute;
@@ -662,8 +748,8 @@ p {
   padding: 0;
 }
 .storage-note {
-  font-size: 11px;
-  margin-top: 30px;
+  font-size: var(--type-small);
+  margin-top: var(--space-6);
 }
 .modal-backdrop {
   position: fixed;
@@ -678,35 +764,35 @@ p {
 .dialog {
   width: 420px;
   background: var(--paper);
-  padding: 32px;
+  padding: var(--space-6);
   border: 1px solid var(--line);
   box-shadow: 0 20px 80px var(--shadow);
 }
 .dialog h2 {
   font:
-    26px Futura,
+    var(--type-display) Futura,
     sans-serif;
-  margin: 20px 0 26px;
+  margin: var(--space-5) 0 var(--space-5);
 }
 .dialog label {
-  font-size: 12px;
+  font-size: var(--type-small);
   color: var(--text);
 }
 .dialog input {
   display: block;
   width: 100%;
-  margin: 8px 0 28px;
-  font-size: 15px;
-  padding: 11px;
+  margin: var(--space-2) 0 var(--space-6);
+  font-size: var(--type-large);
+  padding: var(--space-3);
 }
 .dialog-actions {
   display: flex;
   flex-wrap: wrap;
   justify-content: flex-end;
-  gap: 14px;
+  gap: var(--space-4);
 }
 .dialog-actions > button {
-  padding: 10px 17px;
+  padding: var(--space-3) var(--space-4);
 }
 .notice,
 .error-banner {
@@ -717,12 +803,12 @@ p {
   background: var(--line);
   border: 1px solid var(--line);
   color: var(--text);
-  padding: 12px 16px;
+  padding: var(--space-3) var(--space-4);
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: var(--space-4);
   max-width: 85vw;
-  font-size: 12px;
+  font-size: var(--type-small);
   z-index: 30;
   box-shadow: 0 5px 25px var(--shadow);
   overflow-wrap: anywhere;
@@ -738,7 +824,7 @@ p {
 }
 .versions {
   width: 290px;
-  padding: 24px 20px;
+  padding: var(--space-5) var(--space-5);
   border-left: 1px solid var(--line);
   background: var(--surface);
   overflow: auto;
@@ -747,25 +833,25 @@ p {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 25px;
+  margin-bottom: var(--space-5);
 }
 .panel-heading h2 {
   font:
-    23px Futura,
+    var(--type-title) Futura,
     sans-serif;
   margin: 0;
 }
 .version-tabs {
   display: flex;
   border-bottom: 1px solid var(--line);
-  margin-bottom: 16px;
+  margin-bottom: var(--space-4);
 }
 .version-tabs button {
-  font-size: 11px;
-  padding: 9px 8px;
+  font-size: var(--type-small);
+  padding: var(--space-2) var(--space-2);
 }
 .panel-help {
-  font-size: 11px;
+  font-size: var(--type-small);
   line-height: 1.7;
   color: var(--muted);
 }
@@ -774,24 +860,24 @@ p {
   justify-content: flex-start;
   text-align: left;
   border-bottom: 1px solid var(--line);
-  padding: 17px 2px;
+  padding: var(--space-4) 2px;
 }
 .version-item strong,
 .version-item small {
   display: block;
-  font-size: 12px;
+  font-size: var(--type-small);
 }
 .version-item strong {
   font-weight: 500;
 }
 .version-item small {
-  font-size: 10px;
+  font-size: var(--type-small);
   color: var(--muted);
-  margin-top: 5px;
+  margin-top: var(--space-1);
 }
 .preview-dialog {
   background: var(--paper);
-  padding: 30px;
+  padding: var(--space-6);
   width: 720px;
   max-height: 85vh;
   display: flex;
@@ -799,12 +885,12 @@ p {
 }
 .preview-dialog h2 {
   font:
-    29px Futura,
+    var(--type-display) Futura,
     sans-serif;
 }
 .preview-dialog p,
 .preview-dialog .panel-heading {
-  font-size: 11px;
+  font-size: var(--type-small);
   color: var(--muted);
 }
 .preview-content {
@@ -858,7 +944,7 @@ p {
   color: var(--muted);
 }
 .text-button {
-  font-size: 11px;
+  font-size: var(--type-small);
   color: var(--muted);
   padding: 0;
 }
@@ -870,7 +956,7 @@ p {
 }
 .empty-editor h1 {
   font:
-    30px Futura,
+    var(--type-display) Futura,
     sans-serif;
 }
 @media (max-width: 1000px) {
@@ -906,7 +992,7 @@ p {
   pointer-events: auto;
 }
 
-/* Flat workspace surfaces share the live system appearance. */
+/* Flat workspace surfaces share the chosen appearance. */
 :root {
   font-family:
     Futura,
@@ -936,9 +1022,12 @@ button[aria-pressed="true"],
   background: transparent;
   font-weight: 600;
 }
+.segmented button[aria-pressed="true"] {
+  background: var(--surface);
+}
 .brand {
   font-family: inherit;
-  font-size: 17px;
+  font-size: var(--type-title);
   font-weight: 600;
   letter-spacing: -0.3px;
   padding: 0;
@@ -965,8 +1054,8 @@ button[aria-pressed="true"],
 }
 .project-tabs > button,
 .project-tab > button {
-  font-size: 11px;
-  padding: 7px 12px;
+  font-size: var(--type-small);
+  padding: var(--space-2) var(--space-3);
   white-space: nowrap;
 }
 .project-tab {
@@ -979,7 +1068,7 @@ button[aria-pressed="true"],
   text-overflow: ellipsis;
 }
 .project-tab > button:last-child {
-  padding-inline: 7px;
+  padding-inline: var(--space-2);
 }
 .project-tab.active {
   color: var(--accent);
@@ -1002,7 +1091,7 @@ button[aria-pressed="true"],
 .sidebar-shell .sidebar {
   width: var(--sidebar-width);
   height: 100%;
-  padding: 20px 12px 12px;
+  padding: var(--space-5) var(--space-3) var(--space-3);
   position: relative;
   background: var(--surface);
   container-type: inline-size;
@@ -1039,23 +1128,23 @@ button[aria-pressed="true"],
   background: transparent;
 }
 .sidebar-edge:focus-visible {
-  outline: 1px solid var(--accent);
-  outline-offset: -1px;
+  outline: var(--focus-ring);
+  outline-offset: calc(var(--focus-offset) * -1);
 }
 .sidebar-brand {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 4px;
+  gap: var(--space-1);
 }
 .sidebar-brand > button {
-  padding: 5px;
+  padding: var(--space-1);
 }
 .project-switch {
-  margin: 20px 0 0;
+  margin: var(--space-5) 0 0;
 }
 .search {
-  margin: 14px 0 20px;
+  margin: var(--space-4) 0 var(--space-5);
 }
 .sidebar-groups {
   flex: 1;
@@ -1063,17 +1152,17 @@ button[aria-pressed="true"],
   overflow: auto;
 }
 .sidebar-group {
-  margin-bottom: 19px;
+  margin-bottom: var(--space-4);
 }
 .group-heading {
   padding: 0;
-  margin: 0 0 4px;
+  margin: 0 0 var(--space-1);
   letter-spacing: 0;
-  font-size: 12px;
+  font-size: var(--type-small);
   gap: 3px;
 }
 .group-title {
-  padding: 6px;
+  padding: var(--space-2);
   justify-content: flex-start;
   text-align: left;
   font-weight: 500;
@@ -1094,7 +1183,7 @@ button[aria-pressed="true"],
   opacity: 1;
 }
 .group-actions button {
-  padding: 4px 2px;
+  padding: var(--space-1) 2px;
 }
 .entry-list {
   max-height: none;
@@ -1105,19 +1194,19 @@ button[aria-pressed="true"],
   margin: 1px 0;
 }
 .entry-main {
-  padding: 7px 8px;
+  padding: var(--space-2) var(--space-2);
   min-height: 32px;
-  font-size: 12px;
+  font-size: var(--type-small);
 }
 .entry-main small {
-  font-size: 10px;
+  font-size: var(--type-small);
 }
 .entry-row.selected::before {
   content: none;
 }
 .cards-view .entry-list {
   display: grid;
-  gap: 6px;
+  gap: var(--space-2);
 }
 .cards-view .entry-row {
   border: 1px solid var(--line);
@@ -1132,8 +1221,8 @@ button[aria-pressed="true"],
 }
 .cards-view .entry-main {
   flex-wrap: wrap;
-  gap: 6px;
-  padding: 10px;
+  gap: var(--space-2);
+  padding: var(--space-3);
 }
 .cards-view .entry-main > span {
   flex-basis: calc(100% - 25px);
@@ -1144,7 +1233,7 @@ button[aria-pressed="true"],
   text-align: left;
 }
 .entry-preview {
-  font-size: 11px;
+  font-size: var(--type-small);
   line-height: 1.5;
   color: var(--muted);
   margin: 0;
@@ -1158,10 +1247,10 @@ button[aria-pressed="true"],
 .sidebar-hover-setting {
   display: flex;
   align-items: center;
-  font-size: 10px;
+  font-size: var(--type-small);
   color: var(--muted);
-  gap: 5px;
-  padding-top: 12px;
+  gap: var(--space-1);
+  padding-top: var(--space-3);
 }
 .sidebar-hover-setting input {
   margin: 0;
@@ -1183,11 +1272,43 @@ button[aria-pressed="true"],
   outline: 0;
 }
 @container (max-width: 240px) {
+  .group-label,
+  .sidebar .brand,
+  .sidebar-hover-setting {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    min-width: 0;
+  }
+  .sidebar .brand {
+    display: block;
+  }
+  .sidebar-hover-setting input {
+    flex-shrink: 0;
+  }
   .entry-main small {
     display: none;
   }
   .group-actions button:nth-child(-n + 2) {
     display: none;
+  }
+  .group-heading {
+    position: relative;
+  }
+  .group-actions {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    right: calc(var(--space-5) + var(--space-1));
+    align-items: center;
+    background: var(--sidebar);
+  }
+  .group-actions {
+    pointer-events: none;
+  }
+  .sidebar-group:hover > .group-heading .group-actions,
+  .sidebar-group:focus-within > .group-heading .group-actions {
+    pointer-events: auto;
   }
   .cards-view .entry-preview {
     -webkit-line-clamp: 2;
@@ -1210,63 +1331,50 @@ button[aria-pressed="true"],
 }
 .library h1 {
   font-family: inherit;
-  font-size: 28px;
+  font-size: var(--type-display);
   font-weight: 500;
   letter-spacing: -0.5px;
-  margin-bottom: 24px;
+  margin-bottom: var(--space-5);
 }
 .library-toolbar,
 .library-display {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 14px;
+  gap: var(--space-4);
 }
 .library-display {
-  font-size: 11px;
+  font-size: var(--type-small);
 }
 .library-display label {
   display: flex;
   align-items: center;
-  gap: 5px;
+  gap: var(--space-1);
 }
 .library-display > button {
-  padding: 7px;
+  padding: var(--space-2);
 }
 .create-project {
   position: relative;
 }
-.create-menu {
-  position: absolute;
-  top: calc(100% + 5px);
-  left: 0;
-  min-width: 185px;
-  border: 1px solid var(--line);
-  background: var(--paper);
-  z-index: 8;
-  padding: 4px;
-  box-shadow: 0 4px 12px var(--shadow);
-}
-.create-menu button {
-  display: flex;
-  width: 100%;
-  justify-content: flex-start;
-  padding: 8px;
-}
 .primary {
   background: var(--accent);
   color: white;
-  font-size: 12px;
+  font-size: var(--type-small);
   font-weight: 500;
 }
-.primary:hover {
+.primary:hover:not(:disabled) {
   background: var(--accent);
   filter: brightness(0.95);
+}
+.primary:active:not(:disabled) {
+  background: var(--accent);
+  filter: brightness(0.88);
 }
 .project-list {
   display: flex;
   flex-direction: column;
-  margin-top: 22px;
+  margin-top: var(--space-5);
   gap: 0;
 }
 .project-row {
@@ -1274,13 +1382,13 @@ button[aria-pressed="true"],
   min-width: 0;
 }
 .project-row > button:first-child {
-  padding: 14px 4px;
-  gap: 16px;
+  padding: var(--space-4) var(--space-1);
+  gap: var(--space-4);
   flex-direction: row;
   align-items: center;
 }
 .project-list .project-name {
-  font-size: 13px;
+  font-size: var(--type-body);
   flex: 1;
   min-width: 0;
   overflow: hidden;
@@ -1289,16 +1397,16 @@ button[aria-pressed="true"],
 }
 .project-row > button:first-child > .project-dates {
   display: flex;
-  gap: 10px;
+  gap: var(--space-3);
   justify-content: flex-end;
   flex: 0 0 auto;
-  font-size: 10px;
+  font-size: var(--type-small);
   color: var(--muted);
 }
 .project-list--cards {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
-  gap: 12px;
+  gap: var(--space-3);
 }
 .project-list--cards .project-row {
   position: relative;
@@ -1306,14 +1414,14 @@ button[aria-pressed="true"],
 }
 .project-list--cards .project-row > button:first-child {
   min-height: 115px;
-  padding: 20px 26px 20px 14px;
+  padding: var(--space-5) var(--space-5) var(--space-5) var(--space-4);
   flex-direction: column;
   align-items: flex-start;
 }
 .project-list--cards .project-dates {
   flex-wrap: wrap;
   justify-content: flex-start !important;
-  gap: 4px !important;
+  gap: var(--space-1) !important;
 }
 .project-list--cards .delete-entry {
   position: absolute;
@@ -1321,8 +1429,8 @@ button[aria-pressed="true"],
   top: 4px;
 }
 .library-empty {
-  font-size: 12px;
-  padding: 20px 0;
+  font-size: var(--type-small);
+  padding: var(--space-5) 0;
 }
 .writing-surface,
 .read-prose,
@@ -1359,8 +1467,8 @@ button[aria-pressed="true"],
 .proximity-nav button {
   justify-content: flex-end;
   min-height: 28px;
-  padding: 5px;
-  gap: 8px;
+  padding: var(--space-1);
+  gap: var(--space-2);
 }
 .proximity-nav i {
   width: 14px;
@@ -1373,9 +1481,9 @@ button[aria-pressed="true"],
   text-overflow: ellipsis;
   white-space: nowrap;
   opacity: 0;
-  font-size: 11px;
+  font-size: var(--type-small);
   background: var(--paper);
-  padding: 3px 6px;
+  padding: 3px var(--space-2);
 }
 .proximity-nav:hover span,
 .proximity-nav:focus-within span {
@@ -1391,7 +1499,7 @@ button[aria-pressed="true"],
 }
 @media (max-width: 700px) {
   .library {
-    padding: 28px 20px;
+    padding: var(--space-6) var(--space-5);
   }
   .project-dates {
     flex-wrap: wrap;
@@ -1399,10 +1507,10 @@ button[aria-pressed="true"],
     gap: 3px !important;
   }
   .library-toolbar {
-    gap: 8px;
+    gap: var(--space-2);
   }
   .library-display {
-    gap: 5px;
+    gap: var(--space-1);
   }
   .manuscript-read {
     padding: 32px 24px 60px;
@@ -1421,15 +1529,15 @@ button[aria-pressed="true"],
   align-items: stretch;
 }
 .entry-details {
-  padding: 0 8px 8px;
+  padding: 0 var(--space-2) var(--space-2);
   display: flex;
   flex-direction: column;
-  gap: 5px;
+  gap: var(--space-1);
 }
 .entry-details input,
 .entry-details .entry-status {
-  padding: 5px;
-  font-size: 10px;
+  padding: var(--space-1);
+  font-size: var(--type-small);
   width: 100%;
   background: transparent;
 }
@@ -1438,10 +1546,10 @@ button[aria-pressed="true"],
   flex-shrink: 0;
   display: flex;
   align-items: center;
-  gap: 18px;
-  padding: 0 24px;
+  gap: var(--space-4);
+  padding: 0 var(--space-5);
   color: var(--muted);
-  font-size: 10px;
+  font-size: var(--type-small);
   white-space: nowrap;
 }
 .document-statistics > span:last-child {
@@ -1453,25 +1561,25 @@ button[aria-pressed="true"],
   border-left: 1px solid var(--line);
   background: var(--paper);
   overflow: auto;
-  padding: 16px;
+  padding: var(--space-4);
 }
 .research-aside > header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 18px;
+  margin-bottom: var(--space-4);
 }
 
 /* Compact chrome with comfortable controls. */
 .topbar {
   height: 40px;
-  padding-inline: 20px;
+  padding-inline: var(--space-5);
 }
 .editor-settings {
-  font-size: 12px;
+  font-size: var(--type-small);
 }
 .group-heading {
-  font-size: 12px;
+  font-size: var(--type-small);
 }
 .sidebar-brand > button {
   opacity: 0;
@@ -1486,7 +1594,7 @@ button[aria-pressed="true"],
   justify-content: flex-start;
 }
 .library-toolbar h1 {
-  margin: 0 12px 0 0;
+  margin: 0 var(--space-3) 0 0;
 }
 .library-display {
   margin-left: auto;
@@ -1500,14 +1608,27 @@ button[aria-pressed="true"],
 }
 
 /* Flat hover: no grey boxes and no underlines. Sidebar rows thicken instead. */
-.sidebar button:hover {
+.sidebar button:hover:not(:disabled) {
   background: var(--sidebar);
+}
+/* The sidebar clips overflow, so its focus ring sits inside the control. */
+.sidebar button:focus-visible {
+  outline-offset: calc(var(--focus-offset) * -2);
+}
+.sidebar button:active:not(:disabled) {
+  background: var(--pressed);
 }
 .sidebar .group-title:hover,
 .sidebar .entry-main:hover,
 .sidebar .project-switch:hover {
   background: transparent;
   text-decoration: none;
+}
+.sidebar .group-title:active:not(:disabled),
+.sidebar .entry-main:active:not(:disabled),
+.project-row > button:first-child:active:not(:disabled) {
+  background: transparent;
+  color: var(--accent);
 }
 .sidebar .group-title:not(.selected):hover,
 .sidebar .entry-row:not(.selected) .entry-main:hover {
@@ -1556,15 +1677,15 @@ button[aria-pressed="true"],
   font-weight: 400;
 }
 .entry-details .dropdown-button {
-  font-size: 11px;
+  font-size: var(--type-small);
   font-weight: 400;
-  padding: 4px 6px;
+  padding: var(--space-1) var(--space-2);
 }
 
 /* Group titles carry a collapse chevron for list groups. */
 .group-title {
   align-items: center;
-  gap: 6px;
+  gap: var(--space-2);
 }
 .group-title svg {
   flex-shrink: 0;
@@ -1588,12 +1709,45 @@ button[aria-pressed="true"],
 }
 .sidebar-bottom-groups {
   margin-top: auto;
-  padding-bottom: 6px;
+  padding-bottom: var(--space-2);
 }
 .sidebar-bottom-groups .sidebar-group + .sidebar-group {
   border-top: 1px solid var(--line);
 }
 
-.import-preview-text { max-height: 220px; overflow: auto; white-space: pre-wrap; overflow-wrap: anywhere; font: inherit; padding: 12px; border: 1px solid var(--line); }
-.import-warnings { padding-left: 20px; font-size: 13px; }
+.import-preview-text { max-height: 220px; overflow: auto; white-space: pre-wrap; overflow-wrap: anywhere; font: inherit; padding: var(--space-3); border: 1px solid var(--line); }
+.import-warnings { padding-left: var(--space-5); font-size: var(--type-body); }
 .dialog { max-height: calc(100vh - 40px); overflow-y: auto; }
+
+/* Color palette element rules (Plain has none: it is the base styling above). */
+:root[data-palette="color"] .primary {
+  background: var(--accent-fill);
+  color: var(--on-accent);
+}
+:root[data-palette="color"] .primary.destructive {
+  background: var(--danger-fill);
+}
+:root[data-palette="color"] .save-status.saved svg {
+  color: var(--success);
+}
+:root[data-palette="color"] .import-warnings {
+  color: var(--warning);
+}
+:root[data-palette="color"] .sidebar-group {
+  --tint: var(--accent);
+}
+:root[data-palette="color"] .sidebar-group[data-group="manuscript"] {
+  --tint: var(--tint-manuscript);
+}
+:root[data-palette="color"] .sidebar-group[data-group="fragments"] {
+  --tint: var(--tint-fragments);
+}
+:root[data-palette="color"] .sidebar-group[data-group="research"] {
+  --tint: var(--tint-research);
+}
+:root[data-palette="color"] .sidebar-group[data-group] :is(.group-title.selected, .entry-row.selected) {
+  color: var(--tint);
+}
+:root[data-palette="color"] .sidebar-group:is([data-group="manuscript"], [data-group="fragments"], [data-group="research"]) :is(.group-title svg, .entry-main svg) {
+  color: var(--tint);
+}

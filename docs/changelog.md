@@ -2,6 +2,12 @@
 
 Dated history, newest first, built from `git log --date=short` and [app history](app-history.md). [app-history.md](app-history.md) already gives a fuller narrative for 2026-10-14 to 2026-10-18 (including what each pass did and did not verify), so this file links to it rather than repeating it. Fixed issues are listed with dates in [limitations](limitations.md). Verification details are in the [validation record](validation.md).
 
+## 2026-10-26
+
+- UI polish wave (tasks T071-T096, each independently reviewed; CLAIMED, final validation pending T082): native screenshot tool (`scripts/native-screens.py`), type-scale and spacing tokens, complete hover/focus/pressed/disabled states, `docs/design-system.md`, Appearance (System, Light, Dark; Cmd/Ctrl+Shift+L) and Palette (Plain, Color) settings with the Mac title bar following the choice, helper captions removed, Projects screen search, the Start new project button growing into a panel (templates, Import a file…, Recover from a project.json file…), drag-and-drop import onto the Projects screen.
+- Critique pass and its fixes: create-panel items no longer fade in, short Projects lists centred, sidebar entry title/count hierarchy, move arrows no longer cover the count, remaining captions replaced by a tooltip, Goals selects use the app dropdown, sidebar labels fit at 190 px. Plain-dark primary button contrast (2.45:1) is recorded, not changed.
+- README, design system, architecture, limitations and validation record updated.
+
 ## 2026-10-25
 
 - Cheap-fixes wave (T050-T057, each independently reviewed): import size label, "newer version of Folio" error text, notice toast position and auto-dismiss, PDF image gap, Word and PDF exports now print project and section titles, BibTeX "Jr." suffix, browser-preview Zotero fetch, import cancel test coverage; full validation list rerun and the app rebuilt (commit `4659847`).

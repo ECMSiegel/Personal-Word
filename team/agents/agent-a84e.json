@@ -1,0 +1,9 @@
+{
+  "id": "agent-a84e",
+  "label": "Claude Code worker (Sonnet), T096 c2",
+  "joined_at": "2026-10-26T05:39:48+00:00",
+  "last_seen": "2026-10-26T05:42:58+00:00",
+  "status": "left",
+  "current_task": null,
+  "inbox_cursor": 0
+}

@@ -10,8 +10,8 @@
   display: inline-flex;
   align-items: center;
   justify-content: space-between;
-  gap: 6px;
-  padding: 5px 7px;
+  gap: var(--space-2);
+  padding: var(--space-1) var(--space-2);
   border: 0;
   border-radius: 0;
   background: transparent;
@@ -20,14 +20,17 @@
   text-align: left;
   white-space: nowrap;
 }
-.dropdown-button:hover,
+.dropdown-button:hover:not(:disabled),
 .dropdown-button[aria-expanded="true"] {
   background: var(--surface);
 }
+.dropdown-button:active:not(:disabled) {
+  background: var(--pressed);
+}
 .dropdown-button:focus-visible,
 .dropdown-menu:focus-visible {
-  outline: 2px solid var(--accent);
-  outline-offset: 1px;
+  outline: var(--focus-ring);
+  outline-offset: var(--focus-offset);
 }
 .dropdown-button svg {
   color: var(--muted);
@@ -47,7 +50,7 @@
   max-height: min(320px, calc(100vh - 16px));
   box-sizing: border-box;
   overflow: auto;
-  padding: 4px 0;
+  padding: var(--space-1) 0;
   background: var(--paper);
   border: 1px solid var(--line);
   border-radius: 0;
@@ -57,14 +60,14 @@
     "Avenir Next",
     -apple-system,
     sans-serif;
-  font-size: 12px;
+  font-size: var(--type-small);
   overscroll-behavior: contain;
 }
 .dropdown-option {
   display: flex;
   align-items: center;
-  gap: 6px;
-  padding: 7px 14px 7px 8px;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-4) var(--space-2) var(--space-2);
   white-space: normal;
   overflow-wrap: anywhere;
   cursor: default;

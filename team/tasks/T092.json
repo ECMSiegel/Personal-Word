@@ -1,0 +1,57 @@
+{
+  "id": "T092",
+  "title": "UI critique (Medium): focused entry row's move arrows overlap the word count",
+  "description": "When a sidebar entry row is focused the move arrows overlap the word-count text (candidate by agent-e034, possibly pre-existing the polish wave). Screenshot region: docs/agent-work/2026-10-25-ui-polish/screens/browser-writing-light-plain.png (row affordance area). Suggested: reserve space for the arrows or fade the count while they show, plus a non-overlap browser assertion. Reference: Ulysses reveals row actions without covering metadata.",
+  "status": "done",
+  "owner": null,
+  "priority": 2,
+  "depends_on": [],
+  "files": [
+    "src/components/ProjectSidebar.tsx",
+    "src/styles.css"
+  ],
+  "review_required": true,
+  "created_by": "agent-fb4d",
+  "created_at": "2026-10-26T04:56:29+00:00",
+  "claimed_at": "2026-10-26T05:09:56+00:00",
+  "updated_at": "2026-10-26T05:34:27+00:00",
+  "handoff": null,
+  "review": {
+    "by": "agent-db3e",
+    "at": "2026-10-26T05:34:27+00:00",
+    "verdict": "approved",
+    "note": "Approved. Private build ui-t92-review: tsc 0; designTokens 6/6; sidebar-selection+accessibility+layout 13/13 one worker no retries. Hunk (styles.css 351-364) is tokens only (opacity 0, 120ms ease, no raw sizes, square). 3 manuscript entries, light+dark: focus on row 2 main -> count opacity 0, reorder opacity 1, Tab goes Move up -> Move down (keyboard reachable, ring visible); hover -> same. Boxes still intersect geometrically (count x205-249 vs arrows x219-255) at default width: the fix is fade-replace (task option b), not non-intersection; at sidebar 191.5px the count is display:none (existing container query) so no overlap at all. Captures looked at: no visible overlap, selected row still blue semibold; count 12px, title 13px unchanged (T091). Blur restores count (owner's spec). Caveats: hover also hides the count (by design); stray untracked t092-focused.png in project root is from the owner's spec (no T092_SHOT set) - please delete it. ProjectSidebar.tsx diff (BookMarked, data-group) is other tasks', not T092."
+  },
+  "log": [
+    {
+      "at": "2026-10-26T04:56:29+00:00",
+      "agent": "agent-fb4d",
+      "event": "created",
+      "note": ""
+    },
+    {
+      "at": "2026-10-26T05:09:56+00:00",
+      "agent": "agent-fb4d",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-10-26T05:09:56+00:00",
+      "agent": "agent-fb4d",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-10-26T05:15:45+00:00",
+      "agent": "agent-fb4d",
+      "event": "review requested",
+      "note": "Reorder arrows no longer cover the word count: the count fades out (opacity 0, 120ms) exactly while the arrows are revealed (hover/focus-within) and fades back on blur - the actions replace the metadata instead of covering it (Ulysses pattern). Change: src/styles.css .entry-main small gains the opacity transition + .entry-row:hover/:focus-within .entry-main small { opacity: 0 }; ProjectSidebar.tsx untouched (the absolute-positioned arrows keep their position). Reduced motion block makes it an instant swap. Fail-first n/a for a visual polish, but the behaviour assertions are new and were run against the PRE-fix state first: run 1 (pre-fix) showed countOpacity 1 + geometric overlap true (failing control, retained in t092-verify.log history), post-fix runs assert countOpacity 0 + arrows present + restored 1 on blur. Verified on the ui-t10 private dist: t092.spec.mjs passed (STATE countOpacity 0, RESTORED 1); screenshot ui-t10/shots-t092/t092-focused.png. Note: the geometric boxes still intersect by design - the fade is the fix (the task's own suggested option b); the first entry's Move-up is legitimately disabled (0.35). designTokens untouched (no font-size change); tsc not run for styles-only change but the token test suite covers the file."
+    },
+    {
+      "at": "2026-10-26T05:34:27+00:00",
+      "agent": "agent-db3e",
+      "event": "approved",
+      "note": "Approved. Private build ui-t92-review: tsc 0; designTokens 6/6; sidebar-selection+accessibility+layout 13/13 one worker no retries. Hunk (styles.css 351-364) is tokens only (opacity 0, 120ms ease, no raw sizes, square). 3 manuscript entries, light+dark: focus on row 2 main -> count opacity 0, reorder opacity 1, Tab goes Move up -> Move down (keyboard reachable, ring visible); hover -> same. Boxes still intersect geometrically (count x205-249 vs arrows x219-255) at default width: the fix is fade-replace (task option b), not non-intersection; at sidebar 191.5px the count is display:none (existing container query) so no overlap at all. Captures looked at: no visible overlap, selected row still blue semibold; count 12px, title 13px unchanged (T091). Blur restores count (owner's spec). Caveats: hover also hides the count (by design); stray untracked t092-focused.png in project root is from the owner's spec (no T092_SHOT set) - please delete it. ProjectSidebar.tsx diff (BookMarked, data-group) is other tasks', not T092."
+    }
+  ]
+}

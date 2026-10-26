@@ -1,0 +1,56 @@
+{
+  "id": "T088",
+  "title": "UI critique (Medium): toolbar overflow composition changed after the spacing sweep",
+  "description": "At the same 1440 px viewport the format bar shows a different icon set before vs after the spacing tokens (one or two fewer controls before overflow), so the memorised grouping changed silently. A consequence of the approved snapping, not a defect in it. Screenshots: docs/agent-work/2026-10-25-ui-polish/screens/browser-writing-light-plain.png and the before/after pair in node_modules/.cache/personal-word-beta/ui-t1/shots/. Suggested: reserve the format bar's critical width or pin the last group so the overflow split is stable. Reference: iA Writer keeps a fixed minimal toolbar.",
+  "status": "done",
+  "owner": null,
+  "priority": 2,
+  "depends_on": [],
+  "files": [
+    "src/editor/editor.css"
+  ],
+  "review_required": true,
+  "created_by": "agent-fb4d",
+  "created_at": "2026-10-26T04:54:27+00:00",
+  "claimed_at": "2026-10-26T04:56:47+00:00",
+  "updated_at": "2026-10-26T05:05:21+00:00",
+  "handoff": null,
+  "review": {
+    "by": "agent-7088",
+    "at": "2026-10-26T05:05:21+00:00",
+    "verdict": "approved",
+    "note": "Approved as WITHDRAWN (agent-7088, T083 cycle 2, non-author). Compared node_modules/.cache/personal-word-beta/ui-t1/shots/before-writing-light.png and after-writing-light.png myself: same toolbar icon set in the same order and the same overflow split (no overflow menu at 1440 in either); agent-fb4d's measure.log agrees (26 visible controls, no overflow at 1440). No change to editor.css. Recorded in CRITIQUE.md under Withdrawn, no ### section."
+  },
+  "log": [
+    {
+      "at": "2026-10-26T04:54:27+00:00",
+      "agent": "agent-fb4d",
+      "event": "created",
+      "note": ""
+    },
+    {
+      "at": "2026-10-26T04:56:47+00:00",
+      "agent": "agent-fb4d",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-10-26T04:56:47+00:00",
+      "agent": "agent-fb4d",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-10-26T05:01:34+00:00",
+      "agent": "agent-fb4d",
+      "event": "review requested",
+      "note": "NOT NEEDED - dismissed by measurement (my own critique finding, honestly closed). Measured on the ui-t10 private dist (measure.spec.mjs, logs ui-t10/measure*.log): the toolbar overflow is JS-managed (Writer.tsx ResizeObserver + overflowCount; hidden controls live in the overflow menu so scrollWidth never exceeds clientWidth). At 1440 nothing overflows (26 visible controls, 26 px slack: leading 1067 + end 61 + padding 16 = 1144). At 1100 the split shows 15 controls (11 in the overflow menu). The sweep added ~12 px total (3 dropdown buttons: gap 6->8, horizontal padding 7->8 per side), which shifts the split threshold by at most 12 px of viewport width - inherent to a measured-overflow toolbar (any 1 px width change moves some threshold). Reclaiming 12 px via bar padding 8->2 px/side would restore exact pre-sweep thresholds but costs edge inset for a benefit only inside a ~12 px band. editor.css unchanged (my registered path untouched). CRITIQUE.md finding annotated with the measured outcome and dismissal. Fail-first n/a: no check to invert; the measurement itself is the evidence."
+    },
+    {
+      "at": "2026-10-26T05:05:21+00:00",
+      "agent": "agent-7088",
+      "event": "approved",
+      "note": "Approved as WITHDRAWN (agent-7088, T083 cycle 2, non-author). Compared node_modules/.cache/personal-word-beta/ui-t1/shots/before-writing-light.png and after-writing-light.png myself: same toolbar icon set in the same order and the same overflow split (no overflow menu at 1440 in either); agent-fb4d's measure.log agrees (26 visible controls, no overflow at 1440). No change to editor.css. Recorded in CRITIQUE.md under Withdrawn, no ### section."
+    }
+  ]
+}

@@ -1,0 +1,9 @@
+{
+  "id": "agent-abcd",
+  "label": "Claude Code worker (Opus), T080",
+  "joined_at": "2026-10-26T04:20:25+00:00",
+  "last_seen": "2026-10-26T04:38:01+00:00",
+  "status": "left",
+  "current_task": null,
+  "inbox_cursor": 248
+}

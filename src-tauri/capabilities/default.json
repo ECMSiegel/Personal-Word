@@ -2,5 +2,9 @@
   "identifier": "default",
   "description": "Main writing window",
   "windows": ["main"],
-  "permissions": ["core:default", "dialog:allow-save"]
+  "permissions": [
+    "core:default",
+    "dialog:allow-save",
+    "core:window:allow-set-theme"
+  ]
 }

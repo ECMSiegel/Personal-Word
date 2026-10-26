@@ -377,6 +377,83 @@ pub fn smoke_report(app: tauri::AppHandle, mut report: Value) -> Result<(), Stri
     Ok(())
 }
 
+fn validate_snapshot_name(name: &str) -> Result<(), String> {
+    let ok = !name.is_empty()
+        && name.len() <= 40
+        && name
+            .bytes()
+            .all(|b| b.is_ascii_lowercase() || b.is_ascii_digit() || b == b'-');
+    if ok {
+        Ok(())
+    } else {
+        Err("Snapshot name must match ^[a-z0-9-]{1,40}$".into())
+    }
+}
+
+/// Smoke-build-only diagnostic: captures the live WKWebView contents as a PNG.
+/// Writes `<FOLIO_SMOKE_DIR>/screens/<name>.png` and returns the path. Never compiled
+/// into the normal app (the whole `smoke` module is `cfg(native-smoke)`).
+#[tauri::command]
+pub async fn smoke_snapshot(webview: tauri::Webview, name: String) -> Result<String, String> {
+    validate_snapshot_name(&name)?;
+    #[cfg(target_os = "macos")]
+    {
+        use block2::RcBlock;
+        use objc2_app_kit::{NSBitmapImageFileType, NSBitmapImageRep, NSImage};
+        use objc2_foundation::{NSDictionary, NSError};
+        use objc2_web_kit::WKWebView;
+        use std::sync::mpsc;
+
+        let (sender, receiver) = mpsc::channel::<Result<Vec<u8>, String>>();
+        webview
+            .with_webview(move |platform| unsafe {
+                // `inner()` is the platform WKWebView pointer on macOS.
+                let web_view = &*(platform.inner() as *const WKWebView);
+                let block = RcBlock::new(move |image: *mut NSImage, error: *mut NSError| {
+                    let result = (|| -> Result<Vec<u8>, String> {
+                        if !error.is_null() {
+                            return Err(format!(
+                                "WebKit snapshot failed: {}",
+                                (*error).localizedDescription().to_string()
+                            ));
+                        }
+                        if image.is_null() {
+                            return Err("WebKit snapshot returned no image".into());
+                        }
+                        let tiff = (*image)
+                            .TIFFRepresentation()
+                            .ok_or_else(|| "Snapshot TIFF representation missing".to_string())?;
+                        let rep = NSBitmapImageRep::imageRepWithData(&tiff)
+                            .ok_or_else(|| "Snapshot TIFF had no bitmap representation".to_string())?;
+                        let png = rep
+                            .representationUsingType_properties(
+                                NSBitmapImageFileType::PNG,
+                                &NSDictionary::new(),
+                            )
+                            .ok_or_else(|| "Snapshot PNG encoding failed".to_string())?;
+                        Ok(png.to_vec())
+                    })();
+                    let _ = sender.send(result);
+                });
+                web_view.takeSnapshotWithConfiguration_completionHandler(None, &block);
+            })
+            .map_err(|e| format!("Snapshot dispatch failed: {e}"))?;
+        let bytes = receiver
+            .recv_timeout(Duration::from_secs(15))
+            .map_err(|_| "WebKit snapshot completion never fired within 15 s".to_string())??;
+        let dir = work_dir()?.join("screens");
+        fs::create_dir_all(&dir).map_err(|e| e.to_string())?;
+        let path = dir.join(format!("{name}.png"));
+        fs::write(&path, bytes).map_err(|e| e.to_string())?;
+        Ok(path.to_string_lossy().into_owned())
+    }
+    #[cfg(not(target_os = "macos"))]
+    {
+        let _ = webview;
+        Err("Native snapshots need macOS".into())
+    }
+}
+
 /// Appends a harness breadcrumb so a stalled run names the step it reached.
 #[tauri::command]
 pub fn smoke_progress(message: String) -> Result<(), String> {
@@ -404,6 +481,13 @@ pub fn configure<R: Runtime>(builder: tauri::Builder<R>) -> tauri::Builder<R> {
         let invocation = std::env::var("FOLIO_SMOKE_INVOCATION").unwrap_or_default();
         let script = match std::env::var("FOLIO_SMOKE_SCRIPT").unwrap_or_default().as_str() {
             "native-reliability" => include_str!("../../tests/native-reliability.js").to_string(),
+            // The screens harness receives its palette as a JSON string, same
+            // env-to-script pattern as the print fixtures below.
+            "native-screens" => format!(
+                "window.__SMOKE_PALETTE__={};{}",
+                std::env::var("FOLIO_SMOKE_PALETTE").unwrap_or_else(|_| "\"plain\"".into()),
+                include_str!("../../tests/native-screens.js").to_string()
+            ),
             // The print probe's schema-generated fixtures are written by the harness as JSON.
             "native-print" => format!(
                 "window.__SMOKE_PRINT_FIXTURES__={};{}",

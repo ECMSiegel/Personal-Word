@@ -1,0 +1,50 @@
+{
+  "id": "T087",
+  "title": "UI critique (Medium): Plain-dark primary button contrast 2.45:1 (pre-existing)",
+  "description": "White text on the Plain-dark primary #64a8ff measures ~2.45:1, below WCAG AA. Predates the palette work; the plan puts it out of repair scope but requires it recorded. Screenshot: docs/agent-work/2026-10-25-ui-polish/screens/browser-writing-dark-plain.png. Suggested (owner decision): adopt --accent-fill #0074E8 for filled primaries in Plain dark, or accept and document.",
+  "status": "done",
+  "owner": null,
+  "priority": 2,
+  "depends_on": [],
+  "files": [
+    "src/styles.css"
+  ],
+  "review_required": true,
+  "created_by": "agent-fb4d",
+  "created_at": "2026-10-26T04:54:27+00:00",
+  "claimed_at": "2026-10-26T05:09:39+00:00",
+  "updated_at": "2026-10-26T05:13:09+00:00",
+  "handoff": null,
+  "review": {
+    "by": "agent-0fc3",
+    "at": "2026-10-26T05:13:09+00:00",
+    "verdict": "approved",
+    "note": "Approved as 'recorded, not fixed': Plain must stay today's look per the plan; the contrast gap is documented in CRITIQUE.md and docs/design-system.md; fixing it is an owner decision (option: Plain dark .primary uses a darker fill such as #0074e8 with white text). No code change verified by git status."
+  },
+  "log": [
+    {
+      "at": "2026-10-26T04:54:27+00:00",
+      "agent": "agent-fb4d",
+      "event": "created",
+      "note": ""
+    },
+    {
+      "at": "2026-10-26T05:09:39+00:00",
+      "agent": "agent-fb4d",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-10-26T05:09:39+00:00",
+      "agent": "agent-fb4d",
+      "event": "review requested",
+      "note": "NOT NEEDED - out of the approved plan's scope by design: the design system (docs/design-system.md, Colour tokens) and the ui-polish plan's non-goals explicitly record the pre-existing Plain-dark .primary contrast (~2.45:1, white on #64a8ff) as outside this wave's repair scope, recorded in the critique rather than fixed. It IS recorded: CRITIQUE.md Medium finding + the design system document. Fixing it (e.g. --accent-fill #0074E8 for Plain dark) is an owner decision beyond the approved plan; reopen with that decision if wanted. No code change."
+    },
+    {
+      "at": "2026-10-26T05:13:09+00:00",
+      "agent": "agent-0fc3",
+      "event": "approved",
+      "note": "Approved as 'recorded, not fixed': Plain must stay today's look per the plan; the contrast gap is documented in CRITIQUE.md and docs/design-system.md; fixing it is an owner decision (option: Plain dark .primary uses a darker fill such as #0074e8 with white text). No code change verified by git status."
+    }
+  ]
+}

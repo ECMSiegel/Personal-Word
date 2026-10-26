@@ -1,0 +1,58 @@
+{
+  "id": "T094",
+  "title": "UI critique (Medium): helper captions remain in Research and Settings; Zotero status text is 11 px",
+  "description": "The design system rule 'Do not add helper captions under controls' (docs/design-system.md Rules) is still broken outside T6's four captions: (1) Research > Sources: 'In Zotero, enable the local API in Settings > Advanced before refreshing.' (src/research/ResearchPanel.tsx:871, p.research-hint) under the Connect local Zotero control - added on purpose by T033 (beta Gate B) and asserted verbatim by tests/zotero.spec.ts:76, so the fix must keep the information (e.g. a keyboard-reachable tooltip on Connect local Zotero, or show it only in the not-yet-contacted/error status) and update that spec; (2) Settings > General: 'Default startup opens Projects.' (src/App.tsx:1771) under the restore-tabs checkbox; (3) Settings > Goals: the p.settings-help paragraph (src/App.tsx:1840) - its 'Current baseline' sentence is status, the rest is a caption. Also (4) .zotero-status uses inline fontSize 0.85em (ResearchPanel.tsx ~866) = 11.05 px computed (measured, ui-t10/c2/capture.log), below the 12 px UI floor; designTokens.test.ts does not scan inline styles. Screenshots: docs/agent-work/2026-10-25-ui-polish/screens/native-research-light-color.png (caption visible in native WebKit), screens/browser-settings-light-color.png. Suggested: tooltip or status-only placement per the design system's caption rule; fontSize var(--type-small). Empty-state lines (No sources yet..., No notes yet.) are not captions.",
+  "status": "done",
+  "owner": null,
+  "priority": 2,
+  "depends_on": [],
+  "files": [
+    "src/research/ResearchPanel.tsx",
+    "src/App.tsx",
+    "tests/zotero.spec.ts"
+  ],
+  "review_required": true,
+  "created_by": "agent-7088",
+  "created_at": "2026-10-26T05:08:29+00:00",
+  "claimed_at": "2026-10-26T05:13:47+00:00",
+  "updated_at": "2026-10-26T05:21:28+00:00",
+  "handoff": null,
+  "review": {
+    "by": "agent-8dab",
+    "at": "2026-10-26T05:21:28+00:00",
+    "verdict": "approved",
+    "note": "Verified in tree: App.tsx no longer renders startup line or Goals paragraph, keeps 'Current baseline:'; ResearchPanel has no p.research-hint, ZOTERO_HINT on Connect via title+aria-describedby+role=tooltip .lookup-tip, .zotero-status uses var(--type-small). tsc 0. Rebuilt to ui-t94-review, 1 worker/0 retries: 33 passed; 1 other failure features.spec.ts:180 'Goals pickers use the interface font' (Goal scope select renders Arial) is a new test from another task's uncommitted hunk (visible as native-looking selects in the shots), not T094; owner's run did not include it. Fail-first log shows the 2 new tests failing on old build. All 4 shots viewed: no paragraph captions in Settings, status line kept, tooltip legible light and dark, status 12 px. Tooltip overlaps the 'No sources yet' line only while Connect is focused; it covers no control (Look up/Import/Connect sit above it, Insert footnote below), so acceptable for a transient tooltip. Note: Export paragraph in Settings still reads as caption; out of T094 scope."
+  },
+  "log": [
+    {
+      "at": "2026-10-26T05:08:29+00:00",
+      "agent": "agent-7088",
+      "event": "created",
+      "note": ""
+    },
+    {
+      "at": "2026-10-26T05:13:47+00:00",
+      "agent": "agent-6ebf",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-10-26T05:13:48+00:00",
+      "agent": "agent-6ebf",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-10-26T05:18:28+00:00",
+      "agent": "agent-6ebf",
+      "event": "review requested",
+      "note": "Removed: 'Default startup opens Projects.', Goals caption 'Daily progress starts when you first open the project each selected day. Changing scope...' (kept only status 'Current baseline: N words on DAY.' in p.settings-help; Goals fields already have visible labels), p.research-hint Zotero paragraph. Zotero hint now: title + aria-describedby + focus-visible role=tooltip (reuses .lookup-tip) on Connect local Zotero (ResearchPanel.tsx ZOTERO_HINT). .zotero-status fontSize 0.85em -> var(--type-small). Tests: zotero.spec.ts:74 rewritten (no p.research-hint, title/describedby/tooltip visible on focus, status >=12px); features.spec.ts new test 'Settings has no paragraph captions...'; research.spec.ts:353 tooltip locator scoped by name (two tooltips now exist, strict mode; assertion not weakened). Fail-first: the 2 new tests failed on old build (toHaveCount). After: tsc 0, 33/33 pass (zotero, research, appearance, features, 1 worker, 0 retries, port 1588). Serial slot not taken. Shots: node_modules/.cache/personal-word-beta/ui-t94/shots (settings + research-zotero, light/dark, 1440x900)."
+    },
+    {
+      "at": "2026-10-26T05:21:28+00:00",
+      "agent": "agent-8dab",
+      "event": "approved",
+      "note": "Verified in tree: App.tsx no longer renders startup line or Goals paragraph, keeps 'Current baseline:'; ResearchPanel has no p.research-hint, ZOTERO_HINT on Connect via title+aria-describedby+role=tooltip .lookup-tip, .zotero-status uses var(--type-small). tsc 0. Rebuilt to ui-t94-review, 1 worker/0 retries: 33 passed; 1 other failure features.spec.ts:180 'Goals pickers use the interface font' (Goal scope select renders Arial) is a new test from another task's uncommitted hunk (visible as native-looking selects in the shots), not T094; owner's run did not include it. Fail-first log shows the 2 new tests failing on old build. All 4 shots viewed: no paragraph captions in Settings, status line kept, tooltip legible light and dark, status 12 px. Tooltip overlaps the 'No sources yet' line only while Connect is focused; it covers no control (Look up/Import/Connect sit above it, Insert footnote below), so acceptable for a transient tooltip. Note: Export paragraph in Settings still reads as caption; out of T094 scope."
+    }
+  ]
+}

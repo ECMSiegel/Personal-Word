@@ -45,6 +45,15 @@ import { ProjectLibrary } from "./components/ProjectLibrary";
 import { ProjectSidebar } from "./components/ProjectSidebar";
 import { ReadDocument } from "./components/ReadDocument";
 import { Dropdown } from "./components/Dropdown";
+import { Segmented } from "./components/Segmented";
+import {
+  applyAppearance,
+  nextTheme,
+  readAppearance,
+  writeAppearance,
+  type Palette,
+  type Theme,
+} from "./appearance";
 import { footnoteText } from "./research/citations";
 import { resolveCitationContext, type SectionReferences } from "./research/noteForms";
 import { buildQuoteInsertion, createCommentAnchor, migrateLegacyCommentAnchor, resolveCommentAnchor, withCommentRevisions } from "./editor/commentAnchors";
@@ -209,6 +218,18 @@ export default function App() {
   useEffect(() => {
     localStorage.setItem("personal-word.reader", JSON.stringify(reader));
   }, [reader]);
+  const [appearance, setAppearance] = useState(() => readAppearance(localStorage));
+  useEffect(() => {
+    applyAppearance(document.documentElement, appearance);
+    writeAppearance(localStorage, appearance);
+    if (!desktop) return;
+    // The Mac title bar follows the choice; System hands control back to macOS.
+    void import("@tauri-apps/api/window")
+      .then(({ getCurrentWindow }) =>
+        getCurrentWindow().setTheme(appearance.theme === "system" ? null : appearance.theme),
+      )
+      .catch(() => {});
+  }, [appearance]);
   const [project, setProject] = useState<Project | null>(null);
   const projectIndex = useRef(createProjectIndex());
   const projectSummary = useMemo(() => project ? projectIndex.current.update(null, project) : null, [project]);
@@ -552,6 +573,7 @@ export default function App() {
                 {
                   label: "Discard and open",
                   primary: true,
+                  destructive: true,
                   run: () => {
                     discardJournal(localStorage, id);
                     queue.open(id, disk);
@@ -724,6 +746,13 @@ export default function App() {
         event.preventDefault();
         snapshot();
       }
+      if (event.shiftKey && key === "l") {
+        event.preventDefault();
+        setAppearance((a) => ({
+          ...a,
+          theme: nextTheme(a.theme, window.matchMedia("(prefers-color-scheme: dark)").matches),
+        }));
+      }
     };
     window.addEventListener("keydown", handler);
     return () => window.removeEventListener("keydown", handler);
@@ -782,6 +811,7 @@ export default function App() {
         {
           label: "Delete " + e.kind,
           primary: true,
+          destructive: true,
           run: async () => {
             await queue.flush();
             await storage.snapshot(
@@ -814,6 +844,7 @@ export default function App() {
         {
           label: "Delete project",
           primary: true,
+          destructive: true,
           run: async () => {
             await queue.flush();
             try {
@@ -1473,6 +1504,8 @@ export default function App() {
             onDelete={removeProject}
             onImport={(file) => void run(() => importProject(file))}
             onImportWriting={(file) => void run(() => importWriting(file))}
+            dropEnabled={!busy && !importBusy && !importPreview && !nameDialog && !choice}
+            onDropError={(message) => setError(message)}
             damagedJournals={damagedJournals}
             onExportJournal={(d) =>
               download(d.key + ".txt", d.raw, "text/plain")
@@ -1734,9 +1767,33 @@ export default function App() {
                       />
                       Restore open project tabs at launch
                     </label>
-                    <p className="settings-help">
-                      Default startup opens Projects.
-                    </p>
+                    <div className="settings-form">
+                      <div className="settings-field">
+                        <span className="settings-label">Appearance</span>
+                        <Segmented<Theme>
+                          label="Appearance"
+                          value={appearance.theme}
+                          options={[
+                            { value: "system", label: "System" },
+                            { value: "light", label: "Light" },
+                            { value: "dark", label: "Dark" },
+                          ]}
+                          onChange={(theme) => setAppearance((a) => ({ ...a, theme }))}
+                        />
+                      </div>
+                      <div className="settings-field">
+                        <span className="settings-label">Palette</span>
+                        <Segmented<Palette>
+                          label="Palette"
+                          value={appearance.palette}
+                          options={[
+                            { value: "plain", label: "Plain" },
+                            { value: "color", label: "Color" },
+                          ]}
+                          onChange={(palette) => setAppearance((a) => ({ ...a, palette }))}
+                        />
+                      </div>
+                    </div>
                     <div className="settings-form">
                       <div className="settings-field">
                         <span className="settings-label">Storage location</span>
@@ -1761,23 +1818,36 @@ export default function App() {
                         <input type="number" min="1" step="1" value={project.goals?.dailyWords ?? ""}
                           onChange={(event) => patchGoal("dailyWords", event.target.value)} />
                       </label>
-                      <label className="settings-field">Goal scope
-                        <select aria-label="Goal scope" value={goalScope} onChange={(event) => patchGoalPreference("scope", event.target.value)}>
-                          <option value="manuscript">Manuscript</option>
-                          <option value="manuscript-and-fragments">Manuscript and fragments</option>
-                        </select>
-                      </label>
-                      <label className="settings-field">Goal day
-                        <select aria-label="Goal day" value={goalMode} onChange={(event) => patchGoalPreference("dayMode", event.target.value)}>
-                          <option value="local">Local day</option><option value="utc">UTC day</option>
-                        </select>
-                      </label>
+                      <div className="settings-field">
+                        <span className="settings-label">Goal scope</span>
+                        <Dropdown
+                          label="Goal scope"
+                          value={goalScope}
+                          options={[
+                            { value: "manuscript", label: "Manuscript" },
+                            { value: "manuscript-and-fragments", label: "Manuscript and fragments" },
+                          ]}
+                          onChange={(value) => patchGoalPreference("scope", value)}
+                        />
+                      </div>
+                      <div className="settings-field">
+                        <span className="settings-label">Goal day</span>
+                        <Dropdown
+                          label="Goal day"
+                          value={goalMode}
+                          options={[
+                            { value: "local", label: "Local day" },
+                            { value: "utc", label: "UTC day" },
+                          ]}
+                          onChange={(value) => patchGoalPreference("dayMode", value)}
+                        />
+                      </div>
                       <label className="settings-field">Deadline
                         <input type="date" value={project.goals?.deadline ?? ""}
                           onChange={(event) => patchGoal("deadline", event.target.value)} />
                       </label>
                     </div>
-                    <p className="settings-help">Daily progress starts when you first open the project each selected day. Changing scope, day mode, or local time zone starts a fresh daily baseline. Current baseline: {goalBaseline?.words.toLocaleString() ?? scopedWords.toLocaleString()} words on {goalDay}.</p>
+                    <p className="settings-help">Current baseline: {goalBaseline?.words.toLocaleString() ?? scopedWords.toLocaleString()} words on {goalDay}.</p>
                   </section>
                   <ExportPanel
                     project={project}

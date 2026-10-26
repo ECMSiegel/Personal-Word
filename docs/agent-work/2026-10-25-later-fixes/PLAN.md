@@ -124,3 +124,10 @@ L2 touches every import read path: a bug there blocks all rich imports, so its u
 - Never widen the print view's privileges to fix fonts; the font must be embedded as data.
 - pdf-lib output hashes change per export; compare text and geometry.
 - Board rules apply: one task at a time per file set, serial slot, pinned Node, fail-first, CLAIMED.
+
+## Added 2026-10-26 from the UI polish critique and reviews (not yet planned in detail)
+- L8 Native screenshots capture at 1x on the external monitor (board T090, Low): request a 2x snapshot in `smoke_snapshot` (WKSnapshotConfiguration snapshotWidth) or run on the Retina display.
+- L9 Plain palette dark-mode primary button contrast 2.45:1 (board T087, recorded only): owner decision; option is a darker fill for `.primary` in Plain dark with white text.
+- L10 Drag-and-drop import hardening (T080 review): consume a dropped path one-shot after a successful read; open with O_NOFOLLOW; also record drops from the webview event if the owner's Finder drag records nothing.
+- L11 Settings "Export document" intro paragraph still reads like a caption; Goals numeric labels darker than the muted `.settings-label` rows (T094/T095 reviews).
+- L12 Hovering an entry row hides its word count (T092 fade-replace); consider showing the count on hover and arrows on focus only.

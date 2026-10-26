@@ -13,6 +13,8 @@ Follow WP1-WP11 and review gates A-D in `docs/agent-work/2026-10-24-delegation/D
 
 Addendum 2026-10-25 (owner approved): also execute `docs/agent-work/2026-10-25-cheap-fixes/PLAN.md` tasks T1-T8 (eight small known limitations), one board task each, with its file ownership, fail-first rules and validation list. Defaults chosen by the owner for that plan's open questions: remove the browser-preview Zotero fetch path; Word and PDF print section titles always and the project title except on the Chicago template.
 
+Addendum 2026-10-25 (owner approved, UI polish): also execute `docs/agent-work/2026-10-25-ui-polish/PLAN.md` tasks T0-T11 and its Validation list, one board task each, following that plan's files, interfaces, fail-first checks, acceptance commands and the five answered open questions; the chain T1 -> T2 -> T4 -> T5 -> T7 -> T8 -> T9 runs serially because each edits `src/styles.css` or `ProjectLibrary.tsx`; T0, T3 and T6 may run alongside.
+
 ## Non-goals
 No signing or distribution work, publishing or pushing, new packages, unrelated redesign, or changes to real user data. Layout implementation beyond WP8 is conditional on WP8 passing its feasibility check; follow its stop rules if the probe fails.
 
@@ -60,6 +62,7 @@ Run expensive builds, Playwright, cargo, and native checks one at a time, in the
 - [x] The owner's manual real-use test checklist is prepared, with implementation status CLAIMED pending owner confirmation.
 - [x] Every task on the team board is done and required independent reviews are complete.
 - [x] Cheap-fixes plan (2026-10-25) tasks T1-T8 are done with independent reviews, the plan's validation list has run, and README/validation.md no longer list the fixed items.
+- [x] UI polish plan (2026-10-25) tasks T0-T11 are done with independent reviews, its validation list has run, native screenshots were viewed, and the owner hand checks are prepared with status CLAIMED.
 
 ## Milestones
 1. Reconcile the current working tree and existing implementation/review reports before assigning remaining work.

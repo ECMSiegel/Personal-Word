@@ -1,0 +1,60 @@
+{
+  "id": "T086",
+  "title": "UI critique (High): create-panel items near-invisible in light mode",
+  "description": "The create panel's menu items (Blank, Essay, Chicago student paper, Screenplay, Story, Import a file..., Recover from a project.json file...) render as faint grey on the white panel in light mode - they read as disabled or empty; dark is muted but readable. Fails WCAG 4.5:1 on the primary creation affordance (design-system states section). Screenshot: docs/agent-work/2026-10-25-ui-polish/screens/browser-projects-create-light-color.png (+ dark variant). Suggested: items use var(--text), muted only for the two import actions if a distinction is wanted (still >= 4.5:1); verify with the contrast test and a fresh capture. Reference: Ulysses/Bear template menus are full-contrast. HIGH on T079's claimed work - owner decides fix-before-T11 or later (plan T10 stop rule).",
+  "status": "done",
+  "owner": null,
+  "priority": 1,
+  "depends_on": [],
+  "files": [
+    "src/components/ProjectLibrary.tsx",
+    "src/components/library.css",
+    "tests/projects-screen.spec.ts",
+    "src/designTokens.test.ts",
+    "src/palette.test.ts"
+  ],
+  "review_required": true,
+  "created_by": "agent-fb4d",
+  "created_at": "2026-10-26T04:54:27+00:00",
+  "claimed_at": "2026-10-26T04:56:04+00:00",
+  "updated_at": "2026-10-26T05:02:42+00:00",
+  "handoff": null,
+  "review": {
+    "by": "agent-a9d7",
+    "at": "2026-10-26T05:02:42+00:00",
+    "verdict": "approved",
+    "note": "Verified: library.css has no item opacity transition/delay/@starting-style; items color var(--text) opacity 1; clip-path morph kept with --duration-morph/--ease-spring; square corners; tokens only. Fail-first log shows 4 normal-motion cases failing opacity 0. tsc 0; vitest 15 passed; rebuilt vite + projects-screen+appearance 42 passed one worker no retries. Four shots legible light/dark x Plain/Color; own capture right after click (mid-morph) already legible, computed opacity 1 color rgb(36,36,40). No new paths outside T086 (my probe left only under node_modules/.cache). Serial slot not taken."
+  },
+  "log": [
+    {
+      "at": "2026-10-26T04:54:27+00:00",
+      "agent": "agent-fb4d",
+      "event": "created",
+      "note": ""
+    },
+    {
+      "at": "2026-10-26T04:56:04+00:00",
+      "agent": "agent-6c4d",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-10-26T04:56:04+00:00",
+      "agent": "agent-6c4d",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-10-26T04:59:24+00:00",
+      "agent": "agent-6c4d",
+      "event": "review requested",
+      "note": "DIAGNOSIS: timing artifact, not a settled defect. Measured on a private pre-fix build (light/dark x Plain/Color, identical): settled item color = --text (rgb(36,36,40) light, rgb(237,237,240) dark), opacity 1 at 1 s; immediately after click opacity 0 (@starting-style fade + 60ms delay, 220ms). ui-t10 capture.spec.mjs screenshots right after toBeVisible() on #create-panel, so the frame caught mid-morph (panel visibly clipped at the bottom, items at low opacity). The fade was still a real flaw (items invisible for first ~280ms). FIX (src/components/library.css only): removed the item opacity transition, delay and @starting-style fade; items now color var(--text), opacity 1 always (clip-path morph still reveals them; reduced motion unchanged). No muted colour on items. TESTS: tests/projects-screen.spec.ts +8 cases (light/dark x plain/color x normal/reduced motion): items' computed color == --text and opacity 1 right after click and after 400ms; src/palette.test.ts +2 (rule uses var(--text), opacity 1, no transition/starting-style; --text on --paper >= 4.5 light+dark). FAIL-FIRST: against pre-fix dist the 4 non-reduced cases failed (opacity 0 vs 1), 4 reduced-motion cases passed (expected, no transition there); vitest rule test failed on a doctored revert of the CSS, then restored. CHECKS: tsc 0; vitest designTokens+palette 15/15; projects-screen+appearance Playwright one worker no retries on rebuilt private dist: 42/42. SHOTS: node_modules/.cache/personal-word-beta/ui-t86/shots/create-{light,dark}-{plain,color}.png (1440x900 clip, 1 s after click), all four viewed, items clearly legible. Serial slot was unowned; I did NOT take it (private build + 2 specs, own port 1583/1584). Logs: ui-t86/failfirst.log, final.log. Registered extra paths: tests/projects-screen.spec.ts, src/designTokens.test.ts, src/palette.test.ts (designTokens.test.ts unchanged)."
+    },
+    {
+      "at": "2026-10-26T05:02:42+00:00",
+      "agent": "agent-a9d7",
+      "event": "approved",
+      "note": "Verified: library.css has no item opacity transition/delay/@starting-style; items color var(--text) opacity 1; clip-path morph kept with --duration-morph/--ease-spring; square corners; tokens only. Fail-first log shows 4 normal-motion cases failing opacity 0. tsc 0; vitest 15 passed; rebuilt vite + projects-screen+appearance 42 passed one worker no retries. Four shots legible light/dark x Plain/Color; own capture right after click (mid-morph) already legible, computed opacity 1 color rgb(36,36,40). No new paths outside T086 (my probe left only under node_modules/.cache). Serial slot not taken."
+    }
+  ]
+}

@@ -166,3 +166,30 @@ test("invalid extended-year goal deadlines never replace the saved deadline", as
   await deadline.fill("");
   await expect(deadline).toHaveValue("");
 });
+
+test("Settings has no paragraph captions under the startup or goals controls", async ({ page }) => {
+  await page.goto("/");
+  await create(page, "No captions");
+  await page.locator(".group-title").filter({ hasText: /^Settings$/ }).click();
+  await expect(page.getByLabel("Daily word goal", { exact: true })).toBeVisible();
+  await expect(page.getByText("Default startup opens Projects.")).toHaveCount(0);
+  await expect(page.getByText(/Daily progress starts when you first open/)).toHaveCount(0);
+  await expect(page.getByText(/Current baseline:/)).toBeVisible();
+});
+
+test("Settings Goals pickers use the interface font and square corners", async ({ page }) => {
+  await page.goto("/");
+  await create(page, "Goal pickers");
+  await page.locator(".group-title").filter({ hasText: /^Settings$/ }).click();
+  const ui = await page.locator(".project-settings .settings-label").first().evaluate((el) => getComputedStyle(el).fontFamily);
+  for (const name of ["Goal scope", "Goal day"]) {
+    const control = page.getByLabel(name, { exact: true });
+    await expect(control).toBeVisible();
+    const style = await control.evaluate((el) => {
+      const s = getComputedStyle(el);
+      return { font: s.fontFamily, radius: s.borderRadius };
+    });
+    expect(style.font, `${name} font`).toBe(ui);
+    expect(style.radius, `${name} corners`).toBe("0px");
+  }
+});
