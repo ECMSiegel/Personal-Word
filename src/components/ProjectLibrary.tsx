@@ -55,6 +55,8 @@ export function ProjectLibrary({
   const writingInput = useRef<HTMLInputElement>(null);
   const projectInput = useRef<HTMLInputElement>(null);
   const [triggerSize, setTriggerSize] = useState({ w: 0, h: 0 });
+  const [closing, setClosing] = useState(false);
+  const closeTimer = useRef<number | null>(null);
   const searchButton = useRef<HTMLButtonElement>(null);
   const searchInput = useRef<HTMLInputElement>(null);
   const [dropping, setDropping] = useState(false);
@@ -76,18 +78,24 @@ export function ProjectLibrary({
   );
   if (reverse) sorted.reverse();
   useLayoutEffect(() => {
-    if (!creating) return;
+    if (!creating || closing) return;
     createPanel.current?.querySelector<HTMLButtonElement>("button")?.focus();
-  }, [creating]);
+  }, [creating, closing]);
   useEffect(() => {
     if (!creating) return;
     const close = (event: PointerEvent) => {
       if (!(event.target as Element).closest(".create-project"))
-        setCreating(false);
+        dismissCreate();
     };
     document.addEventListener("pointerdown", close);
     return () => document.removeEventListener("pointerdown", close);
-  }, [creating]);
+  }, [creating, closing]);
+  useEffect(
+    () => () => {
+      if (closeTimer.current) window.clearTimeout(closeTimer.current);
+    },
+    [],
+  );
   useEffect(() => {
     if (desktop) {
       let disposed = false;
@@ -144,8 +152,26 @@ export function ProjectLibrary({
     if (problem) onDropError(problem);
     else onImportWriting(files[0]);
   };
+  // Closing keeps the panel mounted for one morph so it collapses back into the button.
+  const dismissCreate = () => {
+    if (!creating || closing) return;
+    setClosing(true);
+    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (reduced) {
+      setClosing(false);
+      setCreating(false);
+      return;
+    }
+    const raw = getComputedStyle(document.documentElement).getPropertyValue("--duration-morph");
+    const ms = Math.max(0, parseFloat(raw) * (raw.trim().endsWith("ms") ? 1 : 1000) || 0);
+    closeTimer.current = window.setTimeout(() => {
+      closeTimer.current = null;
+      setClosing(false);
+      setCreating(false);
+    }, ms);
+  };
   const closeCreate = (refocus: boolean) => {
-    setCreating(false);
+    dismissCreate();
     if (refocus) createButton.current?.focus();
   };
   const onPanelKeyDown = (e: React.KeyboardEvent) => {
@@ -207,7 +233,7 @@ export function ProjectLibrary({
           onBlur={(e) => {
             const next = e.relatedTarget as Node | null;
             if (creating && next && !e.currentTarget.contains(next))
-              setCreating(false);
+              dismissCreate();
           }}
         >
           <button
@@ -220,7 +246,12 @@ export function ProjectLibrary({
               // Measured before the panel exists so its opening shape starts at the button.
               const box = e.currentTarget;
               setTriggerSize({ w: box.offsetWidth, h: box.offsetHeight });
-              setCreating(!creating);
+              if (closing) {
+                if (closeTimer.current) window.clearTimeout(closeTimer.current);
+                closeTimer.current = null;
+                setClosing(false);
+              } else if (creating) dismissCreate();
+              else setCreating(true);
             }}
           >
             Start new project <ChevronDown size={14} />
@@ -230,6 +261,7 @@ export function ProjectLibrary({
               id="create-panel"
               ref={createPanel}
               className="create-panel"
+              data-closing={closing ? "" : undefined}
               role="group"
               aria-label="Start new project"
               style={
@@ -254,7 +286,7 @@ export function ProjectLibrary({
                     key={id}
                     type="button"
                     onClick={() => {
-                      setCreating(false);
+                      dismissCreate();
                       onCreate(id);
                     }}
                   >
@@ -265,7 +297,7 @@ export function ProjectLibrary({
                 <button
                   type="button"
                   onClick={() => {
-                    setCreating(false);
+                    dismissCreate();
                     writingInput.current?.click();
                   }}
                 >
@@ -274,7 +306,7 @@ export function ProjectLibrary({
                 <button
                   type="button"
                   onClick={() => {
-                    setCreating(false);
+                    dismissCreate();
                     projectInput.current?.click();
                   }}
                 >

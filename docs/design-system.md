@@ -35,7 +35,7 @@ Keep 0-3 px nudges, negatives, values above 32 px, auto, percentages, calculated
 
 `--ease-spring: cubic-bezier(0.34, 1.4, 0.64, 1)` and `--duration-morph: 220ms` govern the search expansion and create-panel opening.
 The `prefers-reduced-motion: reduce` block in `src/styles.css` removes all transitions and smooth scrolling. Reduced motion must also apply to new components.
-The create panel closes instantly. Panel items have no fade-in: they are opaque from the first frame and the clip-path morph alone reveals them, so no menu or panel item may start at reduced opacity (T086). If native WebKit does not animate `@starting-style`, an immediate opening is acceptable; record the observed result.
+The create panel hangs below its button on `--surface` and opens and closes through the same clip-path morph (instant under reduced motion). Panel items have no fade-in: they are opaque from the first frame and the clip-path morph alone reveals them, so no menu or panel item may start at reduced opacity (T086). If native WebKit does not animate `@starting-style`, an immediate opening is acceptable; record the observed result.
 
 ## States
 

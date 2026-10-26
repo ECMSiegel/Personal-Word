@@ -99,14 +99,32 @@ test("create button opens a panel listing every template, then the two file acti
   await expect(panel.getByRole("button").first()).toBeFocused();
 });
 
-test("the panel grows from the create button's corner and carries no caption", async ({ page }) => {
+test("the panel hangs below the create button and carries no caption", async ({ page }) => {
   const { trigger, panel } = await openPanel(page);
   const t = (await trigger.boundingBox())!;
   const p = (await panel.boundingBox())!;
   expect(Math.abs(p.x - t.x)).toBeLessThanOrEqual(1);
-  expect(Math.abs(p.y - t.y)).toBeLessThanOrEqual(1);
+  // Below the button, not around it: the panel's top is the button's bottom edge.
+  expect(Math.abs(p.y - (t.y + t.height))).toBeLessThanOrEqual(1);
   expect(p.height).toBeGreaterThan(t.height * 4);
   expect(p.width).toBeGreaterThanOrEqual(t.width);
+  await expect(panel.locator("p")).toHaveCount(0);
+});
+
+test("the panel collapses with a morph on close, and instantly under reduced motion", async ({ page }) => {
+  const { panel } = await openPanel(page);
+  await page.keyboard.press("Escape");
+  // Still mounted and marked closing while the morph runs, then gone.
+  await expect(panel).toHaveAttribute("data-closing", "");
+  await expect(panel).toHaveCount(0);
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  const again = await openPanel(page);
+  const duration = await again.panel
+    .locator(".create-panel-body")
+    .evaluate((el) => getComputedStyle(el).transitionDuration);
+  expect(duration).toBe("0s");
+  await page.keyboard.press("Escape");
+  await expect(again.panel).toHaveCount(0);
 });
 
 test("Escape closes the panel and returns focus to the create button", async ({ page }) => {
