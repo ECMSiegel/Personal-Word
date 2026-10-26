@@ -1,0 +1,27 @@
+{
+  "id": "T114",
+  "title": "UI wave 2 U17: Probe: does this app's WebKit draw a PDF in an iframe? (N, part 0)",
+  "description": "Plan task U17. Follow docs/agent-work/2026-10-26-ui-wave-2/PLAN.md exactly: this task's section (Files, Interfaces, Steps, Acceptance check, Fail-first, Stop-and-ask, Default) plus the seven answered Open questions and the Notes for the implementer. Protocol: register the serial check slot via files add only right before the first expensive check and keep it until done; pinned Node; quoted --outDir; no installs, no commits; status CLAIMED; independent review required.",
+  "status": "available",
+  "owner": null,
+  "priority": 1,
+  "depends_on": [],
+  "files": [
+    "node_modules/.cache/personal-word-beta/ui2-u17"
+  ],
+  "review_required": true,
+  "created_by": "agent-3405",
+  "created_at": "2026-10-26T21:02:23+00:00",
+  "claimed_at": null,
+  "updated_at": "2026-10-26T21:02:23+00:00",
+  "handoff": null,
+  "review": null,
+  "log": [
+    {
+      "at": "2026-10-26T21:02:23+00:00",
+      "agent": "agent-3405",
+      "event": "created",
+      "note": ""
+    }
+  ]
+}
