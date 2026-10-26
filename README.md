@@ -42,7 +42,7 @@ The folder contains **Personal Word.app**, which you can copy to Applications. I
 
 For a browser-only preview, run `npm run dev` and open `http://localhost:1420`. **Browser writing is stored separately from the Mac app's database.**
 
-> **Beta.** Personal Word is early software for local writing. Keep your own backups, and read [Limitations](#limitations) before trusting it with work you cannot replace.
+> **Beta.** Personal Word is early software for local writing; keep your own backups and see [Status, limits and history](#status-limits-and-history).
 
 ![A Chicago-style paper open in Personal Word, with a footnote at the bottom of the page](docs/evidence/readme/writing-light.png)
 
@@ -75,9 +75,9 @@ These screenshots come from the browser preview, using made-up writing. The inst
 | **Not yet hand-tested** | Older macOS versions |
 | **Not supported** | Windows, Linux, iPad, phones |
 
-There is no downloadable app. Building from source produces `Personal Word.app`; a fresh local build was recorded on 2026-10-25 after the cheap-fixes wave; the owner confirmed the real-use checks on the previous build and has not yet hand-tested the rebuilt one. The build is not signed or notarized by Apple, so macOS may warn you the first time you open it.
+There is no downloadable app. Building from source produces `Personal Word.app`. The build is not signed or notarized by Apple, so macOS may warn you the first time you open it.
 
-Signing and downloadable distribution were removed from beta scope on 2026-10-23; the retained preparation work and gates are recorded in [Mac distribution status](docs/distribution.md). Prepared [third-party notices](src-tauri/resources/THIRD_PARTY_NOTICES.txt) and license texts still await distribution review.
+Distribution preparation is recorded in [Mac distribution status](docs/distribution.md); see also the [third-party notices](src-tauri/resources/THIRD_PARTY_NOTICES.txt).
 
 ## A short workflow
 
@@ -100,30 +100,9 @@ To back up, quit the app and copy the whole project folder somewhere else. The o
 
 ## Beta status
 
-Personal Word 0.1.1 is **beta**. Gate D passed automated acceptance, and on 2026-10-25 the owner confirmed personally completing all nine real-use checks successfully. Those owner gates are now VERIFIED by owner report. See the [owner results](docs/agent-work/2026-10-24-team-reconciliation/OWNER_TEST_RESULTS.md) for the confirmation and its scope, and the [validation record](docs/validation.md) for automated counts, run IDs and binary hashes.
+Personal Word 0.1.1 is **beta**. Gate D passed automated acceptance, and on 2026-10-25 the owner confirmed personally completing all nine real-use checks successfully. Those owner gates are VERIFIED by owner report. See the [owner results](docs/agent-work/2026-10-24-team-reconciliation/OWNER_TEST_RESULTS.md) for the confirmation and its scope, and the [validation record](docs/validation.md) for automated counts, run IDs and binary hashes.
 
-The nine checks covered keyboard editing and comment navigation, blocked-close retry, recovered images, pre-restore safety copies, Microsoft Word rendering, Apple silicon, VoiceOver and input methods, a long writing session, and native WebKit light/dark visuals. The app remains unsigned and unpublished. Known limitations below still apply; passing these checks does not establish physical power-loss safety.
-
-Later on 2026-10-25 a cheap-fixes wave (eight board tasks, each independently reviewed) closed the small known issues: the import size label, the "newer version of Folio" error wording, the notice toast covering the export button, PDF images stacking without a gap, Word and PDF exports omitting project and section titles, the BibTeX "Jr." suffix, the unapproved browser-preview Zotero path, and untested import-cancel paths. The full validation list reran green on the final tree and the app was rebuilt; those results are CLAIMED until the owner runs the rebuilt app (record: [cheap-fixes validation](docs/agent-work/2026-10-24-team-reconciliation/cheap-fixes-validation.md); remaining work: [later fixes plan](docs/agent-work/2026-10-25-later-fixes/PLAN.md)).
-
-All four [board questions](team/QUESTIONS.md) were resolved on 2026-10-25: the reviewed board copies supersede the stray WP8 work; the off-board orchestrator was stopped and its folder archived; the zip-header inflation limit was accepted for this beta; and the legacy PDF exporter remains in use, with WP9/WP10 cancelled. A bundled open-licence Arabic body font and a new probe are the recorded route to reconsider native print later. Signing and downloadable distribution were removed from beta scope by the owner on 2026-10-23. Hosted CI has not been qualified. See the [roadmap](ROADMAP.md) for future work.
-
-## Limitations
-
-- **Page breaks differ between views.** The editor's page view, PDF export, and Word export each lay out pages differently. Expect page breaks to move; exact page parity is not promised. **Preview PDF** shows the same PDF exporter's output. An exact print-engine preview does not exist: a native WebKit print probe was tried and stopped, because Arabic text containing the lam-alef ligature (for example السلام) could not be searched in its PDF with 26 of the 28 installed fonts tried, so the PDF exporter below remains the only PDF path. The probe exists only in a diagnostic build, and the owner chose to keep the legacy exporter and leave exact native PDF preview and flowing per-page footnotes cancelled (Q004).
-- **PDF uses bundled fonts.** PDF export draws with bundled Noto fonts, not the fonts on your Mac. It covers Latin, Greek, and Cyrillic scripts. Other scripts are refused with a message, so use Word export for them. A footnote too long to fit on one page is also refused rather than cut off. PDF tables do not repeat the header row on continuation pages (Word export marks the header row to repeat, confirmed by the owner in Word). Multi-paragraph footnotes are split into separate paragraphs in PDF and Word (task T043, repaired and reviewed; owner-confirmed in Word).
-- **Citation help covers common sources.** Books, journal articles, and websites are supported. The current development source also formats bounded examples for print edited-book chapters, ProQuest PhD dissertations, signed online newspaper articles, broadcast audio interviews and online TED Talks. Those examples have browser-preview and generated-export checks; they do not cover every subtype. Other imported records retain raw fields and offer manual citation forms. Full audio/video notes with specific time references currently require manual text. Lookup results can be wrong or incomplete. Check every citation and your instructor's rules yourself.
-- **Imports.** Plain text and Markdown files (up to 5 MB) keep their structure, but images, tables and raw HTML inside them arrive as visible literal text with a warning. HTML, Word (.docx) and Markdown-with-images (.zip) bundle files (up to 20 MB) import headings, lists, links, notes, rectangular tables and PNG/JPEG images through a preview dialog. They check the zip's declared sizes before unpacking, parse HTML without running it, and never fetch an outside image (it is omitted with a warning). Cancel creates nothing. A bundle's checksums are verified on import. Merged or nested table cells are not supported. A zip whose headers understate an entry's size is rejected only after that entry is unpacked, so a hostile file can cost memory first (accepted by the owner as a documented beta limit in Q003). **Cancel import** discards the result of a slow parse and creates nothing, and abandoning the dialog with Escape (while reading or at the preview) is covered by browser tests (2026-10-25); abandoning it by leaving the screen is not. The XML check refuses only external DOCTYPE declarations.
-- **Zotero and bibliography import.** Supports CSL JSON, BibTeX (.bib, .bibtex), and an optional Zotero refresh that is off by default, read-only, and limited to your own Mac (127.0.0.1:23119); every change goes through the review dialog. In the BibTeX importer a "Jr." suffix formats as "John Q. Smith Jr." in notes and "Smith, John Q., Jr." in the bibliography (2026-10-25). The refresh has no polling, no incremental updates, no handling of items deleted in Zotero, and no distinct "Zotero is off" message; it has never been run against a real Zotero. Zotero refresh works in the desktop app only; the browser preview shows a desktop-only message and makes no network read (2026-10-25). Import preview reports identifier matches and possible matches without silently discarding records based on title or surname. You can keep existing sources, add selected separate copies, or explicitly update selected fields on one matched source. Updates preserve identity and linked notes, leave unselected local fields intact, and require a checked safety snapshot. No fields are selected automatically; replacing original CSL data replaces that whole field. By default, short notes run across the manuscript and never use ibid. An opt-in **Use repeat citation rules** setting in the Research panel lets you choose to show the full citation again once per section and to use "Ibid." for back-to-back repeats instead of a short note (`src/research/ResearchPanel.tsx:686`).
-- **Writing aids are optional heuristics.** Prose checks can be wrong; they never correct text. Goals count manuscript sections only, and daily baselines reset by the local date. When a section has an extreme number of flagged words, only the issues nearest the cursor are shown (the panel says so) so typing stays responsive.
-- **Quote insertion has a layout limit.** A citation inserted after a block quotation can appear after the block rather than inside its final paragraph. Review the placement before export.
-- **Large projects can slow writing aids.** Goal and citation summaries currently recompute across the project during renders.
-- **Markdown footnotes round-trip.** Markdown export writes footnotes as definitions, and Markdown import reads single- and multi-paragraph notes back with their positions and order (unit and browser tests). Word and PDF export now write a multi-paragraph footnote as separate paragraphs (task T043, repaired and independently reviewed on 2026-10-25; the Word rendering was confirmed by the owner, and Word continuation paragraphs have no indent while PDF's are indented).
-- **Version comparison works by paragraph.** It does not track changes word by word.
-- **Comments attach to quoted text.** If two passages are identical, a comment may attach to the wrong one. If its passage is edited away, the comment is marked detached.
-- **Exports print titles.** Word and PDF export print the project title as a top-level heading and each section title as a subheading, matching Markdown, plain text and the bundle (2026-10-25). On the Chicago template the first page is the writer's own title page and prints neither the project title nor the first section's title; later sections keep theirs (owner decision Q005, 2026-10-25).
-- **Fonts depend on your Mac.** The interface prefers Futura, then Avenir. No commercial fonts are included.
-- **Saving is tested, not guaranteed.** Personal Word uses SQLite WAL with macOS `fullfsync=ON` and immediate transactions. Isolated native tests killed the app at checkpoints between asset staging and save, between the database commit and the portable copies, during a research-source merge and during a snapshot restore, and the project came back intact each time. On this Intel Mac a 100,000-word one-section save measured 116.57 / 130.43 / 124.37 ms at the 95th percentile at low load, and 141.69 ms on 2026-10-25 at moderate load (load average about 20-26) after the cheap-fixes changes (budget 150 ms; earlier runs on a heavily loaded Mac took 347 to 499 ms). Apple silicon is unmeasured. Sudden power loss, a kernel panic or disk failure cannot be guaranteed against; keep external backups.
+The nine checks covered keyboard editing and comment navigation, blocked-close retry, recovered images, pre-restore safety copies, Microsoft Word rendering, Apple silicon, VoiceOver and input methods, a long writing session, and native WebKit light/dark visuals. See the [roadmap](ROADMAP.md) for future work.
 
 ## For developers
 
@@ -156,10 +135,16 @@ python3 scripts/native-reliability.py --suite beta
 python3 scripts/verify-beta-evidence.py --evidence docs/agent-work/2026-10-20-beta-roadmap/06-durability/EVIDENCE.json --source-manifest docs/agent-work/2026-10-20-beta-roadmap/06-durability/SOURCE_MANIFEST.json
 ```
 
-The evidence verifier checks recorded evidence and source identity; it does not run the suites. Exit 0 means the recorded evidence and owner reports are consistent; exit 2 means required outcomes are still incomplete. The nine owner confirmations are now recorded as passed. Local evidence/build artifacts are required and are not shipped in Git; a fresh clone cannot verify the original local run without them. Rebuild the normal app without diagnostic features before owner testing.
+The evidence verifier checks recorded evidence and source identity; it does not run the suites. Exit 0 means the recorded evidence and owner reports are consistent; exit 2 means required outcomes are incomplete. Local evidence/build artifacts are required and are not shipped in Git. Rebuild the normal app without diagnostic features before owner testing.
 
 Some internal names still say `folio`, from the app's earlier name. They keep existing projects readable. Do not rename them without a data migration.
 
 ## License
 
 GPL-3.0-only. See [LICENSE](LICENSE).
+
+## Status, limits and history
+
+- [Limitations](docs/limitations.md) -- current limitations, then resolved issues with dates
+- [Changelog](docs/changelog.md) -- full dated history
+- [Validation record](docs/validation.md) -- how it was checked
