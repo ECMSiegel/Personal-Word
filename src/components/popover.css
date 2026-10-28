@@ -1,0 +1,54 @@
+/* The one menu and panel surface (docs/design-system.md, Popover). */
+.popover {
+  position: absolute;
+  top: calc(100% + 2px);
+  left: 0;
+  z-index: 40;
+  box-sizing: border-box;
+  background: var(--elevation-raised);
+  border: 1px solid var(--line);
+  border-radius: 0;
+  box-shadow: var(--shadow-raised);
+  overflow: auto;
+  overscroll-behavior: contain;
+}
+.popover.popover-end {
+  left: auto;
+  right: 0;
+}
+.popover.popover-up {
+  top: auto;
+  bottom: calc(100% + 2px);
+}
+.popover.popover-anchor {
+  top: 0;
+  left: 0;
+}
+.popover-highlight {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 1px;
+  height: 1px;
+  transform-origin: 0 0;
+  background: var(--surface);
+  pointer-events: none;
+}
+[data-popover-item] {
+  position: relative;
+  z-index: 1;
+  background: transparent;
+  color: var(--text);
+  opacity: 1;
+}
+.popover-item:active:not(:disabled) {
+  transform: scale(0.99);
+  transition: transform var(--duration-press) var(--ease-out);
+}
+.popover-shortcut {
+  margin-left: auto;
+  padding-left: var(--space-4);
+  color: var(--muted);
+  font-size: var(--type-small);
+  white-space: nowrap;
+}

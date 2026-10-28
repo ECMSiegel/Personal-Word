@@ -27,7 +27,7 @@ npm ci
 npm run tauri dev
 ```
 
-The first launch compiles the app and can take a few minutes. When the window opens, choose **Start new project**, then **Chicago student paper**, and start writing. Keep Terminal open while using this development version.
+The first launch compiles the app and can take a few minutes. When the window opens, choose **Start new project**, then **Chicago**, and start writing. Keep Terminal open while using this development version.
 
 ### 3. Build a standalone app (optional)
 
@@ -54,7 +54,7 @@ Personal Word is for someone writing a long piece with sources: a student paper,
 - want their research notes, quotations, and sources **in the same window** as the draft;
 - want their writing **stored on their own Mac**, with no account, subscription, or cloud service.
 
-It also includes story and screenplay templates. It is not a replacement for Microsoft Word. It supports inline images (PNG, JPEG), tables (with header rows, row/column operations), Chicago notes, comments, and project archives. It does not handle arbitrary merged table cells, live multi-user collaboration, or tracked changes.
+It also includes a screenplay template; projects created from the older Story and Essay templates still open. It is not a replacement for Microsoft Word. It supports inline images (PNG, JPEG), tables (with header rows, row/column operations), Chicago notes, comments, and project archives. It does not handle arbitrary merged table cells, live multi-user collaboration, or tracked changes.
 
 ## What it looks like
 
@@ -81,12 +81,18 @@ Distribution preparation is recorded in [Mac distribution status](docs/distribut
 
 ## A short workflow
 
-1. **Start a project.** On the Projects screen, choose **Start new project**, then **Chicago student paper**. The template sets 12-point serif type, double spacing, one-inch margins, and a title page.
+1. **Start a project.** On the Projects screen, choose **Start new project**, then **Chicago**. The template sets 12-point serif type, double spacing, one-inch margins, and a title page. Blank and Screenplay are offered too; Essay and Story are hidden from the menus, and projects already created from them still open.
 2. **Write in sections.** The sidebar lists the paper's sections. Click one to open it, and add more with the **+** button beside Manuscript.
 3. **Add a source.** Open **Research** in the sidebar. Paste a DOI, ISBN, or web address and choose **Look up**, choose **Enter manually**, or import a local Zotero **CSL JSON** or **BibTeX** (.bib) export. Review the preview before adding sources. The panel shows the Chicago note and bibliography entry as you type.
 4. **Cite it.** Put the cursor where the note belongs and choose **Cite here**. A numbered footnote appears in the text and at the bottom of the page. New projects shorten repeated citations automatically; existing projects keep that option off until enabled. Choose a Short title and override a note to Always full or Always short when needed. **Capture quote** saves a passage with its page and can insert both quotation and citation together.
 5. **Take a snapshot.** Before a big revision, choose **Snapshot** at the top right and name it. **Snapshots & history** lets you compare versions side by side and restore a section or a single paragraph.
 6. **Export.** Open **Settings** in the sidebar and scroll to **Export document**. Choose **Export DOCX** for an editable Word file with real footnotes, or **Export PDF**. **Export Markdown** and **Export plain text** include the whole project, including notes, fragments, and research notes. **Markdown with images (.zip)** adds the pictures and a checksum manifest, and can be imported again.
+
+**Bibliography.** The Research part of the sidebar lists **Bibliography** and then every source. The Bibliography page is read-only: choose the entry order (Alphabetical by author, Order first cited, By source type) and whether to include uncited sources. The choice is saved with the project and used by Word, PDF, Markdown and plain-text export. **Read manuscript** ends with the same Bibliography.
+
+**PDFs.** Attach a PDF (up to 25 MB) to a source in Research and open it beside the draft. PDFs are stored in the project folder and are never fetched from the internet; they are not carried inside the project's `.json` archive or the Markdown bundle (see [Limitations](docs/limitations.md)).
+
+**Open a section or a fragment beside the draft.** Cmd+click its sidebar row, or use the **Open beside** button that appears on hover or keyboard focus. Drag the divider to change the split; the width ratio is remembered, and each pane edits its own entry, so you can type in both.
 
 The **Projects** screen has a search button that opens a field and filters the list by title. **Start new project** opens a panel listing the templates, then **Import a file…** and **Recover from a project.json file…**. You can also drag one `.txt`, `.md`, `.docx`, `.html` or `.zip` file onto the Projects screen to open the import preview; Cancel creates nothing.
 

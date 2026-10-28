@@ -2,28 +2,71 @@
   "id": "T106",
   "title": "UI wave 2 U9: Fixed bottom rows and per-project feature switches (F)",
   "description": "Plan task U9. Follow docs/agent-work/2026-10-26-ui-wave-2/PLAN.md exactly: this task's section (Files, Interfaces, Steps, Acceptance check, Fail-first, Stop-and-ask, Default) plus the seven answered Open questions and the Notes for the implementer. Protocol: register the serial check slot via files add only right before the first expensive check and keep it until done; pinned Node; quoted --outDir; no installs, no commits; status CLAIMED; independent review required.",
-  "status": "available",
+  "status": "done",
   "owner": null,
   "priority": 1,
   "depends_on": [
     "T105"
   ],
   "files": [
-    "node_modules/.cache/personal-word-beta/ui2-u9"
+    "node_modules/.cache/personal-word-beta/ui2-u9",
+    "src/model.ts",
+    "src/components/ProjectSidebar.tsx",
+    "src/App.tsx",
+    "src/styles.css",
+    "src/model.test.ts",
+    "tests/sidebar-selection.spec.ts",
+    "src-tauri/src/store.rs",
+    "node_modules/.cache/personal-word-beta/team-serial-check-slot"
   ],
   "review_required": true,
   "created_by": "agent-3405",
   "created_at": "2026-10-26T21:02:19+00:00",
-  "claimed_at": null,
-  "updated_at": "2026-10-26T21:02:19+00:00",
+  "claimed_at": "2026-10-27T07:16:47+00:00",
+  "updated_at": "2026-10-27T07:55:40+00:00",
   "handoff": null,
-  "review": null,
+  "review": {
+    "by": "agent-a625",
+    "at": "2026-10-27T07:55:40+00:00",
+    "verdict": "approved",
+    "note": "Approved. tsc 0; vitest model+palette 75 passed; cargo full 57 passed 1 ignored (sidebarHidden survives save+restart in store.rs:1900); build ok; chromium sidebar-selection/layout/appearance/housekeeping 35/35 on port 1564. Code read: top three reorder, bottom rows fixed order, no group-actions/chevron, draggable false, Settings never hidden, per-project via mutate, hiddenGroups tolerant of unknown ids. Screenshots light+dark: Settings > Sidebar with 3 checkboxes, Comments row gone, highlight sits on Settings. Notes (non-blocking): model.test.ts sidebarHidden case would pass without the feature (validateProject ignores unknown keys), so the Rust test and browser case are the real guards; Settings highlight is still a tight text-width chip (U7 note; plan did not require full width); the destination-hidden guard is dead code as author recorded."
+  },
   "log": [
     {
       "at": "2026-10-26T21:02:19+00:00",
       "agent": "agent-3405",
       "event": "created",
       "note": ""
+    },
+    {
+      "at": "2026-10-27T03:12:33+00:00",
+      "agent": "agent-a3c2",
+      "event": "dependencies changed",
+      "note": "owner-authorised re-gate (decision 'Wave 2 lanes 2'): ['T105'] -> ['T105']"
+    },
+    {
+      "at": "2026-10-27T07:16:47+00:00",
+      "agent": "agent-272b",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-10-27T07:16:47+00:00",
+      "agent": "agent-272b",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-10-27T07:51:34+00:00",
+      "agent": "agent-272b",
+      "event": "review requested",
+      "note": "U9 done: the sidebar's bottom rows are fixed and each can be switched off per project.\n\nFILES/WHAT: src/model.ts (Project.sidebarHidden?: string[] -- additive metadata, saved like sidebarOrder; only read/comments/history are honoured). src/components/ProjectSidebar.tsx: the order is now topOrder (sidebarOrder filtered to collapsibleGroups, missing ones appended) followed by bottomGroups in their fixed order minus hiddenGroups, and Settings is never hidden; moveGroup only reorders the three top groups and writes sidebarOrder as [...top, ...bottomGroups]; bottom groups render no .group-actions, are draggable=\"false\", accept no group drop, and always use list view (views[id] is ignored for them); \"Move down\" is disabled on the third top group (index === collapsibleGroups.length - 1) instead of the old last-index test; new prop hiddenGroups?: string[]. src/App.tsx passes hiddenGroups={project.sidebarHidden ?? []} and adds a Settings > Sidebar section (after General) with \"Show Read manuscript\", \"Show Comments\", \"Show Snapshots & history\", checked = shown, each writing mutate((p) => ({ ...p, sidebarHidden: next })) with next built in the fixed read/comments/history order. src/model.test.ts: new round-trip case (structuredClone + JSON, validateProject does not throw). src-tauri/src/store.rs: extended_project_metadata_survives_save_and_restart now also inserts sidebarHidden [\"comments\"] (test only). tests/sidebar-selection.spec.ts: three new cases.\n\nDEVIATION (worth knowing): the plan step 3 guard \"if the current destination becomes hidden, setDestination(manuscript) and setMode(write)\" is written, but it cannot fire from here: the only surface that adds to sidebarHidden is this Settings section, and while it renders, the destination is always \"settings\" (TypeScript proved it -- comparing a value narrowed to \"settings\" with the read/comments/history union is a TS2367 error, which is why the code reads (destination as string) === id). It is kept as a guard for any future surface that toggles a switch while standing on that destination. Recorded rather than silently dropped.\n\nFAIL-FIRST: on a copy of my own src/components/ProjectSidebar.tsx the one line reading hiddenGroups was replaced with an empty array (switches ignored), built to ui2-u9/dist-ff, and the new case \"a hidden feature row leaves the sidebar, survives reload, and stays per project\" FAILED as intended (ui2-u9/ff.log, 1 failed). The file was restored from a pristine copy and verified byte-identical: ui2-u9/src-restore-check.txt OK (shasum -a 256 -c). No other file was patched.\n\nPASS: npx vitest run src/model.test.ts -> 64 passed. cargo test --locked --offline --manifest-path src-tauri/Cargo.toml --jobs 1 extended_project_metadata -- --test-threads=1 -> test result: ok. 1 passed; 0 failed; 1 ignored... (ui2-u9/cargo.log). npx tsc --noEmit -p . -> exit 0 (ui2-u9/tsc.log). PREVIEW(9) on port 1602, workers 1, retries 0, dist ui2-u9/dist: tests/sidebar-selection.spec.ts + tests/appearance.spec.ts + tests/comments.spec.ts + tests/features.spec.ts + tests/housekeeping.spec.ts -> 38 passed, exit 0 (ui2-u9/preview2.log). Build exit 0 (ui2-u9/build.log).\n\nCORRECTION DURING THE RUN (recorded, not hidden): the first full PREVIEW(9) was 37 passed / 1 failed, and the failure was MY OWN new test, not the product: its last step reused the createProject helper, which re-navigates, and with tab restore on that re-opened the project tab instead of the Projects library, so \"Start new project\" never appeared (timeout). Fixed by creating the second project from the library the test is already on. The single case then passed and the full suite was rerun clean: 38/38.\n\nBOUNDARIES: Chromium production preview plus a native-free acceptance; no SMOKE or native screenshot is required by U9 and none was run. Status CLAIMED. No commits, no installs. The serial slot is released.\n\nDESIGN DOC (for U20 to fold in; no task may edit docs/design-system.md): the sidebar has three reorderable top groups (Manuscript, Fragments, Research) and four fixed bottom rows (Read manuscript, Comments, Snapshots & history, Settings) that never reorder and carry no hover icons; each bottom feature can be switched off per project in Settings > Sidebar, and Settings itself is never hidden.\n\nReviewer: any agent other than agent-272b (I authored it). Hardest things to check: (1) bottom rows cannot be reordered or dragged and show no actions, while top groups still can; (2) a switch hides the row, survives reload, and does not affect another project; (3) the fail-first really is the hidden-row case failing when switches are ignored."
+    },
+    {
+      "at": "2026-10-27T07:55:40+00:00",
+      "agent": "agent-a625",
+      "event": "approved",
+      "note": "Approved. tsc 0; vitest model+palette 75 passed; cargo full 57 passed 1 ignored (sidebarHidden survives save+restart in store.rs:1900); build ok; chromium sidebar-selection/layout/appearance/housekeeping 35/35 on port 1564. Code read: top three reorder, bottom rows fixed order, no group-actions/chevron, draggable false, Settings never hidden, per-project via mutate, hiddenGroups tolerant of unknown ids. Screenshots light+dark: Settings > Sidebar with 3 checkboxes, Comments row gone, highlight sits on Settings. Notes (non-blocking): model.test.ts sidebarHidden case would pass without the feature (validateProject ignores unknown keys), so the Rust test and browser case are the real guards; Settings highlight is still a tight text-width chip (U7 note; plan did not require full width); the destination-hidden guard is dead code as author recorded."
     }
   ]
 }

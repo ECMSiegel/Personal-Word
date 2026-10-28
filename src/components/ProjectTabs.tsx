@@ -33,7 +33,7 @@ export function ProjectTabs({
             aria-label={"Close " + tab.title}
             onClick={() => onClose(tab.id)}
           >
-            <X size={12} />
+            <X size={16} />
           </button>
         </div>
       ))}

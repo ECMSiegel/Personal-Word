@@ -2,26 +2,58 @@
   "id": "T114",
   "title": "UI wave 2 U17: Probe: does this app's WebKit draw a PDF in an iframe? (N, part 0)",
   "description": "Plan task U17. Follow docs/agent-work/2026-10-26-ui-wave-2/PLAN.md exactly: this task's section (Files, Interfaces, Steps, Acceptance check, Fail-first, Stop-and-ask, Default) plus the seven answered Open questions and the Notes for the implementer. Protocol: register the serial check slot via files add only right before the first expensive check and keep it until done; pinned Node; quoted --outDir; no installs, no commits; status CLAIMED; independent review required.",
-  "status": "available",
+  "status": "done",
   "owner": null,
   "priority": 1,
   "depends_on": [],
   "files": [
-    "node_modules/.cache/personal-word-beta/ui2-u17"
+    "node_modules/.cache/personal-word-beta/ui2-u17",
+    "tests/native-screens.js",
+    "scripts/native-screens.py",
+    "node_modules/.cache/personal-word-beta/team-serial-check-slot"
   ],
   "review_required": true,
   "created_by": "agent-3405",
   "created_at": "2026-10-26T21:02:23+00:00",
-  "claimed_at": null,
-  "updated_at": "2026-10-26T21:02:23+00:00",
+  "claimed_at": "2026-10-26T21:13:22+00:00",
+  "updated_at": "2026-10-26T21:29:36+00:00",
   "handoff": null,
-  "review": null,
+  "review": {
+    "by": "agent-a3c2",
+    "at": "2026-10-26T21:29:36+00:00",
+    "verdict": "approved",
+    "note": "Coordinator review: diff limited to tests/native-screens.js (Preview PDF click, probe, pdf-preview snapshot, pdfProbe in report) and scripts/native-screens.py (SCREENS + probe print), matches U17 steps 1-2. Viewed native-color/pdf-preview-dark.png: PDF page drawn inside the iframe. pdfProbe application/pdf both fields, 622x538 in all 4 runs. PASS per plan; owner also confirmed (Q6 decision). Fail-first recorded by reading, acceptable for a probe."
+  },
   "log": [
     {
       "at": "2026-10-26T21:02:23+00:00",
       "agent": "agent-3405",
       "event": "created",
       "note": ""
+    },
+    {
+      "at": "2026-10-26T21:13:22+00:00",
+      "agent": "agent-f44b",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-10-26T21:13:22+00:00",
+      "agent": "agent-f44b",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-10-26T21:28:33+00:00",
+      "agent": "agent-f44b",
+      "event": "review requested",
+      "note": "U17 probe PASS. Files changed: tests/native-screens.js (Preview PDF click, wait iframe.export-preview, scrollIntoView, 2s wait, probe contentType/embed type/size, pdf-preview snapshot, pdfProbe in report), scripts/native-screens.py (SCREENS gains pdf-preview, prints pdfProbe per scenario). Fail-first: recorded from reading the scripts, not a full run: SCREENS had 4 names (8 PNGs), no pdfProbe anywhere. After: both palettes print '10 native screenshots written', exit ok. pdfProbe, identical in light/dark and plain/color: contentType application/pdf, embedType application/pdf, width 622, height 538. PNGs (all show the PDF page drawn inside the iframe in WKWebView, grey viewer frame, white page with text 'Screens fixture / Opening / First paragraph of the native screenshot fixture. / Second paragraph so the writing screen shows real prose.'): native/pdf-preview-light.png plain light: PDF page drawn; native/pdf-preview-dark.png plain dark: same, app chrome dark, PDF page white; native-color/pdf-preview-light.png color light: same, coloured sidebar icons; native-color/pdf-preview-dark.png color dark: same. Rule: PNG shows the PDF page inside the iframe = PASS. Build log ui2-u17/build.log had no errors. Owner question (step 4) left to coordinator."
+    },
+    {
+      "at": "2026-10-26T21:29:36+00:00",
+      "agent": "agent-a3c2",
+      "event": "approved",
+      "note": "Coordinator review: diff limited to tests/native-screens.js (Preview PDF click, probe, pdf-preview snapshot, pdfProbe in report) and scripts/native-screens.py (SCREENS + probe print), matches U17 steps 1-2. Viewed native-color/pdf-preview-dark.png: PDF page drawn inside the iframe. pdfProbe application/pdf both fields, 622x538 in all 4 runs. PASS per plan; owner also confirmed (Q6 decision). Fail-first recorded by reading, acceptable for a probe."
     }
   ]
 }

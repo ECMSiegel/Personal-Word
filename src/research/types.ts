@@ -32,6 +32,8 @@ export type Source = {
   isbn?: string;
   /** Where a citation lookup found this record, e.g. "Found on Crossref". */
   lookupNote?: string;
+  /** One attached PDF: bytes live in the project's asset store under assetId. */
+  pdf?: { assetId: string; name: string; byteLength: number };
 };
 export type ResearchNote = {
   id: string;
@@ -71,6 +73,8 @@ export type DocumentSettings = {
   firstLineIndent: boolean;
   bibliography: boolean;
   pageNumbers: boolean;
+  bibliographyOrder?: "author" | "cited" | "type";
+  bibliographyScope?: "cited" | "all";
 };
 export const defaultDocumentSettings: DocumentSettings = {
   font: "serif",

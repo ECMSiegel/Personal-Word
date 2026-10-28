@@ -2,28 +2,90 @@
   "id": "T099",
   "title": "UI wave 2 U2: Motion engine `src/motion.ts` (A, part 2)",
   "description": "Plan task U2. Follow docs/agent-work/2026-10-26-ui-wave-2/PLAN.md exactly: this task's section (Files, Interfaces, Steps, Acceptance check, Fail-first, Stop-and-ask, Default) plus the seven answered Open questions and the Notes for the implementer. Protocol: register the serial check slot via files add only right before the first expensive check and keep it until done; pinned Node; quoted --outDir; no installs, no commits; status CLAIMED; independent review required.",
-  "status": "available",
+  "status": "done",
   "owner": null,
   "priority": 1,
   "depends_on": [
     "T098"
   ],
   "files": [
-    "node_modules/.cache/personal-word-beta/ui2-u2"
+    "node_modules/.cache/personal-word-beta/ui2-u2",
+    "src/motion.ts",
+    "tests/motion.spec.ts",
+    "src/motion.test.ts",
+    "docs/design-system.md",
+    "node_modules/.cache/personal-word-beta/team-serial-check-slot"
   ],
   "review_required": true,
   "created_by": "agent-3405",
   "created_at": "2026-10-26T21:02:15+00:00",
-  "claimed_at": null,
-  "updated_at": "2026-10-26T21:02:15+00:00",
-  "handoff": null,
-  "review": null,
+  "claimed_at": "2026-10-27T02:08:45+00:00",
+  "updated_at": "2026-10-27T02:24:44+00:00",
+  "handoff": {
+    "by": "agent-7a66",
+    "at": "2026-10-27T00:50:02+00:00",
+    "text": "REJECT (one small required fix; everything else reads correct). Reviewer agent-7a66.\n\nREQUIRED FIX\n1. src/motion.ts:259-260 slideHighlight measures the target relative to the container's BORDER box (rect - container.getBoundingClientRect()), but an absolutely positioned highlight at top:0/left:0 sits at the container's PADDING box. U4's popover.css gives the container `border: 1px solid var(--line)`, so every highlight lands 1px right and 1px down of its item. Fix: `const x = rect.left - box.left - container.clientLeft + container.scrollLeft; const y = rect.top - box.top - container.clientTop + container.scrollTop;`. Add one Node test with a fake container {getBoundingClientRect, clientLeft:1, clientTop:1, scrollTop:20} and a fake target, asserting highlight.style.transform === `translate(Xpx, Ypx) scale(W, H)` with the border and scroll accounted (stub getComputedStyle globally); show it fails before the fix.\n\nVERIFIED (keep as is)\n- Signatures: MOTION_MS, MotionSpeed, EASING, MotionEasing, ANIMATABLE, prefersReducedMotion, checkKeyframes, play, Presence, presence (defaults base/fast/out/in), usePresence, slideHighlight, staggerIn(step=15) all match PLAN U2 exactly; no top-level window access.\n- play: fill defaults \"none\"; null + no animate() under reduced motion; validating before the reduced check is stricter, fine.\n- presence logic traced for show->hide->show->hide chains, finished-held hide then show, hide called twice, hide after finish but before the finished microtask (generation guard handles it), cancel (resolves pending false, no orphan promise). Deviations are sound: fill 'both' on a reversed show is required (with 'none' the reversed show ends at offset 0 in the before phase and would flash visible before unmount); cancelling a FINISHED held hide and playing a fresh show starts from the same hidden frame, so no jump; staggerIn fill 'backwards' holds translateY(-4px) during the delay instead of jumping.\n- usePresence: render-phase prevOpen pattern gives mounted===open in the same render under reduced motion with no timers; reopen during hide reuses the controller and reverses; the hide .then is guarded by `live` and by done===true; unmount during a pending hide cancels (promise resolves false, no setState after unmount); StrictMode (main.tsx uses it) mount double-invoke cancels and recreates cleanly; latest-ref avoids stale hidden/opts.\n- staggerIn delays 0..90,90, transform only.\n- tests/motion.spec.ts (a)(b)(c) sample every rAF from before the action to 300 ms after, assert props.length>0 / samples>0, so not vacuous.\n- My runs: vitest src/motion.test.ts 16/16; tsc --noEmit exit 0. Mutation run on a scratch copy outside the project (11 mutants): caught - hide not reversing a show, show not reversing a hide, show reversal replaced by a fresh animation, hide resolving true when a show cancels it, staggerIn adding opacity, stagger cap removed, play default fill forwards, play ignoring reduced motion, hide without forwards fill. Survived - removing the fill:'both' on a reversed show (browser-only behaviour; worker's Chromium probe covers it), and skipping the reduced-motion branch in hide (equivalent mutant: play returns null and hide still resolves true). Browser rerun skipped: serial slot owned by agent-9884/T100 at review time; relied on worker's pw.log (37 passed) and probe logs.\n\nCARRY-FORWARD FOR U4's REVIEWER (only real UI can close these)\n- DoD 2: a reopened Sort menu continues from its current frame with no remount (motion.spec (e)).\n- usePresence and slideHighlight are not exercised by any test until U4; check them in Chromium AND native WebKit, including StrictMode dev mount.\n- After this fix, check highlight alignment visually inside a bordered, scrolled popover.\n- slideHighlight(null) while a slide is in flight cancels the slide, so the box snaps to its target while fading (minor; acceptable or fix in U4).\n- A held finished hide animation stays attached to the unmounted node until the next open cancels it (harmless; not in document.getAnimations()).\n- No Mac Reduce Motion or native WebKit proof yet; status stays CLAIMED."
+  },
+  "review": {
+    "by": "agent-9884",
+    "at": "2026-10-27T02:24:44+00:00",
+    "verdict": "approved",
+    "note": "Reviewed the cycle-2 diff against U2 and the prior rejection. The new slideHighlight test uses a 1px border and scrollTop=20 and asserts the corrected padding-box transform; implementation subtracts clientLeft/clientTop and adds scroll offsets. Fresh `npx vitest run src/motion.test.ts` passed 17/17; fresh `npx tsc --noEmit -p .` completed with no diagnostics. No new PREVIEW run: the arithmetic-only slideHighlight path is not yet imported by app UI (the task note carries prior Chromium probe logs and U4 carry-forward requirements). Serial slot is FREE."
+  },
   "log": [
     {
       "at": "2026-10-26T21:02:15+00:00",
       "agent": "agent-3405",
       "event": "created",
       "note": ""
+    },
+    {
+      "at": "2026-10-26T22:52:23+00:00",
+      "agent": "agent-32c0",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-10-26T22:52:23+00:00",
+      "agent": "agent-32c0",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-10-26T23:55:07+00:00",
+      "agent": "agent-32c0",
+      "event": "review requested",
+      "note": "U2 motion engine. CLAIMED (Chromium production preview only; no WebKit/native or Mac Reduce Motion proof).\nFILES: created src/motion.ts (all plan signatures exactly: MOTION_MS, MotionSpeed, EASING, MotionEasing, ANIMATABLE, prefersReducedMotion, checkKeyframes, play, Presence, presence, usePresence, slideHighlight, staggerIn; no top-level window access), tests/motion.spec.ts (helpers animatedProperties + ALLOWED; cases a/b/c); modified src/motion.test.ts (+describe('motion module'), 9 cases), docs/design-system.md (Motion: engine-rules paragraph).\nFAIL-FIRST: (1) module tests before motion.ts existed -> suite failed (missing ./motion). (2) doctored checkKeyframes allowing width -> 1 failed/15 passed (ui2-u2/failfirst-unit.log), restored, cmp identical. (3) spec (a) vs a doctored copy of the BUILT css (ui2-u2/dist-doctored, appended transition:width + width:240px under [data-open]; library.css is not my path and a width transition alone never fires since the field is static 220px) -> (a) failed listing 'width' (failfirst-a.log).\nCHECKS: npx vitest run src/motion.test.ts 16/16; tsc --noEmit exit 0 (tsc.log, after final edit); vite build exit 0 (build.log); PREVIEW port 1592 motion.spec 3/3 + projects-screen 34/34 = 37 passed (pw.log); UNIT npm test --no-file-parallelism --maxWorkers=1 53 files / 922 tests passed (unit.log). Build/regressions were of the shared working tree incl. other agents' uncommitted edits. No app file imports motion.ts yet, so the post-run show() edit cannot affect the preview results (re-verified by vitest 16/16, tsc 0, probe).\nSTOP-AND-ASK both clear, no block: (i) Chromium probe ui2-u2/probe/reverse-probe*.log: raw WAAPI reverse() on a finished forwards-filled hide resumes (opacity 0 -> 0.37 mid -> 1); presence show->hide mid-flight reverses the SAME Animation from the current frame with no jump (0.853 -> 0.853 -> 0.46 falling), hide resolves false on reopen, final 1, 0 animations left; reduced motion: play null, hide resolves true in <1ms, 0 animations. One cold-page run showed the show not yet started at 90ms (timing of a fresh headless page); repeats consistent (reverse-probe-repeat.log). (ii) document.getAnimations() lists CSS transitions in the production preview: (a)/(b) assert props.length>0 and pass; doctored run surfaced 'width'.\nDEVIATIONS/DETAILS: staggerIn uses fill 'backwards' (holds first frame during delay; no jump; not forwards). A show reversed into a hide gets effect.updateTiming({fill:'both'}) so the exit holds hidden until unmount (reverse ends at offset 0 where 'forwards' does not apply). show() reverses only a running/pending hide per the plan; a finished held hide is cancelled and a fresh show plays. play() validates keyframes before the reduced-motion check. hide() promises are tracked per generation (a reversed hide resolves false; cancel() rejections swallowed). Spec samples every rAF from before the action until 300 ms after it.\nEVIDENCE LIMITS: presence/play/checkKeyframes/staggerIn unit-tested + presence probed in Chromium; usePresence and slideHighlight are type-checked only, exercised by no test until U4 uses them. DoD bullet 2 (reopened menu proven in motion.spec) is deferred to U4 per the task split. docs/design-system.md released for T100 (agent-3e1b asked)."
+    },
+    {
+      "at": "2026-10-27T00:50:02+00:00",
+      "agent": "agent-7a66",
+      "event": "rejected",
+      "note": "REJECT (one small required fix; everything else reads correct). Reviewer agent-7a66.\n\nREQUIRED FIX\n1. src/motion.ts:259-260 slideHighlight measures the target relative to the container's BORDER box (rect - container.getBoundingClientRect()), but an absolutely positioned highlight at top:0/left:0 sits at the container's PADDING box. U4's popover.css gives the container `border: 1px solid var(--line)`, so every highlight lands 1px right and 1px down of its item. Fix: `const x = rect.left - box.left - container.clientLeft + container.scrollLeft; const y = rect.top - box.top - container.clientTop + container.scrollTop;`. Add one Node test with a fake container {getBoundingClientRect, clientLeft:1, clientTop:1, scrollTop:20} and a fake target, asserting highlight.style.transform === `translate(Xpx, Ypx) scale(W, H)` with the border and scroll accounted (stub getComputedStyle globally); show it fails before the fix.\n\nVERIFIED (keep as is)\n- Signatures: MOTION_MS, MotionSpeed, EASING, MotionEasing, ANIMATABLE, prefersReducedMotion, checkKeyframes, play, Presence, presence (defaults base/fast/out/in), usePresence, slideHighlight, staggerIn(step=15) all match PLAN U2 exactly; no top-level window access.\n- play: fill defaults \"none\"; null + no animate() under reduced motion; validating before the reduced check is stricter, fine.\n- presence logic traced for show->hide->show->hide chains, finished-held hide then show, hide called twice, hide after finish but before the finished microtask (generation guard handles it), cancel (resolves pending false, no orphan promise). Deviations are sound: fill 'both' on a reversed show is required (with 'none' the reversed show ends at offset 0 in the before phase and would flash visible before unmount); cancelling a FINISHED held hide and playing a fresh show starts from the same hidden frame, so no jump; staggerIn fill 'backwards' holds translateY(-4px) during the delay instead of jumping.\n- usePresence: render-phase prevOpen pattern gives mounted===open in the same render under reduced motion with no timers; reopen during hide reuses the controller and reverses; the hide .then is guarded by `live` and by done===true; unmount during a pending hide cancels (promise resolves false, no setState after unmount); StrictMode (main.tsx uses it) mount double-invoke cancels and recreates cleanly; latest-ref avoids stale hidden/opts.\n- staggerIn delays 0..90,90, transform only.\n- tests/motion.spec.ts (a)(b)(c) sample every rAF from before the action to 300 ms after, assert props.length>0 / samples>0, so not vacuous.\n- My runs: vitest src/motion.test.ts 16/16; tsc --noEmit exit 0. Mutation run on a scratch copy outside the project (11 mutants): caught - hide not reversing a show, show not reversing a hide, show reversal replaced by a fresh animation, hide resolving true when a show cancels it, staggerIn adding opacity, stagger cap removed, play default fill forwards, play ignoring reduced motion, hide without forwards fill. Survived - removing the fill:'both' on a reversed show (browser-only behaviour; worker's Chromium probe covers it), and skipping the reduced-motion branch in hide (equivalent mutant: play returns null and hide still resolves true). Browser rerun skipped: serial slot owned by agent-9884/T100 at review time; relied on worker's pw.log (37 passed) and probe logs.\n\nCARRY-FORWARD FOR U4's REVIEWER (only real UI can close these)\n- DoD 2: a reopened Sort menu continues from its current frame with no remount (motion.spec (e)).\n- usePresence and slideHighlight are not exercised by any test until U4; check them in Chromium AND native WebKit, including StrictMode dev mount.\n- After this fix, check highlight alignment visually inside a bordered, scrolled popover.\n- slideHighlight(null) while a slide is in flight cancels the slide, so the box snaps to its target while fading (minor; acceptable or fix in U4).\n- A held finished hide animation stays attached to the unmounted node until the next open cancels it (harmless; not in document.getAnimations()).\n- No Mac Reduce Motion or native WebKit proof yet; status stays CLAIMED."
+    },
+    {
+      "at": "2026-10-27T02:08:45+00:00",
+      "agent": "agent-a3c2",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-10-27T02:08:45+00:00",
+      "agent": "agent-a3c2",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-10-27T02:15:25+00:00",
+      "agent": "agent-a3c2",
+      "event": "review requested",
+      "note": "Cycle 2 (coordinator agent-a3c2) fixes agent-7a66's one required finding only: src/motion.ts slideHighlight now subtracts container.clientLeft/clientTop (highlight top:0/left:0 is the padding box). New Node test in src/motion.test.ts 'slideHighlight places the box inside the container's border and scroll' (fake container border 1, scrollTop 20; getComputedStyle stubbed). FAIL-FIRST: before the fix it failed: expected translate(0px, 50px) got translate(1px, 51px) (ui2-u2/c2-failfirst.log). After: vitest src/motion.test.ts 17/17 (c2-pass.log); tsc --noEmit 0. No browser rerun (pure arithmetic change; no app code imports motion.ts yet). Carry-forward list for U4's reviewer unchanged (see agent-7a66's note; saved at node_modules/.cache/personal-word-beta/team-coordinator/T099-review-carry-forward.txt). Paths: src/motion.ts, src/motion.test.ts uncommitted edits."
+    },
+    {
+      "at": "2026-10-27T02:24:44+00:00",
+      "agent": "agent-9884",
+      "event": "approved",
+      "note": "Reviewed the cycle-2 diff against U2 and the prior rejection. The new slideHighlight test uses a 1px border and scrollTop=20 and asserts the corrected padding-box transform; implementation subtracts clientLeft/clientTop and adds scroll offsets. Fresh `npx vitest run src/motion.test.ts` passed 17/17; fresh `npx tsc --noEmit -p .` completed with no diagnostics. No new PREVIEW run: the arithmetic-only slideHighlight path is not yet imported by app UI (the task note carries prior Chromium probe logs and U4 carry-forward requirements). Serial slot is FREE."
     }
   ]
 }

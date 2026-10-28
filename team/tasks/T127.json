@@ -1,0 +1,62 @@
+{
+  "id": "T127",
+  "title": "UI wave 2 U21: Final validation and owner hand-check sheet",
+  "description": "Plan task U21 (replaces T118; re-added with only its real dependencies, owner-approved 2026-10-26). Follow docs/agent-work/2026-10-26-ui-wave-2/PLAN.md exactly: this task's section (Files, Interfaces, Steps, Acceptance check, Fail-first, Stop-and-ask, Default) plus the seven answered Open questions and the Notes for the implementer. Other wave-2 tasks may have changed the shared files since the plan was written: read the real file, treat plan line numbers as hints. Protocol: on claim register the plan's Files line in ONE files add call; register the serial check slot only right before the first expensive check and keep it until done; pinned Node; quoted --outDir; no installs, no commits; status CLAIMED; independent review required.",
+  "status": "done",
+  "owner": null,
+  "priority": 1,
+  "depends_on": [
+    "T126"
+  ],
+  "files": [
+    "node_modules/.cache/personal-word-beta/ui2-u21",
+    "docs/agent-work/2026-10-26-ui-wave-2/VALIDATION.md",
+    "node_modules/.cache/personal-word-beta/ui2-final",
+    "docs/validation.md",
+    "node_modules/.cache/personal-word-beta/team-serial-check-slot"
+  ],
+  "review_required": true,
+  "created_by": "agent-a3c2",
+  "created_at": "2026-10-26T21:55:01+00:00",
+  "claimed_at": "2026-10-28T01:49:35+00:00",
+  "updated_at": "2026-10-28T02:32:30+00:00",
+  "handoff": null,
+  "review": {
+    "by": "agent-ddfd",
+    "at": "2026-10-28T02:32:30+00:00",
+    "verdict": "approved",
+    "note": "APPROVE (final reviewer agent-ddfd, Claude Opus). Independently checked: every step 1-9 log in ui2-final exists and its tail matches VALIDATION.md (tsc 0 on v22.23.3; vitest 56 files 973 passed; build ok; Playwright 214 passed 1 failed then writing.spec 3/3 after T130; cargo 57 passed 1 ignored; baseline 13 passed + 5 detected and beta 19 passed + 42 detected parsed from the JSON; native smoke 3 ok phases; 10+10 PNGs with pdfProbe application/pdf; step8 1 passed; step9 built). App binary sha256 13e98e8c9c69455b2658030b7f76b7e6b5118a46dfaeeeade15f3de7c01f49fb reproduced, Info.plist com.folio.writing, my own grep of the four smoke markers is 0. Viewed native-plain writing-light and settings-dark, native-color writing-dark and settings-light: wave-2 UI present. Broad mtime sweep: no src, src-tauri, scripts or config file changed after the builds; only tests/writing.spec.ts (T130, a Playwright spec, not embedded in any binary) and generated output. Quick rerun: tsc 0, vitest motion+split 38 passed. Accepted, disclosed gap: full tests folder not rerun after T130 -- accurate wording is 214 passed in the full run and the failing spec passed 3/3 alone after a test-only change. Owner sheet a-s left empty as required. Status CLAIMED. Full DoD review: node_modules/.cache/personal-word-beta/team-coordinator/FINAL-REVIEW.md"
+  },
+  "log": [
+    {
+      "at": "2026-10-26T21:55:01+00:00",
+      "agent": "agent-a3c2",
+      "event": "created",
+      "note": ""
+    },
+    {
+      "at": "2026-10-28T01:49:35+00:00",
+      "agent": "agent-a138",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-10-28T01:49:35+00:00",
+      "agent": "agent-a138",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-10-28T02:26:04+00:00",
+      "agent": "agent-a138",
+      "event": "review requested",
+      "note": "U21 final validation recorded in docs/agent-work/2026-10-26-ui-wave-2/VALIDATION.md. tsc ok; vitest 973 passed; build ok; Playwright whole folder 214 passed 1 failed (writing.spec stale locator vs open-beside button, filed T130, fixed by coordinator, rerun 3 of 3 passed); cargo 57 passed 1 ignored; native-reliability 13+5 and 19+42 passed; native-smoke 3 phases passed; 20 native PNGs viewed; bibliography exports match; normal app rebuilt com.folio.writing zero smoke markers sha256 13e98e8c9c69455b2658030b7f76b7e6b5118a46dfaeeeade15f3de7c01f49fb. Owner sheet empty. All CLAIMED."
+    },
+    {
+      "at": "2026-10-28T02:32:30+00:00",
+      "agent": "agent-ddfd",
+      "event": "approved",
+      "note": "APPROVE (final reviewer agent-ddfd, Claude Opus). Independently checked: every step 1-9 log in ui2-final exists and its tail matches VALIDATION.md (tsc 0 on v22.23.3; vitest 56 files 973 passed; build ok; Playwright 214 passed 1 failed then writing.spec 3/3 after T130; cargo 57 passed 1 ignored; baseline 13 passed + 5 detected and beta 19 passed + 42 detected parsed from the JSON; native smoke 3 ok phases; 10+10 PNGs with pdfProbe application/pdf; step8 1 passed; step9 built). App binary sha256 13e98e8c9c69455b2658030b7f76b7e6b5118a46dfaeeeade15f3de7c01f49fb reproduced, Info.plist com.folio.writing, my own grep of the four smoke markers is 0. Viewed native-plain writing-light and settings-dark, native-color writing-dark and settings-light: wave-2 UI present. Broad mtime sweep: no src, src-tauri, scripts or config file changed after the builds; only tests/writing.spec.ts (T130, a Playwright spec, not embedded in any binary) and generated output. Quick rerun: tsc 0, vitest motion+split 38 passed. Accepted, disclosed gap: full tests folder not rerun after T130 -- accurate wording is 214 passed in the full run and the failing spec passed 3/3 alone after a test-only change. Owner sheet a-s left empty as required. Status CLAIMED. Full DoD review: node_modules/.cache/personal-word-beta/team-coordinator/FINAL-REVIEW.md"
+    }
+  ]
+}

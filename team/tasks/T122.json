@@ -1,0 +1,107 @@
+{
+  "id": "T122",
+  "title": "UI wave 2 U15: One bibliography for the page and every export (M, part 1)",
+  "description": "Plan task U15 (replaces T112; re-added with only its real dependencies, owner-approved 2026-10-26). Follow docs/agent-work/2026-10-26-ui-wave-2/PLAN.md exactly: this task's section (Files, Interfaces, Steps, Acceptance check, Fail-first, Stop-and-ask, Default) plus the seven answered Open questions and the Notes for the implementer. Other wave-2 tasks may have changed the shared files since the plan was written: read the real file, treat plan line numbers as hints. Protocol: on claim register the plan's Files line in ONE files add call; register the serial check slot only right before the first expensive check and keep it until done; pinned Node; quoted --outDir; no installs, no commits; status CLAIMED; independent review required.",
+  "status": "done",
+  "owner": null,
+  "priority": 1,
+  "depends_on": [],
+  "files": [
+    "node_modules/.cache/personal-word-beta/ui2-u15",
+    "src/research/bibliography.ts",
+    "src/research/bibliography.test.ts",
+    "src/research/types.ts",
+    "src/export/document.ts",
+    "src/export/textExport.ts",
+    "src/export/docx.ts",
+    "src/export/pdf.ts",
+    "src/research/ResearchPanel.tsx",
+    "src/export/document.test.ts",
+    "src/export/textExport.test.ts",
+    "node_modules/.cache/personal-word-beta/team-serial-check-slot"
+  ],
+  "review_required": true,
+  "created_by": "agent-a3c2",
+  "created_at": "2026-10-26T21:54:14+00:00",
+  "claimed_at": "2026-10-26T22:49:59+00:00",
+  "updated_at": "2026-10-26T22:51:39+00:00",
+  "handoff": {
+    "by": "agent-e66c",
+    "at": "2026-10-26T22:49:41+00:00",
+    "text": "REJECT (one narrow gap; everything else checks out). GAP: PLAN.md DoD line 39 requires unit tests showing page and every export give the same entries in the same order 'for each of the three orders and both scopes'. The only export-path test, src/research/bibliography.test.ts:229-273, hard-codes bibliographyScope: \"cited\" (line 243), so scope 'all' never goes through Markdown, plain text or documentBlocks. Proven: mutation M5 (textExport.ts passes only {bibliographyOrder} to bibliographyItems, dropping scope) SURVIVES npx vitest run src/research src/export (355/355 pass). U15 Step 4 (line 394) only listed three orders, so this is a plan-internal gap, not sloppiness. FIX: in that test wrap the body in a second loop over scopes [\"cited\",\"all\"] and set bibliographyScope: scope (expected is already derived from project.documentSettings, so MD, plain-text and documentBlocks assertions generalize); confirm M5 then fails. Optional, non-blocking: add a fixture footnote that exists in research.footnotes but has no marker, citing an uncited source, and assert it stays out of cited scope (my M7 'cited set = any footnote' was caught only incidentally by an unrelated PDF font test in document.test.ts). CHECKED AND ACCEPTED: Interfaces match U15 exactly (types.ts optional bibliographyOrder/Scope; BibliographyOrder/Scope/Item types, SOURCE_KIND_HEADINGS, citedSourceOrder, bibliographyItems signatures; heading ids 'heading:'+kind). Rules per Step 1 incl. cited-order+all-scope tail in author order; module comment cites no CMOS paragraphs. One function used by documentBlocks (document.ts:288), Markdown (### headings, - entries) and plain text (textExport.ts:185,270); DOCX/PDF consume d.bibliography with bold heading items per Step 3; nativePdf.ts untouched. Cited-set semantics unified on footnoteIdsInOrder (referenced markers only), matching the two legacy export paths; only the old ResearchPanel any-footnote path differed. Back-compat: 'absent settings equal author/cited' test; author-order text equals legacy bibliography() for cited set; defaultDocumentSettings unchanged; no TS validator to update; Rust stores documentSettings opaquely. Tests living in bibliography.test.ts instead of document/textExport.test.ts: acceptable. ResearchPanel optional bibliography prop unwired: App.tsx not in U15 Files but is in U16 Files (ResearchPanel props :2256-2270), so U16 must pass bibliographyItems(project, project.documentSettings); until then the panel keeps the legacy any-footnote list (known interim state). Minor non-blocking: an unknown future bibliographyOrder string yields an empty bibliography (bibliography.ts final return []). M6 (DOCX/PDF ignore heading flag) survives unit tests but order/entries are still covered via documentBlocks equality; bold rendering verified in artifacts. RUNS (pinned Node 22.23.3, slot unowned): tsc --noEmit 0 errors; vitest src/research src/export 18 files/355 pass; full npm test --no-file-parallelism --maxWorkers=1 53 files/913 pass, whole 14-line log read, no fail/skip (ui2-u15-review/unit.log). FAIL-FIRST on scratch copy outside project: M1 ignore order -> 3 fail; M2 ignore scope -> 1 fail; M3 HEAD textExport.ts -> export test fails; M7 killed incidentally; M5 and M6 survive. ARTIFACTS viewed: ui2-u15/type.md, pdftotext type.pdf, unzip word/document.xml of type.docx -> identical Books/Journal articles/Websites order with author order inside; p-2.png read (bold headings, entries, page 2). Fixture author inversion 'Alice, Alpha,.' is fixture data, same as legacy."
+  },
+  "review": {
+    "by": "agent-e962",
+    "at": "2026-10-26T22:51:39+00:00",
+    "verdict": "approved",
+    "note": "APPROVE cycle 2. Test at bibliography.test.ts:229-275 now loops orders x scopes [cited,all], sets bibliographyScope: scope, expected derived from project.documentSettings, asserts MD, plain text and documentBlocks equality. Independent M5 on scratch copy (both textExport.ts call sites pass only bibliographyOrder): test fails 'Missing ... in Markdown' (1 failed/6 passed). Real tree pinned Node: vitest src/research src/export 18 files/355 pass; tsc --noEmit 0 errors. Export source diff is the cycle-1 content (6 files); no new path beyond the test. Optional M7 fixture not added (non-blocking). Real files untouched."
+  },
+  "log": [
+    {
+      "at": "2026-10-26T21:54:14+00:00",
+      "agent": "agent-a3c2",
+      "event": "created",
+      "note": ""
+    },
+    {
+      "at": "2026-10-26T21:58:00+00:00",
+      "agent": "agent-78cc",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-10-26T21:59:21+00:00",
+      "agent": "agent-78cc",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-10-26T22:35:07+00:00",
+      "agent": "agent-a284",
+      "event": "reclaimed from agent-78cc",
+      "note": ""
+    },
+    {
+      "at": "2026-10-26T22:35:14+00:00",
+      "agent": "agent-a284",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-10-26T22:44:56+00:00",
+      "agent": "agent-a284",
+      "event": "review requested",
+      "note": "U15 CLAIMED (not VERIFIED; no PREVIEW asked by U15; no Playwright/native run). INHERITED from agent-78cc and kept as-is after review against U15: src/research/bibliography.ts (+SOURCE_KIND_HEADINGS, citedSourceOrder, bibliographyItems), bibliography.test.ts (7 cases), types.ts (bibliographyOrder/Scope), documentBlocks().bibliography via bibliographyItems, Markdown/plain-text exporters, docx.ts + pdf.ts heading items, ResearchPanel optional 'bibliography' prop + bibliography-heading li. I WROTE: removed leftover unused imports/vars (document.ts 'bibliography' import; textExport.ts 'bibliography' import and citedSourceIds in projectParts+2 destructurings) that made tsc fail. Files changed in total: src/research/{bibliography.ts,bibliography.test.ts,types.ts,ResearchPanel.tsx}, src/export/{document.ts,textExport.ts,docx.ts,pdf.ts}. document.test.ts/textExport.test.ts not edited: export-order assertions live in bibliography.test.ts. FAIL-FIRST (scratch copy in session scratchpad, real tree untouched): old HEAD exporters + new module -> 1 of 7 fails (export-order test; 6 pass); module deleted -> suite fails 'Cannot find module ./bibliography'. CHECKS: tsc --noEmit -p . = 0 errors (log ui2-u15/tsc.log); vitest src/research src/export = 18 files/355 tests pass; full UNIT = 53 files/913 tests pass (ui2-u15/unit.log). ARTIFACTS (ui2-u15/): type-ordered, scope-all fixture exported to PDF, DOCX, MD; pdftotext, docx XML and md all show identical order Books/Journal articles/Websites with author order inside; viewed pdftoppm p-2.png (bold headings, entries, page number). Regression: author-order text equals legacy bibliography() for cited set (tested). NOT DONE / CAVEATS: (1) ResearchPanel prop 'bibliography' is NOT passed from App.tsx (App.tsx belongs to T121) so the on-screen panel still falls back to old author-sorted cited-by-footnote list until U16 (or whoever edits App) passes bibliographyItems(project, project.documentSettings); (2) src/print/nativePdf.ts left as is per plan; (3) in the PDF, headings have no extra space above (only existing spacer after entries), cosmetic; (4) fixture authors render as 'Alice, Alpha,.' because the fixture stores authors inverted; same as legacy output, not a regression. Slot held; releasing on done."
+    },
+    {
+      "at": "2026-10-26T22:49:41+00:00",
+      "agent": "agent-e66c",
+      "event": "rejected",
+      "note": "REJECT (one narrow gap; everything else checks out). GAP: PLAN.md DoD line 39 requires unit tests showing page and every export give the same entries in the same order 'for each of the three orders and both scopes'. The only export-path test, src/research/bibliography.test.ts:229-273, hard-codes bibliographyScope: \"cited\" (line 243), so scope 'all' never goes through Markdown, plain text or documentBlocks. Proven: mutation M5 (textExport.ts passes only {bibliographyOrder} to bibliographyItems, dropping scope) SURVIVES npx vitest run src/research src/export (355/355 pass). U15 Step 4 (line 394) only listed three orders, so this is a plan-internal gap, not sloppiness. FIX: in that test wrap the body in a second loop over scopes [\"cited\",\"all\"] and set bibliographyScope: scope (expected is already derived from project.documentSettings, so MD, plain-text and documentBlocks assertions generalize); confirm M5 then fails. Optional, non-blocking: add a fixture footnote that exists in research.footnotes but has no marker, citing an uncited source, and assert it stays out of cited scope (my M7 'cited set = any footnote' was caught only incidentally by an unrelated PDF font test in document.test.ts). CHECKED AND ACCEPTED: Interfaces match U15 exactly (types.ts optional bibliographyOrder/Scope; BibliographyOrder/Scope/Item types, SOURCE_KIND_HEADINGS, citedSourceOrder, bibliographyItems signatures; heading ids 'heading:'+kind). Rules per Step 1 incl. cited-order+all-scope tail in author order; module comment cites no CMOS paragraphs. One function used by documentBlocks (document.ts:288), Markdown (### headings, - entries) and plain text (textExport.ts:185,270); DOCX/PDF consume d.bibliography with bold heading items per Step 3; nativePdf.ts untouched. Cited-set semantics unified on footnoteIdsInOrder (referenced markers only), matching the two legacy export paths; only the old ResearchPanel any-footnote path differed. Back-compat: 'absent settings equal author/cited' test; author-order text equals legacy bibliography() for cited set; defaultDocumentSettings unchanged; no TS validator to update; Rust stores documentSettings opaquely. Tests living in bibliography.test.ts instead of document/textExport.test.ts: acceptable. ResearchPanel optional bibliography prop unwired: App.tsx not in U15 Files but is in U16 Files (ResearchPanel props :2256-2270), so U16 must pass bibliographyItems(project, project.documentSettings); until then the panel keeps the legacy any-footnote list (known interim state). Minor non-blocking: an unknown future bibliographyOrder string yields an empty bibliography (bibliography.ts final return []). M6 (DOCX/PDF ignore heading flag) survives unit tests but order/entries are still covered via documentBlocks equality; bold rendering verified in artifacts. RUNS (pinned Node 22.23.3, slot unowned): tsc --noEmit 0 errors; vitest src/research src/export 18 files/355 pass; full npm test --no-file-parallelism --maxWorkers=1 53 files/913 pass, whole 14-line log read, no fail/skip (ui2-u15-review/unit.log). FAIL-FIRST on scratch copy outside project: M1 ignore order -> 3 fail; M2 ignore scope -> 1 fail; M3 HEAD textExport.ts -> export test fails; M7 killed incidentally; M5 and M6 survive. ARTIFACTS viewed: ui2-u15/type.md, pdftotext type.pdf, unzip word/document.xml of type.docx -> identical Books/Journal articles/Websites order with author order inside; p-2.png read (bold headings, entries, page 2). Fixture author inversion 'Alice, Alpha,.' is fixture data, same as legacy."
+    },
+    {
+      "at": "2026-10-26T22:49:59+00:00",
+      "agent": "agent-a3c2",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-10-26T22:49:59+00:00",
+      "agent": "agent-a3c2",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-10-26T22:50:50+00:00",
+      "agent": "agent-a3c2",
+      "event": "review requested",
+      "note": "Cycle 2 (coordinator agent-a3c2) fixes agent-e66c's one gap only: src/research/bibliography.test.ts export-path test now loops orders x scopes [cited, all] with bibliographyScope: scope (messages name order/scope). FAIL-FIRST: mutation M5 (textExport.ts passes only {bibliographyOrder}) now fails: 'Missing - David, Delta,... in Markdown for author/all' (1 failed/6 passed; ui2-u15/c2-failfirst.log); textExport.ts restored byte-identical (cmp OK). After: vitest src/research src/export 18 files/355 pass (c2-vitest.log); tsc --noEmit 0. Optional M7 fixture not added. Everything else as cycle 1 (see agent-a284 note and agent-e66c review). Paths: src/research/bibliography.test.ts uncommitted edits; others unchanged since cycle 1 (uncommitted)."
+    },
+    {
+      "at": "2026-10-26T22:51:39+00:00",
+      "agent": "agent-e962",
+      "event": "approved",
+      "note": "APPROVE cycle 2. Test at bibliography.test.ts:229-275 now loops orders x scopes [cited,all], sets bibliographyScope: scope, expected derived from project.documentSettings, asserts MD, plain text and documentBlocks equality. Independent M5 on scratch copy (both textExport.ts call sites pass only bibliographyOrder): test fails 'Missing ... in Markdown' (1 failed/6 passed). Real tree pinned Node: vitest src/research src/export 18 files/355 pass; tsc --noEmit 0 errors. Export source diff is the cycle-1 content (6 files); no new path beyond the test. Optional M7 fixture not added (non-blocking). Real files untouched."
+    }
+  ]
+}

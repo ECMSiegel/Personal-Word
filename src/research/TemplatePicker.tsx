@@ -19,7 +19,7 @@ export function TemplatePicker({
       <h2>Templates</h2>
       <p className="settings-help">Choose a starting structure for a new project.</p>
       <div className="template-list">
-        {[...writingTemplates, ...customTemplates].map((t) => (
+        {[...writingTemplates.filter((t) => !t.hidden), ...customTemplates].map((t) => (
           <div className="template-row" key={t.id}>
             <button className="template-choice" onClick={() => onChoose(t)}>
               <strong>{t.name}</strong>

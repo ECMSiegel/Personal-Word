@@ -91,3 +91,152 @@ test("Font family dropdown opens from the keyboard and changes the font", async 
     "Typeface sample",
   );
 });
+
+const bar = (page: any) => page.getByRole("toolbar", { name: "Formatting" });
+const moreRows = (page: any) =>
+  page.getByRole("dialog", { name: "More formatting" });
+
+// Groups that are on the bar and also listed in More would be a layout bug.
+async function overflowReport(page: any) {
+  return bar(page).evaluate((el: HTMLElement) => ({
+    clientWidth: el.clientWidth,
+    scrollWidth: el.scrollWidth,
+    labels: el.hasAttribute("data-labels"),
+    barLabels: [
+      ...el.querySelectorAll(":scope > .toolbar-group .toolbar-label"),
+    ].length,
+  }));
+}
+
+test("a wide format bar shows a label beside each icon", async ({ page }) => {
+  // At 1600 px (bar 1330) label mode pushes Bold into More; 2200 px (bar
+  // 1930) keeps it on the bar. Measured numbers are in the T103 note.
+  await page.setViewportSize({ width: 2200, height: 900 });
+  await page.goto("/");
+  await create(page, "Label mode");
+  await expect(bar(page)).toHaveAttribute("data-labels", "");
+  const width = await bar(page).evaluate((el: HTMLElement) => el.clientWidth);
+  expect(width).toBeGreaterThanOrEqual(1100);
+  const bold = bar(page).getByRole("button", {
+    name: "Bold (⌘B)",
+    exact: true,
+  });
+  await expect(bold.locator(".toolbar-label")).toBeVisible();
+  await expect(bold.locator(".toolbar-label")).toHaveText("Bold");
+  expect(
+    await bold.evaluate((el) =>
+      parseFloat(
+        getComputedStyle(el.querySelector(".toolbar-label")!).fontSize,
+      ),
+    ),
+  ).toBe(12);
+  const report = await overflowReport(page);
+  expect(report.scrollWidth).toBeLessThanOrEqual(report.clientWidth);
+});
+
+test("a narrower format bar shows icons only", async ({ page }) => {
+  await page.setViewportSize({ width: 1100, height: 800 });
+  await page.goto("/");
+  await create(page, "Icon mode");
+  await expect(bar(page)).not.toHaveAttribute("data-labels", /.*/);
+  const bold = bar(page).getByRole("button", {
+    name: "Bold (⌘B)",
+    exact: true,
+  });
+  await expect(bold.locator(".toolbar-label")).toBeHidden();
+  const report = await overflowReport(page);
+  expect(report.clientWidth).toBeLessThan(1100);
+  expect(report.scrollWidth).toBeLessThanOrEqual(report.clientWidth);
+});
+
+test("crossing the label threshold keeps overflow correct both ways", async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 1600, height: 900 });
+  await page.goto("/");
+  await create(page, "Resize toolbar");
+  for (const width of [1100, 1600, 1100, 1300, 1600]) {
+    await page.setViewportSize({ width, height: 900 });
+    await expect
+      .poll(async () => {
+        const r = await overflowReport(page);
+        return (
+          r.labels === r.clientWidth >= 1100 && r.scrollWidth <= r.clientWidth
+        );
+      })
+      .toBe(true);
+    // No group is both on the bar and inside More.
+    const more = bar(page).getByRole("button", {
+      name: "More formatting",
+      exact: true,
+    });
+    if (await more.count()) {
+      await more.click();
+      const names = await moreRows(page)
+        .getByRole("button")
+        .evaluateAll((els: HTMLElement[]) =>
+          els.map((e) => e.getAttribute("aria-label")),
+        );
+      await page.keyboard.press("Escape");
+      for (const name of names) {
+        if (!name) continue;
+        await expect(
+          bar(page).locator(`:scope > .toolbar-group [aria-label="${name}"]`),
+        ).toHaveCount(0);
+      }
+    }
+  }
+});
+
+test("More lists labelled rows with shortcut hints and a following highlight", async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 850, height: 600 });
+  await page.goto("/");
+  await create(page, "More rows");
+  await bar(page)
+    .getByRole("button", { name: "More formatting", exact: true })
+    .click();
+  const menu = moreRows(page);
+  const bold = menu.getByRole("button", { name: "Bold (⌘B)", exact: true });
+  await expect(bold.locator(".toolbar-label")).toHaveText("Bold");
+  const shortcut = bold.locator(".popover-shortcut");
+  await expect(shortcut).toHaveText("⌘B");
+  const rowBox = await bold.boundingBox();
+  const keyBox = await shortcut.boundingBox();
+  expect(rowBox!.x + rowBox!.width - (keyBox!.x + keyBox!.width)).toBeLessThan(
+    16,
+  );
+  await expect(bold).toHaveAttribute("data-popover-item", "");
+  // The one highlight glides to the hovered row.
+  await bold.hover();
+  await expect
+    .poll(async () => {
+      const hl = await menu.locator(".popover-highlight").boundingBox();
+      const row = await bold.boundingBox();
+      return hl && row
+        ? Math.abs(hl.y - row.y) + Math.abs(hl.height - row.height)
+        : 99;
+    })
+    .toBeLessThan(2);
+  await bold.click();
+  await expect(
+    page.getByRole("textbox", { name: "Writing editor" }).locator("p").first(),
+  ).toBeVisible();
+});
+
+test("a Bold row in More toggles bold", async ({ page }) => {
+  await page.setViewportSize({ width: 850, height: 600 });
+  await page.goto("/");
+  await create(page, "More bold");
+  const editor = page.getByRole("textbox", { name: "Writing editor" });
+  await editor.fill("Bold me");
+  await editor.press("ControlOrMeta+a");
+  await bar(page)
+    .getByRole("button", { name: "More formatting", exact: true })
+    .click();
+  await moreRows(page)
+    .getByRole("button", { name: "Bold (⌘B)", exact: true })
+    .click();
+  await expect(editor.locator("strong")).toHaveText("Bold me");
+});

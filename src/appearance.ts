@@ -1,12 +1,42 @@
 export type Theme = "system" | "light" | "dark";
 export type Palette = "plain" | "color";
-export type Appearance = { theme: Theme; palette: Palette };
+export const SWATCHES = [
+  "red",
+  "orange",
+  "yellow",
+  "green",
+  "teal",
+  "blue",
+  "indigo",
+  "purple",
+] as const;
+export type Swatch = (typeof SWATCHES)[number];
+export type SectionColours = {
+  manuscript: Swatch;
+  fragments: Swatch;
+  research: Swatch;
+};
+export const defaultSectionColours: SectionColours = {
+  manuscript: "blue",
+  fragments: "green",
+  research: "orange",
+};
+export type Appearance = {
+  theme: Theme;
+  palette: Palette;
+  sections: SectionColours;
+};
 
 export const APPEARANCE_KEY = "folio.workspace.appearance";
 export const defaultAppearance: Appearance = {
   theme: "system",
   palette: "plain",
+  sections: defaultSectionColours,
 };
+
+function isSwatch(value: unknown): value is Swatch {
+  return typeof value === "string" && SWATCHES.includes(value as Swatch);
+}
 
 export function parseAppearance(raw: string | null): Appearance {
   let data: unknown = null;
@@ -19,6 +49,10 @@ export function parseAppearance(raw: string | null): Appearance {
     data && typeof data === "object" && !Array.isArray(data)
       ? (data as Record<string, unknown>)
       : {};
+  const rawSections =
+    value.sections && typeof value.sections === "object" && !Array.isArray(value.sections)
+      ? (value.sections as Record<string, unknown>)
+      : {};
   return {
     theme:
       value.theme === "light" || value.theme === "dark" || value.theme === "system"
@@ -28,6 +62,17 @@ export function parseAppearance(raw: string | null): Appearance {
       value.palette === "plain" || value.palette === "color"
         ? value.palette
         : defaultAppearance.palette,
+    sections: {
+      manuscript: isSwatch(rawSections.manuscript)
+        ? rawSections.manuscript
+        : defaultSectionColours.manuscript,
+      fragments: isSwatch(rawSections.fragments)
+        ? rawSections.fragments
+        : defaultSectionColours.fragments,
+      research: isSwatch(rawSections.research)
+        ? rawSections.research
+        : defaultSectionColours.research,
+    },
   };
 }
 
@@ -58,6 +103,12 @@ export function applyAppearance(
   else root.dataset.theme = value.theme;
   if (value.palette === "plain") delete root.dataset.palette;
   else root.dataset.palette = value.palette;
+  for (const section of ["manuscript", "fragments", "research"] as const) {
+    const attr = `tint${section[0].toUpperCase()}${section.slice(1)}`;
+    const swatch = value.sections[section];
+    if (swatch === defaultSectionColours[section]) delete root.dataset[attr];
+    else root.dataset[attr] = swatch;
+  }
 }
 
 export function nextTheme(

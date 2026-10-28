@@ -2,28 +2,96 @@
   "id": "T105",
   "title": "UI wave 2 U8: Sidebar title row and the hover switch in Settings (H, I)",
   "description": "Plan task U8. Follow docs/agent-work/2026-10-26-ui-wave-2/PLAN.md exactly: this task's section (Files, Interfaces, Steps, Acceptance check, Fail-first, Stop-and-ask, Default) plus the seven answered Open questions and the Notes for the implementer. Protocol: register the serial check slot via files add only right before the first expensive check and keep it until done; pinned Node; quoted --outDir; no installs, no commits; status CLAIMED; independent review required.",
-  "status": "available",
+  "status": "done",
   "owner": null,
   "priority": 1,
   "depends_on": [
     "T104"
   ],
   "files": [
-    "node_modules/.cache/personal-word-beta/ui2-u8"
+    "node_modules/.cache/personal-word-beta/ui2-u8",
+    "src/sidebarPreferences.ts",
+    "src/sidebarPreferences.test.ts",
+    "src/components/ProjectSidebar.tsx",
+    "src/App.tsx",
+    "src/styles.css",
+    "tests/sidebar-selection.spec.ts",
+    "tests/layout.spec.ts",
+    "tests/native-smoke.js",
+    "tests/native-reliability.js",
+    "tests/housekeeping.spec.ts",
+    "node_modules/.cache/personal-word-beta/team-serial-check-slot"
   ],
   "review_required": true,
   "created_by": "agent-3405",
   "created_at": "2026-10-26T21:02:19+00:00",
-  "claimed_at": null,
-  "updated_at": "2026-10-26T21:02:19+00:00",
-  "handoff": null,
-  "review": null,
+  "claimed_at": "2026-10-27T06:29:49+00:00",
+  "updated_at": "2026-10-27T07:11:34+00:00",
+  "handoff": {
+    "by": "agent-8dfc",
+    "at": "2026-10-27T06:29:06+00:00",
+    "text": "T105 (U8) handoff. Implementation + tests are ON DISK and tsc/vitest pass; NOT yet run in browser/native, not done.\nDone: src/sidebarPreferences.ts(+test, 5 pass); ProjectSidebar.tsx: brand removed, .sidebar-title-row with .project-switch (button; click = rename in place via input .project-title-input aria-label \"Project title\", Enter saves, Escape/blur cancels; per owner open question 1) and .sidebar-pin; hover checkbox removed; props onRenameProject/hoverReveal replace onLibrary. App.tsx: hoverReveal state + Settings > General checkbox \"Reveal sidebar on hover\" (after Appearance/Palette form). styles.css re-spaced (sidebar top padding space-4, brand/hover css removed). Tests: sidebar-selection.spec (brand refs replaced), layout.spec new case \"the sidebar starts with the project title...\", housekeeping.spec + tests/native-smoke.js + native-reliability.js now go back to Projects by clicking the \"Projects\" tab (because the title now renames). Registered those 3 extra files.\nFail-first recorded: ui2-u8/failfirst.log (new layout case fails on U7 dist at .sidebar .brand count).\nEvidence: npx tsc --noEmit 0 errors; vitest sidebarPreferences+palette+designTokens 26/26.\nTODO: wait for serial slot (T103 held it), then ui2-u8/run-preview.sh (build to ui2-u8/dist + PREVIEW(8) port 1578; edit it to drop my slot loop if needed) -- run sidebar-selection, layout, housekeeping, appearance, accessibility specs; smoke debug build + native-screens plain/color; view PNGs; done note with DESIGN DOC: (sidebar starts with project title row, pin on hover/focus; hover reveal is a Settings switch, global) and deviation: title rename in place, harness nav via Projects tab."
+  },
+  "review": {
+    "by": "agent-272b",
+    "at": "2026-10-27T07:11:34+00:00",
+    "verdict": "approved",
+    "note": "APPROVE (reviewer agent-272b, OpenCode; unconflicted -- I did not write U8). Judged U8's acceptance only; U10/T119, U5/T102 and U3/T100 hunks in the same files were set aside.\n\nACCEPTANCE RUN ON MY OWN SCRATCH BUILD (dist node_modules/.cache/personal-word-beta/ui2-u8-review/dist, port 1589, workers 1, retries 0):\n- npx tsc --noEmit -p . -> exit 0.\n- npx vitest run src/sidebarPreferences.test.ts src/palette.test.ts src/designTokens.test.ts -> 3 files, 26/26 pass.\n- npx vite build -> exit 0.\n- PREVIEW(8) tests/sidebar-selection.spec.ts, tests/layout.spec.ts, tests/housekeeping.spec.ts, tests/appearance.spec.ts, tests/features.spec.ts -> 40/40 PASS. This closes exactly the gap the worker disclosed (it never reran appearance or features after its one-line CSS fix, and features had never run). The two failures the worker saw -- notice.spec toast timing and the title padding above -- do NOT reproduce.\n- The worker's declared flake (title 24px not 16px from the top) is fixed and the new layout case measures the title row within space-4 + 1px.\n\nCODE READ (against plan U8): sidebarPreferences.ts matches the Interfaces line exactly -- SIDEBAR_KEY folio.workspace.sidebar, SidebarPreferences {width,pinned,hover}, defaults 270/true/true, per-field type fallback, try/catch both ways; App owns hoverReveal from readSidebarPreferences().hover and the Settings checkbox sets state and writes {...read, hover}; ProjectSidebar renders .sidebar-title-row with .project-switch + .sidebar-pin and the reveal focus effect targets .sidebar-title-row .sidebar-pin; no .sidebar .brand. Open question 1 is followed over the brief (title renames in place; nav back is the Projects tab) and the stop-and-ask condition it names was handled: the native harnesses were adapted and the smoke binary rebuilt. Harness diff is navigation-only (click(project-switch.textContent) -> click('Projects')), which is the correct adaptation.\n\nNATIVE: viewed ui2-u8/native-plain/writing-light.png (sidebar starts with the project title 'Screens fixture', no Personal Word line, ends at the Settings row) and ui2-u8/native-plain/settings-light.png (General shows Reveal sidebar on hover, checked, after Palette and before Storage location). 20 PNGs present from the worker's run.\n\nFINDING FILED SEPARATELY, NOT HELD AGAINST U8: after a fresh smoke rebuild, scripts/native-reliability.py --suite baseline AND --suite beta both fail with 'Attachments mirror file is missing after saving image project' (logs ui2-u8-review/native-baseline2.log, native-beta2.log). U8 touches no Rust and no asset code, and its harness change is navigation-only, so this is almost certainly not U8's; src-tauri/src/store.rs write_attachments gained the PDF mirror in U8's sibling task U18/T124, whose review (agent-f4ea) ran cargo and vitest but NOT native-reliability. I did not edit another task's files to prove attribution. This blocks Validation step 6 (U21), so I filed it as a board task. A first attempt before the rebuild failed with 'Diagnostic binary predates a D1 source input', i.e. stale binary, not product. BOUNDARIES: Chromium plus Apple WebKit screenshots only; no owner real-use proof. Status CLAIMED."
+  },
   "log": [
     {
       "at": "2026-10-26T21:02:19+00:00",
       "agent": "agent-3405",
       "event": "created",
       "note": ""
+    },
+    {
+      "at": "2026-10-27T03:12:33+00:00",
+      "agent": "agent-a3c2",
+      "event": "dependencies changed",
+      "note": "owner-authorised re-gate (decision 'Wave 2 lanes 2'): ['T104'] -> ['T104']"
+    },
+    {
+      "at": "2026-10-27T06:25:04+00:00",
+      "agent": "agent-8dfc",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-10-27T06:25:04+00:00",
+      "agent": "agent-8dfc",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-10-27T06:29:06+00:00",
+      "agent": "agent-8dfc",
+      "event": "handoff",
+      "note": "T105 (U8) handoff. Implementation + tests are ON DISK and tsc/vitest pass; NOT yet run in browser/native, not done.\nDone: src/sidebarPreferences.ts(+test, 5 pass); ProjectSidebar.tsx: brand removed, .sidebar-title-row with .project-switch (button; click = rename in place via input .project-title-input aria-label \"Project title\", Enter saves, Escape/blur cancels; per owner open question 1) and .sidebar-pin; hover checkbox removed; props onRenameProject/hoverReveal replace onLibrary. App.tsx: hoverReveal state + Settings > General checkbox \"Reveal sidebar on hover\" (after Appearance/Palette form). styles.css re-spaced (sidebar top padding space-4, brand/hover css removed). Tests: sidebar-selection.spec (brand refs replaced), layout.spec new case \"the sidebar starts with the project title...\", housekeeping.spec + tests/native-smoke.js + native-reliability.js now go back to Projects by clicking the \"Projects\" tab (because the title now renames). Registered those 3 extra files.\nFail-first recorded: ui2-u8/failfirst.log (new layout case fails on U7 dist at .sidebar .brand count).\nEvidence: npx tsc --noEmit 0 errors; vitest sidebarPreferences+palette+designTokens 26/26.\nTODO: wait for serial slot (T103 held it), then ui2-u8/run-preview.sh (build to ui2-u8/dist + PREVIEW(8) port 1578; edit it to drop my slot loop if needed) -- run sidebar-selection, layout, housekeeping, appearance, accessibility specs; smoke debug build + native-screens plain/color; view PNGs; done note with DESIGN DOC: (sidebar starts with project title row, pin on hover/focus; hover reveal is a Settings switch, global) and deviation: title rename in place, harness nav via Projects tab."
+    },
+    {
+      "at": "2026-10-27T06:29:49+00:00",
+      "agent": "agent-8c63",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-10-27T06:29:50+00:00",
+      "agent": "agent-8c63",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-10-27T07:00:22+00:00",
+      "agent": "agent-8c63",
+      "event": "review requested",
+      "note": "T105 (U8) CLAIMED, not confirmed by the owner. Browser tests prove nothing about WKWebView/native storage.\nFILES: src/sidebarPreferences.ts + .test.ts (new); src/components/ProjectSidebar.tsx; src/App.tsx; src/styles.css (incl. .sidebar-shell .sidebar top padding space-5 -> space-4); tests/sidebar-selection.spec.ts; tests/layout.spec.ts (new case); tests/housekeeping.spec.ts, tests/native-smoke.js, tests/native-reliability.js (go back to Projects via the \"Projects\" tab).\nWHAT: brand line removed; .sidebar-title-row = .project-switch (title; click renames in place via input aria-label \"Project title\": Enter saves (trimmed, non-empty), Escape/blur cancels) + .sidebar-pin (visible on hover/focus-within). Hover checkbox removed from sidebar; Settings > General has \"Reveal sidebar on hover\" (after Appearance/Palette/Section colours, before Storage). App owns hoverReveal; ProjectSidebar writes {width,pinned,hover} via writeSidebarPreferences; key folio.workspace.sidebar unchanged and still readable (unknown fields no longer preserved).\nFAIL-FIRST: ui2-u8/failfirst.log: new layout case fails on the U7 dist (.sidebar .brand count 1). First run on new tree also failed it (title 24px not 16px from top, because .sidebar-shell .sidebar padding overrode); fixed.\nCOMMANDS: tsc --noEmit 0 errors; vitest sidebarPreferences+palette+designTokens 26/26; vite build ok; PREVIEW(8) port 1578 first run (sidebar-selection, layout, housekeeping, appearance, accessibility): 35 passed, 1 failed (the padding above; logs ui2-u8/run1/); after fix rerun layout+sidebar-selection: 11 passed (ui2-u8/preview.log). Not rerun after the one-line CSS fix: housekeeping, appearance, accessibility (they passed before it; features.spec not run).\nSMOKE: debug native-smoke build exit 0 (smoke-build.log); native-screens plain and color both exit 0, 10 PNGs each (native-plain, native-color). Viewed native-plain/writing-light.png and native-color/settings-dark.png: sidebar starts with \"Screens fixture\" title, no brand, ends at Settings; Settings shows \"Reveal sidebar on hover\" checked. native-screens reaches Projects screen; native-smoke.js/native-reliability.js code paths using the Projects tab were edited but NOT executed (only native-screens ran). No separate Chromium sidebar-top screenshots taken.\nDESIGN DOC: The writing sidebar starts with the project title row (no \"Personal Word\" line); the title renames in place (click, Enter/Escape) and the pin shows on hover or focus. Back to All projects is the Projects tab. \"Reveal sidebar on hover\" is a global switch in Settings > General (storage folio.workspace.sidebar); the sidebar ends at the bottom rows with space-3 padding. Sidebar top padding is --space-4.\nDEVIATIONS: open question 1 (rename in place) followed over the brief's \"click = All projects\"; harness nav changed to the Projects tab. Title blur cancels rather than saves."
+    },
+    {
+      "at": "2026-10-27T07:11:34+00:00",
+      "agent": "agent-272b",
+      "event": "approved",
+      "note": "APPROVE (reviewer agent-272b, OpenCode; unconflicted -- I did not write U8). Judged U8's acceptance only; U10/T119, U5/T102 and U3/T100 hunks in the same files were set aside.\n\nACCEPTANCE RUN ON MY OWN SCRATCH BUILD (dist node_modules/.cache/personal-word-beta/ui2-u8-review/dist, port 1589, workers 1, retries 0):\n- npx tsc --noEmit -p . -> exit 0.\n- npx vitest run src/sidebarPreferences.test.ts src/palette.test.ts src/designTokens.test.ts -> 3 files, 26/26 pass.\n- npx vite build -> exit 0.\n- PREVIEW(8) tests/sidebar-selection.spec.ts, tests/layout.spec.ts, tests/housekeeping.spec.ts, tests/appearance.spec.ts, tests/features.spec.ts -> 40/40 PASS. This closes exactly the gap the worker disclosed (it never reran appearance or features after its one-line CSS fix, and features had never run). The two failures the worker saw -- notice.spec toast timing and the title padding above -- do NOT reproduce.\n- The worker's declared flake (title 24px not 16px from the top) is fixed and the new layout case measures the title row within space-4 + 1px.\n\nCODE READ (against plan U8): sidebarPreferences.ts matches the Interfaces line exactly -- SIDEBAR_KEY folio.workspace.sidebar, SidebarPreferences {width,pinned,hover}, defaults 270/true/true, per-field type fallback, try/catch both ways; App owns hoverReveal from readSidebarPreferences().hover and the Settings checkbox sets state and writes {...read, hover}; ProjectSidebar renders .sidebar-title-row with .project-switch + .sidebar-pin and the reveal focus effect targets .sidebar-title-row .sidebar-pin; no .sidebar .brand. Open question 1 is followed over the brief (title renames in place; nav back is the Projects tab) and the stop-and-ask condition it names was handled: the native harnesses were adapted and the smoke binary rebuilt. Harness diff is navigation-only (click(project-switch.textContent) -> click('Projects')), which is the correct adaptation.\n\nNATIVE: viewed ui2-u8/native-plain/writing-light.png (sidebar starts with the project title 'Screens fixture', no Personal Word line, ends at the Settings row) and ui2-u8/native-plain/settings-light.png (General shows Reveal sidebar on hover, checked, after Palette and before Storage location). 20 PNGs present from the worker's run.\n\nFINDING FILED SEPARATELY, NOT HELD AGAINST U8: after a fresh smoke rebuild, scripts/native-reliability.py --suite baseline AND --suite beta both fail with 'Attachments mirror file is missing after saving image project' (logs ui2-u8-review/native-baseline2.log, native-beta2.log). U8 touches no Rust and no asset code, and its harness change is navigation-only, so this is almost certainly not U8's; src-tauri/src/store.rs write_attachments gained the PDF mirror in U8's sibling task U18/T124, whose review (agent-f4ea) ran cargo and vitest but NOT native-reliability. I did not edit another task's files to prove attribution. This blocks Validation step 6 (U21), so I filed it as a board task. A first attempt before the rebuild failed with 'Diagnostic binary predates a D1 source input', i.e. stale binary, not product. BOUNDARIES: Chromium plus Apple WebKit screenshots only; no owner real-use proof. Status CLAIMED."
     }
   ]
 }

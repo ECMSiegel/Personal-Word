@@ -11,6 +11,8 @@ export type FootnoteNote = {
   text: string;
   citation: string;
   editable: boolean;
+  /** True when the note cites a source; those keep native Backspace behaviour. */
+  sourced: boolean;
 };
 
 type NoteHandlers = {
@@ -19,6 +21,8 @@ type NoteHandlers = {
   onEditEnd: () => void;
   onTextChange?: (id: string, text: string) => void;
   onSourceDetails?: (id: string) => void;
+  /** Removes the marker and the empty record of a source-less note. */
+  onDeleteEmpty?: (id: string) => void;
 };
 
 /** Note rule plus rows. Used for the continuous footer and each page's footer. */
@@ -70,6 +74,7 @@ function FootnoteRow({
   onEditEnd,
   onTextChange,
   onSourceDetails,
+  onDeleteEmpty,
 }: NoteHandlers & { note: FootnoteNote; measuring: boolean }) {
   const editing = editingId === note.id;
   const open = () => {
@@ -88,6 +93,7 @@ function FootnoteRow({
           note={note}
           onTextChange={onTextChange}
           onDone={onEditEnd}
+          onDeleteEmpty={onDeleteEmpty}
         />
       ) : (
         <div
@@ -122,10 +128,12 @@ function FootnoteTextarea({
   note,
   onTextChange,
   onDone,
+  onDeleteEmpty,
 }: {
   note: FootnoteNote;
   onTextChange?: (id: string, text: string) => void;
   onDone: () => void;
+  onDeleteEmpty?: (id: string) => void;
 }) {
   const ref = useRef<HTMLTextAreaElement>(null);
   useLayoutEffect(() => {
@@ -145,6 +153,19 @@ function FootnoteTextarea({
       onChange={(event) => onTextChange?.(note.id, event.target.value)}
       onBlur={onDone}
       onKeyDown={(event) => {
+        // An empty note that cites nothing has no text to edit: Backspace
+        // removes its marker and empty record together. Cited notes keep the
+        // native behaviour.
+        if (
+          event.key === "Backspace" &&
+          note.text === "" &&
+          !note.sourced &&
+          onDeleteEmpty
+        ) {
+          event.preventDefault();
+          onDeleteEmpty(note.id);
+          return;
+        }
         if (event.key !== "Escape") return;
         event.preventDefault();
         event.currentTarget.blur();

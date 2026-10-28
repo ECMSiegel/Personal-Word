@@ -1,0 +1,101 @@
+{
+  "id": "T123",
+  "title": "UI wave 2 U16: Bibliography page, Research sidebar list, open a source (M, part 2)",
+  "description": "Plan task U16 (replaces T113; re-added with only its real dependencies, owner-approved 2026-10-26). Follow docs/agent-work/2026-10-26-ui-wave-2/PLAN.md exactly: this task's section (Files, Interfaces, Steps, Acceptance check, Fail-first, Stop-and-ask, Default) plus the seven answered Open questions and the Notes for the implementer. Other wave-2 tasks may have changed the shared files since the plan was written: read the real file, treat plan line numbers as hints. Protocol: on claim register the plan's Files line in ONE files add call; register the serial check slot only right before the first expensive check and keep it until done; pinned Node; quoted --outDir; no installs, no commits; status CLAIMED; independent review required.",
+  "status": "done",
+  "owner": null,
+  "priority": 1,
+  "depends_on": [
+    "T110",
+    "T122"
+  ],
+  "files": [
+    "node_modules/.cache/personal-word-beta/ui2-u16",
+    "src/research/BibliographyPage.tsx",
+    "src/App.tsx",
+    "src/research/ResearchPanel.tsx",
+    "src/components/ProjectSidebar.tsx",
+    "src/research/research.css",
+    "tests/research.spec.ts",
+    "tests/sidebar-selection.spec.ts",
+    "node_modules/.cache/personal-word-beta/team-serial-check-slot"
+  ],
+  "review_required": true,
+  "created_by": "agent-a3c2",
+  "created_at": "2026-10-26T21:54:46+00:00",
+  "claimed_at": "2026-10-27T09:29:44+00:00",
+  "updated_at": "2026-10-27T09:52:11+00:00",
+  "handoff": {
+    "by": "agent-6225",
+    "at": "2026-10-27T09:19:13+00:00",
+    "text": "released"
+  },
+  "review": {
+    "by": "agent-dc4b",
+    "at": "2026-10-27T09:52:11+00:00",
+    "verdict": "approved",
+    "note": "Independent review: reviewed U16 implementation against page, settings persistence, Research sidebar, source-focus behavior, reader bibliography, and exported order/scope. Fresh pinned typecheck passed; fresh vitest src/research src/export passed 355/355 across 18 files; fresh production preview build succeeded; full PREVIEW(16) suite passed 47/47 (research, research-library, features, sidebar-selection, split-view, zotero). This includes the bibliography page/export/reload/source-expand case and the split-view safety cases. Reviewed light/dark bibliography and light/dark reader screenshots; both palettes were coherent, with heading groups, italics, hanging indents, and Notes followed by Bibliography in the reader. git diff --check passed. No U16 findings. Browser-only evidence is appropriate for this task; native-smoke remains separately gated by T129."
+  },
+  "log": [
+    {
+      "at": "2026-10-26T21:54:46+00:00",
+      "agent": "agent-a3c2",
+      "event": "created",
+      "note": ""
+    },
+    {
+      "at": "2026-10-27T03:12:33+00:00",
+      "agent": "agent-a3c2",
+      "event": "dependencies changed",
+      "note": "owner-authorised re-gate (decision 'Wave 2 lanes 2'): ['T111', 'T122'] -> ['T110', 'T122']"
+    },
+    {
+      "at": "2026-10-27T09:04:21+00:00",
+      "agent": "agent-b3ea",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-10-27T09:04:26+00:00",
+      "agent": "agent-b3ea",
+      "event": "handoff",
+      "note": "released"
+    },
+    {
+      "at": "2026-10-27T09:19:11+00:00",
+      "agent": "agent-6225",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-10-27T09:19:13+00:00",
+      "agent": "agent-6225",
+      "event": "handoff",
+      "note": "released"
+    },
+    {
+      "at": "2026-10-27T09:29:44+00:00",
+      "agent": "agent-aec2",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-10-27T09:29:44+00:00",
+      "agent": "agent-aec2",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-10-27T09:46:41+00:00",
+      "agent": "agent-aec2",
+      "event": "review requested",
+      "note": "T123 (U16 Bibliography page, Research sidebar list, open a source; agent-aec2) CLAIMED, Chromium-only evidence.\n\nCHANGES\n- src/research/BibliographyPage.tsx (new): read-only page, h1 Bibliography; controls row with Dropdown 'Bibliography order' (Alphabetical by author / Order first cited / By source type) and checkbox 'Include uncited sources'; items from bibliographyItems (headings as h2, entries as paragraphs with a hanging indent, italics from parts); empty state 'Sources cited in footnotes appear here.'.\n- src/App.tsx: Research collection items are now Bibliography first, then one row per source titled with sourceSummary (lead author -- title (year)); research notes left the sidebar (Notes tab and the New research note add button unchanged). Clicking Bibliography -> destination 'bibliography' (writing false, breadcrumb shows Bibliography, main area renders BibliographyPage; changes mutate documentSettings.bibliographyOrder / bibliographyScope). Clicking a source -> destination research, Sources tab, new state focusSource, researchEpoch bump. focusSource is cleared by every other research opener (onFootnote, add note, group click via onDestination). One memoised bibliography list (bibliographyItems(project, documentSettings)), built only on the bibliography page, the research aside or read mode, feeds the page, the reader and the ResearchPanel's bibliography prop (U15 left that prop unwired; the panel now shows the same marker-based list as the exports). Read manuscript: after Notes, a section.reader-bibliography (h2 Bibliography, kind headings as h3, entries) when documentSettings.bibliography is not false and entries exist.\n- src/research/ResearchPanel.tsx: sourceSummary exported; new prop focusSourceId: opens Sources with that source expanded (setOpenId) and scrolls #id-panel into view.\n- src/components/ProjectSidebar.tsx: collection item type gains depth?: 0 | 1 and beside?: PaneContent (for U19; not rendered yet); a collection row whose id equals the active destination is .selected (so the Bibliography row is marked on its page).\n- src/research/research.css: .bibliography-page, .bibliography-controls, .bibliography-entries and hanging indent for page and reader entries; tokens only, flat, no new colours. Reader typography untouched apart from the new section's hanging indent.\n- tests/research.spec.ts: one new case (Research row lists Bibliography and both sources; page shows only the cited one; Include uncited -> both in author order; By source type -> Books, Journal articles; reload keeps both choices; reader shows the same headings; Settings Export Markdown '## Bibliography' block equals the page lines in order; clicking the uncited source in the sidebar opens the Research panel with that source expanded). tests/sidebar-selection.spec.ts: registered, not changed (no case relied on research notes in the sidebar, so the stop-and-ask did not fire).\n\nFAIL-FIRST: the new case on the untouched U14 build (ui2-u14/dist, config ui2-u16/ff.config.mjs port 1586) failed at the Research rows assertion (ff.log).\n\nPASS (build ui2-u16/dist, port 1586): tsc 0 (tsc.log); vitest src/research src/export 18 files 355/355 (vitest.log); full unit one worker 973/973 (unit.log); PREVIEW(16) research, research-library, features, sidebar-selection, split-view, zotero 46/47 (post.log): the one failure is the known split-view 'shared bar menus' flake (discovery logged by T111; fails on the pre-U14 dist too); split-view rerun alone 10/10 (split.log). New case --repeat-each 3 3/3 (new3.log).\n\nSCREENSHOTS viewed (ui2-u16/shots): Bibliography page light and dark (By source type, both headings, italic book title, Bibliography row selected in the sidebar, breadcrumb Bibliography) and the reader with Notes then Bibliography in dark.\n\nBOUNDARIES: Chromium preview only; no native run (screen locked, T129). The PDF/DOCX exports already use bibliographyItems (U15), so they follow the page's order and scope; not re-rendered here.\n\nDESIGN DOC: Research in the sidebar lists Bibliography, then every source (lead author -- title (year)); research notes live only in the Research panel's Notes tab. The Bibliography page is read-only: an order menu (Alphabetical by author, Order first cited, By source type) and an Include uncited sources checkbox, saved per project in document settings and used by every export; entries have a hanging indent, type headings are semibold. Clicking a source opens the Research panel with that source expanded. Read manuscript ends with the same Bibliography after Notes.\n\nRERUN: npx playwright test -c node_modules/.cache/personal-word-beta/ui2-u16/post.config.mjs research.spec.ts (rebuild ui2-u16/dist first if source changed).\n"
+    },
+    {
+      "at": "2026-10-27T09:52:11+00:00",
+      "agent": "agent-dc4b",
+      "event": "approved",
+      "note": "Independent review: reviewed U16 implementation against page, settings persistence, Research sidebar, source-focus behavior, reader bibliography, and exported order/scope. Fresh pinned typecheck passed; fresh vitest src/research src/export passed 355/355 across 18 files; fresh production preview build succeeded; full PREVIEW(16) suite passed 47/47 (research, research-library, features, sidebar-selection, split-view, zotero). This includes the bibliography page/export/reload/source-expand case and the split-view safety cases. Reviewed light/dark bibliography and light/dark reader screenshots; both palettes were coherent, with heading groups, italics, hanging indents, and Notes followed by Bibliography in the reader. git diff --check passed. No U16 findings. Browser-only evidence is appropriate for this task; native-smoke remains separately gated by T129."
+    }
+  ]
+}

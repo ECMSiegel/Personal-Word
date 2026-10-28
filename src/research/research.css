@@ -216,7 +216,7 @@
 .source-toggle svg {
   flex: 0 0 auto;
   color: var(--muted);
-  transition: transform 0.15s ease;
+  transition: transform var(--duration-fast) var(--ease-out);
 }
 .source-toggle[aria-expanded="true"] svg {
   transform: rotate(90deg);
@@ -231,6 +231,34 @@
   display: grid;
   gap: 14px;
   padding: 0 0 18px;
+}
+.source-pdf-name {
+  font-size: var(--type-small);
+  overflow-wrap: anywhere;
+}
+.source-pdf-size {
+  font-size: var(--type-small);
+  color: var(--muted);
+}
+.source-pdf-attach {
+  position: relative;
+  display: inline-flex;
+  width: fit-content;
+  align-items: center;
+  min-height: var(--control-height);
+  padding: 0 var(--space-3);
+  border: 1px solid var(--line);
+  cursor: pointer;
+}
+.source-pdf-attach:focus-within {
+  outline: var(--focus-ring);
+  outline-offset: var(--focus-offset);
+}
+.source-pdf-attach input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
 }
 .field {
   display: grid;
@@ -517,4 +545,46 @@ div.project-settings {
   color: var(--danger);
   text-decoration: underline;
   text-underline-offset: 3px;
+}
+
+/* Bibliography page (sidebar Research > Bibliography) and the reader's list:
+   the same items every export prints, entries with a hanging indent. */
+.bibliography-page {
+  flex: 1;
+  overflow: auto;
+  padding: var(--space-6) max(var(--space-6), calc((100% - 710px) / 2));
+}
+.bibliography-page h1 {
+  font-size: var(--type-title);
+  font-weight: 600;
+  margin: 0 0 var(--space-4);
+}
+.bibliography-controls {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--space-4);
+  margin-bottom: var(--space-5);
+  font-size: var(--type-body);
+}
+.bibliography-controls label {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+.bibliography-entries h2 {
+  font-size: var(--type-large);
+  font-weight: 600;
+  margin: var(--space-5) 0 var(--space-3);
+}
+.bibliography-entries p,
+.reader-bibliography p {
+  padding-left: 2em;
+  text-indent: -2em;
+  overflow-wrap: anywhere;
+}
+.bibliography-entries p {
+  margin: 0 0 var(--space-3);
+  font-size: var(--type-large);
+  line-height: 1.6;
 }

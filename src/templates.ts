@@ -10,6 +10,8 @@ export type WritingTemplate = {
   sections: { title: string; content: JSONContent }[];
   settings: DocumentSettings;
   custom?: boolean;
+  /** Hidden from the create menu and the Settings picker; still openable by id. */
+  hidden?: boolean;
 };
 const doc = (text = ""): JSONContent => ({
   type: "doc",
@@ -44,10 +46,11 @@ export const writingTemplates: WritingTemplate[] = [
       section("Conclusion"),
     ],
     settings: { ...defaultDocumentSettings },
+    hidden: true,
   },
   {
     id: "chicago",
-    name: "Chicago student paper",
+    name: "Chicago",
     description:
       "12 pt serif, double spacing, one-inch margins, half-inch paragraph indents, notes and bibliography. Instructor requirements take precedence.",
     sections: [
@@ -78,5 +81,6 @@ export const writingTemplates: WritingTemplate[] = [
     description: "A chapter-based manuscript.",
     sections: [section("Chapter 1")],
     settings: { ...defaultDocumentSettings, bibliography: false },
+    hidden: true,
   },
 ];

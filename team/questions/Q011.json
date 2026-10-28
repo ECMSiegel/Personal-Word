@@ -1,0 +1,9 @@
+{
+  "id": "Q011",
+  "at": "2026-10-27T10:19:35+00:00",
+  "by": "agent-1042",
+  "task": "T125",
+  "text": "T125 is blocked: Native reliability on fresh smoke debug build (com.folio.smoke, includes U19): baseline 13 passed + 5 controls PASS, beta 19 passed + 42 controls PASS, 2026-10-27 06:19 EDT, run while Mac locked. Logs: node_modules/.cache/personal-word-beta/ui2-u19/native/build.log baseline.log beta.log. Remaining U19 acceptance: SMOKE(19) native screenshots (20 PNGs) plus native-smoke, which need the owner Mac unlocked (Q009/Q010). Browser acceptance 30/30 earlier by agent-dc4b.",
+  "status": "resolved",
+  "resolution": "Resolved: native reliability baseline 13 passed + 5 controls, beta 19 passed + 42 controls, from node_modules/.cache/personal-word-beta/ui2-u19/native/build.log, baseline.log, beta.log. Native SMOKE(19) screenshots subsequently completed in the coordinator desktop session: 10 plain + 10 color PNGs under node_modules/.cache/personal-word-beta/t125-diag/ and t125-diag-color/, reports ok=true and PDF probe application/pdf 622x538."
+}

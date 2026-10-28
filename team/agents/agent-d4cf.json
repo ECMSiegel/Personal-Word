@@ -1,0 +1,9 @@
+{
+  "id": "agent-d4cf",
+  "label": "Claude Sonnet worker T098 (U1)",
+  "joined_at": "2026-10-26T21:13:00+00:00",
+  "last_seen": "2026-10-26T21:39:49+00:00",
+  "status": "left",
+  "current_task": null,
+  "inbox_cursor": 0
+}

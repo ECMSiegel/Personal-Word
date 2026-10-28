@@ -57,10 +57,10 @@ function contrast(a: string, b: string): number {
 function hexOf(n: number): string {
   return "#" + [16, 8, 0].map((s) => ((n >> s) & 255).toString(16).padStart(2, "0")).join("").toUpperCase();
 }
-// The selected sidebar row paints --text at N% over the sidebar (src/styles.css .entry-row.selected).
+// The sliding selection fill paints --text at N% over the sidebar.
 function selectedRow(base: Record<string, string>): string {
-  const rule = css.match(/\.entry-row\.selected\s*\{\s*background:\s*color-mix\(in srgb,\s*var\(--text\)\s*(\d+)%,\s*transparent\)/);
-  expect(rule, ".entry-row.selected color-mix rule").not.toBeNull();
+  const rule = css.match(/\.sidebar-highlight\s*\{[^}]*background:\s*color-mix\(in srgb,\s*var\(--text\)\s*(\d+)%,\s*transparent\)/);
+  expect(rule, ".sidebar-highlight color-mix rule").not.toBeNull();
   const pct = Number(rule![1]) / 100;
   const text = parseInt(base["--text"].slice(1), 16);
   const side = parseInt(base["--sidebar"].slice(1), 16);
@@ -80,6 +80,15 @@ const DARK_SURFACES = surfacesOf(":root[data-theme=\"dark\"]");
 const COLOR_LIGHT = ':root[data-palette="color"]';
 const COLOR_DARK_SYSTEM = ':root[data-palette="color"]:not([data-theme="light"])';
 const COLOR_DARK = ':root[data-palette="color"][data-theme="dark"]';
+const SWATCHES = ["red", "orange", "yellow", "green", "teal", "blue", "indigo", "purple"] as const;
+const LIGHT_SWATCHES = {
+  red: "#CC0B00", orange: "#955600", yellow: "#7B6300", green: "#1E7434",
+  teal: "#1E6F7E", blue: "#0062CD", indigo: "#5654D6", purple: "#9A28D4",
+};
+const DARK_SWATCHES = {
+  red: "#FF665D", orange: "#FF9F0A", yellow: "#FFD60A", green: "#30D158",
+  teal: "#40C8E0", blue: "#41A0FF", indigo: "#918FEE", purple: "#CA75F4",
+};
 
 describe("Color palette", () => {
   for (const [mode, selector, surfaces] of [
@@ -138,6 +147,40 @@ describe("Color palette", () => {
   it("keeps the dark Color tokens identical in the System media block and the Dark override", () => {
     expect(tokens(COLOR_DARK_SYSTEM)).toEqual(tokens(COLOR_DARK));
   });
+
+  it("defines every planned section swatch and keeps it AA on every surface", () => {
+    for (const [selector, surfaces, expected] of [
+      [COLOR_LIGHT, LIGHT_SURFACES, LIGHT_SWATCHES],
+      [COLOR_DARK_SYSTEM, DARK_SURFACES, DARK_SWATCHES],
+      [COLOR_DARK, DARK_SURFACES, DARK_SWATCHES],
+    ] as const) {
+      const palette = tokens(selector);
+      for (const name of SWATCHES) {
+        const value = palette[`--swatch-${name}`];
+        expect(value, `${selector} --swatch-${name}`).toBe(expected[name]);
+        for (const surface of surfaces) {
+          expect(contrast(value, surface), `${name} ${value} on ${surface}`).toBeGreaterThanOrEqual(4.5);
+        }
+      }
+    }
+    expect(tokens(COLOR_LIGHT)["--swatch-blue"]).toBe(tokens(COLOR_LIGHT)["--tint-manuscript"]);
+    expect(tokens(COLOR_LIGHT)["--swatch-green"]).toBe(tokens(COLOR_LIGHT)["--tint-fragments"]);
+    expect(tokens(COLOR_LIGHT)["--swatch-orange"]).toBe(tokens(COLOR_LIGHT)["--tint-research"]);
+    expect(tokens(COLOR_DARK)["--swatch-blue"]).toBe(tokens(COLOR_DARK)["--tint-manuscript"]);
+    expect(tokens(COLOR_DARK)["--swatch-green"]).toBe(tokens(COLOR_DARK)["--tint-fragments"]);
+    expect(tokens(COLOR_DARK)["--swatch-orange"]).toBe(tokens(COLOR_DARK)["--tint-research"]);
+  });
+
+  it("maps each selected section swatch only in the Color palette", () => {
+    const clean = css.replace(/\/\*[\s\S]*?\*\//g, "");
+    const normalized = clean.replace(/\s+/g, " ");
+    for (const section of ["manuscript", "fragments", "research"] as const) {
+      for (const name of SWATCHES) {
+        const rule = `:root[data-palette="color"][data-tint-${section}="${name}"] { --tint-${section}: var(--swatch-${name}); }`;
+        expect(normalized).toContain(rule);
+      }
+    }
+  });
 });
 
 describe("Document focus ring", () => {
@@ -165,16 +208,18 @@ describe("Plain palette", () => {
   });
 });
 
-describe("Create panel items", () => {
-  const library = readFileSync(join(process.cwd(), "src/components/library.css"), "utf8").replace(/\/\*[\s\S]*?\*\//g, "");
-  const item = library.match(/\.create-panel-body > button\s*\{([^}]*)\}/);
+describe("Popover items", () => {
+  const popover = readFileSync(join(process.cwd(), "src/components/popover.css"), "utf8").replace(/\/\*[\s\S]*?\*\//g, "");
+  const item = popover.match(/\[data-popover-item\]\s*\{([^}]*)\}/);
 
   it("paint --text at full opacity, with no fade-in that can leave them faint", () => {
-    expect(item, ".create-panel-body > button rule exists").not.toBeNull();
+    expect(item, "[data-popover-item] rule exists").not.toBeNull();
     expect(item![1]).toMatch(/color:\s*var\(--text\)/);
     expect(item![1]).toMatch(/opacity:\s*1\s*;/);
     expect(item![1]).not.toMatch(/transition/);
-    expect(library).not.toMatch(/@starting-style\s*\{\s*\.create-panel-body > button/);
+    const named = popover.match(/\.popover-item\s*\{([^}]*)\}/);
+    if (named) expect(named[1]).not.toMatch(/transition/);
+    expect(popover).not.toMatch(/@starting-style[\s\S]*?popover-item/);
   });
 
   it("have --text reach 4.5:1 on --paper in light and dark", () => {

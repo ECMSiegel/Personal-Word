@@ -2,28 +2,139 @@
   "id": "T102",
   "title": "UI wave 2 U5: Create menu morphs out of the button (C)",
   "description": "Plan task U5. Follow docs/agent-work/2026-10-26-ui-wave-2/PLAN.md exactly: this task's section (Files, Interfaces, Steps, Acceptance check, Fail-first, Stop-and-ask, Default) plus the seven answered Open questions and the Notes for the implementer. Protocol: register the serial check slot via files add only right before the first expensive check and keep it until done; pinned Node; quoted --outDir; no installs, no commits; status CLAIMED; independent review required.",
-  "status": "available",
+  "status": "done",
   "owner": null,
   "priority": 1,
   "depends_on": [
     "T101"
   ],
   "files": [
-    "node_modules/.cache/personal-word-beta/ui2-u5"
+    "node_modules/.cache/personal-word-beta/ui2-u5",
+    "src/components/ProjectLibrary.tsx",
+    "src/components/library.css",
+    "tests/projects-screen.spec.ts",
+    "src/palette.test.ts",
+    "tests/motion-u5.spec.ts",
+    "node_modules/.cache/personal-word-beta/team-serial-check-slot"
   ],
   "review_required": true,
   "created_by": "agent-3405",
   "created_at": "2026-10-26T21:02:17+00:00",
-  "claimed_at": null,
-  "updated_at": "2026-10-26T21:02:17+00:00",
-  "handoff": null,
-  "review": null,
+  "claimed_at": "2026-10-27T07:06:59+00:00",
+  "updated_at": "2026-10-27T07:10:48+00:00",
+  "handoff": {
+    "by": "agent-a3c2",
+    "at": "2026-10-27T07:06:32+00:00",
+    "text": "REJECT (one small keyboard regression; everything else verified sound by reviewer agent-ade7, whose full evidence is in node_modules/.cache/personal-word-beta/ui2-u5-review/: tsc 0, palette 11/11, projects-screen + motion-u5 + motion + accessibility 49/49, header boxes identical before/after open at 1440 and 850, panel at the trigger's exact x/y, attributes and item order correct, Home/End/Arrows/Escape-from-panel correct, items opaque, fail-first real, implementation coherent after the OpenCode/Codex overlap, notice.spec failures = known load flake).\nREQUIRED FIX: with the menu open, Shift+Tab from the first item focuses the (invisible) \"Start new project\" trigger; Escape there leaves the panel open (the old wrapper onKeyDown on .create-project was deleted). In src/components/ProjectLibrary.tsx add back on the .create-project wrapper (or the trigger button) an Escape handler that closes the menu and refocuses the trigger when creating is true. Add a tests/projects-screen.spec.ts case: open menu, Shift+Tab, Escape -> #create-panel count 0 and the trigger focused; show it failing first. Also record in the done note which parts came from OpenCode (agent-3e1b/272b) and which from Codex (coordinator asked in #437)."
+  },
+  "review": {
+    "by": "agent-a3c2",
+    "at": "2026-10-27T07:10:48+00:00",
+    "verdict": "approved",
+    "note": "Coordinator review of cycle 2: ProjectLibrary.tsx:220-227 restores an Escape onKeyDown on .create-project (closes via closeCreate(true), refocuses trigger, stopPropagation; the panel handler at :322 stops propagation first so no double close). New projects-screen case fails pre-fix (pre.log: Expected 0, Received 1) and passes after; post.log 43 passed (projects-screen, motion-u5, accessibility); tsc 0. Cycle 1 evidence from reviewer agent-ade7 stands (49/49, header unmoved, panel at trigger x/y, coherent single implementation). Attribution recorded. Chromium only; native menu behaviour is an owner hand-check item."
+  },
   "log": [
     {
       "at": "2026-10-26T21:02:17+00:00",
       "agent": "agent-3405",
       "event": "created",
       "note": ""
+    },
+    {
+      "at": "2026-10-27T06:02:52+00:00",
+      "agent": "agent-32e9",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-10-27T06:03:12+00:00",
+      "agent": "agent-32e9",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-10-27T06:03:20+00:00",
+      "agent": "agent-32e9",
+      "event": "handoff",
+      "note": "released"
+    },
+    {
+      "at": "2026-10-27T06:05:15+00:00",
+      "agent": "agent-81e6",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-10-27T06:05:22+00:00",
+      "agent": "agent-81e6",
+      "event": "handoff",
+      "note": "released"
+    },
+    {
+      "at": "2026-10-27T06:11:15+00:00",
+      "agent": "agent-3e1b",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-10-27T06:11:28+00:00",
+      "agent": "agent-3e1b",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-10-27T06:13:05+00:00",
+      "agent": "agent-3e1b",
+      "event": "handoff",
+      "note": "HANDOFF of T102 (U5: create menu morphs out of the button). Reason: my context is running long, and a half-finished rewrite of the shared files (src/components/ProjectLibrary.tsx, src/components/library.css) would break the tree for other live tasks. NOTHING WAS EDITED -- the tree is exactly as I found it, so whoever takes this starts clean. No slot was taken; no temp files outside ui2-u5/.\n\nSCOPE (plan docs/agent-work/2026-10-26-ui-wave-2/PLAN.md, section U5 -- read it in full; it is authoritative).\n\nREGISTERED PATHS on the task when I released: ui2-u5, src/components/ProjectLibrary.tsx, src/components/library.css, tests/projects-screen.spec.ts, src/palette.test.ts, tests/motion-u5.spec.ts. NOTE per the hotspot rule: do NOT register or edit docs/design-system.md (the plan's Files line lists it; the coordinator's rule supersedes it -- put the design-doc text in the done note under \"DESIGN DOC:\"), and put the motion case in the new tests/motion-u5.spec.ts (not tests/motion.spec.ts).\n\nWHAT IS ALREADY TRUE (verified by reading the real files, not the plan's line numbers):\n- U4 landed and is APPROVED (T101, agent-cf5e6/agent-f5e6). src/components/Popover.tsx exists and exports both Popover and PopoverItem:\n  Popover props: open, anchor (RefObject), onDismiss?, align?, morph? \"edge\"|\"anchor\" (default \"edge\"), highlight? number|null|\"follow\" (default null), role?, id?, label?, activeDescendant?, tabIndex?, className?, onKeyDown?, ref?, children. It renders an absolutely positioned surface inside an anchor-positioned wrapper, handles placement, presence/morph, and drops role while closing. For a create menu use morph=\"anchor\" highlight=\"follow\".\n  PopoverItem props: ButtonHTMLAttributes<HTMLButtonElement> plus shortcut?: string. It renders <button type=\"button\" className=\"popover-item\" data-popover-item> {children} {shortcut && <span className=\"popover-shortcut\">}. So it has no separator variant.\n- src/components/popover.css has only `[data-popover-item]` and `.popover-item:active:not(:disabled)` rules (54 lines). There is NO separator/rule class there, so the panel's existing `<div className=\"create-panel-rule\" role=\"separator\" />` needs a replacement class; U5 step 4 says remove the `.create-panel*` rules, so introduce the separator's styling under a new name in library.css (registered to you) or omit the separator only if the plan's item order allows it -- the plan says items keep today's order, so KEEP the separator and style it.\n- Current ProjectLibrary.tsx (line numbers as of this handoff):\n  - imports 1-13: `useEffect, useLayoutEffect, useRef, useState, type CSSProperties` from react; `ChevronDown, Layers, List, Search, Trash2` from lucide-react; Dropdown; \"./library.css\". Add `import { Popover, PopoverItem } from \"./Popover\";`, import `play` from \"../motion\" (U2), and drop `CSSProperties` once the panel's style object goes.\n  - state 47-63: keep view/sort/reverse/creating/searching/query/createButton/writingInput/projectInput/searchButton/searchInput/dropping/dragDepth. DELETE `triggerSize` (57) and `closing`/`closeTimer` (58-59) -- the timer close machinery. `createPanel` ref (54) is only needed if you still pass a ref to Popover or read the panel for the key handler; the key handler can keep using it via Popover's ref or by querying `#create-panel`.\n  - dismissCreate 155-172: DELETE (timer machinery). closeCreate 173-176: keep a simple close (set creating false) + refocus the trigger when asked.\n  - onPanelKeyDown 177-200: KEEP the Arrow/Home/End logic (it queries buttons inside createPanel). Escape should close and refocus the trigger.\n  - Trigger + panel JSX 228-317: replace the `<div className=\"create-project\">` + conditional `.create-panel` block with the plan's Popover. Keep the wrapper's Escape/onBlur handling or move it onto Popover's onDismiss/onKeyDown. The trigger <button> stays mounted with `aria-expanded={creating}` and `aria-controls=\"create-panel\"`; the panel needs `id=\"create-panel\"`, `role=\"group\"`, `aria-label=\"Start new project\"`, and focus on the first item when opened. Items in today's order: the templates list (fallback when templates is absent: blank \"Blank project\", essay \"Essay\", chicago \"Chicago essay\", screenplay \"Screenplay\", story \"Story\"; NOTE U11/T120 will later change this list to hide Essay and Story -- do not pre-empt), then the separator, then \"Import a file…\" (writingInput.current?.click()), then \"Recover from a project.json file…\" (projectInput.current?.click()). Each item is a PopoverItem whose text is exactly the label; the two hidden file inputs stay.\n  - `.library-toolbar` is now a flex row with gap var(--header-gap) and controls at min-height var(--control-height) (U3/T100, approved); `.create-project { position: relative; }` lives in styles.css:1357, not library.css.\n- src/components/library.css 64-~110 currently holds `.create-project > .primary { position: relative; z-index: 9 }`, `.create-panel`, `.create-panel-body`, `@starting-style { .create-panel-body }`, `.create-panel[data-closing] .create-panel-body`, and `.create-panel-body > button` (+ likely hover/focus rules further down -- read to the end of the block before deleting). Delete the `.create-panel*` rules and the `@starting-style`; keep/decide on `.create-project > .primary` (the trigger must stay mounted and fades to opacity 0 while covered).\n- Tests referenced by the plan: tests/projects-screen.spec.ts has geometry cases at :102-112, :114-128, :200-220 and a create-panel item case at :222-262 (selectors to change to `#create-panel .popover-item`). src/palette.test.ts:163-187 targets the old create-panel rules and must be retargeted to popover.css `.popover-item` / `[data-popover-item]`. tests/motion-helpers.ts exports `animatedProperties` and `ALLOWED` (extracted by T101) for the new tests/motion-u5.spec.ts.\n\nREMAINING WORK, in order:\n1. Implement steps 1-4 of the plan (component + library.css).\n2. Implement steps 5-7 (tests): projects-screen.spec.ts geometry/motion cases, palette.test.ts retarget, new tests/motion-u5.spec.ts.\n3. Fail-first: the new geometry/motion assertions must fail on the pre-U5 tree (a copy of the current file with the old panel, or the recorded pre-U5 dist), then pass after.\n4. Acceptance: PREVIEW(5) `tests/projects-screen.spec.ts tests/motion.spec.ts tests/import.spec.ts tests/import-cancel.spec.ts tests/appearance.spec.ts tests/notice.spec.ts tests/housekeeping.spec.ts` -> all pass; `npx vitest run src/palette.test.ts` -> pass; then SMOKE(5): `npm run tauri build -- --debug --features native-smoke --no-bundle --config '{\"identifier\":\"com.folio.smoke\"}'` then `python3 scripts/native-screens.py --out \"node_modules/.cache/personal-word-beta/ui2-u5/native-plain\"` and `... native-color --palette color`, view every PNG (10 + 10), one line each in the done note. NOTE the plan expects 16 PNGs; the script now emits 10 per palette (5 screens) because U18 added the pdf-preview screen -- report the real count.\n5. Register the serial slot (node_modules/.cache/personal-word-beta/team-serial-check-slot) right before the first expensive check and keep it until done; announce before it.\n6. done T102 with the full note, then message the team (review announcement).\n\nTRAPS I FOUND: (a) the open create menu is NOT captured by native-screens (the plan says to note that); (b) the plan's \"16 PNGs\" is now 20; (c) the separator needs a new class name because `.create-panel*` is deleted and popover.css has none; (d) do not register docs/design-system.md; (e) `stop and ask if a 40px format bar / geometry test breaks` does not apply here, but the plan's stop rule is \"the panel almost the page colour\" (open question 4: menus use the page-coloured raised surface with 1px line and shadow) -- verify the popover surface uses --elevation-raised/--shadow-raised from U3.\n\nReference: T100 (U3) and T119 (U10) are done/in review with logs under node_modules/.cache/personal-word-beta/ui2-u3 and ui2-u10 if you want a pattern for the build/PREVIEW/SMOKE scripts; ui2-u10/verify-t119.sh and ui2-u10/screenshot-t119.mjs are reusable templates (change the dist path, port and task id)."
+    },
+    {
+      "at": "2026-10-27T06:15:39+00:00",
+      "agent": "agent-8875",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-10-27T06:15:41+00:00",
+      "agent": "agent-8875",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-10-27T06:47:06+00:00",
+      "agent": "agent-8875",
+      "event": "review requested",
+      "note": "Implemented U5 anchor-morphed Create Popover, same-animation reversible trigger fade, keyboard/outside/focus-out dismissal, and tests. Fail-first isolated dist: removing morph caused intended failures (41px geometry delta; playbackRate +1 instead of -1; focus-out left panel open); original source restored before fixes. Pinned tsc, Vite build, palette 11/11, focused geometry, and native-smoke debug build passed. Full PREVIEW(5): 79 passed, 2 failed, both unrelated notice.spec.ts light/dark toast timing checks; toast auto-dismissed before screenshot (see ui2-u5/preview.log). Reviewed 10 unique native captures per palette (Plain/Color), light/dark, all coherent; aliases byte-identical. Native harness does not capture open Create menu. Logs: ui2-u5/failfirst.log, palette.log, smoke-build.log, screens-plain.log, screens-color.log. DESIGN DOC: Use shared anchored Popover for create actions; raised page surface, 1px border and raised shadow; cover trigger without toolbar reflow, morph from and reverse toward it, keep trigger mounted/fade while covered, preserve keyboard dismissal and focus return, and keep comfortable menu hit targets with visible keyboard focus. No design-system edits; git diff --check passed. Other task changes left untouched."
+    },
+    {
+      "at": "2026-10-27T07:06:32+00:00",
+      "agent": "agent-a3c2",
+      "event": "rejected",
+      "note": "REJECT (one small keyboard regression; everything else verified sound by reviewer agent-ade7, whose full evidence is in node_modules/.cache/personal-word-beta/ui2-u5-review/: tsc 0, palette 11/11, projects-screen + motion-u5 + motion + accessibility 49/49, header boxes identical before/after open at 1440 and 850, panel at the trigger's exact x/y, attributes and item order correct, Home/End/Arrows/Escape-from-panel correct, items opaque, fail-first real, implementation coherent after the OpenCode/Codex overlap, notice.spec failures = known load flake).\nREQUIRED FIX: with the menu open, Shift+Tab from the first item focuses the (invisible) \"Start new project\" trigger; Escape there leaves the panel open (the old wrapper onKeyDown on .create-project was deleted). In src/components/ProjectLibrary.tsx add back on the .create-project wrapper (or the trigger button) an Escape handler that closes the menu and refocuses the trigger when creating is true. Add a tests/projects-screen.spec.ts case: open menu, Shift+Tab, Escape -> #create-panel count 0 and the trigger focused; show it failing first. Also record in the done note which parts came from OpenCode (agent-3e1b/272b) and which from Codex (coordinator asked in #437)."
+    },
+    {
+      "at": "2026-10-27T07:06:59+00:00",
+      "agent": "agent-be8a",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-10-27T07:06:59+00:00",
+      "agent": "agent-be8a",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-10-27T07:10:25+00:00",
+      "agent": "agent-be8a",
+      "event": "review requested",
+      "note": "T102 / U5 cycle 2 (agent-be8a). Fixes the one reject item: with the create menu open, Shift+Tab from the first item focuses the (faded) Start new project trigger, and Escape there left the panel open.\nFIX: src/components/ProjectLibrary.tsx -- restored an onKeyDown on the .create-project wrapper: Escape while creating closes the menu and refocuses the trigger (stopPropagation, same as the panel handler). Nothing else changed.\nTEST: tests/projects-screen.spec.ts \"Escape on the focused create trigger closes the open panel\": open menu, Shift+Tab (trigger focused, panel visible), Escape -> #create-panel count 0 and trigger focused.\nFAIL-FIRST: against a build of the tree without the fix (ui2-u5-c2/dist-pre, pre.log) the case failed at the Escape step: Expected count 0, Received 1. After the fix (ui2-u5-c2/dist, port 1566): projects-screen + motion-u5 + accessibility = 43 passed, 0 failed (post.log). pinned tsc exit 0; git diff --check clean.\nNO native rebuild needed: this is a React keyboard handler only, no Rust, native screens or styling change; the open menu is not captured by native-screens anyway.\nDESIGN DOC: no change from the earlier U5 text (Escape from any focus inside the create control closes the menu and returns focus to the trigger).\nATTRIBUTION (board msg #452): OpenCode (agent-3e1b/272b) wrote the Popover-based create menu, the library.css cleanup, the projects-screen geometry/close/square cases, the palette.test.ts retarget and tests/motion-u5.spec.ts. Codex (agent-8875) added the reversible trigger fade (g3), the tabbing-out-dismisses test and the onBlur dismissal. Cycle 2 (agent-be8a, Claude) added the Escape-on-trigger fix and its test.\n"
+    },
+    {
+      "at": "2026-10-27T07:10:48+00:00",
+      "agent": "agent-a3c2",
+      "event": "approved",
+      "note": "Coordinator review of cycle 2: ProjectLibrary.tsx:220-227 restores an Escape onKeyDown on .create-project (closes via closeCreate(true), refocuses trigger, stopPropagation; the panel handler at :322 stops propagation first so no double close). New projects-screen case fails pre-fix (pre.log: Expected 0, Received 1) and passes after; post.log 43 passed (projects-screen, motion-u5, accessibility); tsc 0. Cycle 1 evidence from reviewer agent-ade7 stands (49/49, header unmoved, panel at trigger x/y, coherent single implementation). Attribution recorded. Chromium only; native menu behaviour is an owner hand-check item."
     }
   ]
 }

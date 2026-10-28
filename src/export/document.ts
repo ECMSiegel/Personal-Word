@@ -5,10 +5,13 @@ import { save } from "@tauri-apps/plugin-dialog";
 import type { Project } from "../model";
 import type { AssetId, PendingAsset } from "../assets/types";
 import {
-  bibliography,
   footnoteText,
   footnoteParts,
 } from "../research/citations";
+import {
+  bibliographyItems,
+  type BibliographyItem,
+} from "../research/bibliography";
 import { resolveCitationContext } from "../research/noteForms";
 import {
   defaultDocumentSettings,
@@ -283,17 +286,8 @@ export function documentBlocks(
     notes,
     settings,
     bibliography: settings.bibliography
-      ? bibliography({
-          ...data,
-          sources: data.sources.filter((source) =>
-            notes.some(
-              (note) =>
-                data.footnotes.find((n) => n.id === note.id)?.sourceId ===
-                source.id,
-            ),
-          ),
-        })
-      : [],
+      ? bibliographyItems(project, settings)
+      : ([] as BibliographyItem[]),
   };
 }
 export function downloadBlob(blob: Blob, name: string) {

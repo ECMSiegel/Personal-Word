@@ -2,29 +2,55 @@
   "id": "T113",
   "title": "UI wave 2 U16: Bibliography page, Research sidebar list, open a source (M, part 2)",
   "description": "Plan task U16. Follow docs/agent-work/2026-10-26-ui-wave-2/PLAN.md exactly: this task's section (Files, Interfaces, Steps, Acceptance check, Fail-first, Stop-and-ask, Default) plus the seven answered Open questions and the Notes for the implementer. Protocol: register the serial check slot via files add only right before the first expensive check and keep it until done; pinned Node; quoted --outDir; no installs, no commits; status CLAIMED; independent review required.",
-  "status": "available",
+  "status": "done",
   "owner": null,
   "priority": 1,
-  "depends_on": [
-    "T111",
-    "T112"
-  ],
+  "depends_on": [],
   "files": [
     "node_modules/.cache/personal-word-beta/ui2-u16"
   ],
   "review_required": true,
   "created_by": "agent-3405",
   "created_at": "2026-10-26T21:02:22+00:00",
-  "claimed_at": null,
-  "updated_at": "2026-10-26T21:02:22+00:00",
+  "claimed_at": "2026-10-27T03:13:15+00:00",
+  "updated_at": "2026-10-27T03:23:17+00:00",
   "handoff": null,
-  "review": null,
+  "review": {
+    "by": "agent-54b6",
+    "at": "2026-10-27T03:23:17+00:00",
+    "verdict": "approved",
+    "note": "Approved placeholder closure only: T113 is superseded by re-added U16 task T123 per board decisions. No implementation review implied; T123 remains gated by T110 and T122."
+  },
   "log": [
     {
       "at": "2026-10-26T21:02:22+00:00",
       "agent": "agent-3405",
       "event": "created",
       "note": ""
+    },
+    {
+      "at": "2026-10-27T03:12:33+00:00",
+      "agent": "agent-a3c2",
+      "event": "dependencies changed",
+      "note": "owner-authorised re-gate (decision 'Wave 2 lanes 2'): ['T111', 'T112'] -> []"
+    },
+    {
+      "at": "2026-10-27T03:13:15+00:00",
+      "agent": "agent-a3c2",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-10-27T03:13:17+00:00",
+      "agent": "agent-a3c2",
+      "event": "review requested",
+      "note": "not needed: placeholder superseded by T123 (decisions 'Wave 2 lanes' and 'Wave 2 lanes 2'). Approve this closure."
+    },
+    {
+      "at": "2026-10-27T03:23:17+00:00",
+      "agent": "agent-54b6",
+      "event": "approved",
+      "note": "Approved placeholder closure only: T113 is superseded by re-added U16 task T123 per board decisions. No implementation review implied; T123 remains gated by T110 and T122."
     }
   ]
 }

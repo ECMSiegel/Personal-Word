@@ -41,9 +41,11 @@ import {
   useLayoutEffect,
   useRef,
   useMemo,
+  useCallback,
   type CSSProperties,
   type ReactNode,
 } from "react";
+import { createPortal } from "react-dom";
 import {
   defaultPageLayout,
   paperGeometry,
@@ -66,6 +68,8 @@ import {
 import type { ProseIssue } from "./editor/proseCheck";
 import { changeIndent, indentKeys } from "./editor/indent";
 import { NumberInput, PanelButton } from "./editor/ToolbarControls";
+import { Popover } from "./components/Popover";
+import { SHORTCUTS, visibleLabel } from "./editor/shortcuts";
 import {
   FootnoteBlock,
   FootnoteRows,
@@ -131,6 +135,9 @@ const OVERFLOW_ORDER: ToolbarGroup[] = [
   "zoom",
 ];
 const ALWAYS_VISIBLE: ToolbarGroup[] = ["history", "right"];
+/** The format bar shows a label beside each icon from this width up. */
+const LABEL_MIN_WIDTH = 1100;
+type GroupWidths = Partial<Record<ToolbarGroup, number>>;
 const FONT_FACES = [
   "Futura, system-ui, sans-serif",
   "Arial, sans-serif",
@@ -176,18 +183,29 @@ export function Writer({
   footnotes,
   onFootnote,
   onFootnoteTextChange,
+  onFootnoteDelete,
   header,
   footer,
   focusMode = false,
   proseCheck = false,
   onToggleFocusMode,
   onToggleProseCheck,
+  toolbarTarget,
+  showToolbar = true,
+  editorLabel = "Writing editor",
 }: {
+  /** Split view: the format bar renders into this shared slot instead. */
+  toolbarTarget?: HTMLElement | null;
+  /** Split view: only the focused pane shows its format bar. */
+  showToolbar?: boolean;
+  editorLabel?: string;
   documentSettings?: DocumentSettings;
   footnoteNumbers?: Record<string, number>;
   footnotes?: FootnoteNote[];
   onFootnote?: (id: string) => void;
   onFootnoteTextChange?: (id: string, text: string) => void;
+  /** Called just before an empty source-less note's marker is deleted. */
+  onFootnoteDelete?: (id: string) => void;
   onEditorReady?: (editor: Editor | null) => void;
   layout?: PageLayout;
   onLayoutChange?: (layout: PageLayout) => void;
@@ -284,16 +302,29 @@ export function Writer({
   const [panel, setPanel] = useState<ToolbarPanel | null>(null);
   const [overflowCount, setOverflowCount] = useState(0);
   const viewport = useRef<HTMLDivElement>(null);
-  const barRef = useRef<HTMLDivElement>(null);
+  const barRef = useRef<HTMLDivElement | null>(null);
+  // State, not just a ref, so the observer re-attaches when the bar remounts.
+  const [barEl, setBarEl] = useState<HTMLDivElement | null>(null);
+  const setBar = useCallback((el: HTMLDivElement | null) => {
+    barRef.current = el;
+    setBarEl(el);
+  }, []);
   const groupEls = useRef<Partial<Record<ToolbarGroup, HTMLElement | null>>>(
     {},
   );
-  const groupWidths = useRef<Partial<Record<ToolbarGroup, number>>>({});
+  const [labels, setLabels] = useState(false);
+  const labelsRef = useRef(false);
+  // Group widths differ by mode, so each mode keeps its own cache.
+  const groupWidths = useRef<{ icons: GroupWidths; labels: GroupWidths }>({
+    icons: {},
+    labels: {},
+  });
   const panelTriggers = useRef<
     Partial<Record<ToolbarPanel, HTMLButtonElement | null>>
   >({});
   const fileInputRef = useRef<HTMLInputElement>(null);
   const altInputRef = useRef<HTMLInputElement>(null);
+  const imageButtonRef = useRef<HTMLButtonElement>(null);
   const [pendingFile, setPendingFile] = useState<File | null>(null);
   const [altText, setAltText] = useState("");
   const [isInsertingImage, setIsInsertingImage] = useState(false);
@@ -412,7 +443,7 @@ export function Writer({
     () => ({
       attributes: {
         class: "writing-surface",
-        "aria-label": "Writing editor",
+        "aria-label": editorLabel,
         spellcheck: "true",
       },
       handleKeyDown: (_, event) => {
@@ -505,6 +536,27 @@ export function Writer({
   const footnotePaper = useRef<HTMLDivElement>(null);
   const footnoteMeasure = useRef<HTMLDivElement>(null);
   const [editingNote, setEditingNote] = useState<string | null>(null);
+  const deleteEmptyNote = (id: string) => {
+    if (!editor) return;
+    const markers: { pos: number; size: number }[] = [];
+    editor.state.doc.descendants((node, pos) => {
+      if (markers.length) return false;
+      if (node.type.name !== "footnoteReference") return undefined;
+      if (String(node.attrs.id) !== id) return undefined;
+      markers.push({ pos, size: node.nodeSize });
+      return false;
+    });
+    const [marker] = markers;
+    if (!marker) return;
+    setEditingNote(null);
+    onFootnoteDelete?.(id);
+    editor
+      .chain()
+      .focus()
+      .deleteRange({ from: marker.pos, to: marker.pos + marker.size })
+      .setTextSelection(marker.pos)
+      .run();
+  };
   useEffect(() => {
     if (!editor) return;
     editor.view.dispatch(
@@ -635,23 +687,38 @@ export function Writer({
   const fitToolbar = () => {
     const bar = barRef.current;
     if (!bar) return;
+    // Crossing the label threshold re-measures every group in the new mode
+    // before paint: show them all, then let the layout effect fit again.
+    const wide = bar.clientWidth >= LABEL_MIN_WIDTH;
+    if (wide !== labelsRef.current) {
+      labelsRef.current = wide;
+      setLabels(wide);
+      setOverflowCount(0);
+      return;
+    }
+    const widths = groupWidths.current[wide ? "labels" : "icons"];
     for (const id of Object.keys(groupEls.current) as ToolbarGroup[]) {
       const el = groupEls.current[id];
-      if (el) groupWidths.current[id] = el.offsetWidth;
+      if (el) widths[id] = el.offsetWidth;
     }
-    const widths = groupWidths.current;
     const style = getComputedStyle(bar);
     const available =
       bar.clientWidth -
       parseFloat(style.paddingLeft) -
       parseFloat(style.paddingRight);
+    // Groups are separated by the bar's gap, which is not part of their widths.
+    const gap = parseFloat(style.columnGap) || 0;
     const sum = (ids: ToolbarGroup[]) =>
       ids.reduce((total, id) => total + (widths[id] ?? 0), 0);
     let count = OVERFLOW_ORDER.length;
     for (let k = 0; k <= OVERFLOW_ORDER.length; k++) {
       const visible = OVERFLOW_ORDER.slice(k);
+      const children = ALWAYS_VISIBLE.length + visible.length + (k ? 1 : 0);
       const total =
-        sum(ALWAYS_VISIBLE) + sum(visible) + (k ? (widths.more ?? 40) : 0);
+        sum(ALWAYS_VISIBLE) +
+        sum(visible) +
+        (k ? (widths.more ?? (wide ? 140 : 40)) : 0) +
+        gap * Math.max(0, children - 1);
       if (total <= available) {
         count = k;
         break;
@@ -672,14 +739,16 @@ export function Writer({
     documentSettings?.font,
     layout.mode,
     overflowCount,
+    labels,
+    showToolbar,
+    toolbarTarget,
   ]);
   useEffect(() => {
-    const bar = barRef.current;
-    if (!bar) return;
+    if (!barEl) return;
     const observer = new ResizeObserver(() => fitToolbar());
-    observer.observe(bar);
+    observer.observe(barEl);
     return () => observer.disconnect();
-  }, [editor]);
+  }, [editor, barEl]);
   if (!editor) return null;
   const hidden = OVERFLOW_ORDER.slice(0, overflowCount);
   const closePanel = (name: ToolbarPanel) => {
@@ -775,25 +844,49 @@ export function Writer({
       run: () => editor.chain().focus().toggleBlockquote().run(),
     },
   ];
-  const iconButton = (t: {
-    label: string;
-    icon: LucideIcon;
-    active: boolean;
-    run: () => void;
-  }) => (
+  // Inside the More menu every control is a menu row: it takes part in the
+  // sliding highlight and shows its shortcut. Elsewhere only the label span
+  // (hidden unless the bar is wide enough) is added.
+  const popoverItem = (inMore: boolean) =>
+    inMore ? { "data-popover-item": "" } : {};
+  const toolbarLabel = (label: string, inMore: boolean) => (
+    <>
+      <span className="toolbar-label" aria-hidden="true">
+        {visibleLabel(label)}
+      </span>
+      {inMore && SHORTCUTS[label] && (
+        <span className="popover-shortcut" aria-hidden="true">
+          {SHORTCUTS[label]}
+        </span>
+      )}
+    </>
+  );
+  const iconButton = (
+    t: {
+      label: string;
+      icon: LucideIcon;
+      active: boolean;
+      run: () => void;
+    },
+    inMore: boolean,
+  ) => (
     <button
       key={t.label}
       type="button"
       className="toolbar-icon"
+      {...popoverItem(inMore)}
       title={t.label}
       aria-label={t.label}
       aria-pressed={t.active}
       onClick={t.run}
     >
       <t.icon size={16} aria-hidden="true" />
+      {toolbarLabel(t.label, inMore)}
     </button>
   );
-  const groupBody = (id: ToolbarGroup): ReactNode => {
+  const groupBody = (id: ToolbarGroup, inMore = false): ReactNode => {
+    const mp = popoverItem(inMore);
+    const lab = (label: string) => toolbarLabel(label, inMore);
     switch (id) {
       case "history":
         return (
@@ -801,22 +894,26 @@ export function Writer({
             <button
               type="button"
               className="toolbar-icon"
+              {...mp}
               title="Undo"
               aria-label="Undo"
               disabled={!editor.can().undo()}
               onClick={() => editor.chain().focus().undo().run()}
             >
               <Undo2 size={16} aria-hidden="true" />
+              {lab("Undo")}
             </button>
             <button
               type="button"
               className="toolbar-icon"
+              {...mp}
               title="Redo"
               aria-label="Redo"
               disabled={!editor.can().redo()}
               onClick={() => editor.chain().focus().redo().run()}
             >
               <Redo2 size={16} aria-hidden="true" />
+              {lab("Redo")}
             </button>
           </>
         );
@@ -843,9 +940,21 @@ export function Writer({
             <Dropdown
               value={paragraphValue}
               options={[
-                { value: "0", label: "Normal text" },
-                { value: "1", label: "Heading 1" },
-                { value: "2", label: "Heading 2" },
+                {
+                  value: "0",
+                  label: "Normal text",
+                  shortcut: SHORTCUTS["Normal text"],
+                },
+                {
+                  value: "1",
+                  label: "Heading 1",
+                  shortcut: SHORTCUTS["Heading 1"],
+                },
+                {
+                  value: "2",
+                  label: "Heading 2",
+                  shortcut: SHORTCUTS["Heading 2"],
+                },
               ]}
               onChange={(value) =>
                 value === "0"
@@ -911,11 +1020,13 @@ export function Writer({
             <button
               type="button"
               className="toolbar-icon"
+              {...mp}
               title="Decrease font size"
               aria-label="Decrease font size"
               onClick={() => setSize(size - 1)}
             >
-              <Minus size={14} aria-hidden="true" />
+              <Minus size={16} aria-hidden="true" />
+              {lab("Decrease font size")}
             </button>
             <NumberInput
               label="Font size"
@@ -929,22 +1040,25 @@ export function Writer({
             <button
               type="button"
               className="toolbar-icon"
+              {...mp}
               title="Increase font size"
               aria-label="Increase font size"
               onClick={() => setSize(size + 1)}
             >
-              <Plus size={14} aria-hidden="true" />
+              <Plus size={16} aria-hidden="true" />
+              {lab("Increase font size")}
             </button>
           </>
         );
       case "marks":
-        return marks.map(iconButton);
+        return marks.map((t) => iconButton(t, inMore));
       case "link":
         return (
           <>
             <button
               type="button"
               className="toolbar-icon"
+              {...mp}
               title="Add link"
               aria-label="Add link"
               onClick={() =>
@@ -954,16 +1068,19 @@ export function Writer({
               }
             >
               <LinkIcon size={16} aria-hidden="true" />
+              {lab("Add link")}
             </button>
             {editor.isActive("link") && (
               <button
                 type="button"
                 className="toolbar-icon"
+                {...mp}
                 title="Remove link"
                 aria-label="Remove link"
                 onClick={() => editor.chain().focus().unsetLink().run()}
               >
                 <Unlink size={16} aria-hidden="true" />
+                {lab("Remove link")}
               </button>
             )}
           </>
@@ -982,8 +1099,10 @@ export function Writer({
             />
             <span className="toolbar-anchor" data-toolbar-panel="">
               <button
+                ref={imageButtonRef}
                 type="button"
                 className="toolbar-icon"
+                {...mp}
                 title="Insert image"
                 aria-label="Insert image"
                 aria-haspopup="dialog"
@@ -991,75 +1110,77 @@ export function Writer({
                 onClick={() => fileInputRef.current?.click()}
               >
                 <ImageIcon size={16} aria-hidden="true" />
+                {lab("Insert image")}
               </button>
-              {pendingFile && (
-                <div
-                  role="dialog"
-                  aria-label="Image alternative text"
-                  tabIndex={-1}
-                  className="toolbar-popover"
-                  onKeyDown={(e) => {
-                    if (e.key === "Escape") {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      handleCancelImage();
-                    }
-                  }}
-                >
-                  <div className="toolbar-popover-body">
-                    <span className="toolbar-field-title">
-                      {pendingFile.name}
-                    </span>
-                    <div className="toolbar-field">
-                      <span>Alt text</span>
-                      <input
-                        ref={altInputRef}
-                        type="text"
-                        className="toolbar-input"
-                        aria-label="Image alternative text"
-                        placeholder="Description for screen readers"
-                        value={altText}
-                        onChange={(e) => setAltText(e.target.value)}
-                        onKeyDown={(e) => {
-                          if (e.key === "Enter") {
-                            e.preventDefault();
-                            handleCommitImage();
-                          }
-                        }}
-                      />
-                    </div>
-                    <div
-                      style={{
-                        display: "flex",
-                        gap: "8px",
-                        justifyContent: "flex-end",
+              <Popover
+                open={pendingFile !== null}
+                anchor={imageButtonRef}
+                role="dialog"
+                label="Image alternative text"
+                tabIndex={-1}
+                className="toolbar-popover"
+                onKeyDown={(e) => {
+                  if (e.key === "Escape") {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    handleCancelImage();
+                  }
+                }}
+              >
+                <div className="toolbar-popover-body">
+                  <span className="toolbar-field-title">
+                    {pendingFile?.name}
+                  </span>
+                  <div className="toolbar-field">
+                    <span>Alt text</span>
+                    <input
+                      ref={altInputRef}
+                      type="text"
+                      className="toolbar-input"
+                      aria-label="Image alternative text"
+                      placeholder="Description for screen readers"
+                      value={altText}
+                      onChange={(e) => setAltText(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") {
+                          e.preventDefault();
+                          handleCommitImage();
+                        }
                       }}
+                    />
+                  </div>
+                  <div
+                    style={{
+                      display: "flex",
+                      gap: "8px",
+                      justifyContent: "flex-end",
+                    }}
+                  >
+                    <button
+                      type="button"
+                      className="toolbar-text-button"
+                      onClick={handleCancelImage}
                     >
-                      <button
-                        type="button"
-                        className="toolbar-text-button"
-                        onClick={handleCancelImage}
-                      >
-                        Cancel
-                      </button>
-                      <button
-                        type="button"
-                        className="toolbar-text-button"
-                        disabled={isInsertingImage}
-                        onClick={handleCommitImage}
-                      >
-                        {isInsertingImage ? "Inserting..." : "Insert"}
-                      </button>
-                    </div>
+                      Cancel
+                    </button>
+                    <button
+                      type="button"
+                      className="toolbar-text-button"
+                      disabled={isInsertingImage}
+                      onClick={handleCommitImage}
+                    >
+                      {isInsertingImage ? "Inserting..." : "Insert"}
+                    </button>
                   </div>
                 </div>
-              )}
+              </Popover>
             </span>
 
             {!tableActive ? (
               <button
                 type="button"
                 className="toolbar-icon"
+                {...mp}
                 title="Insert table"
                 aria-label="Insert table"
                 onClick={() =>
@@ -1071,9 +1192,11 @@ export function Writer({
                 }
               >
                 <TableIcon size={16} aria-hidden="true" />
+                {lab("Insert table")}
               </button>
             ) : (
               <PanelButton
+                inMore={inMore}
                 label="Table controls"
                 dialogLabel="Table controls"
                 icon={TableIcon}
@@ -1146,33 +1269,38 @@ export function Writer({
         );
       }
       case "lists":
-        return lists.map(iconButton);
+        return lists.map((t) => iconButton(t, inMore));
       case "indent":
         return (
           <>
             <button
               type="button"
               className="toolbar-icon"
+              {...mp}
               title="Decrease indent"
               aria-label="Decrease indent"
               onClick={() => changeIndent(editor, -1)}
             >
               <IndentDecrease size={16} aria-hidden="true" />
+              {lab("Decrease indent")}
             </button>
             <button
               type="button"
               className="toolbar-icon"
+              {...mp}
               title="Increase indent"
               aria-label="Increase indent"
               onClick={() => changeIndent(editor, 1)}
             >
               <IndentIncrease size={16} aria-hidden="true" />
+              {lab("Increase indent")}
             </button>
           </>
         );
       case "spacing":
         return (
           <PanelButton
+            inMore={inMore}
             label="Line and paragraph spacing"
             dialogLabel="Line and paragraph spacing"
             icon={BetweenHorizontalStart}
@@ -1251,6 +1379,7 @@ export function Writer({
           <button
             type="button"
             className="toolbar-icon"
+            {...mp}
             title={layout.mode === "pages" ? "Page view" : "Continuous view"}
             aria-label="Page view"
             aria-pressed={layout.mode === "pages"}
@@ -1265,6 +1394,7 @@ export function Writer({
             ) : (
               <AlignJustify size={16} aria-hidden="true" />
             )}
+            {lab("Page view")}
           </button>
         );
       case "aids": {
@@ -1273,14 +1403,17 @@ export function Writer({
             <button
               type="button"
               className="toolbar-icon"
+              {...mp}
               title="Focus mode"
               aria-label="Focus mode"
               aria-pressed={focusMode}
               onClick={() => onToggleFocusMode?.()}
             >
               <Focus size={16} aria-hidden="true" />
+              {lab("Focus mode")}
             </button>
             <PanelButton
+              inMore={inMore}
               label="Prose check"
               dialogLabel="Prose check"
               icon={Settings2}
@@ -1340,6 +1473,7 @@ export function Writer({
       case "setup":
         return (
           <PanelButton
+            inMore={inMore}
             label="Page setup"
             dialogLabel="Page setup"
             icon={Settings2}
@@ -1408,6 +1542,7 @@ export function Writer({
       case "more":
         return (
           <PanelButton
+            inMore={inMore}
             label="More formatting"
             dialogLabel="More formatting"
             icon={Ellipsis}
@@ -1436,12 +1571,14 @@ export function Writer({
             <button
               type="button"
               className="toolbar-icon"
+              {...mp}
               title="Comment on selection"
               aria-label="Comment on selection"
               disabled={editor.state.selection.empty}
               onClick={() => onComment?.()}
             >
               <MessageSquarePlus size={16} aria-hidden="true" />
+              {lab("Comment on selection")}
             </button>
             {item.kind === "section" && (
               <button
@@ -1452,7 +1589,7 @@ export function Writer({
                 title="Move selection to Fragments (⌘⇧X)"
                 onClick={() => onExtract(editor)}
               >
-                <Scissors size={15} aria-hidden="true" />
+                <Scissors size={16} aria-hidden="true" />
                 <span>Keep as fragment</span>
               </button>
             )}
@@ -1479,21 +1616,27 @@ export function Writer({
       {!inMore && id !== "history" && id !== "right" && (
         <span className="toolbar-divider" aria-hidden="true" />
       )}
-      {groupBody(id)}
+      {groupBody(id, inMore)}
     </span>
   );
+  const bar = showToolbar ? (
+    <div
+      className="format-bar"
+      data-labels={labels ? "" : undefined}
+      role="toolbar"
+      aria-label="Formatting"
+      ref={setBar}
+    >
+      {TOOLBAR_ORDER.filter((id) =>
+        id === "more" ? hidden.length > 0 : !hidden.includes(id),
+      ).map((id) => renderGroup(id))}
+    </div>
+  ) : null;
   return (
     <div className="writer">
-      <div
-        className="format-bar"
-        role="toolbar"
-        aria-label="Formatting"
-        ref={barRef}
-      >
-        {TOOLBAR_ORDER.filter((id) =>
-          id === "more" ? hidden.length > 0 : !hidden.includes(id),
-        ).map((id) => renderGroup(id))}
-      </div>
+      {toolbarTarget === undefined
+        ? bar
+        : toolbarTarget && bar && createPortal(bar, toolbarTarget)}
       <div className="writer-scroll">
         {header && <div className="writer-slot">{header}</div>}
         {layout.mode === "pages" && hasOverlongFootnote && (
@@ -1541,6 +1684,7 @@ export function Writer({
                 onEditEnd={() => setEditingNote(null)}
                 onTextChange={onFootnoteTextChange}
                 onSourceDetails={onFootnote}
+                onDeleteEmpty={deleteEmptyNote}
               />
             )}
             {notes.length > 0 && layout.mode === "pages" && (
@@ -1586,6 +1730,7 @@ export function Writer({
                     onEditEnd={() => setEditingNote(null)}
                     onTextChange={onFootnoteTextChange}
                     onSourceDetails={onFootnote}
+                    onDeleteEmpty={deleteEmptyNote}
                   />
                 );
               })}

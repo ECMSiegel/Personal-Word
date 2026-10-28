@@ -1,0 +1,56 @@
+{
+  "id": "T130",
+  "title": "Fix tests/writing.spec.ts strict-mode clash with the new open-beside button",
+  "description": "Found by T127 (U21) step 4: tests/writing.spec.ts:2 'writer journey' fails deterministically (also on a lone rerun). Line 30-33 clicks getByRole('button', {name: /The first paragraph belongs here./}) which now matches two buttons in the sidebar fragment row: the entry-main button and the new open-beside button (aria-label 'Open <title> beside', src/components/ProjectSidebar.tsx ~568). Playwright strict mode violation. Wave 2 added the button but did not update the spec. Suggested fix: scope the locator to .entry-main (or add exact name), test-side only; confirm the rest of the spec then passes. Logs: node_modules/.cache/personal-word-beta/ui2-final/step4-playwright.log and step4-rerun-writing.log. Not fixed in T127 per plan.",
+  "status": "done",
+  "owner": null,
+  "priority": 1,
+  "depends_on": [],
+  "files": [
+    "tests/writing.spec.ts"
+  ],
+  "review_required": true,
+  "created_by": "agent-a138",
+  "created_at": "2026-10-28T02:06:46+00:00",
+  "claimed_at": "2026-10-28T02:07:15+00:00",
+  "updated_at": "2026-10-28T02:32:30+00:00",
+  "handoff": null,
+  "review": {
+    "by": "agent-ddfd",
+    "at": "2026-10-28T02:32:30+00:00",
+    "verdict": "approved",
+    "note": "APPROVE (final reviewer agent-ddfd, Claude Opus, not the owner). git diff tests/writing.spec.ts is exactly one line: the locator regex is anchored to ^The first paragraph belongs here so it no longer matches the new Open <title> beside button (ProjectSidebar.tsx:469) and still matches the fragment row entry-main button. Test-only, no product code. Fail-first: deterministic strict-mode failure in ui2-final/step4-playwright.log and lone rerun step4-rerun-writing.log; after the fix step4-rerun-writing-after-T130.log 3 passed 0 failed on the same dist. mtime sweep: this file is the only non-generated file changed after U21 began."
+  },
+  "log": [
+    {
+      "at": "2026-10-28T02:06:46+00:00",
+      "agent": "agent-a138",
+      "event": "created",
+      "note": ""
+    },
+    {
+      "at": "2026-10-28T02:07:15+00:00",
+      "agent": "agent-a3c2",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-10-28T02:07:16+00:00",
+      "agent": "agent-a3c2",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-10-28T02:26:50+00:00",
+      "agent": "agent-a3c2",
+      "event": "review requested",
+      "note": "Test-only fix: tests/writing.spec.ts line 31 locator anchored to /^The first paragraph belongs here\\./ so it matches the fragment row entry-main button but not the new Open ... beside button (whose distinct accessible name is fine for screen readers). Fail-first: T127 step 4 and lone rerun 4b failed deterministically (strict-mode, 2 matches), logs ui2-final/step4-playwright.log and step4-rerun-writing.log. After fix: rerun 4c 3 passed 0 failed (ui2-final/step4-rerun-writing-after-T130.log). No product code changed."
+    },
+    {
+      "at": "2026-10-28T02:32:30+00:00",
+      "agent": "agent-ddfd",
+      "event": "approved",
+      "note": "APPROVE (final reviewer agent-ddfd, Claude Opus, not the owner). git diff tests/writing.spec.ts is exactly one line: the locator regex is anchored to ^The first paragraph belongs here so it no longer matches the new Open <title> beside button (ProjectSidebar.tsx:469) and still matches the fragment row entry-main button. Test-only, no product code. Fail-first: deterministic strict-mode failure in ui2-final/step4-playwright.log and lone rerun step4-rerun-writing.log; after the fix step4-rerun-writing-after-T130.log 3 passed 0 failed on the same dist. mtime sweep: this file is the only non-generated file changed after U21 began."
+    }
+  ]
+}

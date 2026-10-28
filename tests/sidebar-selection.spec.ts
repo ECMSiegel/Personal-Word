@@ -58,12 +58,12 @@ test.beforeEach(async ({ page }) => {
   await page.setViewportSize({ width: 1280, height: 800 });
 });
 
-test("dragging across plain sidebar brand text does not select chrome", async (
+test("dragging across plain sidebar heading text does not select chrome", async (
   { page },
   testInfo,
 ) => {
   await createProject(page, "Sidebar selection fixture");
-  await dragAcross(page, page.locator(".sidebar .brand"));
+  await dragAcross(page, page.locator(".sidebar .group-label").first());
   await page.screenshot({
     path: testInfo.outputPath("sidebar-selection-light.png"),
     fullPage: true,
@@ -73,7 +73,7 @@ test("dragging across plain sidebar brand text does not select chrome", async (
     path: testInfo.outputPath("sidebar-selection-dark.png"),
     fullPage: true,
   });
-  expect(await selectedText(page, ".sidebar .brand")).toBeNull();
+  expect(await selectedText(page, ".sidebar .group-label")).toBeNull();
 });
 
 test("search, rename, editor, and prose preview text remain selectable", async ({
@@ -248,7 +248,7 @@ test("at the 190 px minimum sidebar width every row stays on one line", async ({
   const rows = await page.evaluate(() => {
     const targets = [
       ...document.querySelectorAll<HTMLElement>(
-        ".sidebar .group-title, .sidebar .entry-main, .sidebar .brand, .sidebar .sidebar-hover-setting",
+        ".sidebar .group-title, .sidebar .entry-main, .sidebar .project-switch",
       ),
     ];
     return targets.map((el) => {
@@ -272,7 +272,7 @@ test("at the 190 px minimum sidebar width every row stays on one line", async ({
   });
   const labels = rows.map((r) => r.label);
   expect(labels).toContain("Snapshots & history");
-  expect(labels).toContain("Personal Word");
+  expect(labels).toContain("Narrow sidebar");
   for (const row of rows) {
     expect(row.lines, row.label + " is one line").toBe(1);
     expect(row.font, row.label + " font size").toBeGreaterThanOrEqual(12);
@@ -311,4 +311,73 @@ test("at the 190 px minimum sidebar width every row stays on one line", async ({
   expect(reached).toEqual(["Hide Manuscript", "Show Manuscript cards", "New section"]);
   const actions = heading.locator(".group-actions");
   expect(await actions.evaluate((el) => getComputedStyle(el).opacity)).toBe("1");
+});
+
+test("bottom rows keep their fixed order and carry no hover actions", async ({ page }) => {
+  await createProject(page, "Bottom rows");
+  await expect(
+    page.locator(".sidebar-bottom-groups .group-label"),
+  ).toHaveText([
+    "Read manuscript",
+    "Comments",
+    "Snapshots & history",
+    "Settings",
+  ]);
+  await page
+    .locator('.sidebar-bottom-groups [data-group="comments"] .group-heading')
+    .hover();
+  await expect(page.getByRole("button", { name: "Move Comments up" })).toHaveCount(0);
+  await expect(page.getByRole("button", { name: "New comment" })).toHaveCount(0);
+  await expect(
+    page.getByRole("button", { name: "Show Comments cards" }),
+  ).toHaveCount(0);
+  await expect(
+    page.locator('.sidebar-bottom-groups [data-group="comments"] .group-heading'),
+  ).toHaveAttribute("draggable", "false");
+  // A top group still offers them.
+  await page
+    .locator('.sidebar-groups [data-group="manuscript"] .group-heading')
+    .hover();
+  await expect(
+    page.getByRole("button", { name: "Move Manuscript up" }),
+  ).toHaveCount(1);
+  await expect(page.getByRole("button", { name: "New section" })).toHaveCount(1);
+});
+
+test("Move down is disabled on the third top group", async ({ page }) => {
+  await createProject(page, "Move limits");
+  await page
+    .locator('.sidebar-groups [data-group="research"] .group-heading')
+    .hover();
+  await expect(page.getByRole("button", { name: "Move Research down" })).toBeDisabled();
+  await expect(page.getByRole("button", { name: "Move Research up" })).toBeEnabled();
+});
+
+test("a hidden feature row leaves the sidebar, survives reload, and stays per project", async ({ page }) => {
+  await createProject(page, "Hidden comments");
+  await page.locator(".group-title").filter({ hasText: /^Settings$/ }).click();
+  const toggle = page.getByLabel("Show Comments");
+  await expect(toggle).toBeChecked();
+  await toggle.uncheck();
+  const commentsRow = page.locator('.sidebar-bottom-groups [data-group="comments"]');
+  await expect(commentsRow).toHaveCount(0);
+  await page.reload();
+  await expect(
+    page.locator(".group-title").filter({ hasText: /^Settings$/ }),
+  ).toBeVisible();
+  await expect(commentsRow).toHaveCount(0);
+  // Another project is unaffected. (Create it from the library we are already
+  // on: createProject re-navigates, and tab restore would reopen the project.)
+  await page.getByRole("button", { name: "Projects", exact: true }).click();
+  await expect(page.locator(".library")).toBeVisible();
+  await page.getByRole("button", { name: "Start new project" }).click();
+  await page.getByRole("button", { name: "Blank", exact: true }).click();
+  await page.getByLabel("Project title").fill("Second project");
+  await page.getByRole("button", { name: "Save", exact: true }).click();
+  await expect(
+    page.getByRole("textbox", { name: "Writing editor" }),
+  ).toBeVisible();
+  await expect(
+    page.locator('.sidebar-bottom-groups [data-group="comments"]'),
+  ).toHaveCount(1);
 });

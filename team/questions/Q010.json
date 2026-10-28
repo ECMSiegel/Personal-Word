@@ -1,0 +1,9 @@
+{
+  "id": "Q010",
+  "at": "2026-10-27T10:08:39+00:00",
+  "by": "agent-dc4b",
+  "task": "T125",
+  "text": "T125 is blocked: Implementation and browser acceptance are complete (30/30), but U19 Acceptance requires native-reliability baseline + beta and SMOKE(19) with 20 native screenshots reviewed. Current project instructions say not to run native UI checks while the Mac is locked. Please unlock the owner Mac and tell the coordinator; then the next agent can resume the native suites and screenshots.",
+  "status": "resolved",
+  "resolution": "Resolved: owner unlocked the Mac and coordinator ran SMOKE(19) from the normal desktop session. Plain produced 10/10 and Color 10/10 screenshots, all four reports ok=true; PDF probes rendered application/pdf at 622x538. Evidence: node_modules/.cache/personal-word-beta/t125-diag/ and node_modules/.cache/personal-word-beta/t125-diag-color/. All 20 screenshots were visually reviewed by agent-cb45. The earlier sandbox launch timeouts were environment-specific; no native retry needed."
+}

@@ -1,10 +1,11 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import {
   ArrowDown,
   ArrowUp,
   BookMarked,
   BookOpen,
   ChevronDown,
+  Columns2,
   FileText,
   History,
   Layers,
@@ -16,6 +17,9 @@ import {
   Search,
 } from "lucide-react";
 import { entryWords, type Project, type Entry } from "../model";
+import { slideHighlight } from "../motion";
+import type { PaneContent } from "../split";
+import { readSidebarPreferences, writeSidebarPreferences } from "../sidebarPreferences";
 import { Dropdown } from "./Dropdown";
 export const workspaceGroups = [
   "manuscript",
@@ -30,15 +34,49 @@ export const workspaceGroups = [
 export const collapsibleGroups = ["manuscript", "fragments", "research"];
 /** Feature shortcuts that sit at the bottom of the sidebar. */
 export const bottomGroups = ["read", "comments", "history", "settings"];
+
+function selectedHighlightTarget(container: HTMLElement): HTMLElement | null {
+  const selectedEntry = Array.from(
+    container.querySelectorAll<HTMLElement>(".entry-row.selected"),
+  ).find((row) => !row.closest(".cards-view"));
+  return (
+    selectedEntry ?? container.querySelector<HTMLElement>(".group-title.selected")
+  );
+}
+
+function placeHighlightImmediately(
+  container: HTMLElement,
+  highlight: HTMLElement,
+) {
+  highlight.getAnimations().forEach((animation) => animation.cancel());
+  const target = selectedHighlightTarget(container);
+  if (!target) {
+    highlight.style.opacity = "0";
+    return;
+  }
+  const containerBox = container.getBoundingClientRect();
+  const targetBox = target.getBoundingClientRect();
+  const x =
+    targetBox.left - containerBox.left - container.clientLeft + container.scrollLeft;
+  const y =
+    targetBox.top - containerBox.top - container.clientTop + container.scrollTop;
+  highlight.style.transform = `translate(${x}px, ${y}px) scale(${targetBox.width}, ${targetBox.height})`;
+  highlight.style.opacity = "1";
+}
+
 type Props = {
   project: Project;
   active: string;
   mode: "write" | "read";
   query: string;
   onQuery: (q: string) => void;
-  onLibrary: () => void;
+  onRenameProject: (title: string) => void;
+  hoverReveal: boolean;
   onAdd: (kind: Entry["kind"]) => void;
-  onSelect: (id: string) => void;
+  /** beside: Cmd/Ctrl+click opens the entry in the right split pane. */
+  onSelect: (id: string, beside?: boolean) => void;
+  /** The row's open-beside button: opens the entry in the right split pane. */
+  onOpenBeside?: (target: PaneContent) => void;
   onRename: (e: Entry) => void;
   onReorder: (id: string, to: number) => void;
   onRead: () => void;
@@ -47,28 +85,22 @@ type Props = {
   onDestination?: (id: string) => void;
   groupOrder?: string[];
   onGroupOrder?: (ids: string[]) => void;
+  /** Bottom features switched off for this project; "settings" is never hidden. */
+  hiddenGroups?: string[];
   collectionItems?: Record<
     string,
-    { id: string; title: string; detail?: string }[]
+    {
+      id: string;
+      title: string;
+      detail?: string;
+      depth?: 0 | 1;
+      beside?: PaneContent;
+    }[]
   >;
   onCollectionSelect?: (group: string, id: string) => void;
   onCollectionAdd?: (group: string) => void;
   onEntryDetails?: (id: string, patch: Partial<Entry>) => void;
 };
-type Preferences = { width: number; pinned: boolean; hover: boolean };
-const preferenceKey = "folio.workspace.sidebar";
-function preferences(): Preferences {
-  try {
-    return {
-      width: 270,
-      pinned: true,
-      hover: true,
-      ...JSON.parse(localStorage.getItem(preferenceKey) ?? "{}"),
-    };
-  } catch {
-    return { width: 270, pinned: true, hover: true };
-  }
-}
 export function ProjectSidebar(props: Props) {
   const {
     project,
@@ -76,7 +108,8 @@ export function ProjectSidebar(props: Props) {
     mode,
     query,
     onQuery,
-    onLibrary,
+    onRenameProject,
+    hoverReveal,
     onAdd,
     onSelect,
     onRename,
@@ -84,11 +117,20 @@ export function ProjectSidebar(props: Props) {
     onRead,
     onVersions,
   } = props;
-  const [prefs, setPrefs] = useState(preferences);
+  const [prefs, setPrefs] = useState(() => {
+    const { width, pinned } = readSidebarPreferences(localStorage);
+    return { width, pinned };
+  });
+  const [editingTitle, setEditingTitle] = useState(false);
+  const [titleDraft, setTitleDraft] = useState("");
   const [revealed, setRevealed] = useState(false);
   const [focusKey, setFocusKey] = useState(0);
   const pinnedRef = useRef(prefs.pinned);
   const previewDragRestorers = useRef(new Set<() => void>());
+  const groupsContainer = useRef<HTMLDivElement>(null);
+  const bottomGroupsContainer = useRef<HTMLElement>(null);
+  const groupsHighlight = useRef<HTMLSpanElement>(null);
+  const bottomGroupsHighlight = useRef<HTMLSpanElement>(null);
   pinnedRef.current = prefs.pinned;
   const reveal = (focus = false) => {
     setRevealed(true);
@@ -97,7 +139,7 @@ export function ProjectSidebar(props: Props) {
   useEffect(() => {
     if (focusKey)
       aside.current
-        ?.querySelector<HTMLElement>(".sidebar-brand button")
+        ?.querySelector<HTMLElement>(".sidebar-title-row .sidebar-pin")
         ?.focus();
   }, [focusKey]);
   useEffect(
@@ -142,22 +184,71 @@ export function ProjectSidebar(props: Props) {
   const [localOrder, setLocalOrder] = useState(workspaceGroups);
   const aside = useRef<HTMLElement>(null);
   useEffect(() => {
-    localStorage.setItem(preferenceKey, JSON.stringify(prefs));
-  }, [prefs]);
+    writeSidebarPreferences(localStorage, { ...prefs, hover: hoverReveal });
+  }, [prefs, hoverReveal]);
   useEffect(() => {
     setLocalOrder(workspaceGroups);
   }, [project.id]);
-  const order = [
+  const hiddenGroups = props.hiddenGroups ?? [];
+  const topOrder = [
     ...(props.groupOrder ?? localOrder).filter((id) =>
-      workspaceGroups.includes(id),
+      collapsibleGroups.includes(id),
     ),
-    ...workspaceGroups.filter(
+    ...collapsibleGroups.filter(
       (id) => !(props.groupOrder ?? localOrder).includes(id),
     ),
   ];
+  // The bottom rows keep a fixed order and only disappear when a feature is
+  // switched off; Settings is never hidden.
+  const order = [
+    ...topOrder,
+    ...bottomGroups.filter(
+      (id) => id === "settings" || !hiddenGroups.includes(id),
+    ),
+  ];
+  useLayoutEffect(() => {
+    const groups = groupsContainer.current;
+    const bottomGroups = bottomGroupsContainer.current;
+    const groupsMark = groupsHighlight.current;
+    const bottomMark = bottomGroupsHighlight.current;
+    if (!groups || !bottomGroups || !groupsMark || !bottomMark) return;
+    slideHighlight(groupsMark, selectedHighlightTarget(groups), groups);
+    slideHighlight(
+      bottomMark,
+      selectedHighlightTarget(bottomGroups),
+      bottomGroups,
+    );
+  }, [
+    active,
+    mode,
+    props.activeDestination,
+    collapsed,
+    views,
+    query,
+    order.join(),
+    prefs.width,
+  ]);
+
+  useLayoutEffect(() => {
+    const groups = groupsContainer.current;
+    const bottomGroups = bottomGroupsContainer.current;
+    const groupsMark = groupsHighlight.current;
+    const bottomMark = bottomGroupsHighlight.current;
+    if (!groups || !bottomGroups || !groupsMark || !bottomMark) return;
+    const observer = new ResizeObserver(() => {
+      placeHighlightImmediately(groups, groupsMark);
+      placeHighlightImmediately(bottomGroups, bottomMark);
+    });
+    observer.observe(groups);
+    observer.observe(bottomGroups);
+    return () => observer.disconnect();
+  }, []);
   const moveGroup = (id: string, to: number) => {
-    const next = order.filter((x) => x !== id);
-    next.splice(to, 0, id);
+    // Only the collapsible top three reorder; the bottom rows are fixed.
+    if (!collapsibleGroups.includes(id)) return;
+    const top = order.filter((x) => collapsibleGroups.includes(x) && x !== id);
+    top.splice(Math.max(0, Math.min(collapsibleGroups.length - 1, to)), 0, id);
+    const next = [...top, ...bottomGroups];
     setLocalOrder(next);
     props.onGroupOrder?.(next);
   };
@@ -225,13 +316,18 @@ export function ProjectSidebar(props: Props) {
       <section
         className={
           "sidebar-group " +
-          (views[id] ? "cards-view" : "list-view") +
+          (collapsibleGroups.includes(id) && views[id]
+            ? "cards-view"
+            : "list-view") +
           (collapsed[id] ? " is-collapsed" : "")
         }
         data-group={id}
         key={id}
-        onDragOver={(e) => e.preventDefault()}
+        onDragOver={(e) => {
+          if (collapsibleGroups.includes(id)) e.preventDefault();
+        }}
         onDrop={(e) => {
+          if (!collapsibleGroups.includes(id)) return;
           const group = e.dataTransfer.getData("text/personal-word-group");
           if (group) {
             e.preventDefault();
@@ -241,7 +337,7 @@ export function ProjectSidebar(props: Props) {
       >
         <div
           className="group-heading"
-          draggable
+          draggable={collapsibleGroups.includes(id)}
           onDragStart={(e) =>
             e.dataTransfer.setData("text/personal-word-group", id)
           }
@@ -256,12 +352,12 @@ export function ProjectSidebar(props: Props) {
             }
             onClick={() => selectDestination(id)}
           >
-            {id === "manuscript" && <FileText size={15} />}
-            {id === "fragments" && <Layers size={15} />}
-            {id === "research" && <BookMarked size={15} />}
-            {id === "read" && <BookOpen size={15} />}
-            {id === "comments" && <MessageSquare size={15} />}
-            {id === "history" && <History size={15} />}
+            {id === "manuscript" && <FileText size={16} />}
+            {id === "fragments" && <Layers size={16} />}
+            {id === "research" && <BookMarked size={16} />}
+            {id === "read" && <BookOpen size={16} />}
+            {id === "comments" && <MessageSquare size={16} />}
+            {id === "history" && <History size={16} />}
             <span className="group-label">{labels[id]}</span>
           </button>
           {collapsibleGroups.includes(id) && (
@@ -275,20 +371,21 @@ export function ProjectSidebar(props: Props) {
               <ChevronDown size={14} />
             </button>
           )}
-          <div className="group-actions">
+          {collapsibleGroups.includes(id) && (
+            <div className="group-actions">
             <button
               aria-label={"Move " + labels[id] + " up"}
               disabled={index === 0}
               onClick={() => moveGroup(id, index - 1)}
             >
-              <ArrowUp size={12} />
+              <ArrowUp size={16} />
             </button>
             <button
               aria-label={"Move " + labels[id] + " down"}
-              disabled={index === order.length - 1}
+              disabled={index === collapsibleGroups.length - 1}
               onClick={() => moveGroup(id, index + 1)}
             >
-              <ArrowDown size={12} />
+              <ArrowDown size={16} />
             </button>
             {collection && (
               <>
@@ -300,7 +397,7 @@ export function ProjectSidebar(props: Props) {
                   }
                   onClick={() => setViews((v) => ({ ...v, [id]: !v[id] }))}
                 >
-                  {views[id] ? <List size={15} /> : <Layers size={15} />}
+                  {views[id] ? <List size={16} /> : <Layers size={16} />}
                 </button>
                 <button
                   aria-label={
@@ -327,6 +424,7 @@ export function ProjectSidebar(props: Props) {
               </>
             )}
           </div>
+          )}
         </div>
         {collection && !collapsed[id] && (
           <div className="entry-list">
@@ -339,10 +437,22 @@ export function ProjectSidebar(props: Props) {
                     .includes(query.toLowerCase()),
               )
               .map((item) => (
-                <div className="entry-row" key={item.id}>
+                <div
+                  className={
+                    "entry-row" +
+                    (item.id === props.activeDestination ? " selected" : "") +
+                    (item.beside ? " has-beside" : "")
+                  }
+                  data-depth={item.depth ?? 0}
+                  key={item.id}
+                >
                   <button
                     className="entry-main"
                     onClick={() => {
+                      if (item.beside) {
+                        props.onOpenBeside?.(item.beside);
+                        return;
+                      }
                       selectDestination(id);
                       props.onCollectionSelect?.(id, item.id);
                     }}
@@ -352,6 +462,17 @@ export function ProjectSidebar(props: Props) {
                       <p className="entry-preview">{item.detail}</p>
                     )}
                   </button>
+                  {item.beside && props.onOpenBeside && (
+                    <button
+                      className="collection-open-beside"
+                      type="button"
+                      aria-label={`Open ${item.title} beside`}
+                      title="Open beside"
+                      onClick={() => props.onOpenBeside?.(item.beside!)}
+                    >
+                      <Columns2 size={16} />
+                    </button>
+                  )}
                 </div>
               ))}
             {entries.map((e) => (
@@ -379,7 +500,9 @@ export function ProjectSidebar(props: Props) {
               >
                 <button
                   className="entry-main"
-                  onClick={() => onSelect(e.id)}
+                  onClick={(event) =>
+                    onSelect(e.id, event.metaKey || event.ctrlKey)
+                  }
                   onDoubleClick={() => onRename(e)}
                   onPointerDownCapture={(event) => {
                     const target = event.target;
@@ -431,33 +554,49 @@ export function ProjectSidebar(props: Props) {
                     window.addEventListener("blur", restoreRowDrag);
                   }}
                 >
-                  <FileText size={14} />
+                  <FileText size={16} />
                   <span>{e.title}</span>
                   <small>{entryWords(e)} words</small>
                   {views[id] && (
                     <p className="entry-preview">{e.text || "Empty"}</p>
                   )}
                 </button>
-                {id === "manuscript" && (
+                {(id === "manuscript" || props.onOpenBeside) && (
                   <div className="reorder">
-                    <button
-                      aria-label={"Move " + e.title + " up"}
-                      disabled={project.order[0] === e.id}
-                      onClick={() =>
-                        onReorder(e.id, project.order.indexOf(e.id) - 1)
-                      }
-                    >
-                      <ArrowUp size={12} />
-                    </button>
-                    <button
-                      aria-label={"Move " + e.title + " down"}
-                      disabled={project.order.at(-1) === e.id}
-                      onClick={() =>
-                        onReorder(e.id, project.order.indexOf(e.id) + 1)
-                      }
-                    >
-                      <ArrowDown size={12} />
-                    </button>
+                    {props.onOpenBeside && (
+                      <button
+                        className="open-beside"
+                        aria-label={"Open " + e.title + " beside"}
+                        title="Open beside"
+                        onClick={() =>
+                          props.onOpenBeside?.({ kind: "entry", id: e.id })
+                        }
+                      >
+                        <Columns2 size={16} />
+                      </button>
+                    )}
+                    {id === "manuscript" && (
+                      <>
+                        <button
+                          aria-label={"Move " + e.title + " up"}
+                          disabled={project.order[0] === e.id}
+                          onClick={() =>
+                            onReorder(e.id, project.order.indexOf(e.id) - 1)
+                          }
+                        >
+                          <ArrowUp size={16} />
+                        </button>
+                        <button
+                          aria-label={"Move " + e.title + " down"}
+                          disabled={project.order.at(-1) === e.id}
+                          onClick={() =>
+                            onReorder(e.id, project.order.indexOf(e.id) + 1)
+                          }
+                        >
+                          <ArrowDown size={16} />
+                        </button>
+                      </>
+                    )}
                   </div>
                 )}
                 {views[id] && props.onEntryDetails && (
@@ -514,7 +653,7 @@ export function ProjectSidebar(props: Props) {
           className="sidebar-edge"
           aria-label="Show sidebar"
           aria-expanded={expanded}
-          onMouseEnter={() => prefs.hover && reveal()}
+          onMouseEnter={() => hoverReveal && reveal()}
           onClick={() => reveal(true)}
         />
       )}
@@ -534,25 +673,52 @@ export function ProjectSidebar(props: Props) {
           }
         }}
       >
-        <div className="sidebar-brand">
-          <div className="brand">Personal Word</div>
+        <div className="sidebar-title-row">
+          {editingTitle ? (
+            <input
+              className="project-switch project-title-input"
+              aria-label="Project title"
+              autoFocus
+              value={titleDraft}
+              onChange={(e) => setTitleDraft(e.target.value)}
+              onFocus={(e) => e.currentTarget.select()}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  e.preventDefault();
+                  const next = titleDraft.trim();
+                  if (next && next !== project.title) onRenameProject(next);
+                  setEditingTitle(false);
+                } else if (e.key === "Escape") {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  setEditingTitle(false);
+                }
+              }}
+              onBlur={() => setEditingTitle(false)}
+            />
+          ) : (
+            <button
+              className="project-switch"
+              title="Rename project"
+              onClick={() => {
+                setTitleDraft(project.title);
+                setEditingTitle(true);
+              }}
+            >
+              <span>{project.title}</span>
+            </button>
+          )}
           <button
+            className="sidebar-pin"
             aria-label={prefs.pinned ? "Unpin sidebar" : "Pin sidebar"}
             aria-pressed={prefs.pinned}
             onClick={() => setPrefs((p) => ({ ...p, pinned: !p.pinned }))}
           >
-            {prefs.pinned ? <PinOff size={15} /> : <Pin size={15} />}
+            {prefs.pinned ? <PinOff size={16} /> : <Pin size={16} />}
           </button>
         </div>
-        <button
-          className="project-switch"
-          title="All projects"
-          onClick={onLibrary}
-        >
-          <span>{project.title}</span>
-        </button>
         <div className="search">
-          <Search size={14} />
+          <Search size={16} />
           <input
             aria-label="Search project"
             placeholder="Find in project"
@@ -561,26 +727,30 @@ export function ProjectSidebar(props: Props) {
           />
           <kbd>⌘K</kbd>
         </div>
-        <div className="sidebar-groups">
+        <div className="sidebar-groups" ref={groupsContainer}>
+          <span
+            ref={groupsHighlight}
+            className="sidebar-highlight"
+            aria-hidden="true"
+          />
           {order
             .filter((id) => collapsibleGroups.includes(id))
             .map((id) => group(id, order.indexOf(id)))}
         </div>
-        <nav className="sidebar-bottom-groups" aria-label="Project features">
+        <nav
+          className="sidebar-bottom-groups"
+          ref={bottomGroupsContainer}
+          aria-label="Project features"
+        >
+          <span
+            ref={bottomGroupsHighlight}
+            className="sidebar-highlight"
+            aria-hidden="true"
+          />
           {order
             .filter((id) => !collapsibleGroups.includes(id))
             .map((id) => group(id, order.indexOf(id)))}
         </nav>
-        <label className="sidebar-hover-setting">
-          <input
-            type="checkbox"
-            checked={prefs.hover}
-            onChange={(e) =>
-              setPrefs((p) => ({ ...p, hover: e.target.checked }))
-            }
-          />
-          Reveal sidebar on hover
-        </label>
         <div
           className="sidebar-resize"
           role="separator"

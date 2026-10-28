@@ -38,6 +38,8 @@ export type Project = {
   templateId?: string;
   pageLayout?: PageLayout;
   sidebarOrder?: string[];
+  /** Bottom sidebar features switched off for this project; additive metadata. */
+  sidebarHidden?: string[];
   annotations?: Annotation[];
   goals?: { totalWords?: number; dailyWords?: number; deadline?: string; scope?: "manuscript" | "manuscript-and-fragments"; dayMode?: "local" | "utc" };
 };
@@ -188,6 +190,7 @@ export function validateProject(value: unknown): asserts value is Project {
             const value = (source as unknown as Record<string, unknown>)[key];
             return value !== undefined && typeof value !== "string";
           }) ||
+          (source.pdf !== undefined && !isSourcePdf(source.pdf)) ||
           (source.cslData !== undefined && (!source.cslData || typeof source.cslData !== "object" || Array.isArray(source.cslData))) ||
           (source.creators !== undefined && (!Array.isArray(source.creators) || source.creators.some((creator) =>
             !creator || typeof creator !== "object" || Array.isArray(creator) || typeof creator.role !== "string" ||
@@ -263,6 +266,18 @@ export function validateProject(value: unknown): asserts value is Project {
 
 // A cell's blockquote/list can contain a table even though direct table children
 // are excluded by the schema. Check descendants to enforce unnested tables.
+function isSourcePdf(value: unknown): boolean {
+  if (!value || typeof value !== "object" || Array.isArray(value)) return false;
+  const pdf = value as Record<string, unknown>;
+  return (
+    typeof pdf.assetId === "string" &&
+    /^[0-9a-f]{64}$/.test(pdf.assetId) &&
+    typeof pdf.name === "string" &&
+    Number.isSafeInteger(pdf.byteLength) &&
+    (pdf.byteLength as number) > 0
+  );
+}
+
 function validateTableNesting(node: JSONContent, insideTable = false): void {
   if (node.type === "table" && insideTable)
     throw new RangeError("Tables cannot be nested.");

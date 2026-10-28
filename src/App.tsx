@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
 import type { Editor } from "@tiptap/react";
 import type { Transaction } from "@tiptap/pm/state";
 import { invoke } from "@tauri-apps/api/core";
@@ -38,6 +38,21 @@ import {
   type SaveStatus,
 } from "./save-queue";
 import { Writer } from "./Writer";
+import { SplitDivider } from "./components/SplitDivider";
+import {
+  activeOf,
+  closeRight,
+  focusSide,
+  openBeside,
+  prune,
+  readSplit,
+  readSplitRatio,
+  select,
+  writeSplit,
+  writeSplitRatio,
+  type Side,
+  type Split,
+} from "./split";
 import { goalStatus, goalWords, goalDate, goalBaselineKey } from "./goals";
 import { createProjectIndex } from "./derived/projectIndex";
 import { applyRestorePatch, type RestorePatch } from "./organization/revisionDiff";
@@ -50,10 +65,13 @@ import {
   applyAppearance,
   nextTheme,
   readAppearance,
+  SWATCHES,
   writeAppearance,
   type Palette,
+  type Swatch,
   type Theme,
 } from "./appearance";
+import { readSidebarPreferences, writeSidebarPreferences } from "./sidebarPreferences";
 import { footnoteText } from "./research/citations";
 import { resolveCitationContext, type SectionReferences } from "./research/noteForms";
 import { buildQuoteInsertion, createCommentAnchor, migrateLegacyCommentAnchor, resolveCommentAnchor, withCommentRevisions } from "./editor/commentAnchors";
@@ -61,7 +79,11 @@ import { CslImportPreview, type SourceFieldUpdate } from "./research/CslImportPr
 import type { CslImportResult } from "./research/cslImport";
 import { mergeSourceFields, validateSourceMergeUpdates } from "./research/sourceMerge";
 import { ProjectTabs } from "./components/ProjectTabs";
-import { ResearchPanel } from "./research/ResearchPanel";
+import { ResearchPanel, sourceSummary } from "./research/ResearchPanel";
+import { PdfPane } from "./research/PdfPane";
+import { createPendingPdf } from "./assets/pdf";
+import { BibliographyPage } from "./research/BibliographyPage";
+import { bibliographyItems } from "./research/bibliography";
 import { defaultDocumentSettings } from "./research/types";
 import { writingTemplates, type WritingTemplate } from "./templates";
 import { ExportPanel } from "./export/ExportPanel";
@@ -144,6 +166,7 @@ export default function App() {
     "sources" | "notes" | "footnotes"
   >("sources");
   const [focusFootnote, setFocusFootnote] = useState<string>();
+  const [focusSource, setFocusSource] = useState<string>();
   const opening = useRef(false);
   const editorRef = useRef<Editor | null>(null);
   const pendingJump = useRef<string | null>(null);
@@ -182,10 +205,30 @@ export default function App() {
       editor.chain().focus().setTextSelection(range).scrollIntoView().run();
     }
   }, []);
+  // Split view: two Writers register here; editorRef follows the focused pane.
+  const [split, setSplit] = useState<Split | null>(null);
+  const splitRef = useRef<Split | null>(null);
+  splitRef.current = split;
+  const [splitRatio, setSplitRatio] = useState(() => readSplitRatio(localStorage));
+  const [splitToolbar, setSplitToolbar] = useState<HTMLElement | null>(null);
+  const paneEditors = useRef<Record<Side, Editor | null>>({ left: null, right: null });
+  const focusedSide = useRef<Side>("left");
+  const registerEditor = useCallback(
+    (side: Side, editor: Editor | null) => {
+      paneEditors.current[side] = editor;
+      if (side === focusedSide.current) editorReady(editor);
+    },
+    [editorReady],
+  );
+  const registerLeft = useCallback((e: Editor | null) => registerEditor("left", e), [registerEditor]);
+  const registerRight = useCallback((e: Editor | null) => registerEditor("right", e), [registerEditor]);
   const [tabs, setTabs] = useState<{ id: string; title: string }[]>(() =>
     readPreference("personal-word.restoreTabs", false)
       ? readPreference("personal-word.tabs", [])
       : [],
+  );
+  const [hoverReveal, setHoverReveal] = useState(
+    () => readSidebarPreferences(localStorage).hover,
   );
   const [restoreTabs, setRestoreTabs] = useState(() =>
     readPreference("personal-word.restoreTabs", false),
@@ -421,6 +464,7 @@ export default function App() {
         pendingJump.current = null;
         pendingContentChange.current = null;
         setReattachment(null);
+        setSplit(null);
       }
       current.current = p;
       setProject(p);
@@ -444,6 +488,28 @@ export default function App() {
       setError(String(e));
     }
   }, []);
+  const attachPdf = (sourceId: string, file: File) => run(async () => {
+    const target = current.current;
+    if (!target) return;
+    const pdf = await createPendingPdf(new Uint8Array(await file.arrayBuffer()));
+    await storage.stagePdf(target.id, pdf);
+    if (current.current?.id !== target.id) return;
+    mutate((p) => ({
+      ...p,
+      research: {
+        ...(p.research ?? { sources: [], notes: [], footnotes: [] }),
+        sources: (p.research?.sources ?? []).map((source) => source.id === sourceId
+          ? { ...source, pdf: { assetId: pdf.id, name: file.name, byteLength: pdf.meta.byteLength } }
+          : source),
+      },
+    }));
+  });
+  const openPdfBeside = (sourceId: string) => {
+    const opened = openBeside(splitRef.current, active, { kind: "pdf", sourceId });
+    if (opened) changeSplit(opened);
+    setDestination("manuscript");
+    setMode("write");
+  };
   // Commits pending edits, then writes project.json and the text copies immediately.
   const saveAll = useCallback(async () => {
     await queue.flush();
@@ -472,10 +538,19 @@ export default function App() {
       current.current = p;
       setProject(p);
       const location = locations.current[p.id];
+      const restoredSplit = readSplit(
+        localStorage,
+        p.id,
+        p.entries.map((e) => e.id),
+        (p.research?.sources ?? []).map((s) => s.id),
+      );
+      setSplit(restoredSplit);
       setActive(
-        location?.active && p.entries.some((e) => e.id === location.active)
-          ? location.active
-          : (p.order[0] ?? p.entries[0]?.id ?? ""),
+        restoredSplit
+          ? activeOf(restoredSplit)
+          : location?.active && p.entries.some((e) => e.id === location.active)
+            ? location.active
+            : (p.order[0] ?? p.entries[0]?.id ?? ""),
       );
       setDestination(location?.destination ?? "manuscript");
       setTabs((tabs) =>
@@ -702,7 +777,7 @@ export default function App() {
           entries: [...p.entries, item],
           order: kind === "section" ? [...p.order, item.id] : p.order,
         }));
-        setActive(item.id);
+        openEntry(item.id);
         setDestination(kind === "fragment" ? "fragment-editor" : "manuscript");
         setMode("write");
       },
@@ -772,11 +847,78 @@ export default function App() {
     }
   }, [project?.id, project?.title, active, mode, destination]);
   const item = project?.entries.find((e) => e.id === active);
+  // One bibliography for the page, the reader and the Research panel; built
+  // only where it is shown so typing elsewhere does not rebuild it.
+  const showsBibliography =
+    destination === "bibliography" || destination === "research" || mode === "read";
+  const bibliography = useMemo(
+    () =>
+      project && showsBibliography
+        ? bibliographyItems(project, project.documentSettings)
+        : [],
+    [project, showsBibliography],
+  );
+  useEffect(() => {
+    if (project) writeSplit(localStorage, project.id, split);
+  }, [split, project?.id]);
+  // While split is set, active is always the focused pane's entry.
+  const changeSplit = (next: Split | null) => {
+    splitRef.current = next;
+    setSplit(next);
+    if (next) setActive(activeOf(next));
+  };
+  // Reads the split through a ref so jumps that run after a dialog or an
+  // await still see the panes as they are now.
+  const openEntry = (id: string) => {
+    const open = splitRef.current;
+    if (open) changeSplit(select(open, id));
+    else setActive(id);
+  };
+  const closeSplit = () => {
+    if (!split) return;
+    setActive(closeRight(split));
+    setSplit(null);
+  };
+  // Sidebar navigation: a plain click opens the entry in the focused pane;
+  // Cmd/Ctrl+click or the row's open-beside button opens it in the right pane.
+  const selectEntry = (id: string, beside?: boolean) => {
+    let next = id;
+    if (beside) {
+      const opened = openBeside(split, active, { kind: "entry", id });
+      if (opened !== split) changeSplit(opened);
+      next = opened ? activeOf(opened) : active;
+    } else openEntry(id);
+    setDestination(
+      current.current?.entries.find((e) => e.id === next)?.kind === "fragment"
+        ? "fragment-editor"
+        : "manuscript",
+    );
+    setMode("write");
+  };
+  // The live editor showing this entry in either pane, else null. Writes to an
+  // open entry must go through it, or its next save overwrites them.
+  const editorFor = (entryId: string): Editor | null => {
+    // Same resolution as the render: a split that does not draw two panes
+    // has only the single (left) Writer.
+    const shown = splitPanes?.split;
+    const side: Side | null = shown
+      ? shown.left === entryId
+        ? "left"
+        : shown.right.kind === "entry" && shown.right.id === entryId
+          ? "right"
+          : null
+      : active === entryId
+        ? "left"
+        : null;
+    const editor = side ? paneEditors.current[side] : null;
+    return editor && !editor.isDestroyed ? editor : null;
+  };
   const writing =
     !!item &&
     mode !== "read" &&
     destination !== "settings" &&
-    destination !== "comments";
+    destination !== "comments" &&
+    destination !== "bibliography";
   const asideResizer = (
     <AsideResizer
       width={asideWidth}
@@ -824,8 +966,25 @@ export default function App() {
               order: p.order.filter((x) => x !== e.id),
             }));
             const p = current.current!;
+            // A split showing the deleted entry closes; the other pane's entry stays open.
+            const open = splitRef.current;
+            const pruned = prune(
+              open,
+              p.entries.map((x) => x.id),
+              (p.research?.sources ?? []).map((s) => s.id),
+            );
+            const survivor =
+              open && !pruned
+                ? open.left !== e.id
+                  ? open.left
+                  : open.right.kind === "entry" && open.right.id !== e.id
+                    ? open.right.id
+                    : ""
+                : "";
+            splitRef.current = pruned;
+            setSplit(pruned);
             if (active === e.id)
-              setActive(p.order[0] ?? p.entries[0]?.id ?? "");
+              setActive(survivor || p.order[0] || p.entries[0]?.id || "");
             if (target === e.id) setTarget("");
             setNotice(`“${e.title}” deleted. A safety snapshot keeps it.`);
           },
@@ -869,6 +1028,8 @@ export default function App() {
     });
   const extract = (editor: Editor) => {
     const p = current.current;
+    // Only the editor that shows the active entry may write it.
+    if (editorFor(active) !== editor) return;
     const source = p?.entries.find((e) => e.id === active);
     const { from, to, empty } = editor.state.selection;
     if (!p || !source || source.kind !== "section" || empty) return;
@@ -924,10 +1085,10 @@ export default function App() {
     appendFragment(item, target);
   };
   const appendFragment = (fragment: Entry, target: string, open = true) => {
-    const editor = editorRef.current;
-    if (!open && target === active && mode === "write" && editor) {
-      // The open editor owns this section's content; append through it so its
-      // next save cannot overwrite the appended text.
+    const editor = mode === "write" ? editorFor(target) : null;
+    if (editor) {
+      // The open editor (either pane) owns this section's content; append
+      // through it so its next save cannot overwrite the appended text.
       editor.commands.insertContentAt(
         editor.state.doc.content.size,
         fragment.content.content ?? [],
@@ -946,6 +1107,7 @@ export default function App() {
             : e,
         ),
       }));
+      if (open) openEntry(target);
       setNotice(
         "Fragment appended to the section. The original remains in Fragments.",
       );
@@ -973,13 +1135,13 @@ export default function App() {
         return { ...e, content, text: textOf(content), updatedAt: now() };
       }),
     }));
-    if (open) setActive(target);
+    if (open) openEntry(target);
     setNotice(
       "Fragment appended to the section. The original remains in Fragments.",
     );
   };
   const insertFragment = (fragment: Entry) => {
-    const editor = editorRef.current;
+    const editor = editorFor(active);
     const section = current.current?.entries.find((e) => e.id === active);
     if (!editor || !section || section.kind !== "section") {
       setNotice("Open a section and place the cursor to insert a fragment.");
@@ -1029,6 +1191,7 @@ export default function App() {
       }));
       await queue.flush();
       setEditorEpoch((n) => n + 1);
+      setSplit(null); // a whole-project restore can remove pane entries: close the split
       setActive(preview.order[0] ?? "");
       setDestination("manuscript");
       setMode("write");
@@ -1230,12 +1393,12 @@ export default function App() {
     if (!p || !entry) return;
     pendingJump.current = null;
     setReattachment({ projectId: p.id, annotationId: annotation.id, entryId: entry.id, entryRevision: entry.contentRevision ?? 0, selection: null });
-    setActive(entry.id);
+    openEntry(entry.id);
     setMode("write");
     setDestination("manuscript");
   };
   const finishReattachment = () => {
-    const editor = editorRef.current;
+    const editor = reattachment ? editorFor(reattachment.entryId) : null;
     const p = current.current;
     const entry = p?.entries.find((e) => e.id === reattachment?.entryId);
     if (!editor || !p || !entry || !reattachment || editor.state.selection.empty) return;
@@ -1298,7 +1461,7 @@ export default function App() {
       });
       await queue.flush();
       setEditorEpoch((n) => n + 1);
-      setActive(old.id);
+      openEntry(old.id);
       setDestination(old.kind === "fragment" ? "fragment-editor" : "manuscript");
       setMode("write");
       setVersions(null);
@@ -1472,6 +1635,176 @@ export default function App() {
       return { ...p, goals: Object.keys(next).length ? next : undefined };
     });
   };
+  const renderWriter = (entry: Entry, side: Side) =>
+    project && (
+      <Writer
+        key={entry.id + ":" + editorEpoch}
+        focusMode={focusMode}
+        proseCheck={proseCheck}
+        onToggleFocusMode={() => setFocusMode((value) => !value)}
+        onToggleProseCheck={() => setProseCheck((value) => !value)}
+        item={entry}
+        resolveAsset={resolveAsset}
+        onInsertImage={onInsertImage}
+        documentSettings={project.documentSettings}
+        footnoteNumbers={footnoteNumbers}
+        footnotes={(project.research?.footnotes ?? [])
+          .filter((n) => footnoteNumbers[n.id])
+          .map((n) => ({
+            id: n.id,
+            number: footnoteNumbers[n.id],
+            text: n.text,
+            citation: footnoteText(n, project.research!, citationContext[n.id]?.form, citationContext[n.id]?.locator),
+            editable: true,
+            sourced: !!n.sourceId,
+          }))}
+        onFootnoteTextChange={(id, text) =>
+          mutate((p) => ({
+            ...p,
+            research: p.research && {
+              ...p.research,
+              footnotes: p.research.footnotes.map((n) =>
+                n.id === id ? { ...n, text } : n,
+              ),
+            },
+          }))
+        }
+        onFootnoteDelete={(id) => {
+          // The marker and the empty record must leave in one
+          // revision, so the record removal rides on the content
+          // change the Writer dispatches right after this call.
+          const amendment = {
+            projectId: project.id,
+            entryId: entry.id,
+            amend: (p: Project): Project => ({
+              ...p,
+              research: p.research && {
+                ...p.research,
+                footnotes: p.research.footnotes.filter(
+                  (n) => n.id !== id || n.text !== "" || n.sourceId,
+                ),
+              },
+            }),
+          };
+          pendingContentChange.current = amendment;
+          // Safety net: if the content change never reached
+          // onEdit, drop the amendment instead of applying it to
+          // a later, unrelated edit.
+          queueMicrotask(() => {
+            if (pendingContentChange.current === amendment)
+              pendingContentChange.current = null;
+          });
+        }}
+        onFootnote={(id) => {
+          setFocusFootnote(id);
+          setFocusSource(undefined);
+          setResearchEpoch((n) => n + 1);
+          setResearchTab("sources");
+          setDestination("research");
+        }}
+        layout={project.pageLayout}
+        onLayoutChange={(pageLayout) =>
+          mutate((p) => ({
+            ...p,
+            pageLayout,
+            documentSettings: {
+              ...(p.documentSettings ?? defaultDocumentSettings),
+              marginInches: pageLayout.margin / 96,
+            },
+          }))
+        }
+        onEditorReady={side === "left" ? registerLeft : registerRight}
+        onSelectionChange={reattachment ? (editor) => {
+          const { from, to, empty } = editor.state.selection;
+          const hasText = !empty && !!editor.state.doc.textBetween(from, to, "\n");
+          setReattachment((pending) => pending?.projectId === project.id && pending.entryId === entry.id
+            ? { ...pending, selection: hasText ? { from, to } : null } : pending);
+        } : undefined}
+        onExtract={extract}
+        onLink={(value, apply) =>
+          setNameDialog({
+            title: value ? "Edit link" : "Add link",
+            label: "Link address",
+            value: value || "https://",
+            action: (url) => {
+              if (!/^https?:\/\//i.test(url))
+                throw new Error(
+                  "Links must start with http:// or https://",
+                );
+              apply(url);
+            },
+          })
+        }
+        onEdit={(content, text, transaction) => {
+          const amendment = pendingContentChange.current;
+          pendingContentChange.current = null;
+          mutate((p) => {
+            const next = { ...p, entries: p.entries.map((e) => e.id === entry.id ? { ...e, content, text, updatedAt: now() } : e) };
+            return amendment?.projectId === p.id && amendment.entryId === entry.id ? amendment.amend(next) : next;
+          }, { entryId: entry.id, transaction });
+        }}
+        onComment={() => addAnnotation("comment")}
+        onPageStatus={side !== focusedPane ? undefined : (s) =>
+          setPageStatus((prev) =>
+            prev.current === s.current && prev.total === s.total
+              ? prev
+              : s,
+          )
+        }
+        header={
+          entry.origin ? (
+            <p className="origin">
+              Kept from “{entry.origin.sectionTitle}” --{" "}
+              {new Date(entry.origin.removedAt).toLocaleDateString()}
+            </p>
+          ) : undefined
+        }
+        footer={
+          entry.kind === "fragment" ? (
+            <div className="restore-fragment">
+              <span>Give these words a home</span>
+              <Dropdown
+                label="Restore fragment to section"
+                width={220}
+                value={target}
+                onChange={setTarget}
+                options={[
+                  { value: "", label: "Choose a section" },
+                  ...sections.map((e) => ({
+                    value: e.id,
+                    label: e.title,
+                  })),
+                ]}
+              />
+              <button disabled={!target} onClick={restoreFragment}>
+                Append to section →
+              </button>
+            </div>
+          ) : undefined
+        }
+        editorLabel={side === "right" ? "Writing editor, right pane" : undefined}
+        showToolbar={side === focusedPane}
+        toolbarTarget={split && splitLeft ? splitToolbar : undefined}
+      />
+    );
+  // Split view panes, resolved from the split state; a missing entry falls back to one pane.
+  const splitLeft = split && project?.entries.find((e) => e.id === split.left);
+  const splitRightId = split?.right.kind === "entry" ? split.right.id : undefined;
+  const splitRight = splitRightId ? project?.entries.find((e) => e.id === splitRightId) : undefined;
+  const splitPdfSourceId = split?.right.kind === "pdf" ? split.right.sourceId : undefined;
+  const splitPdfSource = splitPdfSourceId
+    ? project?.research?.sources.find((source) => source.id === splitPdfSourceId)
+    : undefined;
+  const splitPanes =
+    split && splitLeft && splitRight
+      ? { split, focused: split.focused, left: splitLeft, right: splitRight }
+      : null;
+  const focusedPane: Side = splitPanes ? splitPanes.focused : "left";
+  focusedSide.current = focusedPane;
+  useEffect(() => {
+    const editor = paneEditors.current[focusedPane];
+    if (editorRef.current !== editor) editorReady(editor);
+  }, [focusedPane, editorReady]);
   return (
     <div className="app-shell">
       <ProjectTabs
@@ -1495,7 +1828,10 @@ export default function App() {
         {!project ? (
           <ProjectLibrary
             projects={library}
-            templates={[...writingTemplates, ...customTemplates].map((t) => ({
+            templates={[
+              ...writingTemplates.filter((t) => !t.hidden),
+              ...customTemplates,
+            ].map((t) => ({
               id: t.id,
               name: t.name,
             }))}
@@ -1535,11 +1871,13 @@ export default function App() {
               project={project}
               activeDestination={destination}
               groupOrder={project.sidebarOrder}
+              hiddenGroups={project.sidebarHidden ?? []}
               onGroupOrder={(sidebarOrder) =>
                 mutate((p) => ({ ...p, sidebarOrder }))
               }
               onDestination={(id) => {
                 setDestination(id);
+                setFocusSource(undefined);
                 if (id === "read") setMode("read");
                 else if (id !== "history") setMode("write");
               }}
@@ -1552,11 +1890,13 @@ export default function App() {
                 }))
               }
               collectionItems={{
-                research: (project.research?.notes ?? []).map((n) => ({
-                  id: n.id,
-                  title: n.text.slice(0, 70) || "Research note",
-                  detail: n.kind,
-                })),
+                research: [
+                  { id: "bibliography", title: "Bibliography" },
+                  ...(project.research?.sources ?? []).flatMap((s) => [
+                    { id: s.id, title: sourceSummary(s) },
+                    ...(s.pdf ? [{ id: `pdf:${s.id}`, title: s.pdf.name, depth: 1 as const, beside: { kind: "pdf" as const, sourceId: s.id } }] : []),
+                  ]),
+                ],
                 comments: (project.annotations ?? [])
                   .filter((a) => !a.resolved)
                   .map((a) => ({ id: a.id, title: a.text })),
@@ -1575,9 +1915,12 @@ export default function App() {
                       versions?.find((v) => v.id === id)?.name ?? "Snapshot",
                     );
                   });
-                if (group === "research") {
-                  setResearchTab("notes");
+                if (group === "research" && id === "bibliography")
+                  setDestination("bibliography");
+                else if (group === "research") {
+                  setResearchTab("sources");
                   setFocusFootnote(undefined);
+                  setFocusSource(id);
                   setResearchEpoch((n) => n + 1);
                 }
               }}
@@ -1589,6 +1932,7 @@ export default function App() {
                   setMode("write");
                   setResearchTab("notes");
                   setFocusFootnote(undefined);
+                  setFocusSource(undefined);
                   setResearchEpoch((n) => n + 1);
                   mutate((p) => ({
                     ...p,
@@ -1610,24 +1954,13 @@ export default function App() {
               mode={mode}
               query={query}
               onQuery={setQuery}
-              onLibrary={() =>
-                void run(async () => {
-                  await saveAll();
-                  await refreshLibrary();
-                  current.current = null;
-                  setProject(null);
-                  localStorage.removeItem("folio.lastProject");
-                })
-              }
+              onRenameProject={(title) => mutate((p) => ({ ...p, title }))}
+              hoverReveal={hoverReveal}
               onAdd={add}
-              onSelect={(id) => {
-                setActive(id);
-                setDestination(
-                  project.entries.find((e) => e.id === id)?.kind === "fragment"
-                    ? "fragment-editor"
-                    : "manuscript",
-                );
-                setMode("write");
+              onSelect={selectEntry}
+              onOpenBeside={(target) => {
+                if (target.kind === "entry") selectEntry(target.id, true);
+                else openPdfBeside(target.sourceId);
               }}
               onRename={rename}
               onReorder={reorder}
@@ -1649,7 +1982,7 @@ export default function App() {
                       )
                     }
                   >
-                    <PanelLeftClose size={18} />
+                    <PanelLeftClose size={16} />
                   </button>
                   <span className="breadcrumb">
                     <button
@@ -1677,9 +2010,11 @@ export default function App() {
                           aria-label={"Delete " + item.kind}
                           onClick={() => remove(item)}
                         >
-                          <Trash2 size={13} />
+                          <Trash2 size={16} />
                         </button>
                       </>
+                    ) : destination === "bibliography" ? (
+                      "Bibliography"
                     ) : (
                       "Manuscript"
                     )}
@@ -1688,9 +2023,9 @@ export default function App() {
                 <div>
                   <span className={"save-status " + status.state}>
                     {status.state === "saved" ? (
-                      <Check size={13} />
+                      <Check size={16} />
                     ) : status.state === "error" ? (
-                      <AlertCircle size={13} />
+                      <AlertCircle size={16} />
                     ) : (
                       <span className="save-dot" />
                     )}
@@ -1703,7 +2038,7 @@ export default function App() {
                           : "Save failed"}
                   </span>
                   <button className="snapshot-button" onClick={snapshot}>
-                    <History size={15} /> Snapshot
+                    <History size={16} /> Snapshot
                   </button>
                   <button
                     aria-label="Export portable project"
@@ -1719,7 +2054,7 @@ export default function App() {
                       })
                     }
                   >
-                    <Download size={17} />
+                    <Download size={16} />
                   </button>
                 </div>
               </header>
@@ -1793,7 +2128,65 @@ export default function App() {
                           onChange={(palette) => setAppearance((a) => ({ ...a, palette }))}
                         />
                       </div>
+                      {appearance.palette === "color" && (
+                        <div className="settings-field settings-field--wide">
+                          <span className="settings-label">Section colours</span>
+                          <div className="section-swatches">
+                            {(
+                              [
+                                ["manuscript", "Manuscript colour"],
+                                ["fragments", "Fragments colour"],
+                                ["research", "Research colour"],
+                              ] as const
+                            ).map(([section, label]) => (
+                              <Dropdown<Swatch>
+                                key={section}
+                                label={label}
+                                width="100%"
+                                value={appearance.sections[section]}
+                                options={SWATCHES.map((swatch) => {
+                                  const name = swatch[0].toUpperCase() + swatch.slice(1);
+                                  return {
+                                    value: swatch,
+                                    label: name,
+                                    render: (
+                                      <span className="swatch-option">
+                                        <span
+                                          aria-hidden="true"
+                                          className="swatch-chip"
+                                          data-swatch={swatch}
+                                        />
+                                        {name}
+                                      </span>
+                                    ),
+                                  };
+                                })}
+                                onChange={(swatch) =>
+                                  setAppearance((a) => ({
+                                    ...a,
+                                    sections: { ...a.sections, [section]: swatch },
+                                  }))
+                                }
+                              />
+                            ))}
+                          </div>
+                        </div>
+                      )}
                     </div>
+                    <label className="settings-check">
+                      <input
+                        type="checkbox"
+                        checked={hoverReveal}
+                        onChange={(e) => {
+                          setHoverReveal(e.target.checked);
+                          writeSidebarPreferences(localStorage, {
+                            ...readSidebarPreferences(localStorage),
+                            hover: e.target.checked,
+                          });
+                        }}
+                      />
+                      Reveal sidebar on hover
+                    </label>
                     <div className="settings-form">
                       <div className="settings-field">
                         <span className="settings-label">Storage location</span>
@@ -1806,6 +2199,39 @@ export default function App() {
                         </button>
                       </div>
                     </div>
+                  </section>
+                  <section className="settings-section">
+                    <h2>Sidebar</h2>
+                    {(
+                      [
+                        ["read", "Show Read manuscript"],
+                        ["comments", "Show Comments"],
+                        ["history", "Show Snapshots & history"],
+                      ] as const
+                    ).map(([id, label]) => (
+                      <label className="settings-check" key={id}>
+                        <input
+                          type="checkbox"
+                          checked={
+                            !(project.sidebarHidden ?? []).includes(id)
+                          }
+                          onChange={(e) => {
+                            const hidden = new Set(project.sidebarHidden ?? []);
+                            if (e.target.checked) hidden.delete(id);
+                            else hidden.add(id);
+                            const next = ["read", "comments", "history"].filter(
+                              (group) => hidden.has(group),
+                            );
+                            mutate((p) => ({ ...p, sidebarHidden: next }));
+                            if (!e.target.checked && (destination as string) === id) {
+                              setDestination("manuscript");
+                              setMode("write");
+                            }
+                          }}
+                        />
+                        {label}
+                      </label>
+                    ))}
                   </section>
                   <section className="settings-section">
                     <h2>Goals</h2>
@@ -1875,6 +2301,20 @@ export default function App() {
                     }
                   />
                 </div>
+              ) : destination === "bibliography" ? (
+                <BibliographyPage
+                  items={bibliography}
+                  settings={project.documentSettings}
+                  onChange={(patch) =>
+                    mutate((p) => ({
+                      ...p,
+                      documentSettings: {
+                        ...(p.documentSettings ?? defaultDocumentSettings),
+                        ...patch,
+                      },
+                    }))
+                  }
+                />
               ) : destination === "comments" ? (
                 <CommentsPanel
                   project={project}
@@ -1885,7 +2325,7 @@ export default function App() {
                   onReattach={startReattachment}
                   onJump={(annotation) => {
                     pendingJump.current = annotation.id;
-                    setActive(annotation.entryId);
+                    openEntry(annotation.entryId);
                     setMode("write");
                     setDestination("manuscript");
                     setNotice(annotation.quote ? "Opened commented passage." : "Opened section.");
@@ -1968,14 +2408,14 @@ export default function App() {
                       )
                     }
                   >
-                    Export plain text <Download size={13} />
+                    Export plain text <Download size={16} />
                   </button>
                   {sections.map((e) => (
                     <section key={e.id} id={"read-" + e.id}>
                       <button
                         className="read-title"
                         onClick={() => {
-                          setActive(e.id);
+                          openEntry(e.id);
                           setMode("write");
                         }}
                       >
@@ -2020,9 +2460,30 @@ export default function App() {
                         })}
                       </section>
                     )}
+                  {project.documentSettings?.bibliography !== false &&
+                    bibliography.some((b) => !b.heading) && (
+                      <section className="reader-bibliography">
+                        <h2>Bibliography</h2>
+                        {bibliography.map((b) =>
+                          b.heading ? (
+                            <h3 key={b.id}>{b.text}</h3>
+                          ) : (
+                            <p key={b.id}>
+                              {b.parts.map((part, index) =>
+                                part.italic ? (
+                                  <em key={index}>{part.text}</em>
+                                ) : (
+                                  <span key={index}>{part.text}</span>
+                                ),
+                              )}
+                            </p>
+                          ),
+                        )}
+                      </section>
+                    )}
                 </div>
               ) : item ? (
-                <div className="editor-area">
+                <div className={"editor-area" + (split && splitLeft ? " is-split" : "")}>
                   {reattachment?.projectId === project.id && reattachment.entryId === item.id && (
                     <div className="restore-fragment" role="region" aria-label="Reattach comment">
                       <span>Select the passage to attach this comment.</span>
@@ -2034,124 +2495,63 @@ export default function App() {
                       </button>
                     </div>
                   )}
-                  <Writer
-                    key={item.id + ":" + editorEpoch}
-                    focusMode={focusMode}
-                    proseCheck={proseCheck}
-                    onToggleFocusMode={() => setFocusMode((value) => !value)}
-                    onToggleProseCheck={() => setProseCheck((value) => !value)}
-                    item={item}
-                    resolveAsset={resolveAsset}
-                    onInsertImage={onInsertImage}
-                    documentSettings={project.documentSettings}
-                    footnoteNumbers={footnoteNumbers}
-                    footnotes={(project.research?.footnotes ?? [])
-                      .filter((n) => footnoteNumbers[n.id])
-                      .map((n) => ({
-                        id: n.id,
-                        number: footnoteNumbers[n.id],
-                        text: n.text,
-                        citation: footnoteText(n, project.research!, citationContext[n.id]?.form, citationContext[n.id]?.locator),
-                        editable: true,
-                      }))}
-                    onFootnoteTextChange={(id, text) =>
-                      mutate((p) => ({
-                        ...p,
-                        research: p.research && {
-                          ...p.research,
-                          footnotes: p.research.footnotes.map((n) =>
-                            n.id === id ? { ...n, text } : n,
-                          ),
-                        },
-                      }))
-                    }
-                    onFootnote={(id) => {
-                      setFocusFootnote(id);
-                      setResearchEpoch((n) => n + 1);
-                      setResearchTab("sources");
-                      setDestination("research");
-                    }}
-                    layout={project.pageLayout}
-                    onLayoutChange={(pageLayout) =>
-                      mutate((p) => ({
-                        ...p,
-                        pageLayout,
-                        documentSettings: {
-                          ...(p.documentSettings ?? defaultDocumentSettings),
-                          marginInches: pageLayout.margin / 96,
-                        },
-                      }))
-                    }
-                    onEditorReady={editorReady}
-                    onSelectionChange={reattachment ? (editor) => {
-                      const { from, to, empty } = editor.state.selection;
-                      const hasText = !empty && !!editor.state.doc.textBetween(from, to, "\n");
-                      setReattachment((pending) => pending?.projectId === project.id && pending.entryId === item.id
-                        ? { ...pending, selection: hasText ? { from, to } : null } : pending);
-                    } : undefined}
-                    onExtract={extract}
-                    onLink={(value, apply) =>
-                      setNameDialog({
-                        title: value ? "Edit link" : "Add link",
-                        label: "Link address",
-                        value: value || "https://",
-                        action: (url) => {
-                          if (!/^https?:\/\//i.test(url))
-                            throw new Error(
-                              "Links must start with http:// or https://",
-                            );
-                          apply(url);
-                        },
-                      })
-                    }
-                    onEdit={(content, text, transaction) => {
-                      const amendment = pendingContentChange.current;
-                      pendingContentChange.current = null;
-                      mutate((p) => {
-                        const next = { ...p, entries: p.entries.map((e) => e.id === item.id ? { ...e, content, text, updatedAt: now() } : e) };
-                        return amendment?.projectId === p.id && amendment.entryId === item.id ? amendment.amend(next) : next;
-                      }, { entryId: item.id, transaction });
-                    }}
-                    onComment={() => addAnnotation("comment")}
-                    onPageStatus={(s) =>
-                      setPageStatus((prev) =>
-                        prev.current === s.current && prev.total === s.total
-                          ? prev
-                          : s,
-                      )
-                    }
-                    header={
-                      item.origin ? (
-                        <p className="origin">
-                          Kept from “{item.origin.sectionTitle}” --{" "}
-                          {new Date(item.origin.removedAt).toLocaleDateString()}
-                        </p>
-                      ) : undefined
-                    }
-                    footer={
-                      item.kind === "fragment" ? (
-                        <div className="restore-fragment">
-                          <span>Give these words a home</span>
-                          <Dropdown
-                            label="Restore fragment to section"
-                            width={220}
-                            value={target}
-                            onChange={setTarget}
-                            options={[
-                              { value: "", label: "Choose a section" },
-                              ...sections.map((e) => ({
-                                value: e.id,
-                                label: e.title,
-                              })),
-                            ]}
-                          />
-                          <button disabled={!target} onClick={restoreFragment}>
-                            Append to section →
-                          </button>
-                        </div>
-                      ) : undefined
-                    }
-                  />
+                  {split && splitLeft ? (
+                    <>
+                      <div className="writer split-toolbar" ref={setSplitToolbar} />
+                      <div
+                        className="split-panes"
+                        style={{ "--split-ratio": splitRatio } as CSSProperties}
+                      >
+                        <section
+                          className="split-pane"
+                          data-side="left"
+                          data-focused={split.focused === "left" ? "" : undefined}
+                          aria-label="Left pane"
+                          onPointerDownCapture={() => changeSplit(focusSide(split, "left"))}
+                          onFocusCapture={() => changeSplit(focusSide(split, "left"))}
+                        >
+                          {renderWriter(splitLeft, "left")}
+                        </section>
+                        <SplitDivider
+                          ratio={splitRatio}
+                          onRatio={(ratio) => {
+                            const next = Math.min(0.75, Math.max(0.25, Math.round(ratio * 1000) / 1000));
+                            setSplitRatio(next);
+                            writeSplitRatio(localStorage, next);
+                          }}
+                        />
+                        <section
+                          className="split-pane"
+                          data-side="right"
+                          data-focused={split.right.kind === "entry" && split.focused === "right" ? "" : undefined}
+                          aria-label="Right pane"
+                          onPointerDownCapture={() => changeSplit(focusSide(split, "right"))}
+                          onFocusCapture={() => changeSplit(focusSide(split, "right"))}
+                        >
+                          <div className="split-pane-header">
+                            <span className="split-pane-title">{split.right.kind === "entry"
+                              ? splitRight?.title
+                              : splitPdfSource?.pdf?.name ?? "PDF"}</span>
+                            <button
+                              className="split-close"
+                              aria-label="Close right pane"
+                              title="Close right pane"
+                              onClick={closeSplit}
+                            >
+                              <X size={16} />
+                            </button>
+                          </div>
+                          {split.right.kind === "entry"
+                            ? splitRight && renderWriter(splitRight, "right")
+                            : (() => {
+                                return splitPdfSource ? <PdfPane projectId={project.id} source={splitPdfSource} /> : <p role="alert">This PDF is not stored in this project.</p>;
+                              })()}
+                        </section>
+                      </div>
+                    </>
+                  ) : (
+                    renderWriter(item, "left")
+                  )}
                 </div>
               ) : (
                 <div className="empty-editor">
@@ -2200,7 +2600,7 @@ export default function App() {
                 <FragmentLibrary
                   project={project}
                   onOpen={(id) => {
-                    setActive(id);
+                    openEntry(id);
                     setDestination("fragment-editor");
                     setMode("write");
                   }}
@@ -2221,7 +2621,15 @@ export default function App() {
                       setNotice("Fragment copied with its source references.");
                     });
                   }}
-                  activeId={mode === "write" ? item?.id : undefined}
+                  activeIds={
+                    mode === "write"
+                      ? [
+                          split?.left,
+                          split?.right.kind === "entry" ? split.right.id : undefined,
+                          item?.id,
+                        ].filter((id): id is string => !!id)
+                      : undefined
+                  }
                   onEdit={(id, content, text) =>
                     mutate((p) => ({
                       ...p,
@@ -2256,10 +2664,14 @@ export default function App() {
                   key={researchEpoch}
                   initialTab={researchTab}
                   focusFootnoteId={focusFootnote}
+                  focusSourceId={focusSource}
+                  bibliography={bibliography}
                   citationContext={citationContext}
                   onInsertNote={insertResearchNote}
                   onImportCsl={(result) => { if (current.current) setCslImportPreview({ ...result, projectId: current.current.id }); }}
                   onCaptureQuote={(note, insert) => { if (insert) insertResearchNote(note); }}
+                  onAttachPdf={attachPdf}
+                  onOpenPdf={openPdfBeside}
                   data={project.research}
                   onChange={(research) => mutate((p) => ({ ...p, research }))}
                   onInsertFootnote={
@@ -2279,7 +2691,7 @@ export default function App() {
                       setPreview(null);
                     }}
                   >
-                    <X size={18} />
+                    <X size={16} />
                   </button>
                 </div>
                 <div className="version-tabs">
@@ -2303,7 +2715,7 @@ export default function App() {
                 </p>
                 {!history && (
                   <button className="primary" onClick={snapshot}>
-                    <Plus size={15} /> Create snapshot
+                    <Plus size={16} /> Create snapshot
                   </button>
                 )}
                 {versions.length === 0 && (
@@ -2326,7 +2738,7 @@ export default function App() {
                       })
                     }
                   >
-                    <History size={15} />
+                    <History size={16} />
                     <span>
                       <strong>{v.name}</strong>
                       <small>{new Date(v.createdAt).toLocaleString()}</small>
@@ -2339,7 +2751,7 @@ export default function App() {
         )}
         {(error || status.state === "error" || mirrorError) && (
           <div className="error-banner" role="alert">
-            <AlertCircle size={17} />
+            <AlertCircle size={16} />
             <span>
               {error ||
                 (status.state === "error" ? status.message : mirrorError)}
@@ -2366,7 +2778,7 @@ export default function App() {
               aria-label="Dismiss notification"
               onClick={() => setNotice("")}
             >
-              <X size={15} />
+              <X size={16} />
             </button>
           </div>
         )}

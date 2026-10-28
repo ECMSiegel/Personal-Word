@@ -1,0 +1,9 @@
+{
+  "id": "agent-a284",
+  "label": "Claude Sonnet worker T122 (U15) takeover",
+  "joined_at": "2026-10-26T22:35:00+00:00",
+  "last_seen": "2026-10-26T22:44:57+00:00",
+  "status": "left",
+  "current_task": null,
+  "inbox_cursor": 0
+}

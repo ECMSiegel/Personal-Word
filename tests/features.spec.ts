@@ -19,7 +19,7 @@ test("daily goal shows progress in the status line", async ({ page }) => {
 
 test("exports the project as Markdown", async ({ page }) => {
   await page.goto("/");
-  await create(page, "Portable writing", "Essay");
+  await create(page, "Portable writing", "Chicago");
   await page.getByRole("textbox", { name: "Writing editor" }).fill("Evidence to preserve.");
   await page.locator(".group-title").filter({ hasText: /^Research$/ }).click();
   await page.getByRole("button", { name: "Insert footnote at cursor" }).click();

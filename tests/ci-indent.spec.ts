@@ -102,7 +102,7 @@ test("Blank start indent survives undo, redo, save, and reload", async ({
 test("Chicago inherited indent uses left indent and survives undo, redo, and reload", async ({
   page,
 }) => {
-  await createProject(page, "Chicago indentation", "Chicago student paper");
+  await createProject(page, "Chicago indentation", "Chicago");
   const introduction = page.getByRole("button", {
     name: /^Introduction \d+ words$/,
   });
@@ -227,7 +227,7 @@ test("Keyboard focus: Blank start indent survives undo, redo, save, and reload",
 test("Keyboard focus: Chicago inherited indent uses left indent and survives undo, redo, and reload", async ({
   page,
 }) => {
-  await createProject(page, "Chicago indentation", "Chicago student paper");
+  await createProject(page, "Chicago indentation", "Chicago");
   const introduction = page.getByRole("button", {
     name: /^Introduction \d+ words$/,
   });

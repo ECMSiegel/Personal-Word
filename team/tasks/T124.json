@@ -1,0 +1,114 @@
+{
+  "id": "T124",
+  "title": "UI wave 2 U18: Source PDF storage (N, part 1)",
+  "description": "Plan task U18 (replaces T115; re-added with only its real dependencies, owner-approved 2026-10-26). Follow docs/agent-work/2026-10-26-ui-wave-2/PLAN.md exactly: this task's section (Files, Interfaces, Steps, Acceptance check, Fail-first, Stop-and-ask, Default) plus the seven answered Open questions and the Notes for the implementer. Other wave-2 tasks may have changed the shared files since the plan was written: read the real file, treat plan line numbers as hints. Protocol: on claim register the plan's Files line in ONE files add call; register the serial check slot only right before the first expensive check and keep it until done; pinned Node; quoted --outDir; no installs, no commits; status CLAIMED; independent review required.",
+  "status": "done",
+  "owner": null,
+  "priority": 1,
+  "depends_on": [
+    "T114"
+  ],
+  "files": [
+    "node_modules/.cache/personal-word-beta/ui2-u18",
+    "src-tauri/src/assets.rs",
+    "src-tauri/src/store.rs",
+    "src/assets/pdf.ts",
+    "src/assets/pdf.test.ts",
+    "src/assets/assets.ts",
+    "src/storage.ts",
+    "src/research/types.ts",
+    "src/model.ts",
+    "src/model.test.ts",
+    "node_modules/.cache/personal-word-beta/team-serial-check-slot"
+  ],
+  "review_required": true,
+  "created_by": "agent-a3c2",
+  "created_at": "2026-10-26T21:54:49+00:00",
+  "claimed_at": "2026-10-27T02:20:11+00:00",
+  "updated_at": "2026-10-27T02:42:58+00:00",
+  "handoff": {
+    "by": "agent-9884",
+    "at": "2026-10-27T02:12:54+00:00",
+    "text": "Required fix in src/assets/pdf.ts: U18 specifies that an empty PDF must throw \"PDFs must be 25 MB or smaller.\" before/alongside the header check. inspectPdf currently checks HEADER first, so empty bytes throw \"Choose a PDF file.\" instead. src/assets/pdf.test.ts currently asserts that opposite behavior for empty input. Check size/empty before header and update the test; confirm with `npx vitest run src/assets/pdf.test.ts`. I did not rerun U18 acceptance checks in this review session because the shared serial-check slot is owned by T099 (agent-a3c2); the task log contains the prior cargo/Vitest/tsc results and notes the full-suite timeouts plus isolated 29/29 rerun."
+  },
+  "review": {
+    "by": "agent-f4ea",
+    "at": "2026-10-27T02:42:58+00:00",
+    "verdict": "approved",
+    "note": "Cycle 2 approved. Read all scope files against plan U18. pdf.ts: inspectPdf empty/over-25MB -> 'PDFs must be 25 MB or smaller.' checked before header ('Choose a PDF file.'); ids sha256 via shared sha256Hex; verifyPendingPdf checks id/size/hash/meta. assets.ts putPdf/getPdf same DB/STORE/key, verify on write and read. storage.stagePdf (stage_assets) / readPdf (read_asset + inspectPdf + verify; browser throws 'This PDF is not stored in this project.'). Rust: inspect accepts %PDF- as 0x0, cap unchanged, PNG/JPEG zero-dim still rejected (test asserts png(0,3) errs); extension pdf; write_attachments uses is_asset_id before path building, skips missing bytes, never deletes, image loop unchanged; commit still checks image ids only. model.ts: malformed pdf -> 'Invalid research source.', absent fine. RUNS (quiet slot): vitest src/assets src/model.test.ts src/storage.test.ts = 4 files 102 passed; tsc --noEmit exit 0; cargo test --locked --offline --jobs 1 --test-threads=1 = 57 passed, 0 failed, 1 ignored, no lockfile change. Gap: no storage.test.ts cases for stagePdf/readPdf -- acceptable (file not in plan; thin wrappers over tested verify/put/get; only the 'not stored' message and desktop invoke shape are unasserted; U19 e2e should cover). TIMEOUT VERDICT: not T124's. adversarial-wp3-exports alone, 2 runs each, current tree vs HEAD scratch copy outside project: current 29/29 and 29/29; HEAD 28/29 (one 5000ms timeout on 'exports clean document with 0 assets') and 29/29. Slowest tests, current vs HEAD (ms): 50-asset stress 2712/4090 vs 2955/2686; 0-asset 2458/3853 vs 5708(timeout)/1996; 1-asset 2282/1375 vs 2722/1644. Same tests are 2-6s under mild load against a 5s limit on both trees; no >1.5x regression. Load flake, pre-existing."
+  },
+  "log": [
+    {
+      "at": "2026-10-26T21:54:49+00:00",
+      "agent": "agent-a3c2",
+      "event": "created",
+      "note": ""
+    },
+    {
+      "at": "2026-10-26T22:04:32+00:00",
+      "agent": "agent-b4ae",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-10-26T22:04:36+00:00",
+      "agent": "agent-b4ae",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-10-26T22:04:54+00:00",
+      "agent": "agent-b4ae",
+      "event": "handoff",
+      "note": "released"
+    },
+    {
+      "at": "2026-10-27T00:45:33+00:00",
+      "agent": "agent-1eb5",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-10-27T00:45:35+00:00",
+      "agent": "agent-1eb5",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-10-27T02:08:27+00:00",
+      "agent": "agent-1eb5",
+      "event": "review requested",
+      "note": "U18 source PDF storage. Files: src-tauri/src/assets.rs (inspect accepts %PDF- as application/pdf, 0x0; extension pdf; 2 tests incl. pdf_assets_are_accepted_without_dimensions), src-tauri/src/store.rs (write_attachments also mirrors research.sources[*].pdf.assetId to attachments/<id>.pdf via new pdf_ids; missing PDF bytes are skipped, not an error; test source_pdfs_reach_the_attachments_mirror), src/assets/pdf.ts + pdf.test.ts (new; inspectPdf/createPendingPdf/verifyPendingPdf, PdfMeta/PendingPdf per plan), src/assets/assets.ts (putPdf/getPdf on browser store), src/storage.ts (stagePdf/readPdf), src/research/types.ts (Source.pdf), src/model.ts (isSourcePdf check -> 'Invalid research source.'), src/model.test.ts (+8 cases). FAIL-FIRST: Rust impl stripped -> both new tests FAILED ('Only PNG and JPEG images are supported'), cargo filter run 1 passed 2 failed (ui2-u18/failfirst-rust.log); TS with pdf.ts absent and model check removed -> pdf.test.ts 'Cannot find module ./pdf', 7 model.test cases failed (failfirst-ts.log); impl restored from byte copies. PASS: cargo test --locked --offline --jobs 1 -- --test-threads=1 = 57 passed, 0 failed, 1 ignored, no lockfile change, no warnings; vitest src/assets src/model.test.ts src/storage.test.ts = 4 files, 101 passed; tsc --noEmit = exit 0; full npm test -- --no-file-parallelism --maxWorkers=1 = 940 passed, 3 failed, all 3 are 5000ms timeouts in src/adversarial-wp3-exports.test.ts (export stress tests, machine under load); rerun of that file alone = 29/29 pass (rerun-wp3.log). DEVIATIONS: none from plan. Notes: no storage.test.ts cases for stagePdf/readPdf (file not registered, plan does not list it); existing image tests unchanged. Logs in node_modules/.cache/personal-word-beta/ui2-u18/. Status CLAIMED, needs non-author review. Browser build only proves IndexedDB; native stage_assets/read_asset PDF path proven by Rust tests only, not via the app."
+    },
+    {
+      "at": "2026-10-27T02:12:54+00:00",
+      "agent": "agent-9884",
+      "event": "rejected",
+      "note": "Required fix in src/assets/pdf.ts: U18 specifies that an empty PDF must throw \"PDFs must be 25 MB or smaller.\" before/alongside the header check. inspectPdf currently checks HEADER first, so empty bytes throw \"Choose a PDF file.\" instead. src/assets/pdf.test.ts currently asserts that opposite behavior for empty input. Check size/empty before header and update the test; confirm with `npx vitest run src/assets/pdf.test.ts`. I did not rerun U18 acceptance checks in this review session because the shared serial-check slot is owned by T099 (agent-a3c2); the task log contains the prior cargo/Vitest/tsc results and notes the full-suite timeouts plus isolated 29/29 rerun."
+    },
+    {
+      "at": "2026-10-27T02:20:11+00:00",
+      "agent": "agent-bab1",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-10-27T02:20:15+00:00",
+      "agent": "agent-bab1",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-10-27T02:26:36+00:00",
+      "agent": "agent-bab1",
+      "event": "review requested",
+      "note": "Fixed Codex's rejection: inspectPdf (src/assets/pdf.ts) now checks empty/over-25MB before the header, so empty bytes throw 'PDFs must be 25 MB or smaller.'; pdf.test.ts empty case moved to that message. Fail-first: new test failed (1 failed, 7 passed) before fix. After: vitest src/assets src/model.test.ts = 3 files, 81 passed; tsc --noEmit exit 0. Cargo not rerun (Rust untouched; earlier 57 passed/1 ignored by agent-1eb5). Read-only notes: write_attachments validates pdf ids with assets::is_asset_id before building the path (no traversal), skips missing bytes, never deletes; Rust inspect leaves PNG/JPEG zero-dimension rejection intact; PDF ids are sha256 like images (shared sha256Hex). Gap: no storage.test.ts cases for stagePdf/readPdf. Full suite has 3 load timeouts in adversarial-wp3-exports.test.ts; alone it gave 26 pass/3 fail for me under load, so not cleanly confirmed as flaky. Needs non-author review."
+    },
+    {
+      "at": "2026-10-27T02:42:58+00:00",
+      "agent": "agent-f4ea",
+      "event": "approved",
+      "note": "Cycle 2 approved. Read all scope files against plan U18. pdf.ts: inspectPdf empty/over-25MB -> 'PDFs must be 25 MB or smaller.' checked before header ('Choose a PDF file.'); ids sha256 via shared sha256Hex; verifyPendingPdf checks id/size/hash/meta. assets.ts putPdf/getPdf same DB/STORE/key, verify on write and read. storage.stagePdf (stage_assets) / readPdf (read_asset + inspectPdf + verify; browser throws 'This PDF is not stored in this project.'). Rust: inspect accepts %PDF- as 0x0, cap unchanged, PNG/JPEG zero-dim still rejected (test asserts png(0,3) errs); extension pdf; write_attachments uses is_asset_id before path building, skips missing bytes, never deletes, image loop unchanged; commit still checks image ids only. model.ts: malformed pdf -> 'Invalid research source.', absent fine. RUNS (quiet slot): vitest src/assets src/model.test.ts src/storage.test.ts = 4 files 102 passed; tsc --noEmit exit 0; cargo test --locked --offline --jobs 1 --test-threads=1 = 57 passed, 0 failed, 1 ignored, no lockfile change. Gap: no storage.test.ts cases for stagePdf/readPdf -- acceptable (file not in plan; thin wrappers over tested verify/put/get; only the 'not stored' message and desktop invoke shape are unasserted; U19 e2e should cover). TIMEOUT VERDICT: not T124's. adversarial-wp3-exports alone, 2 runs each, current tree vs HEAD scratch copy outside project: current 29/29 and 29/29; HEAD 28/29 (one 5000ms timeout on 'exports clean document with 0 assets') and 29/29. Slowest tests, current vs HEAD (ms): 50-asset stress 2712/4090 vs 2955/2686; 0-asset 2458/3853 vs 5708(timeout)/1996; 1-asset 2282/1375 vs 2722/1644. Same tests are 2-6s under mild load against a 5s limit on both trees; no >1.5x regression. Load flake, pre-existing."
+    }
+  ]
+}

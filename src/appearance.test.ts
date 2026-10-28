@@ -1,8 +1,10 @@
 import { describe, it, expect } from "vitest";
 import {
   APPEARANCE_KEY,
+  SWATCHES,
   applyAppearance,
   defaultAppearance,
+  defaultSectionColours,
   nextTheme,
   parseAppearance,
   readAppearance,
@@ -18,19 +20,39 @@ describe("appearance preference", () => {
     expect(parseAppearance('{"theme":"dark","palette":"color"}')).toEqual({
       theme: "dark",
       palette: "color",
+      sections: defaultSectionColours,
     });
     expect(parseAppearance('{"theme":"light"}')).toEqual({
       theme: "light",
       palette: "plain",
+      sections: defaultSectionColours,
     });
     expect(parseAppearance('{"theme":"purple","palette":"color"}')).toEqual({
       theme: "system",
       palette: "color",
+      sections: defaultSectionColours,
     });
     expect(parseAppearance("not json")).toEqual(defaultAppearance);
     expect(parseAppearance("[1,2]")).toEqual(defaultAppearance);
     expect(parseAppearance("null")).toEqual(defaultAppearance);
     expect(parseAppearance(null)).toEqual(defaultAppearance);
+  });
+
+  it("keeps section swatches additive and defaults invalid or missing keys", () => {
+    expect(SWATCHES).toEqual([
+      "red", "orange", "yellow", "green", "teal", "blue", "indigo", "purple",
+    ]);
+    expect(defaultSectionColours).toEqual({
+      manuscript: "blue",
+      fragments: "green",
+      research: "orange",
+    });
+    expect(parseAppearance('{"palette":"color","sections":{"manuscript":"purple","fragments":"bad"}}')).toEqual({
+      theme: "system",
+      palette: "color",
+      sections: { manuscript: "purple", fragments: "green", research: "orange" },
+    });
+    expect(parseAppearance('{"sections":{"manuscript":"bad","fragments":null,"research":5}}').sections).toEqual(defaultSectionColours);
   });
 
   it("reads and writes through a store and survives a broken store", () => {
@@ -41,12 +63,13 @@ describe("appearance preference", () => {
         data[k] = v;
       },
     };
-    writeAppearance(store, { theme: "dark", palette: "plain" });
+    writeAppearance(store, { theme: "dark", palette: "plain", sections: defaultSectionColours });
     expect(JSON.parse(data[APPEARANCE_KEY])).toEqual({
       theme: "dark",
       palette: "plain",
+      sections: defaultSectionColours,
     });
-    expect(readAppearance(store)).toEqual({ theme: "dark", palette: "plain" });
+    expect(readAppearance(store)).toEqual({ theme: "dark", palette: "plain", sections: defaultSectionColours });
     const broken = {
       getItem: () => {
         throw new Error("blocked");
@@ -59,11 +82,20 @@ describe("appearance preference", () => {
     expect(() => writeAppearance(broken, defaultAppearance)).not.toThrow();
   });
 
-  it("applies and clears data-theme and data-palette", () => {
+  it("applies and clears theme, palette and section tint attributes", () => {
     const root = { dataset: {} as DOMStringMap };
-    applyAppearance(root, { theme: "dark", palette: "color" });
-    expect(root.dataset).toEqual({ theme: "dark", palette: "color" });
-    applyAppearance(root, { theme: "light", palette: "plain" });
+    applyAppearance(root, {
+      theme: "dark",
+      palette: "color",
+      sections: { manuscript: "purple", fragments: "green", research: "teal" },
+    });
+    expect(root.dataset).toEqual({
+      theme: "dark",
+      palette: "color",
+      tintManuscript: "purple",
+      tintResearch: "teal",
+    });
+    applyAppearance(root, { ...defaultAppearance, theme: "light" });
     expect(root.dataset).toEqual({ theme: "light" });
     applyAppearance(root, defaultAppearance);
     expect(root.dataset).toEqual({});

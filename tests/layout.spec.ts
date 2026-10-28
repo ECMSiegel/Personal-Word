@@ -64,7 +64,7 @@ test("an unpinned sidebar has an invisible edge strip that reveals it on hover",
 test("page view typing and caret movement never shift the layout sideways", async ({
   page,
 }) => {
-  await create(page, "Wide", "Chicago student paper");
+  await create(page, "Wide", "Chicago");
   const editor = page.getByRole("textbox", { name: "Writing editor" });
   await expect(page.getByLabel("Page count")).toBeVisible();
   await editor.fill(
@@ -113,4 +113,54 @@ test("the writing area starts near the top of the workspace at 1280x800", async 
   const workspace = await page.locator(".workspace").boundingBox();
   const box = await editor.boundingBox();
   expect(box!.y - workspace!.y).toBeLessThan(140);
+});
+
+test("the sidebar starts with the project title and the hover switch lives in Settings", async ({
+  page,
+}) => {
+  await create(page, "Title row");
+  await expect(page.locator(".sidebar .brand")).toHaveCount(0);
+  await expect(page.locator(".sidebar-hover-setting")).toHaveCount(0);
+  const geometry = await page.evaluate(() => {
+    const sidebar = document.querySelector(".sidebar")!.getBoundingClientRect();
+    const title = document.querySelector(".sidebar .project-switch")!.getBoundingClientRect();
+    const space4 = parseFloat(
+      getComputedStyle(document.documentElement).getPropertyValue("--space-4"),
+    );
+    return { gap: title.top - sidebar.top, space4 };
+  });
+  expect(geometry.gap).toBeLessThanOrEqual(geometry.space4 + 1);
+  // The title is the first visible row: nothing above it inside the sidebar.
+  const firstTop = await page.evaluate(() => {
+    const sidebar = document.querySelector(".sidebar")!;
+    const tops = [...sidebar.querySelectorAll<HTMLElement>("button, input, .group-title")]
+      .filter((el) => el.getClientRects().length && getComputedStyle(el).opacity !== "0")
+      .map((el) => el.getBoundingClientRect().top);
+    return Math.min(...tops) - document.querySelector(".sidebar .project-switch")!.getBoundingClientRect().top;
+  });
+  expect(firstTop).toBeGreaterThanOrEqual(-1);
+
+  await page.getByRole("button", { name: "Settings", exact: true }).click();
+  const hover = page.getByLabel("Reveal sidebar on hover");
+  await expect(hover).toBeChecked();
+  await hover.uncheck();
+  await page.getByRole("button", { name: "Unpin sidebar" }).click();
+  await page.mouse.move(700, 400);
+  await page.mouse.move(3, 400);
+  await page.waitForTimeout(400);
+  await expect(page.locator(".sidebar-shell")).not.toHaveClass(/is-revealed/);
+  await page.evaluate(() => localStorage.setItem("personal-word.restoreTabs", "true"));
+  await page.reload();
+  const strip = page.getByRole("button", { name: "Show sidebar" });
+  await strip.focus();
+  await page.keyboard.press("Enter");
+  await page.getByRole("button", { name: "Settings", exact: true }).click();
+  await expect(page.getByLabel("Reveal sidebar on hover")).not.toBeChecked();
+  // Changing the width afterwards keeps hover off.
+  await page.getByRole("separator", { name: "Sidebar width" }).focus();
+  await page.keyboard.press("ArrowRight");
+  const saved = await page.evaluate(() =>
+    JSON.parse(localStorage.getItem("folio.workspace.sidebar") ?? "{}"),
+  );
+  expect(saved.hover).toBe(false);
 });

@@ -346,17 +346,25 @@ export async function exportPdf(
   const lines: (Line | "break")[] = blocks.flatMap((b) => blockLines(b));
   if (d.bibliography.length) {
     lines.push("break", ...wrap(segment({ text: "Bibliography", bold: true })));
-    for (const b of d.bibliography)
-      lines.push(
-        ...wrap(
-          b.parts.flatMap((p) => segment({ text: p.text, italic: p.italic })),
-          size,
-          1,
-          0,
-          true,
-        ),
-        { runs: [], height: 10, notes: [] },
-      );
+    for (const b of d.bibliography) {
+      if (b.heading) {
+        lines.push(
+          ...wrap(segment({ text: b.text, bold: true })),
+          { runs: [], height: 10, notes: [] },
+        );
+      } else {
+        lines.push(
+          ...wrap(
+            b.parts.flatMap((p) => segment({ text: p.text, italic: p.italic })),
+            size,
+            1,
+            0,
+            true,
+          ),
+          { runs: [], height: 10, notes: [] },
+        );
+      }
+    }
   }
   const pages: { lines: Line[]; notes: number[] }[] = [];
   let current = { lines: [] as Line[], notes: [] as number[] };

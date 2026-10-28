@@ -7,7 +7,7 @@
 }
 .writer .focus-dim {
   opacity: 0.35;
-  transition: opacity 140ms ease;
+  transition: opacity var(--duration-fast) var(--ease-out);
 }
 .writer .prose-repeat,
 .writer .prose-passive,
@@ -111,8 +111,8 @@
   flex: 0 0 auto;
   flex-wrap: nowrap;
   align-items: center;
-  gap: 0;
-  height: 36px;
+  gap: var(--header-gap);
+  height: calc(var(--control-height) + 2 * var(--space-1));
   min-width: 0;
   box-sizing: border-box;
   margin: 0;
@@ -128,7 +128,7 @@
     "Avenir Next",
     -apple-system,
     sans-serif;
-  font-size: 12px;
+  font-size: var(--type-small);
 }
 .writer .format-bar .toolbar-group {
   display: flex;
@@ -153,7 +153,7 @@
   justify-content: center;
   flex: 0 0 auto;
   width: 28px;
-  height: 32px;
+  height: var(--control-height);
   margin: 0;
   padding: 0;
   border: 0;
@@ -187,12 +187,12 @@
   background: var(--surface);
 }
 .writer .format-bar .dropdown-button {
-  height: 26px;
+  height: var(--control-height);
   box-sizing: border-box;
   padding: 0 6px;
   border: 1px solid var(--line);
   border-radius: 0;
-  font-size: 12px;
+  font-size: var(--type-small);
 }
 .writer .format-bar .dropdown-button:hover:not(:disabled),
 .writer .format-bar .dropdown-button[aria-expanded="true"] {
@@ -205,7 +205,7 @@
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  height: 28px;
+  height: var(--control-height);
   margin: 0;
   padding: 0 8px;
   border: 0;
@@ -224,10 +224,27 @@
 .writer .format-bar .extract:disabled {
   opacity: var(--disabled-opacity);
 }
-@container (max-width: 1400px) {
-  .writer .format-bar .extract span {
-    display: none;
-  }
+/* Label mode: the bar is wide enough (Writer LABEL_MIN_WIDTH) for a 12 px
+   label beside every icon; the More menu always shows them as rows. */
+.writer .format-bar .toolbar-label {
+  display: none;
+  margin-left: var(--space-1);
+  font-size: var(--type-small);
+  white-space: nowrap;
+}
+.writer .format-bar[data-labels] .toolbar-label,
+.writer .toolbar-popover.is-more .toolbar-label {
+  display: inline;
+}
+.writer .format-bar[data-labels] .toolbar-icon {
+  width: auto;
+  padding: 0 var(--space-2);
+}
+.writer .format-bar .extract span {
+  display: none;
+}
+.writer .format-bar[data-labels] .extract span {
+  display: inline;
 }
 .writer .toolbar-anchor {
   position: relative;
@@ -245,10 +262,9 @@
   min-width: 232px;
   padding: 12px;
   box-sizing: border-box;
-  background: var(--paper);
-  border: 1px solid var(--line);
   border-radius: 0;
-  box-shadow: 0 6px 18px var(--shadow);
+  /* Popover paints the surface; nested menus may spill out of a panel. */
+  overflow: visible;
   color: var(--text);
   font-family:
     Futura,
@@ -260,19 +276,52 @@
   white-space: nowrap;
   outline: none;
 }
-.writer .toolbar-popover.align-end {
+.writer .toolbar-popover.popover-end {
   left: auto;
   right: 0;
 }
+.writer .toolbar-popover.popover-up {
+  top: auto;
+  bottom: calc(100% + 6px);
+}
 .writer .toolbar-popover.is-more {
-  flex-direction: row;
-  flex-wrap: wrap;
-  align-items: center;
+  flex-direction: column;
+  align-items: stretch;
+  gap: var(--space-1);
+  min-width: 220px;
   max-width: min(420px, 90vw);
-  padding: 6px;
+  padding: var(--space-1);
+}
+/* A long list scrolls inside the viewport (Popover caps its height); panels
+   opened from a row unfold in the list instead of floating outside it. */
+.writer .toolbar-popover.is-more {
+  overflow-y: auto;
+}
+.writer .toolbar-popover.is-more .toolbar-popover {
+  position: static;
+  min-width: 0;
+  margin-top: var(--space-1);
+  box-shadow: none;
 }
 .writer .toolbar-popover.is-more .toolbar-group {
-  flex-wrap: wrap;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0;
+}
+.writer .toolbar-popover.is-more .toolbar-anchor {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+}
+.writer .toolbar-popover.is-more .toolbar-icon {
+  width: 100%;
+  justify-content: flex-start;
+  padding: 0 var(--space-2);
+}
+.writer .toolbar-popover.is-more .dropdown,
+.writer .toolbar-popover.is-more .toolbar-number {
+  align-self: flex-start;
+  margin: var(--space-1) var(--space-2);
 }
 .writer .toolbar-popover-body {
   display: flex;

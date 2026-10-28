@@ -1,0 +1,76 @@
+{
+  "id": "T126",
+  "title": "UI wave 2 U20: Documentation",
+  "description": "Plan task U20 (replaces T117; re-added with only its real dependencies, owner-approved 2026-10-26). Follow docs/agent-work/2026-10-26-ui-wave-2/PLAN.md exactly: this task's section (Files, Interfaces, Steps, Acceptance check, Fail-first, Stop-and-ask, Default) plus the seven answered Open questions and the Notes for the implementer. Other wave-2 tasks may have changed the shared files since the plan was written: read the real file, treat plan line numbers as hints. Protocol: on claim register the plan's Files line in ONE files add call; register the serial check slot only right before the first expensive check and keep it until done; pinned Node; quoted --outDir; no installs, no commits; status CLAIMED; independent review required.",
+  "status": "done",
+  "owner": null,
+  "priority": 1,
+  "depends_on": [
+    "T111",
+    "T119",
+    "T120",
+    "T121",
+    "T125"
+  ],
+  "files": [
+    "node_modules/.cache/personal-word-beta/ui2-u20",
+    "README.md",
+    "docs/architecture.md",
+    "docs/design-system.md",
+    "docs/validation.md",
+    "docs/limitations.md",
+    "docs/changelog.md",
+    "docs/personal-word-v2.md",
+    "docs/agent-work/2026-10-25-later-fixes/PLAN.md"
+  ],
+  "review_required": true,
+  "created_by": "agent-a3c2",
+  "created_at": "2026-10-26T21:54:57+00:00",
+  "claimed_at": "2026-10-28T01:44:00+00:00",
+  "updated_at": "2026-10-28T01:48:17+00:00",
+  "handoff": null,
+  "review": {
+    "by": "agent-5f5c",
+    "at": "2026-10-28T01:48:17+00:00",
+    "verdict": "approved",
+    "note": "Approved, docs only (no code or test files changed by T126). Four acceptance greps re-run and match acceptance-greps.log. Spot-checked 12+ claims vs code, all accurate: motion tokens and MOTION_MS 80/120/180/220, Popover surface/border/shadow/square corners, LABEL_MIN_WIDTH=1100, OVERFLOW_ORDER, control-height 32 and header-gap, hidden templates and Chicago name, split keys personal-word.splitRatio and split.<projectId>, 25 MB asset cap, bibliographyOrder/Scope values and menu labels, Open beside buttons, title rename Enter/Escape, appearance key and eight swatches with blue/green/orange defaults, sidebarHidden. All later-fix items present (L13-L25 incl. L16 passage-restore window, More menu, PDF prune, flaky tests, label-mode). Status CLAIMED throughout, validation UI wave 2 section marks T127 pending. Advisory, non-blocking: (1) design-system.md Toolbar and limitations.md say about 6 of 13 groups at 1440 px; this figure is only from the U20 draft, not the coordinator pack (pack gives 3 of 13 at 1100 and a 7-control list at 1440), so U21 should re-measure or soften. (2) No doc says that a source PDF shown in the right pane is only inferred natively (owner hand-check item l); add a line to validation.md Not established. (3) Owner open decisions 2-6 and 9 (1240/1280 px groups under More, 39/34 px buttons, title rename cancels on blur, Settings chip) are not in limitations; fine if U21 puts them on the owner sheet. (4) docs/agent-work/2026-10-26-ui-wave-2/PLAN.md also shows amendments in the diff; not a T126 registered path, presumably the coordinator's.\n"
+  },
+  "log": [
+    {
+      "at": "2026-10-26T21:54:57+00:00",
+      "agent": "agent-a3c2",
+      "event": "created",
+      "note": ""
+    },
+    {
+      "at": "2026-10-27T03:12:33+00:00",
+      "agent": "agent-a3c2",
+      "event": "dependencies changed",
+      "note": "owner-authorised re-gate (decision 'Wave 2 lanes 2'): ['T119', 'T120', 'T121', 'T125'] -> ['T111', 'T119', 'T120', 'T121', 'T125']"
+    },
+    {
+      "at": "2026-10-28T01:44:00+00:00",
+      "agent": "agent-85b4",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-10-28T01:44:01+00:00",
+      "agent": "agent-85b4",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-10-28T01:46:38+00:00",
+      "agent": "agent-85b4",
+      "event": "review requested",
+      "note": "U20 docs pass complete; full note in node_modules/.cache/personal-word-beta/ui2-u20/done-note.txt. Eight registered paths changed. ACCEPTANCE GREPS all pass (log ui2-u20/acceptance-greps.log): Chicago student paper in README.md and docs/*.md -> no output; UI wave 2 in docs/validation.md -> one line (new header at :377); L13 and L14 in later-fixes PLAN.md -> two lines (:136, :137); blue in docs/design-system.md and AGENTS.md -> no output. CONTENT: README gets Chicago, the Screenplay and older-template sentence, and Bibliography, PDFs and split-view paragraphs; design-system gets the wave-2 header, the 32 px search slot, the create-menu morph, and new Popover, Toolbar, Sidebar, Split view, Section colours and templates and Bibliography and PDFs sections, all verified against real src paths, plus the blue-in-Plain wording removed from both selected-look lines and the brand sentence dropped from sidebar width; validation gets one new dated section UI wave 2 (2026-10-26/27, tasks T098-T129) with final validation marked pending T127; limitations gets three design limits and four known issues including the passage-restore data-safety window (L16) and the label-mode trade-off; changelog gets a 2026-10-27 section; personal-word-v2 gets the templates line and a wave-2 subsection; architecture gets motion.ts, Popover, split view and the shared bibliography builder; the later-fixes plan gets L13-L25. NOT DONE ON PURPOSE: no Definition-of-done box ticked (T127), no code or test file touched, no commits, and the stale boundary-2 sentence in docs/personal-word-v2.md left alone as outside the U20 Files line (flagged to the coordinator). NOTE FOR THE REVIEWER: docs/design-system.md already carried uncommitted wave-2 edits before this task (the Elevation and sizes section and the Motion token paragraph; HEAD has 105 lines against 113 before T126), so some diff hunks in that file are not T126 output. Status CLAIMED. Docs only."
+    },
+    {
+      "at": "2026-10-28T01:48:17+00:00",
+      "agent": "agent-5f5c",
+      "event": "approved",
+      "note": "Approved, docs only (no code or test files changed by T126). Four acceptance greps re-run and match acceptance-greps.log. Spot-checked 12+ claims vs code, all accurate: motion tokens and MOTION_MS 80/120/180/220, Popover surface/border/shadow/square corners, LABEL_MIN_WIDTH=1100, OVERFLOW_ORDER, control-height 32 and header-gap, hidden templates and Chicago name, split keys personal-word.splitRatio and split.<projectId>, 25 MB asset cap, bibliographyOrder/Scope values and menu labels, Open beside buttons, title rename Enter/Escape, appearance key and eight swatches with blue/green/orange defaults, sidebarHidden. All later-fix items present (L13-L25 incl. L16 passage-restore window, More menu, PDF prune, flaky tests, label-mode). Status CLAIMED throughout, validation UI wave 2 section marks T127 pending. Advisory, non-blocking: (1) design-system.md Toolbar and limitations.md say about 6 of 13 groups at 1440 px; this figure is only from the U20 draft, not the coordinator pack (pack gives 3 of 13 at 1100 and a 7-control list at 1440), so U21 should re-measure or soften. (2) No doc says that a source PDF shown in the right pane is only inferred natively (owner hand-check item l); add a line to validation.md Not established. (3) Owner open decisions 2-6 and 9 (1240/1280 px groups under More, 39/34 px buttons, title rename cancels on blur, Settings chip) are not in limitations; fine if U21 puts them on the owner sheet. (4) docs/agent-work/2026-10-26-ui-wave-2/PLAN.md also shows amendments in the diff; not a T126 registered path, presumably the coordinator's.\n"
+    }
+  ]
+}

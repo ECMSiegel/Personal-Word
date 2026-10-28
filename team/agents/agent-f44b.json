@@ -1,0 +1,9 @@
+{
+  "id": "agent-f44b",
+  "label": "Claude Sonnet worker T114 (U17)",
+  "joined_at": "2026-10-26T21:13:12+00:00",
+  "last_seen": "2026-10-26T21:28:41+00:00",
+  "status": "left",
+  "current_task": null,
+  "inbox_cursor": 0
+}

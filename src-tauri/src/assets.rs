@@ -62,8 +62,17 @@ pub fn verify_bytes(id: &str, claimed: &AssetMeta, bytes: Vec<u8>) -> Result<Ass
     Ok(Asset { id: id.into(), meta, bytes })
 }
 
-/// Reads type and pixel size from the file header; only PNG and JPEG are accepted.
+/// Reads type and pixel size from the file header; only PNG, JPEG and (for sources) PDF are accepted.
 pub fn inspect(bytes: &[u8]) -> Result<AssetMeta> {
+    // Source PDFs share the asset path; they have no pixel size.
+    if bytes.starts_with(b"%PDF-") {
+        return Ok(AssetMeta {
+            mime: "application/pdf".into(),
+            byte_length: bytes.len() as u64,
+            width: 0,
+            height: 0,
+        });
+    }
     let (mime, (width, height)) = if bytes.starts_with(b"\x89PNG\r\n\x1a\n") {
         ("image/png", png_size(bytes)?)
     } else if bytes.starts_with(&[0xFF, 0xD8, 0xFF]) {
@@ -129,6 +138,8 @@ fn jpeg_size(b: &[u8]) -> Result<(u32, u32)> {
 pub fn extension(mime: &str) -> &'static str {
     if mime == "image/png" {
         "png"
+    } else if mime == "application/pdf" {
+        "pdf"
     } else {
         "jpg"
     }
@@ -172,6 +183,35 @@ pub mod tests {
         assert!(verify_bytes(&id, &claimed, bytes.clone()).unwrap_err().contains("type or size"));
         assert!(verify_bytes(&id.to_uppercase(), &meta, bytes).is_err());
         assert!(inspect(b"GIF89a....").unwrap_err().contains("PNG and JPEG"));
+    }
+
+    pub fn pdf(extra: &str) -> Vec<u8> {
+        format!("%PDF-1.4\n{extra}\n%%EOF").into_bytes()
+    }
+
+    #[test]
+    fn pdf_assets_are_accepted_without_dimensions() {
+        let bytes = pdf("1 0 obj <<>> endobj");
+        let id = id_of(&bytes);
+        let meta = meta_of(&bytes);
+        assert_eq!(
+            meta,
+            AssetMeta { mime: "application/pdf".into(), byte_length: bytes.len() as u64, width: 0, height: 0 }
+        );
+        assert!(verify_bytes(&id, &meta, bytes.clone()).is_ok());
+        assert_eq!(extension("application/pdf"), "pdf");
+        assert_eq!(extension("image/png"), "png");
+        assert_eq!(extension("image/jpeg"), "jpg");
+        let mut forged = bytes.clone();
+        forged.push(b' ');
+        assert!(verify_bytes(&id, &meta, forged).unwrap_err().contains("do not match"));
+        assert!(inspect(b"%PDX-1.4").is_err());
+        let mut big = b"%PDF-".to_vec();
+        big.resize(MAX_ASSET_BYTES + 1, b'x');
+        assert!(verify_bytes(&id_of(&big), &meta, big).unwrap_err().contains("25 MB"));
+        // Images still need real dimensions.
+        assert!(inspect(&png(0, 3)).is_err());
+        assert!(inspect(&png(2, 3)).is_ok());
     }
 
     #[test]

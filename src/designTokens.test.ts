@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { readFileSync } from "node:fs";
+import { readFileSync, readdirSync } from "node:fs";
 import { join } from "node:path";
 
 // Reads the stylesheets as text (plain Node, no DOM) and checks the type and
@@ -186,7 +186,7 @@ describe("design tokens", () => {
       body
         .split(";")
         .map((part) => part.split(":")[0].trim())
-        .filter((prop) => prop.startsWith("--") && !/^--(type|space|ease|duration|focus|pressed|disabled)/.test(prop))
+        .filter((prop) => prop.startsWith("--") && !/^--(type|space|ease|duration|focus|pressed|disabled|elevation|shadow-raised|control|header|icon)/.test(prop))
         .sort();
     const lightNames = names(find(":root")!.body);
     const darkNames = names(find(':root[data-theme="dark"]')!.body);
@@ -197,5 +197,101 @@ describe("design tokens", () => {
       list.filter((n) => n !== "--accent" && n !== "--danger");
     expect(alias(darkNames)).toEqual(alias(lightNames));
     expect(darkNames.length).toBeGreaterThan(5);
+  });
+  it("defines the elevation, control-height and icon aliases on :root", () => {
+    const root = cssRules(read("src/styles.css")).find(
+      (r) => r.selector.replace(/\s+/g, " ") === ":root",
+    );
+    expect(root, ":root").toBeDefined();
+    const token = (body: string, prop: string) => {
+      const part = body
+        .split(";")
+        .map((item) => item.trim().replace(/\s+/g, " "))
+        .find((item) => item.startsWith(`${prop}:`));
+      expect(part, prop).toBeDefined();
+      return part!.slice(part!.indexOf(":") + 1).trim();
+    };
+    const expected: Record<string, string> = {
+      "--elevation-page": "var(--paper)",
+      "--elevation-surface": "var(--surface)",
+      "--elevation-raised": "var(--paper)",
+      "--shadow-raised": "0 6px 18px var(--shadow)",
+      "--control-height": "32px",
+      "--header-gap": "var(--space-2)",
+      "--icon-size": "16px",
+      "--icon-chevron": "14px",
+    };
+    for (const [prop, value] of Object.entries(expected)) {
+      expect(token(root!.body, prop), prop).toBe(value);
+    }
+  });
+  it("draws the dropdown menu on the raised surface", () => {
+    const menu = cssRules(read("src/components/dropdown.css")).find(
+      (r) => r.selector.replace(/\s+/g, " ") === ".dropdown-menu",
+    );
+    expect(menu, ".dropdown-menu").toBeDefined();
+    const value = (prop: string) =>
+      declarations(menu!.body).find((d) => d.prop === prop)?.value;
+    expect(value("background")).toBe("var(--elevation-raised)");
+    expect(value("box-shadow")).toBe("var(--shadow-raised)");
+    const check = cssRules(read("src/components/dropdown.css")).find(
+      (r) => r.selector.replace(/\s+/g, " ") === ".dropdown-check",
+    );
+    expect(check, ".dropdown-check").toBeDefined();
+    expect(declarations(check!.body).find((d) => d.prop === "width")?.value).toBe(
+      "16px",
+    );
+  });
+  it("draws popovers on the raised surface with items opaque from the first frame", () => {
+    const rules = cssRules(read("src/components/popover.css"));
+    const rule = (selector: string) => {
+      const found = rules.find((r) => r.selector.replace(/\s+/g, " ") === selector);
+      expect(found, selector).toBeDefined();
+      return (prop: string) =>
+        declarations(found!.body).find((d) => d.prop === prop)?.value;
+    };
+    const surface = rule(".popover");
+    expect(surface("background")).toBe("var(--elevation-raised)");
+    expect(surface("box-shadow")).toBe("var(--shadow-raised)");
+    expect(surface("border")).toBe("1px solid var(--line)");
+    expect(surface("border-radius")).toBe("0");
+    const item = rule("[data-popover-item]");
+    expect(item("opacity")).toBe("1");
+    expect(item("color")).toBe("var(--text)");
+    // No rule in popover.css may transition or animate opacity.
+    for (const r of rules) {
+      for (const d of declarations(r.body)) {
+        if (/^(transition|animation)/.test(d.prop))
+          expect(d.value, `${r.selector} ${d.prop}`).not.toMatch(/opacity|all/);
+      }
+    }
+  });
+  it("sizes every icon at 16 px (chevrons 14 px) with one stroke", () => {
+    const files: string[] = [];
+    const walk = (dir: string) => {
+      for (const entry of readdirSync(join(process.cwd(), dir), {
+        withFileTypes: true,
+      })) {
+        const path = `${dir}/${entry.name}`;
+        if (entry.isDirectory()) walk(path);
+        else if (entry.name.endsWith(".tsx")) files.push(path);
+      }
+    };
+    walk("src");
+    const wrong: string[] = [];
+    const stroked: string[] = [];
+    for (const file of files) {
+      const text = read(file);
+      for (const match of text.matchAll(
+        /<([A-Z][A-Za-z0-9]*)([^<>]*?)size=\{(\d+)\}/g,
+      )) {
+        const expected = match[1].startsWith("Chevron") ? 14 : 16;
+        if (Number(match[3]) !== expected)
+          wrong.push(`${file}: <${match[1]} size={${match[3]}}>`);
+      }
+      if (/strokeWidth=|absoluteStrokeWidth/.test(text)) stroked.push(file);
+    }
+    expect(wrong).toEqual([]);
+    expect(stroked).toEqual([]);
   });
 });

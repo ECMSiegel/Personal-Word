@@ -86,8 +86,8 @@
   const createProject = async () => {
     const title = "D1 durability fixture";
     if (!button("Start new project")) {
-      const projectSwitch = document.querySelector(".project-switch");
-      if (projectSwitch) await click(projectSwitch.textContent.trim());
+      // The sidebar title renames in place; the Projects tab goes back.
+      await click("Projects");
     }
     await click("Start new project");
     await click("Blank");
@@ -537,9 +537,16 @@
         throw Error(`read_asset SHA-256 mismatch: expected ${stagedAssetId}, got ${readHash}`);
       }
 
-      // Save an image project referencing this staged asset
-      const fileInput = document.querySelector('input[type="file"][accept*="image"]');
-      if (fileInput) {
+      // Save an image project referencing this staged asset. A narrow toolbar
+      // overflows Insert into the closed More formatting popover, which keeps
+      // the file input unmounted; open it, and fail rather than skip the save.
+      const imageInput = () => document.querySelector('input[type="file"][accept*="image"]');
+      if (!imageInput()) {
+        mark("insert hidden, opening More formatting");
+        document.querySelector('button[aria-label="More formatting"]')?.click();
+      }
+      const fileInput = await wait(imageInput, "image file input");
+      {
         const fixtureBase64 = localStorage.getItem("folio.d1.stagedAssetBase64");
         const bytes = Uint8Array.from(atob(fixtureBase64), (c) => c.charCodeAt(0));
         const dt = new DataTransfer();

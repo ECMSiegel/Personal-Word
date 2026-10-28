@@ -8,6 +8,7 @@ import {
   footnoteParts,
   type CitationPart,
 } from "./citations";
+import type { BibliographyItem } from "./bibliography";
 import { lookupIdentifier } from "./lookup";
 import { parseCslJson, type CslImportResult } from "./cslImport";
 import { parseBibtex } from "./bibtexImport";
@@ -51,7 +52,7 @@ const leadName = (source: Source) => {
     ? first.split(",")[0].trim()
     : (first.split(/\s+/).at(-1) ?? "");
 };
-const sourceSummary = (source: Source) =>
+export const sourceSummary = (source: Source) =>
   [leadName(source), source.title.trim() || "Untitled source"]
     .filter(Boolean)
     .join(" -- ") + (source.year ? ` (${source.year})` : "");
@@ -145,9 +146,13 @@ export function ResearchPanel({
   onInsertNote,
   initialTab = "sources",
   focusFootnoteId,
+  focusSourceId,
   citationContext = {},
   onImportCsl,
   onCaptureQuote,
+  bibliography: bibliographyProp,
+  onAttachPdf,
+  onOpenPdf,
 }: {
   data?: ResearchData;
   onChange: (data: ResearchData) => void;
@@ -156,9 +161,14 @@ export function ResearchPanel({
   initialTab?: ResearchTab | "footnotes";
   /** Opens Sources at the footnote's source and focuses its text. */
   focusFootnoteId?: string;
+  /** Opens Sources with this source expanded and scrolled into view. */
+  focusSourceId?: string;
   citationContext?: CitationContext;
   onImportCsl?: (result: CslImportResult) => void;
   onCaptureQuote?: (note: ResearchNote, insert: boolean) => void;
+  bibliography?: BibliographyItem[];
+  onAttachPdf?: (sourceId: string, file: File) => Promise<void>;
+  onOpenPdf?: (sourceId: string) => void;
 }) {
   const [tab, setTab] = useState<ResearchTab>(
     initialTab === "notes" ? "notes" : "sources",
@@ -189,6 +199,19 @@ export function ResearchPanel({
     setOpenId(note?.sourceId ?? null);
     setPendingFocus(focusFootnoteId);
   }, [focusFootnoteId]);
+
+  useEffect(() => {
+    if (!focusSourceId) return;
+    setTab("sources");
+    setOpenId(focusSourceId);
+  }, [focusSourceId]);
+
+  useEffect(() => {
+    if (!focusSourceId || openId !== focusSourceId || tab !== "sources") return;
+    panel.current
+      ?.querySelector(`#${CSS.escape(focusSourceId + "-panel")}`)
+      ?.scrollIntoView({ block: "nearest" });
+  }, [focusSourceId, openId, tab]);
 
   useEffect(() => {
     if (!pendingFocus) return;
@@ -418,6 +441,30 @@ export function ResearchPanel({
     const quotes = data.notes.filter((n) => n.sourceId === source.id);
     return (
       <div className="source-body" id={`${source.id}-panel`}>
+        <div className="field source-pdf-field">
+          <span className="field-label">PDF</span>
+          {source.pdf ? (
+            <>
+              <span className="source-pdf-name">{source.pdf.name}</span>
+              <span className="source-pdf-size">{source.pdf.byteLength < 1024
+                ? `${source.pdf.byteLength} B`
+                : `${(source.pdf.byteLength / 1024).toFixed(1)} KB`}</span>
+              <div className="item-actions">
+                <button type="button" onClick={() => onOpenPdf?.(source.id)}>Open beside</button>
+                <button type="button" className="is-danger" onClick={() => patch({ pdf: undefined })}>Remove PDF</button>
+              </div>
+            </>
+          ) : (
+            <label className="source-pdf-attach">
+              <span>Attach PDF…</span>
+              <input type="file" accept="application/pdf,.pdf" aria-label="Attach PDF" onChange={(event) => {
+                const file = event.currentTarget.files?.[0];
+                event.currentTarget.value = "";
+                if (file) void onAttachPdf?.(source.id, file);
+              }} />
+            </label>
+          )}
+        </div>
         {source.lookupNote && (
           <p className="research-hint">
             {source.lookupNote} -- review the details
@@ -645,7 +692,8 @@ export function ResearchPanel({
   const cited = data.sources.filter((s) =>
     data.footnotes.some((f) => f.sourceId === s.id),
   );
-  const entries = bibliography({ ...data, sources: cited });
+  const entries: BibliographyItem[] =
+    bibliographyProp ?? bibliography({ ...data, sources: cited });
 
   return (
     <section
@@ -961,11 +1009,17 @@ export function ResearchPanel({
             <summary>Bibliography</summary>
             {entries.length ? (
               <ol>
-                {entries.map((entry) => (
-                  <li key={entry.id}>
-                    <Cite parts={entry.parts} />
-                  </li>
-                ))}
+                {entries.map((entry) =>
+                  entry.heading ? (
+                    <li key={entry.id} className="bibliography-heading">
+                      {entry.text}
+                    </li>
+                  ) : (
+                    <li key={entry.id}>
+                      <Cite parts={entry.parts} />
+                    </li>
+                  ),
+                )}
               </ol>
             ) : (
               <p className="research-hint">

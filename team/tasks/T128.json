@@ -1,0 +1,57 @@
+{
+  "id": "T128",
+  "title": "native-reliability fails: attachments mirror file missing after saving an image project (blocks U21 Validation step 6)",
+  "description": "Found by agent-272b during the T105 (U8) review. After a FRESH smoke rebuild, both suites fail identically: 'Native reliability suite blocked or failed: Attachments mirror file is missing after saving image project'. Repro: python3 scripts/native-reliability.py --suite baseline (exit 1) and --suite beta (exit 1); logs node_modules/.cache/personal-word-beta/ui2-u8-review/native-baseline2.log and native-beta2.log; the smoke build log is ui2-u8-review/smoke-build.log (exit 0). A run BEFORE that rebuild failed with 'Diagnostic binary predates a D1 source input; rebuild it before launch', so the binary staleness is separate and now cleared. The check that fails is scripts/native-reliability.py around line 1388: after the asset-reopen scenario, it requires <db_dir>/attachments/<assetId>.png to exist beside the project DB. NOT attributed yet and NOT U8's: T105 touched no Rust and no asset code (its harness diff is navigation-only, click on the Projects tab instead of the old project-switch text). Prime suspect is U18/T124, which added a PDF mirror loop (pdf_ids) to src-tauri/src/store.rs write_attachments; its reviewer (agent-f4ea) confirmed the image loop is unchanged by reading and ran cargo plus vitest but NEVER ran native-reliability, and the plan only requires native-reliability in U19 and U21. Read that check takes no per-scenario flag, so the cheapest attribution is to run the asset scenario against a scratch build with the U18 Rust hunk reverted, or to instrument read_database(asset_work) to see whether the asset row or only the mirror file is missing. Must be clean before U21 Validation step 6 (it expects baseline 13+5 and beta 19+42 at exit 0). Do not register docs/design-system.md. Two evidence notes: the mirror loop in store.rs lines 386-401 still queries the DB and writes each referenced image, so a plain code read does not explain it; and the message is the same for both suites.",
+  "status": "done",
+  "owner": null,
+  "priority": 1,
+  "depends_on": [],
+  "files": [
+    "tests/native-reliability.js",
+    "node_modules/.cache/personal-word-beta/team-serial-check-slot"
+  ],
+  "review_required": true,
+  "created_by": "agent-272b",
+  "created_at": "2026-10-27T07:11:45+00:00",
+  "claimed_at": "2026-10-27T07:12:33+00:00",
+  "updated_at": "2026-10-27T07:30:56+00:00",
+  "handoff": null,
+  "review": {
+    "by": "agent-a3c2",
+    "at": "2026-10-27T07:30:56+00:00",
+    "verdict": "approved",
+    "note": "Coordinator review: root cause well evidenced (pre-fix progress.log lacks the alt-input wait; revision stayed 2; write_attachments had nothing to mirror). Fix in tests/native-reliability.js opens More formatting when the image input is absent and waits/throws instead of silently skipping the save -- the silent skip was the real defect. Quiet-run results: cargo 57 passed/1 ignored; native-reliability baseline 13+5 and beta 19+42 PASS; Rust exonerated. Real user flow checked (More closes only on outside pointerdown; modal file dialog sends none; Chromium scratch 2/2) -- not a product bug; native confirmation stays an owner hand-check. metadata-close timeout did not reproduce quietly. native-smoke freeze split out as T129. Fail-first for the new throw path not separately rerun (accepted: the pre-fix runs are the failure)."
+  },
+  "log": [
+    {
+      "at": "2026-10-27T07:11:45+00:00",
+      "agent": "agent-272b",
+      "event": "created",
+      "note": ""
+    },
+    {
+      "at": "2026-10-27T07:12:33+00:00",
+      "agent": "agent-b406",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-10-27T07:12:33+00:00",
+      "agent": "agent-b406",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-10-27T07:30:31+00:00",
+      "agent": "agent-b406",
+      "event": "review requested",
+      "note": "ROOT CAUSE (harness, not persistence): tests/native-reliability.js asset-restart scenario (old line ~541) did 'if (fileInput) { insert image and save }' and silently skipped the save when the hidden input[type=file][accept*=image] was absent. Wave-2 toolbar widening now overflows the Insert group into the More formatting popover at the 1240x840 native window, and the popover (src/components/Popover.tsx, returns null while unmounted; HEAD PanelButton also rendered children only when open) keeps the input unmounted. So no image was ever inserted, the project stayed at revision 2, and write_attachments correctly had nothing to mirror. Evidence: pre-fix run d1/runs/20261027T071002Z-62e4d4b3/asset-crash/progress.log has no 'wait alt input dialog' or 'edit became pending' for asset-restart and report-2.json shows revision 2 with no image. Chromium scratch spec at 1240x840: Insert in More = true, file input count before opening More = 0.\nRUST EXONERATED: U18/T124 store.rs pdf_ids mirror loop is not involved; T124's reviewer read was right. cargo test --locked --offline --jobs 1: 57 passed, 0 failed, 1 ignored (t128/cargo.log).\nFIX: tests/native-reliability.js only. If the image input is absent, mark 'insert hidden, opening More formatting', click button[aria-label=More formatting], then wait for the input (throws after the normal wait limit) instead of skipping. Post-fix progress.log shows: insert hidden, opening More formatting / ok image file input / ok alt input dialog; final databaseRevision 3 and the attachments mirror matches. Fail-first: the pre-fix runs above are the shown failure (exit 1, same message); a doctored-copy rerun of the new throw path would need another full smoke rebuild, not done.\nREAL USER FLOW (coordinator question): not a product bug. More closes only on pointerdown outside [data-toolbar-panel] (Writer.tsx ~673); a modal file dialog sends no pointer events to the page. Chromium scratch spec at 1240 and 1000: open More, Insert image, simulated blur/visibilitychange while the chooser is open, input stays mounted (count 1), setFiles, alt dialog, image inserted and Saved (2/2 pass, t128/more-insert.log). WKWebView reasoning: the NSOpenPanel is modal to the window and does not dispatch DOM pointerdown, so the same holds; not natively verified by hand. No frontend change.\nQUIET-RUN RESULTS (no other folio/playwright/vite processes, fresh smoke build t128/smoke-build.log exit 0): native-reliability baseline PASSED exit 0, 13 passed + 5 controls detected (t128/baseline.log). beta PASSED exit 0, 19 passed + 42 controls detected (t128/beta.log). native-smoke FAILED exit 1: phase 1 did not quit after 'ok native paragraph pagination' (t128/smoke.log) -- reproduces quiet, separate cause, filed as T129 (Chromium does not reproduce; likely WebKit/page view plus open More popover).\nOTHER SYMPTOMS: metadata-close timeout (run 20261027T070530Z) did NOT reproduce on the quiet baseline (metadata-close passed). 'expected Acknowledged SQLite checkpoint, found Journaled recovery after deliberate kill' was not reached in my smoke run (phase 1 hangs first), so it is unknown; T129 should recheck once phase 1 quits.\nPRODUCT NOTE for the user: at the default 1240px window, Insert image, Page view and several other groups now live under More formatting. Whether that is intended is a U6 question, not decided here.\nLogs: node_modules/.cache/personal-word-beta/t128/"
+    },
+    {
+      "at": "2026-10-27T07:30:56+00:00",
+      "agent": "agent-a3c2",
+      "event": "approved",
+      "note": "Coordinator review: root cause well evidenced (pre-fix progress.log lacks the alt-input wait; revision stayed 2; write_attachments had nothing to mirror). Fix in tests/native-reliability.js opens More formatting when the image input is absent and waits/throws instead of silently skipping the save -- the silent skip was the real defect. Quiet-run results: cargo 57 passed/1 ignored; native-reliability baseline 13+5 and beta 19+42 PASS; Rust exonerated. Real user flow checked (More closes only on outside pointerdown; modal file dialog sends none; Chromium scratch 2/2) -- not a product bug; native confirmation stays an owner hand-check. metadata-close timeout did not reproduce quietly. native-smoke freeze split out as T129. Fail-first for the new throw path not separately rerun (accepted: the pre-fix runs are the failure)."
+    }
+  ]
+}

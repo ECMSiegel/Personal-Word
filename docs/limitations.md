@@ -17,10 +17,14 @@ Part 1 lists what is still true today. Part 2 lists issues that were fixed, newe
 - **Writing aids are optional heuristics.** Prose checks can be wrong; they never correct text. Goals count manuscript sections only, and daily baselines reset by the local date. When a section has an extreme number of flagged words, only the issues nearest the cursor are shown (the panel says so) so typing stays responsive.
 - **Native title bar follows the in-app theme only in the Mac app.** The choice of Light or Dark is passed to the window title bar through Tauri; browser builds do nothing, and only the Mac app shows whether it matches.
 - **Drag-and-drop import is checked in the browser, not by hand on the Mac.** The Mac path (Tauri drop event, the dropped-file read command, the highlight in WebKit) has native suite runs but no hand drag from Finder yet; the owner check is pending.
+- **Split view is global in ratio and per project in layout.** The divider ratio is remembered globally; which entry is open beside is remembered per project. Opening or closing a split resets the left pane's undo history and scroll position (no text is lost), and the footer page number can lag one update after switching panes.
+- **Source PDFs stay in the project folder.** A PDF attached to a source (25 MB cap) is stored with the project and drawn locally; it is not carried inside the project's `.json` archive or the Markdown bundle, so a project moved that way loses the attachment even though the bytes stay in the original project.
+- **Toolbar label mode is a measured trade-off.** The format bar switches to labels when the bar is 1100 px or wider; at a 1440 px window that keeps about 6 of 13 groups on the bar and moves the rest into More, while icons-only mode keeps nearly all of them. The threshold is one constant (`LABEL_MIN_WIDTH` in `src/Writer.tsx`).
 - **Native screenshots are 1x.** The native capture tool saves 1240x840 pixels, soft on Retina displays; the open create panel is not captured natively.
 
 ### (b) Known issues still open
 
+- **Undo after deleting an empty footnote.** Backspace in an empty footnote that cites no source removes its numbered marker and its empty record together. Undo brings back the marker only, so that note has to be typed again.
 - **PDF tables do not repeat the header row on continuation pages.** Word export marks the header row to repeat (confirmed by the owner in Word).
 - **Zip header size cap.** A zip whose headers understate an entry's size is rejected only after that entry is unpacked, so a hostile file can cost memory first. The owner accepted this as a documented beta limit (Q003).
 - **Citation after a block quotation.** A citation inserted after a block quotation can appear after the block rather than inside its final paragraph. Review the placement before export.
@@ -29,10 +33,17 @@ Part 1 lists what is still true today. Part 2 lists issues that were fixed, newe
 - **Large projects can slow writing aids.** Goal and citation summaries currently recompute across the project during renders.
 - **Native print stopped.** A native WebKit print probe could not produce searchable Arabic: Arabic text containing the lam-alef ligature (for example السلام) could not be searched in its PDF with 26 of the 28 installed fonts tried. The probe exists only in a diagnostic build. The legacy PDF exporter remains the only PDF path, and exact native PDF preview and flowing per-page footnotes are cancelled (Q004, WP9/WP10). A bundled open-licence Arabic body font and a new probe are the recorded route to reconsider it.
 
+- **Passage restore can be overwritten while saving (pre-existing, single pane too).** Restoring a passage writes the content and then waits for the save queue before remounting the editors; typing into the restored entry during that wait overwrites the restore. Recorded in the [later-fixes plan](agent-work/2026-10-25-later-fixes/PLAN.md) as L16.
+- **The More menu stays open after clicking one of its rows.** Closing it needs Escape or a click outside; it is also the cause of the split-view menus browser-test flake (about 2 in 20 runs).
+- **A PDF removed while it is open beside leaves the pane showing an alert.** Removing the PDF (or deleting its source) while it is open in the right pane shows "This PDF is not stored in this project." instead of closing the pane; `prune()` in `src/split.ts` checks that the source exists, not that it still has a PDF.
+- **The PDF size label only counts up to KB.** A 25 MB PDF is shown as "25600.0 KB".
+
 ## Part 2 -- Resolved issues
 
 Newest first. Task IDs are board tasks.
 
+- 2026-10-27 -- T110 cycle 2 / T111: split view shipped with its data-safety repairs. A fragment card edit is no longer lost when the same fragment is open in the right pane, Append to section into the unfocused pane no longer overwrites it, and the six raw active-entry jumps close the split first.
+- 2026-10-27 -- T098-T129 (UI wave 2): motion, the shared Popover, the create-menu morph, toolbar label mode, sliding selection, the sidebar title row and switches, split view, section colours, templates, the Bibliography page and PDF attachments. Results and boundaries: [validation record](validation.md).
 - 2026-10-26 -- T091: sidebar entry titles are 13 px and their word counts 12 px muted, so the row reads as title then count.
 - 2026-10-26 -- T092: the move arrows no longer cover the word count; the count fades out while the arrows show.
 - 2026-10-26 -- T095: Goal scope and Goal day in Settings use the app's own dropdown, in the interface font with square corners.

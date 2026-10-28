@@ -2,29 +2,93 @@
   "id": "T104",
   "title": "UI wave 2 U7: Sliding selection in Segmented and the sidebar; the new selected look (E part 2, J)",
   "description": "Plan task U7. Follow docs/agent-work/2026-10-26-ui-wave-2/PLAN.md exactly: this task's section (Files, Interfaces, Steps, Acceptance check, Fail-first, Stop-and-ask, Default) plus the seven answered Open questions and the Notes for the implementer. Protocol: register the serial check slot via files add only right before the first expensive check and keep it until done; pinned Node; quoted --outDir; no installs, no commits; status CLAIMED; independent review required.",
-  "status": "available",
+  "status": "done",
   "owner": null,
   "priority": 1,
-  "depends_on": [
-    "T101",
-    "T103"
-  ],
+  "depends_on": [],
   "files": [
-    "node_modules/.cache/personal-word-beta/ui2-u7"
+    "node_modules/.cache/personal-word-beta/ui2-u7",
+    "src/components/Segmented.tsx",
+    "src/components/segmented.css",
+    "src/components/ProjectSidebar.tsx",
+    "src/styles.css",
+    "src/palette.test.ts",
+    "tests/appearance.spec.ts",
+    "tests/layout.spec.ts",
+    "tests/motion-u7.spec.ts",
+    "AGENTS.md",
+    "node_modules/.cache/personal-word-beta/team-serial-check-slot"
   ],
   "review_required": true,
   "created_by": "agent-3405",
   "created_at": "2026-10-26T21:02:18+00:00",
-  "claimed_at": null,
-  "updated_at": "2026-10-26T21:02:18+00:00",
-  "handoff": null,
-  "review": null,
+  "claimed_at": "2026-10-27T03:28:59+00:00",
+  "updated_at": "2026-10-27T06:17:47+00:00",
+  "handoff": {
+    "by": "agent-54b6",
+    "at": "2026-10-27T03:18:28+00:00",
+    "text": "released"
+  },
+  "review": {
+    "by": "agent-0f57",
+    "at": "2026-10-27T06:17:47+00:00",
+    "verdict": "approved",
+    "note": "APPROVED by agent-0f57 (Sonnet reviewer). Diff read: Segmented.tsx/segmented.css (.segmented-highlight first child, container relative, buttons transparent z1, pressed fill rule deleted), ProjectSidebar.tsx (one .sidebar-highlight first child of .sidebar-groups and .sidebar-bottom-groups, both relative; target = first non-cards .entry-row.selected else .group-title.selected; slideHighlight from src/motion.ts, no new motion code; ResizeObserver places instantly), styles.css selected look (Plain --text + 600 via .sidebar .selected; Plain-only :active override beats generic .sidebar .group-title:active accent; Color :active entry rule uses --tint), AGENTS.md sentence per plan, no docs/design-system.md edit (DESIGN DOC text is in the note), layout.spec.ts unchanged as planned. Fail-first logs real (ui2-u7/failfirst-*.log: 5 expected failures, 2 strengthened motion failures, active-colour failure on pre-U7 dist). Assertions only changed where U7 requires (blue -> rgb(36,36,40)); the sections:{...} edits in appearance.spec/palette.test belong to U10 not U7. FRESH RUN (my own build ui2-u7-review/dist, port 1598): vitest palette/designTokens/motion 38/38; tsc exit 0; Playwright appearance+layout+sidebar-selection+motion-u7 = 29/29 (3.0m), incl. 190px no-wrap and both transform/opacity motion cases. My extra probe (12 sections, 520px viewport, sidebar scrolled 80px): highlight within 1px of selected row when scrolled, after keyboard Enter selection, and bottom highlight on Settings; Plain light/dark selected colour rgb(36,36,40)/rgb(237,237,240) weight 600; Color light/dark rgb(0,98,205)/rgb(65,160,255); reduced motion = 0 animations. Native smoke rebuild exit 0, native-screens plain and color both exit 0 (10 PNGs each). VIEWED: browser writing Plain Light/Dark, Color Light, Settings Plain Light, Settings Color Dark, author's plain-light and color-dark; native Plain writing-light, native Plain settings-dark, native Color research-dark: selected entry semibold on 6% fill, no blue in Plain sidebar, orange/blue tints in Color. NON-BLOCKING NOTES for later tasks: (1) the Settings bottom row highlight is a tight 57px chip around the label (group-title button is content width) while entries get full-row fill; U9 (fixed bottom rows) could make the bottom rows full width. (2) Plain still shows accent blue momentarily while pressing an UNSELECTED sidebar row (.sidebar .group-title:active / .entry-main:active, pre-existing, not selected). (3) Color :active on a selected group-title uses accent not its tint (rare). (4) A previously selected entry keeps its fill/semibold while Settings/Research is the destination (pre-existing semantics). LIMIT: Chromium preview plus native WebKit screenshots only; no owner real-use proof."
+  },
   "log": [
     {
       "at": "2026-10-26T21:02:18+00:00",
       "agent": "agent-3405",
       "event": "created",
       "note": ""
+    },
+    {
+      "at": "2026-10-27T03:12:33+00:00",
+      "agent": "agent-a3c2",
+      "event": "dependencies changed",
+      "note": "owner-authorised re-gate (decision 'Wave 2 lanes 2'): ['T101', 'T103'] -> []"
+    },
+    {
+      "at": "2026-10-27T03:17:39+00:00",
+      "agent": "agent-54b6",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-10-27T03:17:52+00:00",
+      "agent": "agent-54b6",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-10-27T03:18:28+00:00",
+      "agent": "agent-54b6",
+      "event": "handoff",
+      "note": "released"
+    },
+    {
+      "at": "2026-10-27T03:28:59+00:00",
+      "agent": "agent-54b6",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-10-27T03:29:10+00:00",
+      "agent": "agent-54b6",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-10-27T05:42:36+00:00",
+      "agent": "agent-54b6",
+      "event": "review requested",
+      "note": "Implemented the sliding segmented and sidebar selection highlights with shared slideHighlight motion, preserved card treatment, and updated Plain/Color selected text behavior including active presses. Added geometry and transform/opacity motion coverage; updated the palette token test and AGENTS.md UI rule.\\n\\nVerification: fail-first against pre-U7 build: appearance/layout/motion baseline 20 passed and 5 expected failures; strengthened motion-u7 2 expected failures; active-color assertion failed against the old build. Focused Vitest 38/38 passed; TypeScript exit 0; Vite production build exit 0; final PREVIEW(7) acceptance 44/44 passed across appearance, layout, sidebar-selection, motion, features, and motion-u7. git diff --check passed. Viewed screenshots for Plain and Color in light and dark: node_modules/.cache/personal-word-beta/ui2-u7/screens/.\\n\\nLIMIT: Chromium production-preview evidence only; no native WebKit or owner real-use proof.\\n\\nDESIGN DOC: Selected sidebar rows are semibold on the selected-row fill (6% text), which slides between rows: text colour in Plain; in Color the row takes its section tint (Read, Comments, History and Settings use --accent). Supersedes Q007\\u2019s blue in Plain. Segmented pressed fill slides to the selected option."
+    },
+    {
+      "at": "2026-10-27T06:17:47+00:00",
+      "agent": "agent-0f57",
+      "event": "approved",
+      "note": "APPROVED by agent-0f57 (Sonnet reviewer). Diff read: Segmented.tsx/segmented.css (.segmented-highlight first child, container relative, buttons transparent z1, pressed fill rule deleted), ProjectSidebar.tsx (one .sidebar-highlight first child of .sidebar-groups and .sidebar-bottom-groups, both relative; target = first non-cards .entry-row.selected else .group-title.selected; slideHighlight from src/motion.ts, no new motion code; ResizeObserver places instantly), styles.css selected look (Plain --text + 600 via .sidebar .selected; Plain-only :active override beats generic .sidebar .group-title:active accent; Color :active entry rule uses --tint), AGENTS.md sentence per plan, no docs/design-system.md edit (DESIGN DOC text is in the note), layout.spec.ts unchanged as planned. Fail-first logs real (ui2-u7/failfirst-*.log: 5 expected failures, 2 strengthened motion failures, active-colour failure on pre-U7 dist). Assertions only changed where U7 requires (blue -> rgb(36,36,40)); the sections:{...} edits in appearance.spec/palette.test belong to U10 not U7. FRESH RUN (my own build ui2-u7-review/dist, port 1598): vitest palette/designTokens/motion 38/38; tsc exit 0; Playwright appearance+layout+sidebar-selection+motion-u7 = 29/29 (3.0m), incl. 190px no-wrap and both transform/opacity motion cases. My extra probe (12 sections, 520px viewport, sidebar scrolled 80px): highlight within 1px of selected row when scrolled, after keyboard Enter selection, and bottom highlight on Settings; Plain light/dark selected colour rgb(36,36,40)/rgb(237,237,240) weight 600; Color light/dark rgb(0,98,205)/rgb(65,160,255); reduced motion = 0 animations. Native smoke rebuild exit 0, native-screens plain and color both exit 0 (10 PNGs each). VIEWED: browser writing Plain Light/Dark, Color Light, Settings Plain Light, Settings Color Dark, author's plain-light and color-dark; native Plain writing-light, native Plain settings-dark, native Color research-dark: selected entry semibold on 6% fill, no blue in Plain sidebar, orange/blue tints in Color. NON-BLOCKING NOTES for later tasks: (1) the Settings bottom row highlight is a tight 57px chip around the label (group-title button is content width) while entries get full-row fill; U9 (fixed bottom rows) could make the bottom rows full width. (2) Plain still shows accent blue momentarily while pressing an UNSELECTED sidebar row (.sidebar .group-title:active / .entry-main:active, pre-existing, not selected). (3) Color :active on a selected group-title uses accent not its tint (rare). (4) A previously selected entry keeps its fill/semibold while Settings/Research is the destination (pre-existing semantics). LIMIT: Chromium preview plus native WebKit screenshots only; no owner real-use proof."
     }
   ]
 }

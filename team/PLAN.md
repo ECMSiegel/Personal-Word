@@ -65,7 +65,7 @@ Run expensive builds, Playwright, cargo, and native checks one at a time, in the
 - [x] Every task on the team board is done and required independent reviews are complete.
 - [x] Cheap-fixes plan (2026-10-25) tasks T1-T8 are done with independent reviews, the plan's validation list has run, and README/validation.md no longer list the fixed items.
 - [x] UI polish plan (2026-10-25) tasks T0-T11 are done with independent reviews, its validation list has run, native screenshots were viewed, and the owner hand checks are prepared with status CLAIMED.
-- [ ] UI wave 2 plan (2026-10-26) tasks U1-U21 are done with independent reviews, its validation list has run, native screenshots were viewed, and the owner hand checks are prepared with status CLAIMED.
+- [x] UI wave 2 plan (2026-10-26) tasks U1-U21 are done with independent reviews, its validation list has run, native screenshots were viewed, and the owner hand checks are prepared with status CLAIMED.
 
 ## Milestones
 1. Reconcile the current working tree and existing implementation/review reports before assigning remaining work.

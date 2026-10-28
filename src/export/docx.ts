@@ -290,13 +290,18 @@ export async function exportDocx(
                 }),
                 ...d.bibliography.map(
                   (b) =>
-                    new Paragraph({
-                      indent: { left: 720, hanging: 720 },
-                      spacing: { line: 240, after: 240 },
-                      children: b.parts.map(
-                        (p) => new TextRun({ text: p.text, italics: p.italic }),
-                      ),
-                    }),
+                    b.heading
+                      ? new Paragraph({
+                          children: [new TextRun({ text: b.text, bold: true })],
+                          spacing: { before: 240, after: 120 },
+                        })
+                      : new Paragraph({
+                          indent: { left: 720, hanging: 720 },
+                          spacing: { line: 240, after: 240 },
+                          children: b.parts.map(
+                            (p) => new TextRun({ text: p.text, italics: p.italic }),
+                          ),
+                        }),
                 ),
               ]
             : []),

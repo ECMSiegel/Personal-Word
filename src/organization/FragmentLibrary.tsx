@@ -14,7 +14,7 @@ export function FragmentLibrary({
   onOpen,
   onCopy,
   onTags,
-  activeId,
+  activeIds,
   onEdit,
   onInsert,
   onAppend,
@@ -25,8 +25,8 @@ export function FragmentLibrary({
   onOpen: (id: string) => void;
   onCopy: (source: Project, fragment: Entry) => void;
   onTags: (id: string, tags: string[]) => void;
-  /** Entry currently open in the main editor; shown read-only here. */
-  activeId?: string;
+  /** Entries currently open in an editor pane; shown read-only here. */
+  activeIds?: string[];
   onEdit?: (id: string, content: JSONContent, text: string) => void;
   onInsert?: (fragment: Entry) => void;
   onAppend?: (fragment: Entry, sectionId: string) => void;
@@ -95,7 +95,7 @@ export function FragmentLibrary({
           source={p}
           entry={e}
           current={p.id === project.id}
-          active={e.id === activeId}
+          active={!!activeIds?.includes(e.id)}
           open={expanded[p.id + e.id] ?? scope.length <= 3}
           onToggle={() =>
             setExpanded((x) => ({
@@ -276,7 +276,7 @@ function FragmentItem({
                 title="Delete fragment"
                 onClick={() => onDelete(entry)}
               >
-                <Trash2 size={14} aria-hidden="true" />
+                <Trash2 size={16} aria-hidden="true" />
               </button>
             )}
           </div>

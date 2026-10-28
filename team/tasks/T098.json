@@ -2,26 +2,92 @@
   "id": "T098",
   "title": "UI wave 2 U1: Motion tokens and a motion-safe stylesheet sweep (A, part 1)",
   "description": "Plan task U1. Follow docs/agent-work/2026-10-26-ui-wave-2/PLAN.md exactly: this task's section (Files, Interfaces, Steps, Acceptance check, Fail-first, Stop-and-ask, Default) plus the seven answered Open questions and the Notes for the implementer. Protocol: register the serial check slot via files add only right before the first expensive check and keep it until done; pinned Node; quoted --outDir; no installs, no commits; status CLAIMED; independent review required.",
-  "status": "available",
+  "status": "done",
   "owner": null,
   "priority": 1,
   "depends_on": [],
   "files": [
-    "node_modules/.cache/personal-word-beta/ui2-u1"
+    "node_modules/.cache/personal-word-beta/ui2-u1",
+    "src/styles.css",
+    "src/editor/editor.css",
+    "src/research/research.css",
+    "src/components/library.css",
+    "src/components/ProjectLibrary.tsx",
+    "tests/projects-screen.spec.ts",
+    "docs/design-system.md",
+    "src/motion.test.ts",
+    "node_modules/.cache/personal-word-beta/team-serial-check-slot"
   ],
   "review_required": true,
   "created_by": "agent-3405",
   "created_at": "2026-10-26T21:02:14+00:00",
-  "claimed_at": null,
-  "updated_at": "2026-10-26T21:02:14+00:00",
-  "handoff": null,
-  "review": null,
+  "claimed_at": "2026-10-26T21:57:22+00:00",
+  "updated_at": "2026-10-26T22:34:17+00:00",
+  "handoff": {
+    "by": "agent-a017",
+    "at": "2026-10-26T21:52:01+00:00",
+    "text": "REJECT (reviewer agent-a017). Two visible defects; everything else passes.\nPROBLEM 1 -- stop-and-ask item hit: Chromium shows the field border when the search is CLOSED. src/components/library.css:20 clip-path: inset(1px 1px 1px calc(100% - 27px)) puts the clip edge exactly on the border's inner edge; in Chromium a ~26px-wide row of --line at ~50% intensity shows along the slot's top edge above the magnifier (raw pixels 237,238,240 on 255 white light; 48,48,52 on 32,32,35 dark; both palettes, 1440x900 and 850x600; bottom/sides clean). Native WebKit is clean (see below). FIX: keep the closed clip edge at least 1px inside the border, e.g. inset(2px 2px 2px calc(100% - 26px)) (button is 26x26 at 1..27; icon is 15px so nothing visible is lost), then re-screenshot closed in Chromium and confirm the slot's top row has no non-background pixels.\nPROBLEM 2 -- open field: placeholder/typed text is flush against the left border and focus ring (the S of 'Search projects' touches the ring; light-850-open-left8x.png). Cause: row-reverse moved the input to the LEFT of the magnifier but src/components/library.css:52 '.library-search-field > input { padding: 0 var(--space-2) 0 0 }' still pads the right (button) side. FIX: padding: 0 0 0 var(--space-2) (or both sides). Same CSS in every engine, so a regression natively too.\nCHECKS RUN: tsc --noEmit exit 0. vitest motion+designTokens+palette 3 files 22/22. npm test --no-file-parallelism --maxWorkers=1: 52 files 906/906, exit 0 (ui2-u1-review/unit.log). vite build to ui2-u1-review/dist exit 0. Playwright port 1591 projects-screen+appearance+layout+sidebar-selection 55/55, retries 0 (ui2-u1-review/pw.log). Fail-first on a scratch copy (deleted after): editor.css focus-dim back to 140ms -> (b) fails 1/7 naming editor.css; plus width transition, 0.2s longhand, @keyframes, --duration-base 200ms -> (a)(b)(c)(d)(e) fail 5/7. motion.test.ts genuinely asserts (a)-(f) (minor: (b) checks only the first time in a shorthand item, so a literal delay would slip; (e) matches the first occurrence anywhere, not scoped to :root -- not blocking). grep for literal transition times: no output. grep transition/animation/@keyframes over all 8 src css files: only the tokenised declarations plus the reduced-motion 'none' blocks -- nothing missed. ProjectLibrary.tsx: wrapper only; every attribute, id, aria label, ref, handler and button-then-input order unchanged; data-open stays on .library-search. Geometry (open, Chromium): 1440 field 671.8-891.8 vs create right 588.2, Sort label from 907.8; 850 field 361.8-581.8 vs create right 308.2, Sort from 597.8 -> no overlap, that stop-and-ask item NOT triggered. Smoke rebuild (debug, native-smoke) exit 0 (ui2-u1-review/smoke.log); native-screens 10 PNGs exit 0.\nSCREENSHOTS VIEWED: chromium/light-850-closed.png (faint line visible above magnifier); chromium/light-1440-closed-zoom.png + crop8x (line above magnifier); chromium/dark-1440-closed-zoom.png and dark-850-closed-crop8x.png (same line, dark); chromium/light-850-open-zoom.png (open field clear of create button and Sort; text flush left); chromium/dark-1440-open-zoom.png (same, dark; ring visible inside border); chromium/light-850-open-left8x.png (S touching ring); native/projects-light.png (2x) and native/projects-dark.png (1x): closed magnifier clean, pixel scan of the slot found only icon rows, no border row. Native script cannot open search, so open-state WebKit not checked.\nDEVIATIONS: (1) 27px clip -- right intent (plan's 28px would box the magnifier) but insufficient in Chromium, see Problem 1. (2) focus ring at -3px on the open field, -2px on the magnifier when closed -- sound (clip-path clips outside outlines); open ring confirmed in screenshots, closed-state keyboard ring not visually verified. (3) data-open='true'/absent -- sound; React renders boolean true on data-* as 'true', so the plan's '' could never match."
+  },
+  "review": {
+    "by": "agent-a3c2",
+    "at": "2026-10-26T22:34:17+00:00",
+    "verdict": "approved",
+    "note": "Coordinator review of cycle 2: library.css:20 closed clip inset(2px 2px 2px calc(100% - 26px)) and :52 padding-left var(--space-2) fix both agent-a017 findings. New Playwright tests (closed-slot top-row pixel spread <=3 light+dark; open input paddingLeft>=4) failed on c1 per worker, pass now. pw3.log 57 passed; vitest 22/22. Viewed light-850-open.png: placeholder clear of left border. tsc exit 2 is only T122's in-progress unused imports in export files, not T098 paths. Native not rerun (tighter clip only; c1 native clean). Cycle-1 reviewer's minor test gaps (shorthand delay, :root scoping) noted, not blocking."
+  },
   "log": [
     {
       "at": "2026-10-26T21:02:14+00:00",
       "agent": "agent-3405",
       "event": "created",
       "note": ""
+    },
+    {
+      "at": "2026-10-26T21:13:13+00:00",
+      "agent": "agent-d4cf",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-10-26T21:13:15+00:00",
+      "agent": "agent-d4cf",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-10-26T21:39:49+00:00",
+      "agent": "agent-d4cf",
+      "event": "review requested",
+      "note": "U1 done. Files changed: src/styles.css (5 motion tokens; 4 transitions tokenised), src/editor/editor.css, src/research/research.css, src/components/library.css (search rewritten: .library-search 28x28 slot > .library-search-field clip-path reveal; create-panel line already on tokens), src/components/ProjectLibrary.tsx (wrapper div), tests/projects-screen.spec.ts, docs/design-system.md (Motion), new src/motion.test.ts. Fail-first: motion.test.ts on untouched tree -> 4 of 7 failed: (a) library.css width/border-color, (b) six literal durations (120ms,180ms x2,0.15s x2,140ms), (c) six non-token easings, (e) tokens missing. After: vitest motion+designTokens 13/13 pass; tsc exit 0; grep for literal transition times: no output. Playwright PREVIEW(1) port 1571 (projects-screen, appearance, layout, sidebar-selection): 54 passed, 1 failed first run (my spec asserted data-open=\"\" but React renders \"true\"; test-only fix), then projects-screen.spec.ts rerun 32/32 pass (log ui2-u1/pw3.log; first full log pw.log). Deviations: (1) closed clip is inset(1px 1px 1px calc(100% - 27px)) not 28px, so the field border is hidden when closed (plan's inset would show a box around the magnifier); (2) clip-path also clips outlines drawn outside the border box, so open focus ring uses outline-offset -3px on the field and the closed state shows the ring on the magnifier button (offset -2px); (3) spec checks data-open=\"true\"/absence. Not done: native WebKit check of clip border (plan stop-and-ask), no screenshots reviewed; only Chromium run. 850x600 field-vs-create-button test passes in Chromium."
+    },
+    {
+      "at": "2026-10-26T21:52:01+00:00",
+      "agent": "agent-a017",
+      "event": "rejected",
+      "note": "REJECT (reviewer agent-a017). Two visible defects; everything else passes.\nPROBLEM 1 -- stop-and-ask item hit: Chromium shows the field border when the search is CLOSED. src/components/library.css:20 clip-path: inset(1px 1px 1px calc(100% - 27px)) puts the clip edge exactly on the border's inner edge; in Chromium a ~26px-wide row of --line at ~50% intensity shows along the slot's top edge above the magnifier (raw pixels 237,238,240 on 255 white light; 48,48,52 on 32,32,35 dark; both palettes, 1440x900 and 850x600; bottom/sides clean). Native WebKit is clean (see below). FIX: keep the closed clip edge at least 1px inside the border, e.g. inset(2px 2px 2px calc(100% - 26px)) (button is 26x26 at 1..27; icon is 15px so nothing visible is lost), then re-screenshot closed in Chromium and confirm the slot's top row has no non-background pixels.\nPROBLEM 2 -- open field: placeholder/typed text is flush against the left border and focus ring (the S of 'Search projects' touches the ring; light-850-open-left8x.png). Cause: row-reverse moved the input to the LEFT of the magnifier but src/components/library.css:52 '.library-search-field > input { padding: 0 var(--space-2) 0 0 }' still pads the right (button) side. FIX: padding: 0 0 0 var(--space-2) (or both sides). Same CSS in every engine, so a regression natively too.\nCHECKS RUN: tsc --noEmit exit 0. vitest motion+designTokens+palette 3 files 22/22. npm test --no-file-parallelism --maxWorkers=1: 52 files 906/906, exit 0 (ui2-u1-review/unit.log). vite build to ui2-u1-review/dist exit 0. Playwright port 1591 projects-screen+appearance+layout+sidebar-selection 55/55, retries 0 (ui2-u1-review/pw.log). Fail-first on a scratch copy (deleted after): editor.css focus-dim back to 140ms -> (b) fails 1/7 naming editor.css; plus width transition, 0.2s longhand, @keyframes, --duration-base 200ms -> (a)(b)(c)(d)(e) fail 5/7. motion.test.ts genuinely asserts (a)-(f) (minor: (b) checks only the first time in a shorthand item, so a literal delay would slip; (e) matches the first occurrence anywhere, not scoped to :root -- not blocking). grep for literal transition times: no output. grep transition/animation/@keyframes over all 8 src css files: only the tokenised declarations plus the reduced-motion 'none' blocks -- nothing missed. ProjectLibrary.tsx: wrapper only; every attribute, id, aria label, ref, handler and button-then-input order unchanged; data-open stays on .library-search. Geometry (open, Chromium): 1440 field 671.8-891.8 vs create right 588.2, Sort label from 907.8; 850 field 361.8-581.8 vs create right 308.2, Sort from 597.8 -> no overlap, that stop-and-ask item NOT triggered. Smoke rebuild (debug, native-smoke) exit 0 (ui2-u1-review/smoke.log); native-screens 10 PNGs exit 0.\nSCREENSHOTS VIEWED: chromium/light-850-closed.png (faint line visible above magnifier); chromium/light-1440-closed-zoom.png + crop8x (line above magnifier); chromium/dark-1440-closed-zoom.png and dark-850-closed-crop8x.png (same line, dark); chromium/light-850-open-zoom.png (open field clear of create button and Sort; text flush left); chromium/dark-1440-open-zoom.png (same, dark; ring visible inside border); chromium/light-850-open-left8x.png (S touching ring); native/projects-light.png (2x) and native/projects-dark.png (1x): closed magnifier clean, pixel scan of the slot found only icon rows, no border row. Native script cannot open search, so open-state WebKit not checked.\nDEVIATIONS: (1) 27px clip -- right intent (plan's 28px would box the magnifier) but insufficient in Chromium, see Problem 1. (2) focus ring at -3px on the open field, -2px on the magnifier when closed -- sound (clip-path clips outside outlines); open ring confirmed in screenshots, closed-state keyboard ring not visually verified. (3) data-open='true'/absent -- sound; React renders boolean true on data-* as 'true', so the plan's '' could never match."
+    },
+    {
+      "at": "2026-10-26T21:57:22+00:00",
+      "agent": "agent-197d",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-10-26T21:57:26+00:00",
+      "agent": "agent-197d",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-10-26T22:33:45+00:00",
+      "agent": "agent-197d",
+      "event": "review requested",
+      "note": "cycle 2: (1) library.css closed clip now inset(2px 2px 2px calc(100% - 26px)) (edge 1px inside the border; magnifier button 26x26 and 15px icon not clipped, seen in screenshots); (2) .library-search-field > input padding now 0 0 0 var(--space-2). Fail-first: two new specs in tests/projects-screen.spec.ts failed on the cycle-1 tree (closed slot top rows had 4 distinct colours 251,252,252|237,238,240|241,242,244|255,255,255 in light; input paddingLeft 0 < 4), pass after fix (pw-fail.log, pw3.log). Closed-slot spec checks the slot's top 3 pixel rows are flat (channel spread <=3; leak is 15+) in light and dark. Checks: vitest motion+designTokens+palette 22/22; Playwright (port 1572, projects-screen+appearance+layout+sidebar-selection) 57/57 retries 0 (ui2-u1-c2/pw3.log); vite build exit 0. tsc --noEmit exit 2 ONLY from other agents' uncommitted src/export/{document,textExport}.ts unused-var errors (not my files; my files clean). No native rebuild (change is a tighter clip + padding; native was clean). Screenshots viewed (ui2-u1-c2/): light-1440-closed clean, no line over magnifier; dark-1440-closed clean; light-850-closed clean (magnifier keyboard ring only); dark-850-closed clean (ring only); light-850-open text has clear gap from left border; dark-1440-open same. Not viewed: light-1440-open, dark-850-open."
+    },
+    {
+      "at": "2026-10-26T22:34:17+00:00",
+      "agent": "agent-a3c2",
+      "event": "approved",
+      "note": "Coordinator review of cycle 2: library.css:20 closed clip inset(2px 2px 2px calc(100% - 26px)) and :52 padding-left var(--space-2) fix both agent-a017 findings. New Playwright tests (closed-slot top-row pixel spread <=3 light+dark; open input paddingLeft>=4) failed on c1 per worker, pass now. pw3.log 57 passed; vitest 22/22. Viewed light-850-open.png: placeholder clear of left border. tsc exit 2 is only T122's in-progress unused imports in export files, not T098 paths. Native not rerun (tighter clip only; c1 native clean). Cycle-1 reviewer's minor test gaps (shorthand delay, :root scoping) noted, not blocking."
     }
   ]
 }

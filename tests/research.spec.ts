@@ -357,3 +357,78 @@ test("helper captions are gone; hints live in placeholder and a keyboard-reachab
   expect(tipId).toBeTruthy();
   await expect(lookup).toHaveAttribute("aria-describedby", tipId!);
 });
+
+test("Research sidebar lists Bibliography and sources; the Bibliography page orders, persists, matches Markdown and opens sources", async ({
+  page,
+}) => {
+  await page.goto("/");
+  await create(page, "Bibliography page");
+  const editor = page.getByRole("textbox", { name: "Writing editor" });
+  await editor.fill("Evidence here.");
+  await openResearch(page);
+  await page.getByRole("button", { name: "Enter manually" }).click();
+  await page.getByLabel("Title", { exact: true }).fill("Interior Chinatown");
+  await page.getByLabel("Authors", { exact: true }).fill("Charles Yu");
+  await page.getByLabel("Year", { exact: true }).fill("2020");
+  await page.getByRole("button", { name: "Cite here", exact: true }).click();
+  await expect(editor.locator("[data-footnote-id]")).toHaveText("1");
+  await page.getByRole("button", { name: "Enter manually" }).click();
+  await page.getByLabel("Title", { exact: true }).fill("Atlas of Tides");
+  await page.getByLabel("Authors", { exact: true }).fill("Ana Brook");
+  await page.getByLabel("Year", { exact: true }).fill("2019");
+  await page.getByRole("button", { name: "Source type", exact: true }).click();
+  await page.getByRole("option", { name: "Journal article", exact: true }).click();
+  await page.getByRole("button", { name: "Close research", exact: true }).click();
+
+  const research = page.locator('.sidebar [data-group="research"] .entry-main');
+  await expect(research).toHaveText([
+    "Bibliography",
+    "Yu -- Interior Chinatown (2020)",
+    "Brook -- Atlas of Tides (2019)",
+  ]);
+  await research.filter({ hasText: /^Bibliography$/ }).click();
+  const bibliographyPage = page.locator(".bibliography-page");
+  await expect(bibliographyPage.getByRole("heading", { name: "Bibliography", level: 1 })).toBeVisible();
+  await expect(page.locator(".breadcrumb")).toContainText("Bibliography");
+  const entries = bibliographyPage.locator(".bibliography-entries p");
+  await expect(entries).toHaveCount(1);
+  await expect(entries.first()).toContainText("Interior Chinatown");
+
+  await bibliographyPage.getByLabel("Include uncited sources").check();
+  await expect(entries).toHaveCount(2);
+  await expect(entries.nth(0)).toContainText("Atlas of Tides");
+  await expect(entries.nth(1)).toContainText("Interior Chinatown");
+  await bibliographyPage.getByRole("button", { name: "Bibliography order" }).click();
+  await page.getByRole("option", { name: "By source type" }).click();
+  await expect(bibliographyPage.locator(".bibliography-entries h2")).toHaveText(["Books", "Journal articles"]);
+  const pageLines = await bibliographyPage
+    .locator(".bibliography-entries > *")
+    .evaluateAll((nodes) => nodes.map((node) => (node.tagName === "H2" ? "### " : "- ") + node.textContent));
+
+  await expect(page.locator(".save-status")).toHaveText("Saved", { timeout: 10_000 });
+  await page.reload();
+  await page.locator(".project-row").filter({ hasText: "Bibliography page" }).locator("button").first().click();
+  await page.locator('.sidebar [data-group="research"] .entry-main').filter({ hasText: /^Bibliography$/ }).click();
+  await expect(bibliographyPage.getByLabel("Include uncited sources")).toBeChecked();
+  await expect(bibliographyPage.getByRole("button", { name: "Bibliography order" })).toHaveText(/By source type/);
+  await expect(bibliographyPage.locator(".bibliography-entries h2")).toHaveText(["Books", "Journal articles"]);
+
+  await page.getByRole("button", { name: "Read manuscript", exact: true }).click();
+  await expect(page.locator(".reader-bibliography h3")).toHaveText(["Books", "Journal articles"]);
+  await expect(page.locator(".reader-bibliography p")).toHaveCount(2);
+
+  await page.locator(".group-title").filter({ hasText: /^Settings$/ }).click();
+  const downloaded = page.waitForEvent("download");
+  await page.getByRole("button", { name: "Export Markdown", exact: true }).click();
+  const stream = await (await downloaded).createReadStream();
+  const chunks: Buffer[] = [];
+  for await (const chunk of stream!) chunks.push(Buffer.from(chunk));
+  const markdown = Buffer.concat(chunks).toString("utf8").replace(/\\(.)/g, "$1");
+  const block = markdown.split("## Bibliography")[1].split(/\n## /)[0];
+  const exported = block.split("\n").map((line) => line.trim()).filter(Boolean);
+  expect(exported).toEqual(pageLines);
+
+  await page.locator('.sidebar [data-group="research"] .entry-main').filter({ hasText: "Atlas of Tides" }).click();
+  await expect(page.locator(".research-panel")).toBeVisible();
+  await expect(page.getByLabel("Title", { exact: true })).toHaveValue("Atlas of Tides");
+});

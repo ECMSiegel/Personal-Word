@@ -9,6 +9,7 @@ import {
   type ReactNode,
 } from "react";
 import { Check, ChevronDown } from "lucide-react";
+import { Popover } from "./Popover";
 import "./dropdown.css";
 
 export type DropdownOption<T extends string> = {
@@ -18,6 +19,8 @@ export type DropdownOption<T extends string> = {
   render?: ReactNode;
   style?: CSSProperties;
   disabled?: boolean;
+  /** Keyboard shortcut hint, shown right-aligned and muted. */
+  shortcut?: string;
 };
 
 /**
@@ -48,7 +51,6 @@ export function Dropdown<T extends string>({
 }) {
   const [open, setOpen] = useState(false);
   const [highlight, setHighlight] = useState(0);
-  const [flip, setFlip] = useState({ horizontal: false, vertical: false });
   const button = useRef<HTMLButtonElement>(null);
   const menu = useRef<HTMLDivElement>(null);
   const typed = useRef({ text: "", at: 0 });
@@ -58,46 +60,8 @@ export function Dropdown<T extends string>({
     .map((o, i) => (o.disabled ? -1 : i))
     .filter((i) => i >= 0);
 
-  useEffect(() => {
-    if (!open) return;
-    const close = (event: PointerEvent) => {
-      const target = event.target as Node;
-      if (!menu.current?.contains(target) && !button.current?.contains(target))
-        setOpen(false);
-    };
-    document.addEventListener("pointerdown", close);
-    return () => document.removeEventListener("pointerdown", close);
-  }, [open]);
-
   useLayoutEffect(() => {
-    if (!open) {
-      setFlip({ horizontal: false, vertical: false });
-      return;
-    }
-    const place = () => {
-      const rect = menu.current?.getBoundingClientRect();
-      const trigger = button.current?.getBoundingClientRect();
-      const popup = menu.current;
-      if (!rect || !trigger || !popup) return;
-      const naturalHeight = popup.scrollHeight;
-      const below = window.innerHeight - trigger.bottom - 8;
-      const above = trigger.top - 8;
-      const vertical = naturalHeight > below && above > below;
-      popup.style.maxHeight = `${Math.max(
-        0,
-        Math.min(naturalHeight, vertical ? above : below),
-      )}px`;
-      setFlip({
-        horizontal:
-          trigger.left + rect.width > window.innerWidth - 8 &&
-          trigger.right - rect.width >= 8,
-        vertical,
-      });
-    };
-    menu.current?.focus();
-    place();
-    window.addEventListener("resize", place);
-    return () => window.removeEventListener("resize", place);
+    if (open) menu.current?.focus();
   }, [open]);
   useEffect(() => {
     if (!open) return;
@@ -199,49 +163,53 @@ export function Dropdown<T extends string>({
         <span className="dropdown-value" style={current?.style}>
           {current?.label ?? placeholder ?? ""}
         </span>
-        <ChevronDown size={13} aria-hidden="true" />
+        <ChevronDown size={14} aria-hidden="true" />
       </button>
-      {open && (
-        <div
-          ref={menu}
-          id={id}
-          className={
-            "dropdown-menu" +
-            (flip.horizontal ? " is-flipped" : "") +
-            (flip.vertical ? " is-flipped-up" : "")
-          }
-          role="listbox"
-          aria-label={label}
-          tabIndex={-1}
-          aria-activedescendant={`${id}-${highlight}`}
-          onKeyDown={onMenuKeyDown}
-        >
-          {options.map((option, index) => (
-            <div
-              key={option.value + index}
-              id={`${id}-${index}`}
-              data-index={index}
-              role="option"
-              aria-selected={option.value === value}
-              aria-disabled={option.disabled || undefined}
-              className={
-                "dropdown-option" +
-                (index === highlight ? " is-highlighted" : "") +
-                (option.value === value ? " is-current" : "")
-              }
-              style={option.style}
-              onPointerEnter={() => !option.disabled && setHighlight(index)}
-              onPointerDown={(event) => event.preventDefault()}
-              onClick={() => choose(index)}
-            >
-              <span className="dropdown-check" aria-hidden="true">
-                {option.value === value && <Check size={13} />}
+      <Popover
+        open={open}
+        anchor={button}
+        onDismiss={() => setOpen(false)}
+        role="listbox"
+        id={id}
+        label={label}
+        tabIndex={-1}
+        activeDescendant={`${id}-${highlight}`}
+        highlight={highlight}
+        onKeyDown={onMenuKeyDown}
+        ref={menu}
+        className="dropdown-menu"
+      >
+        {options.map((option, index) => (
+          <div
+            key={option.value + index}
+            id={`${id}-${index}`}
+            data-index={index}
+            data-popover-item=""
+            role="option"
+            aria-selected={option.value === value}
+            aria-disabled={option.disabled || undefined}
+            className={
+              "dropdown-option" +
+              (index === highlight ? " is-highlighted" : "") +
+              (option.value === value ? " is-current" : "")
+            }
+            style={option.style}
+            onPointerEnter={() => !option.disabled && setHighlight(index)}
+            onPointerDown={(event) => event.preventDefault()}
+            onClick={() => choose(index)}
+          >
+            <span className="dropdown-check" aria-hidden="true">
+              {option.value === value && <Check size={16} />}
+            </span>
+            {option.render ?? option.label}
+            {option.shortcut && (
+              <span className="popover-shortcut" aria-hidden="true">
+                {option.shortcut}
               </span>
-              {option.render ?? option.label}
-            </div>
-          ))}
-        </div>
-      )}
+            )}
+          </div>
+        ))}
+      </Popover>
     </div>
   );
 }

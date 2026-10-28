@@ -2,6 +2,12 @@
 
 Dated history, newest first, built from `git log --date=short` and [app history](app-history.md). [app-history.md](app-history.md) already gives a fuller narrative for 2026-10-14 to 2026-10-18 (including what each pass did and did not verify), so this file links to it rather than repeating it. Fixed issues are listed with dates in [limitations](limitations.md). Verification details are in the [validation record](validation.md).
 
+## 2026-10-27
+
+- UI wave 2 (tasks T098-T129, each independently reviewed; CLAIMED, final validation pending T127): motion tokens and a motion engine with reduced-motion handling, the shared Popover behind every menu and toolbar panel, the create menu morphing out of its button, toolbar label mode with a labelled More menu, sliding selection in the sidebar and Segmented, the sidebar title row with the hover-reveal switch, per-project sidebar feature switches, split view (Cmd/Ctrl+click and the Open beside button), section colours, hidden Essay and Story templates with Chicago renamed, the Bibliography page and source list, PDF attachments opened beside the draft, and the documentation pass.
+- Docs updated: README, design system, architecture, validation record, limitations, this changelog, the feature guide and the later-fixes plan.
+- Native smoke and native screenshots need an unlocked, visible desktop session with the window in front (T129); a sandboxed process cannot drive a visible window (T125).
+
 ## 2026-10-26
 
 - UI polish wave (tasks T071-T096, each independently reviewed; CLAIMED, final validation pending T082): native screenshot tool (`scripts/native-screens.py`), type-scale and spacing tokens, complete hover/focus/pressed/disabled states, `docs/design-system.md`, Appearance (System, Light, Dark; Cmd/Ctrl+Shift+L) and Palette (Plain, Color) settings with the Mac title bar following the choice, helper captions removed, Projects screen search, the Start new project button growing into a panel (templates, Import a file…, Recover from a project.json file…), drag-and-drop import onto the Projects screen.

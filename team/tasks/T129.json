@@ -1,0 +1,84 @@
+{
+  "id": "T129",
+  "title": "native-smoke phase 1 hangs after native paragraph pagination in page view (WebKit only, reproduces quiet)",
+  "description": "Found by agent-b406 during T128. python3 scripts/native-smoke.py fails: Native phase 1 did not quit normally (folio timed out after 180 s). REPRODUCES ON A QUIET MACHINE (no other folio, playwright or vite process; fresh smoke build of the shared tree at about 07:22Z; log node_modules/.cache/personal-word-beta/t128/smoke.log). Last breadcrumbs: opening More formatting for page toggle, ok page view toggle, page toggle clicked, ok page view mode, ok native paragraph pagination -- then nothing. In tests/native-smoke.js the next step is a loop of at most 75 x 40 ms that is always followed by mark page count; that mark never arrives, and no catch/report either, so the WebKit content process or its JS event loop stops (not a harness wait timeout). Same symptom in agent-df7c's run (ui2-u8-review/smoke.log, 22 s in). Separate from T128 (that was the reliability harness skipping the image insert; native-reliability baseline 13+5 and beta 19+42 now pass). NOT reproduced in Chromium: a scratch Playwright spec at 1240x840 doing the same steps (300 repeated sentences, More formatting, Page view) keeps timers running (74 ticks in 3 s), page count Section page 1 of 6, zero DOM mutations while idle with the More popover still open. So it looks WebKit-specific. Suspects, not proven: wave-2 frontend in page view with the More popover left open (U4 Popover/usePresence highlight follow, U6 toolbar fitToolbar ResizeObserver plus overflowCount/labels relayout when layout.mode changes), or a WKWebView layout loop in paged mode. The smoke harness change in T105 is navigation-only. Suggested first step: in the native-smoke harness close More (Escape) right after the page toggle click and rerun, or add marks inside the loop, to tell a stuck event loop from a closed popover issue; then bisect the wave-2 frontend files. Needs the native quiet rule and a smoke rebuild per attempt.",
+  "status": "done",
+  "owner": null,
+  "priority": 1,
+  "depends_on": [],
+  "files": [
+    "node_modules/.cache/personal-word-beta/team-serial-check-slot"
+  ],
+  "review_required": true,
+  "created_by": "agent-b406",
+  "created_at": "2026-10-27T07:30:13+00:00",
+  "claimed_at": "2026-10-28T00:57:55+00:00",
+  "updated_at": "2026-10-28T00:59:29+00:00",
+  "handoff": {
+    "by": "agent-2149",
+    "at": "2026-10-27T07:44:20+00:00",
+    "text": "Blocked on user Q009: rerun python3 scripts/native-smoke.py with the Mac unlocked and the app window visible, quiet machine. Full evidence in the block reason. Scratch copy with instrumented harness (marks for page count, bar width, label flips) is in the T128 worker scratchpad pw129 if a bisect is needed; nothing in the shared tree was changed for T129."
+  },
+  "review": {
+    "by": "agent-85b4",
+    "at": "2026-10-28T00:59:29+00:00",
+    "verdict": "approved",
+    "note": "APPROVED by agent-85b4 (OpenCode, non-author reviewer). Independent checks on the recorded evidence, not a re-run: (1) the raw log node_modules/.cache/personal-word-beta/t129-owner/smoke.log (2186 lines, mtime 2026-10-27 20:56 EDT) contains exactly three ok: true phase results -- phase 1 with the previously hanging step \"native WebKit page fragmentation and continuous toggle\" COMPLETED, phase 2 acknowledged SQLite checkpoint before the deliberate kill, phase 3 forced-restart journaled recovery plus snapshot restoration -- and ends \"Native WebView + SQLite smoke test passed.\"; (2) all three phase snapshots report \"visibility\": \"visible focus=false\", i.e. the WebView saw itself visible, which is the condition the lock-screen hypothesis predicted; (3) freshness: src-tauri/target/debug/folio is dated Oct 27 06:11 EDT and the newest source or test edit in the tree is tests/research-pdf.spec.ts at 06:06 EDT, so the binary the run used postdates every source change and includes U19; (4) first-hand: I observed the native-smoke process and the folio debug binary running on this machine at 20:55-20:56 EDT and the screen was not locked (ioreg IOConsoleUsers carries no CGSSessionScreenIsLocked key). Verdict: the phase-1 freeze was environmental -- a locked/occluded session throttles WKWebView requestAnimationFrame and timers -- not a code defect, and no code was changed under T129; the earlier Journaled-recovery vs Acknowledged-checkpoint mismatch did not recur. BOUNDARY: I did not re-run python3 scripts/native-smoke.py myself because the serial slot is held by T125 (agent-cb45) under the native quiet rule, so this approval rests on the run artifact plus the freshness and lock-state checks above, not on an independent native run. Rule stands: native-smoke and native-screens need an unlocked, visible session."
+  },
+  "log": [
+    {
+      "at": "2026-10-27T07:30:13+00:00",
+      "agent": "agent-b406",
+      "event": "created",
+      "note": ""
+    },
+    {
+      "at": "2026-10-27T07:30:51+00:00",
+      "agent": "agent-2149",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-10-27T07:30:52+00:00",
+      "agent": "agent-2149",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-10-27T07:44:11+00:00",
+      "agent": "agent-2149",
+      "event": "blocked",
+      "note": "Q009: BLOCKED on the user: the Mac screen is LOCKED (ioreg IOConsoleUsers CGSSessionScreenIsLocked = true; HID idle about 35 min; display was asleep, power state 0). Inferred cause of the phase-1 hang: macOS treats every window as occluded while locked, and WebKit then stops requestAnimationFrame and throttles timers (App Nap). Evidence from two instrumented SCRATCH builds (scratchpad copy, own target dir, shared tree untouched): (1) closing More right after the page toggle does NOT help, so the open More popover is ruled out; (2) bar 970 px, labels false, 0 data-labels flips, so the U6 label-threshold relayout loop is ruled out; viewport width steady 970/970. What the marks show instead: the 40 ms page-count loop runs at 40 ms for 4 ticks, then degrades to about 1000 ms per tick, then stops, and Page count stays 'Section page 1 of 1' although the paragraph already paginates -- the page count is set inside a requestAnimationFrame callback (Writer.tsx measure effect, unchanged from HEAD), so rAF never fired. That is the signature of an occluded/hidden WKWebView, not a busy loop. Chromium (not occluded) is fine. A rerun with caffeinate -d -u (display on, power state 4) still hung, consistent with the lock screen, not display sleep, being what occludes the window. native-reliability passes while locked because it never waits on rAF-driven layout. Not proven: needs one native-smoke run with the screen UNLOCKED and the app window visible. TO UNBLOCK: the user unlocks the Mac and stays at it (or keeps it unlocked and awake) while a worker runs python3 scripts/native-smoke.py on a quiet machine. If it then passes, close T129 as environmental and note that native smoke and screenshot runs need an unlocked, visible session. If it still hangs, reopen: the next suspects are wave-2 page-view CSS (editor.css +91 lines) or FootnoteArea/useFootnoteLayout, bisected in a scratch copy. Logs: node_modules/.cache/personal-word-beta/t128/smoke.log and smoke-awake.log; scratch experiment logs in the worker scratchpad pw129/smoke1.log and smoke2.log."
+    },
+    {
+      "at": "2026-10-27T07:44:20+00:00",
+      "agent": "agent-2149",
+      "event": "handoff",
+      "note": "Blocked on user Q009: rerun python3 scripts/native-smoke.py with the Mac unlocked and the app window visible, quiet machine. Full evidence in the block reason. Scratch copy with instrumented harness (marks for page count, bar width, label flips) is in the T128 worker scratchpad pw129 if a bisect is needed; nothing in the shared tree was changed for T129."
+    },
+    {
+      "at": "2026-10-28T00:57:55+00:00",
+      "agent": "agent-a3c2",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-10-28T00:57:59+00:00",
+      "agent": "agent-a3c2",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-10-28T00:58:01+00:00",
+      "agent": "agent-a3c2",
+      "event": "review requested",
+      "note": "Owner Mac unlocked 2026-10-27 ~20:55 EDT; coordinator ran python3 scripts/native-smoke.py on a quiet machine with the current smoke binary (built 06:11, newer than every src edit; includes U1-U19). Result: PASSED, exit 0, all three phases -- phase 1 incl. native WebKit page fragmentation/pagination and acknowledged native checkpoint; phase 2 acknowledged SQLite checkpoint before deliberate kill; phase 3 forced restart recovered the journaled edit + snapshot restoration. Log: node_modules/.cache/personal-word-beta/t129-owner/smoke.log. Conclusion: the T129 hang was environmental (locked screen throttles WKWebView requestAnimationFrame); the earlier checkpoint/journaled mismatch did not recur. Not a code defect; no code changed. Rule recorded: native-smoke and native-screens need an unlocked, visible session."
+    },
+    {
+      "at": "2026-10-28T00:59:29+00:00",
+      "agent": "agent-85b4",
+      "event": "approved",
+      "note": "APPROVED by agent-85b4 (OpenCode, non-author reviewer). Independent checks on the recorded evidence, not a re-run: (1) the raw log node_modules/.cache/personal-word-beta/t129-owner/smoke.log (2186 lines, mtime 2026-10-27 20:56 EDT) contains exactly three ok: true phase results -- phase 1 with the previously hanging step \"native WebKit page fragmentation and continuous toggle\" COMPLETED, phase 2 acknowledged SQLite checkpoint before the deliberate kill, phase 3 forced-restart journaled recovery plus snapshot restoration -- and ends \"Native WebView + SQLite smoke test passed.\"; (2) all three phase snapshots report \"visibility\": \"visible focus=false\", i.e. the WebView saw itself visible, which is the condition the lock-screen hypothesis predicted; (3) freshness: src-tauri/target/debug/folio is dated Oct 27 06:11 EDT and the newest source or test edit in the tree is tests/research-pdf.spec.ts at 06:06 EDT, so the binary the run used postdates every source change and includes U19; (4) first-hand: I observed the native-smoke process and the folio debug binary running on this machine at 20:55-20:56 EDT and the screen was not locked (ioreg IOConsoleUsers carries no CGSSessionScreenIsLocked key). Verdict: the phase-1 freeze was environmental -- a locked/occluded session throttles WKWebView requestAnimationFrame and timers -- not a code defect, and no code was changed under T129; the earlier Journaled-recovery vs Acknowledged-checkpoint mismatch did not recur. BOUNDARY: I did not re-run python3 scripts/native-smoke.py myself because the serial slot is held by T125 (agent-cb45) under the native quiet rule, so this approval rests on the run artifact plus the freshness and lock-state checks above, not on an independent native run. Rule stands: native-smoke and native-screens need an unlocked, visible session."
+    }
+  ]
+}

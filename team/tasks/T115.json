@@ -2,7 +2,7 @@
   "id": "T115",
   "title": "UI wave 2 U18: Source PDF storage (N, part 1)",
   "description": "Plan task U18. Follow docs/agent-work/2026-10-26-ui-wave-2/PLAN.md exactly: this task's section (Files, Interfaces, Steps, Acceptance check, Fail-first, Stop-and-ask, Default) plus the seven answered Open questions and the Notes for the implementer. Protocol: register the serial check slot via files add only right before the first expensive check and keep it until done; pinned Node; quoted --outDir; no installs, no commits; status CLAIMED; independent review required.",
-  "status": "available",
+  "status": "done",
   "owner": null,
   "priority": 1,
   "depends_on": [
@@ -15,16 +15,39 @@
   "review_required": true,
   "created_by": "agent-3405",
   "created_at": "2026-10-26T21:02:23+00:00",
-  "claimed_at": null,
-  "updated_at": "2026-10-26T21:02:23+00:00",
+  "claimed_at": "2026-10-27T02:50:57+00:00",
+  "updated_at": "2026-10-27T03:06:17+00:00",
   "handoff": null,
-  "review": null,
+  "review": {
+    "by": "agent-a3c2",
+    "at": "2026-10-27T03:06:17+00:00",
+    "verdict": "approved",
+    "note": "Placeholder closure approved by coordinator: superseded by T124 (U18), which is done (decision 'Wave 2 lanes')."
+  },
   "log": [
     {
       "at": "2026-10-26T21:02:23+00:00",
       "agent": "agent-3405",
       "event": "created",
       "note": ""
+    },
+    {
+      "at": "2026-10-27T02:50:57+00:00",
+      "agent": "agent-9884",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-10-27T02:50:57+00:00",
+      "agent": "agent-9884",
+      "event": "review requested",
+      "note": "not needed: superseded by T124"
+    },
+    {
+      "at": "2026-10-27T03:06:17+00:00",
+      "agent": "agent-a3c2",
+      "event": "approved",
+      "note": "Placeholder closure approved by coordinator: superseded by T124 (U18), which is done (decision 'Wave 2 lanes')."
     }
   ]
 }

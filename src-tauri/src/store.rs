@@ -359,10 +359,30 @@ impl Store {
         for e in &project.entries {
             image_ids(&e.content, &mut referenced);
         }
-        if referenced.is_empty() {
+        let pdfs = pdf_ids(&project.extra);
+        if referenced.is_empty() && pdfs.is_empty() {
             return Ok(());
         }
         let db = self.connect(id, false)?;
+        // A source PDF may be missing from an old or imported project: skip it instead of failing the pass.
+        for asset_id in pdfs.difference(&referenced) {
+            let row: Option<(String, i64, Vec<u8>)> = db
+                .query_row(
+                    "SELECT mime,byte_length,data FROM assets WHERE id=?1",
+                    [asset_id],
+                    |r| Ok((r.get(0)?, r.get(1)?, r.get(2)?)),
+                )
+                .optional()
+                .map_err(err)?;
+            let Some((mime, length, bytes)) = row else { continue };
+            let path = dir
+                .join("attachments")
+                .join(format!("{asset_id}.{}", assets::extension(&mime)));
+            if fs::metadata(&path).is_ok_and(|m| m.len() == length as u64) {
+                continue;
+            }
+            atomic(&path, &bytes)?;
+        }
         for asset_id in referenced {
             let (mime, length, bytes): (String, i64, Vec<u8>) = db
                 .query_row(
@@ -976,6 +996,19 @@ fn image_ids(node: &Value, out: &mut HashSet<String>) {
     for child in node.get("content").and_then(Value::as_array).into_iter().flatten() {
         image_ids(child, out);
     }
+}
+/// Asset ids of the PDFs attached to research sources (`research.sources[*].pdf.assetId`).
+fn pdf_ids(extra: &serde_json::Map<String, Value>) -> HashSet<String> {
+    extra
+        .get("research")
+        .and_then(|r| r.get("sources"))
+        .and_then(Value::as_array)
+        .into_iter()
+        .flatten()
+        .filter_map(|s| s.pointer("/pdf/assetId").and_then(Value::as_str))
+        .filter(|id| assets::is_asset_id(id))
+        .map(str::to_string)
+        .collect()
 }
 /// The revision recorded in a project's portable project.json, if it is readable.
 fn mirror_revision(dir: &Path) -> Option<i64> {
@@ -1635,6 +1668,31 @@ mod tests {
         assert_eq!(fs::read(file).unwrap(), bytes);
     }
     #[test]
+    fn source_pdfs_reach_the_attachments_mirror() {
+        let t = tempfile::tempdir().unwrap();
+        let mut s = Store::new(t.path().into()).unwrap();
+        let p = project();
+        s.save(&p).unwrap();
+        let bytes = crate::assets::tests::pdf("1 0 obj <<>> endobj");
+        let file = upload(&bytes);
+        s.stage_assets(&p.id, std::slice::from_ref(&file)).unwrap();
+        let mut edited = p.clone();
+        edited.revision += 1;
+        edited.extra.insert(
+            "research".into(),
+            serde_json::json!({"sources":[
+                {"id":"s1","title":"Harbor","authors":[],"kind":"book","pdf":{"assetId":file.id,"name":"harbor.pdf","byteLength":bytes.len()}},
+                {"id":"s2","title":"Missing","authors":[],"kind":"book","pdf":{"assetId":"f".repeat(64),"name":"gone.pdf","byteLength":1}}],
+                "notes":[],"footnotes":[]}),
+        );
+        s.save(&edited).unwrap();
+        assert_eq!(s.read_asset(&p.id, &file.id).unwrap(), bytes);
+        let (_, mirrored) = mirror(s, &p.id);
+        mirrored.unwrap();
+        let mirrored = t.path().join(&p.id).join("attachments").join(format!("{}.pdf", file.id));
+        assert_eq!(fs::read(mirrored).unwrap(), bytes);
+    }
+    #[test]
     fn new_project_and_its_assets_commit_together() {
         let t = tempfile::tempdir().unwrap();
         let mut s = Store::new(t.path().into()).unwrap();
@@ -1837,6 +1895,10 @@ mod tests {
         p.extra.insert(
             "sidebarOrder".into(),
             serde_json::json!(["research","manuscript","comments"]),
+        );
+        p.extra.insert(
+            "sidebarHidden".into(),
+            serde_json::json!(["comments"]),
         );
         p.entries[0]
             .extra

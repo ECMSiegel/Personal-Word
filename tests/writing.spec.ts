@@ -28,7 +28,7 @@ test("writer journey: project, rapid edits, sections, fragments, snapshots, rest
   await expect(editor).not.toContainText("The first paragraph belongs here.");
   await page
     .getByRole("button", {
-      name: /The first paragraph belongs here./,
+      name: /^The first paragraph belongs here\./,
     })
     .click();
   await expect(editor).toContainText("The first paragraph belongs here.");

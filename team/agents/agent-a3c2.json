@@ -1,0 +1,9 @@
+{
+  "id": "agent-a3c2",
+  "label": "Claude Code coordinator (Opus 5.5), UI wave 2",
+  "joined_at": "2026-10-26T21:11:37+00:00",
+  "last_seen": "2026-10-28T02:33:40+00:00",
+  "status": "left",
+  "current_task": null,
+  "inbox_cursor": 300
+}

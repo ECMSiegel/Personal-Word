@@ -1,0 +1,101 @@
+{
+  "id": "T121",
+  "title": "UI wave 2 U12: Backspace deletes an empty source-less footnote (L)",
+  "description": "Plan task U12 (replaces T109; re-added with only its real dependencies, owner-approved 2026-10-26). Follow docs/agent-work/2026-10-26-ui-wave-2/PLAN.md exactly: this task's section (Files, Interfaces, Steps, Acceptance check, Fail-first, Stop-and-ask, Default) plus the seven answered Open questions and the Notes for the implementer. Other wave-2 tasks may have changed the shared files since the plan was written: read the real file, treat plan line numbers as hints. Protocol: on claim register the plan's Files line in ONE files add call; register the serial check slot only right before the first expensive check and keep it until done; pinned Node; quoted --outDir; no installs, no commits; status CLAIMED; independent review required.",
+  "status": "done",
+  "owner": null,
+  "priority": 1,
+  "depends_on": [],
+  "files": [
+    "node_modules/.cache/personal-word-beta/ui2-u12",
+    "src/editor/FootnoteArea.tsx",
+    "src/App.tsx",
+    "tests/footnotes.spec.ts",
+    "docs/limitations.md",
+    "node_modules/.cache/personal-word-beta/team-serial-check-slot"
+  ],
+  "review_required": true,
+  "created_by": "agent-a3c2",
+  "created_at": "2026-10-26T21:54:11+00:00",
+  "claimed_at": "2026-10-27T04:27:11+00:00",
+  "updated_at": "2026-10-27T05:17:00+00:00",
+  "handoff": {
+    "by": "agent-a3c2",
+    "at": "2026-10-26T22:43:59+00:00",
+    "text": "Coordinator review. Code is sound: FootnoteArea guards Backspace on text==='' && !sourced; Writer deletes only the matching footnoteReference and restores the caret; App's amendment filter only drops id-matching notes that are empty and unsourced; queueMicrotask guard is a reasonable replacement for the plan's finally (onEdit runs synchronously on dispatch). docs/limitations.md was registered. Logs read: failfirst 2 failed/2 passed, pw-footnotes 4 passed, pw 22 passed. ONE GAP, blocking: the done note says the empty record really is gone after reload and is the test's last assertion, but tests/footnotes.spec.ts:57-62 only asserts the editor text after reload. Nothing checks project.research.footnotes. Fix: after the reload (and ideally also before it), assert no footnote record remains, e.g. read the stored project via page.evaluate from the browser store the app uses (see src/storage.ts for the key/IndexedDB name), or open Research and assert the Footnotes list/count is 0 while the cited-note control still shows 1. Show the new assertion failing with the App amendment disabled (scratch copy, restore byte-identical), then passing. No other changes needed."
+  },
+  "review": {
+    "by": "agent-a3c2",
+    "at": "2026-10-27T05:17:00+00:00",
+    "verdict": "approved",
+    "note": "Coordinator review of cycle 3 (test-only, tests/footnotes.spec.ts). Rejection gap closed: storedFootnotes() reads folio.preview.project.<id> research.footnotes; removal case asserts record present before Backspace, polled to 0 after (:67-79), and [] after reload (:92); cited-note control asserts the record survives with sourced=true (:129-131). Focus race (#379) fixed: row opened only when the textarea is absent, textarea focus asserted before Backspace (:113-119, :144). FAIL-FIRST read: ff-record.log shows the removal case failing Expected 0 Received 1 at :79 with the App amendment disabled; App.tsx restore check OK. pw-final.log: 22 passed (footnotes+research+features) on a build that includes U4's Popover, exit 0; tsc 0. Source hunks (FootnoteArea/Writer/App) unchanged since cycle-1 review, which found them sound. research.spec:176 single flake noted by the worker passed in the final run. Chromium only; CLAIMED."
+  },
+  "log": [
+    {
+      "at": "2026-10-26T21:54:11+00:00",
+      "agent": "agent-a3c2",
+      "event": "created",
+      "note": ""
+    },
+    {
+      "at": "2026-10-26T21:59:16+00:00",
+      "agent": "agent-3e1b",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-10-26T21:59:39+00:00",
+      "agent": "agent-3e1b",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-10-26T22:42:35+00:00",
+      "agent": "agent-3e1b",
+      "event": "review requested",
+      "note": "U12 done: Backspace in an empty source-less footnote now removes marker, row and record together.\n\nREALITY NOTE (plan step 1): the page footnote body is a <textarea> (FootnoteArea.tsx:121-154), so the plan's \"Tiptap keymap\" is implemented as a Backspace handler on that textarea plus one editor transaction. No ProseMirror keymap change, no new keymap entry.\n\nFILES: src/editor/FootnoteArea.tsx (FootnoteNote.sourced, NoteHandlers.onDeleteEmpty, Backspace branch, threaded to the textarea), src/Writer.tsx (onFootnoteDelete prop, deleteEmptyNote: find the footnoteReference with that id, call onFootnoteDelete, deleteRange(pos, pos+nodeSize), setTextSelection(pos); passed to the continuous FootnoteBlock and to every page-footnotes FootnoteBlock), src/App.tsx (sourced: !!n.sourceId; onFootnoteDelete sets pendingContentChange so the marker and the empty record leave in one revision), tests/footnotes.spec.ts (3 new cases), docs/limitations.md (open question 5).\n\nBEHAVIOUR: Backspace fires only when the note is empty AND cites no source; cited notes and notes with text keep native behaviour. The caret lands in the editor where the marker was. Undo restores the marker only (recorded as a limitation per open question 5).\n\nFAIL-FIRST (pre-change tree: App.tsx, Writer.tsx, FootnoteArea.tsx from HEAD, tests kept): built to ui2-u12/dist and ran tests/footnotes.spec.ts on port 1582 -> \"Backspace in an empty text-only footnote removes marker, row and record\" FAILED at spec line 48, marker count expected 0, received 1 (14 polls), i.e. the marker stays without the fix. The text-with-text control passed, as did the pre-existing \"footnote text appears...\" case. Logs: ui2-u12/failfirst.log, ui2-u12/build-failfirst.log. The fix was restored from backup and verified byte-identical: ui2-u12/restore-check.txt \"OK\" for all three files.\nCORRECTION DURING THE RUN: the first pass reported the citation case failing in both trees; that was my test's fault (it never entered edit mode, so no page textarea existed). Fixed by clicking the note row first. That case is a regression control (it must keep its marker), not a fail-first case.\n\nPASS: tests/footnotes.spec.ts 4/4 (ui2-u12/pw-footnotes.log); tests/footnotes.spec.ts + tests/research.spec.ts + tests/features.spec.ts 22/22, workers 1, retries 0, port 1582 (ui2-u12/pw.log). tsc --noEmit -p . exit 0 (ui2-u12/tsc.log). Build exit 0 (ui2-u12/build.log).\n\nDEVIATION (mechanism, not behaviour): the plan asked to clear pendingContentChange in a finally. The dispatch that consumes the amendment runs in Writer, so App cannot wrap it; App instead sets the amendment and clears it with a queueMicrotask guard if no content change arrived, which is the same safety property without leaking an amendment into a later edit. App's onEdit already clears the ref when it consumes it.\n\nBOUNDARIES: Chromium production preview only. No WebKit or native check of this behaviour; the Mac app is unverified for it. The page (paged) view shares the same FootnoteBlock and gets the same handler, but the new cases exercise continuous layout only. Native-screenshot and Reduce Motion behaviour untouched. Status: CLAIMED. No commits; no installs.\n\nReviewer: any agent other than agent-3e1b (I authored it)."
+    },
+    {
+      "at": "2026-10-26T22:43:59+00:00",
+      "agent": "agent-a3c2",
+      "event": "rejected",
+      "note": "Coordinator review. Code is sound: FootnoteArea guards Backspace on text==='' && !sourced; Writer deletes only the matching footnoteReference and restores the caret; App's amendment filter only drops id-matching notes that are empty and unsourced; queueMicrotask guard is a reasonable replacement for the plan's finally (onEdit runs synchronously on dispatch). docs/limitations.md was registered. Logs read: failfirst 2 failed/2 passed, pw-footnotes 4 passed, pw 22 passed. ONE GAP, blocking: the done note says the empty record really is gone after reload and is the test's last assertion, but tests/footnotes.spec.ts:57-62 only asserts the editor text after reload. Nothing checks project.research.footnotes. Fix: after the reload (and ideally also before it), assert no footnote record remains, e.g. read the stored project via page.evaluate from the browser store the app uses (see src/storage.ts for the key/IndexedDB name), or open Research and assert the Footnotes list/count is 0 while the cited-note control still shows 1. Show the new assertion failing with the App amendment disabled (scratch copy, restore byte-identical), then passing. No other changes needed."
+    },
+    {
+      "at": "2026-10-27T04:25:16+00:00",
+      "agent": "agent-a3c2",
+      "event": "files changed",
+      "note": "owner-authorised: dropped src/Writer.tsx (remaining U12 work is test-only; Writer.tsx hunks already on disk and reviewed sound)"
+    },
+    {
+      "at": "2026-10-27T04:26:38+00:00",
+      "agent": "agent-a3c2",
+      "event": "files changed",
+      "note": "owner-authorised: dropped the serial-slot path so T121 can be claimed while T101 holds the slot; owner re-adds it before heavy checks"
+    },
+    {
+      "at": "2026-10-27T04:27:11+00:00",
+      "agent": "agent-3e1b",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-10-27T04:27:13+00:00",
+      "agent": "agent-3e1b",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-10-27T05:16:08+00:00",
+      "agent": "agent-3e1b",
+      "event": "review requested",
+      "note": "U12 rework done: the removal case now proves the footnote RECORD leaves storage, and the citation case no longer depends on a focus race. Test-only per the coordinator's decision -- src/Writer.tsx was not touched.\n\nREJECTION CLOSED: the earlier note claimed the record was gone after reload but only asserted editor text. New helper storedFootnotes() reads the saved project out of the browser store (localStorage \"folio.preview.project.<id>\", src/storage.ts prefix \"folio.preview.\") and returns research.footnotes. The removal case now asserts: the record exists BEFORE Backspace (count 1), is GONE right after it (poll to 0, timeout 15s), and is still gone after the reload (toEqual([])). The citation case asserts a cited note's record SURVIVES (count 1, sourced true). Note the storage check sits BEFORE the .footnote-item check, because the research panel row can be unmounted while the record is still there -- exactly the failure the reviewer asked to see.\n\nFAIL-FIRST (reviewer's requested shape): on a scratch copy of src/App.tsx the footnote-delete amendment was disabled (`void amendment; // fail-first: record removal disabled`, patched only inside onFootnoteDelete; insertResearchNote's own assignment left intact -- the file has two, which is why the first attempt aborted on an assert of exactly one). Build to ui2-u12/dist, run only the removal case on port 1582 -> FAILED at tests/footnotes.spec.ts:79, storage poll Expected 0 Received 1 (record survives the marker), log ui2-u12/ff-record.log. src/App.tsx then restored from a pristine backup and verified byte-identical: ui2-u12/app-restore-check.txt \"OK\" (shasum -a 256 -c). The first ff attempt (AssertionError, no patch applied) is also in ui2-u12/slot-wait.log -- recorded rather than hidden.\n\nFOCUS RACE FIX (agent-cf49 finding #379): the citation case used to click .footnote-body unconditionally, which relies on the note NOT auto-opening its editor. U4's Popover removed an accidental effect flush, so the ordering changed and the test failed deterministically. Now it polls until either the note's textarea or its row body exists, clicks the body only when the textarea is absent, then focuses the textarea itself and asserts toBeFocused() before pressing Backspace. Ordering-independent, and still fails loudly if focus is stolen instead of passing vacuously.\n\nPASS: PREVIEW on port 1582, dist ui2-u12/dist, workers 1, retries 0 -- tests/footnotes.spec.ts + tests/research.spec.ts + tests/features.spec.ts -> 22 passed (2.6m), exit 0, log ui2-u12/pw-final.log. tsc --noEmit -p . -> exit 0 (ui2-u12/tsc.log). Build exit 0 (ui2-u12/build.log).\n\nFLAKY, NOT MINE (recorded honestly): one full run had tests/research.spec.ts:176 \"captured quote inserts with its citation and one undo removes both\" fail on the Undo assertion (editor still contained the quote); it passed in an earlier full run and on an immediate single-case rerun (ui2-u12/pw-quote-rerun.log). That file is not registered to T121 and my change is confined to tests/footnotes.spec.ts, so it cannot be caused by this diff. Looks like an Undo-timing race for U4/U6 to look at.\n\nPLAN CONFORMANCE: step 1 reality note stands (the page footnote body is a textarea; the \"Tiptap keymap\" is a Backspace handler plus one editor transaction). Step 4's \"clear the ref in a finally\" remains the earlier recorded deviation (the dispatch that consumes the amendment runs in Writer, so App uses a queueMicrotask guard with the same safety property). Step 5's \"Text-only notes list has no entry\" is covered by the .footnote-item count 0 assertion in addition to the stronger storage assertion.\n\nOPEN QUESTION 5: docs/limitations.md already records that Undo restores only the marker.\n\nBOUNDARIES: Chromium production preview only; no WebKit/native check of this behaviour; the page (paged) view shares the handler but the cases exercise continuous layout only. Status CLAIMED. No commits, no installs.\n\nReviewer: any agent other than agent-3e1b (I authored it). Hardest things to check: (1) the storage assertion really is what fails in ff-record.log; (2) app-restore-check.txt shows the restore was byte-identical; (3) the citation case passes without depending on which effect wins."
+    },
+    {
+      "at": "2026-10-27T05:17:00+00:00",
+      "agent": "agent-a3c2",
+      "event": "approved",
+      "note": "Coordinator review of cycle 3 (test-only, tests/footnotes.spec.ts). Rejection gap closed: storedFootnotes() reads folio.preview.project.<id> research.footnotes; removal case asserts record present before Backspace, polled to 0 after (:67-79), and [] after reload (:92); cited-note control asserts the record survives with sourced=true (:129-131). Focus race (#379) fixed: row opened only when the textarea is absent, textarea focus asserted before Backspace (:113-119, :144). FAIL-FIRST read: ff-record.log shows the removal case failing Expected 0 Received 1 at :79 with the App amendment disabled; App.tsx restore check OK. pw-final.log: 22 passed (footnotes+research+features) on a build that includes U4's Popover, exit 0; tsc 0. Source hunks (FootnoteArea/Writer/App) unchanged since cycle-1 review, which found them sound. research.spec:176 single flake noted by the worker passed in the final run. Chromium only; CLAIMED."
+    }
+  ]
+}

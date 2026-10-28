@@ -2,28 +2,63 @@
   "id": "T103",
   "title": "UI wave 2 U6: Toolbar label mode and a labelled More menu (D)",
   "description": "Plan task U6. Follow docs/agent-work/2026-10-26-ui-wave-2/PLAN.md exactly: this task's section (Files, Interfaces, Steps, Acceptance check, Fail-first, Stop-and-ask, Default) plus the seven answered Open questions and the Notes for the implementer. Protocol: register the serial check slot via files add only right before the first expensive check and keep it until done; pinned Node; quoted --outDir; no installs, no commits; status CLAIMED; independent review required.",
-  "status": "available",
+  "status": "done",
   "owner": null,
   "priority": 1,
   "depends_on": [
     "T101"
   ],
   "files": [
-    "node_modules/.cache/personal-word-beta/ui2-u6"
+    "node_modules/.cache/personal-word-beta/ui2-u6",
+    "src/Writer.tsx",
+    "src/editor/editor.css",
+    "tests/editor-toolbar.spec.ts",
+    "tests/motion-u6.spec.ts",
+    "src/editor/ToolbarControls.tsx",
+    "node_modules/.cache/personal-word-beta/team-serial-check-slot"
   ],
   "review_required": true,
   "created_by": "agent-3405",
   "created_at": "2026-10-26T21:02:18+00:00",
-  "claimed_at": null,
-  "updated_at": "2026-10-26T21:02:18+00:00",
+  "claimed_at": "2026-10-27T06:03:54+00:00",
+  "updated_at": "2026-10-27T06:49:10+00:00",
   "handoff": null,
-  "review": null,
+  "review": {
+    "by": "agent-1054",
+    "at": "2026-10-27T06:49:10+00:00",
+    "verdict": "approved",
+    "note": "APPROVED T103 (U6), reviewer agent-1054. Own build (ui2-u6-review/dist): tsc --noEmit clean; Playwright editor-toolbar + motion-u6 + accessibility = 14 passed. Re-measured myself (viewport -> bar): 1280 icons 10 groups on bar (3 more-groups in More), 1300 icons 11, 1100 icons 8; 1440 labels 6 on bar; 1920 labels 7. Sweep 1600/1400/1380/1370/1360/1100/1390/2200/900/1600: data-labels flips exactly at bar 1100, scrollWidth == clientWidth every time, refit correct both directions. More at 1440: 19 rows, all with data-popover-item, shortcut right-aligned and muted, labels aria-hidden, aria-labels unchanged; at 850x600 the menu is capped (clientHeight 481 of 686) and scrolls, bottom 598 < 600. Screenshots viewed (more-1440, more-850). Native: existing smoke debug binary (built 02:44, after all T103 files last changed) run via scripts/native-smoke.py: phase 1 passed including step 'native WebKit page fragmentation and continuous toggle' with pageViewToggle=overflowed at 1240x812, i.e. Page view found inside More and clicked. Phase 3 database check later failed (expected 'Acknowledged SQLite checkpoint.' found 'Journaled recovery after deliberate kill.') in the recovery/kill phase; unrelated to the toolbar, but my run overlapped T105's slot use (I checked the owner too late), so treat as possibly collision-caused. Weakness (not blocking): motion-u6 passes on the old tree too. OWNER DECISION (open question 3): at a 1440 px window the bar is 1170 px in label mode: only Undo/Redo, zoom, paragraph style, font, More, Comment/Keep-as-fragment fit; Bold, sizes, link, insert, lists, indent, view, aids are all in More (over half the groups). Shipped per plan; threshold LABEL_MIN_WIDTH is one constant."
+  },
   "log": [
     {
       "at": "2026-10-26T21:02:18+00:00",
       "agent": "agent-3405",
       "event": "created",
       "note": ""
+    },
+    {
+      "at": "2026-10-27T06:03:54+00:00",
+      "agent": "agent-c69c",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-10-27T06:03:59+00:00",
+      "agent": "agent-c69c",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-10-27T06:30:40+00:00",
+      "agent": "agent-c69c",
+      "event": "review requested",
+      "note": "U6 CLAIMED (not VERIFIED). Files: src/Writer.tsx, src/editor/ToolbarControls.tsx (PanelButton: label span + inMore data-popover-item), src/editor/editor.css, tests/editor-toolbar.spec.ts (+5 tests), tests/motion-u6.spec.ts (new; not motion.spec.ts per Amendment 2). Earlier tasks' Writer.tsx hunks left intact; prettier on Writer.tsx changed only my lines.\nWHAT: Writer state labels -> data-labels on .format-bar when bar clientWidth >= LABEL_MIN_WIDTH 1100; every icon button + PanelButton has an aria-hidden .toolbar-label (visibleLabel of aria-label; aria-label/title unchanged); width cache per mode {icons,labels}; crossing the threshold sets overflowCount 0 and refits in the layout effect; the observer effect depends on the bar element (state-backed callback ref) for U13. More menu = vertical list of labelled rows with right-aligned shortcut (SHORTCUTS) where one exists, data-popover-item on every row (highlight=follow and stagger now work; checked by test and screenshots), scrolls inside the viewport (overflow-y auto; panels opened from a row unfold in place), Dropdowns/number inputs stay inline. Old 1400 px extract rule deleted: label mode governs it.\nFAIL-FIRST: 3 new tests failed on old ui2-u4/dist (wide label, threshold crossing, More rows): ui2-u6/failfirst.log. The motion-u6 test passes on old too (asserts only allowed props; More already used Popover). Two accessibility tests failed on my first build (More list taller than 850x600, unscrollable) -> fixed with overflow auto: pw-final.log vs pw-final2.log.\nDEVIATION: plan's wide test expects Bold visible at 1600 px; in label mode at 1600 (bar 1330) Bold is in More, so that test checks Bold at 2200 px (bar 1930).\nCOMMANDS (PREVIEW(6) port 1576, dist ui2-u6/dist, pinned Node): tsc --noEmit clean when run; vite build ok twice (a later tsc -b shows ProjectLibrary.tsx errors from T102's in-progress edit, not mine); playwright editor-toolbar + motion-u6 + motion + accessibility + assets + markdown-roundtrip + writing-aids = 46 passed (pw-final2.log); features + footnotes + performance = 17 passed (pw-final3.log). Chromium only: nothing here proves WKWebView rendering; native-smoke.js 179-190 (Page view lookup) NOT run.\nMEASUREMENTS (viewport = bar + 270 sidebar; 'n of 13' = overflowable groups on the bar, rest in More; raw: ui2-u6/measure-sweep.txt). ICON mode: bar 730: 4; 830: 5; 880-930: 6; 980: 7 (lists); 1010: Insert image/table/Table controls still in More (U3 gap effect confirmed at viewport 1280); 1030-1090: 8 (+insert, inline from bar ~1030 = viewport ~1300); 1099: 9 (+indent). LABEL mode: bar 1100: 3 (zoom, paragraph, font) -- 10 of 13 in More; 1170 (viewport 1440): 3; 1330 (1600): 4; 1430: 4; 1650 (1920): 4; 1830-2130: 6 (+marks, link); 2230: 7 (+lists); 2530: 8 (+insert). Cliff: 9 groups at bar 1099 vs 3 at 1100. So at a 1440 px viewport more than half the groups are in More (the plan's stop-and-ask case); open question 3 says ship as decided and record, so shipped. Owner option: shorter labels (e.g. Smaller/Larger) or a threshold of about 1600-1900 would keep most groups on the bar. Gap token unchanged.\nSCREENSHOTS viewed (ui2-u6/shots): bar at 2200 and 1440 (labels), 1100 (icons), More at 1440 (labels) and 850 (icons), light and dark: labelled rows, muted shortcut right, sliding highlight on hovered row. Shots predate the scroll fix; 850 More is now height-capped and scrolls (accessibility tests reach Page view).\nDESIGN DOC: Toolbar -- the format bar shows a 12 px label beside every icon when its width is >= 1100 px (data-labels on .format-bar); below that icons only. Overflowing groups move into More in OVERFLOW_ORDER in both modes; widths are cached per mode and the bar re-measures on crossing 1100. More is a vertical list of labelled rows (var(--control-height)) with the muted shortcut right-aligned and one sliding highlight (Popover highlight=follow; rows carry data-popover-item); it scrolls when taller than the window. Labels are aria-hidden: the accessible name stays the aria-label (e.g. \"Bold (⌘B)\")."
+    },
+    {
+      "at": "2026-10-27T06:49:10+00:00",
+      "agent": "agent-1054",
+      "event": "approved",
+      "note": "APPROVED T103 (U6), reviewer agent-1054. Own build (ui2-u6-review/dist): tsc --noEmit clean; Playwright editor-toolbar + motion-u6 + accessibility = 14 passed. Re-measured myself (viewport -> bar): 1280 icons 10 groups on bar (3 more-groups in More), 1300 icons 11, 1100 icons 8; 1440 labels 6 on bar; 1920 labels 7. Sweep 1600/1400/1380/1370/1360/1100/1390/2200/900/1600: data-labels flips exactly at bar 1100, scrollWidth == clientWidth every time, refit correct both directions. More at 1440: 19 rows, all with data-popover-item, shortcut right-aligned and muted, labels aria-hidden, aria-labels unchanged; at 850x600 the menu is capped (clientHeight 481 of 686) and scrolls, bottom 598 < 600. Screenshots viewed (more-1440, more-850). Native: existing smoke debug binary (built 02:44, after all T103 files last changed) run via scripts/native-smoke.py: phase 1 passed including step 'native WebKit page fragmentation and continuous toggle' with pageViewToggle=overflowed at 1240x812, i.e. Page view found inside More and clicked. Phase 3 database check later failed (expected 'Acknowledged SQLite checkpoint.' found 'Journaled recovery after deliberate kill.') in the recovery/kill phase; unrelated to the toolbar, but my run overlapped T105's slot use (I checked the owner too late), so treat as possibly collision-caused. Weakness (not blocking): motion-u6 passes on the old tree too. OWNER DECISION (open question 3): at a 1440 px window the bar is 1170 px in label mode: only Undo/Redo, zoom, paragraph style, font, More, Comment/Keep-as-fragment fit; Bold, sizes, link, insert, lists, indent, view, aids are all in More (over half the groups). Shipped per plan; threshold LABEL_MIN_WIDTH is one constant."
     }
   ]
 }

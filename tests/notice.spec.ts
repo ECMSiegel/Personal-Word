@@ -85,19 +85,37 @@ for (const size of [
       );
       expect(topmost, "dismiss button is not covered").toBe(true);
       // No other visible control may sit under the toast.
-      const controls = page.locator("button:visible, input:visible, select:visible, [role=textbox]:visible");
-      const n = await controls.count();
-      expect(n).toBeGreaterThan(5);
-      for (let i = 0; i < n; i++) {
-        const control = controls.nth(i);
-        if (await control.evaluate((el) => !!el.closest(".notice"))) continue;
-        const box = await control.boundingBox();
-        if (box && box.width > 0 && box.height > 0) {
-          expect(
-            intersects(toast, box),
-            `control ${i} ${await control.evaluate((el) => el.outerHTML.slice(0, 80))} ${JSON.stringify(box)} vs toast ${JSON.stringify(toast)}`,
-          ).toBe(false);
-        }
+      const controls = await page.evaluate(() =>
+        Array.from(
+          document.querySelectorAll<HTMLElement>(
+            "button, input, select, [role=textbox]",
+          ),
+        )
+          .filter((el) => {
+            const style = getComputedStyle(el);
+            const box = el.getBoundingClientRect();
+            return (
+              style.display !== "none" &&
+              style.visibility !== "hidden" &&
+              box.width > 0 &&
+              box.height > 0
+            );
+          })
+          .filter((el) => !el.closest(".notice"))
+          .map((el) => {
+            const box = el.getBoundingClientRect();
+            return {
+              html: el.outerHTML.slice(0, 80),
+              box: { x: box.x, y: box.y, width: box.width, height: box.height },
+            };
+          }),
+      );
+      expect(controls.length).toBeGreaterThan(5);
+      for (const [i, control] of controls.entries()) {
+        expect(
+          intersects(toast, control.box),
+          `control ${i} ${control.html} ${JSON.stringify(control.box)} vs toast ${JSON.stringify(toast)}`,
+        ).toBe(false);
       }
       // With the page view scrolled to its end, the last line must stay clear too.
       await page.locator(".ProseMirror").first().click();

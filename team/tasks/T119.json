@@ -1,0 +1,128 @@
+{
+  "id": "T119",
+  "title": "UI wave 2 U10: Section colours (G)",
+  "description": "Plan task U10 (replaces T107; re-added with only its real dependencies, owner-approved 2026-10-26). Follow docs/agent-work/2026-10-26-ui-wave-2/PLAN.md exactly: this task's section (Files, Interfaces, Steps, Acceptance check, Fail-first, Stop-and-ask, Default) plus the seven answered Open questions and the Notes for the implementer. Other wave-2 tasks may have changed the shared files since the plan was written: read the real file, treat plan line numbers as hints. Protocol: on claim register the plan's Files line in ONE files add call; register the serial check slot only right before the first expensive check and keep it until done; pinned Node; quoted --outDir; no installs, no commits; status CLAIMED; independent review required.",
+  "status": "done",
+  "owner": null,
+  "priority": 1,
+  "depends_on": [],
+  "files": [
+    "node_modules/.cache/personal-word-beta/ui2-u10",
+    "src/appearance.ts",
+    "src/appearance.test.ts",
+    "src/styles.css",
+    "src/palette.test.ts",
+    "src/App.tsx",
+    "tests/appearance.spec.ts",
+    "docs/design-system.md",
+    "node_modules/.cache/personal-word-beta/team-serial-check-slot"
+  ],
+  "review_required": true,
+  "created_by": "agent-a3c2",
+  "created_at": "2026-10-26T21:54:09+00:00",
+  "claimed_at": "2026-10-27T05:43:21+00:00",
+  "updated_at": "2026-10-27T06:19:01+00:00",
+  "handoff": {
+    "by": "agent-7984",
+    "at": "2026-10-27T03:36:46+00:00",
+    "text": "The recorded fail-first, 26/26 focused unit tests, production build, and 18/18 PREVIEW(10) appearance/motion tests are present and pass. I cannot approve against U10's full acceptance because SMOKE(10) must produce 16 native screenshots and they must be viewed; no native/screens artifacts are present in the ui2-u10 task cache. T101 still owns the serial-check slot, so I did not start native checks. Please resume after that slot is released and record the native screenshots plus light/dark visual inspection."
+  },
+  "review": {
+    "by": "agent-0f57",
+    "at": "2026-10-27T06:19:01+00:00",
+    "verdict": "approved",
+    "note": "APPROVED by agent-0f57 (Sonnet reviewer), reviewed alongside T104 on my own fresh build (ui2-u7-review/dist, built from the tree after T119's last src edit at 05:44Z). Read appearance.ts/appearance.test.ts/palette.test.ts/App.tsx/styles.css hunks against plan U10: SWATCHES/Swatch/SectionColours/defaultSectionColours exported as specified; parseAppearance validates per key; applyAppearance sets dataset.tint* only when non-default; 24 one-line mapping rules present; swatch values and AA test match the plan table; inline styles gone (settings-field--wide, .section-swatches, .swatch-chip[data-swatch]); no docs/design-system.md edit in this task's hunks. RAN: vitest palette+appearance+designTokens 27/27; tsc exit 0; Playwright appearance.spec.ts (incl. the section-swatch light/dark tests and updated stored-object expectations) green inside my 29/29 run on port 1598. Native smoke rebuild exit 0 and native-screens for both palettes (20 PNGs). VIEWED native Color settings-light and settings-dark (Section colours row sits directly under Palette with Blue/Green/Orange dropdowns, no caption, no clipping), native Color writing-light (tints blue/green/orange, selected row blue), native Color research-dark, native Plain settings-dark (row absent in Plain). Limit: I did not rerun tests/motion.spec.ts (not touched by U10) and did not exercise a non-default swatch natively; the Purple persistence case is only covered by the Chromium spec. Chromium plus native WebKit screenshots only, no owner real-use proof."
+  },
+  "log": [
+    {
+      "at": "2026-10-26T21:54:09+00:00",
+      "agent": "agent-a3c2",
+      "event": "created",
+      "note": ""
+    },
+    {
+      "at": "2026-10-26T22:04:09+00:00",
+      "agent": "agent-b4ae",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-10-26T22:04:20+00:00",
+      "agent": "agent-b4ae",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-10-26T22:04:27+00:00",
+      "agent": "agent-b4ae",
+      "event": "handoff",
+      "note": "released"
+    },
+    {
+      "at": "2026-10-27T01:56:29+00:00",
+      "agent": "agent-9884",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-10-27T01:56:34+00:00",
+      "agent": "agent-9884",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-10-27T02:00:11+00:00",
+      "agent": "agent-9884",
+      "event": "handoff",
+      "note": "released"
+    },
+    {
+      "at": "2026-10-27T02:24:58+00:00",
+      "agent": "agent-9884",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-10-27T02:25:03+00:00",
+      "agent": "agent-9884",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-10-27T02:50:33+00:00",
+      "agent": "agent-9884",
+      "event": "review requested",
+      "note": "Implemented additive section colour preferences for Manuscript, Fragments, and Research, with eight mode-specific contrast-safe swatches and Color-only settings. Updated persistence expectations and documented behavior. Verification: required Vitest src/palette.test.ts src/appearance.test.ts src/designTokens.test.ts passed 26/26; production npm run build -- --outDir \"node_modules/.cache/personal-word-beta/ui2-u10/dist\" passed (TSC + Vite; existing chunk-size/dynamic-import warnings); PREVIEW(10) tests/appearance.spec.ts tests/motion.spec.ts passed 18/18 after correcting stored-default assertions and dark Plain icon expectation. Fail-first Playwright on saved pre-U10 bundle failed both light and dark cases at missing Section colours row. Scratch doctoring light red to Apple's undarkened #FF3B30 produced expected contrast failure: 3.55:1 on white. NOT RUN: native SMOKE(10)/16 screenshot capture and visual inspection; coordinator instructed reviewer to run native screens along with review. Logs and screenshots remain under node_modules/.cache/personal-word-beta/ui2-u10/."
+    },
+    {
+      "at": "2026-10-27T03:36:46+00:00",
+      "agent": "agent-7984",
+      "event": "rejected",
+      "note": "The recorded fail-first, 26/26 focused unit tests, production build, and 18/18 PREVIEW(10) appearance/motion tests are present and pass. I cannot approve against U10's full acceptance because SMOKE(10) must produce 16 native screenshots and they must be viewed; no native/screens artifacts are present in the ui2-u10 task cache. T101 still owns the serial-check slot, so I did not start native checks. Please resume after that slot is released and record the native screenshots plus light/dark visual inspection."
+    },
+    {
+      "at": "2026-10-27T05:43:21+00:00",
+      "agent": "agent-3e1b",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-10-27T05:43:27+00:00",
+      "agent": "agent-3e1b",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-10-27T06:10:14+00:00",
+      "agent": "agent-3e1b",
+      "event": "review requested",
+      "note": "U10 rework done, completing the follow-up the coordinator listed in msg #373. This task inherited code that was statically reviewed OK but rejected because the native screenshots had never been produced; I did the inline-style cleanup and the full visual acceptance.\n\nWHAT I CHANGED (only this rework; the swatch feature itself was already on disk):\n- src/App.tsx Section colours row: removed the inline styles (gridTemplateColumns \"180px minmax(0, 1fr)\" and the literal 12 chip). The row is now className=\"settings-field settings-field--wide\" and the inner div is className=\"section-swatches\"; the option chip is className=\"swatch-chip\" with data-swatch={swatch}.\n- src/styles.css: new rules after the Color token blocks -- .project-settings .settings-field.settings-field--wide { grid-template-columns: 180px minmax(0, 1fr) }, .section-swatches (3-column grid, gap var(--space-2), min-width 0), .swatch-option (inline-flex, gap var(--space-2)), .swatch-chip (var(--space-3) square, 1px var(--line) border) plus 8 [data-swatch=\"...\"] rules using the --swatch-* tokens. The wide rule is nested under .project-settings with a doubled class on purpose: research.css sets .project-settings .settings-field to 180px/minmax(0,260px), so a plain class would lose on specificity. No inline styles remain in that block, and no new selectors use :has() (not used anywhere in the codebase).\n- docs/design-system.md was NOT touched (hotspot rule; text is under DESIGN DOC below).\n\nUNIT: npx vitest run src/palette.test.ts src/appearance.test.ts src/designTokens.test.ts -> 27/27 pass.\n\nBUILD: npm run build -- --outDir \"node_modules/.cache/personal-word-beta/ui2-u10/dist\" --emptyOutDir -> exit 0 (tsc -b clean, vite built in 4m51s). Log ui2-u10/npm-build.log.\n\nPREVIEW(10): npx playwright test -c ui2-u10/preview.config.mjs tests/appearance.spec.ts tests/motion.spec.ts -> 24 passed, exit 0, port 1580, dist ui2-u10/dist. Log ui2-u10/preview.log.\n\nCHROMIUM SCREENSHOTS (1440x900 @2x, ui2-u10/screens/, log ui2-u10/screenshots.log), one line each:\n- settings-general-color-light.png: General rows; Section colours row shows three full-width dropdowns (Purple, Teal, Indigo); sidebar Manuscript purple, Fragments teal, Research indigo; selected \"Opening\" row tinted purple.\n- settings-general-color-dark.png: same in dark; Section colours row readable, tints the same, no washed-out text.\n- sidebar-tints-light.png: Writing screen; the three section icons keep their custom tints and the selected row keeps its section tint.\n- sidebar-tints-dark.png: same in dark; tints unchanged.\n\nSMOKE(10) NATIVE (Apple WebKit, com.folio.smoke debug build, exit 0; log ui2-u10/smoke-build.log):\n- native-plain (10 PNGs, exit 0, log ui2-u10/native-plain.log):\n  projects-light.png: Projects, no projects yet; header and Sort row normal.\n  projects-dark.png: same in dark.\n  writing-light.png: Writing with the fixture prose; sidebar bottom rows (Read manuscript, Comments, Snapshots & history, Settings) present; selected row semibold.\n  writing-dark.png: same in dark.\n  settings-light.png: Project settings, Palette=Plain -> the Section colours row is correctly ABSENT; selected \"Opening\" row semibold on the selected-row fill.\n  settings-dark.png: same in dark.\n  research-light.png: Research panel open, source fields normal.\n  research-dark.png: same in dark.\n  pdf-preview-light.png: PDF page rendered inside the preview frame with the fixture text.\n  pdf-preview-dark.png: BLANK white area, no PDF content (see FINDING below).\n- native-color (10 PNGs, exit 0, log ui2-u10/native-color.log):\n  projects-light.png / projects-dark.png: Projects in Color, light and dark, normal.\n  writing-light.png: Writing in Color; sidebar icons tinted (Manuscript blue, Fragments green, Research orange); selected row uses its section tint (blue).\n  writing-dark.png: same in dark; tint contrast holds.\n  settings-light.png: Project settings in Color; Section colours row PRESENT with the three defaults Blue/Green/Orange spanning the field column; the row sits directly under Palette as the plan requires.\n  settings-dark.png: same in dark; the three dropdowns and the row are legible, no clipping.\n  research-light.png / research-dark.png: Research panel with the tinted sidebar; normal.\n  pdf-preview-light.png: PDF page rendered in the preview frame.\n  pdf-preview-dark.png: PDF page rendered in dark this time (the plain dark run failed; see FINDING).\n\nFINDING FOR ANOTHER TASK (not U10, not caused by this diff): native-plain/pdf-preview-dark.png rendered blank and that run's report recorded pdfProbe {contentType: \"text/html\", embedType: null} for dark, while the same palette's light run and BOTH native-color runs recorded application/pdf with the page visible. So the PDF preview intermittently fails to load in dark. My diff only touches the Section colours row in the Color palette and .swatch-* classes, so it cannot affect this; the plain dark run does not even render the swatch CSS. Flagging for the U19/T125 owner and the coordinator.\n\nFAIL-FIRST: U10's recorded fail-first (swatch and mapping assertions failing on the U9 tree, plus the doctored-swatch contrast copy with a cmp restore) is the previous cycle's evidence and is unchanged -- I changed no assertion. I did not re-run it; my change is presentational only (inline styles -> classes) and the focused unit tests plus the geometry/motion browser specs are the relevant check.\n\nBOUNDARIES: Native screenshots are Apple WebKit (the checkpoint N2 evidence); the screenshots are Chromium. SMOKE proves the native binary embeds this frontend and renders it; it does not prove the owner's real writing library (isolated FOLIO_SMOKE_DIR). Status CLAIMED. No commits, no installs. The serial slot is free again after this run.\n\nDESIGN DOC (for U20 to fold in, since no task may edit docs/design-system.md): Section colour tokens: --swatch-<name> for red, orange, yellow, green, teal, blue, indigo, purple, defined identically in the light Color block and both dark Color blocks; the light values are #cc0b00, #955600, #7b6300, #1e7434, #1e6f7e, #0062cd, #5654d6, #9a28d4 and the dark values #ff665d, #ff9f0a, #ffd60a, #30d158, #40c8e0, #41a0ff, #918fee, #ca75f4, each >= 4.5 contrast on its mode's four surfaces. blue/green/orange equal today's --tint-manuscript/-fragments/-research. Twenty-four one-line mapping rules (8 per section) set --tint-<section> from the data-tint-<section> attribute; they win over the Color blocks by order at equal specificity. Section colours apply to sidebar accents only, and only in Color; Plain is untouched. Settings > General shows the row only in Color, using .section-swatches with one dropdown per section and a 12px .swatch-chip drawn from the tokens.\n\nReviewer: any agent other than agent-3e1b (I authored it). Hardest things to check: (1) the Section colours row spans the field column and the three dropdowns do not clip at 1280-1440px; (2) Plain hides the row and leaves the sidebar text-coloured; (3) the native-plain dark PDF blank is reproducible outside my diff."
+    },
+    {
+      "at": "2026-10-27T06:19:01+00:00",
+      "agent": "agent-0f57",
+      "event": "approved",
+      "note": "APPROVED by agent-0f57 (Sonnet reviewer), reviewed alongside T104 on my own fresh build (ui2-u7-review/dist, built from the tree after T119's last src edit at 05:44Z). Read appearance.ts/appearance.test.ts/palette.test.ts/App.tsx/styles.css hunks against plan U10: SWATCHES/Swatch/SectionColours/defaultSectionColours exported as specified; parseAppearance validates per key; applyAppearance sets dataset.tint* only when non-default; 24 one-line mapping rules present; swatch values and AA test match the plan table; inline styles gone (settings-field--wide, .section-swatches, .swatch-chip[data-swatch]); no docs/design-system.md edit in this task's hunks. RAN: vitest palette+appearance+designTokens 27/27; tsc exit 0; Playwright appearance.spec.ts (incl. the section-swatch light/dark tests and updated stored-object expectations) green inside my 29/29 run on port 1598. Native smoke rebuild exit 0 and native-screens for both palettes (20 PNGs). VIEWED native Color settings-light and settings-dark (Section colours row sits directly under Palette with Blue/Green/Orange dropdowns, no caption, no clipping), native Color writing-light (tints blue/green/orange, selected row blue), native Color research-dark, native Plain settings-dark (row absent in Plain). Limit: I did not rerun tests/motion.spec.ts (not touched by U10) and did not exercise a non-default swatch natively; the Purple persistence case is only covered by the Chromium spec. Chromium plus native WebKit screenshots only, no owner real-use proof."
+    }
+  ]
+}

@@ -69,7 +69,7 @@ test("rename project, delete a section and a fragment with safety snapshots, del
   await expect(editor).toContainText("Words that will be deleted.");
   await page.reload();
   await expect(editor).toContainText("Words that will be deleted.");
-  await page.locator(".project-switch").click();
+  await page.getByRole("button", { name: "Projects", exact: true }).click();
   await page
     .getByRole("button", { name: "Delete project Final title" })
     .click();

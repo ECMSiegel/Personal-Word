@@ -1,5 +1,5 @@
 // Injected only by the cfg(native-smoke) diagnostic app (FOLIO_SMOKE_SCRIPT=native-screens).
-// Captures native WebKit screenshots of the four main screens in the requested appearance,
+// Captures native WebKit screenshots of the main screens (plus the U17 PDF preview probe) in the requested appearance,
 // then reports the captured paths. The Python supervisor owns the process and the
 // isolated data store; this script never touches anything outside FOLIO_SMOKE_DIR.
 (async () => {
@@ -141,7 +141,20 @@
     await delay(300);
     screens.push(await snapshot("settings"));
 
-    await report({ ok: true, screens });
+    // U17 probe: does this WebKit draw a PDF blob inside the export-preview iframe?
+    await click("Preview PDF");
+    const frame = await wait(() => document.querySelector("iframe.export-preview"), "export preview iframe", 1500);
+    frame.scrollIntoView();
+    await delay(2000);
+    const pdfProbe = {
+      contentType: frame.contentDocument?.contentType ?? null,
+      embedType: frame.contentDocument?.querySelector("embed")?.type ?? null,
+      width: frame.clientWidth,
+      height: frame.clientHeight,
+    };
+    screens.push(await snapshot("pdf-preview"));
+
+    await report({ ok: true, screens, pdfProbe });
     await invoke("smoke_close_window");
   } catch (error) {
     await report({ ok: false, screens: [], error: String(error?.message ?? error) });

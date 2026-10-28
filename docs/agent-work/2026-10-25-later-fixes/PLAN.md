@@ -131,3 +131,18 @@ L2 touches every import read path: a bug there blocks all rich imports, so its u
 - L10 Drag-and-drop import hardening (T080 review): consume a dropped path one-shot after a successful read; open with O_NOFOLLOW; also record drops from the webview event if the owner's Finder drag records nothing.
 - L11 Settings "Export document" intro paragraph still reads like a caption; Goals numeric labels darker than the muted `.settings-label` rows (T094/T095 reviews).
 - L12 Hovering an entry row hides its word count (T092 fade-replace); consider showing the count on hover and arrows on focus only.
+
+## Added 2026-10-27 from UI wave 2 (not yet planned in detail)
+- L13 Web article reader (a reading view for a source's web page): a non-goal of UI wave 2; no design recorded yet.
+- L14 Carry source PDFs inside the project archive (`.json`) and the Markdown bundle, so a project moved that way keeps its attachments. Today the bytes stay in the project folder and the attachment is lost on that path.
+- L15 Toolbar label mode threshold (open question 3 of the wave-2 plan): raise `LABEL_MIN_WIDTH` to about 1600-1900 px, or shorten the labels. Measured cliff: bar 1099 px icons = 9 of 13 groups; bar 1100 px labels = 3 of 13.
+- L16 Passage restore can be overwritten while the save queue is pending (pre-existing, single pane too): the restored content is written, the editors remount after the queue drains, and typing in that window overwrites it. Data safety; highest priority in this list.
+- L17 More menu stays open after clicking one of its rows (U4/U6); also the cause of the split-view menus test flake (about 2 in 20).
+- L18 Plain palette: a brief accent-blue flash while pressing an UNSELECTED sidebar row; Color `:active` on a selected group title uses `--accent` rather than its tint.
+- L19 `slideHighlight(null)` mid-slide snaps the box before fading (minor).
+- L20 Flaky tests under load: `src/adversarial-wp3-exports.test.ts` (raise the 5 s timeout to about 15 s), `tests/notice.spec.ts` toast-cover, `tests/performance.spec.ts`, `tests/research.spec.ts:176` captured-quote undo.
+- L21 Group-title line-height tied to `--icon-size` (mild smell, U3).
+- L22 Native checks for the wave-2 menus: Escape on the create control, native Popover open/close/reverse and Mac Reduce Motion, and Insert image from the More menu (no native run opens a menu).
+- L23 Removing a PDF (or deleting its source) while it is open beside leaves the split showing the "not stored" alert instead of closing the pane; `prune()` in `src/split.ts` checks that the source exists, not that it still has a PDF.
+- L24 The PDF size label only counts up to KB (25 MB is shown as "25600.0 KB"), `src/research/ResearchPanel.tsx` `.source-pdf-size`.
+- L25 `tests/research-pdf.spec.ts:33` starts the network check after the first load, so first-load requests are unchecked.

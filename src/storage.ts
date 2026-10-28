@@ -15,6 +15,7 @@ import {
   toBase64,
   verifyPendingAsset,
 } from "./assets/assets";
+import { type PendingPdf, inspectPdf, verifyPendingPdf } from "./assets/pdf";
 export let desktop = isTauri();
 export function setDesktopForTesting(val: boolean) {
   desktop = val;
@@ -172,6 +173,38 @@ export const storage = {
       throw new Error("This image is not stored in the project.");
     }
     return asset;
+  },
+  /** Stores a source PDF through the image asset path (desktop: stage_assets). */
+  async stagePdf(projectId: string, pdf: PendingPdf): Promise<void> {
+    await verifyPendingPdf(pdf);
+    if (desktop) {
+      await invoke("stage_assets", {
+        projectId,
+        assets: [{ id: pdf.id, meta: pdf.meta, data: toBase64(pdf.bytes) }],
+      });
+      return;
+    }
+    await browserAssetStore.putPdf(projectId, pdf);
+  },
+  async readPdf(projectId: string, id: string): Promise<PendingPdf> {
+    if (desktop) {
+      const buf = await invoke<ArrayBuffer | Uint8Array>("read_asset", {
+        projectId,
+        assetId: id,
+      });
+      const bytes = buf instanceof Uint8Array ? buf : new Uint8Array(buf);
+      const pdf: PendingPdf = { id, meta: inspectPdf(bytes), bytes };
+      await verifyPendingPdf(pdf);
+      return pdf;
+    }
+    if (!isAssetId(id)) {
+      throw new Error("Invalid image identifier");
+    }
+    const pdf = await browserAssetStore.getPdf(projectId, id);
+    if (!pdf) {
+      throw new Error("This PDF is not stored in this project.");
+    }
+    return pdf;
   },
   async createProjectWithAssets(
     project: Project,

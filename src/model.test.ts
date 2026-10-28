@@ -48,6 +48,28 @@ it.each([
   (p.research!.sources[0] as Record<string, unknown>)[field] = value;
   expect(() => validateProject(p)).toThrow("Invalid research source.");
 });
+it("accepts a source with a valid PDF reference", () => {
+  const p = newProject("x");
+  p.research!.sources.push({
+    id: "s", kind: "book", title: "T", authors: [],
+    pdf: { assetId: "a".repeat(64), name: "t.pdf", byteLength: 10 },
+  });
+  expect(() => validateProject(p)).not.toThrow();
+});
+it.each([
+  ["a string", "x.pdf"],
+  ["an array", []],
+  ["a short asset id", { assetId: "abc", name: "t.pdf", byteLength: 10 }],
+  ["an uppercase asset id", { assetId: "A".repeat(64), name: "t.pdf", byteLength: 10 }],
+  ["a numeric name", { assetId: "a".repeat(64), name: 5, byteLength: 10 }],
+  ["a zero length", { assetId: "a".repeat(64), name: "t.pdf", byteLength: 0 }],
+  ["a fractional length", { assetId: "a".repeat(64), name: "t.pdf", byteLength: 1.5 }],
+])("rejects a source PDF that is %s", (_label, pdf) => {
+  const p = newProject("x");
+  p.research!.sources.push({ id: "s", kind: "book", title: "T", authors: [] });
+  (p.research!.sources[0] as Record<string, unknown>).pdf = pdf;
+  expect(() => validateProject(p)).toThrow("Invalid research source.");
+});
 it("rejects a non-boolean automatic short note preference", () => {
   const p = newProject("x");
   (p.research as { autoShortNotes?: unknown }).autoShortNotes = "yes";
@@ -291,4 +313,14 @@ it.each([
   };
   p.entries[0].text = textOf(p.entries[0].content);
   expect(() => validateProject(p)).toThrow(RangeError);
+});
+
+it("keeps sidebarHidden through a structuredClone and JSON round trip", () => {
+  const project = {
+    ...newProject("Sidebar switches"),
+    sidebarHidden: ["comments", "history"],
+  };
+  const round = JSON.parse(JSON.stringify(structuredClone(project)));
+  expect(round.sidebarHidden).toEqual(["comments", "history"]);
+  expect(() => validateProject(round)).not.toThrow();
 });

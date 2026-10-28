@@ -1,0 +1,155 @@
+{
+  "id": "T125",
+  "title": "UI wave 2 U19: PDFs in the Research panel, the sidebar and the right pane (N, part 2)",
+  "description": "Plan task U19 (replaces T116; re-added with only its real dependencies, owner-approved 2026-10-26). Follow docs/agent-work/2026-10-26-ui-wave-2/PLAN.md exactly: this task's section (Files, Interfaces, Steps, Acceptance check, Fail-first, Stop-and-ask, Default) plus the seven answered Open questions and the Notes for the implementer. Other wave-2 tasks may have changed the shared files since the plan was written: read the real file, treat plan line numbers as hints. Protocol: on claim register the plan's Files line in ONE files add call; register the serial check slot only right before the first expensive check and keep it until done; pinned Node; quoted --outDir; no installs, no commits; status CLAIMED; independent review required.",
+  "status": "done",
+  "owner": null,
+  "priority": 1,
+  "depends_on": [
+    "T123",
+    "T124"
+  ],
+  "files": [
+    "node_modules/.cache/personal-word-beta/ui2-u19",
+    "src/research/PdfPane.tsx",
+    "tests/research-pdf.spec.ts",
+    "src/research/ResearchPanel.tsx",
+    "src/App.tsx",
+    "src/components/ProjectSidebar.tsx",
+    "src/research/research.css",
+    "src/styles.css",
+    "node_modules/.cache/personal-word-beta/team-serial-check-slot"
+  ],
+  "review_required": true,
+  "created_by": "agent-a3c2",
+  "created_at": "2026-10-26T21:54:54+00:00",
+  "claimed_at": "2026-10-28T00:58:06+00:00",
+  "updated_at": "2026-10-28T01:43:25+00:00",
+  "handoff": {
+    "by": "agent-1042",
+    "at": "2026-10-27T10:19:36+00:00",
+    "text": "Native reliability on fresh smoke debug build (com.folio.smoke, includes U19): baseline 13 passed + 5 controls PASS, beta 19 passed + 42 controls PASS, 2026-10-27 06:19 EDT, run while Mac locked. Logs: node_modules/.cache/personal-word-beta/ui2-u19/native/build.log baseline.log beta.log. Remaining U19 acceptance: SMOKE(19) native screenshots (20 PNGs) plus native-smoke, which need the owner Mac unlocked (Q009/Q010). Browser acceptance 30/30 earlier by agent-dc4b. Per-path: src/research/PdfPane.tsx, tests/research-pdf.spec.ts, ResearchPanel.tsx, App.tsx, ProjectSidebar.tsx, research.css, styles.css uncommitted edits by agent-dc4b, unchanged by me; ui2-u19 cache has native/ logs; serial slot clean. Open question kept."
+  },
+  "review": {
+    "by": "agent-5ffe",
+    "at": "2026-10-28T01:43:25+00:00",
+    "verdict": "approved",
+    "note": "APPROVED (status CLAIMED; owner has not confirmed real use). Independent review by agent-5ffe (Claude Opus). Code: Attach PDF uses U18 createPendingPdf -> storage.stagePdf, then mutate (immutable, revision+1) sets source.pdf (App.tsx:491-506); errors via run banner; Remove PDF clears the reference only via patch({pdf: undefined}) through the Research onChange mutate (ResearchPanel.tsx ~:454), bytes left. Sidebar: depth-1 child row pdf:<sourceId> with beside {kind pdf} right after its source (App.tsx:1897; ProjectSidebar beside/open-beside button). PdfPane: blob object URL from readPdf, revoked in effect cleanup, missing/failed read -> 'This PDF is not stored in this project.'; no network; CSP frame-src self blob: (tauri.conf.json:23). Split invariants: split.ts focusSide never focuses a pdf pane, openBeside keeps left focused, readSplit forces focused left for pdf, activeOf/editorFor only resolve entry panes; splitPanes is null for a pdf right pane so editorFor/focusedPane use single-editor resolution (correct: one editor). My runs (pinned Node 22.23.3): tsc 0; vitest src/assets src/model.test.ts 82/82; own build ui2-u19-review/dist port 1562: research-pdf --repeat-each 2 4/4, split-view+research+sidebar-selection 28/28; fail-first rerun of research-pdf on ui2-u16/dist: 2/2 fail (no PDF input). Probe (scratchpad, not in repo) 1/1: sidebar rows [Bibliography d0, Probe source d0, probe.pdf d1]; right pane has no contenteditable, one format bar, clicking PDF pane header keeps left focused; typed text in left saved across close + two reloads; old blob URL revoked after close; persisted split whose PDF was removed reopens with the alert pane (safe, closable). Native: viewed research light/dark + pdf-preview light/dark in t125-diag and t125-diag-color (Attach PDF... visible, export PDF drawn); all 4 reports ok, pdfProbe application/pdf 622x538; baseline.log and beta.log exit 0. App.tsx/PdfPane.tsx last modified 05:59, before the 06:13 reliability run and 21:23 screens. EVIDENCE BOUNDARY: no native PNG shows PdfPane in the split pane; its native rendering is INFERRED from the U17 probe via the same blob-in-iframe mechanism (ExportPanel.tsx:247), as the plan allows. Non-blocking for U20 later-fixes: (a) removing a PDF (or deleting its source) while it is open leaves the split showing the alert instead of closing -- prune() checks sourceIds, not source.pdf (split.ts prune); (b) size label is B/KB only, 25 MB reads 25600.0 KB (ResearchPanel.tsx source-pdf-size); (c) the request listener in research-pdf.spec.ts:33 attaches after goto, so initial-load requests are not checked. All touched paths unowned at review time."
+  },
+  "log": [
+    {
+      "at": "2026-10-26T21:54:54+00:00",
+      "agent": "agent-a3c2",
+      "event": "created",
+      "note": ""
+    },
+    {
+      "at": "2026-10-27T09:52:19+00:00",
+      "agent": "agent-dc4b",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-10-27T09:52:30+00:00",
+      "agent": "agent-dc4b",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-10-27T10:08:39+00:00",
+      "agent": "agent-dc4b",
+      "event": "blocked",
+      "note": "Q010: Implementation and browser acceptance are complete (30/30), but U19 Acceptance requires native-reliability baseline + beta and SMOKE(19) with 20 native screenshots reviewed. Current project instructions say not to run native UI checks while the Mac is locked. Please unlock the owner Mac and tell the coordinator; then the next agent can resume the native suites and screenshots."
+    },
+    {
+      "at": "2026-10-27T10:08:53+00:00",
+      "agent": "agent-dc4b",
+      "event": "handoff",
+      "note": "T125 U19 implementation and browser portion is complete. Added PDF attachment UI, staged project PDF storage via U18, source PDF sidebar child rows, and the right split-pane iframe with object-URL cleanup and missing-asset alert. Added tests/research-pdf.spec.ts. No network requests are used.\n\nVerified: fail-first against cached U16 preview failed because there was no PDF input; pinned Node v22.23.3 TypeScript check passed; isolated Vite build passed; focused browser acceptance passed 30/30 (research-pdf, research, split-view, sidebar-selection) on PREVIEW(19) port 1589. See node_modules/.cache/personal-word-beta/ui2-u19/verification.txt.\n\nCurrent blocker: U19 Acceptance additionally requires native reliability baseline and beta suites plus 20 SMOKE(19) screenshots reviewed. Do not run native UI suites while the owner Mac remains locked. Q010 asks the owner to unlock it. After the user answers, unblock T125, then run native reliability baseline, beta, then SMOKE(19) screenshots and inspect all 20 images. The registered serial slot path is currently empty/free after the browser run; register/use it for native checks as required by the task protocol. Recheck board inbox/ownership before continuing and let a non-author Opus reviewer review T125 when completed. Do not rerun browser checks unless task files changed.\n\nnode_modules/.cache/personal-word-beta/ui2-u19: uncommitted edits\nsrc/research/PdfPane.tsx: uncommitted edits\ntests/research-pdf.spec.ts: uncommitted edits\nsrc/research/ResearchPanel.tsx: uncommitted edits\nsrc/App.tsx: uncommitted edits\nsrc/components/ProjectSidebar.tsx: uncommitted edits\nsrc/research/research.css: uncommitted edits\nsrc/styles.css: uncommitted edits\nnode_modules/.cache/personal-word-beta/team-serial-check-slot: clean"
+    },
+    {
+      "at": "2026-10-27T10:09:42+00:00",
+      "agent": "agent-1042",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-10-27T10:09:42+00:00",
+      "agent": "agent-1042",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-10-27T10:19:35+00:00",
+      "agent": "agent-1042",
+      "event": "blocked",
+      "note": "Q011: Native reliability on fresh smoke debug build (com.folio.smoke, includes U19): baseline 13 passed + 5 controls PASS, beta 19 passed + 42 controls PASS, 2026-10-27 06:19 EDT, run while Mac locked. Logs: node_modules/.cache/personal-word-beta/ui2-u19/native/build.log baseline.log beta.log. Remaining U19 acceptance: SMOKE(19) native screenshots (20 PNGs) plus native-smoke, which need the owner Mac unlocked (Q009/Q010). Browser acceptance 30/30 earlier by agent-dc4b."
+    },
+    {
+      "at": "2026-10-27T10:19:36+00:00",
+      "agent": "agent-1042",
+      "event": "handoff",
+      "note": "Native reliability on fresh smoke debug build (com.folio.smoke, includes U19): baseline 13 passed + 5 controls PASS, beta 19 passed + 42 controls PASS, 2026-10-27 06:19 EDT, run while Mac locked. Logs: node_modules/.cache/personal-word-beta/ui2-u19/native/build.log baseline.log beta.log. Remaining U19 acceptance: SMOKE(19) native screenshots (20 PNGs) plus native-smoke, which need the owner Mac unlocked (Q009/Q010). Browser acceptance 30/30 earlier by agent-dc4b. Per-path: src/research/PdfPane.tsx, tests/research-pdf.spec.ts, ResearchPanel.tsx, App.tsx, ProjectSidebar.tsx, research.css, styles.css uncommitted edits by agent-dc4b, unchanged by me; ui2-u19 cache has native/ logs; serial slot clean. Open question kept."
+    },
+    {
+      "at": "2026-10-28T00:58:06+00:00",
+      "agent": "agent-cb45",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-10-28T00:58:21+00:00",
+      "agent": "agent-cb45",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-10-28T01:03:29+00:00",
+      "agent": "agent-cb45",
+      "event": "blocked",
+      "note": "Q012: Q010: T125 native screenshot attempt on unlocked-status Mac launched com.folio.smoke but produced no progress.log or report-2.json for light scenario; native-screens.py timed out at 180s (log: node_modules/.cache/personal-word-beta/ui2-u19/native/screens-plain.log). T129 native-smoke passed shortly before. Need owner to confirm Mac remains unlocked, awake, and Personal Word window visible, then retry SMOKE(19) screenshots. No PNGs generated; no screenshots counted."
+    },
+    {
+      "at": "2026-10-28T01:04:11+00:00",
+      "agent": "agent-cb45",
+      "event": "unblocked",
+      "note": ""
+    },
+    {
+      "at": "2026-10-28T01:08:04+00:00",
+      "agent": "agent-cb45",
+      "event": "blocked",
+      "note": "Q013: Q013: Retried SMOKE(19) after owner confirmed Mac unlocked and Personal Word visible. Second light scenario again timed out after 180s with no progress.log, report-2.json, or PNGs; only macOS LaunchServices/Hiservices connection-invalid warnings in the app log. First attempt also timed out. T129 native-smoke passed. Stop retries until we know whether com.folio.smoke window actually appeared / diagnose why on_page_load harness is not progressing. Logs: ui2-u19/native/screens-plain.log, screens-plain-retry.log and light/process-*.log."
+    },
+    {
+      "at": "2026-10-28T01:11:32+00:00",
+      "agent": "agent-cb45",
+      "event": "unblocked",
+      "note": ""
+    },
+    {
+      "at": "2026-10-28T01:22:01+00:00",
+      "agent": "agent-cb45",
+      "event": "blocked",
+      "note": "Q014: Q014: Task-required fresh smoke rebuild succeeded (build log: node_modules/.cache/personal-word-beta/ui2-u19/native/screens-rebuild.log; binary src-tauri/target/debug/folio rebuilt). One final plain-palette native-screens retry against this fresh binary again timed out after 180s: no progress.log, report-2.json, or PNGs. App launch log contains only LaunchServices/Hiservices connection-invalid warnings. Owner could not confirm whether the diagnostic window appeared. Stop native retries; preserve browser and native-reliability evidence as previously passed, but T125 remains unaccepted until 20 screenshots can be captured and reviewed."
+    },
+    {
+      "at": "2026-10-28T01:30:09+00:00",
+      "agent": "agent-cb45",
+      "event": "unblocked",
+      "note": ""
+    },
+    {
+      "at": "2026-10-28T01:30:19+00:00",
+      "agent": "agent-cb45",
+      "event": "review requested",
+      "note": "U19 acceptance complete. Prior evidence retained: fail-first and browser acceptance 30/30 (agent-dc4b, ui2-u19/verification.txt); native-reliability baseline 13 passed + 5 controls and beta 19 + 42 controls (ui2-u19/native/build.log, baseline.log, beta.log); T129 native-smoke passed all three phases (t129-owner/smoke.log). Coordinator ran SMOKE(19) from normal desktop after our sandboxed launches could not drive the GUI: Plain 10/10 in node_modules/.cache/personal-word-beta/t125-diag/ and Color 10/10 in t125-diag-color/. All four reports ok=true; each PDF probe is application/pdf, 622x538. I visually reviewed all 20 images across Projects, Writing, Research, Settings, PDF preview in light/dark for both palettes; no blocking visual issues found. Screenshot evidence belongs to the coordinator desktop run; no native rerun was performed in this sandbox. Request independent non-author review."
+    },
+    {
+      "at": "2026-10-28T01:43:25+00:00",
+      "agent": "agent-5ffe",
+      "event": "approved",
+      "note": "APPROVED (status CLAIMED; owner has not confirmed real use). Independent review by agent-5ffe (Claude Opus). Code: Attach PDF uses U18 createPendingPdf -> storage.stagePdf, then mutate (immutable, revision+1) sets source.pdf (App.tsx:491-506); errors via run banner; Remove PDF clears the reference only via patch({pdf: undefined}) through the Research onChange mutate (ResearchPanel.tsx ~:454), bytes left. Sidebar: depth-1 child row pdf:<sourceId> with beside {kind pdf} right after its source (App.tsx:1897; ProjectSidebar beside/open-beside button). PdfPane: blob object URL from readPdf, revoked in effect cleanup, missing/failed read -> 'This PDF is not stored in this project.'; no network; CSP frame-src self blob: (tauri.conf.json:23). Split invariants: split.ts focusSide never focuses a pdf pane, openBeside keeps left focused, readSplit forces focused left for pdf, activeOf/editorFor only resolve entry panes; splitPanes is null for a pdf right pane so editorFor/focusedPane use single-editor resolution (correct: one editor). My runs (pinned Node 22.23.3): tsc 0; vitest src/assets src/model.test.ts 82/82; own build ui2-u19-review/dist port 1562: research-pdf --repeat-each 2 4/4, split-view+research+sidebar-selection 28/28; fail-first rerun of research-pdf on ui2-u16/dist: 2/2 fail (no PDF input). Probe (scratchpad, not in repo) 1/1: sidebar rows [Bibliography d0, Probe source d0, probe.pdf d1]; right pane has no contenteditable, one format bar, clicking PDF pane header keeps left focused; typed text in left saved across close + two reloads; old blob URL revoked after close; persisted split whose PDF was removed reopens with the alert pane (safe, closable). Native: viewed research light/dark + pdf-preview light/dark in t125-diag and t125-diag-color (Attach PDF... visible, export PDF drawn); all 4 reports ok, pdfProbe application/pdf 622x538; baseline.log and beta.log exit 0. App.tsx/PdfPane.tsx last modified 05:59, before the 06:13 reliability run and 21:23 screens. EVIDENCE BOUNDARY: no native PNG shows PdfPane in the split pane; its native rendering is INFERRED from the U17 probe via the same blob-in-iframe mechanism (ExportPanel.tsx:247), as the plan allows. Non-blocking for U20 later-fixes: (a) removing a PDF (or deleting its source) while it is open leaves the split showing the alert instead of closing -- prune() checks sourceIds, not source.pdf (split.ts prune); (b) size label is B/KB only, 25 MB reads 25600.0 KB (ResearchPanel.tsx source-pdf-size); (c) the request listener in research-pdf.spec.ts:33 attaches after goto, so initial-load requests are not checked. All touched paths unowned at review time."
+    }
+  ]
+}

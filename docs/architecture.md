@@ -10,7 +10,7 @@ A single-writer, Mac-first desktop application. Tauri 2 hosts React/TypeScript a
 
 ## Model and storage
 
-Project: ID, title, created/updated timestamps, revision, ordered section IDs, entries. Entry: ID, kind (section/fragment), title, ProseMirror JSON, plain text, updated timestamp, optional source section/selection/context. A project has one manuscript in this milestone. Research sources, notes, footnotes, comments, and entry tags are additive project/entry metadata. Content-addressed binary assets (PNG, JPEG) are stored in the SQLite `assets` table and mirrored to disk under `attachments/<asset_id>.<ext>`.
+Project: ID, title, created/updated timestamps, revision, ordered section IDs, entries. Entry: ID, kind (section/fragment), title, ProseMirror JSON, plain text, updated timestamp, optional source section/selection/context. A project has one manuscript in this milestone. Research sources, notes, footnotes, comments, and entry tags are additive project/entry metadata. Content-addressed binary assets (PNG, JPEG) are stored in the SQLite `assets` table and mirrored to disk under `attachments/<asset_id>.<ext>`. Source PDFs use the same table and the same staging path (`stagePdf`/`readPdf` in `src/storage.ts`); a pane draws one from a blob URL revoked on unmount (`src/research/PdfPane.tsx`), and deleting a reference leaves the bytes in place.
 
 Application data lives in the OS application-data directory under com.folio.writing. Each UUID project directory contains `project.sqlite3`, `project.json`, `manuscript.txt`, `fragments.txt`, and `attachments/`.
 
@@ -41,6 +41,8 @@ Quiet warm-neutral chrome, restrained accent, serif writing surface, compact for
 ## Interface layer (2026-10-26)
 
 Interface sizes and spacing come from tokens in `src/styles.css` (`--type-*`, `--space-*`, states and motion); see [design-system.md](design-system.md). `src/appearance.ts` stores the global `folio.workspace.appearance` preference (`theme` system/light/dark, `palette` plain/color) and sets `data-theme` and `data-palette` on `<html>` before React renders; the shared `Segmented` component (`src/components/segmented.css`) draws the Settings rows, and the Mac title bar follows the choice through Tauri `setTheme`. The Projects screen styles live in `src/components/library.css`. Dropping a file on the Projects screen reads it in the browser, or in the Mac app through the Rust command `read_dropped_file` (`src-tauri/src/dropped.rs`), which reads only paths from the window's latest drop, seven extensions, 20 MB. `python3 scripts/native-screens.py --out <dir>` (with `FOLIO_SMOKE_PALETTE=color` or `--palette color` for Color) captures native WebKit screenshots from the isolated `com.folio.smoke` build.
+
+UI wave 2 (2026-10-27) adds `src/motion.ts` (Web Animations: `play`, `presence`/`usePresence`, `slideHighlight`, `staggerIn`; interruptible, and no animation at all under reduced motion), the shared `src/components/Popover.tsx` (`popover.css`) that every menu and toolbar panel now renders through, the split-view module `src/split.ts` (`personal-word.splitRatio` is global, `personal-word.split.<projectId>` is per project), and the bibliography builder `src/research/bibliography.ts`, shared by the Bibliography page (`src/research/BibliographyPage.tsx`) and every exporter so the page and the exports cannot disagree.
 
 ## Source organization and boundaries
 

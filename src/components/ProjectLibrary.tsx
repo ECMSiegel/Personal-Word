@@ -1,4 +1,4 @@
-import { useEffect, useLayoutEffect, useRef, useState, type CSSProperties } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { ChevronDown, Layers, List, Search, Trash2 } from "lucide-react";
 import type { Summary } from "../model";
 import type { DamagedJournal } from "../save-queue";
@@ -10,6 +10,8 @@ import {
   readDroppedPath,
 } from "../import/dropImport";
 import { Dropdown } from "./Dropdown";
+import { Popover, PopoverItem } from "./Popover";
+import { play } from "../motion";
 import "./library.css";
 export function ProjectLibrary({
   projects,
@@ -54,9 +56,7 @@ export function ProjectLibrary({
   const createPanel = useRef<HTMLDivElement>(null);
   const writingInput = useRef<HTMLInputElement>(null);
   const projectInput = useRef<HTMLInputElement>(null);
-  const [triggerSize, setTriggerSize] = useState({ w: 0, h: 0 });
-  const [closing, setClosing] = useState(false);
-  const closeTimer = useRef<number | null>(null);
+  const createFade = useRef<Animation | null>(null);
   const searchButton = useRef<HTMLButtonElement>(null);
   const searchInput = useRef<HTMLInputElement>(null);
   const [dropping, setDropping] = useState(false);
@@ -78,24 +78,34 @@ export function ProjectLibrary({
   );
   if (reverse) sorted.reverse();
   useLayoutEffect(() => {
-    if (!creating || closing) return;
-    createPanel.current?.querySelector<HTMLButtonElement>("button")?.focus();
-  }, [creating, closing]);
-  useEffect(() => {
     if (!creating) return;
-    const close = (event: PointerEvent) => {
-      if (!(event.target as Element).closest(".create-project"))
-        dismissCreate();
-    };
-    document.addEventListener("pointerdown", close);
-    return () => document.removeEventListener("pointerdown", close);
-  }, [creating, closing]);
-  useEffect(
-    () => () => {
-      if (closeTimer.current) window.clearTimeout(closeTimer.current);
-    },
-    [],
-  );
+    createPanel.current?.querySelector<HTMLButtonElement>("button")?.focus();
+  }, [creating]);
+  const previousCreating = useRef(creating);
+  useEffect(() => {
+    if (previousCreating.current === creating) return;
+    previousCreating.current = creating;
+    const trigger = createButton.current;
+    // The menu covers the trigger; fade it out on open and back in on close.
+    // Under reduced motion the menu simply covers it with no animation.
+    if (!trigger) return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      createFade.current?.cancel();
+      createFade.current = null;
+      trigger.style.removeProperty("opacity");
+      return;
+    }
+    if (createFade.current) {
+      createFade.current.reverse();
+      return;
+    }
+    createFade.current = play(trigger, [{ opacity: 1 }, { opacity: 0 }], {
+      speed: "fast",
+      easing: "out",
+      fill: "both",
+    });
+  }, [creating]);
+  useEffect(() => () => createFade.current?.cancel(), []);
   useEffect(() => {
     if (desktop) {
       let disposed = false;
@@ -152,26 +162,8 @@ export function ProjectLibrary({
     if (problem) onDropError(problem);
     else onImportWriting(files[0]);
   };
-  // Closing keeps the panel mounted for one morph so it collapses back into the button.
-  const dismissCreate = () => {
-    if (!creating || closing) return;
-    setClosing(true);
-    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    if (reduced) {
-      setClosing(false);
-      setCreating(false);
-      return;
-    }
-    const raw = getComputedStyle(document.documentElement).getPropertyValue("--duration-morph");
-    const ms = Math.max(0, parseFloat(raw) * (raw.trim().endsWith("ms") ? 1 : 1000) || 0);
-    closeTimer.current = window.setTimeout(() => {
-      closeTimer.current = null;
-      setClosing(false);
-      setCreating(false);
-    }, ms);
-  };
   const closeCreate = (refocus: boolean) => {
-    dismissCreate();
+    setCreating(false);
     if (refocus) createButton.current?.focus();
   };
   const onPanelKeyDown = (e: React.KeyboardEvent) => {
@@ -228,12 +220,15 @@ export function ProjectLibrary({
         <div
           className="create-project"
           onKeyDown={(e) => {
-            if (creating && e.key === "Escape") onPanelKeyDown(e);
+            if (e.key === "Escape" && creating) {
+              e.stopPropagation();
+              closeCreate(true);
+            }
           }}
           onBlur={(e) => {
             const next = e.relatedTarget as Node | null;
             if (creating && next && !e.currentTarget.contains(next))
-              dismissCreate();
+              setCreating(false);
           }}
         >
           <button
@@ -242,117 +237,97 @@ export function ProjectLibrary({
             className="primary"
             aria-expanded={creating}
             aria-controls="create-panel"
-            onClick={(e) => {
-              // Measured before the panel exists so its opening shape starts at the button.
-              const box = e.currentTarget;
-              setTriggerSize({ w: box.offsetWidth, h: box.offsetHeight });
-              if (closing) {
-                if (closeTimer.current) window.clearTimeout(closeTimer.current);
-                closeTimer.current = null;
-                setClosing(false);
-              } else if (creating) dismissCreate();
-              else setCreating(true);
-            }}
+            onClick={() => setCreating((value) => !value)}
           >
             Start new project <ChevronDown size={14} />
           </button>
-          {creating && (
-            <div
-              id="create-panel"
-              ref={createPanel}
-              className="create-panel"
-              data-closing={closing ? "" : undefined}
-              role="group"
-              aria-label="Start new project"
-              style={
-                {
-                  "--trigger-w": triggerSize.w + "px",
-                  "--trigger-h": triggerSize.h + "px",
-                } as CSSProperties
-              }
-              onKeyDown={onPanelKeyDown}
+          <Popover
+            open={creating}
+            anchor={createButton}
+            morph="anchor"
+            highlight="follow"
+            role="group"
+            id="create-panel"
+            label="Start new project"
+            onDismiss={() => setCreating(false)}
+            onKeyDown={onPanelKeyDown}
+            ref={createPanel}
+          >
+            {(
+              templates?.map((t) => [t.id, t.name]) ?? [
+                ["blank", "Blank"],
+                ["chicago", "Chicago"],
+                ["screenplay", "Screenplay"],
+              ]
+            ).map(([id, label]) => (
+              <PopoverItem
+                key={id}
+                onClick={() => {
+                  setCreating(false);
+                  onCreate(id);
+                }}
+              >
+                {label}
+              </PopoverItem>
+            ))}
+            <div className="create-rule" role="separator" />
+            <PopoverItem
+              onClick={() => {
+                setCreating(false);
+                writingInput.current?.click();
+              }}
             >
-              <div className="create-panel-body">
-                {(
-                  templates?.map((t) => [t.id, t.name]) ?? [
-                    ["blank", "Blank project"],
-                    ["essay", "Essay"],
-                    ["chicago", "Chicago essay"],
-                    ["screenplay", "Screenplay"],
-                    ["story", "Story"],
-                  ]
-                ).map(([id, label]) => (
-                  <button
-                    key={id}
-                    type="button"
-                    onClick={() => {
-                      dismissCreate();
-                      onCreate(id);
-                    }}
-                  >
-                    {label}
-                  </button>
-                ))}
-                <div className="create-panel-rule" role="separator" />
-                <button
-                  type="button"
-                  onClick={() => {
-                    dismissCreate();
-                    writingInput.current?.click();
-                  }}
-                >
-                  Import a file…
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    dismissCreate();
-                    projectInput.current?.click();
-                  }}
-                >
-                  Recover from a project.json file…
-                </button>
-              </div>
-            </div>
-          )}
+              Import a file…
+            </PopoverItem>
+            <PopoverItem
+              onClick={() => {
+                setCreating(false);
+                projectInput.current?.click();
+              }}
+            >
+              Recover from a project.json file…
+            </PopoverItem>
+          </Popover>
         </div>
         <div className="library-display">
           <div className="library-search" data-open={searching || undefined}>
-            <button
-              ref={searchButton}
-              type="button"
-              aria-label="Search projects"
-              aria-expanded={searching}
-              aria-controls="library-search-input"
-              onClick={() => {
-                if (searching && !query) return closeSearch(false);
-                setSearching(true);
-                requestAnimationFrame(() => searchInput.current?.focus());
-              }}
-            >
-              <Search size={15} />
-            </button>
-            <input
-              ref={searchInput}
-              id="library-search-input"
-              type="text"
-              role="searchbox"
-              aria-label="Filter projects by title"
-              placeholder="Search projects"
-              tabIndex={searching ? 0 : -1}
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === "Escape") {
-                  e.stopPropagation();
-                  closeSearch(true);
-                }
-              }}
-              onBlur={(e) => {
-                if (!query && e.relatedTarget !== searchButton.current)
-                  setSearching(false);
-              }}
-            />
+            <div className="library-search-field">
+              <button
+                ref={searchButton}
+                type="button"
+                aria-label="Search projects"
+                aria-expanded={searching}
+                aria-controls="library-search-input"
+                onClick={() => {
+                  if (searching && !query) return closeSearch(false);
+                  setSearching(true);
+                  requestAnimationFrame(() => searchInput.current?.focus());
+                }}
+              >
+                <Search size={16} />
+              </button>
+              <input
+                ref={searchInput}
+                id="library-search-input"
+                type="text"
+                role="searchbox"
+                aria-label="Filter projects by title"
+                placeholder="Search projects"
+                tabIndex={searching ? 0 : -1}
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Escape") {
+                    e.stopPropagation();
+                    closeSearch(true);
+                  }
+                }}
+                onBlur={(e) => {
+                  if (!query && e.relatedTarget !== searchButton.current)
+                    setSearching(false);
+                }}
+              />
+            </div>
           </div>
           <label>
             Sort{" "}
@@ -379,7 +354,7 @@ export function ProjectLibrary({
             }
             onClick={() => setView(view === "list" ? "cards" : "list")}
           >
-            {view === "list" ? <Layers size={17} /> : <List size={17} />}
+            {view === "list" ? <Layers size={16} /> : <List size={16} />}
           </button>
         </div>
       </div>
@@ -400,7 +375,7 @@ export function ProjectLibrary({
               title="Delete project"
               onClick={() => onDelete(p)}
             >
-              <Trash2 size={14} />
+              <Trash2 size={16} />
             </button>
           </div>
         ))}

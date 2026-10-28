@@ -1,45 +1,62 @@
 .library-search {
-  display: inline-flex;
-  align-items: center;
-  width: 28px;
-  height: 28px;
+  position: relative;
+  width: var(--control-height);
+  height: var(--control-height);
   flex: none;
-  overflow: hidden;
-  border: 1px solid transparent;
-  border-radius: 0;
-  transition:
-    width var(--duration-morph) var(--ease-spring),
-    border-color var(--duration-morph) ease;
 }
-.library-search[data-open] {
+.library-search-field {
+  position: absolute;
+  top: 0;
+  right: 0;
+  display: flex;
+  flex-direction: row-reverse;
+  align-items: center;
+  box-sizing: border-box;
   width: 220px;
-  border-color: var(--line);
+  height: var(--control-height);
+  border: 1px solid var(--line);
+  background: var(--paper);
+  border-radius: 0;
+  clip-path: inset(2px 2px 2px calc(100% - var(--control-height)));
+  transition: clip-path var(--duration-morph) var(--ease-spring);
 }
-.library-search:focus-within {
+.library-search[data-open] .library-search-field {
+  clip-path: inset(0);
+}
+.library-search-field > button:focus-visible {
+  outline: none;
+}
+/* clip-path also clips outlines drawn outside the border box, so the ring sits inside it. */
+.library-search-field:focus-within {
   outline: var(--focus-ring);
-  outline-offset: var(--focus-offset);
+  outline-offset: -3px;
 }
-.library-search > button {
+/* Closed: the clip hides the field's outline, so the magnifier shows its own ring. */
+.library-search:not([data-open]) .library-search-field {
+  outline: none;
+}
+.library-search:not([data-open]) .library-search-field > button:focus-visible {
+  outline: var(--focus-ring);
+  outline-offset: -2px;
+}
+.library-search-field > button {
   flex: none;
   width: 26px;
   height: 26px;
   padding: 0;
 }
-.library-search > button:focus-visible {
-  outline: none;
-}
-.library-search > input {
+.library-search-field > input {
   flex: 1;
   min-width: 0;
   height: 100%;
-  padding: 0 var(--space-2) 0 0;
+  padding: 0 0 0 var(--space-2);
   border: 0;
   border-radius: 0;
   background: transparent;
   color: inherit;
   font-size: var(--type-small);
 }
-.library .library-search > input:focus-visible {
+.library .library-search-field > input:focus-visible {
   outline: none;
   border: 0;
 }
@@ -48,47 +65,24 @@
   position: relative;
   z-index: 9;
 }
-.create-panel {
-  position: absolute;
-  top: 100%;
-  left: 0;
-  z-index: 8;
-  filter: drop-shadow(0 6px 18px var(--shadow));
+/* The create menu grows out of its trigger: it covers the trigger (U4's
+   .popover-anchor places it at the trigger's top-left), is never narrower than
+   the trigger, and never narrower than 220px. */
+.create-project .popover {
+  min-width: max(220px, 100%);
 }
-.create-panel-body {
-  box-sizing: border-box;
-  min-width: max(220px, var(--trigger-w));
-  padding: var(--space-1) 0;
-  background: var(--surface);
-  border: 1px solid var(--line);
-  border-radius: 0;
-  font-size: var(--type-small);
-  clip-path: inset(0);
-  transition: clip-path var(--duration-morph) var(--ease-spring);
-}
-/* Opening starts as a zero-height strip the width of the button; closing returns to it. */
-@starting-style {
-  .create-panel-body {
-    clip-path: inset(0 calc(100% - var(--trigger-w)) 100% 0);
-  }
-}
-.create-panel[data-closing] .create-panel-body {
-  clip-path: inset(0 calc(100% - var(--trigger-w)) 100% 0);
-}
-.create-panel-body > button {
+.create-project .popover [data-popover-item] {
   display: flex;
   width: 100%;
   justify-content: flex-start;
   padding: var(--space-2) var(--space-3);
   font-size: var(--type-small);
   white-space: nowrap;
-  color: var(--text);
-  opacity: 1;
 }
-.create-panel-body > button:focus-visible {
+.create-project .popover [data-popover-item]:focus-visible {
   outline-offset: -2px;
 }
-.create-panel-rule {
+.create-rule {
   height: 1px;
   margin: var(--space-1) 0;
   background: var(--line);

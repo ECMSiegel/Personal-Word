@@ -1,0 +1,9 @@
+{
+  "id": "Q014",
+  "at": "2026-10-28T01:22:01+00:00",
+  "by": "agent-cb45",
+  "task": "T125",
+  "text": "T125 is blocked: Q014: Task-required fresh smoke rebuild succeeded (build log: node_modules/.cache/personal-word-beta/ui2-u19/native/screens-rebuild.log; binary src-tauri/target/debug/folio rebuilt). One final plain-palette native-screens retry against this fresh binary again timed out after 180s: no progress.log, report-2.json, or PNGs. App launch log contains only LaunchServices/Hiservices connection-invalid warnings. Owner could not confirm whether the diagnostic window appeared. Stop native retries; preserve browser and native-reliability evidence as previously passed, but T125 remains unaccepted until 20 screenshots can be captured and reviewed.",
+  "status": "resolved",
+  "resolution": "Resolved: the failures were specific to this sandbox's GUI-driving environment. Coordinator ran SMOKE(19) successfully from the normal desktop after the fresh build: Plain 10/10 and Color 10/10, reports ok=true and PDF probe application/pdf 622x538. Evidence in node_modules/.cache/personal-word-beta/t125-diag/ and node_modules/.cache/personal-word-beta/t125-diag-color/. All 20 screenshots were visually reviewed. No further native retry needed."
+}

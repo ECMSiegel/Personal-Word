@@ -1,12 +1,7 @@
-import {
-  useEffect,
-  useLayoutEffect,
-  useRef,
-  useState,
-  type ReactNode,
-  type Ref,
-} from "react";
+import { useEffect, useRef, useState, type ReactNode, type Ref } from "react";
 import type { LucideIcon } from "lucide-react";
+import { Popover } from "../components/Popover";
+import { visibleLabel } from "./shortcuts";
 
 /** Number field that lets the user type partial values without the editor overwriting them. */
 export function NumberInput({
@@ -64,6 +59,7 @@ export function PanelButton({
   dialogLabel,
   align = "start",
   isMore,
+  inMore,
   buttonRef,
   children,
 }: {
@@ -75,23 +71,25 @@ export function PanelButton({
   dialogLabel: string;
   align?: "start" | "end";
   isMore?: boolean;
+  /** Rendered inside the More menu: the button is a highlighted menu row. */
+  inMore?: boolean;
   buttonRef?: Ref<HTMLButtonElement>;
   children: ReactNode;
 }) {
   const popover = useRef<HTMLDivElement>(null);
-  const [flip, setFlip] = useState(false);
-  useLayoutEffect(() => {
-    if (!open) return setFlip(false);
-    const rect = popover.current?.getBoundingClientRect();
-    if (rect && rect.right > window.innerWidth - 8) setFlip(true);
-  }, [open]);
+  const anchor = useRef<HTMLButtonElement | null>(null);
   useEffect(() => {
     if (open) popover.current?.focus();
   }, [open]);
   return (
     <span className="toolbar-anchor" data-toolbar-panel="">
       <button
-        ref={buttonRef}
+        ref={(el) => {
+          anchor.current = el;
+          if (typeof buttonRef === "function") buttonRef(el);
+          else if (buttonRef)
+            (buttonRef as { current: HTMLButtonElement | null }).current = el;
+        }}
         type="button"
         className="toolbar-icon"
         aria-label={label}
@@ -99,30 +97,32 @@ export function PanelButton({
         aria-haspopup="dialog"
         aria-expanded={open}
         onClick={onToggle}
+        {...(inMore ? { "data-popover-item": "" } : {})}
       >
         <Icon size={16} aria-hidden="true" />
+        <span className="toolbar-label" aria-hidden="true">
+          {visibleLabel(label)}
+        </span>
       </button>
-      {open && (
-        <div
-          ref={popover}
-          role="dialog"
-          aria-label={dialogLabel}
-          tabIndex={-1}
-          className={
-            "toolbar-popover" +
-            (align === "end" || flip ? " align-end" : "") +
-            (isMore ? " is-more" : "")
-          }
-          onKeyDown={(event) => {
-            if (event.key !== "Escape") return;
-            event.preventDefault();
-            event.stopPropagation();
-            onEscape();
-          }}
-        >
-          {children}
-        </div>
-      )}
+      <Popover
+        open={open}
+        anchor={anchor}
+        role="dialog"
+        label={dialogLabel}
+        tabIndex={-1}
+        align={align}
+        className={"toolbar-popover" + (isMore ? " is-more" : "")}
+        highlight={isMore ? "follow" : null}
+        ref={popover}
+        onKeyDown={(event) => {
+          if (event.key !== "Escape") return;
+          event.preventDefault();
+          event.stopPropagation();
+          onEscape();
+        }}
+      >
+        {children}
+      </Popover>
     </span>
   );
 }

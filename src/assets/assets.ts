@@ -1,6 +1,7 @@
 import type { JSONContent } from "@tiptap/react";
 import type { Project } from "../model";
 import type { AssetId, AssetMeta, PendingAsset } from "./types";
+import { type PendingPdf, verifyPendingPdf } from "./pdf";
 
 /** Mirrors MAX_ASSET_BYTES and MAX_DIMENSION in src-tauri/src/assets.rs. */
 export const MAX_ASSET_BYTES = 25 * 1024 * 1024;
@@ -186,6 +187,29 @@ export function createBrowserAssetStore(factory?: () => IdbLike | undefined) {
       const asset = { id, meta: row.meta, bytes: row.bytes };
       await verifyPendingAsset(asset);
       return asset;
+    },
+    /** Source PDFs share the database, store and key scheme with images. */
+    async putPdf(projectId: string, pdf: PendingPdf): Promise<void> {
+      await verifyPendingPdf(pdf);
+      const db = await open();
+      const tx = db.transaction(STORE, "readwrite");
+      const done = new Promise<void>((res, rej) => {
+        tx.oncomplete = () => res();
+        tx.onerror = () => rej(tx.error ?? new Error("IndexedDB write failed"));
+        tx.onabort = () => rej(tx.error ?? new Error("IndexedDB write aborted"));
+      });
+      tx.objectStore(STORE).put({ meta: pdf.meta, bytes: pdf.bytes }, key(projectId, pdf.id));
+      await done;
+    },
+    async getPdf(projectId: string, id: AssetId): Promise<PendingPdf | null> {
+      const db = await open();
+      const row = (await request(db.transaction(STORE, "readonly").objectStore(STORE).get(key(projectId, id)))) as
+        | { meta: PendingPdf["meta"]; bytes: Uint8Array }
+        | undefined;
+      if (!row) return null;
+      const pdf = { id, meta: row.meta, bytes: row.bytes };
+      await verifyPendingPdf(pdf);
+      return pdf;
     },
   };
 }

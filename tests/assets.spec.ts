@@ -14,6 +14,19 @@ async function waitForSave(page: Page) {
   await expect(page.locator(".save-status")).toHaveText("Saved");
 }
 
+async function toolbarButton(page: Page, name: string) {
+  const button = page.getByRole("button", { name, exact: true });
+  if (!(await button.isVisible())) {
+    await page.getByRole("button", { name: "More formatting", exact: true }).click();
+  }
+  await expect(button).toBeVisible();
+  return button;
+}
+
+async function insertTable(page: Page) {
+  await (await toolbarButton(page, "Insert table")).click();
+}
+
 test("table insertion creates a 3x3 table with header row and places focus in the first cell", async ({
   page,
 }) => {
@@ -26,9 +39,7 @@ test("table insertion creates a 3x3 table with header row and places focus in th
   const editor = page.getByRole("textbox", { name: "Writing editor" });
   await expect(editor).toBeVisible();
 
-  const insertBtn = page.getByRole("button", { name: "Insert table" });
-  await expect(insertBtn).toBeVisible();
-  await insertBtn.click();
+  await insertTable(page);
 
   const table = editor.locator("table");
   await expect(table).toBeVisible();
@@ -54,7 +65,7 @@ test("editing text inside cells across multiple rows and columns updates table c
   const editor = page.getByRole("textbox", { name: "Writing editor" });
   await expect(editor).toBeVisible();
 
-  await page.getByRole("button", { name: "Insert table" }).click();
+  await insertTable(page);
   const table = editor.locator("table");
   await expect(table).toBeVisible();
 
@@ -118,7 +129,7 @@ test("keyboard navigation traverses table cells forward with Tab and backward wi
   const editor = page.getByRole("textbox", { name: "Writing editor" });
   await expect(editor).toBeVisible();
 
-  await page.getByRole("button", { name: "Insert table" }).click();
+  await insertTable(page);
   const table = editor.locator("table");
   await expect(table).toBeVisible();
 
@@ -159,7 +170,7 @@ test("table manipulation controls insert and delete rows, columns, toggle header
   const editor = page.getByRole("textbox", { name: "Writing editor" });
   await expect(editor).toBeVisible();
 
-  await page.getByRole("button", { name: "Insert table" }).click();
+  await insertTable(page);
   const table = editor.locator("table");
   await expect(table).toBeVisible();
 
@@ -169,9 +180,7 @@ test("table manipulation controls insert and delete rows, columns, toggle header
   // The project title contains "Table controls" as a substring, so the
   // trigger must be matched exactly. The panel stays open after each
   // command (only Delete table closes it), so it is opened once here.
-  await page
-    .getByRole("button", { name: "Table controls", exact: true })
-    .click();
+  await (await toolbarButton(page, "Table controls")).click();
 
   // Add row (panel already open)
   await page.getByRole("button", { name: /Add row below|Insert row/i }).click();
@@ -219,7 +228,7 @@ test("table persists across reload in preview storage and remains editable", asy
   const editor = page.getByRole("textbox", { name: "Writing editor" });
   await expect(editor).toBeVisible();
 
-  await page.getByRole("button", { name: "Insert table" }).click();
+  await insertTable(page);
   const table = editor.locator("table");
   await expect(table).toBeVisible();
 
@@ -281,7 +290,7 @@ test("ReadDocument renders table faithfully in Reading View", async ({
   const editor = page.getByRole("textbox", { name: "Writing editor" });
   await expect(editor).toBeVisible();
 
-  await page.getByRole("button", { name: "Insert table" }).click();
+  await insertTable(page);
   const table = editor.locator("table");
   await expect(table).toBeVisible();
 
@@ -388,7 +397,7 @@ test("image toolbar action inserts image with alt text and displays image figure
   const buffer = Buffer.from(pngBase64, "base64");
 
   const fileChooserPromise = page.waitForEvent("filechooser");
-  await page.getByRole("button", { name: "Insert image" }).click();
+  await (await toolbarButton(page, "Insert image")).click();
   const fileChooser = await fileChooserPromise;
   await fileChooser.setFiles({
     name: "test.png",
@@ -413,7 +422,7 @@ test("stored image displays after leaving, reopening, and reloading its project"
   await createProject(page, "Reopened Image Test");
   const editor = page.getByRole("textbox", { name: "Writing editor" });
   const chooser = page.waitForEvent("filechooser");
-  await page.getByRole("button", { name: "Insert image" }).click();
+  await (await toolbarButton(page, "Insert image")).click();
   const imageBytes = await page.evaluate(() => {
     const canvas = document.createElement("canvas");
     canvas.width = canvas.height = 1;

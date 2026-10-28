@@ -2,28 +2,88 @@
   "id": "T100",
   "title": "UI wave 2 U3: Elevation, control-height and icon tokens (E, part 1)",
   "description": "Plan task U3. Follow docs/agent-work/2026-10-26-ui-wave-2/PLAN.md exactly: this task's section (Files, Interfaces, Steps, Acceptance check, Fail-first, Stop-and-ask, Default) plus the seven answered Open questions and the Notes for the implementer. Protocol: register the serial check slot via files add only right before the first expensive check and keep it until done; pinned Node; quoted --outDir; no installs, no commits; status CLAIMED; independent review required.",
-  "status": "available",
+  "status": "done",
   "owner": null,
   "priority": 1,
   "depends_on": [
     "T098"
   ],
   "files": [
-    "node_modules/.cache/personal-word-beta/ui2-u3"
+    "node_modules/.cache/personal-word-beta/ui2-u3",
+    "src/styles.css",
+    "src/components/library.css",
+    "src/editor/editor.css",
+    "src/components/dropdown.css",
+    "src/designTokens.test.ts",
+    "src/App.tsx",
+    "src/Writer.tsx",
+    "src/research/ResearchPanel.tsx",
+    "src/organization/FragmentLibrary.tsx",
+    "src/components/ProjectLibrary.tsx",
+    "src/components/Dropdown.tsx",
+    "src/editor/ToolbarControls.tsx",
+    "src/components/ProjectSidebar.tsx",
+    "src/components/ProjectTabs.tsx",
+    "docs/design-system.md",
+    "node_modules/.cache/personal-word-beta/team-serial-check-slot",
+    "tests/assets.spec.ts",
+    "tests/markdown-roundtrip.spec.ts",
+    "tests/notice.spec.ts"
   ],
   "review_required": true,
   "created_by": "agent-3405",
   "created_at": "2026-10-26T21:02:16+00:00",
-  "claimed_at": null,
-  "updated_at": "2026-10-26T21:02:16+00:00",
+  "claimed_at": "2026-10-27T00:44:04+00:00",
+  "updated_at": "2026-10-27T02:40:45+00:00",
   "handoff": null,
-  "review": null,
+  "review": {
+    "by": "agent-7b5e",
+    "at": "2026-10-27T02:40:45+00:00",
+    "verdict": "approved",
+    "note": "APPROVE (reviewer agent-7b5e, Claude Opus). Judged only the U3 hunks; T121 footnote hunks (App.tsx/Writer.tsx), T099 motion tokens, and T124/T119 bibliography/appearance edits were set aside. CHECKS: (1) Tokens: all 8 on :root in src/styles.css with the plan's exact values (elevation-page/surface/raised, shadow-raised 0 6px 18px var(--shadow), control-height 32px, header-gap var(--space-2), icon-size 16px, icon-chevron 14px). The parity regex adds elevation|shadow-raised|control|header|icon. designTokens cases (a) the 8 values, (b) dropdown background/shadow tokens plus .dropdown-check 16px, (c) a TSX icon-size scan plus a strokeWidth ban are present and meaningful. (2) Icons, by my own grep of src/**/*.tsx: 62 size props, 56 at 16 and 6 at 14, and all six 14s are Chevron*. No lucide icon is rendered without a size; ToolbarControls renders <Icon size={16}>. strokeWidth/absoluteStrokeWidth: 0 uses (only the test's own regex). (3) Header rows: .topbar, .topbar>div, .library-toolbar and .library-display all use gap var(--header-gap), with min-height var(--control-height) on their direct controls. Format bar: gap var(--header-gap), height calc(var(--control-height) + 2*var(--space-1)), font var(--type-small). Toolbar icons, the dropdown button and .extract are var(--control-height). Dropdown menu uses --elevation-raised/--shadow-raised; .dropdown-check is 16px. (4) Search clip: U3 followed plan step 2 literally (inset(2px 2px 2px calc(100% - var(--control-height)))), so U1 cycle 2's extra 2px on the left inset was not kept. No border leaks: the field is 220x32 with a 1px border at x=0/219 and y=0/31, and the visible window x=188..218, y=2..30 contains no border pixel. The window is 30x28 (not square), but nothing visible changes. Confirmed in 2x zooms of the closed slot, light, dark and dark keyboard-focus, with the slot at a fractional x (883.78), where subpixel leaks would show. Focus ring is drawn inside. (5) Tests and builds: vitest designTokens+motion+palette 36/36 (a first run showed 2 palette failures and 5 tsc errors in src/appearance.test.ts, all from live T119 mid-edit; the rerun was clean). tsc --noEmit 0 on the rerun. npm run build to ui2-u3-review/dist exit 0. Playwright PREVIEW on port 1594: layout, sidebar-selection, editor-toolbar, accessibility, projects-screen 52/52. (6) Fail-first: failfirst.log shows (a)-(c) failing (3 failed / 6 passed), with 39 non-16 icons listed. The strokeWidth branch could not fail (none existed); I checked it by reading the code. (7) Test edits: assets.spec and markdown-roundtrip.spec only route clicks through a toolbarButton() helper that opens More when the control is overflowed (the name match became exact, which is stricter). markdown reads PW_DIST_DIR ?? dist. No assertion was removed. notice.spec moved the same control-vs-toast intersection scan in-page with equivalent visibility filtering; the >5 controls floor is kept. (8) Stop-and-ask: no row wraps at 190px. The 190px spec's group-title height equality did fail (22/21), and the worker fixed it with line-height: var(--icon-size) and announced it (#313) instead of stopping. That is within tokens and all 7 titles now measure 22px. It is a mild smell (text line-height tied to the icon token) but acceptable. No test asserts a 36px bar. Page-view geometry passes in layout.spec. SCREENSHOTS VIEWED (Chromium, 1440x900 at 2x): light/dark Projects, light/dark Writing, closed search zoom light/dark, closed search focus zoom dark, open search zoom light, zoom dropdown open (raised surface + 16px check), Writing at 1280. Plus the worker's light-projects and dark-writing. Format bar 40px, all 13 top-level children 32px tall on one centre line; topbar 40px. OWNER-FACING (user-visible): at a 1280px window, Insert image and Insert table (and Table controls) now sit under More (...) instead of inline. They come back inline at about 1287px (measured at 1280: hidden; at 1290: inline). The cause is the plan's own 8px --header-gap between toolbar groups (it was 0), together with the fit routine now correctly counting those gaps. Icons were already 16px in the toolbar. So this follows unavoidably from the plan's numbers, not from a worker choice. Worker's probe: 7 groups in More up to 1211px, 6 from 1212, 5 from 1287, 4 from 1362. Decide at U6 (toolbar re-measure) whether 1280 must keep them inline. CARRY-FORWARD (non-blocking): (a) docs/design-system.md:42 still says .library-search is a fixed 28x28 slot; it is now 32 (var(--control-height)). Fix in U20's doc pass. (b) Request E wants one control height, but Start new project measures 39px and the topbar Snapshot button 34px. The plan's min-height wording passes, but they are not equal to 32. Owner/U5/U6 to decide. (c) Test (c)'s regex [^<>]*? skips icons whose earlier props contain '>' (arrow functions) and icons with no size prop. Nothing is missed today (independent grep). BOUNDARIES: Chromium production preview only, no native WebKit. Status stays CLAIMED until the owner hand-checks."
+  },
   "log": [
     {
       "at": "2026-10-26T21:02:16+00:00",
       "agent": "agent-3405",
       "event": "created",
       "note": ""
+    },
+    {
+      "at": "2026-10-26T23:18:40+00:00",
+      "agent": "agent-3e1b",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-10-26T23:22:49+00:00",
+      "agent": "agent-3e1b",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-10-27T00:44:04+00:00",
+      "agent": "agent-9884",
+      "event": "reclaimed from agent-3e1b",
+      "note": ""
+    },
+    {
+      "at": "2026-10-27T00:44:16+00:00",
+      "agent": "agent-9884",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-10-27T01:56:11+00:00",
+      "agent": "agent-9884",
+      "event": "review requested",
+      "note": "Implemented U3 elevation, raised-surface/shadow, control-height, header-gap, icon-size and chevron tokens; applied 16px icon / 14px chevron sizing with default Lucide stroke; standardized the 32px controls, 40px format bar, header gaps and dropdown raised surface; documented the tokens and added fail-first token/surface/icon coverage. Fit logic now counts the 8px top-level toolbar gaps. Verification: fail-first cases failed before implementation (log at node_modules/.cache/personal-word-beta/ui2-u3/failfirst.log); npm run build -- --outDir \"node_modules/.cache/personal-word-beta/ui2-u3/dist\" passed; focused Vitest 34/34 passed; full PREVIEW(3) Playwright 176/176 passed (8.0m), including sidebar minimum width, toolbar, assets, Markdown, notice geometry, light/dark appearance and reduced-motion cases; light/dark Projects and Writing screenshots captured and reviewed. User-visible deviation: at 1280px viewport, Insert image + Insert table are now in More; in the measured PREVIEW(3) viewport scan they return inline at 1287px (before: at 1280px the 2px-gap/uncounted-gap fit routine kept them inline; based on group-width math its threshold was about 1207px, so the actual behavior should be hand-checked at 1280px and around 1287px). Tests now open More when these controls are overflowed. Notice geometry scan is batched in-page to avoid the transient toast expiring during 71 serial locator round-trips; assertions are unchanged."
+    },
+    {
+      "at": "2026-10-27T02:40:45+00:00",
+      "agent": "agent-7b5e",
+      "event": "approved",
+      "note": "APPROVE (reviewer agent-7b5e, Claude Opus). Judged only the U3 hunks; T121 footnote hunks (App.tsx/Writer.tsx), T099 motion tokens, and T124/T119 bibliography/appearance edits were set aside. CHECKS: (1) Tokens: all 8 on :root in src/styles.css with the plan's exact values (elevation-page/surface/raised, shadow-raised 0 6px 18px var(--shadow), control-height 32px, header-gap var(--space-2), icon-size 16px, icon-chevron 14px). The parity regex adds elevation|shadow-raised|control|header|icon. designTokens cases (a) the 8 values, (b) dropdown background/shadow tokens plus .dropdown-check 16px, (c) a TSX icon-size scan plus a strokeWidth ban are present and meaningful. (2) Icons, by my own grep of src/**/*.tsx: 62 size props, 56 at 16 and 6 at 14, and all six 14s are Chevron*. No lucide icon is rendered without a size; ToolbarControls renders <Icon size={16}>. strokeWidth/absoluteStrokeWidth: 0 uses (only the test's own regex). (3) Header rows: .topbar, .topbar>div, .library-toolbar and .library-display all use gap var(--header-gap), with min-height var(--control-height) on their direct controls. Format bar: gap var(--header-gap), height calc(var(--control-height) + 2*var(--space-1)), font var(--type-small). Toolbar icons, the dropdown button and .extract are var(--control-height). Dropdown menu uses --elevation-raised/--shadow-raised; .dropdown-check is 16px. (4) Search clip: U3 followed plan step 2 literally (inset(2px 2px 2px calc(100% - var(--control-height)))), so U1 cycle 2's extra 2px on the left inset was not kept. No border leaks: the field is 220x32 with a 1px border at x=0/219 and y=0/31, and the visible window x=188..218, y=2..30 contains no border pixel. The window is 30x28 (not square), but nothing visible changes. Confirmed in 2x zooms of the closed slot, light, dark and dark keyboard-focus, with the slot at a fractional x (883.78), where subpixel leaks would show. Focus ring is drawn inside. (5) Tests and builds: vitest designTokens+motion+palette 36/36 (a first run showed 2 palette failures and 5 tsc errors in src/appearance.test.ts, all from live T119 mid-edit; the rerun was clean). tsc --noEmit 0 on the rerun. npm run build to ui2-u3-review/dist exit 0. Playwright PREVIEW on port 1594: layout, sidebar-selection, editor-toolbar, accessibility, projects-screen 52/52. (6) Fail-first: failfirst.log shows (a)-(c) failing (3 failed / 6 passed), with 39 non-16 icons listed. The strokeWidth branch could not fail (none existed); I checked it by reading the code. (7) Test edits: assets.spec and markdown-roundtrip.spec only route clicks through a toolbarButton() helper that opens More when the control is overflowed (the name match became exact, which is stricter). markdown reads PW_DIST_DIR ?? dist. No assertion was removed. notice.spec moved the same control-vs-toast intersection scan in-page with equivalent visibility filtering; the >5 controls floor is kept. (8) Stop-and-ask: no row wraps at 190px. The 190px spec's group-title height equality did fail (22/21), and the worker fixed it with line-height: var(--icon-size) and announced it (#313) instead of stopping. That is within tokens and all 7 titles now measure 22px. It is a mild smell (text line-height tied to the icon token) but acceptable. No test asserts a 36px bar. Page-view geometry passes in layout.spec. SCREENSHOTS VIEWED (Chromium, 1440x900 at 2x): light/dark Projects, light/dark Writing, closed search zoom light/dark, closed search focus zoom dark, open search zoom light, zoom dropdown open (raised surface + 16px check), Writing at 1280. Plus the worker's light-projects and dark-writing. Format bar 40px, all 13 top-level children 32px tall on one centre line; topbar 40px. OWNER-FACING (user-visible): at a 1280px window, Insert image and Insert table (and Table controls) now sit under More (...) instead of inline. They come back inline at about 1287px (measured at 1280: hidden; at 1290: inline). The cause is the plan's own 8px --header-gap between toolbar groups (it was 0), together with the fit routine now correctly counting those gaps. Icons were already 16px in the toolbar. So this follows unavoidably from the plan's numbers, not from a worker choice. Worker's probe: 7 groups in More up to 1211px, 6 from 1212, 5 from 1287, 4 from 1362. Decide at U6 (toolbar re-measure) whether 1280 must keep them inline. CARRY-FORWARD (non-blocking): (a) docs/design-system.md:42 still says .library-search is a fixed 28x28 slot; it is now 32 (var(--control-height)). Fix in U20's doc pass. (b) Request E wants one control height, but Start new project measures 39px and the topbar Snapshot button 34px. The plan's min-height wording passes, but they are not equal to 32. Owner/U5/U6 to decide. (c) Test (c)'s regex [^<>]*? skips icons whose earlier props contain '>' (arrow functions) and icons with no size prop. Nothing is missed today (independent grep). BOUNDARIES: Chromium production preview only, no native WebKit. Status stays CLAIMED until the owner hand-checks."
     }
   ]
 }

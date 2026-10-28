@@ -16,7 +16,7 @@ import JSZip from "jszip";
 // input (previewWriting -> importMarkdownBundle -> ImportPreview). No /src
 // dev-server URL is used anywhere, so this runs on `vite preview` of the
 // built bundle.
-const DIST_ASSETS = path.resolve("dist/assets");
+const DIST_ASSETS = path.resolve(process.env.PW_DIST_DIR ?? "dist", "assets");
 function bundleChunkUrl(): string {
   const file = fs
     .readdirSync(DIST_ASSETS)
@@ -67,6 +67,19 @@ async function createBlankProject(page: Page, title: string) {
   await expect(page.locator(".save-status")).toHaveText("Saved");
 }
 
+async function toolbarButton(page: Page, name: string) {
+  const button = page.getByRole("button", { name, exact: true });
+  if (!(await button.isVisible())) {
+    await page.getByRole("button", { name: "More formatting", exact: true }).click();
+  }
+  await expect(button).toBeVisible();
+  return button;
+}
+
+async function insertTable(page: Page) {
+  await (await toolbarButton(page, "Insert table")).click();
+}
+
 // Real UI: import SOURCE_MD through the writing-import input, confirm the
 // preview, then insert a PNG with the toolbar's "Insert image".
 async function buildRichProject(page: Page) {
@@ -90,7 +103,7 @@ async function buildRichProject(page: Page) {
   // editor: caret at the end of the first paragraph, "Insert table", type cells.
   await editor.getByText("First sentence with a note").click();
   await page.keyboard.press("End");
-  await page.getByRole("button", { name: "Insert table" }).click();
+  await insertTable(page);
   const table = editor.locator("table");
   await expect(table).toBeVisible();
   for (const [i, cell] of ["Col A", "Col B", "Col C", "Data 1", "Data 2", "Data 3"].entries()) {
@@ -104,7 +117,7 @@ async function buildRichProject(page: Page) {
   await editor.getByText("Closing paragraph with second note").click();
   await page.keyboard.press("End");
   const chooser = page.waitForEvent("filechooser");
-  await page.getByRole("button", { name: "Insert image" }).click();
+  await (await toolbarButton(page, "Insert image")).click();
   await (await chooser).setFiles({ name: "figure.png", mimeType: "image/png", buffer: PNG });
   const alt = page.locator('input[aria-label="Image alternative text"]');
   await expect(alt).toBeVisible();

@@ -85,8 +85,15 @@ test("controls show hover, focus, pressed, disabled and selected states", async 
     page.getByRole("button", { name: "Move Manuscript up" }),
   ).toHaveCSS("opacity", "0.35");
   const selected = page.locator(".sidebar .selected").first();
-  await expect(selected).toHaveCSS("color", "rgb(0, 105, 217)");
+  await expect(selected).toHaveCSS("color", "rgb(36, 36, 40)");
   await expect(selected).toHaveCSS("font-weight", "600");
+  const selectedEntry = page.locator(".sidebar .entry-row.selected .entry-main").first();
+  const selectedBox = await selectedEntry.boundingBox();
+  expect(selectedBox).not.toBeNull();
+  await page.mouse.move(selectedBox!.x + selectedBox!.width / 2, selectedBox!.y + selectedBox!.height / 2);
+  await page.mouse.down();
+  await expect(selectedEntry).toHaveCSS("color", "rgb(36, 36, 40)");
+  await page.mouse.up();
   await page.emulateMedia({ reducedMotion: "reduce" });
   await expect(page.locator(".group-chevron").first()).toHaveCSS(
     "transition-duration",
@@ -118,7 +125,11 @@ test("choosing Dark under a light system sticks across a reload", async ({ page 
   await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
   await expect(page.locator(".library")).toHaveCSS("background-color", "rgb(32, 32, 35)");
   const stored = await page.evaluate((key) => localStorage.getItem(key), KEY);
-  expect(JSON.parse(stored!)).toEqual({ theme: "dark", palette: "plain" });
+  expect(JSON.parse(stored!)).toEqual({
+    theme: "dark",
+    palette: "plain",
+    sections: { manuscript: "blue", fragments: "green", research: "orange" },
+  });
 });
 
 test("choosing Light under a dark system overrides the system", async ({ page }) => {
@@ -227,6 +238,7 @@ test("Color palette tints the interface in light and keeps the document colours"
   expect(JSON.parse((await page.evaluate((k) => localStorage.getItem(k), KEY))!)).toEqual({
     theme: "system",
     palette: "color",
+    sections: { manuscript: "blue", fragments: "green", research: "orange" },
   });
   // Saved check is green.
   await expect(page.locator(".save-status.saved svg")).toHaveCSS("color", "rgb(30, 116, 52)");
@@ -323,7 +335,7 @@ test("Color palette in dark uses the dark tints", async ({ page }) => {
   await page.getByRole("button", { name: "Cancel", exact: true }).click();
 });
 
-test("Choosing Plain again restores today's blue", async ({ page }) => {
+test("Choosing Plain again restores Plain selected text color", async ({ page }) => {
   await page.emulateMedia({ colorScheme: "light" });
   await openProject(page, "Back to plain");
   await choosePalette(page, "Color");
@@ -331,9 +343,135 @@ test("Choosing Plain again restores today's blue", async ({ page }) => {
   await page.getByRole("button", { name: "Plain", exact: true }).click();
   await expect(page.locator("html")).not.toHaveAttribute("data-palette", /.*/);
   await page.locator('.sidebar-group[data-group="manuscript"] .entry-row .entry-main').first().click();
-  await expect(page.locator(".sidebar .entry-row.selected").first()).toHaveCSS("color", "rgb(0, 105, 217)");
+  await expect(page.locator(".sidebar .entry-row.selected").first()).toHaveCSS("color", "rgb(36, 36, 40)");
   await expect(page.locator('.sidebar-group[data-group="research"] .group-title svg').first()).toHaveCSS(
     "color",
     "rgb(36, 36, 40)",
   );
 });
+
+test("sidebar highlight tracks the selected row and moves to another section", async ({ page }) => {
+  await page.emulateMedia({ colorScheme: "light" });
+  await page.goto("/");
+  await page.getByRole("button", { name: "Start new project" }).click();
+  await page.getByRole("button", { name: "Blank", exact: true }).click();
+  await page.getByLabel("Project title").fill("Sliding highlight");
+  await page.getByRole("button", { name: "Save", exact: true }).click();
+  await page.getByRole("button", { name: "New section", exact: true }).click();
+  await page.getByLabel("Title", { exact: true }).fill("Second section");
+  await page.getByRole("button", { name: "Save", exact: true }).click();
+
+  const highlight = page.locator(".sidebar-groups > .sidebar-highlight");
+  const selectedRow = page.locator(".sidebar-groups .entry-row.selected").first();
+  await expect(selectedRow).toBeVisible();
+  await expect(highlight).toHaveCount(1);
+  const alignedWithinOnePixel = async (target: typeof selectedRow) => {
+    const [actual, expected] = await Promise.all([
+      highlight.boundingBox(),
+      target.boundingBox(),
+    ]);
+    expect(actual).not.toBeNull();
+    expect(expected).not.toBeNull();
+    for (const key of ["x", "y", "width", "height"] as const) {
+      expect(Math.abs(actual![key] - expected![key]), key).toBeLessThanOrEqual(1);
+    }
+  };
+
+  await page.waitForTimeout(400);
+  await alignedWithinOnePixel(selectedRow);
+  await page.screenshot({ path: "node_modules/.cache/personal-word-beta/ui2-u7/screens/plain-light.png" });
+  const otherSection = page.locator('.sidebar-group[data-group="manuscript"] .entry-main').first();
+  await otherSection.click();
+  await expect.poll(async () => {
+    const [actual, expected] = await Promise.all([
+      highlight.boundingBox(),
+      otherSection.boundingBox(),
+    ]);
+    return !!actual && !!expected &&
+      Math.abs(actual.x - expected.x) <= 1 &&
+      Math.abs(actual.y - expected.y) <= 1 &&
+      Math.abs(actual.width - expected.width) <= 1 &&
+      Math.abs(actual.height - expected.height) <= 1;
+  }, { timeout: 1000 }).toBe(true);
+
+  await page.getByRole("button", { name: "Settings", exact: true }).click();
+  const appearance = page.getByRole("group", { name: "Appearance" });
+  const palette = page.getByRole("group", { name: "Palette" });
+  await appearance.getByRole("button", { name: "Dark", exact: true }).click();
+  await palette.getByRole("button", { name: "Color", exact: true }).click();
+  await otherSection.click();
+  await page.waitForTimeout(250);
+  await page.screenshot({ path: "node_modules/.cache/personal-word-beta/ui2-u7/screens/color-dark.png" });
+
+  await page.getByRole("button", { name: "Settings", exact: true }).click();
+  await appearance.getByRole("button", { name: "Light", exact: true }).click();
+  await otherSection.click();
+  await page.waitForTimeout(250);
+  await page.screenshot({ path: "node_modules/.cache/personal-word-beta/ui2-u7/screens/color-light.png" });
+
+  await page.getByRole("button", { name: "Settings", exact: true }).click();
+  await palette.getByRole("button", { name: "Plain", exact: true }).click();
+  await appearance.getByRole("button", { name: "Dark", exact: true }).click();
+  await otherSection.click();
+  await page.waitForTimeout(250);
+  await page.screenshot({ path: "node_modules/.cache/personal-word-beta/ui2-u7/screens/plain-dark.png" });
+});
+
+test("segmented highlight follows the pressed appearance option", async ({ page }) => {
+  await page.emulateMedia({ colorScheme: "light" });
+  await page.goto("/");
+  await page.getByRole("button", { name: "Start new project" }).click();
+  await page.getByRole("button", { name: "Blank", exact: true }).click();
+  await page.getByLabel("Project title").fill("Segmented highlight");
+  await page.getByRole("button", { name: "Save", exact: true }).click();
+  await page.getByRole("button", { name: "Settings", exact: true }).click();
+
+  const segmented = page.getByRole("group", { name: "Appearance" });
+  const highlight = segmented.locator(".segmented-highlight");
+  const dark = segmented.getByRole("button", { name: "Dark", exact: true });
+  await expect(highlight).toHaveCount(1);
+  await dark.click();
+  await expect(dark).toHaveAttribute("aria-pressed", "true");
+  await page.waitForTimeout(250);
+  const [actual, expected] = await Promise.all([
+    highlight.boundingBox(),
+    dark.boundingBox(),
+  ]);
+  expect(actual).not.toBeNull();
+  expect(expected).not.toBeNull();
+  for (const key of ["x", "y", "width", "height"] as const) {
+    expect(Math.abs(actual![key] - expected![key]), key).toBeLessThanOrEqual(1);
+  }
+});
+
+for (const mode of [
+  { name: "light", colorScheme: "light" as const, purple: "rgb(154, 40, 212)", plain: "rgb(36, 36, 40)" },
+  { name: "dark", colorScheme: "dark" as const, purple: "rgb(202, 117, 244)", plain: "rgb(237, 237, 240)" },
+]) {
+  test(`section swatches persist and Plain hides them in ${mode.name}`, async ({ page }) => {
+    await page.emulateMedia({ colorScheme: mode.colorScheme });
+    await openProject(page, `Section swatches ${mode.name}`);
+    await choosePalette(page, "Color");
+    const settings = page.locator(".project-settings");
+    await expect(settings.getByText("Section colours", { exact: true })).toBeVisible();
+    const generalLabels = await settings.locator(".settings-section").first().locator(".settings-label").allTextContents();
+    expect(generalLabels.slice(generalLabels.indexOf("Palette"), generalLabels.indexOf("Palette") + 2)).toEqual(["Palette", "Section colours"]);
+    const sectionRow = settings.locator(".settings-field").filter({ hasText: "Section colours" });
+    await expect(sectionRow.locator(".settings-help")).toHaveCount(0);
+    const manuscriptColour = page.getByRole("button", { name: "Manuscript colour" });
+    await manuscriptColour.click();
+    await page.getByRole("option", { name: "Purple" }).click();
+    await expect(page.locator("html")).toHaveAttribute("data-tint-manuscript", "purple");
+    await expect(page.locator('.sidebar-group[data-group="manuscript"] .group-title svg').first()).toHaveCSS("color", mode.purple);
+    const saved = JSON.parse((await page.evaluate((key) => localStorage.getItem(key), KEY))!);
+    expect(saved.sections).toEqual({ manuscript: "purple", fragments: "green", research: "orange" });
+
+    await page.reload();
+    await expect(page.locator("html")).toHaveAttribute("data-tint-manuscript", "purple");
+    await openProject(page, `Section swatches reload ${mode.name}`);
+    await expect(page.locator('.sidebar-group[data-group="manuscript"] .group-title svg').first()).toHaveCSS("color", mode.purple);
+    await choosePalette(page, "Plain");
+    await expect(page.getByText("Section colours", { exact: true })).toHaveCount(0);
+    await expect(page.locator('.sidebar-group[data-group="manuscript"] .group-title svg').first()).toHaveCSS("color", mode.plain);
+  });
+}

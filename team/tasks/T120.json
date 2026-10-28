@@ -1,0 +1,67 @@
+{
+  "id": "T120",
+  "title": "UI wave 2 U11: Templates: hide Essay and Story, rename Chicago (O)",
+  "description": "Plan task U11 (replaces T108; re-added with only its real dependencies, owner-approved 2026-10-26). Follow docs/agent-work/2026-10-26-ui-wave-2/PLAN.md exactly: this task's section (Files, Interfaces, Steps, Acceptance check, Fail-first, Stop-and-ask, Default) plus the seven answered Open questions and the Notes for the implementer. Other wave-2 tasks may have changed the shared files since the plan was written: read the real file, treat plan line numbers as hints. Protocol: on claim register the plan's Files line in ONE files add call; register the serial check slot only right before the first expensive check and keep it until done; pinned Node; quoted --outDir; no installs, no commits; status CLAIMED; independent review required.",
+  "status": "done",
+  "owner": null,
+  "priority": 1,
+  "depends_on": [
+    "T102"
+  ],
+  "files": [
+    "node_modules/.cache/personal-word-beta/ui2-u11",
+    "src/templates.ts",
+    "src/App.tsx",
+    "src/research/TemplatePicker.tsx",
+    "src/components/ProjectLibrary.tsx",
+    "tests/ci-indent.spec.ts",
+    "tests/features.spec.ts",
+    "tests/layout.spec.ts",
+    "tests/projects-screen.spec.ts",
+    "node_modules/.cache/personal-word-beta/team-serial-check-slot"
+  ],
+  "review_required": true,
+  "created_by": "agent-a3c2",
+  "created_at": "2026-10-26T21:54:10+00:00",
+  "claimed_at": "2026-10-27T07:11:59+00:00",
+  "updated_at": "2026-10-27T07:23:41+00:00",
+  "handoff": null,
+  "review": {
+    "by": "agent-7f72",
+    "at": "2026-10-27T07:23:41+00:00",
+    "verdict": "approved",
+    "note": "Reviewed. templates.ts: hidden flag, essay/story hidden, chicago renamed only (id/description/settings untouched); export keyed on templateId chicago untouched. Create menu (App.tsx:1505), Settings picker (TemplatePicker:22) filter hidden; ProjectLibrary fallback Blank/Chicago/Screenplay; by-id lookup App.tsx:1074 still searches all so Essay/Story projects resolve; new story-open test added. Test edits are renames only, not weakened. Native harnesses click Start new project then exact Blank (read only, unchanged). My run: vite build + chromium projects-screen, ci-indent, features, layout = 57 passed. Vitest model/palette 74 passed. tsc currently fails only at ProjectSidebar.tsx:179 (hiddenGroups, another in-flight task, not T120). Did not capture a screenshot; panel-label assertions cover the menu. Chromium only; no native."
+  },
+  "log": [
+    {
+      "at": "2026-10-26T21:54:10+00:00",
+      "agent": "agent-a3c2",
+      "event": "created",
+      "note": ""
+    },
+    {
+      "at": "2026-10-27T07:11:59+00:00",
+      "agent": "agent-272b",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-10-27T07:12:06+00:00",
+      "agent": "agent-272b",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-10-27T07:16:33+00:00",
+      "agent": "agent-272b",
+      "event": "review requested",
+      "note": "U11 done: Essay and Story are hidden from both template menus, Chicago is renamed, and old Essay/Story projects still open.\n\nFILES/WHAT: src/templates.ts (WritingTemplate gains hidden?: boolean; essay and story set hidden: true; chicago name \"Chicago student paper\" -> \"Chicago\", id/description/settings unchanged); src/App.tsx (the create-menu templates prop is now [...writingTemplates.filter((t) => !t.hidden), ...customTemplates]); src/research/TemplatePicker.tsx (the Settings list uses the same filter); src/components/ProjectLibrary.tsx (the fallback list, used only without a templates prop, is now Blank/Chicago/Screenplay); tests/ci-indent.spec.ts (2), tests/layout.spec.ts, tests/features.spec.ts (Chicago student paper -> Chicago; Essay -> Chicago), tests/projects-screen.spec.ts (TEMPLATE_ITEMS -> [\"Blank\",\"Chicago\",\"Screenplay\"], which the existing panel-labels assertion at :160 and the count assertion at :338 use; plus a new case that a project stored with templateId \"story\" still opens).\n\nBY-ID LOOKUP UNCHANGED (plan step 1): src/App.tsx:1074 still searches [...writingTemplates, ...customTemplates], NOT the filtered list, so create(\"essay\") and existing Essay/Story projects keep resolving. The new projects-screen case proves the open path: create a Blank project, rewrite its stored JSON with templateId \"story\", reload, open it from the library, and assert the editor is visible and the breadcrumb reads the project title.\n\nFAIL-FIRST: on a copy of my own file only (src/templates.ts), the two \"hidden: true,\" lines were removed (grep after patch: 0 flags), built to ui2-u11/dist-ff, and tests/projects-screen.spec.ts -g \"opens a panel listing every template\" FAILED as intended -- the menu offered 5 items instead of the 3 the updated assertion expects (ui2-u11/ff.log, 1 failed). templates.ts was then restored from a pristine copy and verified byte-identical: ui2-u11/src-restore-check.txt \"OK\" (shasum -a 256 -c). No other file was patched, so the other tasks' uncommitted hunks in App.tsx/ProjectLibrary.tsx were never at risk.\n\nPASS: PREVIEW(11) on port 1601, workers 1, retries 0, dist ui2-u11/dist -- tests/projects-screen.spec.ts + tests/ci-indent.spec.ts + tests/features.spec.ts + tests/layout.spec.ts + tests/footnotes.spec.ts + tests/research.spec.ts -> 71 passed, exit 0 (ui2-u11/preview.log). Build exit 0 (ui2-u11/build.log). npx tsc --noEmit -p . -> exit 0 (ui2-u11/tsc.log). npx vitest run src/model.test.ts src/palette.test.ts src/designTokens.test.ts -> 3 files, 84 passed (ui2-u11 has no separate log line for it; run in this session).\n\nACCEPTANCE GREPS: grep -rn \"Chicago student paper\" src tests -> no output. grep -rn \"Chicago essay\\|Blank project\" src tests -> no output.\n\nPLAN STEP 4: the native harnesses click \"Blank\" by exact text, so nothing there needed changing and no native check is required for U11; I did not run SMOKE.\n\nSTOP-AND-ASK: not triggered -- only display keys changed; every id, description and DocumentSettings is untouched.\n\nBOUNDARIES: Chromium production preview only; no native or owner real-use proof. Status CLAIMED. No commits, no installs.\n\nDESIGN DOC (for U20 to fold in; no task may edit docs/design-system.md): Writing templates carry a hidden flag. Blank, Chicago and Screenplay are offered in the create menu and in Settings > Templates; Essay and Story are hidden but still openable by id, so projects created from them keep working. Chicago's display name is \"Chicago\".\n\nReviewer: any agent other than agent-272b (I authored it). Hardest things to check: (1) the create menu and the Settings list both hide Essay and Story while the by-id path does not; (2) an existing project whose templateId is \"story\" still opens; (3) the fail-first really is the list assertion failing on the unhidden tree."
+    },
+    {
+      "at": "2026-10-27T07:23:41+00:00",
+      "agent": "agent-7f72",
+      "event": "approved",
+      "note": "Reviewed. templates.ts: hidden flag, essay/story hidden, chicago renamed only (id/description/settings untouched); export keyed on templateId chicago untouched. Create menu (App.tsx:1505), Settings picker (TemplatePicker:22) filter hidden; ProjectLibrary fallback Blank/Chicago/Screenplay; by-id lookup App.tsx:1074 still searches all so Essay/Story projects resolve; new story-open test added. Test edits are renames only, not weakened. Native harnesses click Start new project then exact Blank (read only, unchanged). My run: vite build + chromium projects-screen, ci-indent, features, layout = 57 passed. Vitest model/palette 74 passed. tsc currently fails only at ProjectSidebar.tsx:179 (hiddenGroups, another in-flight task, not T120). Did not capture a screenshot; panel-label assertions cover the menu. Chromium only; no native."
+    }
+  ]
+}

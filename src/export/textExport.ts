@@ -1,5 +1,6 @@
 import type { JSONContent } from "@tiptap/react";
-import { bibliography, footnoteText } from "../research/citations";
+import { footnoteText } from "../research/citations";
+import { bibliographyItems } from "../research/bibliography";
 import { footnoteIdsInOrder, resolveCitationContext } from "../research/noteForms";
 import { emptyResearch } from "../research/types";
 import type { AssetId, PendingAsset } from "../assets/types";
@@ -160,12 +161,7 @@ function projectParts(project: ExportProject) {
     const note = research.footnotes.find((n) => n.id === id)!;
     return { number, text: footnoteText(note, research, context[id].form, context[id].locator) };
   });
-  const citedSourceIds = new Set(
-    [...numbers.keys()]
-      .map((id) => research.footnotes.find((note) => note.id === id)?.sourceId)
-      .filter((id): id is string => Boolean(id)),
-  );
-  return { research, numbers, notes, citedSourceIds };
+  return { research, numbers, notes };
 }
 
 function formatMarkdownFootnote(number: number, text: string): string {
@@ -178,7 +174,7 @@ function formatMarkdownFootnote(number: number, text: string): string {
 }
 
 export function projectMarkdown(project: ExportProject, assets: Assets = new Map()): string {
-  const { research, numbers, notes, citedSourceIds } = projectParts(project);
+  const { research, numbers, notes } = projectParts(project);
   const sections: string[] = [`# ${escapeMarkdown(project.title)}`];
   for (const id of project.order) {
     const entry = project.entries.find((e) => e.id === id && e.kind === "section");
@@ -188,8 +184,17 @@ export function projectMarkdown(project: ExportProject, assets: Assets = new Map
   if (notes.length) sections.push("## Notes", ...notes.map((note) => formatMarkdownFootnote(note.number, note.text)));
   const bib = project.documentSettings?.bibliography === false
     ? []
-    : bibliography({ ...research, sources: research.sources.filter((source) => citedSourceIds.has(source.id)) });
-  if (bib.length) sections.push("## Bibliography", ...bib.map((item) => `- ${escapeMarkdown(item.text)}`));
+    : bibliographyItems(project, project.documentSettings);
+  if (bib.length) {
+    sections.push(
+      "## Bibliography",
+      ...bib.map((item) =>
+        item.heading
+          ? `### ${escapeMarkdown(item.text)}`
+          : `- ${escapeMarkdown(item.text)}`,
+      ),
+    );
+  }
   const fragments = project.entries.filter((e) => e.kind === "fragment");
   if (fragments.length) sections.push("## Fragments", ...fragments.flatMap((e) => [`### ${escapeMarkdown(e.title)}`, ...markdownBlocks(e.content, numbers, research, "", assets)]));
   if (research.notes.length) sections.push("## Research notes", ...research.notes.flatMap((note) => {
@@ -254,7 +259,7 @@ function plainBlocks(node: JSONContent, numbers: Map<string, number>, research: 
 }
 
 export function projectPlainText(project: ExportProject, assets: Assets = new Map()): string {
-  const { research, numbers, notes, citedSourceIds } = projectParts(project);
+  const { research, numbers, notes } = projectParts(project);
   const sections = [`${project.title}\n${"=".repeat(Math.max(1, project.title.length))}`];
   for (const id of project.order) {
     const entry = project.entries.find((e) => e.id === id && e.kind === "section");
@@ -264,7 +269,7 @@ export function projectPlainText(project: ExportProject, assets: Assets = new Ma
   if (notes.length) sections.push("Notes", "-----", ...notes.map((note) => `${note.number}. ${note.text}`));
   const bib = project.documentSettings?.bibliography === false
     ? []
-    : bibliography({ ...research, sources: research.sources.filter((source) => citedSourceIds.has(source.id)) });
+    : bibliographyItems(project, project.documentSettings);
   if (bib.length) sections.push("Bibliography", "-----------", ...bib.map((item) => item.text));
   const fragments = project.entries.filter((e) => e.kind === "fragment");
   if (fragments.length) sections.push("Fragments", "---------", ...fragments.flatMap((e) => [e.title, ...plainBlocks(e.content, numbers, research, "", assets)]));

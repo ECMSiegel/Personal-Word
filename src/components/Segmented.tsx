@@ -1,4 +1,5 @@
-import type { KeyboardEvent } from "react";
+import { useLayoutEffect, useRef, type KeyboardEvent } from "react";
+import { slideHighlight } from "../motion";
 import "./segmented.css";
 
 export function Segmented<T extends string>({
@@ -12,6 +13,21 @@ export function Segmented<T extends string>({
   options: { value: T; label: string }[];
   onChange: (value: T) => void;
 }) {
+  const group = useRef<HTMLDivElement>(null);
+  const highlight = useRef<HTMLSpanElement>(null);
+  useLayoutEffect(() => {
+    const container = group.current;
+    const indicator = highlight.current;
+    if (!container || !indicator) return;
+    slideHighlight(
+      indicator,
+      container.querySelector<HTMLButtonElement>(
+        'button[aria-pressed="true"]',
+      ),
+      container,
+    );
+  }, [value]);
+
   // Arrow keys move the choice (and focus) to the neighbouring button.
   const onKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
     const step =
@@ -32,7 +48,14 @@ export function Segmented<T extends string>({
     onChange(options[next].value);
   };
   return (
-    <div className="segmented" role="group" aria-label={label} onKeyDown={onKeyDown}>
+    <div
+      className="segmented"
+      ref={group}
+      role="group"
+      aria-label={label}
+      onKeyDown={onKeyDown}
+    >
+      <span ref={highlight} className="segmented-highlight" aria-hidden="true" />
       {options.map((option) => (
         <button
           key={option.value}

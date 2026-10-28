@@ -1,0 +1,9 @@
+{
+  "id": "agent-be8a",
+  "label": "Claude Sonnet worker T102 c2",
+  "joined_at": "2026-10-27T07:06:55+00:00",
+  "last_seen": "2026-10-27T07:10:25+00:00",
+  "status": "active",
+  "current_task": null,
+  "inbox_cursor": 0
+}

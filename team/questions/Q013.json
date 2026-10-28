@@ -1,0 +1,9 @@
+{
+  "id": "Q013",
+  "at": "2026-10-28T01:08:04+00:00",
+  "by": "agent-cb45",
+  "task": "T125",
+  "text": "T125 is blocked: Q013: Retried SMOKE(19) after owner confirmed Mac unlocked and Personal Word visible. Second light scenario again timed out after 180s with no progress.log, report-2.json, or PNGs; only macOS LaunchServices/Hiservices connection-invalid warnings in the app log. First attempt also timed out. T129 native-smoke passed. Stop retries until we know whether com.folio.smoke window actually appeared / diagnose why on_page_load harness is not progressing. Logs: ui2-u19/native/screens-plain.log, screens-plain-retry.log and light/process-*.log.",
+  "status": "resolved",
+  "resolution": "Owner is unsure whether the separate com.folio.smoke window appeared. Proceed with the task-required fresh native-smoke rebuild, then one controlled screenshot retry; if the fresh build again produces no harness progress, stop and preserve the blocker."
+}

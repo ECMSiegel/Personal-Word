@@ -160,9 +160,8 @@
     if (window.__SMOKE_PHASE__ === "1") {
       // Only clear the last-project navigation key in this isolated test application.
       if (!button("Start new project")) {
-        await click(
-          document.querySelector(".project-switch")?.textContent.trim(),
-        );
+        // The sidebar title renames in place; the Projects tab goes back.
+        await click("Projects");
       }
       await click("Start new project");
       await click("Blank");

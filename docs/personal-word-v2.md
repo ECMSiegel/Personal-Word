@@ -8,7 +8,7 @@
 - Resizable sidebar with global pin/hover preferences, per-project feature order and list/card preferences. Keyboard controls supplement dragging and hovering.
 - Fonts, sizes, line spacing, paragraph spacing, paper size, margins, zoom, and explicit page breaks. View changes preserve the mounted editor and undo stack.
 - Editable page view uses actual CSS multicolumn fragmentation. Pages are arranged horizontally. Count and current page refer to the open section, not an exported full manuscript. Export pagination is independent.
-- Templates: blank, essay, Chicago student paper, screenplay, story, and user-saved structure/settings templates. Blank writing defaults to sans serif. Chicago uses 12 pt serif, double spacing, one-inch margins, half-inch first-line indentation, editable title-page fields, notes, bibliography, and page numbers. Screenplay has named paragraph styles and Tab/Shift-Tab cycling.
+- Templates: Blank, Chicago and Screenplay, plus user-saved structure/settings templates; Essay and Story are hidden from the menus, and projects created from them still open. Blank writing defaults to sans serif. Chicago uses 12 pt serif, double spacing, one-inch margins, half-inch first-line indentation, editable title-page fields, notes, bibliography, and page numbers. Screenplay has named paragraph styles and Tab/Shift-Tab cycling.
 - Research: two tabs. Sources holds each work with its Chicago note/bibliography preview, its quotes and paraphrases, and the footnotes that cite it (Cite here, Insert quote + cite); footnotes without a source are listed as text-only notes. Notes holds loose personal notes. Footnote references retain stable IDs and are numbered in manuscript order; clicking a reference opens its source.
 - Citation lookup: paste a DOI (Crossref), ISBN (Open Library), or web address (page metadata) and the fields fill in as a draft to review. Nothing is sent until Look up is clicked, and only the typed identifier is sent.
 - Writing screen: section title lives in the top bar; one-row formatting toolbar (zoom, style, font, size, marks, link, lists, indent, spacing popover, page view, page setup popover, comment, keep as fragment) that folds trailing groups into a More menu when narrow; page count in the status line. Tab/Shift-Tab indent like Word (lists nest; paragraph start sets a first-line indent; otherwise the paragraph moves 0.5 in). Fragments and Research side panels are resizable (width stored globally). All dropdowns use the flat in-app Dropdown component instead of native selects.
@@ -19,6 +19,17 @@
 - Fragments have tags, search across saved projects, side-by-side browsing, copy with remapped research references, and placement history.
 - Snapshot comparison highlights changed paragraphs side by side; restore a section or a paragraph with a safety snapshot first.
 - Read manuscript has independent typeface, size, and line-spacing controls and displays note markers and notes.
+
+## UI wave 2 -- 2026-10-26/27
+
+All CLAIMED; the owner has not confirmed any of it in real use. Evidence and run IDs: [validation.md](validation.md) and the board tasks T098-T129.
+
+- **Motion:** menus, toolbar panels and the create button move through one motion engine (`src/motion.ts`) with shared duration and easing tokens; reduced motion creates no animation at all.
+- **Split view:** Cmd/Ctrl+click a section or fragment, or use the Open beside button shown on hover or keyboard focus, to open it in a second pane beside the current one. One formatting bar acts on the focused pane; the divider drags (arrow keys move it 2 percent) and the ratio is remembered. Jumps such as Go to passage open in the focused pane; restoring a whole snapshot closes the split.
+- **Bibliography:** the sidebar's Research list holds Bibliography and every source. The read-only Bibliography page offers three orders and an include-uncited-sources option, saved per project and used by every export; Read manuscript ends with the same Bibliography.
+- **PDFs:** attach a PDF (25 MB cap) to a source and open it beside the draft. It is stored in the project folder, drawn locally, and never fetched from the network. It is not carried inside the `.json` archive or the Markdown bundle.
+- **Sidebar:** the writing sidebar starts with the project title (renamed in place), the hover-reveal switch lives in Settings > General, and Read manuscript, Comments and Snapshots & history can be hidden per project in Settings > Sidebar.
+- **Not established:** native menu motion, Mac Reduce Motion, the native title bar and every owner hand check; browser checks are not evidence of native WebKit rendering.
 
 ## Important boundaries
 

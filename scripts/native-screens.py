@@ -24,7 +24,7 @@ ROOT = Path(__file__).resolve().parents[1]
 BINARY = ROOT / "src-tauri/target/debug/folio"
 DIAGNOSTIC_PROTOCOL = "d1-profile-isolation-v1"
 SCENARIOS = ("light", "dark")
-SCREENS = ("projects", "writing", "research", "settings")
+SCREENS = ("projects", "writing", "research", "settings", "pdf-preview")
 
 
 def tail(path, lines=40):
@@ -150,6 +150,7 @@ def capture_scenario(scenario, out, palette, timeout):
                 raise RuntimeError(f"Unexpected snapshot name {name!r}")
             shutil.copyfile(source, out / f"{name}-{scenario}.png")
         shutil.copyfile(work / "report-2.json", out / f"report-{scenario}.json")
+        print(f"{scenario}: pdfProbe {json.dumps(report.get('pdfProbe'))}")
         print(f"{scenario}: captured {', '.join(Path(p).stem for p in report['screens'])}")
 
 

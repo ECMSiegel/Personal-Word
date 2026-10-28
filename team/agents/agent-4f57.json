@@ -1,0 +1,9 @@
+{
+  "id": "agent-4f57",
+  "label": "Claude Opus worker T110 (U13)",
+  "joined_at": "2026-10-27T07:56:21+00:00",
+  "last_seen": "2026-10-27T08:16:45+00:00",
+  "status": "left",
+  "current_task": null,
+  "inbox_cursor": 498
+}
