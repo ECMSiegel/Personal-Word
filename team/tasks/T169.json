@@ -1,0 +1,46 @@
+{
+  "id": "T169",
+  "title": "native-screens: reopen More before toggling page view back (T155 follow-up)",
+  "description": "After T155 closes the More popover for the writing-pages capture, the script could not find the Page view toggle to return to continuous view: 'Timed out: continuous view' on the first native run (2026-10-28 16:30). Reopen More if the toggle is hidden, click it, close More.",
+  "status": "done",
+  "owner": null,
+  "priority": 2,
+  "depends_on": [],
+  "files": [
+    "tests/native-screens.js",
+    "node_modules/.cache/personal-word-beta/ui3-screensfix"
+  ],
+  "review_required": false,
+  "created_by": "agent-47c8",
+  "created_at": "2026-10-28T20:36:58+00:00",
+  "claimed_at": "2026-10-28T20:37:03+00:00",
+  "updated_at": "2026-10-28T20:39:09+00:00",
+  "handoff": null,
+  "review": null,
+  "log": [
+    {
+      "at": "2026-10-28T20:36:58+00:00",
+      "agent": "agent-47c8",
+      "event": "created",
+      "note": ""
+    },
+    {
+      "at": "2026-10-28T20:37:03+00:00",
+      "agent": "agent-47c8",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-10-28T20:37:03+00:00",
+      "agent": "agent-47c8",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-10-28T20:39:09+00:00",
+      "agent": "agent-47c8",
+      "event": "done",
+      "note": "Reopen More before toggling back to continuous view, then close it. Native runs 2026-10-28 ~16:40: native-smoke 3 phases pass (ui3-wordsplit/native-smoke.log); native-screens plain and color both pass, 12 PNGs each (light/dark); writing-pages shows stacked pages, grey gap, no sideways scroll, no open More popover."
+    }
+  ]
+}

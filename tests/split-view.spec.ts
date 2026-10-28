@@ -47,7 +47,7 @@ test("split view: two panes, one format bar, focus routing, per-pane undo, persi
   await expect(crumb).toHaveText("Two");
   await expect(page.locator(".format-bar")).toHaveCount(1);
   await expect(page.locator(".split-toolbar .format-bar")).toHaveCount(1);
-  await expect(page.locator(".split-pane-title")).toHaveText("Two");
+  await expect(page.locator('.split-pane[data-side="right"] .split-pane-title')).toHaveText("Two");
 
   const left = page.getByRole("textbox", { name: "Writing editor", exact: true });
   const right = page.getByRole("textbox", { name: "Writing editor, right pane" });
@@ -130,7 +130,7 @@ test("split view: two panes, one format bar, focus routing, per-pane undo, persi
 
   // Close: one pane, the left entry is active.
   await page.getByRole("button", { name: "Close right pane" }).click();
-  await expect(page.locator(".split-pane")).toHaveCount(0);
+  await expect(page.locator('.split-pane[data-side="right"]')).toHaveCount(0);
   await expect(crumb).toHaveText("One");
   await expect(page.locator(".format-bar")).toHaveCount(1);
   await expect(page.getByRole("textbox", { name: "Writing editor", exact: true })).toContainText(
@@ -139,7 +139,7 @@ test("split view: two panes, one format bar, focus routing, per-pane undo, persi
 
   // Cmd/Ctrl+click on the entry already shown on the left does not split.
   await row(page, "One").click({ modifiers: ["ControlOrMeta"] });
-  await expect(page.locator(".split-pane")).toHaveCount(0);
+  await expect(page.locator('.split-pane[data-side="right"]')).toHaveCount(0);
   await expect(crumb).toHaveText("One");
 
   // A plain click inside a split replaces the focused pane, never duplicates.
@@ -148,13 +148,20 @@ test("split view: two panes, one format bar, focus routing, per-pane undo, persi
   await row(page, "One").click();
   await expect(crumb).toHaveText("One");
   await expect(page.locator('.split-pane[data-side="left"]')).toHaveAttribute("data-focused", "");
-  await expect(page.locator(".split-pane-title")).toHaveText("Two");
+  await expect(page.locator('.split-pane[data-side="right"] .split-pane-title')).toHaveText("Two");
   expect(errors).toEqual([]);
 });
 
 test("split view: the shared bar's menus open in place and act on the focused pane", async ({
   page,
 }, testInfo) => {
+  // The shared bar is icons-only since E1, so at the fixture's default 1440 the
+  // whole toolbar fits and there is no More button at all (bar 1170 px wide).
+  // This case is about the menus that live in the More panel, and the marks
+  // group only overflows below about 1040 px: at 980 the bar is 710 px, More
+  // carries Bold, Italic, Underline and Strikethrough, and the font control the
+  // second half of this test needs is still in the bar.
+  await page.setViewportSize({ width: 980, height: 900 });
   await page.goto("/");
   await createProject(page, "Split menus fixture");
   await addSection(page, "One");
@@ -175,6 +182,9 @@ test("split view: the shared bar's menus open in place and act on the focused pa
   await more.click();
   const menu = page.getByRole("dialog", { name: "More formatting" });
   await expect(menu).toBeVisible();
+  // The fixture must actually put the marks group in the panel, or the rest of
+  // this case would test the main bar instead. Fail here in seconds, not 90.
+  await expect(menu.getByRole("button", { name: /^Bold/ })).toBeVisible();
   const trigger = (await more.boundingBox())!;
   const panel = (await menu.boundingBox())!;
   expect(panel.y).toBeGreaterThanOrEqual(trigger.y + trigger.height - 1);
@@ -258,7 +268,7 @@ test("split safety: a fragment live in a pane is read-only in the Fragments pane
   await page.getByRole("button", { name: "Open in editor" }).click();
   await expect(page.locator(".split-pane")).toHaveCount(2);
   await expect(page.locator('.split-pane[data-side="right"]')).toHaveAttribute("data-focused", "");
-  await expect(page.locator(".split-pane-title")).toHaveText("Frag base text");
+  await expect(page.locator('.split-pane[data-side="right"] .split-pane-title')).toHaveText("Frag base text");
 });
 
 test("split safety: Append to section from the fragment pane goes through the left editor", async ({ page }) => {
@@ -336,7 +346,7 @@ test("split safety: deleting a pane's entry closes the split; Cmd+click still op
   await page.getByRole("button", { name: "Delete section" }).click();
   await page.getByRole("dialog").getByRole("button", { name: "Delete section" }).click();
   await expect(page.getByRole("dialog")).toHaveCount(0);
-  await expect(page.locator(".split-pane")).toHaveCount(0);
+  await expect(page.locator('.split-pane[data-side="right"]')).toHaveCount(0);
   const stale = await page.evaluate(() =>
     Object.keys(localStorage).filter((k) => k.startsWith("personal-word.split.")),
   );
@@ -344,7 +354,7 @@ test("split safety: deleting a pane's entry closes the split; Cmd+click still op
 
   await row(page, "Three").click({ modifiers: ["ControlOrMeta"] });
   await expect(page.locator(".split-pane")).toHaveCount(2);
-  await expect(page.locator(".split-pane-title")).toHaveText("Three");
+  await expect(page.locator('.split-pane[data-side="right"] .split-pane-title')).toHaveText("Three");
   // The surviving pane's entry (Two) became the left pane.
   await leftEditor(page).click();
   await expect(page.getByRole("button", { name: "Rename section" })).toHaveText("Two");
@@ -367,7 +377,7 @@ test("split jumps: New section opens in the focused pane; the split stays and pa
   // The new section replaces the focused (right) pane; the left pane keeps One.
   await expect(page.locator(".split-pane")).toHaveCount(2);
   await expect(page.locator('.split-pane[data-side="right"]')).toHaveAttribute("data-focused", "");
-  await expect(page.locator(".split-pane-title")).toHaveText("Three");
+  await expect(page.locator('.split-pane[data-side="right"] .split-pane-title')).toHaveText("Three");
   await expect(page.getByRole("button", { name: "Rename section" })).toHaveText("Three");
   await expect(leftEditor(page)).toContainText("One words");
   const editor = rightEditor(page);
@@ -404,7 +414,7 @@ test("open beside: the row button shows on hover and keyboard focus and opens th
   await expect(button).toBeVisible();
   await button.click();
   await expect(page.locator(".split-pane")).toHaveCount(2);
-  await expect(page.locator(".split-pane-title")).toHaveText("Two");
+  await expect(page.locator('.split-pane[data-side="right"] .split-pane-title')).toHaveText("Two");
   await expect(page.locator('.split-pane[data-side="right"]')).toHaveAttribute("data-focused", "");
   await expect(page.getByRole("button", { name: "Rename section" })).toHaveText("Two");
 
@@ -419,23 +429,24 @@ test("open beside: the row button shows on hover and keyboard focus and opens th
   await expect(actions(page, "Beside fragment")).toHaveCSS("opacity", "1");
   await page.keyboard.press("Enter");
   await expect(page.locator(".split-pane")).toHaveCount(2);
-  await expect(page.locator(".split-pane-title")).toHaveText("Beside fragment");
+  await expect(page.locator('.split-pane[data-side="right"] .split-pane-title')).toHaveText("Beside fragment");
   await expect(rightEditor(page)).toContainText("Beside fragment");
 
   // The entry already on the left never opens in both panes.
   await row(page, "One").hover();
   await page.getByRole("button", { name: "Open One beside" }).click();
-  await expect(page.locator(".split-pane-title")).toHaveText("Beside fragment");
+  await expect(page.locator('.split-pane[data-side="right"] .split-pane-title')).toHaveText("Beside fragment");
   await expect(page.locator(".ProseMirror")).toHaveCount(2);
 
   // Deleting the right pane's entry closes the split.
   await row(page, "Two").hover();
   await page.getByRole("button", { name: "Open Two beside" }).click();
-  await expect(page.locator(".split-pane-title")).toHaveText("Two");
+  await expect(page.locator('.split-pane[data-side="right"] .split-pane-title')).toHaveText("Two");
   await rightEditor(page).click();
   await page.getByRole("button", { name: "Delete section" }).click();
   await page.getByRole("dialog").getByRole("button", { name: "Delete section" }).click();
-  await expect(page.locator(".split-pane")).toHaveCount(0);
+  await expect(page.locator('.split-pane[data-side="right"]')).toHaveCount(0);
+  await expect(page.locator(".split-pane")).toHaveCount(1);
   await expect(page.getByRole("button", { name: "Rename section" })).toHaveText("One");
 });
 
@@ -512,4 +523,195 @@ test("split jumps: restoring a section from a snapshot keeps both panes and show
   const p = await storedProject(page);
   expect(storedText(p, "One")).toBe("One before after");
   expect(storedText(p, "Two")).toBe("Two before again");
+});
+
+// ---- A3: the left editor survives opening and closing a split ----
+
+const longBody = Array.from(
+  { length: 90 },
+  (_, i) => "Paragraph " + i + " with enough words to wrap a little.",
+).join("\n");
+
+const scrollerTop = (page: Page, side: "left" | "right") =>
+  page.evaluate((side) => {
+    const pm =
+      document.querySelector(`.split-pane[data-side="${side}"] .ProseMirror`) ??
+      document.querySelector(".ProseMirror");
+    let el: HTMLElement | null = pm as HTMLElement | null;
+    while (el && el.scrollHeight <= el.clientHeight + 1) el = el.parentElement;
+    return el ? Math.round(el.scrollTop) : -1;
+  }, side);
+
+test("split view: undo history survives opening a split", async ({ page }) => {
+  await page.goto("/");
+  await createProject(page, "Undo keeper fixture");
+  await addSection(page, "Two");
+  await row(page, "Opening").click();
+  const editor = leftEditor(page);
+  await editor.fill("Undo survives the split.");
+  await row(page, "Two").hover();
+  await page.getByRole("button", { name: "Open Two beside" }).click();
+  await expect(page.locator(".split-pane")).toHaveCount(2);
+  await leftEditor(page).click();
+  await leftEditor(page).press("ControlOrMeta+z");
+  await expect(leftEditor(page)).toHaveText("");
+});
+
+test("split view: the left pane keeps its scroll position across a split round trip", async ({
+  page,
+}) => {
+  await page.goto("/");
+  await createProject(page, "Scroll keeper fixture");
+  await addSection(page, "Two");
+  await row(page, "Opening").click();
+  const editor = leftEditor(page);
+  await editor.fill(longBody);
+  const box = await editor.boundingBox();
+  await page.mouse.move(box!.x + box!.width / 2, box!.y + box!.height / 2);
+  await page.mouse.wheel(0, 1200);
+  await page.waitForTimeout(200);
+  const before = await scrollerTop(page, "left");
+  expect(before).toBeGreaterThan(10);
+  await row(page, "Two").hover();
+  await page.getByRole("button", { name: "Open Two beside" }).click();
+  await expect(page.locator(".split-pane")).toHaveCount(2);
+  await page.getByRole("button", { name: "Close right pane" }).click();
+  await expect(page.locator('.split-pane[data-side="right"]')).toHaveCount(0);
+  const after = await scrollerTop(page, "left");
+  expect(Math.abs(after - before)).toBeLessThanOrEqual(2);
+});
+
+test("split view: both panes' first text lines start at the same y in continuous and page view", async ({
+  page,
+}) => {
+  await page.goto("/");
+  await createProject(page, "Level panes fixture");
+  await keepFragment(page, "Kept fragment body");
+  await addSection(page, "One");
+  await leftEditor(page).fill("Section One text lives here.");
+  await row(page, "Kept fragment body").hover();
+  await page
+    .getByRole("button", { name: "Open Kept fragment body beside" })
+    .click();
+  await expect(page.locator(".split-pane")).toHaveCount(2);
+  const tops = () =>
+    page.evaluate(() =>
+      Array.from(document.querySelectorAll(".split-pane .ProseMirror")).map(
+        (el) => Math.round(el.getBoundingClientRect().top),
+      ),
+    );
+  const [leftTop, rightTop] = await tops();
+  expect(Math.abs(leftTop - rightTop)).toBeLessThanOrEqual(1);
+  await page.getByRole("button", { name: "Page view", exact: true }).click();
+  await expect(
+    page.locator('.split-pane[data-side="left"] .editor-viewport'),
+  ).toHaveClass(/is-paged/);
+  const [pagedLeftTop, pagedRightTop] = await tops();
+  expect(Math.abs(pagedLeftTop - pagedRightTop)).toBeLessThanOrEqual(1);
+});
+
+test("split view: the footer page status follows the focused pane at once", async ({
+  page,
+}) => {
+  await page.goto("/");
+  await createProject(page, "Status follower fixture");
+  await addSection(page, "Two");
+  await row(page, "Opening").click();
+  await leftEditor(page).fill(longBody);
+  await page.getByRole("button", { name: "Page view", exact: true }).click();
+  await expect(
+    page.locator('.split-pane[data-side="left"] .editor-viewport'),
+  ).toHaveClass(/is-paged/);
+  await row(page, "Two").hover();
+  await page.getByRole("button", { name: "Open Two beside" }).click();
+  await expect(page.locator(".split-pane")).toHaveCount(2);
+  const status = page.locator('[aria-label="Page count"]');
+  // The open-beside flow focuses the right pane: its status is page 1.
+  await expect(status).toHaveText(/Section page 1 /, { timeout: 2_000 });
+  // Scroll the left pane deep into the document, then focus it.
+  await leftEditor(page).click();
+  const box = await leftEditor(page).boundingBox();
+  await page.mouse.move(box!.x + box!.width / 2, box!.y + box!.height / 2);
+  await page.mouse.wheel(0, 3000);
+  await expect(status).not.toHaveText(/Section page 1 /, { timeout: 2_000 });
+  // Focus the right pane and back: the footer follows focus immediately.
+  await rightEditor(page).click();
+  await expect(status).toHaveText(/Section page 1 /, { timeout: 300 });
+  await leftEditor(page).click();
+  await expect(status).not.toHaveText(/Section page 1 /, { timeout: 300 });
+});
+
+// ---- T159: close-side undo, DOM identity and scroll, asserted directly ----
+
+test("split view: undo still works after closing the split, and the left editor DOM node never changes", async ({
+  page,
+}) => {
+  await page.goto("/");
+  await createProject(page, "Close undo fixture");
+  await addSection(page, "Two");
+  await row(page, "Opening").click();
+  await leftEditor(page).fill("Typed before the split.");
+  // Tag the left Writer's editor, its pane section and the panes wrapper.
+  await page.evaluate(() => {
+    document.querySelector(".split-panes")?.setAttribute("data-tag159", "panes");
+    document
+      .querySelector('.split-pane[data-side="left"]')
+      ?.setAttribute("data-tag159", "pane");
+    document
+      .querySelector('.split-pane[data-side="left"] .ProseMirror')
+      ?.setAttribute("data-tag159", "editor");
+  });
+  const tags = () =>
+    page.evaluate(() => ({
+      panes: document.querySelector(".split-panes")?.getAttribute("data-tag159"),
+      pane: document
+        .querySelector('.split-pane[data-side="left"]')
+        ?.getAttribute("data-tag159"),
+      editor: document
+        .querySelector('.split-pane[data-side="left"] .ProseMirror')
+        ?.getAttribute("data-tag159"),
+    }));
+  const kept = { panes: "panes", pane: "pane", editor: "editor" };
+  expect(await tags()).toEqual(kept);
+
+  await row(page, "Two").hover();
+  await page.getByRole("button", { name: "Open Two beside" }).click();
+  await expect(page.locator(".split-pane")).toHaveCount(2);
+  expect(await tags()).toEqual(kept); // no remount on open
+
+  await page.getByRole("button", { name: "Close right pane" }).click();
+  await expect(page.locator('.split-pane[data-side="right"]')).toHaveCount(0);
+  expect(await tags()).toEqual(kept); // no remount on close
+
+  // Undo history survived BOTH transitions: Cmd+Z removes the typed text.
+  await leftEditor(page).click();
+  await leftEditor(page).press("ControlOrMeta+z");
+  await expect(leftEditor(page)).toHaveText("");
+});
+
+test("split view: the left scroll position holds on open and again on close", async ({
+  page,
+}) => {
+  await page.goto("/");
+  await createProject(page, "Scroll both ways fixture");
+  await addSection(page, "Two");
+  await row(page, "Opening").click();
+  await leftEditor(page).fill(longBody);
+  const box = await leftEditor(page).boundingBox();
+  await page.mouse.move(box!.x + box!.width / 2, box!.y + box!.height / 2);
+  await page.mouse.wheel(0, 1200);
+  await page.waitForTimeout(200);
+  const beforeOpen = await scrollerTop(page, "left");
+  expect(beforeOpen).toBeGreaterThan(10);
+  await row(page, "Two").hover();
+  await page.getByRole("button", { name: "Open Two beside" }).click();
+  await expect(page.locator(".split-pane")).toHaveCount(2);
+  await page.waitForTimeout(200);
+  const whileOpen = await scrollerTop(page, "left");
+  expect(Math.abs(whileOpen - beforeOpen)).toBeLessThanOrEqual(2);
+  await page.getByRole("button", { name: "Close right pane" }).click();
+  await expect(page.locator('.split-pane[data-side="right"]')).toHaveCount(0);
+  await page.waitForTimeout(200);
+  const afterClose = await scrollerTop(page, "left");
+  expect(Math.abs(afterClose - beforeOpen)).toBeLessThanOrEqual(2);
 });

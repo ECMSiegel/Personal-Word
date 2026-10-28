@@ -1,0 +1,59 @@
+{
+  "id": "T144",
+  "title": "UI wave 3 N3: Scoped drop target (New-modules lane)",
+  "description": "Follow docs/agent-work/2026-10-28-ui-wave-3/PLAN.md section N3 exactly (Files, Interfaces, Steps, Acceptance check, Fail-first, Stop-and-ask, Default) and read its Context, Rules and Notes for the implementer first; RESEARCH.md beside it has the evidence. House rules: register paths = this task's seeded Files (already registered on claim; add more only via files add); serial slot (node_modules/.cache/personal-word-beta/team-serial-check-slot) via files add right before the first expensive check and keep it until done; pinned Node; quoted --outDir on PREVIEW port 1600+N; never edit docs/design-system.md (write DESIGN DOC: text in the done note); motion checks in tests/motion-uN.spec.ts; native rendering runs only with the screen unlocked, by Claude agents or the owner; never put backticks in double-quoted shell text; no installs, no commits; status CLAIMED; independent review required.",
+  "status": "done",
+  "owner": null,
+  "priority": 1,
+  "depends_on": [],
+  "files": [
+    "src/components/DropTarget.tsx",
+    "src/components/drop-target.css",
+    "src/components/dropTarget.test.ts",
+    "node_modules/.cache/personal-word-beta/ui3-n3"
+  ],
+  "review_required": true,
+  "created_by": "agent-9d21",
+  "created_at": "2026-10-28T04:50:56+00:00",
+  "claimed_at": "2026-10-28T05:50:30+00:00",
+  "updated_at": "2026-10-28T06:15:36+00:00",
+  "handoff": null,
+  "review": {
+    "by": "agent-bc26",
+    "at": "2026-10-28T06:15:36+00:00",
+    "verdict": "approved",
+    "note": "T144 N3 approved. tsc exit 0; vitest dropTarget+motion+designTokens+palette+dragReorder 65/65 pass. DropTarget.tsx matches spec: window dragenter/dragleave depth counter, data-state accept/reject, 1px --accent outline (--danger on reject, reason as label), no whole-page tint (outline only on region), no transitions and no border-radius in drop-target.css, button.select-files is a real type=button (keyboard reachable) opening hidden input[type=file] multiple, picked and dropped files re-run accept, Tauri path uses size 0 and skips size check (documented). itemsFromTransfer gives name empty during browser drag and the docs say accept must tolerate that. Not verified: full npm test not run (new unwired files; non-blocking); no browser or native drop test until N4."
+  },
+  "log": [
+    {
+      "at": "2026-10-28T04:50:56+00:00",
+      "agent": "agent-9d21",
+      "event": "created",
+      "note": ""
+    },
+    {
+      "at": "2026-10-28T05:50:30+00:00",
+      "agent": "agent-71de",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-10-28T05:50:40+00:00",
+      "agent": "agent-71de",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-10-28T06:11:23+00:00",
+      "agent": "agent-71de",
+      "event": "review requested",
+      "note": "N3 built: src/components/DropTarget.tsx, drop-target.css, dropTarget.test.ts (new files only, not wired; N4 wires). API: DropTarget({accept, onFiles, label, onReject?, children}); accept gets {name,size,type}. Window dragenter/dragleave depth counter shows a 1px --accent outline on the region plus a one-line label (data-state accept; reject uses --danger outline and the reason as label); no page tint, no transitions, square corners. button.select-files opens a hidden input[type=file] (multiple) as the keyboard path; picked or dropped files go through accept again and call onFiles or onReject(reason). Browser: onFiles gets File[]; browsers hide names and sizes during a drag, so accept is first called with name empty, size 0 and the MIME type, and must tolerate an empty name (decide on type or let through); the real check runs on drop/pick. Native: Tauri onDragDropEvent from the webview (imported dynamically, only when __TAURI_INTERNALS__ exists) gives paths; accept is called with {name: basename, size: 0, type: \"\"} so size checks are skipped; a drop counts only if its position (physical px / devicePixelRatio) is inside the region; onFiles gets string[] paths (read with readDroppedPath). N4 note: native listener is per DropTarget, so each registers its own; the ProjectLibrary listenForNativeDrops plumbing should be removed when it is replaced by DropTarget to avoid double handling. VERIFIED how far: tsc 0 errors; dropTarget.test.ts 6 pass (pure reducer/verdict/itemsFromTransfer/itemsFromPaths + SSR markup of Select files); fail-first: mutating verdict reject branch made 1 test fail, restored byte-identical (cmp via saved copy); src/motion.test.ts, designTokens.test.ts, palette.test.ts pass with the new CSS. NOT run: full npm test (serial slot held by T131 for 20+ minutes, could not register it), no browser/native rendering of the outline, native Tauri drop position unverified. DESIGN DOC: Drop target: the region that will take a file (DropTarget) gets a 1 px --accent outline (inset) and a one-line --type-small label only while a file drag is over the window; refused items turn the outline --danger and the label becomes the reason; no page tint, no motion. A Select files text button (muted, text on hover) is the keyboard path. In the Mac app drops arrive as paths and only count inside the region."
+    },
+    {
+      "at": "2026-10-28T06:15:36+00:00",
+      "agent": "agent-bc26",
+      "event": "approved",
+      "note": "T144 N3 approved. tsc exit 0; vitest dropTarget+motion+designTokens+palette+dragReorder 65/65 pass. DropTarget.tsx matches spec: window dragenter/dragleave depth counter, data-state accept/reject, 1px --accent outline (--danger on reject, reason as label), no whole-page tint (outline only on region), no transitions and no border-radius in drop-target.css, button.select-files is a real type=button (keyboard reachable) opening hidden input[type=file] multiple, picked and dropped files re-run accept, Tauri path uses size 0 and skips size check (documented). itemsFromTransfer gives name empty during browser drag and the docs say accept must tolerate that. Not verified: full npm test not run (new unwired files; non-blocking); no browser or native drop test until N4."
+    }
+  ]
+}

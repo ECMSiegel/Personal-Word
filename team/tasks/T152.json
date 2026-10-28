@@ -1,0 +1,59 @@
+{
+  "id": "T152",
+  "title": "S2 follow-up: hit-area :is() rule forces position relative on absolutely placed buttons (cards trash, open-beside)",
+  "description": "Found by agent-e154 (Opus reviewer) after T140 was approved. The S2 hit-area block in src/styles.css (the :is(.icon-button, .delete-entry, ... .topbar > div:first-child > button, .toolbar-icon) { position: relative } rule, about line 342) uses :is(), so every listed element gets the specificity of the most specific argument, (0,2,2). That beats component rules that pin buttons absolutely: .collection-open-beside { position: absolute; right: 4px } (0,1,0, about line 572) and .project-list--cards .delete-entry { position: absolute; right: 3px; top: 4px } (0,2,0, about line 1778). Evidence: Chromium probe of styles.css alone: HEAD cards trash position absolute at top 5, current relative at top 37.5; open-beside absolute at x 166 width 30 on HEAD, relative at x 168.7 width 27.3 now. Built app (ui3-review-e154/dist, port 1654): in Projects cards view the trash computes position relative and sits 46.5 px below the card top instead of 4 px (screenshot node_modules/.cache/personal-word-beta/ui3-review-e154/shots/light-cards.png, trash is mid-card beside the date instead of the top-right corner). The source-PDF open-beside button in the sidebar (rows with .has-beside) is now in flow next to .entry-main, which already reserves 40 px padding for it. Same trap T139 round one hit. Fix: wrap that position rule list in :where() (an absolutely positioned button is still the containing block for its ::after, so the 24 x 24 hit area keeps working). Consider :where() for the > svg optical rule too (currently (0,2,3), overrides any future svg transform on these buttons). Add a fail-first Playwright assertion in tests/alignment.spec.ts: in cards view the .delete-entry computes position absolute and its top is within 6 px of the card top; show it red on the current tree. Verify: npx vitest run src/designTokens.test.ts; tests/alignment.spec.ts and tests/projects-screen.spec.ts on a private vite build; light+dark screenshot of cards view. Non-blocking extras from the same review, record or fix: (1) reorder arrows are 20 px wide side by side, so their 24 px ::after areas overlap by 4 px (checklist R2 says never overlap a neighbour); test (b) does not check overlap. (2) No TSX renders className separator, so the .separator recipe and test (e) have no consumer; the horizontal case in test (e) asserts width 1 height 17, which is a vertical rule, not a horizontal one. (3) The grey-box scan in src/designTokens.test.ts misses --selection and only scans :hover/:active, not :focus-visible or [data-highlighted]. (4) .selected { color: var(--text) } near line 620 comes after the recipe accent rule at equal specificity, so the recipe .selected-to-accent branch is dead (no icon button carries .selected today).",
+  "status": "done",
+  "owner": null,
+  "priority": 1,
+  "depends_on": [],
+  "files": [
+    "src/styles.css",
+    "tests/alignment.spec.ts",
+    "src/designTokens.test.ts",
+    "node_modules/.cache/personal-word-beta/team-serial-check-slot"
+  ],
+  "review_required": true,
+  "created_by": "agent-e154",
+  "created_at": "2026-10-28T08:11:44+00:00",
+  "claimed_at": "2026-10-28T08:12:51+00:00",
+  "updated_at": "2026-10-28T08:19:32+00:00",
+  "handoff": null,
+  "review": {
+    "by": "agent-9d73",
+    "at": "2026-10-28T08:19:32+00:00",
+    "verdict": "approved",
+    "note": "Verified: tsc 0; vitest designTokens 12/12. Hit-area position rule and svg optical rule are :where() (0,0,0); ::after stays :is() (pseudo only, harmless). Light cards screenshot shows trash top-right. Tests assert trash absolute/top<=6/right<=6, .collection-open-beside absolute via probe, reorder overlap <=0 (gap var(--space-1), 20px arrows + 24px areas = 0). Grey-box scan doctored on dropdown.css (:focus-visible with --selection, [data-highlighted] with --line): test went RED naming both; restored, cmp identical. Not run by me: Playwright, dark screenshot (position rule is theme independent). Checklist R2 satisfied."
+  },
+  "log": [
+    {
+      "at": "2026-10-28T08:11:44+00:00",
+      "agent": "agent-e154",
+      "event": "created",
+      "note": ""
+    },
+    {
+      "at": "2026-10-28T08:12:51+00:00",
+      "agent": "agent-0f0e",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-10-28T08:12:51+00:00",
+      "agent": "agent-0f0e",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-10-28T08:18:12+00:00",
+      "agent": "agent-0f0e",
+      "event": "review requested",
+      "note": "Fixed. S2 position:relative rule in src/styles.css now :where() (0,0,0), as is the > svg optical rule; absolute buttons (cards .delete-entry, .collection-open-beside) are absolute again. Fail-first: two new tests in tests/alignment.spec.ts were RED on the unfixed build (trash position relative expected absolute; reorder overlap 2 px expected <=0), GREEN after. Extras fixed: (1) .reorder gap var(--space-1) so 24px arrow hit areas no longer overlap (measured overlap was 2 px, not 4); (2) separator test (e) second case renamed plain (no aria-orientation, 1x17), no longer called horizontal; (3) designTokens grey-box scan now also covers --selection, :focus-visible and [data-highlighted] (still passes, no new violations); (4) dead .selected branch removed from the icon recipe accent/hover rules. Verified: tsc 0; vitest designTokens/palette/motion 42/42; Playwright alignment+appearance+layout+projects-screen+sidebar-selection 78 passed on private vite build (port 1655), no flakes hit. Light cards-view hover screenshot shows trash in top-right corner (node_modules/.cache/personal-word-beta/t152/shots/light-cards.png); dark cards shot came out as list view due to my script's persisted toggle, position rule is theme independent. DESIGN DOC: recipe .selected branch removed (aria-pressed only); .reorder arrows now have a 4px gap. Slot released."
+    },
+    {
+      "at": "2026-10-28T08:19:32+00:00",
+      "agent": "agent-9d73",
+      "event": "approved",
+      "note": "Verified: tsc 0; vitest designTokens 12/12. Hit-area position rule and svg optical rule are :where() (0,0,0); ::after stays :is() (pseudo only, harmless). Light cards screenshot shows trash top-right. Tests assert trash absolute/top<=6/right<=6, .collection-open-beside absolute via probe, reorder overlap <=0 (gap var(--space-1), 20px arrows + 24px areas = 0). Grey-box scan doctored on dropdown.css (:focus-visible with --selection, [data-highlighted] with --line): test went RED naming both; restored, cmp identical. Not run by me: Playwright, dark screenshot (position rule is theme independent). Checklist R2 satisfied."
+    }
+  ]
+}

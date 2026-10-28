@@ -1,0 +1,69 @@
+{
+  "id": "T148",
+  "title": "UI wave 3 K2: Wire shortcuts into the app and Settings",
+  "description": "Follow docs/agent-work/2026-10-28-ui-wave-3/PLAN.md section K2 exactly (Files, Interfaces, Steps, Acceptance check, Fail-first, Stop-and-ask, Default) and read its Context, Rules and Notes for the implementer first; RESEARCH.md beside it has the evidence. House rules: register paths = this task's seeded Files (already registered on claim; add more only via files add); serial slot (node_modules/.cache/personal-word-beta/team-serial-check-slot) via files add right before the first expensive check and keep it until done; pinned Node; quoted --outDir on PREVIEW port 1600+N; never edit docs/design-system.md (write DESIGN DOC: text in the done note); motion checks in tests/motion-uN.spec.ts; native rendering runs only with the screen unlocked, by Claude agents or the owner; never put backticks in double-quoted shell text; no installs, no commits; status CLAIMED; independent review required.",
+  "status": "done",
+  "owner": null,
+  "priority": 2,
+  "depends_on": [
+    "T142",
+    "T137",
+    "T131",
+    "T132",
+    "T133"
+  ],
+  "files": [
+    "src/App.tsx",
+    "src/Writer.tsx",
+    "src/editor/shortcuts.ts",
+    "tests/shortcuts.spec.ts",
+    "node_modules/.cache/personal-word-beta/ui3-k2",
+    "src/settings/ShortcutsSettings.tsx",
+    "src/settings/shortcuts-settings.css",
+    "node_modules/.cache/personal-word-beta/team-serial-check-slot"
+  ],
+  "review_required": true,
+  "created_by": "agent-9d21",
+  "created_at": "2026-10-28T04:50:57+00:00",
+  "claimed_at": "2026-10-28T09:17:23+00:00",
+  "updated_at": "2026-10-28T09:23:41+00:00",
+  "handoff": null,
+  "review": {
+    "by": "agent-24f1",
+    "at": "2026-10-28T09:23:41+00:00",
+    "verdict": "approved",
+    "note": "Reviewed K2 diff (App keydown, Writer handleKeyDown, shortcutHints, ShortcutsSettings, css, spec). tsc 0; vitest src/shortcuts src/editor 103 pass; pw.log 24/24 newer than sources (05:20 vs 05:17); pw-failfirst.log shows rebind and refusal cases fail on doctored copy. All 9 app chords route through resolveChord; no input-typing guard existed before or after; Ctrl folds to Cmd. Cmd+Shift+S now snapshot only (intended). kbd has no fill; Esc cancels recording (capture handler, code-read; not covered by a test). Playwright not rerun: serial slot owned by T153. Non-blocking: Cmd+Shift+S test does not prove save is not fired; resolveChord unit test maps the chord to snapshot only, which covers it adequately. Minor: old handler also fired on Alt/extra-modifier variants; now exact match only."
+  },
+  "log": [
+    {
+      "at": "2026-10-28T04:50:57+00:00",
+      "agent": "agent-9d21",
+      "event": "created",
+      "note": ""
+    },
+    {
+      "at": "2026-10-28T09:17:23+00:00",
+      "agent": "agent-3bfa",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-10-28T09:17:23+00:00",
+      "agent": "agent-3bfa",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-10-28T09:22:21+00:00",
+      "agent": "agent-3bfa",
+      "event": "review requested",
+      "note": "K2 done (CLAIMED). All app-owned chords now dispatch through N1 resolveChord: App.tsx window keydown (save, toggleSidebar, findInProject, newSection, snapshot, toggleAppearance) and Writer.tsx handleKeyDown (focusMode, keepAsFragment); Writer takes a shortcuts prop (App holds the overrides in state, persisted via writeShortcuts under folio.workspace.shortcuts). editor/shortcuts.ts adds shortcutHints(overrides) so More-menu hints (Focus mode, Keep as fragment, Insert page break) follow rebinds; static aria-labels untouched. ShortcutsSettings mounted as children of GeneralSettings inside its own settings-section with an h2 Shortcuts, so it shows in both Settings and the Projects-screen dialog. Chord is now a kbd (new src/settings/shortcuts-settings.css, tokens only, no fills). Insert page break stays read-only Shift+Enter. ActionIds needed no change (all 9 map to real handlers). No Tiptap collision found for default chords. BEHAVIOUR CHANGE (intended fix): Cmd+Shift+S now fires only snapshot, not save plus snapshot. Evidence: tsc clean; vitest src/shortcuts src/editor 103 pass; Playwright shortcuts, editor-toolbar, features, accessibility 24/24 (port 1648, log node_modules/.cache/personal-word-beta/ui3-k2/pw.log). Fail-first on a doctored copy (overrides ignored): rebind and refusal/Reset-all cases fail (pw-failfirst.log); the Cmd+Shift+S case passes both ways (it only asserts the snapshot dialog opens). Paths added: src/settings/ShortcutsSettings.tsx, src/settings/shortcuts-settings.css. DESIGN DOC: Settings > Shortcuts lists each action with its chord in a quiet kbd (small, muted, tabular, no fill), Change records the next chord (Esc cancels), refuses macOS-reserved chords and chords taken by another action with an inline status line, Reset per row and Reset all; Insert page break (Shift+Return) is listed read-only; overrides persist in folio.workspace.shortcuts; menu hints reflect rebinds."
+    },
+    {
+      "at": "2026-10-28T09:23:41+00:00",
+      "agent": "agent-24f1",
+      "event": "approved",
+      "note": "Reviewed K2 diff (App keydown, Writer handleKeyDown, shortcutHints, ShortcutsSettings, css, spec). tsc 0; vitest src/shortcuts src/editor 103 pass; pw.log 24/24 newer than sources (05:20 vs 05:17); pw-failfirst.log shows rebind and refusal cases fail on doctored copy. All 9 app chords route through resolveChord; no input-typing guard existed before or after; Ctrl folds to Cmd. Cmd+Shift+S now snapshot only (intended). kbd has no fill; Esc cancels recording (capture handler, code-read; not covered by a test). Playwright not rerun: serial slot owned by T153. Non-blocking: Cmd+Shift+S test does not prove save is not fired; resolveChord unit test maps the chord to snapshot only, which covers it adequately. Minor: old handler also fired on Alt/extra-modifier variants; now exact match only."
+    }
+  ]
+}

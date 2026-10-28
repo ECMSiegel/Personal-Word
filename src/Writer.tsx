@@ -4,8 +4,9 @@ import {
   type Editor,
   type JSONContent,
 } from "@tiptap/react";
-import type { Transaction } from "@tiptap/pm/state";
+import { TextSelection, type Transaction } from "@tiptap/pm/state";
 import type { EditorProps } from "@tiptap/pm/view";
+import { cellAround } from "@tiptap/pm/tables";
 import Placeholder from "@tiptap/extension-placeholder";
 import {
   Bold,
@@ -49,13 +50,14 @@ import { createPortal } from "react-dom";
 import {
   defaultPageLayout,
   paperGeometry,
-  countPages,
   type PageLayout,
   screenplayStyles,
   screenplayAttributes,
 } from "./editor/formatting";
 import "./editor/editor.css";
 import { documentExtensions } from "./editor/extensions";
+import { Pagination, paginate, paginationKey } from "./editor/pagination";
+import { TableContextMenu } from "./editor/TableContextMenu";
 import { setImageSourceResolver } from "./editor/media";
 import {
   FocusMode,
@@ -69,7 +71,8 @@ import type { ProseIssue } from "./editor/proseCheck";
 import { changeIndent, indentKeys } from "./editor/indent";
 import { NumberInput, PanelButton } from "./editor/ToolbarControls";
 import { Popover } from "./components/Popover";
-import { SHORTCUTS, visibleLabel } from "./editor/shortcuts";
+import { shortcutHints, visibleLabel } from "./editor/shortcuts";
+import { resolveChord, type ShortcutOverrides } from "./shortcuts/store";
 import {
   FootnoteBlock,
   FootnoteRows,
@@ -135,8 +138,6 @@ const OVERFLOW_ORDER: ToolbarGroup[] = [
   "zoom",
 ];
 const ALWAYS_VISIBLE: ToolbarGroup[] = ["history", "right"];
-/** The format bar shows a label beside each icon from this width up. */
-const LABEL_MIN_WIDTH = 1100;
 type GroupWidths = Partial<Record<ToolbarGroup, number>>;
 const FONT_FACES = [
   "Futura, system-ui, sans-serif",
@@ -163,6 +164,8 @@ function withCurrent(
     ? options
     : [...options, { value, label }];
 }
+
+const NO_SHORTCUT_OVERRIDES: ShortcutOverrides = {};
 
 export function Writer({
   item,
@@ -193,6 +196,7 @@ export function Writer({
   toolbarTarget,
   showToolbar = true,
   editorLabel = "Writing editor",
+  shortcuts = NO_SHORTCUT_OVERRIDES,
 }: {
   /** Split view: the format bar renders into this shared slot instead. */
   toolbarTarget?: HTMLElement | null;
@@ -215,6 +219,8 @@ export function Writer({
   onSelectionChange?: (editor: Editor) => void;
   header?: ReactNode;
   footer?: ReactNode;
+  /** The user's rebound chords; empty means the defaults. */
+  shortcuts?: ShortcutOverrides;
   focusMode?: boolean;
   proseCheck?: boolean;
   onToggleFocusMode?: () => void;
@@ -237,6 +243,9 @@ export function Writer({
 }) {
   const settingsRef = useRef(documentSettings);
   settingsRef.current = documentSettings;
+  const shortcutsRef = useRef(shortcuts);
+  shortcutsRef.current = shortcuts;
+  const hints = useMemo(() => shortcutHints(shortcuts), [shortcuts]);
   const focusModeRef = useRef(focusMode);
   focusModeRef.current = focusMode;
   const proseCheckRef = useRef(proseCheck);
@@ -299,7 +308,12 @@ export function Writer({
   };
   const [pages, setPages] = useState(1);
   const [currentPage, setCurrentPage] = useState(1);
+  const [fitScale, setFitScale] = useState(1);
   const [panel, setPanel] = useState<ToolbarPanel | null>(null);
+  const [tableMenuAt, setTableMenuAt] = useState<{
+    x: number;
+    y: number;
+  } | null>(null);
   const [overflowCount, setOverflowCount] = useState(0);
   const viewport = useRef<HTMLDivElement>(null);
   const barRef = useRef<HTMLDivElement | null>(null);
@@ -312,13 +326,7 @@ export function Writer({
   const groupEls = useRef<Partial<Record<ToolbarGroup, HTMLElement | null>>>(
     {},
   );
-  const [labels, setLabels] = useState(false);
-  const labelsRef = useRef(false);
-  // Group widths differ by mode, so each mode keeps its own cache.
-  const groupWidths = useRef<{ icons: GroupWidths; labels: GroupWidths }>({
-    icons: {},
-    labels: {},
-  });
+  const groupWidths = useRef<GroupWidths>({});
   const panelTriggers = useRef<
     Partial<Record<ToolbarPanel, HTMLButtonElement | null>>
   >({});
@@ -411,9 +419,11 @@ export function Writer({
   const [, render] = useState(0);
   const initialContentRef = useRef(item.content);
   const editorRef = useRef<Editor | null>(null);
+  const writerRootRef = useRef<HTMLDivElement>(null);
   const editorExtensions = useMemo(
     () => [
       ...documentExtensions(),
+      Pagination,
       FocusMode.configure({ enabled: () => focusModeRef.current }),
       ProseCheck.configure({
         enabled: () => proseCheckRef.current,
@@ -446,17 +456,60 @@ export function Writer({
         "aria-label": editorLabel,
         spellcheck: "true",
       },
+      handleDOMEvents: {
+        contextmenu: (view, event) => {
+          const mouse = event as MouseEvent;
+          const target = mouse.target instanceof Element ? mouse.target : null;
+          const cell = target?.closest("td, th");
+          const root = writerRootRef.current;
+          if (!cell || !view.dom.contains(cell) || !root) return false;
+          let position = view.posAtCoords({
+            left: mouse.clientX,
+            top: mouse.clientY,
+          })?.pos;
+          if (position == null) position = view.posAtDOM(cell, 0);
+          const $position = view.state.doc.resolve(position);
+          if (!cellAround($position)) return false;
+          const rect = root.getBoundingClientRect();
+          mouse.preventDefault();
+          view.dispatch(
+            view.state.tr
+              .setSelection(TextSelection.near($position, 1))
+              .scrollIntoView(),
+          );
+          setTableMenuAt({
+            x: mouse.clientX - rect.left,
+            y: mouse.clientY - rect.top,
+          });
+          return true;
+        },
+      },
       handleKeyDown: (_, event) => {
-        if (
-          (event.metaKey || event.ctrlKey) &&
-          event.shiftKey &&
-          event.key.toLowerCase() === "f"
-        ) {
+        const action = resolveChord(event, shortcutsRef.current);
+        if (action === "focusMode") {
           event.preventDefault();
           callbacksRef.current.onToggleFocusMode?.();
           return true;
         }
         const activeEditor = editorRef.current;
+        if (
+          (event.key === "ContextMenu" ||
+            (event.key === "F10" && event.shiftKey)) &&
+          activeEditor &&
+          cellAround(activeEditor.state.selection.$from) &&
+          writerRootRef.current
+        ) {
+          const coords = activeEditor.view.coordsAtPos(
+            activeEditor.state.selection.from,
+          );
+          const rect = writerRootRef.current.getBoundingClientRect();
+          event.preventDefault();
+          setTableMenuAt({
+            x: coords.left - rect.left,
+            y: coords.bottom - rect.top,
+          });
+          return true;
+        }
         if (
           event.key === "Tab" &&
           settingsRef.current?.font === "mono" &&
@@ -474,12 +527,7 @@ export function Writer({
             .run();
           return true;
         }
-        if (
-          (event.metaKey || event.ctrlKey) &&
-          event.shiftKey &&
-          event.key.toLowerCase() === "x" &&
-          itemRef.current.kind === "section"
-        ) {
+        if (action === "keepAsFragment" && itemRef.current.kind === "section") {
           event.preventDefault();
           if (activeEditor) callbacksRef.current.onExtract(activeEditor);
           return true;
@@ -634,30 +682,23 @@ export function Writer({
   }, [editor, onEditorReady]);
   useEffect(() => {
     if (!editor) return;
-    let frame = 0;
-    const measure = () => {
-      cancelAnimationFrame(frame);
-      frame = requestAnimationFrame(() => {
-        const count =
-          layout.mode === "pages"
-            ? countPages(
-                editor.view.dom.scrollWidth,
-                geometry.contentWidth,
-                geometry.gap + 2 * geometry.margin,
-              )
-            : 1;
-        setPages(count);
-        onPageCountChange?.(count);
-      });
+    const read = () => {
+      const count =
+        layout.mode === "pages"
+          ? (paginationKey.getState(editor.state)?.pageCount ?? 1)
+          : 1;
+      setPages(count);
+      onPageCountChange?.(count);
     };
-    const observer = new ResizeObserver(measure);
-    observer.observe(editor.view.dom);
-    editor.on("update", measure);
-    document.fonts.ready.then(measure);
-    measure();
+    // Layout props change the CSS variables the pagination plugin reads (and
+    // the margins it caches); measure again once they are painted.
+    const frame = requestAnimationFrame(() => {
+      paginate(editor.view, true);
+      read();
+    });
+    editor.on("transaction", read);
     return () => {
-      observer.disconnect();
-      editor.off("update", measure);
+      editor.off("transaction", read);
       cancelAnimationFrame(frame);
     };
   }, [
@@ -667,14 +708,72 @@ export function Writer({
     layout.margin,
     documentSettings,
     layout.zoom,
+    fitScale,
     onPageCountChange,
   ]);
+  useEffect(() => {
+    // A pane narrower than the page scales the paper down (CSS zoom) instead
+    // of scrolling sideways.
+    const element = viewport.current;
+    if (!element || layout.mode !== "pages") {
+      setFitScale(1);
+      return;
+    }
+    const fit = () => {
+      const style = getComputedStyle(element);
+      const available =
+        element.clientWidth -
+        parseFloat(style.paddingLeft) -
+        parseFloat(style.paddingRight);
+      const natural = (geometry.width * layout.zoom) / 100;
+      const next = Math.min(1, Math.max(0.25, available / natural));
+      setFitScale((previous) =>
+        Math.abs(previous - next) < 0.001 ? previous : next,
+      );
+    };
+    const observer = new ResizeObserver(fit);
+    observer.observe(element);
+    fit();
+    return () => observer.disconnect();
+  }, [editor, layout.mode, layout.zoom, geometry.width]);
+  useEffect(() => {
+    // Pages stack vertically and an ancestor scrolls. Listen on the document
+    // and use only scrollers that hold this Writer's pages (in split view the
+    // other pane's scroll must not move this pane's page number).
+    if (layout.mode !== "pages") return;
+    const onScroll = (event: Event) => {
+      const element = viewport.current;
+      const scroller = event.target;
+      if (
+        !element ||
+        !(scroller instanceof Element) ||
+        !scroller.contains(element)
+      )
+        return;
+      const padding = parseFloat(getComputedStyle(element).paddingTop) || 0;
+      // The viewport itself is not zoomed, so its box is in screen px.
+      const offset =
+        scroller === element
+          ? element.scrollTop - padding
+          : scroller.getBoundingClientRect().top -
+            (element.getBoundingClientRect().top + padding);
+      const pitch =
+        (geometry.height + geometry.gap) * (layout.zoom / 100) * fitScale;
+      setCurrentPage(Math.max(1, Math.floor((offset + pitch / 3) / pitch) + 1));
+    };
+    document.addEventListener("scroll", onScroll, {
+      capture: true,
+      passive: true,
+    });
+    return () =>
+      document.removeEventListener("scroll", onScroll, { capture: true });
+  }, [layout.mode, layout.zoom, fitScale, geometry.height, geometry.gap]);
   useEffect(() => {
     pageStatusRef.current?.({
       current: Math.min(currentPage, pages),
       total: pages,
     });
-  }, [currentPage, pages]);
+  }, [currentPage, pages, Boolean(onPageStatus)]);
   useEffect(() => {
     if (!panel) return;
     const dismiss = (event: PointerEvent) => {
@@ -687,16 +786,7 @@ export function Writer({
   const fitToolbar = () => {
     const bar = barRef.current;
     if (!bar) return;
-    // Crossing the label threshold re-measures every group in the new mode
-    // before paint: show them all, then let the layout effect fit again.
-    const wide = bar.clientWidth >= LABEL_MIN_WIDTH;
-    if (wide !== labelsRef.current) {
-      labelsRef.current = wide;
-      setLabels(wide);
-      setOverflowCount(0);
-      return;
-    }
-    const widths = groupWidths.current[wide ? "labels" : "icons"];
+    const widths = groupWidths.current;
     for (const id of Object.keys(groupEls.current) as ToolbarGroup[]) {
       const el = groupEls.current[id];
       if (el) widths[id] = el.offsetWidth;
@@ -717,7 +807,7 @@ export function Writer({
       const total =
         sum(ALWAYS_VISIBLE) +
         sum(visible) +
-        (k ? (widths.more ?? (wide ? 140 : 40)) : 0) +
+        (k ? (widths.more ?? 40) : 0) +
         gap * Math.max(0, children - 1);
       if (total <= available) {
         count = k;
@@ -739,7 +829,6 @@ export function Writer({
     documentSettings?.font,
     layout.mode,
     overflowCount,
-    labels,
     showToolbar,
     toolbarTarget,
   ]);
@@ -780,7 +869,8 @@ export function Writer({
     "--content-height": `${geometry.contentHeight}px`,
     "--page-gap": `${geometry.gap}px`,
     "--page-count": pages,
-    zoom: layout.zoom / 100,
+    "--page-scale": fitScale,
+    zoom: (layout.zoom / 100) * (layout.mode === "pages" ? fitScale : 1),
   } as CSSProperties;
   const paragraphValue = editor.isActive("heading", { level: 1 })
     ? "1"
@@ -854,9 +944,9 @@ export function Writer({
       <span className="toolbar-label" aria-hidden="true">
         {visibleLabel(label)}
       </span>
-      {inMore && SHORTCUTS[label] && (
+      {inMore && hints[label] && (
         <span className="popover-shortcut" aria-hidden="true">
-          {SHORTCUTS[label]}
+          {hints[label]}
         </span>
       )}
     </>
@@ -943,17 +1033,17 @@ export function Writer({
                 {
                   value: "0",
                   label: "Normal text",
-                  shortcut: SHORTCUTS["Normal text"],
+                  shortcut: hints["Normal text"],
                 },
                 {
                   value: "1",
                   label: "Heading 1",
-                  shortcut: SHORTCUTS["Heading 1"],
+                  shortcut: hints["Heading 1"],
                 },
                 {
                   value: "2",
                   label: "Heading 2",
-                  shortcut: SHORTCUTS["Heading 2"],
+                  shortcut: hints["Heading 2"],
                 },
               ]}
               onChange={(value) =>
@@ -1622,7 +1712,6 @@ export function Writer({
   const bar = showToolbar ? (
     <div
       className="format-bar"
-      data-labels={labels ? "" : undefined}
       role="toolbar"
       aria-label="Formatting"
       ref={setBar}
@@ -1633,7 +1722,7 @@ export function Writer({
     </div>
   ) : null;
   return (
-    <div className="writer">
+    <div className="writer" ref={writerRootRef}>
       {toolbarTarget === undefined
         ? bar
         : toolbarTarget && bar && createPortal(bar, toolbarTarget)}
@@ -1659,17 +1748,6 @@ export function Writer({
               onFootnote?.(target.dataset.footnoteId);
           }}
           ref={viewport}
-          onScroll={(event) =>
-            setCurrentPage(
-              Math.max(
-                1,
-                Math.floor(
-                  event.currentTarget.scrollLeft /
-                    (((geometry.width + geometry.gap) * layout.zoom) / 100),
-                ) + 1,
-              ),
-            )
-          }
           className={`editor-viewport ${layout.mode === "pages" ? "is-paged" : "is-continuous"}`}
         >
           <div className="editor-paper" style={pageStyle} ref={footnotePaper}>
@@ -1714,10 +1792,9 @@ export function Writer({
                     className="page-footnotes"
                     label={`Footnotes, page ${group.page + 1}`}
                     style={{
-                      left:
-                        group.page * (geometry.width + geometry.gap) +
-                        geometry.margin,
+                      left: geometry.margin,
                       top:
+                        group.page * (geometry.height + geometry.gap) +
                         geometry.margin +
                         geometry.contentHeight -
                         footnotePlan.reserve +
@@ -1738,6 +1815,13 @@ export function Writer({
         </div>
         {footer && <div className="writer-slot">{footer}</div>}
       </div>
+      {editor && (
+        <TableContextMenu
+          editor={editor}
+          at={tableMenuAt}
+          onClose={() => setTableMenuAt(null)}
+        />
+      )}
     </div>
   );
 }

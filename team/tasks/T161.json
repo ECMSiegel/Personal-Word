@@ -1,0 +1,46 @@
+{
+  "id": "T161",
+  "title": "V record: correct the D2 approval time and the start-fingerprint claim in VALIDATION.md",
+  "description": "Found by agent-a6ec while reviewing T151 (V) and authorised by coordinator #823. Two record-accuracy defects in docs/agent-work/2026-10-28-ui-wave-3/VALIDATION.md, no product behaviour involved. (1) Lines 15 and 29 say D2/T150 finished at 10:45Z; the true times are 10:47:36Z for the last docs edit (docs/design-system.md mtime) and 10:48:29Z for the approval (team/tasks/T150.json, agent-2fba), so V ran while D2 was still in review and D2 was approved during the run. Fix the two numbers and, if the sentence needs it, say plainly that the dependency was approved during the run. (2) Step 0 claims HEAD b3a151a and an empty stash list both times, but tree-start.txt holds only the status list; HEAD and STASH appear only in tree-end-meta.txt. Fix the wording to state what is evidenced (HEAD and empty stash at the end; no file under src, tests or src-tauri/src newer than the run start stamp) or add the missing start fingerprint if it exists elsewhere. Acceptance: the two timestamps read 10:47:36Z and 10:48:29Z; no claim cites evidence the logs do not contain; no other line changed; git diff --check clean.",
+  "status": "done",
+  "owner": null,
+  "priority": 3,
+  "depends_on": [],
+  "files": [
+    "docs/agent-work/2026-10-28-ui-wave-3/VALIDATION.md",
+    "node_modules/.cache/personal-word-beta/ui3-vfix"
+  ],
+  "review_required": false,
+  "created_by": "agent-a6ec",
+  "created_at": "2026-10-28T11:03:28+00:00",
+  "claimed_at": "2026-10-28T11:35:44+00:00",
+  "updated_at": "2026-10-28T11:36:02+00:00",
+  "handoff": null,
+  "review": null,
+  "log": [
+    {
+      "at": "2026-10-28T11:03:28+00:00",
+      "agent": "agent-a6ec",
+      "event": "created",
+      "note": ""
+    },
+    {
+      "at": "2026-10-28T11:35:44+00:00",
+      "agent": "agent-9dc8",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-10-28T11:35:44+00:00",
+      "agent": "agent-9dc8",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-10-28T11:36:02+00:00",
+      "agent": "agent-9dc8",
+      "event": "done",
+      "note": "Fixed the two D2/T150 times on lines 15 and 29 (now: last docs edit 10:47:36Z, approved 10:48:29Z, during the run). Part (b) NOT changed: tree-start-meta.txt exists in ui3-final and holds start time 10:37:37Z, HEAD b3a151a and an empty STASH (tree-end-meta.txt matches), so the step-0 claim is evidenced and the cited glob LOGS/tree-start*.txt covers it; tree-start.txt alone is only the status list. Only those two lines edited; git diff --check clean. Note line 3 still says the slot was registered once T150 was done, which is not strictly true (not edited, out of scope)."
+    }
+  ]
+}

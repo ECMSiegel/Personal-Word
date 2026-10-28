@@ -1,0 +1,24 @@
+/* Split view: the stable left pane and the pieces that moved out of the
+   Writer's header and footer slots (A3). The existing .split-panes,
+   .split-pane and .split-pane-header rules in styles.css are unchanged. */
+
+/* Single (unsplit) mode: the left pane fills the area; no ratio basis. */
+.split-panes[data-single] .split-pane[data-side="left"] {
+  flex: 1 1 auto;
+}
+
+/* The fragment origin line moved into the pane header. */
+.split-pane-origin {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: var(--type-small);
+  color: var(--muted);
+}
+
+/* The restore strip lives under the pane's Writer in split view. */
+.split-pane-footer {
+  flex: 0 0 auto;
+  min-width: 0;
+}

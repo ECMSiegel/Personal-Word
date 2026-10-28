@@ -1,0 +1,59 @@
+{
+  "id": "T156",
+  "title": "Harden K2 shortcut tests: Cmd+Shift+S save-not-fired, Esc cancels recording",
+  "description": "From the T148 review: (1) the Cmd+Shift+S test only checks the snapshot dialog opens, so it passes even if save also fires again -- add a non-vacuous assertion (e.g. make the project dirty, press Cmd+Shift+S, assert the save status does not flip to Saved / no save call) and show it failing on a doctored copy where save also fires; (2) add a test that Escape cancels recording a new chord in Settings > Shortcuts and leaves the old chord; (3) add a resolveChord unit case mapping Cmd+Shift+S to snapshot (not save) in src/shortcuts/shortcuts.test.ts. Test-only unless a real bug appears. Logs under the task cache folder.",
+  "status": "done",
+  "owner": null,
+  "priority": 2,
+  "depends_on": [],
+  "files": [
+    "tests/shortcuts.spec.ts",
+    "src/shortcuts/shortcuts.test.ts",
+    "node_modules/.cache/personal-word-beta/ui3-k2-tests",
+    "node_modules/.cache/personal-word-beta/team-serial-check-slot"
+  ],
+  "review_required": true,
+  "created_by": "agent-3663",
+  "created_at": "2026-10-28T09:24:07+00:00",
+  "claimed_at": "2026-10-28T09:24:20+00:00",
+  "updated_at": "2026-10-28T09:55:04+00:00",
+  "handoff": null,
+  "review": {
+    "by": "agent-e0bf",
+    "at": "2026-10-28T09:55:04+00:00",
+    "verdict": "approved",
+    "note": "Reviewed test-only change: read the two new Playwright tests and unit cases; reran vitest src/shortcuts 11/11 pass; pw.log 4/4 and fail-first logs (pw-failfirst 2 failed on doctored copies, vitest-failfirst 3 failed) present in ui3-k2-tests. Cmd+Shift+S test asserts Unsaved edits persists (non-vacuous). Did not rerun Playwright."
+  },
+  "log": [
+    {
+      "at": "2026-10-28T09:24:07+00:00",
+      "agent": "agent-3663",
+      "event": "created",
+      "note": ""
+    },
+    {
+      "at": "2026-10-28T09:24:20+00:00",
+      "agent": "agent-ceda",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-10-28T09:24:21+00:00",
+      "agent": "agent-ceda",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-10-28T09:48:15+00:00",
+      "agent": "agent-ceda",
+      "event": "review requested",
+      "note": "Test-only. tests/shortcuts.spec.ts: (1) Cmd+Shift+S test now freezes timers (page.clock pauseAt), types so status is Unsaved edits, presses chord, asserts snapshot dialog opens AND status still Unsaved edits and no Saved text; (2) new test: Esc while recording leaves old chord, Reset disabled, later Cmd+Shift+G does not rebind, no focusMode override in storage. src/shortcuts/shortcuts.test.ts: resolveChord maps Cmd+Shift+S (s and S) to snapshot, Cmd+S to save. Pass: tsc 0; vitest src/shortcuts 11 pass; Playwright tests/shortcuts.spec.ts 4/4 on real build (port 1663). Fail-first on scratch copy under node_modules/.cache/personal-word-beta/ui3-k2-tests/scratch (never the shared tree): doctored App fires save on snapshot -> Cmd+Shift+S test fails; doctored ShortcutsSettings without Esc handling -> Esc test fails (chord became the Esc glyph); doctored registry (save default has shift) -> new unit case fails (vitest-failfirst.log, 3 failed). Logs in node_modules/.cache/personal-word-beta/ui3-k2-tests: pw.log, pw-failfirst.log, vitest.log, vitest-failfirst.log, tsc.log, build-*.log. No source bug found. Status CLAIMED."
+    },
+    {
+      "at": "2026-10-28T09:55:04+00:00",
+      "agent": "agent-e0bf",
+      "event": "approved",
+      "note": "Reviewed test-only change: read the two new Playwright tests and unit cases; reran vitest src/shortcuts 11/11 pass; pw.log 4/4 and fail-first logs (pw-failfirst 2 failed on doctored copies, vitest-failfirst 3 failed) present in ui3-k2-tests. Cmd+Shift+S test asserts Unsaved edits persists (non-vacuous). Did not rerun Playwright."
+    }
+  ]
+}

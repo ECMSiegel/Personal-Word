@@ -6,6 +6,7 @@ import {
   computeReserve,
 } from "./footnoteLayout";
 import type { PageLayout } from "./formatting";
+import { offsetWithin, paginate } from "./pagination";
 import type { FootnoteNote } from "./FootnoteArea";
 
 export type FootnotePlan = {
@@ -54,7 +55,6 @@ export function useFootnoteLayout({
       return;
     }
     const noteIds = new Set(notes.map((note) => note.id));
-    const columnGap = geometry.gap + 2 * geometry.margin;
     let active = true;
     let frame = 0;
     // Each page reserves the same bottom space, sized for the tallest page.
@@ -66,30 +66,33 @@ export function useFootnoteLayout({
       if (!active || !paper) return;
       const surface = editor.view.dom;
       const cap = geometry.contentHeight / 2;
-      let reserve = 0;
+      // Start from the reserve already applied: starting from 0 would move
+      // the page spacers twice on every keystroke.
+      const applied = () =>
+        parseFloat(paper.style.getPropertyValue("--footnote-reserve")) || 0;
+      let reserve = applied();
       let result: FootnotePlan = { reserve: 0, pages: [] };
       let hasOverlongNote = false;
       for (let attempt = 0; attempt < 3; attempt++) {
+        const changed = Math.abs(applied() - reserve) >= 0.5;
         paper.style.setProperty("--footnote-reserve", `${reserve}px`);
+        // The page spacers depend on the reserve; place them before reading
+        // where the references fall.
+        if (changed) paginate(editor.view);
         const surfaceRect = surface.getBoundingClientRect();
         const scale = surfaceRect.width / geometry.contentWidth || 1;
         const ids: string[] = [];
-        const lefts: number[] = [];
+        const tops: number[] = [];
         surface
           .querySelectorAll<HTMLElement>("[data-footnote-id]")
           .forEach((el) => {
             const id = el.dataset.footnoteId ?? "";
             if (!noteIds.has(id) || ids.includes(id)) return;
             ids.push(id);
-            lefts.push(el.getBoundingClientRect().left);
+            // Unzoomed layout px from the top of the text area.
+            tops.push(offsetWithin(el, surface));
           });
-        const columns = assignPages(
-          lefts,
-          surfaceRect.left,
-          geometry.contentWidth,
-          columnGap,
-          scale,
-        );
+        const columns = assignPages(tops, 0, geometry.height, geometry.gap);
         const byPage = new Map<number, string[]>();
         ids.forEach((id, i) => {
           byPage.set(columns[i], [...(byPage.get(columns[i]) ?? []), id]);
@@ -117,7 +120,10 @@ export function useFootnoteLayout({
         if (Math.abs(next - reserve) < 0.5) break;
         reserve = next;
       }
-      paper.style.setProperty("--footnote-reserve", `${result.reserve}px`);
+      if (Math.abs(applied() - result.reserve) >= 0.5) {
+        paper.style.setProperty("--footnote-reserve", `${result.reserve}px`);
+        paginate(editor.view);
+      }
       setPlan((previous) =>
         JSON.stringify(previous) === JSON.stringify(result) ? previous : result,
       );

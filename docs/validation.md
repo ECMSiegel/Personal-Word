@@ -6,6 +6,19 @@
 
 This is a working local desktop slice, not a production durability certification.
 
+## UI wave 3 -- 2026-10-28
+
+Status: CLAIMED. Final validation (T151) ran 10:37Z-10:50Z on the final tree; full record and the owner hand-check sheet in [VALIDATION.md](agent-work/2026-10-28-ui-wave-3/VALIDATION.md), logs in `node_modules/.cache/personal-word-beta/ui3-final/`.
+
+- tsc 0; unit 60 files, 1025 passed; `npm run build` 0; Playwright whole `tests/` 265 passed, 0 failed (1 worker, no retries, port 1620); cargo 63 passed, 1 ignored.
+- Exports: a Shift+Enter page break gives one `w:pageBreakBefore` in DOCX and a 2-page PDF whose page 2 starts "After the break."
+- App: `src-tauri/target/release/bundle/macos/Personal Word.app`, `com.folio.writing` 0.1.1, binary sha256 `31fff151b20c83626b9693e6b88711dd60eba7ed6f9c063a4ce288c747445479`, zero smoke markers.
+- NOT RUN (screen locked): native reliability, native smoke, native screenshots and the P2 native gate; morning commands are in VALIDATION.md.
+
+- Per-task evidence: `node_modules/.cache/personal-word-beta/ui3-*` (each task's own folder: build logs, Playwright `report.json`, screenshots). The done note for each task names its paths.
+- Independent reviews: each task's review note on the team board (`team/tasks/T*.json`).
+- Browser checks are Chromium (Playwright) against a production preview build; no native WebKit run is claimed here.
+
 ## Confirmed behavior
 
 - **Native macOS WebView + SQLite:** the opt-in harness launched two real Tauri processes with an isolated application identifier and temporary project directory. Phase one created a project through the UI, wrote and switched sections, moved prose into a fragment, restored it, and created a named snapshot. It then typed immediately before invoking the real quit guard. Phase two reopened that final text and restored the named snapshot. Both processes exited successfully.

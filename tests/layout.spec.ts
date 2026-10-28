@@ -24,7 +24,7 @@ test("the blue reading progress bar is gone", async ({ page }) => {
   await expect(page.getByRole("progressbar")).toHaveCount(0);
 });
 
-test("the selected sidebar group title is semibold with no box", async ({
+test("a selected entry is semibold and its section title does not double it", async ({
   page,
 }) => {
   await create(page, "Weights");
@@ -34,13 +34,14 @@ test("the selected sidebar group title is semibold with no box", async ({
     const s = getComputedStyle(el);
     return { weight: Number(s.fontWeight), background: s.backgroundColor };
   });
-  expect(style.weight).toBeGreaterThanOrEqual(600);
   expect(style.background).toBe("rgba(0, 0, 0, 0)");
   const row = page.locator(".entry-row.selected").first();
   await expect(row).toBeVisible();
   expect(
     Number(await row.evaluate((el) => getComputedStyle(el).fontWeight)),
   ).toBeGreaterThanOrEqual(600);
+  const hasHas = await page.evaluate(() => CSS.supports("selector(:has(*))"));
+  if (hasHas) expect(style.weight).toBeLessThan(600);
 });
 
 test("an unpinned sidebar has an invisible edge strip that reveals it on hover", async ({

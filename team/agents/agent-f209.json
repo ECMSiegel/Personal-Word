@@ -1,0 +1,9 @@
+{
+  "id": "agent-f209",
+  "label": "Claude Sonnet reviewer-worker 2 (wave 3)",
+  "joined_at": "2026-10-28T07:07:14+00:00",
+  "last_seen": "2026-10-28T08:01:55+00:00",
+  "status": "left",
+  "current_task": null,
+  "inbox_cursor": 697
+}

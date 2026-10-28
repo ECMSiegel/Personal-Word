@@ -1,0 +1,60 @@
+{
+  "id": "T138",
+  "title": "UI wave 3 A5: Projects screen without the heading (App lane)",
+  "description": "Follow docs/agent-work/2026-10-28-ui-wave-3/PLAN.md section A5 exactly (Files, Interfaces, Steps, Acceptance check, Fail-first, Stop-and-ask, Default) and read its Context, Rules and Notes for the implementer first; RESEARCH.md beside it has the evidence. House rules: register paths = this task's seeded Files (already registered on claim; add more only via files add); serial slot (node_modules/.cache/personal-word-beta/team-serial-check-slot) via files add right before the first expensive check and keep it until done; pinned Node; quoted --outDir on PREVIEW port 1600+N; never edit docs/design-system.md (write DESIGN DOC: text in the done note); motion checks in tests/motion-uN.spec.ts; native rendering runs only with the screen unlocked, by Claude agents or the owner; never put backticks in double-quoted shell text; no installs, no commits; status CLAIMED; independent review required.",
+  "status": "done",
+  "owner": null,
+  "priority": 1,
+  "depends_on": [],
+  "files": [
+    "src/components/ProjectLibrary.tsx",
+    "src/components/library.css",
+    "tests/projects-screen.spec.ts",
+    "node_modules/.cache/personal-word-beta/ui3-a5",
+    "node_modules/.cache/personal-word-beta/team-serial-check-slot"
+  ],
+  "review_required": true,
+  "created_by": "agent-9d21",
+  "created_at": "2026-10-28T04:50:55+00:00",
+  "claimed_at": "2026-10-28T05:50:16+00:00",
+  "updated_at": "2026-10-28T07:57:45+00:00",
+  "handoff": null,
+  "review": {
+    "by": "agent-f401",
+    "at": "2026-10-28T07:57:45+00:00",
+    "verdict": "approved",
+    "note": "T138 (A5) APPROVED by agent-f401 (non-author reviewer). Static: src/components/ProjectLibrary.tsx is exactly the 2-line change described (h1 Projects removed; aria-label Projects added on the library element -- the plan said section but the element is a main, a sensible adaptation, noted); library.css untouched as the done note discloses (the toolbar alignment already lives in styles.css, another lane's file); tests/projects-screen.spec.ts has the four retargets to .library-toolbar plus the new no-heading test with the geometry assertions (brand above button, button at the toolbar's left edge, controls right-aligned, display right of button). Fail-first: the worker's log shows the new case failing on the untouched build (h1 count 1, expected 0) with the retargeted tests passing, as expected. Independent verification on the current tree: fresh build and Playwright on port 1671 (config ui3-review-f401/browser.config.mjs, workers 1): tests/projects-screen.spec.ts, tests/layout.spec.ts and tests/appearance.spec.ts all pass within a 71-passed run -- this covers the plan's PREVIEW(8) set. Screenshots: I viewed the worker's 1440x900 light and dark captures (ui3-a5/shots) -- brand line at top, Start new project at the left, search/sort/view right, no Projects heading; the new geometry test confirms it programmatically. Stop-rule check: the toolbar-stays-put test passed, so no margin rule leaked. For other lanes: the now-dead .library h1 rules in styles.css belong to T139 (S1) as the done note flags. DESIGN DOC: Projects screen has no page heading; the product name stays as the brand line; the toolbar row holds Start new project at the left and search, sort and view right; the library landmark is labelled Projects via aria-label."
+  },
+  "log": [
+    {
+      "at": "2026-10-28T04:50:55+00:00",
+      "agent": "agent-9d21",
+      "event": "created",
+      "note": ""
+    },
+    {
+      "at": "2026-10-28T05:50:16+00:00",
+      "agent": "agent-ed19",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-10-28T05:50:20+00:00",
+      "agent": "agent-ed19",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-10-28T06:49:53+00:00",
+      "agent": "agent-ed19",
+      "event": "review requested",
+      "note": "T138 (A5) CLAIMED, not VERIFIED.\nCHANGED: src/components/ProjectLibrary.tsx -- removed the h1 Projects element from .library-toolbar; added aria-label=\"Projects\" on the library main element (it is a main, not a section; label kept as the plan says). .brand, \"Start new project\" (sentence case, first child of .library-toolbar via .create-project) untouched. src/components/library.css -- NOT changed: nothing there needed it; the toolbar's flex-start and .library-display margin-left:auto already live in src/styles.css (849/1541/1548-1571/1809-1818), another lane.\ntests/projects-screen.spec.ts -- retargeted the four h1 uses to .library-toolbar (create-menu header stability, click-outside clicks the empty middle of the toolbar, drop-highlight child dragenter/dragleave, y stability as projects are added; last test renamed to say toolbar); new test \"the Projects screen has no heading: the button sits left, the controls right\" (.library h1 count 0, no heading role inside .library, aria-label Projects, brand above button, button at toolbar left edge, controls at right edge, controls right of button).\nFAIL-FIRST: on the untouched component (build-pre.log), npx playwright test -c ui3-a5/browser.config.mjs --workers=1 tests/projects-screen.spec.ts -> 1 failed, 37 passed; failure: the new test at expect(locator(\".library h1\")).toHaveCount(0), received 1 (pw-failfirst.log). The four retargeted tests passed on the untouched build, as expected.\nCHECKS: npx tsc --noEmit -p . -> 0 (tsc.log). vite build -> ok (build.log). Playwright projects-screen + layout + appearance (port 1608) -> 62 passed, 0 failed (pw-final.log). All logs in node_modules/.cache/personal-word-beta/ui3-a5.\nSTOP RULE: toolbar y at 1440x900 was 152 before and 152 after (scratch measure; bar height 52.4 -> 39, h1 was 35), so no margin rule leaked. Nothing shifts above the toolbar (brand y 78 both).\nSCREENSHOT VIEWED (Chromium, 1440x900, light and dark, shots/projects-after-*.png): \"Personal Word\" brand line at top left, then below it a blue \"Start new project\" button at the left of the column, Search/Sort Last edited/direction/view icons right-aligned on the same row, then \"No projects yet.\" No Projects heading. Dark looks equivalent with the lighter accent button. Not checked in native WebKit (not assigned).\nFOR OTHER LANES: T139 (S1) owns the now-dead rules in src/styles.css: .library h1 (~849 and ~1541-1547), .library-toolbar h1 (~1813-1815); .library-heading (~1538) also looks unused (inferred, not grepped in TSX beyond this task). I did not touch styles.css.\nDESIGN DOC: Projects screen -- no page heading; the product name stays as the .brand line above; the toolbar row holds \"Start new project\" (sentence case) at the left and search, sort and view controls right-aligned; the library landmark is labelled \"Projects\" with aria-label."
+    },
+    {
+      "at": "2026-10-28T07:57:45+00:00",
+      "agent": "agent-f401",
+      "event": "approved",
+      "note": "T138 (A5) APPROVED by agent-f401 (non-author reviewer). Static: src/components/ProjectLibrary.tsx is exactly the 2-line change described (h1 Projects removed; aria-label Projects added on the library element -- the plan said section but the element is a main, a sensible adaptation, noted); library.css untouched as the done note discloses (the toolbar alignment already lives in styles.css, another lane's file); tests/projects-screen.spec.ts has the four retargets to .library-toolbar plus the new no-heading test with the geometry assertions (brand above button, button at the toolbar's left edge, controls right-aligned, display right of button). Fail-first: the worker's log shows the new case failing on the untouched build (h1 count 1, expected 0) with the retargeted tests passing, as expected. Independent verification on the current tree: fresh build and Playwright on port 1671 (config ui3-review-f401/browser.config.mjs, workers 1): tests/projects-screen.spec.ts, tests/layout.spec.ts and tests/appearance.spec.ts all pass within a 71-passed run -- this covers the plan's PREVIEW(8) set. Screenshots: I viewed the worker's 1440x900 light and dark captures (ui3-a5/shots) -- brand line at top, Start new project at the left, search/sort/view right, no Projects heading; the new geometry test confirms it programmatically. Stop-rule check: the toolbar-stays-put test passed, so no margin rule leaked. For other lanes: the now-dead .library h1 rules in styles.css belong to T139 (S1) as the done note flags. DESIGN DOC: Projects screen has no page heading; the product name stays as the brand line; the toolbar row holds Start new project at the left and search, sort and view right; the library landmark is labelled Projects via aria-label."
+    }
+  ]
+}

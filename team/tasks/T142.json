@@ -1,0 +1,61 @@
+{
+  "id": "T142",
+  "title": "UI wave 3 N1: Shortcut registry, chords and store (New-modules lane)",
+  "description": "Follow docs/agent-work/2026-10-28-ui-wave-3/PLAN.md section N1 exactly (Files, Interfaces, Steps, Acceptance check, Fail-first, Stop-and-ask, Default) and read its Context, Rules and Notes for the implementer first; RESEARCH.md beside it has the evidence. House rules: register paths = this task's seeded Files (already registered on claim; add more only via files add); serial slot (node_modules/.cache/personal-word-beta/team-serial-check-slot) via files add right before the first expensive check and keep it until done; pinned Node; quoted --outDir on PREVIEW port 1600+N; never edit docs/design-system.md (write DESIGN DOC: text in the done note); motion checks in tests/motion-uN.spec.ts; native rendering runs only with the screen unlocked, by Claude agents or the owner; never put backticks in double-quoted shell text; no installs, no commits; status CLAIMED; independent review required.",
+  "status": "done",
+  "owner": null,
+  "priority": 1,
+  "depends_on": [],
+  "files": [
+    "src/shortcuts/registry.ts",
+    "src/shortcuts/chords.ts",
+    "src/shortcuts/store.ts",
+    "src/shortcuts/shortcuts.test.ts",
+    "src/settings/ShortcutsSettings.tsx",
+    "node_modules/.cache/personal-word-beta/ui3-n1"
+  ],
+  "review_required": true,
+  "created_by": "agent-9d21",
+  "created_at": "2026-10-28T04:50:56+00:00",
+  "claimed_at": "2026-10-28T05:50:17+00:00",
+  "updated_at": "2026-10-28T06:14:50+00:00",
+  "handoff": null,
+  "review": {
+    "by": "agent-bc26",
+    "at": "2026-10-28T06:14:50+00:00",
+    "verdict": "approved",
+    "note": "T142 N1 approved. tsc --noEmit exit 0; vitest src/shortcuts 10/10 pass; adversarial-wp3-exports.test.ts rerun in isolation 29/29 pass, so the 3 timeouts were load-related. SHORTCUTS_KEY is folio.workspace.shortcuts. API matches N1/K2 (Chord, ActionId, ACTIONS, RESERVED with the 18 spec chords, parseChord/formatChord/sameChord, read/writeShortcuts, resolveChord prefers overrides, hintFor, chordProblem returns the exact spec messages reserved by macOS / taken by label). Corrupt or unknown or readOnly overrides dropped. Defaults match the hint-map chords. ShortcutsSettings has Change, Reset, Reset all, Esc cancels, refuses reserved and duplicates. Notes for K2: component emits unstyled classes shortcuts-settings and shortcut-chord and uses a plain span not kbd; Shift+Enter listed read-only as planned."
+  },
+  "log": [
+    {
+      "at": "2026-10-28T04:50:56+00:00",
+      "agent": "agent-9d21",
+      "event": "created",
+      "note": ""
+    },
+    {
+      "at": "2026-10-28T05:50:17+00:00",
+      "agent": "agent-41f3",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-10-28T05:50:20+00:00",
+      "agent": "agent-41f3",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-10-28T06:10:24+00:00",
+      "agent": "agent-41f3",
+      "event": "review requested",
+      "note": "N1 done (CLAIMED). Added src/shortcuts/{chords,registry,store}.ts, shortcuts.test.ts, src/settings/ShortcutsSettings.tsx; no wiring. API per plan plus: chordFor, chordProblem (reserved/taken messages), isModifierOnly, actionLabel, ShortcutOverrides type, ActionDef.readOnly (insertPageBreak, Shift+Enter, listed but no Change/Reset). Defaults = today's chords (focus Shift-Cmd-F, fragment Shift-Cmd-X, save Cmd-S, snapshot Shift-Cmd-S, new section Shift-Cmd-N, find Cmd-K, sidebar Cmd-backslash, appearance Shift-Cmd-L); hint map in editor/shortcuts.ts matches, no mismatch. resolveChord folds Ctrl into Cmd as today. Settings component emits class names shortcuts-settings, shortcut-chord (no CSS written; K2/styles must style, buttons are plain). Verified: vitest src/shortcuts 10/10 pass; fail-first by doctoring sameChord to ignore shift -> 3 fail, restored (cmp ok); tsc --noEmit clean; full npm test 1007 pass, 3 fail = adversarial-wp3-exports 5000ms timeouts under machine load, unrelated. Note: Cmd+Shift+S currently fires save and snapshot both; after K2 only snapshot. DESIGN DOC: Shortcuts section in Settings lists each action with chord, Change (records next chord; Esc cancels), Reset, Reset all; overrides in folio.workspace.shortcuts."
+    },
+    {
+      "at": "2026-10-28T06:14:50+00:00",
+      "agent": "agent-bc26",
+      "event": "approved",
+      "note": "T142 N1 approved. tsc --noEmit exit 0; vitest src/shortcuts 10/10 pass; adversarial-wp3-exports.test.ts rerun in isolation 29/29 pass, so the 3 timeouts were load-related. SHORTCUTS_KEY is folio.workspace.shortcuts. API matches N1/K2 (Chord, ActionId, ACTIONS, RESERVED with the 18 spec chords, parseChord/formatChord/sameChord, read/writeShortcuts, resolveChord prefers overrides, hintFor, chordProblem returns the exact spec messages reserved by macOS / taken by label). Corrupt or unknown or readOnly overrides dropped. Defaults match the hint-map chords. ShortcutsSettings has Change, Reset, Reset all, Esc cancels, refuses reserved and duplicates. Notes for K2: component emits unstyled classes shortcuts-settings and shortcut-chord and uses a plain span not kbd; Shift+Enter listed read-only as planned."
+    }
+  ]
+}

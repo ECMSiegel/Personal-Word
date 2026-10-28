@@ -88,8 +88,49 @@
   background: var(--line);
 }
 
-.library[data-dropping] {
-  outline: 2px dashed var(--accent);
-  outline-offset: calc(-1 * var(--space-2));
-  background: color-mix(in srgb, var(--accent) 6%, var(--paper));
+/* The drop region is the project list, not the page. */
+.library .drop-target {
+  min-height: 120px;
+  margin: var(--space-5) 0;
+}
+.library .drop-target .project-list {
+  margin: 0;
+}
+/* The picker button lives in the toolbar beside Start new project, at the shared control height. */
+.library-import {
+  height: var(--control-height);
+  min-width: 24px;
+  padding: 0 var(--space-3);
+  font-size: var(--type-small);
+  color: var(--muted);
+}
+.library-import:hover:not(:disabled),
+.library-import:focus-visible {
+  color: var(--text);
+}
+/* The Projects screen's Settings dialog reuses the Settings destination's
+   General block verbatim, so it carries the same `.project-settings` field
+   rules. Only the frame differs: no page padding, scroll container or page
+   width, no top rule under a heading the dialog already carries, and a dialog
+   wide enough for the shared 180px + 260px field grid. */
+.library-settings-body.project-settings {
+  flex: none;
+  max-width: none;
+  padding: 0;
+  overflow: visible;
+}
+.library-settings-body.project-settings .settings-section {
+  margin-top: 0;
+  padding-top: 0;
+  border-top: 0;
+}
+.library-settings-body.project-settings .settings-section > h2 {
+  display: none;
+}
+.modal-backdrop .dialog:has(.library-settings-body) {
+  width: 560px;
+  max-width: calc(100vw - 40px);
+}
+.library .drop-target .library-empty {
+  padding-left: var(--space-3);
 }

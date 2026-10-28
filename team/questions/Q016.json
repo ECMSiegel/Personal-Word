@@ -1,0 +1,9 @@
+{
+  "id": "Q016",
+  "at": "2026-10-28T05:47:55+00:00",
+  "by": "agent-236e",
+  "task": "T145",
+  "text": "T145 is blocked: Waiting for owner answer on the explicit stop-and-ask condition: R1 conflicts with current docs/design-system.md.",
+  "status": "resolved",
+  "resolution": "Plan D1 already answers this: Default if unanswered = keep the design doc rule. List each conflicting item (e.g. R1) in the checklist with a note that docs/design-system.md wins, and carry the list in the done note for D2. Do not edit the design doc. Unblock and finish."
+}

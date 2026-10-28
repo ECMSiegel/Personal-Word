@@ -237,10 +237,13 @@ button,
 input {
   font: inherit;
 }
+/* Zero specificity so the icon-button recipe below can set a button colour. */
+:where(button) {
+  color: inherit;
+}
 button {
   border: 0;
   background: transparent;
-  color: inherit;
   cursor: pointer;
   display: inline-flex;
   align-items: center;
@@ -248,11 +251,146 @@ button {
   gap: var(--space-2);
   border-radius: 0;
 }
-button:hover:not(:disabled) {
-  background: var(--surface);
-}
+/* No box highlights anywhere: hover, focus and selection are shown by colour or
+   weight, and a press is a 1% scale (docs/design-system.md, icon-button recipe). */
 button:active:not(:disabled) {
-  background: var(--pressed);
+  transform: scale(0.99);
+  transition: transform var(--duration-press) var(--ease-out);
+}
+/* Icon-only buttons: muted, text on hover/focus, accent when pressed/selected,
+   danger on a destructive hover (.delete-entry:hover/:focus-visible further
+   down). One selector list instead of a class edit in
+   every component. :where() keeps the base rule at zero specificity so the
+   hover/focus, pressed and danger rules below always win. */
+:where(
+    .icon-button,
+    .delete-entry,
+    .reorder button,
+    .group-actions button,
+    .collection-open-beside,
+    .open-beside,
+    .sidebar-pin,
+    .split-close,
+    .fragment-icon,
+    .project-tab > button:last-child,
+    .library-display > button,
+    .topbar > div:first-child > button
+  ) {
+  color: var(--muted);
+}
+:where(
+    .icon-button,
+    .delete-entry,
+    .reorder button,
+    .group-actions button,
+    .collection-open-beside,
+    .open-beside,
+    .sidebar-pin,
+    .split-close,
+    .fragment-icon,
+    .project-tab > button:last-child,
+    .library-display > button,
+    .topbar > div:first-child > button
+  ):is(:hover:not(:disabled), :focus-visible) {
+  color: var(--text);
+}
+:where(
+    .icon-button,
+    .delete-entry,
+    .reorder button,
+    .group-actions button,
+    .collection-open-beside,
+    .open-beside,
+    .sidebar-pin,
+    .split-close,
+    .fragment-icon,
+    .project-tab > button:last-child,
+    .library-display > button,
+    .topbar > div:first-child > button
+  ):is([aria-pressed="true"]),
+:where(
+    .icon-button,
+    .delete-entry,
+    .reorder button,
+    .group-actions button,
+    .collection-open-beside,
+    .open-beside,
+    .sidebar-pin,
+    .split-close,
+    .fragment-icon,
+    .project-tab > button:last-child,
+    .library-display > button,
+    .topbar > div:first-child > button
+  ):is([aria-pressed="true"]):is(:hover:not(:disabled), :focus-visible) {
+  color: var(--accent);
+}
+/* Hit area and optical nudges: an icon button keeps its drawn size but reaches
+   a 24 x 24 px target, and an icon whose ink sits off its box centre is nudged
+   with --optical-x / --optical-y rather than a padding hack. */
+:where(
+    .icon-button,
+    .delete-entry,
+    .reorder button,
+    .group-actions button,
+    .collection-open-beside,
+    .open-beside,
+    .sidebar-pin,
+    .split-close,
+    .fragment-icon,
+    .project-tab > button:last-child,
+    .library-display > button,
+    .topbar > div:first-child > button,
+    .toolbar-icon
+  ) {
+  position: relative;
+}
+:is(
+    .icon-button,
+    .delete-entry,
+    .reorder button,
+    .group-actions button,
+    .collection-open-beside,
+    .open-beside,
+    .sidebar-pin,
+    .split-close,
+    .fragment-icon,
+    .project-tab > button:last-child,
+    .library-display > button,
+    .topbar > div:first-child > button,
+    .toolbar-icon
+  )::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: max(24px, 100%);
+  height: max(24px, 100%);
+  transform: translate(-50%, -50%);
+}
+:where(
+    .icon-button,
+    .delete-entry,
+    .reorder button,
+    .group-actions button,
+    .collection-open-beside,
+    .open-beside,
+    .sidebar-pin,
+    .split-close,
+    .fragment-icon,
+    .project-tab > button:last-child,
+    .library-display > button,
+    .topbar > div:first-child > button,
+    .toolbar-icon
+  ) > svg {
+  transform: translate(var(--optical-x, 0), var(--optical-y, 0));
+}
+/* Inactive project tabs read quieter; hover brings them to full text colour. */
+.project-tab:not(.active) > button:first-child {
+  color: var(--muted);
+}
+.project-tab:not(.active) > button:first-child:hover:not(:disabled),
+.project-tab:not(.active) > button:first-child:focus-visible {
+  color: var(--text);
 }
 button:disabled,
 input:disabled,
@@ -480,11 +618,12 @@ p {
   opacity: 0;
 }
 .selected {
-  background: var(--line);
   color: var(--text);
 }
 .reorder {
   display: flex;
+  /* --space-1 between 20 px arrows keeps their 24 px hit areas from overlapping. */
+  gap: var(--space-1);
   opacity: 0;
   position: absolute;
   right: 2px;
@@ -580,9 +719,20 @@ p {
 .breadcrumb:focus-within .delete-entry {
   opacity: 1;
 }
-.breadcrumb > span {
-  margin: 0 var(--space-3);
-  color: var(--muted);
+.breadcrumb ol {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  min-width: 0;
+}
+.breadcrumb li {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  min-width: 0;
 }
 .save-status {
   font-size: var(--type-small);
@@ -730,6 +880,18 @@ p {
   background: var(--line);
   margin: 0 var(--space-2);
 }
+/* A vertical separator draws one pixel of the line colour and stretches to its
+   row; horizontal keeps the short rule above. */
+.separator[role="separator"][aria-orientation="vertical"] {
+  height: auto;
+  align-self: stretch;
+  margin: 0;
+}
+/* Counters change constantly: tabular figures keep their width steady. */
+.document-statistics,
+.save-status {
+  font-variant-numeric: tabular-nums;
+}
 .format-bar .extract {
   margin-left: auto;
   font-size: var(--type-small);
@@ -845,13 +1007,6 @@ p {
 }
 .library-heading {
   margin-top: 80px;
-}
-.library h1 {
-  font:
-    var(--type-display) Futura,
-    sans-serif;
-  letter-spacing: -1px;
-  color: var(--text);
 }
 .library p {
   color: var(--muted);
@@ -1365,18 +1520,6 @@ button[aria-pressed="true"],
 .sidebar-bottom-groups {
   position: relative;
 }
-.sidebar-highlight {
-  position: absolute;
-  z-index: 0;
-  top: 0;
-  left: 0;
-  width: 1px;
-  height: 1px;
-  transform-origin: 0 0;
-  pointer-events: none;
-  opacity: 0;
-  background: color-mix(in srgb, var(--text) 6%, transparent);
-}
 .sidebar-group {
   position: relative;
   margin-bottom: var(--space-4);
@@ -1404,6 +1547,13 @@ button[aria-pressed="true"],
 .sidebar .group-title.selected {
   color: var(--text);
   font-weight: 600;
+}
+/* One emphasis per section: when an entry in the group is selected, the group
+   title steps back so the entry alone is bold (and tinted in Color). */
+.sidebar-group:has(.entry-row.selected) .group-title.selected,
+:root[data-palette="color"] .sidebar-group[data-group]:has(.entry-row.selected) .group-title.selected {
+  font-weight: 500;
+  color: var(--text);
 }
 .group-actions {
   display: flex;
@@ -1537,13 +1687,6 @@ button[aria-pressed="true"],
 }
 .library-heading {
   margin-top: 48px;
-}
-.library h1 {
-  font-family: inherit;
-  font-size: var(--type-display);
-  font-weight: 500;
-  letter-spacing: -0.5px;
-  margin-bottom: var(--space-5);
 }
 .library-toolbar,
 .library-display {
@@ -1810,9 +1953,6 @@ button[aria-pressed="true"],
   margin-top: 48px;
   justify-content: flex-start;
 }
-.library-toolbar h1 {
-  margin: 0 var(--space-3) 0 0;
-}
 .library-display {
   margin-left: auto;
 }
@@ -1825,26 +1965,18 @@ button[aria-pressed="true"],
 }
 
 /* Flat hover: no grey boxes and no underlines. Sidebar rows thicken instead. */
-.sidebar button:hover:not(:disabled) {
-  background: var(--sidebar);
-}
 /* The sidebar clips overflow, so its focus ring sits inside the control. */
 .sidebar button:focus-visible {
   outline-offset: calc(var(--focus-offset) * -2);
 }
-.sidebar button:active:not(:disabled) {
-  background: var(--pressed);
-}
 .sidebar .group-title:hover,
 .sidebar .entry-main:hover,
 .sidebar .project-switch:hover {
-  background: transparent;
   text-decoration: none;
 }
 .sidebar .group-title:active:not(:disabled),
 .sidebar .entry-main:active:not(:disabled),
 .project-row > button:first-child:active:not(:disabled) {
-  background: transparent;
   color: var(--accent);
 }
 :root:not([data-palette="color"]) .sidebar .group-title.selected:active:not(:disabled),
@@ -1860,12 +1992,7 @@ button[aria-pressed="true"],
 }
 .delete-entry:hover,
 .delete-entry:focus-visible {
-  background: transparent;
   color: var(--danger);
-}
-.project-row > button:first-child:hover,
-.project-row > button:first-child:focus-visible {
-  background: transparent;
 }
 .project-row > button:first-child:hover > .project-name,
 .project-row > button:first-child:focus-visible > .project-name {

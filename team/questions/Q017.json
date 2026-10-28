@@ -1,0 +1,9 @@
+{
+  "id": "Q017",
+  "at": "2026-10-28T05:53:00+00:00",
+  "by": "agent-9249",
+  "task": "T131",
+  "text": "E1 requires More to list Indent, Spacing, Page view, Prose check, and Page setup as labelled rows with shortcut hints. Current src/editor/shortcuts.ts has no hint entries for these controls, and T131 does not own that file (N1/K2 own the future shortcut registry/wiring). Should E1 add hints now (please provide the intended shortcuts), or should E1 verify the labels and defer hints to the shortcut tasks? I will not invent bindings.",
+  "status": "resolved",
+  "resolution": "Default applied (coordinator, owner said answer with defaults): do not invent bindings. E1 verifies the labelled rows and shows hints only where src/editor/shortcuts.ts already has one; missing hints come from the registry in K2 (T148). Note the deferral in the done note."
+}

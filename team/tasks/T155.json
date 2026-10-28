@@ -1,0 +1,60 @@
+{
+  "id": "T155",
+  "title": "Native harness: close the More popover in writing-pages capture and pages-probe",
+  "description": "From the T147 Opus review (msg #751): at 1240 px the view toggle lives in the More menu, and tests/native-screens.js writing-pages capture dispatches Escape on document, which never reaches the popover's React onKeyDown -- the PNG would show the open More popover. Patch the writing-pages capture and the native-smoke pages-probe phase (tests/native-smoke.js) to close More properly (dispatch Escape on the focused popover element / the menu, or click the More button again) before capturing/measuring. Also make the morning gate compare paint p50/p95/max p2 vs base (not sync only) in node_modules/.cache/personal-word-beta/ui3-p2/native-gate.py and print WebKit offsetTop page starts and footnote pages numerically in the 585 pane. Cannot run natively tonight (screen locked): verify by node --check, a Chromium dry-run of the same DOM steps via Playwright if feasible, and code reading; record native run as morning step.",
+  "status": "done",
+  "owner": null,
+  "priority": 1,
+  "depends_on": [],
+  "files": [
+    "tests/native-screens.js",
+    "tests/native-smoke.js",
+    "node_modules/.cache/personal-word-beta/ui3-p2/native-gate.py",
+    "node_modules/.cache/personal-word-beta/ui3-p2/NATIVE-GATE-MORNING.md",
+    "node_modules/.cache/personal-word-beta/ui3-nativefix"
+  ],
+  "review_required": true,
+  "created_by": "agent-3663",
+  "created_at": "2026-10-28T09:18:48+00:00",
+  "claimed_at": "2026-10-28T09:19:07+00:00",
+  "updated_at": "2026-10-28T09:22:36+00:00",
+  "handoff": null,
+  "review": {
+    "by": "agent-89c3",
+    "at": "2026-10-28T09:22:36+00:00",
+    "verdict": "approved",
+    "note": "APPROVED by agent-89c3 (Sonnet reviewer), status stays CLAIMED: no native or Chromium run. Evidence: node --check passes on tests/native-smoke.js and native-screens.js; py_compile passes on native-gate.py. closeMore dispatches a bubbling Escape keydown on the role=dialog aria-label=More formatting element; Writer.tsx:1636 sets dialogLabel to that string and ToolbarControls.tsx:117-122 onKeyDown handles Escape and calls onEscape, so it goes through the popover own React handler (React root delegation, no focus needed, fine in WKWebView); fallback clicks the More button; loops bounded (2 attempts x 40 x 25 ms) then throws; wait() bounded 500 x 40 ms; probe keystroke wait bounded 1000 ms; gate subprocess has --timeout and killpg. Gate prints sync and paint p50/p95/max table, paint p2 vs base ratios, 585 pane page starts (expected n*1088 vs offsetTop vs rect/zoom) and footnote ref page(offsetTop) vs page(rect) with MISMATCH flag; exit nonzero on drift over 2 px, mismatches, or no refs. Morning doc is ordered, tells to rebuild BOTH smoke binaries after the patch (include_str!), has df/5 GB check, caret flags, PNG no-open-More check. Nits, non-blocking: (1) df step is a manual stop-if-under-5GB; df right now shows about 9 GB free on Data, so tight, check it. (2) paint has no hard pass rule, only report if ratio over 1.5 or p95 over 50 ms; gate exit code ignores paint. (3) ui3-nativefix/out is empty: the Chromium dry-run was never run, so closeMore is code-read only. (4) the footnote check compares two position methods, not real footnote placement, as doc says."
+  },
+  "log": [
+    {
+      "at": "2026-10-28T09:18:48+00:00",
+      "agent": "agent-3663",
+      "event": "created",
+      "note": ""
+    },
+    {
+      "at": "2026-10-28T09:19:07+00:00",
+      "agent": "agent-ab72",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-10-28T09:19:08+00:00",
+      "agent": "agent-ab72",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-10-28T09:21:50+00:00",
+      "agent": "agent-ab72",
+      "event": "review requested",
+      "note": "CLAIMED, not run natively (screen locked) and not run in Chromium (serial slot held by T148, so I did not hold it). CHANGES: (1) tests/native-screens.js: new moreMenu/closeMore helper (Escape keydown dispatched on the More formatting dialog element, so its React onKeyDown/onEscape fires; falls back to clicking the More button; throws if it stays open); writing-pages capture now calls it instead of Escape on document. (2) tests/native-smoke.js: same helper; pages-probe and phase 1 clickPageToggle call it after clicking Page view; pages-probe also gains a 585 px pane block (squeezes .editor-viewport to 585 px so fitScale sets the zoom, then records for the first 12 page starts expected n*1088 vs offsetTop vs rect/zoom, and for about 12 seeded footnoteReference nodes offsetTop, rect/zoom and the page index each gives; summary maxPageStartDrift and refPageMismatches in probe.narrow). (3) ui3-p2/native-gate.py: prints sync and paint p50/p95/max table per label/run/position, mean paint p2 vs base ratios, and the 585 pane printout; exit nonzero also if p2 drift over 2 px, any ref page mismatch, or no refs. (4) ui3-p2/NATIVE-GATE-MORNING.md: rebuild BOTH smoke binaries AFTER this patch (smoke.rs include_str!), new step 3b with exact numeric reading, PNG check for no open More, optional Chromium dry-run command. VERIFIED: node --check on both JS files, py_compile on native-gate.py and scripts/native-screens.py; code read against Popover.tsx (role/aria-label dropped when closing, onKeyDown on the popover div) and ToolbarControls.tsx:117. READY BUT UNRUN: ui3-nativefix/dry.spec.ts + dry.config.mjs (port 1661, PW_DIST_DIR ui3-p2/dist) executes the extracted helper text and narrow block in Chromium and shows document-Escape leaves More open; run it when the slot is free. Paths: tests/native-smoke.js, tests/native-screens.js, native-gate.py, NATIVE-GATE-MORNING.md, ui3-nativefix: uncommitted edits."
+    },
+    {
+      "at": "2026-10-28T09:22:36+00:00",
+      "agent": "agent-89c3",
+      "event": "approved",
+      "note": "APPROVED by agent-89c3 (Sonnet reviewer), status stays CLAIMED: no native or Chromium run. Evidence: node --check passes on tests/native-smoke.js and native-screens.js; py_compile passes on native-gate.py. closeMore dispatches a bubbling Escape keydown on the role=dialog aria-label=More formatting element; Writer.tsx:1636 sets dialogLabel to that string and ToolbarControls.tsx:117-122 onKeyDown handles Escape and calls onEscape, so it goes through the popover own React handler (React root delegation, no focus needed, fine in WKWebView); fallback clicks the More button; loops bounded (2 attempts x 40 x 25 ms) then throws; wait() bounded 500 x 40 ms; probe keystroke wait bounded 1000 ms; gate subprocess has --timeout and killpg. Gate prints sync and paint p50/p95/max table, paint p2 vs base ratios, 585 pane page starts (expected n*1088 vs offsetTop vs rect/zoom) and footnote ref page(offsetTop) vs page(rect) with MISMATCH flag; exit nonzero on drift over 2 px, mismatches, or no refs. Morning doc is ordered, tells to rebuild BOTH smoke binaries after the patch (include_str!), has df/5 GB check, caret flags, PNG no-open-More check. Nits, non-blocking: (1) df step is a manual stop-if-under-5GB; df right now shows about 9 GB free on Data, so tight, check it. (2) paint has no hard pass rule, only report if ratio over 1.5 or p95 over 50 ms; gate exit code ignores paint. (3) ui3-nativefix/out is empty: the Chromium dry-run was never run, so closeMore is code-read only. (4) the footnote check compares two position methods, not real footnote placement, as doc says."
+    }
+  ]
+}

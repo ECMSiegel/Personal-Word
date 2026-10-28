@@ -1,0 +1,66 @@
+{
+  "id": "T168",
+  "title": "Page view splits paragraphs like Word (widow/orphan control)",
+  "description": "Owner Q018 (2026-10-28): 'do what Word would'. A top-level paragraph that does not fit splits at a line boundary when at least 2 lines stay on each page (<=3-line paragraphs move whole); headings keep with next; a paragraph taller than a page splits as often as needed. Inline spacer widget inside the paragraph; lists, quotes, tables, images, code keep whole-block moves (documented limit).",
+  "status": "done",
+  "owner": null,
+  "priority": 1,
+  "depends_on": [],
+  "files": [
+    "src/editor/pagination.ts",
+    "src/editor/pagination.test.ts",
+    "src/editor/editor.css",
+    "tests/pages.spec.ts",
+    "tests/native-smoke.js",
+    "docs/limitations.md",
+    "docs/changelog.md",
+    "node_modules/.cache/personal-word-beta/ui3-wordsplit",
+    "README.md",
+    "docs/design-system.md",
+    "docs/architecture.md"
+  ],
+  "review_required": true,
+  "created_by": "agent-47c8",
+  "created_at": "2026-10-28T19:38:57+00:00",
+  "claimed_at": "2026-10-28T19:40:57+00:00",
+  "updated_at": "2026-10-28T21:33:45+00:00",
+  "handoff": null,
+  "review": {
+    "by": "agent-264a",
+    "at": "2026-10-28T21:33:45+00:00",
+    "verdict": "approved",
+    "note": "Fable review ends SHIP; VALIDATION: 270 passed in pw-full4.log, doctored logs fail (1 failed each), w2-gate caret checks pass True, pagination vitest 18/18 re-run by me; native/owner use not confirmed (CLAIMED)"
+  },
+  "log": [
+    {
+      "at": "2026-10-28T19:38:57+00:00",
+      "agent": "agent-47c8",
+      "event": "created",
+      "note": ""
+    },
+    {
+      "at": "2026-10-28T19:40:57+00:00",
+      "agent": "agent-47c8",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-10-28T19:40:57+00:00",
+      "agent": "agent-47c8",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-10-28T20:27:57+00:00",
+      "agent": "agent-47c8",
+      "event": "review requested",
+      "note": "Word-style split (owner Q018). Unit 1042, pagination 18/18, pages.spec 6/6 incl new rewrap test (fail-first on doctored build: 356 px short line), fail-first of split assertions on old dist (inline 0). Native gate on folio-split: sync p50 8-9 ms, paint ratio <=1.24, caret 6/6 inline+block, 585 drift<=1. Final review: Fable (coordinator-run)."
+    },
+    {
+      "at": "2026-10-28T21:33:45+00:00",
+      "agent": "agent-264a",
+      "event": "approved",
+      "note": "Fable review ends SHIP; VALIDATION: 270 passed in pw-full4.log, doctored logs fail (1 failed each), w2-gate caret checks pass True, pagination vitest 18/18 re-run by me; native/owner use not confirmed (CLAIMED)"
+    }
+  ]
+}

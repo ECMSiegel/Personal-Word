@@ -1,0 +1,135 @@
+{
+  "id": "T150",
+  "title": "UI wave 3 D2: Documentation",
+  "description": "Follow docs/agent-work/2026-10-28-ui-wave-3/PLAN.md section D2 exactly (Files, Interfaces, Steps, Acceptance check, Fail-first, Stop-and-ask, Default) and read its Context, Rules and Notes for the implementer first; RESEARCH.md beside it has the evidence. House rules: register paths = this task's seeded Files (already registered on claim; add more only via files add); serial slot (node_modules/.cache/personal-word-beta/team-serial-check-slot) via files add right before the first expensive check and keep it until done; pinned Node; quoted --outDir on PREVIEW port 1600+N; never edit docs/design-system.md (write DESIGN DOC: text in the done note); motion checks in tests/motion-uN.spec.ts; native rendering runs only with the screen unlocked, by Claude agents or the owner; never put backticks in double-quoted shell text; no installs, no commits; status CLAIMED; independent review required.",
+  "status": "done",
+  "owner": null,
+  "priority": 2,
+  "depends_on": [
+    "T131",
+    "T132",
+    "T133",
+    "T134",
+    "T135",
+    "T136",
+    "T137",
+    "T138",
+    "T139",
+    "T140",
+    "T141",
+    "T142",
+    "T143",
+    "T144",
+    "T145",
+    "T147",
+    "T148",
+    "T149"
+  ],
+  "files": [
+    "docs/design-system.md",
+    "AGENTS.md",
+    "README.md",
+    "docs/architecture.md",
+    "docs/limitations.md",
+    "docs/changelog.md",
+    "docs/validation.md",
+    "docs/agent-work/2026-10-25-later-fixes/PLAN.md",
+    "node_modules/.cache/personal-word-beta/ui3-d2"
+  ],
+  "review_required": true,
+  "created_by": "agent-9d21",
+  "created_at": "2026-10-28T04:50:58+00:00",
+  "claimed_at": "2026-10-28T10:47:50+00:00",
+  "updated_at": "2026-10-28T10:48:29+00:00",
+  "handoff": {
+    "by": "agent-c2a7",
+    "at": "2026-10-28T10:40:26+00:00",
+    "text": "Rejected, one line left. README.md line 91 and the Bibliography condition and the Drop targets hand-check wording are now correct (checked against src/App.tsx 117-123 and 1930-1946), and the 4 acceptance greps and git diff --check pass. But docs/design-system.md line 222 (Bibliography and PDFs) still says research notes live only in the Research panel's Notes tab. The code lists each research note as a row under Research in the sidebar (App.tsx ~1936-1940, after the sources) and clicking one opens the Notes tab. Fix that sentence (notes are listed after the sources and open the Notes tab, which splits source notes from loose notes)."
+  },
+  "review": {
+    "by": "agent-2fba",
+    "at": "2026-10-28T10:48:29+00:00",
+    "verdict": "approved",
+    "note": "Approved r3. design-system.md line 222 now matches App.tsx: showBibliography 117-123 (chicago, a source, or a citing footnote), Research list 1931-1943 (Bibliography, sources with PDF rows, then note rows), note click sets researchTab notes (1965-1971), fallback to manuscript at 860-863. No remaining only-in-Notes-tab claim in docs/ or README.md. Four D2 greps pass (0, 0, 1, 1) and git diff --check is clean. Minor non-blocking: README line 91 says research notes under Notes, slightly loose but not wrong; docs/agent-work/2026-10-26-ui-wave-2/VALIDATION.md:120 is a historical record."
+  },
+  "log": [
+    {
+      "at": "2026-10-28T04:50:58+00:00",
+      "agent": "agent-9d21",
+      "event": "created",
+      "note": ""
+    },
+    {
+      "at": "2026-10-28T10:27:45+00:00",
+      "agent": "agent-a6ec",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-10-28T10:27:45+00:00",
+      "agent": "agent-a6ec",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-10-28T10:31:27+00:00",
+      "agent": "agent-a6ec",
+      "event": "review requested",
+      "note": "T150 (D2) documentation pass done. AUTHOR: agent-a6ec (OpenCode).\n\nWHAT CHANGED. docs/design-system.md rewritten in place (232 lines, 22 sections): States (no-fill recipe, bold-vs-colour rule, pressed scale, remaining-fills table), Toolbar (icons only at every width, group gap 0, measured More table), Sidebar (no highlight box, doubling rule, drag reorder with the arrow keyboard path), Split view (stable left pane, matching headers, divider, jumps), plus new Separator, Pages, Shortcuts, Optical alignment and Drop targets sections; Elevation and sizes, Type scale, Colour tokens and Theme and palette updated. AGENTS.md: the selected-entry sentence is now semibold with no fill. README.md: split keeps the left pane's history and scroll, the Projects gear opens Settings, Import writing is the keyboard path, drag reorder and Page view in step 2, Settings > Shortcuts. docs/architecture.md: UI wave 3 paragraph (pagination plugin, shortcut registry, drag hook, DropTarget) and slideHighlight marked unused. docs/limitations.md: split limit corrected (no remount; 6 px divider target); the toolbar label-mode item replaced by the Futura counter-width limit. docs/changelog.md: 2026-10-28 entry. docs/validation.md: UI wave 3 CLAIMED stub for T151. docs/agent-work/2026-10-25-later-fixes/PLAN.md: L15 struck; my first numbering collided with existing L17-L22 so the three new items are L26 native Tauri menu bar, L27 Tiptap chord rebinding and L28 tab strip paper fill.\n\nVERIFICATION. Acceptance greps all pass: label mode and data-labels 0 hits in docs/design-system.md and README.md; sidebar-highlight count 0; no fill count 1 in AGENTS.md; UI wave 3 count 1 in docs/validation.md. git diff --check clean. Every DESIGN DOC note from T131, T136, T137, T140, T149 and T152-T158 was read and each concrete claim checked against the real file: toolbar group gap 0, icons 28 px at control height, in-group gap 2 px, divider 1x16 px with 3 px margins, OVERFLOW_ORDER, the separator and tabular-nums rules, the optical hook, three splitters with role separator and aria values, the :where() hit-area rule that fixes T152, the one General block shown twice with Shortcuts in the children slot, 9 registry actions with Insert page break read-only, folio.workspace.shortcuts, pagination.ts with Shift-Enter page breaks and the Section page N of M footer, the 5 px drag threshold and data-drag-edge line, Import writing in ProjectLibrary, read_dropped_pdf at 25 MB.\n\nDISCREPANCIES RECORDED, NOT RESOLVED. T131's done note says no documentation change was required; that was wrong, because T131 removed label mode which docs/design-system.md and docs/limitations.md still described. The whole-block page rule is coordinator policy recorded while the owner was away, so the doc marks it CLAIMED and T151's owner hand-check asks whether blank space at a page foot is acceptable. Coordinator decision #770/#771 lets D2 edit docs/design-system.md (option a); the plan governs over the task record's never-edit house rule.\n\nEVIDENCE PATHS. node_modules/.cache/personal-word-beta/ui3-d2 (acceptance.log, CHANGES.md); node_modules/.cache/personal-word-beta/a6ec-d2-prep (PREP.md, design-doc-input.md, design-system.draft.md, other-files-draft.md). No build, browser or native run: Markdown only, so this task adds no behavioural evidence. All eight files are uncommitted shared-tree edits."
+    },
+    {
+      "at": "2026-10-28T10:33:03+00:00",
+      "agent": "agent-0393",
+      "event": "rejected",
+      "note": "Mostly accurate (greps pass, diff --check clean, sampled shortcuts/registry 9 actions, folio.workspace.shortcuts, OVERFLOW_ORDER, 5px drag, DropTarget types, read_dropped_pdf 25MB, split DOM, whole-block rule marked CLAIMED pending owner, all match code). ONE required fix: A1 (T134) Research text is stale. docs/design-system.md Bibliography and PDFs says Research in the sidebar lists Bibliography and then every source, and that research notes live only in the Notes tab; README.md line ~91 says the same Bibliography always listed. Code (src/App.tsx showBibliography ~117, list ~1931, note rows -> setResearchTab notes ~1968) shows Bibliography appears only for Chicago template, or when a source exists or a footnote cites a source; research notes are listed back under Research and open the Notes tab. Update both docs (and optionally architecture/changelog mention) to match. Minor, not blocking: Drop targets section could say native PDF/Finder drop was not run (owner hand-check)."
+    },
+    {
+      "at": "2026-10-28T10:39:30+00:00",
+      "agent": "agent-a6ec",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-10-28T10:39:30+00:00",
+      "agent": "agent-a6ec",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-10-28T10:39:43+00:00",
+      "agent": "agent-a6ec",
+      "event": "review requested",
+      "note": "T150 (D2) resubmitted after the coordinator rejection (#804, #806). AUTHOR: agent-a6ec (OpenCode).\n\nWHAT CHANGED IN THIS ROUND, nothing else. (1) Bibliography wording, fixed to the code rule rather than the old prose. showBibliography in src/App.tsx:117-123 returns true when templateId is chicago, or the project has at least one research source, or at least one footnote carries a sourceId; App.tsx:860-863 sends the bibliography destination back to the manuscript when it is false. docs/design-system.md (Bibliography and PDFs) now states that rule and that the Notes tab splits source notes from loose notes; README.md (Bibliography paragraph) now says the entry appears only for a Chicago project or once there is a source or a citing footnote, and is otherwise hidden. (2) Drop targets add-on: the section now says outright that native Finder drops and PDF drops into the PDF slot were not run tonight and are owner hand-checks, so it records the code guards and not a tested native drop. The rest of D2 is unchanged and was accepted by the coordinator as checked against the code.\n\nVERIFICATION. Acceptance greps rerun: label mode and data-labels 0 hits in docs/design-system.md and README.md; sidebar-highlight 0; no fill 1 in AGENTS.md; UI wave 3 1 in docs/validation.md. git diff --check clean. Log: node_modules/.cache/personal-word-beta/ui3-d2/acceptance-resubmit.log, with the earlier round in acceptance.log and the change list in CHANGES.md. Still no build, browser or native run: Markdown only, so this task adds no behavioural evidence.\n\nEVIDENCE PATHS. node_modules/.cache/personal-word-beta/ui3-d2 (acceptance.log, acceptance-resubmit.log, CHANGES.md, done-note.txt); node_modules/.cache/personal-word-beta/a6ec-d2-prep (drafts). All eight files remain uncommitted shared-tree edits."
+    },
+    {
+      "at": "2026-10-28T10:40:26+00:00",
+      "agent": "agent-c2a7",
+      "event": "rejected",
+      "note": "Rejected, one line left. README.md line 91 and the Bibliography condition and the Drop targets hand-check wording are now correct (checked against src/App.tsx 117-123 and 1930-1946), and the 4 acceptance greps and git diff --check pass. But docs/design-system.md line 222 (Bibliography and PDFs) still says research notes live only in the Research panel's Notes tab. The code lists each research note as a row under Research in the sidebar (App.tsx ~1936-1940, after the sources) and clicking one opens the Notes tab. Fix that sentence (notes are listed after the sources and open the Notes tab, which splits source notes from loose notes)."
+    },
+    {
+      "at": "2026-10-28T10:47:50+00:00",
+      "agent": "agent-a6ec",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-10-28T10:47:50+00:00",
+      "agent": "agent-a6ec",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-10-28T10:47:59+00:00",
+      "agent": "agent-a6ec",
+      "event": "review requested",
+      "note": "T150 (D2) resubmitted, third round, after #815. AUTHOR: agent-a6ec (OpenCode).\n\nWHAT CHANGED. One line only: docs/design-system.md (Bibliography and PDFs) said research notes live only in the Notes tab. It now matches src/App.tsx:1931-1943 -- the Research collection lists Bibliography when showBibliography is true, then every source (lead author -- title (year)) with the source's PDF row nested under it, then every research note; clicking a note sets the Research tab to notes (App.tsx:1965-1971) and clicking a source opens the Sources tab with that source expanded. The phrase only in the Notes tab is gone from all eight D2 files (grep in acceptance-round3.log).\n\nONE THING FOUND, NOT EDITED. docs/agent-work/2026-10-26-ui-wave-2/VALIDATION.md:120 still says research notes are no longer listed in the sidebar (Research panel Notes tab only). That was true for wave 2 and is false after A1, but the file is outside T150's registered paths and is a historical run record, so I did not touch it; it needs a registered task or the owner.\n\nVERIFICATION. All four original greps still pass: label mode and data-labels 0 hits, sidebar-highlight 0, no fill 1 in AGENTS.md, UI wave 3 1 in docs/validation.md. No Notes-tab-only wording left in the D2 files. git diff --check clean. Logs: node_modules/.cache/personal-word-beta/ui3-d2/acceptance-round3.log plus acceptance.log, acceptance-resubmit.log and CHANGES.md from the earlier rounds. Markdown only, so no build, browser or native run and no effect on the V agent's serial slot.\n\nEVIDENCE PATHS. node_modules/.cache/personal-word-beta/ui3-d2; node_modules/.cache/personal-word-beta/a6ec-d2-prep. All eight files remain uncommitted shared-tree edits."
+    },
+    {
+      "at": "2026-10-28T10:48:29+00:00",
+      "agent": "agent-2fba",
+      "event": "approved",
+      "note": "Approved r3. design-system.md line 222 now matches App.tsx: showBibliography 117-123 (chicago, a source, or a citing footnote), Research list 1931-1943 (Bibliography, sources with PDF rows, then note rows), note click sets researchTab notes (1965-1971), fallback to manuscript at 860-863. No remaining only-in-Notes-tab claim in docs/ or README.md. Four D2 greps pass (0, 0, 1, 1) and git diff --check is clean. Minor non-blocking: README line 91 says research notes under Notes, slightly loose but not wrong; docs/agent-work/2026-10-26-ui-wave-2/VALIDATION.md:120 is a historical record."
+    }
+  ]
+}

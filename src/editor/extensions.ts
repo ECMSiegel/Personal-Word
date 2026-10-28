@@ -8,10 +8,12 @@ import {
 } from "./formatting";
 import { Image } from "./media";
 import { tableExtensions } from "./tables";
+import { PageBreakKeys } from "./pageBreakKeys";
 /** Shared schema for the writer, imported document validation, and export parsing. */
 export function documentExtensions() {
   return [
     StarterKit.configure({ link: { openOnClick: false } }),
+    PageBreakKeys,
     Typography,
     TextFormat,
     ParagraphFormat,

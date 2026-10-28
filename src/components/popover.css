@@ -24,22 +24,18 @@
   top: 0;
   left: 0;
 }
-.popover-highlight {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 1px;
-  height: 1px;
-  transform-origin: 0 0;
-  background: var(--surface);
-  pointer-events: none;
-}
 [data-popover-item] {
   position: relative;
   z-index: 1;
   background: transparent;
   color: var(--text);
   opacity: 1;
+}
+[data-popover-item]:hover:not(:disabled),
+[data-popover-item]:focus-visible,
+[data-popover-item][data-highlighted] {
+  font-weight: 600;
+  color: var(--text);
 }
 .popover-item:active:not(:disabled) {
   transform: scale(0.99);

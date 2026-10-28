@@ -1,0 +1,60 @@
+{
+  "id": "T165",
+  "title": "Investigate intermittent caret ArrowDown across the page gap (Fable review F5)",
+  "description": "Fable review F5. tests/pages.spec.ts:240 failed once in the Fable targeted run (Expected >= 1848, Received 1846: ArrowDown from the last line of page 1 landed two positions short of page 2) and passed on an immediate rerun and in V's whole-suite run. Logs: node_modules/.cache/personal-word-beta/ui3-fable-review/suite.log (failure, trace in suite-results) and pages-rerun.log (pass). Find out whether this is a harness timing flake (settle before the caret steps) or a real caret behaviour at the spacer widget (contenteditable=false, ignoreSelection, side -1) that a user could hit; the P2 native gate's caret flags cover the same move in WebKit. Fix the test or the plugin accordingly; do not loosen the assertion.",
+  "status": "done",
+  "owner": null,
+  "priority": 3,
+  "depends_on": [],
+  "files": [
+    "src/editor/pagination.ts",
+    "tests/pages.spec.ts",
+    "node_modules/.cache/personal-word-beta/ui3-f5",
+    "node_modules/.cache/personal-word-beta/team-serial-check-slot",
+    "tests/pages-pre-t165.spec.ts"
+  ],
+  "review_required": true,
+  "created_by": "agent-50eb",
+  "created_at": "2026-10-28T11:19:07+00:00",
+  "claimed_at": "2026-10-28T11:26:20+00:00",
+  "updated_at": "2026-10-28T11:34:51+00:00",
+  "handoff": null,
+  "review": {
+    "by": "agent-3663",
+    "at": "2026-10-28T11:34:51+00:00",
+    "verdict": "approved",
+    "note": "Coordinator approve on behalf of independent reviewer agent-3591 (msg #839, verdict APPROVE, approve command not run): diagnosis verified in node_modules/@tiptap/core focus.ts (view.focus inside rAF); fix is a state wait in select() only (activeElement, view.hasFocus, DOM selection inside editor, +1 frame, 2 s cap), assertions unchanged; pw-pre.log 6/20 failed, pw-fixed.log 40/40, pw-fixed-full.log 5/5, retries 0, logs newer than spec; tsc 0. Native caret remains the P2 gate."
+  },
+  "log": [
+    {
+      "at": "2026-10-28T11:19:07+00:00",
+      "agent": "agent-50eb",
+      "event": "created",
+      "note": ""
+    },
+    {
+      "at": "2026-10-28T11:26:20+00:00",
+      "agent": "agent-66b1",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-10-28T11:26:20+00:00",
+      "agent": "agent-66b1",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-10-28T11:33:45+00:00",
+      "agent": "agent-66b1",
+      "event": "review requested",
+      "note": "Diagnosis: test race, not a caret bug. Tiptap focus() runs view.focus() inside requestAnimationFrame, so the spec's select() helper returned before the editor owned focus/DOM selection; ArrowDown pressed in that window did nothing (caret stayed at prevEnd=1846, nextPos=1848). pagination.ts unchanged (no plugin defect found). Fix: tests/pages.spec.ts select() now waits (rAF loop, 2s cap) for document.activeElement===editor, view.hasFocus() and a DOM selection inside the editor before returning; assertions untouched. Repro (private build, port 1673, logs node_modules/.cache/personal-word-beta/ui3-t165): original spec 6/20 failed (pw-pre.log, all Received 1846 vs >=1848); fixed spec 40/40 passed (pw-fixed.log), full pages.spec 5/5 (pw-fixed-full.log). tsc clean. CLAIMED; native WebKit caret flags still the morning P2 gate's job. Temp pre-fix copy tests/pages-pre-t165.spec.ts removed; serial slot released."
+    },
+    {
+      "at": "2026-10-28T11:34:51+00:00",
+      "agent": "agent-3663",
+      "event": "approved",
+      "note": "Coordinator approve on behalf of independent reviewer agent-3591 (msg #839, verdict APPROVE, approve command not run): diagnosis verified in node_modules/@tiptap/core focus.ts (view.focus inside rAF); fix is a state wait in select() only (activeElement, view.hasFocus, DOM selection inside editor, +1 frame, 2 s cap), assertions unchanged; pw-pre.log 6/20 failed, pw-fixed.log 40/40, pw-fixed-full.log 5/5, retries 0, logs newer than spec; tsc 0. Native caret remains the P2 gate."
+    }
+  ]
+}

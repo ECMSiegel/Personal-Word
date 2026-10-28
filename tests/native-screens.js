@@ -62,6 +62,22 @@
     selection.addRange(range);
     document.execCommand("insertText", false, text);
   };
+  // Closes the More formatting popover the way a user would. It only closes via
+  // its own React onKeyDown (Escape on the popover element) or a real pointerdown
+  // outside; an Escape dispatched on document never reaches it. Falls back to
+  // clicking the More button again.
+  const moreMenu = () => document.querySelector('[role="dialog"][aria-label="More formatting"]');
+  const closeMore = async () => {
+    for (let attempt = 0; attempt < 2 && moreMenu(); attempt++) {
+      if (attempt === 0)
+        moreMenu().dispatchEvent(
+          new KeyboardEvent("keydown", { key: "Escape", code: "Escape", bubbles: true, cancelable: true }),
+        );
+      else document.querySelector('button[aria-label="More formatting"]')?.click();
+      for (let i = 0; i < 40 && moreMenu(); i++) await delay(25);
+    }
+    if (moreMenu()) throw Error("More formatting popover did not close");
+  };
   // Continues typing at the caret instead of replacing the content.
   const typeMore = async (text) => {
     const el = await wait(editor, "writing editor");
@@ -129,6 +145,36 @@
     await typeMore("Second paragraph so the writing screen shows real prose.");
     await delay(400);
     screens.push(await snapshot("writing"));
+
+    // Page view (wave 3, P2): pages stacked vertically, framed on the first
+    // page gap so the capture shows page 1's foot, the gap and page 2's top.
+    const tiptap = editor().editor;
+    tiptap.commands.insertContentAt(
+      tiptap.state.doc.content.size,
+      Array.from({ length: 40 }, (_, i) => ({
+        type: "paragraph",
+        content: [
+          {
+            type: "text",
+            text: `Paragraph ${i + 3} fills the fixture so page view has a second page to stack below the first.`,
+          },
+        ],
+      })),
+    );
+    if (!document.querySelector('[aria-label="Page view"]'))
+      document.querySelector('[aria-label="More formatting"]')?.click();
+    (await wait(() => document.querySelector('[aria-label="Page view"]'), "page view toggle")).click();
+    const spacer = await wait(() => document.querySelector(".page-spacer"), "page spacer");
+    await closeMore();
+    spacer.scrollIntoView({ block: "center" });
+    await delay(400);
+    screens.push(await snapshot("writing-pages"));
+    // Page view's toggle sits in the More popover, closed above for the capture.
+    if (!document.querySelector('[aria-label="Page view"]'))
+      document.querySelector('[aria-label="More formatting"]')?.click();
+    (await wait(() => document.querySelector('[aria-label="Page view"]'), "page view toggle")).click();
+    await wait(() => document.querySelector(".editor-viewport.is-continuous"), "continuous view");
+    await closeMore();
 
     await click("Research");
     await click("Enter manually");

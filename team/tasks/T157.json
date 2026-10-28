@@ -1,0 +1,63 @@
+{
+  "id": "T157",
+  "title": "Native PDF drop onto a source's PDF slot (separate PDF-only read command)",
+  "description": "From T149 (N4): in the native app a PDF dropped on a Research source's PDF slot is refused by src-tauri/src/dropped.rs (DROPPED_EXTENSIONS is the importer allow-list; MAX 20 MB; a test deliberately refuses Paper.pdf). Do NOT widen the importer allow-list or change that test. Add a separate narrowly scoped command (e.g. read_dropped_pdf) that applies the same guards (path must be in the latest drop, regular file not symlink, extension pdf only, size <= 25 MB per the plan, capped read) and wire the Research PDF-slot DropTarget's native path to it, calling onAttachPdf exactly like the picker path. Rust unit tests for accept pdf, refuse non-pdf, refuse oversize, refuse path not in drop, refuse symlink; frontend unit test for routing. Run cargo test --locked --offline --manifest-path src-tauri/Cargo.toml --jobs 1 -- --test-threads=1 and UNIT; native drag itself is an owner hand-check (screen locked). Preserve-writing rules: attachment metadata must survive saves.",
+  "status": "done",
+  "owner": null,
+  "priority": 2,
+  "depends_on": [],
+  "files": [
+    "src-tauri/src/dropped.rs",
+    "src-tauri/src/lib.rs",
+    "src/research/ResearchPanel.tsx",
+    "src/components/DropTarget.tsx",
+    "node_modules/.cache/personal-word-beta/ui3-pdfdrop",
+    "src/import/dropImport.ts",
+    "src/import/dropImport.test.ts",
+    "node_modules/.cache/personal-word-beta/team-serial-check-slot"
+  ],
+  "review_required": true,
+  "created_by": "agent-3663",
+  "created_at": "2026-10-28T09:46:38+00:00",
+  "claimed_at": "2026-10-28T09:46:55+00:00",
+  "updated_at": "2026-10-28T09:56:04+00:00",
+  "handoff": null,
+  "review": {
+    "by": "agent-1118",
+    "at": "2026-10-28T09:56:04+00:00",
+    "verdict": "approved",
+    "note": "Approved. read_dropped_pdf shares read_guarded with the importer: path must be in latest drop, .pdf only (case-insensitive), symlink_metadata rejects symlinks and folders, fstat on the opened handle, 25 MB check plus take(max+1) capped read. DROPPED_EXTENSIONS and MAX_DROPPED_BYTES unchanged and a test pins pdf out of the list. Registered in both invoke handlers; no capability file change needed (read_dropped_file has none either). Frontend routes native paths to readDroppedPdf then onAttachPdf like the picker. cargo-full.log 63 passed, newer than sources; tsc 0 rerun. Minor: no ResearchPanel-level routing test (only readDroppedPdf unit tests); native GUI not run (owner hand-check)."
+  },
+  "log": [
+    {
+      "at": "2026-10-28T09:46:38+00:00",
+      "agent": "agent-3663",
+      "event": "created",
+      "note": ""
+    },
+    {
+      "at": "2026-10-28T09:46:55+00:00",
+      "agent": "agent-e0bf",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-10-28T09:46:55+00:00",
+      "agent": "agent-e0bf",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-10-28T09:54:49+00:00",
+      "agent": "agent-e0bf",
+      "event": "review requested",
+      "note": "Native PDF drop to a source PDF slot built (CLAIMED, not VERIFIED). Rust src-tauri/src/dropped.rs: new MAX_DROPPED_PDF_BYTES (25 MB), read_capped_pdf and command read_dropped_pdf (registered in both invoke handlers in lib.rs); same guards as read_dropped_file (path in latest drop, .pdf only case-insensitive, regular file not symlink/folder, capped take(max+1) read) via a shared private read_guarded; read_capped and DROPPED_EXTENSIONS/MAX_DROPPED_BYTES and their tests unchanged (a new test asserts pdf stays out of the importer list). Frontend: readDroppedPdf in src/import/dropImport.ts invokes read_dropped_pdf and returns a File (basename, type application/pdf); ResearchPanel PDF-slot DropTarget now calls readDroppedPdf then onAttachPdf exactly like the picker (App.attachPdf unchanged, so metadata/saves path unchanged); DropTarget.tsx untouched. Tests: 6 new Rust tests (accept, non-pdf, over 25 MB + exactly 25 MB, not in drop, folder/symlink) shown failing first (compile errors, ui3-pdfdrop/cargo-fail-first.log), then cargo test --locked --offline --jobs 1 -- --test-threads=1: 63 passed 0 failed (cargo-full.log); 3 new vitest routing tests in dropImport.test.ts; tsc 0; UNIT 60 files 1025 tests pass. Not run: native GUI, Playwright. HAND-CHECK (owner, after rebuilding the app): open a project > Research > Sources, pick a source with no PDF, drag a .pdf (under 25 MB) from Finder onto the PDF slot (outline says Drop to attach) -> it attaches, name and size show, Open beside works; then drag a .txt onto the slot -> refused with Only PDF files can be attached; drag the same PDF onto the Projects list -> still refused as before. DESIGN DOC: no UI change."
+    },
+    {
+      "at": "2026-10-28T09:56:04+00:00",
+      "agent": "agent-1118",
+      "event": "approved",
+      "note": "Approved. read_dropped_pdf shares read_guarded with the importer: path must be in latest drop, .pdf only (case-insensitive), symlink_metadata rejects symlinks and folders, fstat on the opened handle, 25 MB check plus take(max+1) capped read. DROPPED_EXTENSIONS and MAX_DROPPED_BYTES unchanged and a test pins pdf out of the list. Registered in both invoke handlers; no capability file change needed (read_dropped_file has none either). Frontend routes native paths to readDroppedPdf then onAttachPdf like the picker. cargo-full.log 63 passed, newer than sources; tsc 0 rerun. Minor: no ResearchPanel-level routing test (only readDroppedPdf unit tests); native GUI not run (owner hand-check)."
+    }
+  ]
+}

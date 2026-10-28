@@ -1,5 +1,4 @@
-import { useLayoutEffect, useRef, type KeyboardEvent } from "react";
-import { slideHighlight } from "../motion";
+import type { KeyboardEvent } from "react";
 import "./segmented.css";
 
 export function Segmented<T extends string>({
@@ -13,54 +12,50 @@ export function Segmented<T extends string>({
   options: { value: T; label: string }[];
   onChange: (value: T) => void;
 }) {
-  const group = useRef<HTMLDivElement>(null);
-  const highlight = useRef<HTMLSpanElement>(null);
-  useLayoutEffect(() => {
-    const container = group.current;
-    const indicator = highlight.current;
-    if (!container || !indicator) return;
-    slideHighlight(
-      indicator,
-      container.querySelector<HTMLButtonElement>(
-        'button[aria-pressed="true"]',
-      ),
-      container,
-    );
-  }, [value]);
+  const hasChoice = options.some((option) => option.value === value);
 
-  // Arrow keys move the choice (and focus) to the neighbouring button.
+  // Roving tabindex: Tab reaches the chosen segment, the arrow keys step through
+  // the options, Home and End jump to the ends, and each move selects. The
+  // chosen segment itself is shown by weight and colour, never by a fill.
   const onKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
+    const buttons = Array.from(
+      event.currentTarget.querySelectorAll<HTMLButtonElement>("button"),
+    );
+    const at = buttons.indexOf(document.activeElement as HTMLButtonElement);
+    if (at < 0) return;
     const step =
       event.key === "ArrowRight" || event.key === "ArrowDown"
         ? 1
         : event.key === "ArrowLeft" || event.key === "ArrowUp"
           ? -1
           : 0;
-    if (!step) return;
-    const buttons = Array.from(
-      event.currentTarget.querySelectorAll<HTMLButtonElement>("button"),
-    );
-    const at = buttons.indexOf(document.activeElement as HTMLButtonElement);
-    if (at < 0) return;
+    const next =
+      event.key === "Home"
+        ? 0
+        : event.key === "End"
+          ? buttons.length - 1
+          : step
+            ? (at + step + buttons.length) % buttons.length
+            : -1;
+    if (next < 0) return;
     event.preventDefault();
-    const next = (at + step + buttons.length) % buttons.length;
     buttons[next].focus();
     onChange(options[next].value);
   };
+
   return (
     <div
       className="segmented"
-      ref={group}
       role="group"
       aria-label={label}
       onKeyDown={onKeyDown}
     >
-      <span ref={highlight} className="segmented-highlight" aria-hidden="true" />
-      {options.map((option) => (
+      {options.map((option, index) => (
         <button
           key={option.value}
           type="button"
           aria-pressed={option.value === value}
+          tabIndex={option.value === value || (!hasChoice && index === 0) ? 0 : -1}
           onClick={() => onChange(option.value)}
         >
           {option.label}

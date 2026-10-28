@@ -1,0 +1,58 @@
+{
+  "id": "T146",
+  "title": "UI wave 3 P1: Vertical pagination: feasibility spike (Pages lane, scratch copy only)",
+  "description": "Follow docs/agent-work/2026-10-28-ui-wave-3/PLAN.md section P1 exactly (Files, Interfaces, Steps, Acceptance check, Fail-first, Stop-and-ask, Default) and read its Context, Rules and Notes for the implementer first; RESEARCH.md beside it has the evidence. House rules: register paths = this task's seeded Files (already registered on claim; add more only via files add); serial slot (node_modules/.cache/personal-word-beta/team-serial-check-slot) via files add right before the first expensive check and keep it until done; pinned Node; quoted --outDir on PREVIEW port 1600+N; never edit docs/design-system.md (write DESIGN DOC: text in the done note); motion checks in tests/motion-uN.spec.ts; native rendering runs only with the screen unlocked, by Claude agents or the owner; never put backticks in double-quoted shell text; no installs, no commits; status CLAIMED; independent review required.",
+  "status": "done",
+  "owner": null,
+  "priority": 1,
+  "depends_on": [],
+  "files": [
+    "docs/agent-work/2026-10-28-ui-wave-3/PAGINATION-SPIKE.md",
+    "node_modules/.cache/personal-word-beta/ui3-p1",
+    "node_modules/.cache/personal-word-beta/team-serial-check-slot"
+  ],
+  "review_required": true,
+  "created_by": "agent-9d21",
+  "created_at": "2026-10-28T04:50:57+00:00",
+  "claimed_at": "2026-10-28T05:50:04+00:00",
+  "updated_at": "2026-10-28T07:24:37+00:00",
+  "handoff": null,
+  "review": {
+    "by": "agent-f401",
+    "at": "2026-10-28T07:24:37+00:00",
+    "verdict": "approved",
+    "note": "T146 (P1 spike) APPROVED by agent-f401 (non-author reviewer). Verified: PAGINATION-SPIKE.md exists and records a GO with Chromium latency numbers for two interleaved runs (sync p50 10.6-15.6 / p95 12.9-60.8 ms against the 25/50 budget; plugin measure 3-4 ms p50) plus the full geometry, caret, footnote, page-break, undo and narrow-pane evidence; artifacts exist under ui3-p1/out (6 PNGs, 6 result JSONs) and run1-run5 logs. Disclosed deviation, accepted: native WebKit latency was not measured (native GUI runs are coordinator-assigned only under the wave rules and no Playwright WebKit is installed), so the plan's 'both engines' acceptance line is half met; the spike makes native WebKit P2's first gate with four concrete checks, which is the right ordering -- the risk is gated before the rewrite lands. The whole-block push vs plan open-question-3 contradiction is surfaced in the doc and now owned by coordinator decision 'P2 paragraph placement at page foot' (flagged for the owner's morning check; limitations.md must state whichever rule ships). Interfaces decision 'P1 pagination interfaces for P2' matches the doc. No src changes were needed and none are attributed to this task; the prototype lives in the scratch copy. Reminder for the T147 (P2) owner: the spike doc's File plan, footnote-reserve fix, zoom drift fix (up to 4 px by page 90) and the native-first gate are all part of the contract."
+  },
+  "log": [
+    {
+      "at": "2026-10-28T04:50:57+00:00",
+      "agent": "agent-9d21",
+      "event": "created",
+      "note": ""
+    },
+    {
+      "at": "2026-10-28T05:50:04+00:00",
+      "agent": "agent-987c",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-10-28T05:50:08+00:00",
+      "agent": "agent-987c",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-10-28T07:21:14+00:00",
+      "agent": "agent-987c",
+      "event": "review requested",
+      "note": "Verdict: GO for P2 on design, Chromium evidence only; native WebKit was not measured (no native runs for this worker, no Playwright WebKit installed), so the acceptance line latency for both engines is met for Chromium only and native latency plus caret-across-gap is P2's first gate, with the plan fallback (keep multicol, wheel mapping, fit zoom) if it fails. Doc: docs/agent-work/2026-10-28-ui-wave-3/PAGINATION-SPIKE.md. Prototype in node_modules/.cache/personal-word-beta/ui3-p1/app (plugin src/editor/pagination.ts, widget div.page-spacer decorations), baseline in ui3-p1/base, results and PNGs in ui3-p1/out, logs run3/run4/run5.log. Chromium, 90-page section: page view sync p95 13-36 ms vs today's multicol 21-53 ms; 1 measure per keystroke about 3 ms; spacers re-dispatched 3-6 times per 200 keystrokes; no horizontal scroll at 1240 or 585 px (scaled 0.678); page 2 starts at exactly 1184 px; 0 blocks cross a page bottom; footnotes 16 of 16 at the foot of their page; manual page break and undo correct; caret Up/Down/Left/Right/Shift+Down across gaps correct with widgets, broken with the margin variant (rejected); headings kept with next 54 of 54. FLAG for coordinator: block-level pagination means paragraphs no longer split across pages (blank space at page foot up to one paragraph); only blocks taller than a page straddle. P2 traps logged as decision and discoveries: native-smoke.js would hang on getClientRects > 1, .editor-viewport no longer scrolls, footnote reserve must start from the applied value, up to 4 px drift at zoom 0.678. No src edits, no commits. DESIGN DOC: Pages -- page view stacks pages vertically and scrolls down only; pagination is per block (a paragraph that does not fit moves whole to the next page; a block taller than a page runs across the gap, a documented limit); a narrow pane scales the page instead of scrolling sideways."
+    },
+    {
+      "at": "2026-10-28T07:24:37+00:00",
+      "agent": "agent-f401",
+      "event": "approved",
+      "note": "T146 (P1 spike) APPROVED by agent-f401 (non-author reviewer). Verified: PAGINATION-SPIKE.md exists and records a GO with Chromium latency numbers for two interleaved runs (sync p50 10.6-15.6 / p95 12.9-60.8 ms against the 25/50 budget; plugin measure 3-4 ms p50) plus the full geometry, caret, footnote, page-break, undo and narrow-pane evidence; artifacts exist under ui3-p1/out (6 PNGs, 6 result JSONs) and run1-run5 logs. Disclosed deviation, accepted: native WebKit latency was not measured (native GUI runs are coordinator-assigned only under the wave rules and no Playwright WebKit is installed), so the plan's 'both engines' acceptance line is half met; the spike makes native WebKit P2's first gate with four concrete checks, which is the right ordering -- the risk is gated before the rewrite lands. The whole-block push vs plan open-question-3 contradiction is surfaced in the doc and now owned by coordinator decision 'P2 paragraph placement at page foot' (flagged for the owner's morning check; limitations.md must state whichever rule ships). Interfaces decision 'P1 pagination interfaces for P2' matches the doc. No src changes were needed and none are attributed to this task; the prototype lives in the scratch copy. Reminder for the T147 (P2) owner: the spike doc's File plan, footnote-reserve fix, zoom drift fix (up to 4 px by page 90) and the native-first gate are all part of the contract."
+    }
+  ]
+}

@@ -1,7 +1,7 @@
 # Personal Word design system
 
 The approved [UI polish plan](agent-work/2026-10-25-ui-polish/PLAN.md) defines this contract.
-Implemented 2026-10-26 (tasks T071-T096) and extended 2026-10-27 by UI wave 2 (tasks T098-T129); this document is not evidence of behaviour. Status: CLAIMED pending final validation (T127) and owner real use.
+Implemented 2026-10-26 (tasks T071-T096), extended 2026-10-27 by UI wave 2 (T098-T129) and 2026-10-28 by UI wave 3 (T131-T149); this document is not evidence of behaviour. Status: CLAIMED pending final validation (T151) and owner real use.
 
 ## Type scale
 
@@ -16,6 +16,7 @@ Interface text uses Futura, then Avenir Next, then the system sans-serif stack. 
 | `--type-display` | 28 px | Projects, dialog and empty-editor headings |
 
 Use tokens in both `font-size` and `font` shorthands. Preserve document sizes, line height and letter spacing.
+Futura has no tabular figures. Where a number changes in place, request `font-variant-numeric: tabular-nums` anyway (see Separator), but do not promise steady digit widths: the fallback font decides, and Futura's proportional digits keep their own widths. Recorded in [limitations](limitations.md).
 
 ## Spacing scale
 
@@ -35,30 +36,74 @@ Keep 0-3 px nudges, negatives, values above 32 px, auto, percentages, calculated
 
 Use `--elevation-page` for the page, `--elevation-surface` for a panel surface, and `--elevation-raised` for menus and other raised controls. `--shadow-raised` supplies the shared raised shadow. Header rows use `--control-height` (32 px) and `--header-gap` (the spacing scale's 8 px gap). Lucide icons use 16 px; chevrons use 14 px. Keep Lucide's default 2 px stroke; do not set `strokeWidth` or `absoluteStrokeWidth`.
 
+An icon button draws a 16 px icon but reaches a 24 x 24 px target: a pseudo-element centred on the button is `max(24px, 100%)` wide and tall, so a 24 px button is untouched and a smaller one still takes a full-size press. Do not grow the padding to fake it; padding moves the row's layout, the pseudo-element does not. The hit-area rule is `:where()`, so it can never outrank a component that positions its own button: the cards-view trash and the Open beside button stay absolutely placed. Only the `::after` box itself uses `:is()`.
+
+## Separator
+
+A separator is one pixel of `--line`. `.separator` draws it: vertical (`role="separator"` with `aria-orientation="vertical"`) stretches to its row and takes no fixed height; the horizontal rule keeps its 17 px length. Never draw a separator as a border on the neighbouring element, because the neighbour then owns its colour and its hover.
+
+The live separators are the toolbar's decorative group dividers (`.toolbar-divider`, 1 px, 16 px tall, 3 px side margins, `aria-hidden`), the create panel's rule (`.create-rule`), and the three draggable splitters: the sidebar width handle, the split-view divider and the side-panel resizer. Each splitter carries `role="separator"`, `aria-orientation="vertical"`, `aria-valuemin`/`aria-valuemax`/`aria-valuenow` and `tabIndex={0}`, so the arrow keys move it. A separator is never the only way to see a boundary: the split divider's 6 px hit area is documented under Split view.
+
+Numbers that change in place -- the footer's page counter and the save status -- request `font-variant-numeric: tabular-nums`. The rule is applied; whether it is honoured depends on the font (see Type scale).
+
 ## Motion
 
 Motion tokens live on `:root` in `src/styles.css`: durations `--duration-press: 80ms`, `--duration-fast: 120ms`, `--duration-base: 180ms`, `--duration-morph: 220ms`; easings `--ease-out: cubic-bezier(0.2, 0, 0, 1)`, `--ease-in: cubic-bezier(0.4, 0, 1, 1)`, `--ease-spring: cubic-bezier(0.34, 1.4, 0.64, 1)`. `--duration-morph` with `--ease-spring` governs the search reveal and create-panel opening.
 Stylesheets may transition only `transform`, `opacity`, `clip-path` and `visibility` (never `all`, never layout properties), with a duration token and an easing token (visibility may omit the easing); there are no `@keyframes`. `src/motion.test.ts` enforces this.
 The projects search reveals by clip-path: `.library-search` is a fixed 32 px slot (`var(--control-height)`) and `.library-search-field` (220 px, absolutely positioned) is clipped to the magnifier when closed, so it grows leftwards without moving layout.
-Scripted motion goes through `src/motion.ts` (Web Animations, no packages): `play`, `presence`/`usePresence` (keeps an element mounted until its exit finishes), `slideHighlight` (one fill box moved by `translate()` + `scale()`) and `staggerIn`. Enter uses `--ease-out`, exit `--ease-in`, and `--ease-spring` only for size changes. Keyframes may touch only `transform`, `opacity` and `clip-path` (`checkKeyframes` throws otherwise). Every animation is interruptible: reopening or reclosing reverses the running animation from its current frame instead of starting a new one. Under reduced motion the engine creates no animation at all and exits resolve at once, so unmounts are synchronous (no timers). Nothing runs longer than 220 ms; item stagger is 15 ms per item capped at a 90 ms delay plus 120 ms, and moves `transform` only. `tests/motion.spec.ts` samples `document.getAnimations()` during real interactions to prove the allowed properties and zero animations under reduced motion.
+Scripted motion goes through `src/motion.ts` (Web Animations, no packages): `play`, `presence`/`usePresence` (keeps an element mounted until its exit finishes) and `staggerIn`. Enter uses `--ease-out`, exit `--ease-in`, and `--ease-spring` only for size changes. Keyframes may touch only `transform`, `opacity` and `clip-path` (`checkKeyframes` throws otherwise). Every animation is interruptible: reopening or reclosing reverses the running animation from its current frame instead of starting a new one. Under reduced motion the engine creates no animation at all and exits resolve at once, so unmounts are synchronous (no timers). Nothing runs longer than 220 ms; item stagger is 15 ms per item capped at a 90 ms delay plus 120 ms, and moves `transform` only. `tests/motion.spec.ts` samples `document.getAnimations()` during real interactions to prove the allowed properties and zero animations under reduced motion.
+`slideHighlight` is still exported and unit-tested, but no component calls it: wave 3 removed every sliding highlight box (sidebar, Segmented, Popover). Do not reintroduce it; a selection is shown by weight and colour (see States).
 The `prefers-reduced-motion: reduce` block in `src/styles.css` removes all transitions and smooth scrolling. Reduced motion must also apply to new components.
-The create menu is a Popover anchored to its button (`morph="anchor"`, `highlight="follow"`): it grows out of the button and covers it, the trigger fades while covered, the header does not move, and closing reverses toward the button. Items have no fade-in: they are opaque from the first frame and the clip-path morph alone reveals them, so no menu or panel item may start at reduced opacity (T086). Escape closes from any focus inside the control and returns focus to the trigger. Reduced motion makes the whole morph instant.
+The create menu is a Popover anchored to its button (`morph="anchor"`): it grows out of the button and covers it, the trigger fades while covered, the header does not move, and closing reverses toward the button. Items have no fade-in: they are opaque from the first frame and the clip-path morph alone reveals them, so no menu or panel item may start at reduced opacity (T086). Escape closes from any focus inside the control and returns focus to the trigger. Reduced motion makes the whole morph instant.
+Never animate a keyboard action except for one documented exception: a menu or panel that a keyboard opens still grows by its clip-path morph, because the morph is the component's opening, not a decoration of the key press. Nothing else may move or fade because a key was pressed; a value change reached by keyboard changes at once. This is the recorded answer to checklist item R7.
 
 ## Popover
 
-Every menu and toolbar panel renders through `src/components/Popover.tsx` (`popover.css`): Dropdown (and so Sort), the toolbar panels (spacing, setup, aids, table, image alt text) and the More menu. Surface `--elevation-raised`, 1 px `--line` border, `--shadow-raised`, square corners. It sits below its anchor, flips up when it fits better above, flips to the anchor's right edge when it would leave the viewport, and caps its height (toolbar panels keep `overflow: visible` so nested menus can spill out). Opening grows it from the anchor edge by `clip-path` with a fade of the surface (`--duration-base`, `--ease-out`); closing runs `--duration-fast` `--ease-in`; a reopen mid-close reverses from the current frame without remounting. While closing it carries `data-state="closing"`, inert and `aria-hidden`, and drops its role and label, so role queries see it gone at once. Items (`[data-popover-item]`) are opaque from the first frame; a fresh opening staggers them by `transform` only (15 ms per item). One `.popover-highlight` box slides behind the highlighted item (Dropdown) or follows hover and focus (`highlight="follow"`, the More menu). `PopoverItem` presses to `scale(0.99)` over `--duration-press`. Shortcut hints (`.popover-shortcut`, from `src/editor/shortcuts.ts`) sit right-aligned in `--muted` at `--type-small` on one line, only where the editor really installs the shortcut. Dropdown menus size to their content (max 320 px).
+Every menu and toolbar panel renders through `src/components/Popover.tsx` (`popover.css`): Dropdown (and so Sort), the toolbar panels (spacing, setup, aids, table, image alt text) and the More menu. Surface `--elevation-raised`, 1 px `--line` border, `--shadow-raised`, square corners. It sits below its anchor, flips up when it fits better above, flips to the anchor's right edge when it would leave the viewport, and caps its height (toolbar panels keep `overflow: visible` so nested menus can spill out). Opening grows it from the anchor edge by `clip-path` with a fade of the surface (`--duration-base`, `--ease-out`); closing runs `--duration-fast` `--ease-in`; a reopen mid-close reverses from the current frame without remounting. While closing it carries `data-state="closing"`, inert and `aria-hidden`, and drops its role and label, so role queries see it gone at once. Items (`[data-popover-item]`) are opaque from the first frame; a fresh opening staggers them by `transform` only (15 ms per item). There is no highlight box: the keyboard-highlighted item is `[data-popover-item][data-highlighted]` and is shown by weight 600 alone, and hovered rows go semibold the same way. `PopoverItem` presses to `scale(0.99)` over `--duration-press`. Shortcut hints (`.popover-shortcut`, from `src/editor/shortcuts.ts`) sit right-aligned in `--muted` at `--type-small` on one line, only where the editor really installs the shortcut, and follow the user's rebinds. Dropdown menus size to their content (max 320 px).
 
 ## Toolbar
 
-The format bar shows a 12 px label beside every icon when its width is 1100 px or more (`data-labels` on `.format-bar`; `LABEL_MIN_WIDTH` in `src/Writer.tsx`). Below that threshold it shows icons only. Overflowing groups move into More in `OVERFLOW_ORDER` in both modes; widths are cached per mode and the bar re-measures when it crosses the threshold. More is a vertical list of labelled rows (`var(--control-height)`) with the muted shortcut right-aligned and one sliding highlight (Popover `highlight="follow"`; rows carry `data-popover-item`); it scrolls when taller than the window. Labels are `aria-hidden`: the accessible name stays the `aria-label` (for example "Bold (Cmd+B)"). Measured cliff to revisit (open question 3): at a 1440 px window the bar keeps about 6 of 13 groups in label mode, while icons-only mode keeps nearly all of them.
+The format bar is icons only at every width. The width-based label switch, its threshold constant and its attribute are gone; so are the width cache and the re-measure when crossing a threshold. Icons keep their `aria-label` as the accessible name, for example "Bold (Cmd+B)".
+
+The bar's own gap between groups is 0: groups abut and a 1 px `--line` divider (3 px margins) marks each boundary. Inside a group icons sit 2 px apart. Toolbar icons are 28 px wide at `--control-height`, default to `--muted`, go to `--text` on hover, and to `--accent` when pressed (`aria-pressed="true"`); keyboard focus shows the focus ring, not a colour change. Weight and colour, never a fill (see States).
+
+Overflowing groups move into More in `OVERFLOW_ORDER` (`aids`, `setup`, `view`, `spacing`, `indent`, `insert`, `lists`, `link`, `marks`, `size`, `font`, `paragraph`, `zoom`); `history` and `right` never move. More is a vertical list of labelled rows (`var(--control-height)`) with the muted shortcut right-aligned, and it scrolls when taller than the window. Measured in a split view at 1440 x 900 with the default 254 px sidebar (bar width includes the two panes' shared bar):
+
+| Window | Bar width | In More |
+| --- | --- | --- |
+| 1440 | 1170 px | nothing -- the whole toolbar fits, so there is no More button |
+| 1280 | 1010 px | line and paragraph spacing, page view, focus mode, prose check, page setup |
+| 1240 | 970 px | adds decrease/increase indent |
+| 1180 | 910 px | adds insert image, insert table |
+| 1100 | 830 px | adds bullet list, numbered list, block quote |
+| 1040 | 770 px | adds add link |
+| 980 | 710 px | adds bold, italic, underline, strikethrough |
+| 920 | 650 px | the same set |
+
+At 1240 the More panel therefore holds spacing, view, aids and indent. A test that needs a specific group inside More must set a width where that group has overflowed; the marks group only reaches More below about 1040 px.
 
 ## States
 
-- Hover: enabled buttons use the surface background; enabled text fields use the muted border. Flat sidebar rows retain their flat treatment.
-- Focus: `--focus-ring: 2px solid var(--accent)` and `--focus-offset: 1px`; text inputs retain their accent bottom-border focus and separators retain their existing accent treatment.
-- Pressed: `--pressed: var(--line)` for buttons, dropdowns and toolbar icons; primary brightness is 0.88. Flat sidebar rows stay transparent and turn accent-coloured.
-- Disabled: `--disabled-opacity: 0.35` and default cursor for buttons, inputs, textareas and dropdown triggers; hover and pressed rules exclude disabled controls.
-- Selected: accent text and weight 600; active tabs keep their treatment; pressed segmented buttons add a surface background. Checkboxes use the accent.
+Wave 3 removed every grey box. Hover, focus and selection never paint a fill. The rule that decides which cue a thing gets: list rows and menu items are shown by weight, icon and text buttons by colour. This rewrites the wave-2 hover, pressed and selected text (checklist item R1).
+
+- Hover: icon buttons go from `--muted` to `--text`; list rows (sidebar rows, group titles, project rows, template choices, popover and dropdown items) go semibold; text buttons in bars change colour only. Sidebar rows stay flat and transparent. Text fields show the muted border.
+- Focus: `--focus-ring: 2px solid var(--accent)` with `--focus-offset: 1px`; text inputs keep their accent bottom-border focus. Every control shows `:focus-visible`: icon buttons take the hover colour as well as the ring, toolbar icons take the ring, and rows take the same weight as hover, so a keyboard user never loses the cue a pointer user gets.
+- Pressed: every button scales to `0.99` over `--duration-press` (never a fill). A toggle or segmented choice shows its state through `aria-pressed`, which is weight 600 plus `--accent` (or the section tint). A primary button's brightness is 0.88 while pressed. Flat sidebar rows stay transparent and turn accent-coloured.
+- Disabled: `--disabled-opacity: 0.35` and the default cursor for buttons, inputs, textareas and dropdown triggers; hover and pressed rules exclude disabled controls.
+- Selected: weight 600 plus colour. In Plain the selected sidebar entry is `--text`; in Color it and its icon take the section tint (`--tint-manuscript`, `--tint-fragments`, `--tint-research`), while Read, Comments, History and Settings stay `--accent`. A segmented choice is semibold in `--accent` on the plain surface, with roving `tabindex` (Left/Right/Up/Down step and select, Home/End jump). Checkboxes use the accent.
+
+One emphasis per section: when an entry in a group is selected the entry alone is bold, and the group's own title steps back to weight 500 in `--text` so two rows do not compete. This is the doubling rule.
+
+The fills that remain, and the only ones allowed:
+
+| Where | Fill | Why it is not a hover box |
+| --- | --- | --- |
+| Primary button | `--accent` in Plain; `--accent-fill` with `--on-accent` text in Color | it is the action's identity, not a state |
+| Destructive primary | the same as a primary in Plain; `--danger-fill` in Color | same |
+| Active project tab | `--paper` | it is the tab's surface, standing for the open document |
+| Selected entry in cards view | `--paper` with a `--muted`-mixed border | a card is a surface; weight alone does not separate it from the cards beside it |
+
+The cards-view selected card is a recorded exception to the no-fill rule, not a precedent: it is a bordered card in a grid, and the border alone reads as hover. Any new fill needs the same justification written down here.
 
 Every hover action needs a keyboard path. Existing component states take precedence where already defined; the shared recipe fills missing states.
 
@@ -84,10 +129,10 @@ Plain preserves the existing appearance. Color supplies semantic accents derived
 | `--warning` | `#7B6300` | `#FFD60A` | Import warnings |
 | `--tint-research` | `#955600` | `#FF9F0A` | Research tint |
 
-The light Color values above were darkened (2026-10-26, T085) so each is at least 4.5:1 on the real selected-row surface (`#E2E3E6`, 6% text over the sidebar) as well as the other listed light surfaces; fills and dark values are unchanged.
+The light Color values above were darkened (2026-10-26, T085) so each is at least 4.5:1 on the surfaces it is drawn on. The selected-row wash they were first measured against (`#E2E3E6`, 6% text over the sidebar) no longer exists: wave 3 removed the fill, so the tints now sit directly on the sidebar's `--surface`. Their values are unchanged, and any future tint change must be re-checked against `--surface`, not against the old wash.
 Color document areas (`.writer-scroll`, `.manuscript-read`, `.preview-content`) pin `--accent` to `--accent-plain` and `--danger` to `--danger-plain`. Never change `--prose-*` colours.
 The pre-existing Plain-dark primary button (white on `#64A8FF`, about 2.45:1) is outside this plan's repair scope; record it in the critique, not as passing AA.
-Selected sidebar entries are always semibold on the selected-row fill (6% text), which slides between rows: text colour in Plain; in Color the selected row and its icon take the section tint (--tint-manuscript, --tint-fragments, --tint-research), while Read, Comments, History and Settings stay --accent. This supersedes Q007.
+Selected sidebar entries are always semibold, with no fill: `--text` in Plain; in Color the selected row and its icon take the section tint, while Read, Comments, History and Settings stay `--accent`. This supersedes Q007 and the wave-2 "selected-row fill" wording.
 
 ## Theme and palette
 
@@ -96,12 +141,17 @@ Apply it in `src/main.tsx` before React renders, then in the `src/App.tsx` effec
 On `<html>`, System removes `data-theme`; Light and Dark set `data-theme="light"` or `data-theme="dark"`. Plain removes `data-palette`; Color sets `data-palette="color"`.
 System follows macOS live. Explicit Light overrides the system dark media query. Dark declarations in the media block and `[data-theme="dark"]` block must match, ignoring `color-scheme`; `src/designTokens.test.ts` enforces parity.
 Settings > General provides Appearance (System, Light, Dark) and Palette (Plain, Color) segmented rows without helper captions. Cmd/Ctrl+Shift+L switches to the opposite effective Light/Dark appearance.
+There is one General block, defined once in `src/settings/GeneralSettings.tsx` and shown in two places: the Settings destination and a Settings dialog opened from the gear at the right of the Projects screen's display row. The dialog reuses the destination's field rules rather than a second layout, so the two cannot drift; it is 560 px wide to hold the 180 px label column and the 260 px control column, hides the block's own heading because the dialog title carries it, and drops the section's top rule and the page padding. The dialog carries the whole block, Shortcuts included, because Shortcuts is part of General; it is not a second, smaller settings screen. Escape or Close returns focus to the gear. Project settings -- Sidebar and Goals -- stay in the destination and never appear in the dialog.
 In Color, Section colours provides Manuscript, Fragments and Research swatch pickers. The eight swatches are stored additively in `folio.workspace.appearance`; their contrast-safe values follow the active light or dark mode, while the default blue, green and orange assignments preserve today's section tints. Plain hides the row and keeps the default interface colours.
 The owner's answered question 2 requires the Mac title bar to follow the choice through `getCurrentWindow().setTheme()` with `core:window:allow-set-theme`; System passes `null`. Browser builds do nothing for the title bar. Only native checks establish this behaviour.
 
 ## Sidebar
 
 The sidebar starts with the project title row (there is no brand line); the title renames in place (click, Enter or Escape) and the pin shows on hover or focus. Going back to All projects is the Projects tab. "Reveal sidebar on hover" is a global switch in Settings > General (`folio.workspace.sidebar`, `src/sidebarPreferences.ts`). The sidebar has three reorderable top groups (Manuscript, Fragments, Research) and four fixed bottom rows (Read manuscript, Comments, Snapshots & history, Settings) that never reorder and carry no hover icons; each bottom feature can be switched off per project in Settings > Sidebar (`sidebarHidden` in `src/model.ts`), and Settings itself is never hidden.
+
+Selection is weight and colour, never a box: the selected entry is semibold (`--text` in Plain, its section tint in Color) and the group title steps back to weight 500 so the entry alone is bold. The old sliding highlight box is gone (`.entry-row.selected::before` is `content: none`). Hover goes semibold too, without a fill.
+
+Groups and manuscript entries drag to reorder (`src/components/useDragReorder.ts`, `drag-reorder.css`): a press must move 5 px before a drag starts, so a press that barely moves is still a click. The lifted row follows the pointer by `transform: translateY` only, its siblings step aside by their own height with `transform` only, and a 2 px `--accent` line (`[data-drag-edge]::after`) marks where it will land. No shadow, no rotation, no scale. Escape cancels and puts the row back. `prefers-reduced-motion` removes the shift transition. The arrow buttons (`Move Manuscript up` and so on, and the per-entry arrows) stay the keyboard path and remain in place, so reordering never requires a pointer. Only the three collapsible groups reorder; the bottom rows do not.
 
 ## Sidebar width
 
@@ -110,29 +160,72 @@ The sidebar minimum is 190 px. Inside the narrow-width container query (240 px o
 ## Rules
 
 - Keep flat, restrained surfaces and square corners. No decorative folders, quills, curved connectors, slogans or heavy footer strips.
-- Selected sidebar entries are semibold on the selected-row fill: text colour in Plain, their section tint in Color.
+- Selected sidebar entries are semibold, with no fill: text colour in Plain, their section tint in Color.
 - Do not add helper captions under controls. Use placeholders, existing error messages, or keyboard-reachable tooltips with `title`, `aria-describedby` and a focus-visible tip. Preserve the browser-only storage notice and the research file error messages.
 - Use `--` for UI dash separators. Never rewrite punctuation in documents, citations, code or paths.
 - Never alter document typography: `.writing-surface`, `.read-prose`, `.manuscript-read`, `.read-title`, `.preview-content`, editor footnote/page rules and `--prose-*` values stay outside the UI sweep. Reading preferences must not change export formatting.
 - Keep hover controls keyboard-accessible, appearance live throughout, sidebar width global and list/card views per project.
+- Never animate a keyboard action, except the documented menu-opening morph (see Motion).
 
 ## Split view
 
-Split view puts two panes side by side in the writing area; one formatting bar above both acts on the focused pane (the focused pane's own bar is moved into a shared slot). The divider is a 6 px hit area showing a 1 px line, accent on hover and keyboard focus; arrow keys move it 2 percent. The width ratio is global (`personal-word.splitRatio`, 25-75 percent) and the pane layout is per project (`personal-word.split.<projectId>`), both in `src/split.ts`. The right pane has a quiet header (entry title, muted until focused) at control height with a Close right pane button. Square corners, no shadows, no animation. Each section and fragment row carries an Open beside button (16 px, two-column icon) at the right of the row, left of the reorder arrows, shown on hover or keyboard focus like the arrows; it does the same as Cmd/Ctrl+click. Jumps (new section or fragment, Read manuscript titles, Go to passage, Reattach, passage restore) open the target in the focused pane or focus the pane already showing it; restoring a whole snapshot closes the split.
+Split view puts two panes side by side in the writing area; one formatting bar above both acts on the focused pane. The left pane is a permanent structure -- `.split-panes > section.split-pane[data-side="left"]` -- in both modes, with `data-single` on `.split-panes` when unsplit; the shared toolbar, the divider and the right pane are conditional siblings. Opening or closing a split therefore never remounts the left Writer: its undo history and its scroll position survive, and every node from `.split-panes` down to `.ProseMirror` keeps its identity.
+
+When split, both panes carry a `.split-pane-header` at control height: the left one holds the entry title, the right one the title and the Close right pane button, so the two panes' `.ProseMirror` tops line up within a pixel in both continuous and page view. A fragment's origin line ("Kept from X -- date") renders as `.split-pane-origin` inside its pane header, and the restore-fragment strip renders in `.split-pane-footer` under that pane's Writer, instead of above the page.
+
+The divider is a 6 px hit area showing a 1 px line, accent on hover and keyboard focus; arrow keys move it 2 percent. The 6 px target is deliberate and is the recorded answer to checklist item R2: a 1 px line alone would be unhittable. The width ratio is global (`personal-word.splitRatio`, 25-75 percent) and the pane layout is per project (`personal-word.split.<projectId>`), both in `src/split.ts`. Square corners, no shadows, no animation. Each section and fragment row carries an Open beside button (16 px, two-column icon) at the right of the row, left of the reorder arrows, shown on hover or keyboard focus like the arrows; it does the same as Cmd/Ctrl+click. Jumps (new section or fragment, Read manuscript titles, Go to passage, Reattach, passage restore) open the target in the focused pane or focus the pane already showing it; restoring a whole snapshot closes the split. The footer page counter follows the focused pane and updates at once when focus moves.
+
+## Pages
+
+Page view stacks pages vertically in one ProseMirror flow (`src/editor/pagination.ts`): the plugin measures top-level blocks and inserts a spacer widget before the first block of each new page, or inside a paragraph before the first character of the line that starts the next page, so the editor keeps one DOM, one undo history and normal caret movement. Paragraphs split between lines as in Word's default widow and orphan control: at least two lines stay on each page, so a paragraph of three lines or fewer moves whole; a heading moves with the paragraph after it when that paragraph moves whole. Other blocks (lists, quotes, tables, images, code) that do not fit move whole, and one taller than a whole page starts a page and runs straight across the page gap and margins. That overflow is the documented limit, not a bug. Up and Down across a gap are moved by the plugin, because WebKit's own line movement skips the last line above a gap. A manual page break (Shift-Enter) starts a page. Every page reserves the same footnote space, sized for the page with the most notes. A pane narrower than the page shows the page scaled down (`--page-scale`), never reflowed and never scrolled sideways. The footer shows "Section page N of M" for the focused pane.
+
+Page view and the exports use different layout engines: PDF and Word pagination have their own line-splitting rules, so exact page parity is not promised (see [limitations](limitations.md)).
+
+The owner chose Word's behaviour on 2026-10-28 (board question Q018); the line-splitting rule is CLAIMED, not VERIFIED, until the owner has used it. Where a paragraph breaks across pages, the end of one page and the start of the next are the same position in the text: the caret there is drawn at the top of the next page, so a click in the page's bottom margin or an Up move to that line places it one character before the line's end.
+
+## Shortcuts
+
+`src/shortcuts/registry.ts` owns every shortcut the app itself binds: Focus mode, Keep as fragment, Insert page break, Save, Take snapshot, New section, Find in project, Toggle sidebar and Switch light or dark, each with a default chord and a scope. `src/shortcuts/store.ts` stores only the user's overrides, as `folio.workspace.shortcuts`; corrupt, unknown and read-only entries are dropped on read. `src/shortcuts/chords.ts` parses and formats them, and `resolveChord` treats Ctrl as Command, as the app's handlers always did. Browser and macOS chords (`Cmd+C`, `Cmd+V`, `Cmd+Z` and the rest of `RESERVED`) can never be assigned.
+
+Settings > Shortcuts lists each action with its chord in a quiet `kbd`; Change records the next chord and Escape cancels the recording; a reserved or duplicate chord is refused with an inline status rather than an alert. Reset restores one action, Reset all restores every action. Insert page break is listed read-only because the editor library binds it. Menu hints follow the user's rebinds. Shortcut hints appear only where the editor really installs the shortcut -- a hint that is not installed is worse than no hint.
+
+Shift-Enter inserts a manual page break; Cmd-Enter is the soft line break. Inside a table cell Shift-Enter stays a soft break, because a page break has no meaning inside a cell.
+
+## Optical alignment
+
+An icon whose ink does not sit in the centre of its box is nudged with `--optical-x` and `--optical-y` on the button, applied as a `translate()` on the `svg`; never pad the button, because padding changes the row's layout and the hit area.
+
+Measure by ink, not by box: rasterise the icon, take the bounding box of the drawn pixels, and compare its centre with the button's centre. Nudge only when the offset is at least 1 px, and round to the nearest half pixel. Re-measure when an icon changes or a control's size changes.
+
+| Control | `--optical-x` | `--optical-y` | Why |
+| --- | --- | --- | --- |
+| Toolbar icons (18 measured) | none (0) | none (0) | largest ink offset 0.33 px (Bold, Numbered list), under the 1 px threshold |
+| Sidebar icon buttons | none (0) | none (0) | verified by the 24 x 24 hit-area test, not by ink measurement |
+| Menu and dropdown items | none (0) | none (0) | text rows, no icon centring question |
+
+The hook stays available and costs nothing when unset. The honest coverage limit: the measurement script saw the toolbar's 18 icons, while the sidebar icon arrays came back empty on the page it visited, so the sidebar rows are verified by the hit-area test alone.
+
+## Drop targets
+
+A drop target is the region that will take a file, wrapped in `src/components/DropTarget.tsx`. While a file drag is over the window the region draws a 1 px inset outline -- `--accent` when it can take the item, `--danger` when it cannot -- and one line of label in the same colour; refused items show the reason as that label. Nothing else on the page changes: no backdrop, no dimming, no moving layout. The outline and label disappear the moment the drag leaves or ends.
+
+The keyboard path is a real button, not a hidden input: it opens the system picker and the chosen file goes through exactly the same acceptance check as a dropped one, with the same refusal message. Its label and accessible name are the target's own ("Import writing" on the Projects screen, the source's PDF slot in Research), never a bare "Select files". It is a text button at `--control-height` with the icon-button recipe's colour behaviour, placed where the region's other actions live.
+
+In the browser the target receives `File` objects; in the Mac app drops arrive as paths and are read with `readDroppedPath`, and a drop only counts when it lands inside the region. The Projects screen accepts the importer's types (`.txt`, `.md`, `.markdown`, `.docx`, `.html`, `.htm`, `.zip`) and not `.json`; a `project.json` comes back through Recover, not by dropping it. A PDF dropped on a source's PDF slot in the Mac app is read by its own command (`read_dropped_pdf`) under the same guards -- the path must come from the latest drop, be a regular file and not a symlink, have a `.pdf` extension, and be 25 MB or smaller -- so the importer's allow-list does not grow and its refusal test stays true; the slot then calls the same attach path as the picker. Native Finder drops and PDF drops into the PDF slot were not run tonight, so both are owner hand-checks: this section records the code's guards, not a tested native drop.
 
 ## Section colours and templates
 
-In Color, Settings > General shows the Section colours row (Manuscript, Fragments, Research swatch pickers); the row is hidden in Plain. Templates carry a `hidden` flag (`src/templates.ts`): Blank, Chicago and Screenplay are offered in the create menu and in Settings > Templates; Essay and Story are hidden but still openable by id, so projects created from them keep working, and Chicago's display name is "Chicago".
+In Color, Settings > General shows the Section colours row (Manuscript, Fragments, Research swatch pickers); the row is hidden in Plain. Templates carry a `hidden` flag (`src/templates.ts`): Blank, Chicago and Screenplay are offered in the create menu and in Settings > Templates; Essay and Story are hidden but still openable by id, so projects created from them keep working.
 
 ## Bibliography and PDFs
 
-Research in the sidebar lists Bibliography and then every source (lead author -- title (year)); research notes live only in the Research panel's Notes tab. The Bibliography page (`src/research/BibliographyPage.tsx`) is read-only: an order menu (Alphabetical by author, Order first cited, By source type) and an Include uncited sources checkbox, saved per project as `bibliographyOrder` and `bibliographyScope` in the document settings (`src/research/types.ts`) and used by every export (`src/research/bibliography.ts`); entries have a hanging indent and type headings are semibold. Clicking a source opens the Research panel with that source expanded. Read manuscript ends with the same Bibliography after Notes. A source may carry one PDF (25 MB cap, `src/assets/pdf.ts`); it is drawn in a right-pane iframe (`src/research/PdfPane.tsx`) from a local blob URL that is revoked on unmount, and it is never fetched from the network. A missing PDF shows an alert instead.
+Research in the sidebar lists Bibliography when it applies, then every source (lead author -- title (year)) with the source's PDF listed under it, then the project's research notes (`src/App.tsx:1931-1943`). Clicking a note opens the Research panel's Notes tab, which groups notes attached to a source separately from loose notes. Bibliography is conditional (`showBibliography` in `src/App.tsx`): the row appears for a project started from the Chicago template, or once the project has a source or a footnote that cites one, and otherwise the destination falls back to the manuscript. The Bibliography page (`src/research/BibliographyPage.tsx`) is read-only: an order menu (Alphabetical by author, Order first cited, By source type) and an Include uncited sources checkbox, saved per project as `bibliographyOrder` and `bibliographyScope` in the document settings (`src/research/types.ts`) and used by every export (`src/research/bibliography.ts`); entries have a hanging indent and type headings are semibold. Clicking a source opens the Research panel with that source expanded. Read manuscript ends with the same Bibliography after Notes. A source may carry one PDF (25 MB cap, `src/assets/pdf.ts`); it is drawn in a right-pane iframe (`src/research/PdfPane.tsx`) from a local blob URL that is revoked on unmount, and it is never fetched from the network. A missing PDF shows an alert instead.
 
 ## How to check
 
 Use the pinned Node v22.23.3 from `team/PLAN.md`. Coordinate the serial check slot before builds, browser or native checks; retain full logs.
-Run `npx vitest run src/designTokens.test.ts src/appearance.test.ts src/palette.test.ts` as those tasks land: token/floor/state checks, dark-block parity, preference logic and Color contrast.
-Run the production-preview Playwright suite, one worker, with a fresh private build and isolated synthetic data. See the approved plan's PREVIEW recipe and final Validation list for exact commands and ports.
+Run `npx vitest run src/designTokens.test.ts src/appearance.test.ts src/palette.test.ts` as those tasks land: token/floor/state checks, dark-block parity, preference logic and Color contrast. Wave 3 adds `src/components/dragReorder.test.ts`, `src/components/dropTarget.test.ts` and `src/shortcuts/shortcuts.test.ts`.
+Run the production-preview Playwright suite, one worker, with a fresh private build and isolated synthetic data. See the approved plan's PREVIEW recipe and final Validation list for exact commands and ports. Wave 3 adds `tests/drag-reorder.spec.ts`, `tests/drop-target.spec.ts`, `tests/alignment.spec.ts`, `tests/motion-u7.spec.ts`, `tests/shortcuts.spec.ts` and `tests/editor-toolbar.spec.ts` (icons only at every width).
 Build the isolated `com.folio.smoke` diagnostic app, then run `python3 scripts/native-screens.py --out <isolated-cache-dir>` in Plain and Color; view every Projects, Writing, Research and Settings PNG in both appearances. Never open the real writing library from an agent session.
 Browser checks do not establish native WebKit rendering, native persistence, Finder drops or title-bar behaviour. Record pending native checks honestly and prepare the plan's owner hand checks. Only the owner's real-use report establishes VERIFIED behaviour.
 

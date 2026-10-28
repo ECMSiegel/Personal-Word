@@ -432,3 +432,49 @@ test("Research sidebar lists Bibliography and sources; the Bibliography page ord
   await expect(page.locator(".research-panel")).toBeVisible();
   await expect(page.getByLabel("Title", { exact: true })).toHaveValue("Atlas of Tides");
 });
+
+test("Research sidebar group: no Bibliography without sources, Chicago always has it, notes sit under Research", async ({
+  page,
+}) => {
+  const rows = page.locator('.sidebar [data-group="research"] .entry-main');
+  await page.goto("/");
+  await create(page, "Empty research");
+  await expect(page.locator('.sidebar [data-group="research"]')).toBeVisible();
+  await expect(rows).toHaveCount(0);
+
+  await openResearch(page);
+  await page.getByRole("button", { name: "Notes", exact: true }).click();
+  await page.getByRole("button", { name: "Add note", exact: true }).click();
+  await page.getByLabel("Note text").first().fill("Remember the tide table");
+  await page.getByRole("button", { name: "Close research", exact: true }).click();
+  await expect(rows).toHaveText(["Remember the tide table"]);
+
+  // A prior source selection must not override the Notes tab when opening a
+  // research note from the sidebar.
+  await openResearch(page);
+  await page.getByRole("button", { name: "Enter manually" }).click();
+  await page.getByLabel("Title", { exact: true }).fill("Lamps and Ledgers");
+  await page.getByLabel("Authors", { exact: true }).fill("Marguerite Halloway");
+  await page.getByLabel("Year", { exact: true }).fill("2019");
+  await page.getByRole("button", { name: "Close research", exact: true }).click();
+  await expect(rows).toHaveText([
+    "Bibliography",
+    "Halloway -- Lamps and Ledgers (2019)",
+    "Remember the tide table",
+  ]);
+
+  await page.getByRole("button", { name: "Read manuscript", exact: true }).click();
+  await rows.nth(1).click();
+  await expect(page.getByLabel("Title", { exact: true })).toHaveValue(
+    "Lamps and Ledgers",
+  );
+  await page.getByRole("button", { name: "Close research", exact: true }).click();
+  await rows.nth(2).click();
+  await expect(page.locator(".research-panel")).toBeVisible();
+  await expect(page.getByLabel("Note text").first()).toBeVisible();
+  await expect(page.getByRole("button", { name: "Notes", exact: true })).toHaveAttribute("aria-pressed", "true");
+
+  await page.goto("/");
+  await create(page, "Chicago research", "Chicago");
+  await expect(rows.first()).toHaveText("Bibliography");
+});

@@ -21,9 +21,9 @@ test("rename project, delete a section and a fragment with safety snapshots, del
   await createProject(page, "Working title");
   const editor = editorOf(page);
   await editor.fill("Words that will be deleted.");
-  await page.getByRole("button", { name: "Rename project" }).click();
+  await page.locator(".project-switch").click();
   await page.getByLabel("Project title").fill("Final title");
-  await page.getByRole("button", { name: "Save", exact: true }).click();
+  await page.keyboard.press("Enter");
   await expect(page.locator(".project-switch")).toContainText("Final title");
   await page.getByRole("button", { name: "New fragment" }).click();
   await page.getByLabel("Title", { exact: true }).fill("Loose idea");

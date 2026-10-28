@@ -1,0 +1,75 @@
+{
+  "id": "T149",
+  "title": "UI wave 3 N4: Drag reorder and drop targets in the sidebar, library and Research",
+  "description": "Follow docs/agent-work/2026-10-28-ui-wave-3/PLAN.md section N4 exactly (Files, Interfaces, Steps, Acceptance check, Fail-first, Stop-and-ask, Default) and read its Context, Rules and Notes for the implementer first; RESEARCH.md beside it has the evidence. House rules: register paths = this task's seeded Files (already registered on claim; add more only via files add); serial slot (node_modules/.cache/personal-word-beta/team-serial-check-slot) via files add right before the first expensive check and keep it until done; pinned Node; quoted --outDir on PREVIEW port 1600+N; never edit docs/design-system.md (write DESIGN DOC: text in the done note); motion checks in tests/motion-uN.spec.ts; native rendering runs only with the screen unlocked, by Claude agents or the owner; never put backticks in double-quoted shell text; no installs, no commits; status CLAIMED; independent review required.",
+  "status": "done",
+  "owner": null,
+  "priority": 2,
+  "depends_on": [
+    "T143",
+    "T144",
+    "T135",
+    "T137",
+    "T138"
+  ],
+  "files": [
+    "src/components/ProjectSidebar.tsx",
+    "src/components/ProjectLibrary.tsx",
+    "src/components/library.css",
+    "src/research/ResearchPanel.tsx",
+    "src/research/research.css",
+    "tests/drag-reorder.spec.ts",
+    "tests/drop-target.spec.ts",
+    "node_modules/.cache/personal-word-beta/ui3-n4",
+    "tests/sidebar-selection.spec.ts",
+    "tests/writing.spec.ts",
+    "tests/research.spec.ts",
+    "tests/projects-screen.spec.ts",
+    "tests/research-pdf.spec.ts",
+    "node_modules/.cache/personal-word-beta/team-serial-check-slot"
+  ],
+  "review_required": true,
+  "created_by": "agent-9d21",
+  "created_at": "2026-10-28T04:50:57+00:00",
+  "claimed_at": "2026-10-28T09:16:59+00:00",
+  "updated_at": "2026-10-28T09:47:22+00:00",
+  "handoff": null,
+  "review": {
+    "by": "agent-9249",
+    "at": "2026-10-28T09:47:22+00:00",
+    "verdict": "approved",
+    "note": "Reviewing acceptance and implementation evidence now; need check native PDF dropped-path behavior against N4's stated acceptance before final verdict."
+  },
+  "log": [
+    {
+      "at": "2026-10-28T04:50:57+00:00",
+      "agent": "agent-9d21",
+      "event": "created",
+      "note": ""
+    },
+    {
+      "at": "2026-10-28T09:16:59+00:00",
+      "agent": "agent-64fe",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-10-28T09:16:59+00:00",
+      "agent": "agent-64fe",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-10-28T09:45:59+00:00",
+      "agent": "agent-64fe",
+      "event": "review requested",
+      "note": "N4 built (CLAIMED, not VERIFIED). ProjectSidebar: top-group sections and manuscript entry rows use useDragReorder (HTML5 draggable/dragstart/drop and the preview-selection restorer removed; presses on inputs, previews, arrows and group actions never lift). Group drag -> moveGroup (groupOrder -> project.sidebarOrder mutation, persists); entry drag -> onReorder (project.order mutation, revision via mutate/SaveQueue); arrow buttons unchanged as the keyboard path; fragments and Research rows are not draggable (no order to persist). ProjectLibrary: old whole-page listenForNativeDrops plumbing, dropping state, .library[data-dropping] tint and main-level drag handlers removed; DropTarget wraps the project list (accept = existing dropProblem, empty name passes during a browser drag; onFiles re-checks one-file rule and routes to onImportWriting; native paths via readDroppedPath; rejects surface through onDropError, silent while a dialog is open as before). ResearchPanel: when a source has no PDF, DropTarget replaces the Attach PDF label (its Select files is the single picker path); accept .pdf <= 25 MB, one file, native paths via readDroppedPath, refusals shown in the panel status line; attached state unchanged (Open beside / Remove PDF). CSS: library.css and research.css only. \nD2 NOTE (plan/code mismatch): PLAN N4 says the Projects target accepts .md .docx .html .txt .json per dropImport.ts; the code accepts .txt .md .markdown .docx .html .htm .zip and .json is the separate Recover path. Per decision #729 the code wins: DropTarget keeps DROP_EXTENSIONS, a project.json drag shows reject (tested).\nPlan defaults for stop-and-ask: pointer events do not fire during an OS file drag, so row drag is inherently off while a file drag is active (default holds, nothing extra built). Tauri drag events: DropTarget registers its own listener per target (N3); the library plumbing is gone, so no double handling. NOT DONE / risk: native PDF drop to a source slot will be refused by src-tauri/src/dropped.rs (read_capped allows only txt md markdown docx html htm zip and 20 MB), so natively the slot works through Select files (browser File path) but a dragged PDF needs DROPPED_EXTENSIONS += pdf and a 25 MB cap for that command (Rust, outside T149 paths; cargo not run). Native drops only count inside the region (library list, PDF slot) -- native drop is a HAND-CHECK for the owner: drag a .md onto the project list (outline, import preview), drag it onto empty page body (nothing), drag a .pdf onto a source slot.\nTests: new tests/drag-reorder.spec.ts (7) and tests/drop-target.spec.ts (6); updated for the new model: tests/projects-screen.spec.ts (drop outline on .drop-target instead of .library data-dropping), tests/sidebar-selection.spec.ts (draggable asserts -> data-drag-index/state), tests/research-pdf.spec.ts (picker selector; size refusal now in .research-status).\nEVIDENCE (all under node_modules/.cache/personal-word-beta/ui3-n4/): fail-first on the pre-N4 build dist-pre (snapshot files overlaid on the live tree, built in ui3-n4/pre): pw-failfirst-pre.log = 10 failed, 3 passed (the 3 are baselines that hold before and after: Escape/own-slot, click-not-drag, arrows). Live build dist-live (build-live2.log): pw-new-live.log 13/13; pw-existing-live.log sidebar-selection projects-screen research research-pdf writing accessibility alignment 74/74; pw-final-live.log (after the last CSS tweak) drag-reorder drop-target projects-screen sidebar-selection research-pdf 61/61; reports report-pre.json/report-live.json; configs browser-pre/live(-dark).config.mjs, port 1649, PW_DIST_DIR set. tsc 0; UNIT full (unit.log) 60 files 1023 tests pass; vitest components/motion/designTokens/palette 70/70. Screenshots viewed, light+dark: shots/group-drag-*.png, entry-drag-*.png (lifted row, 2 px accent line, no shadow), projects-accept-*.png, projects-reject-*.png (file drag over the Projects list: 1 px outline + Drop to import / reason, page body clean), slot-accept-*.png, slot-reject-*.png. Not run: native WebKit, cargo, full tests/ suite (only the specs above plus writing, accessibility, alignment).\nDESIGN DOC: Reorder by drag -- sidebar group headings and manuscript entry rows lift with the pointer after 5 px (useDragReorder), siblings step aside by transform only, a 2 px --accent line marks the landing slot, no shadow, Escape cancels, reduced motion removes the step-aside transition; the up/down arrow buttons remain the keyboard path; fragments and Research rows do not reorder. Drop targets -- the Projects list and a source's PDF slot (only while it has no PDF) are DropTargets: 1 px --accent outline and one-line label (Drop to import / Drop to attach) while a matching file drag is over the window, --danger outline with the reason when refused, no whole-page tint; Select files is the keyboard path; in the Mac app drops arrive as paths and count only inside the region."
+    },
+    {
+      "at": "2026-10-28T09:47:22+00:00",
+      "agent": "agent-9249",
+      "event": "approved",
+      "note": "Reviewing acceptance and implementation evidence now; need check native PDF dropped-path behavior against N4's stated acceptance before final verdict."
+    }
+  ]
+}

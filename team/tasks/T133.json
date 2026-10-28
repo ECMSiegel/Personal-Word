@@ -1,0 +1,83 @@
+{
+  "id": "T133",
+  "title": "UI wave 3 E3: Right-click table menu (Editor lane)",
+  "description": "Follow docs/agent-work/2026-10-28-ui-wave-3/PLAN.md section E3 exactly (Files, Interfaces, Steps, Acceptance check, Fail-first, Stop-and-ask, Default) and read its Context, Rules and Notes for the implementer first; RESEARCH.md beside it has the evidence. House rules: register paths = this task's seeded Files (already registered on claim; add more only via files add); serial slot (node_modules/.cache/personal-word-beta/team-serial-check-slot) via files add right before the first expensive check and keep it until done; pinned Node; quoted --outDir on PREVIEW port 1600+N; never edit docs/design-system.md (write DESIGN DOC: text in the done note); motion checks in tests/motion-uN.spec.ts; native rendering runs only with the screen unlocked, by Claude agents or the owner; never put backticks in double-quoted shell text; no installs, no commits; status CLAIMED; independent review required.",
+  "status": "done",
+  "owner": null,
+  "priority": 2,
+  "depends_on": [],
+  "files": [
+    "src/editor/TableContextMenu.tsx",
+    "tests/tables-context.spec.ts",
+    "src/Writer.tsx",
+    "src/editor/editor.css",
+    "node_modules/.cache/personal-word-beta/ui3-e3",
+    "node_modules/.cache/personal-word-beta/team-serial-check-slot"
+  ],
+  "review_required": true,
+  "created_by": "agent-9d21",
+  "created_at": "2026-10-28T04:50:54+00:00",
+  "claimed_at": "2026-10-28T08:01:38+00:00",
+  "updated_at": "2026-10-28T08:05:32+00:00",
+  "handoff": {
+    "by": "agent-9249",
+    "at": "2026-10-28T06:56:05+00:00",
+    "text": "Implementation and tests are present in the registered files, but acceptance is unrun. This host has no Node 22 runtime (.nvmrc=22); system Node is 25.5 and bundled Codex Node is 24.22. I am releasing the serial slot and handing T133 back for a worker with the pinned runtime. Preserve the implementation; complete fail-first, tsc/build, and PREVIEW(3) tests/tables-context.spec.ts tests/motion.spec.ts."
+  },
+  "review": {
+    "by": "agent-b24d",
+    "at": "2026-10-28T08:05:32+00:00",
+    "verdict": "approved",
+    "note": "Approved. tsc 0 (Node 22.23.3). Read TableContextMenu.tsx, the E3 hunks of Writer.tsx (contextmenu handler gated on cellAround + posAtCoords, ContextMenu/Shift+F10 at coordsAtPos, menu render), the .table-menu-anchor / .table-context-menu CSS and the spec. Checklist: R1/F2 PASS (popover.css: items are bold on hover/focus-visible/highlighted, no grey fill; square corners, border-radius 0), R6 PASS (overscroll contain), R7 PASS, F4 PASS (items are buttons via PopoverItem, role menuitem), F3 PASS (menu labelled Table actions). Dark screenshot shows all six items, danger item red, readable. Notes only: (1) table-menu-light.png was captured mid-morph (bottom clipped, Delete table not visible), so the light render is unconfirmed by that file; test should wait for the morph before screenshot. (2) Only Delete table is asserted to change the table; the other five are stock tiptap commands wired identically to the panel, not individually asserted. (3) Native WebKit not run; spell suggestions hidden in cells as expected. Did not rerun Playwright; relied on author evidence (3/3 + motion 7/7, fail-first shown) plus static review."
+  },
+  "log": [
+    {
+      "at": "2026-10-28T04:50:54+00:00",
+      "agent": "agent-9d21",
+      "event": "created",
+      "note": ""
+    },
+    {
+      "at": "2026-10-28T06:16:47+00:00",
+      "agent": "agent-9249",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-10-28T06:16:55+00:00",
+      "agent": "agent-9249",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-10-28T06:56:05+00:00",
+      "agent": "agent-9249",
+      "event": "handoff",
+      "note": "Implementation and tests are present in the registered files, but acceptance is unrun. This host has no Node 22 runtime (.nvmrc=22); system Node is 25.5 and bundled Codex Node is 24.22. I am releasing the serial slot and handing T133 back for a worker with the pinned runtime. Preserve the implementation; complete fail-first, tsc/build, and PREVIEW(3) tests/tables-context.spec.ts tests/motion.spec.ts."
+    },
+    {
+      "at": "2026-10-28T08:01:38+00:00",
+      "agent": "agent-8d12",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-10-28T08:01:43+00:00",
+      "agent": "agent-8d12",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-10-28T08:04:12+00:00",
+      "agent": "agent-8d12",
+      "event": "review requested",
+      "note": "E3 verified. tsc --noEmit 0 (pinned Node 22.23.3). Fail-first: pre-change build (3 E3 Writer hunks removed) fails right-click and Shift+F10 tests, passes outside-table. Current build: tests/tables-context.spec.ts 3/3 and tests/motion.spec.ts (a)-(g) 7/7 pass via PREVIEW port 1633 (10 passed). Added ArrowUp/ArrowDown wrap-around navigation in TableContextMenu.tsx plus assertions in the Shift+F10 test (floor-tier keyboard access). Screenshots light/dark at ui3-e3/table-menu-*.png (not eyeballed by me). Native WebKit not run. Preventing default menu hides native spell suggestions inside table cells (expected). E1 hunks in Writer.tsx/editor.css kept. DESIGN DOC: none. Status CLAIMED."
+    },
+    {
+      "at": "2026-10-28T08:05:32+00:00",
+      "agent": "agent-b24d",
+      "event": "approved",
+      "note": "Approved. tsc 0 (Node 22.23.3). Read TableContextMenu.tsx, the E3 hunks of Writer.tsx (contextmenu handler gated on cellAround + posAtCoords, ContextMenu/Shift+F10 at coordsAtPos, menu render), the .table-menu-anchor / .table-context-menu CSS and the spec. Checklist: R1/F2 PASS (popover.css: items are bold on hover/focus-visible/highlighted, no grey fill; square corners, border-radius 0), R6 PASS (overscroll contain), R7 PASS, F4 PASS (items are buttons via PopoverItem, role menuitem), F3 PASS (menu labelled Table actions). Dark screenshot shows all six items, danger item red, readable. Notes only: (1) table-menu-light.png was captured mid-morph (bottom clipped, Delete table not visible), so the light render is unconfirmed by that file; test should wait for the morph before screenshot. (2) Only Delete table is asserted to change the table; the other five are stock tiptap commands wired identically to the panel, not individually asserted. (3) Native WebKit not run; spell suggestions hidden in cells as expected. Did not rerun Playwright; relied on author evidence (3/3 + motion 7/7, fail-first shown) plus static review."
+    }
+  ]
+}

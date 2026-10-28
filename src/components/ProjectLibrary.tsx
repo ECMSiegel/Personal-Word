@@ -1,15 +1,12 @@
-import { useEffect, useLayoutEffect, useRef, useState } from "react";
-import { ChevronDown, Layers, List, Search, Trash2 } from "lucide-react";
+import { useEffect, useLayoutEffect, useRef, useState, type ReactNode } from "react";
+import { ChevronDown, Layers, List, Search, Settings, Trash2 } from "lucide-react";
 import type { Summary } from "../model";
 import type { DamagedJournal } from "../save-queue";
 import { desktop } from "../storage";
-import {
-  baseName,
-  dropProblem,
-  listenForNativeDrops,
-  readDroppedPath,
-} from "../import/dropImport";
+import { baseName, dropProblem, readDroppedPath } from "../import/dropImport";
+import { ModalFrame } from "../app/ProjectDialogs";
 import { Dropdown } from "./Dropdown";
+import { DropTarget, type DropItem } from "./DropTarget";
 import { Popover, PopoverItem } from "./Popover";
 import { play } from "../motion";
 import "./library.css";
@@ -29,6 +26,7 @@ export function ProjectLibrary({
   templates,
   dropEnabled,
   onDropError,
+  settings,
 }: {
   projects: Summary[];
   templates?: { id: string; name: string }[];
@@ -45,25 +43,23 @@ export function ProjectLibrary({
   onSetAside: (id: string) => void;
   dropEnabled: boolean;
   onDropError: (message: string) => void;
+  settings?: ReactNode;
 }) {
   const [view, setView] = useState<"list" | "cards">("list");
   const [sort, setSort] = useState("edited");
   const [reverse, setReverse] = useState(false);
   const [creating, setCreating] = useState(false);
   const [searching, setSearching] = useState(false);
+  const [settingsOpen, setSettingsOpen] = useState(false);
   const [query, setQuery] = useState("");
   const createButton = useRef<HTMLButtonElement>(null);
   const createPanel = useRef<HTMLDivElement>(null);
   const writingInput = useRef<HTMLInputElement>(null);
+  const openDropPicker = useRef<(() => void) | null>(null);
   const projectInput = useRef<HTMLInputElement>(null);
   const createFade = useRef<Animation | null>(null);
   const searchButton = useRef<HTMLButtonElement>(null);
   const searchInput = useRef<HTMLInputElement>(null);
-  const [dropping, setDropping] = useState(false);
-  const dragDepth = useRef(0);
-  // The native listener lives as long as the screen; it reads the latest props here.
-  const latest = useRef({ dropEnabled, onDropError, onImportWriting });
-  latest.current = { dropEnabled, onDropError, onImportWriting };
   const added = (p: Summary) =>
     (p as Summary & { createdAt?: string }).createdAt;
   const needle = query.trim().toLocaleLowerCase();
@@ -107,30 +103,9 @@ export function ProjectLibrary({
   }, [creating]);
   useEffect(() => () => createFade.current?.cancel(), []);
   useEffect(() => {
-    if (desktop) {
-      let disposed = false;
-      let unlisten: (() => void) | undefined;
-      void listenForNativeDrops({
-        onHover: (over) => setDropping(over && latest.current.dropEnabled),
-        onDrop: (paths) => {
-          const { dropEnabled, onDropError, onImportWriting } = latest.current;
-          if (!dropEnabled || !paths.length) return;
-          const problem = dropProblem(paths.map(baseName));
-          if (problem) return onDropError(problem);
-          readDroppedPath(paths[0]).then(onImportWriting, (error) =>
-            onDropError(String(error)),
-          );
-        },
-      }).then((off) => {
-        if (disposed) off();
-        else unlisten = off;
-      });
-      return () => {
-        disposed = true;
-        unlisten?.();
-      };
-    }
-    // Browser preview: a file dropped outside the screen must not replace the page.
+    // Browser preview: a file dropped outside the drop region must not replace the page.
+    // (In the Mac app, Tauri takes file drags before the page sees them.)
+    if (desktop) return;
     const block = (e: DragEvent) => e.preventDefault();
     document.addEventListener("dragover", block);
     document.addEventListener("drop", block);
@@ -139,28 +114,21 @@ export function ProjectLibrary({
       document.removeEventListener("drop", block);
     };
   }, []);
-  const hasFiles = (e: React.DragEvent) =>
-    e.dataTransfer.types.includes("Files");
-  const onDragEnter = (e: React.DragEvent) => {
-    if (!hasFiles(e)) return;
-    dragDepth.current += 1;
-    setDropping(dropEnabled);
-  };
-  const onDragLeave = (e: React.DragEvent) => {
-    if (!hasFiles(e)) return;
-    dragDepth.current = Math.max(0, dragDepth.current - 1);
-    if (!dragDepth.current) setDropping(false);
-  };
-  const onDrop = (e: React.DragEvent) => {
-    if (!hasFiles(e)) return;
-    e.preventDefault();
-    dragDepth.current = 0;
-    setDropping(false);
-    if (!dropEnabled) return;
-    const files = [...e.dataTransfer.files];
-    const problem = dropProblem(files.map((f) => f.name));
-    if (problem) onDropError(problem);
-    else onImportWriting(files[0]);
+  // Browsers hide a dragged file's name until the drop, so an empty name passes here.
+  const acceptWriting = (file: DropItem) =>
+    !dropEnabled
+      ? "Finish the open step first."
+      : file.name
+        ? dropProblem([file.name])
+        : null;
+  const importDropped = (files: File[] | string[]) => {
+    const names = files.map((f) => (typeof f === "string" ? baseName(f) : f.name));
+    const problem = dropProblem(names);
+    if (problem) return onDropError(problem);
+    const first = files[0];
+    if (typeof first === "string")
+      readDroppedPath(first).then(onImportWriting, (error) => onDropError(String(error)));
+    else onImportWriting(first);
   };
   const closeCreate = (refocus: boolean) => {
     setCreating(false);
@@ -206,17 +174,10 @@ export function ProjectLibrary({
   return (
     <main
       className="library"
-      data-dropping={dropping || undefined}
-      onDragEnter={onDragEnter}
-      onDragOver={(e) => {
-        if (hasFiles(e)) e.preventDefault();
-      }}
-      onDragLeave={onDragLeave}
-      onDrop={onDrop}
+      aria-label="Projects"
     >
       <div className="brand">Personal Word</div>
       <div className="library-toolbar">
-        <h1>Projects</h1>
         <div
           className="create-project"
           onKeyDown={(e) => {
@@ -289,6 +250,14 @@ export function ProjectLibrary({
             </PopoverItem>
           </Popover>
         </div>
+        <button
+          type="button"
+          className="library-import"
+          aria-label="Import writing (text, Markdown, Word, HTML or a .zip bundle)"
+          onClick={() => openDropPicker.current?.()}
+        >
+          Import writing
+        </button>
         <div className="library-display">
           <div className="library-search" data-open={searching || undefined}>
             <div className="library-search-field">
@@ -356,8 +325,26 @@ export function ProjectLibrary({
           >
             {view === "list" ? <Layers size={16} /> : <List size={16} />}
           </button>
+          {settings && (
+            <button
+              type="button"
+              className="library-settings"
+              aria-label="Settings"
+              title="Settings"
+              onClick={() => setSettingsOpen(true)}
+            >
+              <Settings size={16} aria-hidden="true" />
+            </button>
+          )}
         </div>
       </div>
+      <DropTarget
+        accept={acceptWriting}
+        onFiles={importDropped}
+        onReject={(reason) => dropEnabled && onDropError(reason)}
+        label="Drop to import"
+        openPicker={openDropPicker}
+      >
       <div className={"project-list project-list--" + view}>
         {sorted.map((p) => (
           <div className="project-row" key={p.id}>
@@ -384,6 +371,7 @@ export function ProjectLibrary({
           <p className="library-empty">No matching projects.</p>
         )}
       </div>
+      </DropTarget>
       {(damagedJournals.length > 0 || damagedFolders.length > 0) && (
         <div className="damaged" role="region" aria-label="Needs attention">
           <div className="eyebrow">NEEDS ATTENTION</div>
@@ -446,6 +434,18 @@ export function ProjectLibrary({
           e.currentTarget.value = "";
         }}
       />
+      {settingsOpen && settings && (
+        <ModalFrame title="Settings" onCancel={() => setSettingsOpen(false)}>
+          <div className="project-settings library-settings-body">
+            {settings}
+          </div>
+          <div className="dialog-actions">
+            <button type="button" onClick={() => setSettingsOpen(false)}>
+              Close
+            </button>
+          </div>
+        </ModalFrame>
+      )}
       <p className="storage-note">
         {desktop
           ? "Your writing stays on this Mac."

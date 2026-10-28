@@ -1,0 +1,34 @@
+.drop-target {
+  position: relative;
+}
+.drop-target[data-state] {
+  outline: 1px solid var(--accent);
+  outline-offset: -1px;
+}
+.drop-target[data-state="reject"] {
+  outline-color: var(--danger);
+}
+.drop-target-label {
+  position: absolute;
+  left: var(--space-2);
+  bottom: var(--space-2);
+  max-width: calc(100% - var(--space-4));
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  padding: 0 var(--space-1);
+  background: var(--paper);
+  color: var(--accent);
+  font-size: var(--type-small);
+  pointer-events: none;
+}
+.drop-target[data-state="reject"] .drop-target-label {
+  color: var(--danger);
+}
+.select-files {
+  font-size: var(--type-small);
+  color: var(--muted);
+}
+.select-files:hover:not(:disabled) {
+  color: var(--text);
+}

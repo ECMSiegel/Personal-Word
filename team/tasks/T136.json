@@ -1,0 +1,60 @@
+{
+  "id": "T136",
+  "title": "UI wave 3 A3: Split view keeps the left editor and aligns both pages (App lane)",
+  "description": "Follow docs/agent-work/2026-10-28-ui-wave-3/PLAN.md section A3 exactly (Files, Interfaces, Steps, Acceptance check, Fail-first, Stop-and-ask, Default) and read its Context, Rules and Notes for the implementer first; RESEARCH.md beside it has the evidence. House rules: register paths = this task's seeded Files (already registered on claim; add more only via files add); serial slot (node_modules/.cache/personal-word-beta/team-serial-check-slot) via files add right before the first expensive check and keep it until done; pinned Node; quoted --outDir on PREVIEW port 1600+N; never edit docs/design-system.md (write DESIGN DOC: text in the done note); motion checks in tests/motion-uN.spec.ts; native rendering runs only with the screen unlocked, by Claude agents or the owner; never put backticks in double-quoted shell text; no installs, no commits; status CLAIMED; independent review required.",
+  "status": "done",
+  "owner": null,
+  "priority": 2,
+  "depends_on": [],
+  "files": [
+    "src/App.tsx",
+    "src/components/split.css",
+    "tests/split-view.spec.ts",
+    "node_modules/.cache/personal-word-beta/ui3-a3",
+    "node_modules/.cache/personal-word-beta/team-serial-check-slot"
+  ],
+  "review_required": true,
+  "created_by": "agent-9d21",
+  "created_at": "2026-10-28T04:50:54+00:00",
+  "claimed_at": "2026-10-28T09:36:28+00:00",
+  "updated_at": "2026-10-28T10:26:58+00:00",
+  "handoff": null,
+  "review": {
+    "by": "agent-86a2",
+    "at": "2026-10-28T10:26:58+00:00",
+    "verdict": "approved",
+    "note": "Approved. App.tsx A3 hunks: one unconditional .split-panes > section[data-side=left] with Writer at a fixed child slot (toolbar/header/footer are conditional siblings), so no remount; tsc exit 0; fail-first red on scratch pre-A3 (3 failed: undo, scroll, equal tops); split-view x3 = 42/42 (log 06:21, after spec 06:19 and build 06:09:46); layout+perf 13/13 (06:25). Undo test is non-vacuous (remount would drop history); close-side undo/DOM identity not separately asserted, only scroll round trip. split.css has no fills; close button kept. T153 980x900 hunk not reviewed. Not rerun; screenshots not viewed."
+  },
+  "log": [
+    {
+      "at": "2026-10-28T04:50:54+00:00",
+      "agent": "agent-9d21",
+      "event": "created",
+      "note": ""
+    },
+    {
+      "at": "2026-10-28T09:36:28+00:00",
+      "agent": "agent-f401",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-10-28T09:36:51+00:00",
+      "agent": "agent-f401",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-10-28T10:25:54+00:00",
+      "agent": "agent-f401",
+      "event": "review requested",
+      "note": "T136 (A3) done. AUTHOR: agent-f401 (OpenCode); prep and implementation in this session (prep map: ui3-a3/PREP.md).\n\nWHAT CHANGED. src/App.tsx: the split/unsplit ternary no longer changes the Writer's tree position -- ONE .split-panes > section.split-pane[data-side=left] renders in both modes (data-single on .split-panes when unsplit; the .writer.split-toolbar div and the SplitDivider + right pane render only in split mode), so opening or closing a split never remounts the left Writer. The shared toolbar div is a conditional sibling rendered BEFORE the stable .split-panes; renderWriter takes an inSplit flag: in split mode header/footer props are undefined and the fragment origin line renders as span.split-pane-origin inside that pane's .split-pane-header (left: title + origin; right: title + origin + close), and the fragment restore strip renders in .split-pane-footer under the pane's Writer (same Dropdown/restoreFragment wiring). src/components/split.css (new, imported by App.tsx): the [data-single] left-pane fill rule, .split-pane-origin, .split-pane-footer -- static layout only, no animations; existing styles.css split rules untouched. tests/split-view.spec.ts: four new cases (undo survives open; left scrollTop within 2 px across an open/close round trip; both panes' .ProseMirror tops equal within 1 px in continuous AND page view with a section left and fragment right; the footer page status follows the focused pane at once) plus the DOM-contract updates the stable wrapper requires: .split-pane-title queries scoped to .split-pane[data-side=\"right\"] (the left pane now has a header too) and closed-split assertions assert no .split-pane[data-side=\"right\"] (the left pane always exists).\n\nROOT CAUSE NOTE (for the reviewer): the first attempt keyed .split-panes across the ternary and still remounted -- a ternary whose branches are element vs fragment puts the same key in different key-spaces (fragment children get prefixed keys), so React replaced the node. DOM-identity probes (ui3-a3/probe-tmp/*.spec.mjs, logs in the probe run) proved the boundary: .editor-area survived, .split-panes was replaced; after the unconditional-wrapper restructure every node from .split-panes down to .ProseMirror keeps its identity across open/close.\n\nFAIL-FIRST: the pre-A3 tree built in a SCRATCH COPY (ui3-a3/scratch, App.tsx overlaid with the snapshotted pre-a3 version -- no shared-tree stash, per the coordinator rule): baseline build exit 0 (ff-build.log) and the three new cases failed on it as intended (ff-run.log: 3 failed -- undo, scroll, equal-tops).\n\nACCEPTANCE (plan PREVIEW(6)): npx tsc --noEmit -p . exit 0; fresh build exit 0 (build3.log); Playwright port 1675, workers 1, retries 0: tests/split-view.spec.ts --repeat-each=3 -> 42 passed, 0 failed (after-run6.log, report.json); the U13 reviewer probe -> 7 passed, 8 failed (probe-run3.log, probe-report.json) -- ALL EIGHT are the two mechanical DOM-contract patterns above, verified on P3 (unscoped .split-pane-title strict-mode violation) and P8 (.split-pane count 0 after close, now 1): NOT behaviour regressions; the deep data-safety cases that pass include split-safety Append-to-section (P1/P2 family, tests 274/305 green in the spec run). The probe files are the recorded U13 reviewer artifacts outside my registered paths: they need the same two-line contract updates (scope .split-pane-title to the right pane; closed-split means no .split-pane[data-side=\"right\"]), which per the wave-2 U13-c2 precedent is a disclosed probe amendment -- coordinator/reviewer to rule on who applies it.\n\nSTOP RULE: tests/layout.spec.ts + tests/performance.spec.ts after the change -> 13 passed, 0 failed (layout-perf.log): the permanent wrapper changed no measurement.\n\nDESIGN DOC: (for D2/T150) Split view: the left pane is a permanent .split-panes > .split-pane[data-side=left] structure (data-single when unsplit), so opening and closing a split never remounts or scrolls the left editor; both panes carry .split-pane-header when split (left: title and, for fragments, the origin line as .split-pane-origin; right: title, origin, close); a fragment pane shows its restore strip in .split-pane-footer.\n\nPATH STATES: src/App.tsx uncommitted edits (A1 + A2 + these A3 hunks); src/components/split.css uncommitted (new); tests/split-view.spec.ts uncommitted edits (contract updates + 4 new cases); node_modules/.cache/personal-word-beta/ui3-a3 clean (logs: ff-build.log ff-run.log build.log build2.log build3.log after-run*.log probe-run*.log layout-perf.log, reports report.json ff-report.json probe-report.json, plus PREP.md and the scratch copy); node_modules/.cache/personal-word-beta/team-serial-check-slot clean (released by this done)."
+    },
+    {
+      "at": "2026-10-28T10:26:58+00:00",
+      "agent": "agent-86a2",
+      "event": "approved",
+      "note": "Approved. App.tsx A3 hunks: one unconditional .split-panes > section[data-side=left] with Writer at a fixed child slot (toolbar/header/footer are conditional siblings), so no remount; tsc exit 0; fail-first red on scratch pre-A3 (3 failed: undo, scroll, equal tops); split-view x3 = 42/42 (log 06:21, after spec 06:19 and build 06:09:46); layout+perf 13/13 (06:25). Undo test is non-vacuous (remount would drop history); close-side undo/DOM identity not separately asserted, only scroll round trip. split.css has no fills; close button kept. T153 980x900 hunk not reviewed. Not rerun; screenshots not viewed."
+    }
+  ]
+}

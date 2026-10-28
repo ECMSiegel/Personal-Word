@@ -70,9 +70,12 @@ test("controls show hover, focus, pressed, disabled and selected states", async 
   await page.getByRole("button", { name: "Save", exact: true }).click();
   const snapshot = page.getByRole("button", { name: "Snapshot", exact: true });
   await snapshot.hover();
-  await expect(snapshot).toHaveCSS("background-color", "rgb(245, 245, 247)");
+  // No grey box: hover keeps the fill clear and only the colour changes.
+  await expect(snapshot).toHaveCSS("background-color", "rgba(0, 0, 0, 0)");
+  await expect(snapshot).toHaveCSS("color", "rgb(36, 36, 40)");
   await page.mouse.down();
-  await expect(snapshot).toHaveCSS("background-color", "rgb(220, 221, 226)");
+  await expect(snapshot).toHaveCSS("background-color", "rgba(0, 0, 0, 0)");
+  await expect(snapshot).toHaveCSS("transform", "matrix(0.99, 0, 0, 0.99, 0, 0)");
   await page.mouse.up();
   await page.mouse.move(0, 0);
   const sidebarButton = page.locator(".sidebar button:visible").first();
@@ -84,7 +87,7 @@ test("controls show hover, focus, pressed, disabled and selected states", async 
   await expect(
     page.getByRole("button", { name: "Move Manuscript up" }),
   ).toHaveCSS("opacity", "0.35");
-  const selected = page.locator(".sidebar .selected").first();
+  const selected = page.locator(".sidebar .entry-row.selected").first();
   await expect(selected).toHaveCSS("color", "rgb(36, 36, 40)");
   await expect(selected).toHaveCSS("font-weight", "600");
   const selectedEntry = page.locator(".sidebar .entry-row.selected .entry-main").first();
@@ -188,6 +191,34 @@ test("the Appearance row has no caption and its buttons use arrow keys", async (
   await expect(system).toHaveAttribute("aria-pressed", "true");
   await expect(page.locator("html")).not.toHaveAttribute("data-theme", /.*/);
   await page.screenshot({ path: "test-results/appearance-focus-ring.png" });
+});
+
+test("a segmented choice is weight and colour, not a fill, and Home/End jump the ends", async ({
+  page,
+}) => {
+  await page.emulateMedia({ colorScheme: "light" });
+  await openSettings(page, "Segmented keys");
+  const group = page.getByRole("group", { name: "Appearance" });
+  const system = group.getByRole("button", { name: "System", exact: true });
+  const dark = group.getByRole("button", { name: "Dark", exact: true });
+  // The pressed segment: semibold accent text on no fill; the sliding box is gone.
+  await expect(group.locator(".segmented-highlight")).toHaveCount(0);
+  await expect(system).toHaveAttribute("aria-pressed", "true");
+  await expect(system).toHaveCSS("font-weight", "600");
+  await expect(system).toHaveCSS("color", "rgb(0, 105, 217)");
+  await expect(system).toHaveCSS("background-color", "rgba(0, 0, 0, 0)");
+  // Roving tabindex: only the chosen segment is in the tab order.
+  await expect(system).toHaveAttribute("tabindex", "0");
+  await expect(dark).toHaveAttribute("tabindex", "-1");
+  await system.focus();
+  await page.keyboard.press("End");
+  await expect(dark).toBeFocused();
+  await expect(dark).toHaveAttribute("aria-pressed", "true");
+  await expect(dark).toHaveAttribute("tabindex", "0");
+  await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
+  await page.keyboard.press("Home");
+  await expect(system).toBeFocused();
+  await expect(system).toHaveAttribute("aria-pressed", "true");
 });
 
 // ---- Palette: Plain / Color -------------------------------------------------
@@ -350,97 +381,23 @@ test("Choosing Plain again restores Plain selected text color", async ({ page })
   );
 });
 
-test("sidebar highlight tracks the selected row and moves to another section", async ({ page }) => {
+test("a selected entry is bold alone: its section title steps back and no highlight box shows", async ({ page }) => {
   await page.emulateMedia({ colorScheme: "light" });
   await page.goto("/");
   await page.getByRole("button", { name: "Start new project" }).click();
   await page.getByRole("button", { name: "Blank", exact: true }).click();
-  await page.getByLabel("Project title").fill("Sliding highlight");
+  await page.getByLabel("Project title").fill("Doubling check");
   await page.getByRole("button", { name: "Save", exact: true }).click();
-  await page.getByRole("button", { name: "New section", exact: true }).click();
-  await page.getByLabel("Title", { exact: true }).fill("Second section");
-  await page.getByRole("button", { name: "Save", exact: true }).click();
+  const hasHas = await page.evaluate(() => CSS.supports("selector(:has(*))"));
+  test.skip(!hasHas, "engine without :has");
 
-  const highlight = page.locator(".sidebar-groups > .sidebar-highlight");
-  const selectedRow = page.locator(".sidebar-groups .entry-row.selected").first();
-  await expect(selectedRow).toBeVisible();
-  await expect(highlight).toHaveCount(1);
-  const alignedWithinOnePixel = async (target: typeof selectedRow) => {
-    const [actual, expected] = await Promise.all([
-      highlight.boundingBox(),
-      target.boundingBox(),
-    ]);
-    expect(actual).not.toBeNull();
-    expect(expected).not.toBeNull();
-    for (const key of ["x", "y", "width", "height"] as const) {
-      expect(Math.abs(actual![key] - expected![key]), key).toBeLessThanOrEqual(1);
-    }
-  };
-
-  await page.waitForTimeout(400);
-  await alignedWithinOnePixel(selectedRow);
-  await page.screenshot({ path: "node_modules/.cache/personal-word-beta/ui2-u7/screens/plain-light.png" });
-  const otherSection = page.locator('.sidebar-group[data-group="manuscript"] .entry-main').first();
-  await otherSection.click();
-  await expect.poll(async () => {
-    const [actual, expected] = await Promise.all([
-      highlight.boundingBox(),
-      otherSection.boundingBox(),
-    ]);
-    return !!actual && !!expected &&
-      Math.abs(actual.x - expected.x) <= 1 &&
-      Math.abs(actual.y - expected.y) <= 1 &&
-      Math.abs(actual.width - expected.width) <= 1 &&
-      Math.abs(actual.height - expected.height) <= 1;
-  }, { timeout: 1000 }).toBe(true);
-
-  await page.getByRole("button", { name: "Settings", exact: true }).click();
-  const appearance = page.getByRole("group", { name: "Appearance" });
-  const palette = page.getByRole("group", { name: "Palette" });
-  await appearance.getByRole("button", { name: "Dark", exact: true }).click();
-  await palette.getByRole("button", { name: "Color", exact: true }).click();
-  await otherSection.click();
-  await page.waitForTimeout(250);
-  await page.screenshot({ path: "node_modules/.cache/personal-word-beta/ui2-u7/screens/color-dark.png" });
-
-  await page.getByRole("button", { name: "Settings", exact: true }).click();
-  await appearance.getByRole("button", { name: "Light", exact: true }).click();
-  await otherSection.click();
-  await page.waitForTimeout(250);
-  await page.screenshot({ path: "node_modules/.cache/personal-word-beta/ui2-u7/screens/color-light.png" });
-
-  await page.getByRole("button", { name: "Settings", exact: true }).click();
-  await palette.getByRole("button", { name: "Plain", exact: true }).click();
-  await appearance.getByRole("button", { name: "Dark", exact: true }).click();
-  await otherSection.click();
-  await page.waitForTimeout(250);
-  await page.screenshot({ path: "node_modules/.cache/personal-word-beta/ui2-u7/screens/plain-dark.png" });
-});
-
-test("segmented highlight follows the pressed appearance option", async ({ page }) => {
-  await page.emulateMedia({ colorScheme: "light" });
-  await page.goto("/");
-  await page.getByRole("button", { name: "Start new project" }).click();
-  await page.getByRole("button", { name: "Blank", exact: true }).click();
-  await page.getByLabel("Project title").fill("Segmented highlight");
-  await page.getByRole("button", { name: "Save", exact: true }).click();
-  await page.getByRole("button", { name: "Settings", exact: true }).click();
-
-  const segmented = page.getByRole("group", { name: "Appearance" });
-  const highlight = segmented.locator(".segmented-highlight");
-  const dark = segmented.getByRole("button", { name: "Dark", exact: true });
-  await expect(highlight).toHaveCount(1);
-  await dark.click();
-  await expect(dark).toHaveAttribute("aria-pressed", "true");
-  await page.waitForTimeout(250);
-  const [actual, expected] = await Promise.all([
-    highlight.boundingBox(),
-    dark.boundingBox(),
-  ]);
-  expect(actual).not.toBeNull();
-  expect(expected).not.toBeNull();
-  for (const key of ["x", "y", "width", "height"] as const) {
-    expect(Math.abs(actual![key] - expected![key]), key).toBeLessThanOrEqual(1);
+  const entry = page.locator('.sidebar-group[data-group="manuscript"] .entry-row .entry-main').first();
+  await entry.click();
+  const selectedRow = page.locator('.sidebar-group[data-group="manuscript"] .entry-row.selected');
+  await expect(selectedRow.locator(".entry-main")).toHaveCSS("font-weight", "600");
+  await expect(page.locator('.sidebar-group[data-group="manuscript"] .group-title')).not.toHaveCSS("font-weight", "600");
+  for (const box of await page.locator(".sidebar-highlight, .segmented-highlight").all()) {
+    await expect(box).toBeHidden();
   }
 });
 
@@ -473,5 +430,68 @@ for (const mode of [
     await choosePalette(page, "Plain");
     await expect(page.getByText("Section colours", { exact: true })).toHaveCount(0);
     await expect(page.locator('.sidebar-group[data-group="manuscript"] .group-title svg').first()).toHaveCSS("color", mode.plain);
+  });
+}
+
+// Icon-only buttons: hover/focus -> text, pressed -> accent, trash hover and
+// keyboard focus -> danger. These fail when the base muted rule out-ranks the
+// state rules (a specificity bug the old Snapshot-hover check could not see).
+async function tokenColor(page: import("@playwright/test").Page, token: string) {
+  return page.evaluate((t) => {
+    const probe = document.createElement("span");
+    probe.style.color = `var(${t})`;
+    document.body.appendChild(probe);
+    const value = getComputedStyle(probe).color;
+    probe.remove();
+    return value;
+  }, token);
+}
+
+for (const scheme of ["light", "dark"] as const) {
+  test(`icon buttons recolour on hover, focus and press (${scheme})`, async ({
+    page,
+  }) => {
+    await page.emulateMedia({ colorScheme: scheme, reducedMotion: "reduce" });
+    await page.goto("/");
+    await page.getByRole("button", { name: "Start new project" }).click();
+    await page.getByRole("button", { name: "Blank", exact: true }).click();
+    await page.getByLabel("Project title").fill("Icon colours");
+    await page.getByRole("button", { name: "Save", exact: true }).click();
+    const text = await tokenColor(page, "--text");
+    const muted = await tokenColor(page, "--muted");
+    const accent = await tokenColor(page, "--accent");
+    const danger = await tokenColor(page, "--danger");
+    expect(new Set([text, muted, accent, danger]).size).toBe(4);
+
+    // Reorder arrow: muted at rest, text on hover.
+    const row = page.locator(".sidebar .entry-row, .sidebar .group-title").first();
+    await row.hover();
+    const arrow = page.locator(".sidebar .reorder button:not(:disabled)").first();
+    await expect(arrow).toBeVisible();
+    await arrow.hover();
+    await expect.soft(arrow).toHaveCSS("color", text);
+
+    // Pressed icon: the pinned-sidebar toggle reads accent when aria-pressed.
+    const pin = page.locator(".sidebar-pin");
+    if ((await pin.getAttribute("aria-pressed")) !== "true") await pin.click();
+    await expect(pin).toHaveAttribute("aria-pressed", "true");
+    await page.mouse.move(600, 400);
+    await expect.soft(pin).toHaveCSS("color", accent);
+    await pin.click(); // restore the default
+    await page.mouse.move(600, 400);
+    await expect.soft(pin).toHaveCSS("color", muted);
+
+    // Trash on the Projects screen: muted, danger on hover and on keyboard focus.
+    await page.getByRole("button", { name: "Projects", exact: true }).click();
+    const trash = page.locator(".project-row .delete-entry").first();
+    await page.locator(".project-row").first().hover();
+    await trash.hover();
+    await expect.soft(trash).toHaveCSS("color", danger);
+    await page.mouse.move(0, 0);
+    await trash.focus();
+    await page.keyboard.press("Shift+Tab");
+    await page.keyboard.press("Tab");
+    await expect(trash).toBeFocused();
+    await expect.soft(trash).toHaveCSS("color", danger);
   });
 }

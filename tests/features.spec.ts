@@ -113,7 +113,7 @@ async function toolbarButton(page: any, name: string) {
     await page.getByRole("button", { name: "More formatting" }).click();
   return button;
 }
-test("page layout reflows long paragraphs and preserves undo and formatting", async ({
+test("page layout stacks long paragraphs vertically and preserves undo and formatting", async ({
   page,
 }) => {
   await page.goto("/");
@@ -128,14 +128,20 @@ test("page layout reflows long paragraphs and preserves undo and formatting", as
   await page.keyboard.press("Escape");
   await (await toolbarButton(page, "Page view")).click();
   await expect(page.getByLabel("Page count")).toContainText(/of [2-9]/);
+  // Pages stack vertically: one paragraph taller than a page runs down across
+  // the gap (it is never split into columns), and nothing scrolls sideways.
   await expect
     .poll(() =>
-      editor
-        .locator("p")
-        .first()
-        .evaluate((el) => el.getClientRects().length),
+      page.locator(".editor-paper").evaluate((el) => el.offsetHeight),
     )
-    .toBeGreaterThan(1);
+    .toBeGreaterThan(2 * 1056);
+  const viewport = page.locator(".editor-viewport");
+  expect(
+    await viewport.evaluate((el) => el.scrollWidth - el.clientWidth),
+  ).toBe(0);
+  expect(
+    await editor.locator("p").first().evaluate((el) => el.getClientRects().length),
+  ).toBe(1);
   await (await toolbarButton(page, "Page view")).click();
   await editor.fill("Before");
   await page.waitForTimeout(600);

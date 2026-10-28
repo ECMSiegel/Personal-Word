@@ -1,0 +1,28 @@
+{
+  "id": "T170",
+  "title": "writing-aids.spec:21 focus mode flakes (pre-existing)",
+  "description": "Fails 3/5 on the T168 build and 1/5 on the pre-split build (ui3-wordsplit/pw-flakes.log, pw-focus-old.log): p.nth(1) lacks focus-dim right after ArrowUp/Home; likely the Tiptap focus race fixed in pages.spec by T165. Test-only fix expected.",
+  "status": "available",
+  "owner": null,
+  "priority": 3,
+  "depends_on": [],
+  "files": [
+    "tests/writing-aids.spec.ts",
+    "node_modules/.cache/personal-word-beta/ui3-focusflake"
+  ],
+  "review_required": true,
+  "created_by": "agent-47c8",
+  "created_at": "2026-10-28T21:33:11+00:00",
+  "claimed_at": null,
+  "updated_at": "2026-10-28T21:33:11+00:00",
+  "handoff": null,
+  "review": null,
+  "log": [
+    {
+      "at": "2026-10-28T21:33:11+00:00",
+      "agent": "agent-47c8",
+      "event": "created",
+      "note": ""
+    }
+  ]
+}

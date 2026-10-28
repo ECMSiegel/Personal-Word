@@ -143,6 +143,9 @@ describe("design tokens", () => {
   it("defines pressed states and one focus ring recipe", () => {
     const styles = read("src/styles.css");
     expect(styles).toMatch(/button:active:not\(:disabled\)/);
+    const press = cssRules(styles).find((r) => r.selector === "button:active:not(:disabled)");
+    expect(press?.body).toMatch(/transform:\s*scale\(0\.99\)/);
+    expect(press?.body).not.toMatch(/background/);
     expect(styles).toMatch(/\.primary:active:not\(:disabled\)/);
     const dropdown = read("src/components/dropdown.css");
     expect(dropdown).toMatch(/\.dropdown-button:active:not\(:disabled\)/);
@@ -155,6 +158,34 @@ describe("design tokens", () => {
     expect(styles).toMatch(/--focus-ring:\s*2px solid var\(--accent\)/);
     expect(styles).toMatch(/--pressed:\s*var\(--line\)/);
     expect(styles).toMatch(/--disabled-opacity:\s*0\.35/);
+  });
+  it("paints no grey box on hover or press in any stylesheet", () => {
+    // Hover, focus and selection show by colour or weight, never by a fill.
+    // Accent-coloured thin handles and the primary button are not boxes.
+    const GREY = /--(surface|pressed|sidebar|line|paper|elevation|selection)|color-mix|rgba?\(|#[0-9a-f]{3,8}/i;
+    const files: string[] = [];
+    const walk = (dir: string) => {
+      for (const entry of readdirSync(join(process.cwd(), dir), { withFileTypes: true })) {
+        const path = `${dir}/${entry.name}`;
+        if (entry.isDirectory()) walk(path);
+        else if (entry.name.endsWith(".css")) files.push(path);
+      }
+    };
+    walk("src");
+    const violations: string[] = [];
+    for (const file of files) {
+      for (const rule of cssRules(read(file))) {
+        const selectors = rule.selector.replace(/\s+/g, " ").split(/,(?![^(]*\))/).map((s) => s.trim());
+        const live = selectors.filter((s) => /:(hover|active|focus-visible)|\[data-highlighted/.test(s));
+        if (live.length === 0) continue;
+        for (const d of declarations(rule.body)) {
+          if (/^background(-color)?$/.test(d.prop) && GREY.test(d.value)) {
+            violations.push(`${file} ${live[0]} { ${d.prop}: ${d.value.replace(/\s+/g, " ")} }`);
+          }
+        }
+      }
+    }
+    expect(violations).toEqual([]);
   });
   it("keeps the dark tokens identical in the System media block and the Dark override", () => {
     const rules = cssRules(read("src/styles.css"));
@@ -266,6 +297,52 @@ describe("design tokens", () => {
       }
     }
   });
+  it("draws separators, tabular counters, 24 px hit areas and the optical hook", () => {
+    const styles = read("src/styles.css");
+    const rules = cssRules(styles);
+    const bodies = (predicate: (selector: string) => boolean) =>
+      rules.filter((r) => predicate(r.selector));
+    const withBody = (predicate: (selector: string) => boolean, body: RegExp) =>
+      bodies(predicate).filter((r) => body.test(r.body));
+
+    const separator = bodies((s) => s === ".separator");
+    expect(separator.length).toBe(1);
+    expect(separator[0].body).toMatch(/width:\s*1px/);
+    expect(separator[0].body).toMatch(/background:\s*var\(--line\)/);
+
+    const vertical = bodies(
+      (s) =>
+        s.includes(".separator") && s.includes('[aria-orientation="vertical"]'),
+    );
+    expect(vertical.length).toBe(1);
+    expect(vertical[0].body).toMatch(/height:\s*auto/);
+    expect(vertical[0].body).toMatch(/align-self:\s*stretch/);
+
+    const tabular = withBody(
+      () => true,
+      /font-variant-numeric:\s*tabular-nums/,
+    );
+    expect(tabular.length).toBeGreaterThan(0);
+    const counters = tabular.map((r) => r.selector).join(" ");
+    expect(counters).toContain(".document-statistics");
+    expect(counters).toContain(".save-status");
+
+    const hit = withBody(
+      (s) => s.endsWith("::after") && s.includes(".icon-button"),
+      /position:\s*absolute/,
+    );
+    expect(hit.length).toBe(1);
+    expect(hit[0].selector).toContain(".toolbar-icon");
+    expect(hit[0].body).toMatch(/width:\s*max\(24px,\s*100%\)/);
+    expect(hit[0].body).toMatch(/height:\s*max\(24px,\s*100%\)/);
+
+    const optical = withBody(
+      (s) => s.includes("> svg") && s.includes(".toolbar-icon"),
+      /translate\(var\(--optical-x,\s*0\),\s*var\(--optical-y,\s*0\)\)/,
+    );
+    expect(optical.length).toBe(1);
+  });
+
   it("sizes every icon at 16 px (chevrons 14 px) with one stroke", () => {
     const files: string[] = [];
     const walk = (dir: string) => {

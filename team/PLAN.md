@@ -16,6 +16,7 @@ Addendum 2026-10-25 (owner approved): also execute `docs/agent-work/2026-10-25-c
 Addendum 2026-10-25 (owner approved, UI polish): also execute `docs/agent-work/2026-10-25-ui-polish/PLAN.md` tasks T0-T11 and its Validation list, one board task each, following that plan's files, interfaces, fail-first checks, acceptance commands and the five answered open questions; the chain T1 -> T2 -> T4 -> T5 -> T7 -> T8 -> T9 runs serially because each edits `src/styles.css` or `ProjectLibrary.tsx`; T0, T3 and T6 may run alongside.
 
 Addendum 2026-10-26 (owner approved, UI wave 2): also execute `docs/agent-work/2026-10-26-ui-wave-2/PLAN.md` tasks U1-U21 (board T098-T118) and its Validation list, one board task each, with its files, fail-first checks, acceptance commands and the seven answered open questions; U1-U14 and U16-U21 run as a serial chain, U15 and U17 may run alongside.
+Addendum 2026-10-28 (owner approved, UI wave 3): also execute `docs/agent-work/2026-10-28-ui-wave-3/PLAN.md` tasks E1-E3, A1-A5, S1-S3, N1-N4, D1-D2, P1-P2, K2 and V (board T131-T151), one board task each, with its files, fail-first checks and acceptance commands; lanes run in parallel and the board file-overlap check is the only sequencing inside a lane.
 
 ## Non-goals
 No signing or distribution work, publishing or pushing, new packages, unrelated redesign, or changes to real user data. Layout implementation beyond WP8 is conditional on WP8 passing its feasibility check; follow its stop rules if the probe fails.
@@ -66,6 +67,7 @@ Run expensive builds, Playwright, cargo, and native checks one at a time, in the
 - [x] Cheap-fixes plan (2026-10-25) tasks T1-T8 are done with independent reviews, the plan's validation list has run, and README/validation.md no longer list the fixed items.
 - [x] UI polish plan (2026-10-25) tasks T0-T11 are done with independent reviews, its validation list has run, native screenshots were viewed, and the owner hand checks are prepared with status CLAIMED.
 - [x] UI wave 2 plan (2026-10-26) tasks U1-U21 are done with independent reviews, its validation list has run, native screenshots were viewed, and the owner hand checks are prepared with status CLAIMED.
+- [x] UI wave 3 plan (2026-10-28) tasks E1-V are done with independent reviews, its validation list has run, native screenshots were viewed, and the owner hand checks are prepared with status CLAIMED.
 
 ## Milestones
 1. Reconcile the current working tree and existing implementation/review reports before assigning remaining work.

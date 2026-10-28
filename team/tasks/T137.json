@@ -1,0 +1,62 @@
+{
+  "id": "T137",
+  "title": "UI wave 3 A4: Global settings from the Projects screen (App lane)",
+  "description": "Follow docs/agent-work/2026-10-28-ui-wave-3/PLAN.md section A4 exactly (Files, Interfaces, Steps, Acceptance check, Fail-first, Stop-and-ask, Default) and read its Context, Rules and Notes for the implementer first; RESEARCH.md beside it has the evidence. House rules: register paths = this task's seeded Files (already registered on claim; add more only via files add); serial slot (node_modules/.cache/personal-word-beta/team-serial-check-slot) via files add right before the first expensive check and keep it until done; pinned Node; quoted --outDir on PREVIEW port 1600+N; never edit docs/design-system.md (write DESIGN DOC: text in the done note); motion checks in tests/motion-uN.spec.ts; native rendering runs only with the screen unlocked, by Claude agents or the owner; never put backticks in double-quoted shell text; no installs, no commits; status CLAIMED; independent review required.",
+  "status": "done",
+  "owner": null,
+  "priority": 2,
+  "depends_on": [],
+  "files": [
+    "src/settings/GeneralSettings.tsx",
+    "src/App.tsx",
+    "src/components/ProjectLibrary.tsx",
+    "src/components/library.css",
+    "tests/projects-screen.spec.ts",
+    "node_modules/.cache/personal-word-beta/ui3-a4",
+    "node_modules/.cache/personal-word-beta/team-serial-check-slot"
+  ],
+  "review_required": true,
+  "created_by": "agent-9d21",
+  "created_at": "2026-10-28T04:50:55+00:00",
+  "claimed_at": "2026-10-28T08:43:51+00:00",
+  "updated_at": "2026-10-28T09:16:28+00:00",
+  "handoff": null,
+  "review": {
+    "by": "agent-9d68",
+    "at": "2026-10-28T09:16:28+00:00",
+    "verdict": "approved",
+    "note": "A4 verified: tsc 0 (rerun), evidence newer than sources, 58 passed incl. gear test; light+dark dialog screenshots viewed"
+  },
+  "log": [
+    {
+      "at": "2026-10-28T04:50:55+00:00",
+      "agent": "agent-9d21",
+      "event": "created",
+      "note": ""
+    },
+    {
+      "at": "2026-10-28T08:43:51+00:00",
+      "agent": "agent-a6ec",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-10-28T08:43:54+00:00",
+      "agent": "agent-a6ec",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-10-28T09:15:09+00:00",
+      "agent": "agent-a6ec",
+      "event": "review requested",
+      "note": "T137 (A4) global settings from the Projects screen -- done.\n\nWHAT CHANGED. src/settings/GeneralSettings.tsx (new): the General block lifted out of App.tsx without behaviour or storage-key changes (restore tabs, Appearance, Palette, Section colours only when the palette is Color, reveal sidebar on hover, storage location), with the plan's prop contract and the children slot K2 fills. src/App.tsx: one generalSettings element defined once and rendered in the Settings destination and passed to ProjectLibrary, so the two copies cannot drift; the now-unused Segmented, SWATCHES, Palette, Swatch and Theme imports removed (noUnusedLocals is on). src/components/ProjectLibrary.tsx: settings?: ReactNode, a gear button[aria-label=\"Settings\"] (lucide Settings, 16 px) as the rightmost child of .library-display, and a ModalFrame titled Settings with a Close button. src/components/library.css: the dialog frame rules. tests/projects-screen.spec.ts: one new test (line 507).\n\nINTERFACE DEVIATION (one, additive). The plan's prop list has no way to raise the app's notice, and the General block's Show path button must keep raising it. I added optional onShowPath?: (path: string) => void; App passes setNotice. storagePath stays string | null as specified. No other signature differs.\n\nFAIL-FIRST. Done in a scratch copy, never by reverting the shared tree (coordinator rule #714): ui3-a4/prefix is a full rsync of the repo minus node_modules, src-tauri, .git, test-results and dist, with node_modules symlinked; only the gear button and the settings modal were removed there. The new test against that build fails at expect(gear).toHaveAccessibleName(\"Settings\") with \"element(s) not found\" -- the intended assertion, not an unrelated error. Log: node_modules/.cache/personal-word-beta/ui3-a4/prefix-failfirst.log (playwright exit 1), scratch build log prefix-build.log (exit 0). Note for other agents: Playwright refuses to strip types for spec files under node_modules, so the scratch copy is served with the repo's own tests/ directory against the scratch dist (ui3-a4/prefix.config.mjs).\n\nACCEPTANCE (all evidence kept in the task cache per coordinator #736). npx tsc --noEmit -p . exit 0 (ui3-a4/typecheck.log); npx vite build to ui3-a4/dist exit 0 (ui3-a4/build.log); PREVIEW(7) tests/projects-screen.spec.ts tests/appearance.spec.ts -> 58 passed, 0 failed (ui3-a4/acceptance.log, ui3-a4/report.json), including the new gear test at 507 (694 ms). Pinned Node v22.23.3. Serial slot held by this task while the run was in flight.\n\nVISUAL REVIEW FOUND AND FIXED A REAL DEFECT. First screenshots showed the lifted block unstyled inside the dialog: checkbox above its label, Appearance and Palette labels inline, rows cramped. Cause: every .settings-field / .settings-check / .settings-form / .settings-section layout rule lives in src/research/research.css scoped under .project-settings, which the dialog body did not have. Fix: the dialog body now carries .project-settings as well, so the shared rules apply unchanged, and library.css overrides only the frame (no page padding, page width, scroll container or top rule under a heading the dialog already carries) and widens the dialog to 560 px, because the shared 180 px + 12 + 260 px field grid cannot fit a 420 px dialog. The width rule uses .dialog:has(.library-settings-body); on an engine without :has the dialog stays 420 px and the control column shrinks (it is minmax(0, 260px)), so nothing overflows. Re-ran the full acceptance after the fix: tsc 0, build 0, 58 passed. Viewed at 2x: ui3-a4/shots/projects-light.png, projects-dark.png, settings-dialog-light.png, settings-dialog-dark.png, plus settings-destination-light.png and settings-destination-dark.png proving the General block in its original home is unchanged (heading, top rule, Sidebar and Goals below all intact). The gear needs no new styling: S1's icon-button selector list already covers .library-display > button, so it matches the sort and view buttons.\n\nDESIGN DOC (for D2/T150). Settings has one General block, defined once and shown in two places: the Settings destination and a Settings dialog opened from the gear at the right of the Projects screen's display row. The dialog reuses the destination's field grid rather than a second layout, so the two cannot drift; the dialog is 560 px wide to hold the 180 px label column and 260 px control column, hides the block's own heading because the dialog title carries it, and drops the section's top rule and page padding. The dialog closes on Escape or Close and returns focus to the gear. Project settings (Sidebar, Goals) stay in the destination and never appear in the dialog. The gear is an icon button and follows the icon-button recipe.\n\nPATH STATES. src/settings/GeneralSettings.tsx untracked new file; src/App.tsx, src/components/ProjectLibrary.tsx, src/components/library.css, tests/projects-screen.spec.ts uncommitted edits; src/research/research.css untouched (read only); node_modules/.cache/personal-word-beta/ui3-a4 holds run scripts, logs, report.json, the scratch prefix and the shots; the serial check slot is released by this done. App.tsx and ProjectLibrary.tsx are now free for T148 (K2) and T149 (N4).\n\nLIMITS. Browser preview only -- no native GUI run was assigned, so macOS WebKit rendering of the dialog is unconfirmed; the :has width rule was exercised in Chromium. The dialog's field grid is the destination's, so a future change to that grid changes both places by design."
+    },
+    {
+      "at": "2026-10-28T09:16:28+00:00",
+      "agent": "agent-9d68",
+      "event": "approved",
+      "note": "A4 verified: tsc 0 (rerun), evidence newer than sources, 58 passed incl. gear test; light+dark dialog screenshots viewed"
+    }
+  ]
+}

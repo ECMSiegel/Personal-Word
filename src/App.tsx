@@ -39,6 +39,7 @@ import {
 } from "./save-queue";
 import { Writer } from "./Writer";
 import { SplitDivider } from "./components/SplitDivider";
+import "./components/split.css";
 import {
   activeOf,
   closeRight,
@@ -60,17 +61,15 @@ import { ProjectLibrary } from "./components/ProjectLibrary";
 import { ProjectSidebar } from "./components/ProjectSidebar";
 import { ReadDocument } from "./components/ReadDocument";
 import { Dropdown } from "./components/Dropdown";
-import { Segmented } from "./components/Segmented";
 import {
   applyAppearance,
   nextTheme,
   readAppearance,
-  SWATCHES,
   writeAppearance,
-  type Palette,
-  type Swatch,
-  type Theme,
 } from "./appearance";
+import { GeneralSettings } from "./settings/GeneralSettings";
+import { ShortcutsSettings } from "./settings/ShortcutsSettings";
+import { readShortcuts, resolveChord, writeShortcuts, type ShortcutOverrides } from "./shortcuts/store";
 import { readSidebarPreferences, writeSidebarPreferences } from "./sidebarPreferences";
 import { footnoteText } from "./research/citations";
 import { resolveCitationContext, type SectionReferences } from "./research/noteForms";
@@ -115,6 +114,14 @@ function readPreference<T>(key: string, fallback: T): T {
 }
 const asideMin = 260;
 const asideMax = 720;
+function showBibliography(project: Project): boolean {
+  return (
+    project.templateId === "chicago" ||
+    (project.research?.sources.length ?? 0) > 0 ||
+    (project.research?.footnotes ?? []).some((n) => n.sourceId)
+  );
+}
+
 function clampAside(width: number) {
   return Math.max(asideMin, Math.min(asideMax, Math.round(width)));
 }
@@ -276,6 +283,11 @@ export default function App() {
   const [project, setProject] = useState<Project | null>(null);
   const projectIndex = useRef(createProjectIndex());
   const projectSummary = useMemo(() => project ? projectIndex.current.update(null, project) : null, [project]);
+  const [shortcuts, setShortcuts] = useState(() => readShortcuts(localStorage));
+  const changeShortcuts = (next: ShortcutOverrides) => {
+    setShortcuts(next);
+    writeShortcuts(localStorage, next);
+  };
   const [focusMode, setFocusMode] = useState(() => readPreference("personal-word.focus-mode", false));
   const [proseCheck, setProseCheck] = useState(() => readPreference("personal-word.prose-check", false));
   useEffect(() => {
@@ -797,31 +809,30 @@ export default function App() {
     });
   useEffect(() => {
     const handler = (event: KeyboardEvent) => {
-      if (!(event.metaKey || event.ctrlKey)) return;
-      const key = event.key.toLowerCase();
-      if (key === "s") {
+      const action = resolveChord(event, shortcuts);
+      if (action === "save") {
         event.preventDefault();
         void run(saveAll);
       }
-      if (key === "\\") {
+      if (action === "toggleSidebar") {
         event.preventDefault();
         window.dispatchEvent(new Event("personal-word:toggle-sidebar"));
       }
-      if (key === "k") {
+      if (action === "findInProject") {
         event.preventDefault();
         document
           .querySelector<HTMLInputElement>('[aria-label="Search project"]')
           ?.focus();
       }
-      if (event.shiftKey && key === "n" && current.current) {
+      if (action === "newSection" && current.current) {
         event.preventDefault();
         add("section");
       }
-      if (event.shiftKey && key === "s" && current.current) {
+      if (action === "snapshot" && current.current) {
         event.preventDefault();
         snapshot();
       }
-      if (event.shiftKey && key === "l") {
+      if (action === "toggleAppearance") {
         event.preventDefault();
         setAppearance((a) => ({
           ...a,
@@ -846,6 +857,10 @@ export default function App() {
       );
     }
   }, [project?.id, project?.title, active, mode, destination]);
+  useEffect(() => {
+    if (project && destination === "bibliography" && !showBibliography(project))
+      setDestination("manuscript");
+  }, [project, destination]);
   const item = project?.entries.find((e) => e.id === active);
   // One bibliography for the page, the reader and the Research panel; built
   // only where it is shown so typing elsewhere does not rebuild it.
@@ -937,13 +952,6 @@ export default function App() {
             x.id === e.id ? { ...x, title, updatedAt: now() } : x,
           ),
         })),
-    });
-  const renameProject = () =>
-    setNameDialog({
-      title: "Rename project",
-      label: "Project title",
-      value: current.current?.title ?? "",
-      action: (title) => mutate((p) => ({ ...p, title })),
     });
   const remove = (e: Entry) =>
     setChoice({
@@ -1635,10 +1643,11 @@ export default function App() {
       return { ...p, goals: Object.keys(next).length ? next : undefined };
     });
   };
-  const renderWriter = (entry: Entry, side: Side) =>
+  const renderWriter = (entry: Entry, side: Side, inSplit = false) =>
     project && (
       <Writer
         key={entry.id + ":" + editorEpoch}
+        shortcuts={shortcuts}
         focusMode={focusMode}
         proseCheck={proseCheck}
         onToggleFocusMode={() => setFocusMode((value) => !value)}
@@ -1752,7 +1761,7 @@ export default function App() {
           )
         }
         header={
-          entry.origin ? (
+          inSplit ? undefined : entry.origin ? (
             <p className="origin">
               Kept from “{entry.origin.sectionTitle}” --{" "}
               {new Date(entry.origin.removedAt).toLocaleDateString()}
@@ -1760,7 +1769,7 @@ export default function App() {
           ) : undefined
         }
         footer={
-          entry.kind === "fragment" ? (
+          !inSplit && entry.kind === "fragment" ? (
             <div className="restore-fragment">
               <span>Give these words a home</span>
               <Dropdown
@@ -1805,6 +1814,33 @@ export default function App() {
     const editor = paneEditors.current[focusedPane];
     if (editorRef.current !== editor) editorReady(editor);
   }, [focusedPane, editorReady]);
+  // One element, shown in the Settings destination and in the Projects-screen
+  // dialog, so the two cannot drift apart.
+  const generalSettings = (
+    <GeneralSettings
+      appearance={appearance}
+      onAppearance={setAppearance}
+      hoverReveal={hoverReveal}
+      onHoverReveal={(value) => {
+        setHoverReveal(value);
+        writeSidebarPreferences(localStorage, {
+          ...readSidebarPreferences(localStorage),
+          hover: value,
+        });
+      }}
+      restoreTabs={restoreTabs}
+      onRestoreTabs={(value) => {
+        setRestoreTabs(value);
+        localStorage.setItem("personal-word.restoreTabs", JSON.stringify(value));
+      }}
+      storagePath={path}
+      onShowPath={setNotice}
+    >
+      <section className="settings-section">
+        <ShortcutsSettings overrides={shortcuts} onChange={changeShortcuts} />
+      </section>
+    </GeneralSettings>
+  );
   return (
     <div className="app-shell">
       <ProjectTabs
@@ -1842,6 +1878,7 @@ export default function App() {
             onImportWriting={(file) => void run(() => importWriting(file))}
             dropEnabled={!busy && !importBusy && !importPreview && !nameDialog && !choice}
             onDropError={(message) => setError(message)}
+            settings={generalSettings}
             damagedJournals={damagedJournals}
             onExportJournal={(d) =>
               download(d.key + ".txt", d.raw, "text/plain")
@@ -1891,11 +1928,18 @@ export default function App() {
               }
               collectionItems={{
                 research: [
-                  { id: "bibliography", title: "Bibliography" },
+                  ...(showBibliography(project)
+                    ? [{ id: "bibliography", title: "Bibliography" }]
+                    : []),
                   ...(project.research?.sources ?? []).flatMap((s) => [
                     { id: s.id, title: sourceSummary(s) },
                     ...(s.pdf ? [{ id: `pdf:${s.id}`, title: s.pdf.name, depth: 1 as const, beside: { kind: "pdf" as const, sourceId: s.id } }] : []),
                   ]),
+                  ...(project.research?.notes ?? []).map((n) => ({
+                    id: n.id,
+                    title: n.text.slice(0, 70) || "Research note",
+                    detail: n.kind,
+                  })),
                 ],
                 comments: (project.annotations ?? [])
                   .filter((a) => !a.resolved)
@@ -1917,7 +1961,15 @@ export default function App() {
                   });
                 if (group === "research" && id === "bibliography")
                   setDestination("bibliography");
-                else if (group === "research") {
+                else if (
+                  group === "research" &&
+                  project.research?.notes.some((n) => n.id === id)
+                ) {
+                  setResearchTab("notes");
+                  setFocusFootnote(undefined);
+                  setFocusSource(undefined);
+                  setResearchEpoch((n) => n + 1);
+                } else if (group === "research") {
                   setResearchTab("sources");
                   setFocusFootnote(undefined);
                   setFocusSource(id);
@@ -1984,41 +2036,36 @@ export default function App() {
                   >
                     <PanelLeftClose size={16} />
                   </button>
-                  <span className="breadcrumb">
-                    <button
-                      className="breadcrumb-title"
-                      title="Rename project"
-                      aria-label="Rename project"
-                      onClick={renameProject}
-                    >
-                      {project.title}
-                    </button>
-                    <span>/</span>
-                    {writing && item ? (
-                      <>
-                        <button
-                          className="breadcrumb-title"
-                          title={"Rename " + item.kind}
-                          aria-label={"Rename " + item.kind}
-                          onClick={() => rename(item)}
-                        >
-                          {item.title}
-                        </button>
-                        <button
-                          className="delete-entry"
-                          title={"Delete " + item.kind}
-                          aria-label={"Delete " + item.kind}
-                          onClick={() => remove(item)}
-                        >
-                          <Trash2 size={16} />
-                        </button>
-                      </>
-                    ) : destination === "bibliography" ? (
-                      "Bibliography"
-                    ) : (
-                      "Manuscript"
-                    )}
-                  </span>
+                  <nav className="breadcrumb" aria-label="Breadcrumb">
+                    <ol>
+                      <li aria-current="page">
+                        {writing && item ? (
+                          <>
+                            <button
+                              className="breadcrumb-title"
+                              title={"Rename " + item.kind}
+                              aria-label={"Rename " + item.kind}
+                              onClick={() => rename(item)}
+                            >
+                              {item.title}
+                            </button>
+                            <button
+                              className="delete-entry"
+                              title={"Delete " + item.kind}
+                              aria-label={"Delete " + item.kind}
+                              onClick={() => remove(item)}
+                            >
+                              <Trash2 size={16} />
+                            </button>
+                          </>
+                        ) : destination === "bibliography" ? (
+                          "Bibliography"
+                        ) : (
+                          "Manuscript"
+                        )}
+                      </li>
+                    </ol>
+                  </nav>
                 </div>
                 <div>
                   <span className={"save-status " + status.state}>
@@ -2086,120 +2133,7 @@ export default function App() {
               {destination === "settings" ? (
                 <div className="project-settings">
                   <h1>Project settings</h1>
-                  <section className="settings-section">
-                    <h2>General</h2>
-                    <label className="settings-check">
-                      <input
-                        type="checkbox"
-                        checked={restoreTabs}
-                        onChange={(e) => {
-                          setRestoreTabs(e.target.checked);
-                          localStorage.setItem(
-                            "personal-word.restoreTabs",
-                            JSON.stringify(e.target.checked),
-                          );
-                        }}
-                      />
-                      Restore open project tabs at launch
-                    </label>
-                    <div className="settings-form">
-                      <div className="settings-field">
-                        <span className="settings-label">Appearance</span>
-                        <Segmented<Theme>
-                          label="Appearance"
-                          value={appearance.theme}
-                          options={[
-                            { value: "system", label: "System" },
-                            { value: "light", label: "Light" },
-                            { value: "dark", label: "Dark" },
-                          ]}
-                          onChange={(theme) => setAppearance((a) => ({ ...a, theme }))}
-                        />
-                      </div>
-                      <div className="settings-field">
-                        <span className="settings-label">Palette</span>
-                        <Segmented<Palette>
-                          label="Palette"
-                          value={appearance.palette}
-                          options={[
-                            { value: "plain", label: "Plain" },
-                            { value: "color", label: "Color" },
-                          ]}
-                          onChange={(palette) => setAppearance((a) => ({ ...a, palette }))}
-                        />
-                      </div>
-                      {appearance.palette === "color" && (
-                        <div className="settings-field settings-field--wide">
-                          <span className="settings-label">Section colours</span>
-                          <div className="section-swatches">
-                            {(
-                              [
-                                ["manuscript", "Manuscript colour"],
-                                ["fragments", "Fragments colour"],
-                                ["research", "Research colour"],
-                              ] as const
-                            ).map(([section, label]) => (
-                              <Dropdown<Swatch>
-                                key={section}
-                                label={label}
-                                width="100%"
-                                value={appearance.sections[section]}
-                                options={SWATCHES.map((swatch) => {
-                                  const name = swatch[0].toUpperCase() + swatch.slice(1);
-                                  return {
-                                    value: swatch,
-                                    label: name,
-                                    render: (
-                                      <span className="swatch-option">
-                                        <span
-                                          aria-hidden="true"
-                                          className="swatch-chip"
-                                          data-swatch={swatch}
-                                        />
-                                        {name}
-                                      </span>
-                                    ),
-                                  };
-                                })}
-                                onChange={(swatch) =>
-                                  setAppearance((a) => ({
-                                    ...a,
-                                    sections: { ...a.sections, [section]: swatch },
-                                  }))
-                                }
-                              />
-                            ))}
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                    <label className="settings-check">
-                      <input
-                        type="checkbox"
-                        checked={hoverReveal}
-                        onChange={(e) => {
-                          setHoverReveal(e.target.checked);
-                          writeSidebarPreferences(localStorage, {
-                            ...readSidebarPreferences(localStorage),
-                            hover: e.target.checked,
-                          });
-                        }}
-                      />
-                      Reveal sidebar on hover
-                    </label>
-                    <div className="settings-form">
-                      <div className="settings-field">
-                        <span className="settings-label">Storage location</span>
-                        <button
-                          className="settings-button"
-                          title={path}
-                          onClick={() => setNotice(path)}
-                        >
-                          Show path
-                        </button>
-                      </div>
-                    </div>
-                  </section>
+                  {generalSettings}
                   <section className="settings-section">
                     <h2>Sidebar</h2>
                     {(
@@ -2495,23 +2429,73 @@ export default function App() {
                       </button>
                     </div>
                   )}
-                  {split && splitLeft ? (
-                    <>
-                      <div className="writer split-toolbar" ref={setSplitToolbar} />
-                      <div
-                        className="split-panes"
-                        style={{ "--split-ratio": splitRatio } as CSSProperties}
-                      >
+                  {split && splitLeft && (
+                    <div className="writer split-toolbar" ref={setSplitToolbar} />
+                  )}
+                  <div
+                    className="split-panes"
+                    key="split-panes"
+                    style={
+                      split && splitLeft
+                        ? ({ "--split-ratio": splitRatio } as CSSProperties)
+                        : undefined
+                    }
+                    data-single={split && splitLeft ? undefined : ""}
+                  >
                         <section
                           className="split-pane"
                           data-side="left"
-                          data-focused={split.focused === "left" ? "" : undefined}
+                          data-focused={split && splitLeft && split.focused === "left" ? "" : undefined}
                           aria-label="Left pane"
-                          onPointerDownCapture={() => changeSplit(focusSide(split, "left"))}
-                          onFocusCapture={() => changeSplit(focusSide(split, "left"))}
+                          onPointerDownCapture={
+                            split && splitLeft
+                              ? () => changeSplit(focusSide(split, "left"))
+                              : undefined
+                          }
+                          onFocusCapture={
+                            split && splitLeft
+                              ? () => changeSplit(focusSide(split, "left"))
+                              : undefined
+                          }
                         >
-                          {renderWriter(splitLeft, "left")}
+                          {split && splitLeft && (
+                            <div className="split-pane-header">
+                              <span className="split-pane-title">{splitLeft.title}</span>
+                              {splitLeft.origin && (
+                                <span className="split-pane-origin">
+                                  Kept from “{splitLeft.origin.sectionTitle}” --{" "}
+                                  {new Date(splitLeft.origin.removedAt).toLocaleDateString()}
+                                </span>
+                              )}
+                            </div>
+                          )}
+                          {renderWriter((split && splitLeft) || item, "left", Boolean(split && splitLeft))}
+                          {split && splitLeft && splitLeft.kind === "fragment" && (
+                            <div className="split-pane-footer">
+                              <div className="restore-fragment">
+                                <span>Give these words a home</span>
+                                <Dropdown
+                                  label="Restore fragment to section"
+                                  width={220}
+                                  value={target}
+                                  onChange={setTarget}
+                                  options={[
+                                    { value: "", label: "Choose a section" },
+                                    ...sections.map((e) => ({
+                                      value: e.id,
+                                      label: e.title,
+                                    })),
+                                  ]}
+                                />
+                                <button disabled={!target} onClick={restoreFragment}>
+                                  Append to section →
+                                </button>
+                              </div>
+                            </div>
+                          )}
                         </section>
+                        {split && splitLeft && (
+                          <>
                         <SplitDivider
                           ratio={splitRatio}
                           onRatio={(ratio) => {
@@ -2532,6 +2516,12 @@ export default function App() {
                             <span className="split-pane-title">{split.right.kind === "entry"
                               ? splitRight?.title
                               : splitPdfSource?.pdf?.name ?? "PDF"}</span>
+                            {splitRight?.origin && (
+                              <span className="split-pane-origin">
+                                Kept from “{splitRight.origin.sectionTitle}” --{" "}
+                                {new Date(splitRight.origin.removedAt).toLocaleDateString()}
+                              </span>
+                            )}
                             <button
                               className="split-close"
                               aria-label="Close right pane"
@@ -2542,16 +2532,37 @@ export default function App() {
                             </button>
                           </div>
                           {split.right.kind === "entry"
-                            ? splitRight && renderWriter(splitRight, "right")
+                            ? splitRight && renderWriter(splitRight, "right", true)
                             : (() => {
                                 return splitPdfSource ? <PdfPane projectId={project.id} source={splitPdfSource} /> : <p role="alert">This PDF is not stored in this project.</p>;
                               })()}
+                          {split.right.kind === "entry" && splitRight?.kind === "fragment" && (
+                            <div className="split-pane-footer">
+                              <div className="restore-fragment">
+                                <span>Give these words a home</span>
+                                <Dropdown
+                                  label="Restore fragment to section"
+                                  width={220}
+                                  value={target}
+                                  onChange={setTarget}
+                                  options={[
+                                    { value: "", label: "Choose a section" },
+                                    ...sections.map((e) => ({
+                                      value: e.id,
+                                      label: e.title,
+                                    })),
+                                  ]}
+                                />
+                                <button disabled={!target} onClick={restoreFragment}>
+                                  Append to section →
+                                </button>
+                              </div>
+                            </div>
+                          )}
                         </section>
-                      </div>
-                    </>
-                  ) : (
-                    renderWriter(item, "left")
-                  )}
+                          </>
+                        )}
+                  </div>
                 </div>
               ) : (
                 <div className="empty-editor">

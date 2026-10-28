@@ -63,7 +63,7 @@ test("(c) with Reduce Motion there are no running animations and panels change a
   await expect(page.locator(".sidebar-shell")).toHaveClass(/is-revealed/);
 });
 
-test("(d) opening the Sort dropdown animates only allowed properties and has one sliding highlight", async ({ page }) => {
+test("(d) opening the Sort dropdown animates only allowed properties and marks one item highlighted without a box", async ({ page }) => {
   await openProjects(page);
   const samples = await sampleDuring(page, () => sortButton(page).click());
   const listbox = page.getByRole("listbox", { name: "Sort projects" });
@@ -72,7 +72,8 @@ test("(d) opening the Sort dropdown animates only allowed properties and has one
   expect(props.length).toBeGreaterThan(0);
   expect(props.filter((p) => !ALLOWED.includes(p))).toEqual([]);
   await expect(listbox).toHaveClass(/\bpopover\b/);
-  await expect(listbox.locator(".popover-highlight")).toHaveCount(1);
+  await expect(listbox.locator(".popover-highlight")).toHaveCount(0);
+  await expect(listbox.locator("[data-popover-item][data-highlighted]")).toHaveCount(1);
   // Items are opaque from the first frame.
   const opacities = await listbox
     .locator("[data-popover-item]")
@@ -123,28 +124,31 @@ test("(f) with Reduce Motion a dropdown opens and closes at once with no animati
   expect(await page.evaluate(() => document.getAnimations().length)).toBe(0);
 });
 
-test("(g) the highlight sits exactly on its item inside a bordered, scrolled popover", async ({ page }) => {
+test("(g) the highlighted item is the active descendant and bold, inside a bordered, scrolled popover", async ({ page }) => {
   await openProjects(page);
   await sortButton(page).click();
   const listbox = page.getByRole("listbox", { name: "Sort projects" });
   await expect(listbox).toBeFocused();
-  // Make the 3-item menu scroll so the measurement must account for scrollTop.
+  // Make the 3-item menu scroll so the highlighted item must follow the keys.
   await listbox.evaluate((el) => (el.style.maxHeight = "60px"));
   await listbox.press("End");
   await listbox.press("ArrowUp");
   await page.waitForFunction(() => document.getAnimations().length === 0);
-  const geometry = await listbox.evaluate((el) => {
-    const id = el.getAttribute("aria-activedescendant")!;
-    const item = document.getElementById(id)!.getBoundingClientRect();
-    const box = el.querySelector(".popover-highlight")!.getBoundingClientRect();
+  const state = await listbox.evaluate((el) => {
+    const active = document.getElementById(el.getAttribute("aria-activedescendant")!)!;
     return {
       scrollTop: el.scrollTop,
       border: getComputedStyle(el).borderTopWidth,
-      item: [item.left, item.top, item.width, item.height],
-      box: [box.left, box.top, box.width, box.height],
+      marked: active.hasAttribute("data-highlighted"),
+      count: el.querySelectorAll("[data-highlighted]").length,
+      weight: getComputedStyle(active).fontWeight,
+      background: getComputedStyle(active).backgroundColor,
     };
   });
-  expect(geometry.scrollTop).toBeGreaterThan(0);
-  expect(geometry.border).toBe("1px");
-  geometry.box.forEach((value, i) => expect(Math.abs(value - geometry.item[i])).toBeLessThanOrEqual(0.5));
+  expect(state.scrollTop).toBeGreaterThan(0);
+  expect(state.border).toBe("1px");
+  expect(state.marked).toBe(true);
+  expect(state.count).toBe(1);
+  expect(Number(state.weight)).toBeGreaterThanOrEqual(600);
+  expect(state.background).toBe("rgba(0, 0, 0, 0)");
 });

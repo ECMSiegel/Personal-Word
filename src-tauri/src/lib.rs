@@ -253,6 +253,7 @@ pub fn run() {
         lookup::lookup_fetch,
         zotero::zotero_read,
         dropped::read_dropped_file,
+        dropped::read_dropped_pdf,
         smoke::smoke_report,
         smoke::diagnostic_profile_identity,
         smoke::smoke_close_window,
@@ -286,7 +287,8 @@ pub fn run() {
         delete_project,
         lookup::lookup_fetch,
         zotero::zotero_read,
-        dropped::read_dropped_file
+        dropped::read_dropped_file,
+        dropped::read_dropped_pdf
     ]);
     // The one window-event handler for both builds: remember the latest drop's
     // paths so read_dropped_file can read only those.

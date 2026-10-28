@@ -1,0 +1,38 @@
+/* Drag-to-reorder rows (docs/design-system.md, Motion). Only transform animates; no shadow. */
+[data-drag-index] {
+  position: relative;
+}
+[data-drag-state] {
+  user-select: none;
+  -webkit-user-select: none;
+}
+[data-drag-state="lifted"] {
+  z-index: 2;
+  cursor: grabbing;
+  touch-action: none;
+  transition: none;
+}
+[data-drag-state="shifted"] {
+  transition: transform var(--duration-fast) var(--ease-out);
+}
+/* The drop line is the 2 px accent edge where the lifted row will land. */
+[data-drag-edge]::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--accent);
+  pointer-events: none;
+}
+[data-drag-edge="top"]::after {
+  top: 0;
+}
+[data-drag-edge="bottom"]::after {
+  bottom: 0;
+}
+@media (prefers-reduced-motion: reduce) {
+  [data-drag-state] {
+    transition: none;
+  }
+}

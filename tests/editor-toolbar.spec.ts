@@ -108,28 +108,17 @@ async function overflowReport(page: any) {
   }));
 }
 
-test("a wide format bar shows a label beside each icon", async ({ page }) => {
-  // At 1600 px (bar 1330) label mode pushes Bold into More; 2200 px (bar
-  // 1930) keeps it on the bar. Measured numbers are in the T103 note.
+test("icons only at every width", async ({ page }) => {
   await page.setViewportSize({ width: 2200, height: 900 });
   await page.goto("/");
-  await create(page, "Label mode");
-  await expect(bar(page)).toHaveAttribute("data-labels", "");
-  const width = await bar(page).evaluate((el: HTMLElement) => el.clientWidth);
-  expect(width).toBeGreaterThanOrEqual(1100);
-  const bold = bar(page).getByRole("button", {
-    name: "Bold (⌘B)",
-    exact: true,
-  });
-  await expect(bold.locator(".toolbar-label")).toBeVisible();
-  await expect(bold.locator(".toolbar-label")).toHaveText("Bold");
-  expect(
-    await bold.evaluate((el) =>
-      parseFloat(
-        getComputedStyle(el.querySelector(".toolbar-label")!).fontSize,
-      ),
-    ),
-  ).toBe(12);
+  await create(page, "Icons only");
+  await expect(bar(page)).not.toHaveAttribute("data-labels", /.*/);
+  const visibleBarLabels = await bar(page)
+    .locator(":scope > .toolbar-group .toolbar-label")
+    .evaluateAll((els: HTMLElement[]) =>
+      els.filter((el) => getComputedStyle(el).display !== "none").length,
+    );
+  expect(visibleBarLabels).toBe(0);
   const report = await overflowReport(page);
   expect(report.scrollWidth).toBeLessThanOrEqual(report.clientWidth);
 });
@@ -149,46 +138,65 @@ test("a narrower format bar shows icons only", async ({ page }) => {
   expect(report.scrollWidth).toBeLessThanOrEqual(report.clientWidth);
 });
 
-test("crossing the label threshold keeps overflow correct both ways", async ({
-  page,
-}) => {
-  await page.setViewportSize({ width: 1600, height: 900 });
+test("the default window keeps Insert on the bar", async ({ page }) => {
+  await page.setViewportSize({ width: 1240, height: 840 });
+  await page.emulateMedia({ colorScheme: "light" });
+  await page.addInitScript(() => {
+    localStorage.setItem(
+      "folio.workspace.sidebar",
+      JSON.stringify({ width: 270, pinned: true, hover: true }),
+    );
+  });
   await page.goto("/");
-  await create(page, "Resize toolbar");
-  for (const width of [1100, 1600, 1100, 1300, 1600]) {
-    await page.setViewportSize({ width, height: 900 });
-    await expect
-      .poll(async () => {
-        const r = await overflowReport(page);
-        return (
-          r.labels === r.clientWidth >= 1100 && r.scrollWidth <= r.clientWidth
-        );
-      })
-      .toBe(true);
-    // No group is both on the bar and inside More.
-    const more = bar(page).getByRole("button", {
-      name: "More formatting",
-      exact: true,
-    });
-    if (await more.count()) {
-      await more.click();
-      const names = await moreRows(page)
-        .getByRole("button")
-        .evaluateAll((els: HTMLElement[]) =>
-          els.map((e) => e.getAttribute("aria-label")),
-        );
-      await page.keyboard.press("Escape");
-      for (const name of names) {
-        if (!name) continue;
-        await expect(
-          bar(page).locator(`:scope > .toolbar-group [aria-label="${name}"]`),
-        ).toHaveCount(0);
-      }
-    }
+  await create(page, "Insert at default width");
+  const toolbar = bar(page);
+  const insertImage = toolbar.locator(
+    ':scope > .toolbar-group button[aria-label="Insert image"]',
+  );
+  const insertTable = toolbar.locator(
+    ':scope > .toolbar-group button[aria-label="Insert table"]',
+  );
+  await expect(insertImage).toBeVisible();
+  await expect(insertTable).toBeVisible();
+  const more = toolbar.getByRole("button", {
+    name: "More formatting",
+    exact: true,
+  });
+  await more.click();
+  const menu = moreRows(page);
+  for (const label of [
+    "Decrease indent",
+    "Increase indent",
+    "Line and paragraph spacing",
+    "Page view",
+    "Prose check",
+    "Page setup",
+  ]) {
+    await expect(menu.getByRole("button", { name: label })).toBeVisible();
   }
+  const report = await overflowReport(page);
+  expect(report.scrollWidth).toBeLessThanOrEqual(report.clientWidth);
+  await page.keyboard.press("Escape");
+  const box = await toolbar.boundingBox();
+  expect(box).not.toBeNull();
+  const clip = {
+    x: box!.x,
+    y: box!.y,
+    width: box!.width,
+    height: box!.height,
+  };
+  await page.screenshot({
+    path: "node_modules/.cache/personal-word-beta/ui3-e1/toolbar-light.png",
+    clip,
+  });
+  await page.emulateMedia({ colorScheme: "dark" });
+  await page.screenshot({
+    path: "node_modules/.cache/personal-word-beta/ui3-e1/toolbar-dark.png",
+    clip,
+  });
 });
 
-test("More lists labelled rows with shortcut hints and a following highlight", async ({
+test("More lists labelled rows with shortcut hints and emphasizes the hovered row", async ({
   page,
 }) => {
   await page.setViewportSize({ width: 850, height: 600 });
@@ -208,17 +216,9 @@ test("More lists labelled rows with shortcut hints and a following highlight", a
     16,
   );
   await expect(bold).toHaveAttribute("data-popover-item", "");
-  // The one highlight glides to the hovered row.
   await bold.hover();
-  await expect
-    .poll(async () => {
-      const hl = await menu.locator(".popover-highlight").boundingBox();
-      const row = await bold.boundingBox();
-      return hl && row
-        ? Math.abs(hl.y - row.y) + Math.abs(hl.height - row.height)
-        : 99;
-    })
-    .toBeLessThan(2);
+  await expect(bold).toHaveAttribute("data-highlighted", "");
+  await expect(bold).toHaveCSS("font-weight", "600");
   await bold.click();
   await expect(
     page.getByRole("textbox", { name: "Writing editor" }).locator("p").first(),

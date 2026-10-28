@@ -152,9 +152,8 @@ test("search, rename, editor, and prose preview text remain selectable", async (
   expect(previewSelection?.anchorInside && previewSelection?.focusInside).toBe(
     true,
   );
-  expect(await preview.evaluate((element) => element.closest(".entry-row")?.draggable)).toBe(
-    true,
-  );
+  // The preview text stays selectable: a press inside it never lifts the row.
+  await expect(preview.locator("xpath=ancestor::*[@data-drag-state]")).toHaveCount(0);
 
   await page.getByRole("button", { name: "New section", exact: true }).click();
   await page.getByLabel("Title", { exact: true }).fill("Second preview section");
@@ -332,8 +331,8 @@ test("bottom rows keep their fixed order and carry no hover actions", async ({ p
     page.getByRole("button", { name: "Show Comments cards" }),
   ).toHaveCount(0);
   await expect(
-    page.locator('.sidebar-bottom-groups [data-group="comments"] .group-heading'),
-  ).toHaveAttribute("draggable", "false");
+    page.locator('.sidebar-bottom-groups [data-group="comments"]'),
+  ).not.toHaveAttribute("data-drag-index");
   // A top group still offers them.
   await page
     .locator('.sidebar-groups [data-group="manuscript"] .group-heading')

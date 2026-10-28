@@ -1,0 +1,9 @@
+{
+  "id": "agent-9dc8",
+  "label": "Claude Sonnet reviewer T162r + worker T161",
+  "joined_at": "2026-10-28T11:35:10+00:00",
+  "last_seen": "2026-10-28T11:36:11+00:00",
+  "status": "active",
+  "current_task": null,
+  "inbox_cursor": 0
+}

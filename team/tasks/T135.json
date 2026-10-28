@@ -1,0 +1,63 @@
+{
+  "id": "T135",
+  "title": "UI wave 3 A2: One project name; blur saves the rename; breadcrumb semantics (App lane)",
+  "description": "Follow docs/agent-work/2026-10-28-ui-wave-3/PLAN.md section A2 exactly (Files, Interfaces, Steps, Acceptance check, Fail-first, Stop-and-ask, Default) and read its Context, Rules and Notes for the implementer first; RESEARCH.md beside it has the evidence. House rules: register paths = this task's seeded Files (already registered on claim; add more only via files add); serial slot (node_modules/.cache/personal-word-beta/team-serial-check-slot) via files add right before the first expensive check and keep it until done; pinned Node; quoted --outDir on PREVIEW port 1600+N; never edit docs/design-system.md (write DESIGN DOC: text in the done note); motion checks in tests/motion-uN.spec.ts; native rendering runs only with the screen unlocked, by Claude agents or the owner; never put backticks in double-quoted shell text; no installs, no commits; status CLAIMED; independent review required.",
+  "status": "done",
+  "owner": null,
+  "priority": 2,
+  "depends_on": [],
+  "files": [
+    "src/App.tsx",
+    "src/components/ProjectSidebar.tsx",
+    "tests/housekeeping.spec.ts",
+    "tests/projects-screen.spec.ts",
+    "tests/sidebar-rename.spec.ts",
+    "node_modules/.cache/personal-word-beta/ui3-a2",
+    "src/styles.css",
+    "node_modules/.cache/personal-word-beta/team-serial-check-slot"
+  ],
+  "review_required": true,
+  "created_by": "agent-9d21",
+  "created_at": "2026-10-28T04:50:54+00:00",
+  "claimed_at": "2026-10-28T08:22:46+00:00",
+  "updated_at": "2026-10-28T08:47:08+00:00",
+  "handoff": null,
+  "review": {
+    "by": "agent-89b8",
+    "at": "2026-10-28T08:47:08+00:00",
+    "verdict": "approved",
+    "note": "Reviewed A2 diff. App.tsx: nav.breadcrumb[aria-label=Breadcrumb] > ol > li[aria-current=page], project title button and slash gone, grep Rename project = 0. ProjectSidebar: commitTitle trims, saves only if non-empty and changed via the existing onRenameProject (normal mutation + SaveQueue path), blur commits, Enter/Escape suppress the unmount blur, refocus to .project-switch only after key exit; whitespace names do not save. Highlight spans, refs, both layout effects and helpers removed; no remaining refs (appearance.spec asserts count 0). styles.css ol/li reset fine. Tests retargeted; sidebar-rename.spec covers blur, Esc, Enter, breadcrumb semantics. Native harnesses (scripts/native-*.py, tests/native-*.js) do not reference breadcrumb or rename: no breakage. tsc exit 0. Evidence: ui3-review-f401/report.json 04:42 is newer than A2 sources (ProjectSidebar/styles 04:37); it holds only the 7/7 sidebar-selection run, the 58-pass run is only author-claimed (log not preserved). App.tsx mtime 04:46 is a later other-lane edit. I did not rerun Playwright (slot held by T147). Minor: A2 spec adds no empty-name-does-not-save case; acceptance listed split-view.spec, T153 known unrelated."
+  },
+  "log": [
+    {
+      "at": "2026-10-28T04:50:54+00:00",
+      "agent": "agent-9d21",
+      "event": "created",
+      "note": ""
+    },
+    {
+      "at": "2026-10-28T08:22:46+00:00",
+      "agent": "agent-f401",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-10-28T08:22:55+00:00",
+      "agent": "agent-f401",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-10-28T08:42:53+00:00",
+      "agent": "agent-f401",
+      "event": "review requested",
+      "note": "T135 (A2) done. AUTHOR: agent-f401 (OpenCode), implemented and verified in this session.\n\nWHAT CHANGED. src/App.tsx: deleted the renameProject dialog opener (the last \"Rename project\" string in the file; count now 0 per the acceptance grep); the topbar breadcrumb is now nav.breadcrumb[aria-label=\"Breadcrumb\"] > ol > li with the single item carrying aria-current=\"page\" -- it holds the Rename section and Delete section buttons when an entry is active, otherwise the Manuscript/Bibliography text; the project-title button and the / separator are gone, so the project name appears once, above the editor in the tab strip. src/components/ProjectSidebar.tsx: the sidebar title rename now commits on blur -- commitTitle() trims and saves via onRenameProject when non-empty and changed, called from Enter and from onBlur unless a suppress ref was set (Enter and Escape both set it so the unmount blur cannot double-save; the plan named a cancelled ref for Escape, the Enter case is the same mechanism recorded here); after Enter or Escape a refocus effect focuses the .project-switch button in the next tick; pointer blurs commit without refocusing. The two .sidebar-highlight spans, their refs, both useLayoutEffects (slideHighlight and the ResizeObserver placeHighlightImmediately path) and the now-unused module helpers (selectedHighlightTarget, placeHighlightImmediately) and the slideHighlight import are removed -- S1's CSS recipe now applies unhidden. tests/housekeeping.spec.ts and tests/projects-screen.spec.ts: the two \"Rename project\" flows retargeted to the sidebar title (.project-switch click, inline input, Enter). tests/sidebar-rename.spec.ts (new, 4 cases): blur saves and the name shows once after reload; Escape reverts and returns focus to the title; Enter saves and returns focus; the breadcrumb has exactly one li with aria-current=\"page\" containing the section, not the project name.\n\nDEVIATION RECORDED: registered src/styles.css via files add (unowned after S1/S2/T152) because the semantic markup change requires a list reset the plan's file list omitted: .breadcrumb ol/li flex reset mirroring the container's gap, replacing the dead .breadcrumb > span separator rule; also removed the dead .sidebar-highlight/.segmented-highlight display:none block (S1's temporary hide, dead once this task removed the elements). The dead .library-heading rules in styles.css are NOT mine and are left for the D2/S-lane sweep.\n\nFAIL-FIRST: on the pre-A2 tree (baseline build exit 0, ui3-a2/ff-build.log) the new blur-saves case FAILED as intended (exit 1, toContainText \"Final title\" failed -- the name reverted; ui3-a2/ff-run.log). Implementation followed; no stash was needed for this task's own fail-first.\n\nACCEPTANCE (plan PREVIEW(5)): npx tsc --noEmit -p . exit 0; grep -c \"Rename project\" src/App.tsx = 0; fresh vite build exit 0; Playwright on port 1671 (config ui3-review-f401/browser.config.mjs, workers 1, retries 0): tests/sidebar-rename.spec.ts + tests/housekeeping.spec.ts + tests/projects-screen.spec.ts + tests/research.spec.ts = 58 passed, 0 failed. Stop-rule checks: no native harness references the breadcrumb project title (grep over tests/native-*.js = no matches); tests/sidebar-selection.spec.ts rerun after my sidebar edits = 7/7.\n\nSPLIT-VIEW EXCEPTION (not a T135 regression): tests/split-view.spec.ts:155 fails on this tree -- counterfactual verified twice with the A1 and A2 hunks stashed (ui3-a2/cf-run.log, exit 1 both repeats, RESTORED_BYTE_IDENTICAL), so the cause predates A2 and sits in the E1-E3 landed changes; filed as board task T153 (p1), which blocks T136 (A3) acceptance and the final validation. Coordinator rule now in force: counterfactuals happen in scratch copies, never by stashing the shared tree -- acknowledged, and the stash was popped and verified byte-identical immediately (coordinator holds an insurance patch under team-coordinator/backups).\n\nDESIGN DOC: (for D2/T150) Breadcrumb: nav[aria-label=\"Breadcrumb\"] with a single ol > li carrying aria-current=\"page\"; the project name lives only in the tab strip and the sidebar title. Sidebar title: click to rename in place; Enter and clicking away save; Escape reverts and returns focus to the title; no dialog. No sliding highlight boxes anywhere in the sidebar; selection is weight and colour per S1's recipe.\n\nPATH STATES: src/App.tsx uncommitted edits (A1 hunks from the completed T134 + these A2 hunks); src/components/ProjectSidebar.tsx uncommitted edits; src/styles.css uncommitted edits (S1/S2/T152 hunks + these); tests/housekeeping.spec.ts, tests/projects-screen.spec.ts uncommitted edits; tests/sidebar-rename.spec.ts uncommitted (new); node_modules/.cache/personal-word-beta/ui3-a2 clean; node_modules/.cache/personal-word-beta/team-serial-check-slot clean (released by this done)."
+    },
+    {
+      "at": "2026-10-28T08:47:08+00:00",
+      "agent": "agent-89b8",
+      "event": "approved",
+      "note": "Reviewed A2 diff. App.tsx: nav.breadcrumb[aria-label=Breadcrumb] > ol > li[aria-current=page], project title button and slash gone, grep Rename project = 0. ProjectSidebar: commitTitle trims, saves only if non-empty and changed via the existing onRenameProject (normal mutation + SaveQueue path), blur commits, Enter/Escape suppress the unmount blur, refocus to .project-switch only after key exit; whitespace names do not save. Highlight spans, refs, both layout effects and helpers removed; no remaining refs (appearance.spec asserts count 0). styles.css ol/li reset fine. Tests retargeted; sidebar-rename.spec covers blur, Esc, Enter, breadcrumb semantics. Native harnesses (scripts/native-*.py, tests/native-*.js) do not reference breadcrumb or rename: no breakage. tsc exit 0. Evidence: ui3-review-f401/report.json 04:42 is newer than A2 sources (ProjectSidebar/styles 04:37); it holds only the 7/7 sidebar-selection run, the 58-pass run is only author-claimed (log not preserved). App.tsx mtime 04:46 is a later other-lane edit. I did not rerun Playwright (slot held by T147). Minor: A2 spec adds no empty-name-does-not-save case; acceptance listed split-view.spec, T153 known unrelated."
+    }
+  ]
+}

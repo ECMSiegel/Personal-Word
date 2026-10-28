@@ -54,25 +54,9 @@ function contrast(a: string, b: string): number {
   return (hi + 0.05) / (lo + 0.05);
 }
 
-function hexOf(n: number): string {
-  return "#" + [16, 8, 0].map((s) => ((n >> s) & 255).toString(16).padStart(2, "0")).join("").toUpperCase();
-}
-// The sliding selection fill paints --text at N% over the sidebar.
-function selectedRow(base: Record<string, string>): string {
-  const rule = css.match(/\.sidebar-highlight\s*\{[^}]*background:\s*color-mix\(in srgb,\s*var\(--text\)\s*(\d+)%,\s*transparent\)/);
-  expect(rule, ".sidebar-highlight color-mix rule").not.toBeNull();
-  const pct = Number(rule![1]) / 100;
-  const text = parseInt(base["--text"].slice(1), 16);
-  const side = parseInt(base["--sidebar"].slice(1), 16);
-  let out = 0;
-  for (const s of [16, 8, 0]) {
-    out |= Math.round(((text >> s) & 255) * pct + ((side >> s) & 255) * (1 - pct)) << s;
-  }
-  return hexOf(out);
-}
 function surfacesOf(selector: string): string[] {
   const t = tokens(selector);
-  return [t["--paper"], t["--surface"], t["--sidebar"], selectedRow(t)];
+  return [t["--paper"], t["--surface"], t["--sidebar"]];
 }
 const LIGHT_SURFACES = surfacesOf(":root");
 const DARK_SURFACES = surfacesOf(":root[data-theme=\"dark\"]");
@@ -89,6 +73,17 @@ const DARK_SWATCHES = {
   red: "#FF665D", orange: "#FF9F0A", yellow: "#FFD60A", green: "#30D158",
   teal: "#40C8E0", blue: "#41A0FF", indigo: "#918FEE", purple: "#CA75F4",
 };
+
+describe("Selected sidebar row", () => {
+  // The row has no fill: it is bold text on the bare sidebar, so its text
+  // colour (Plain: --text; Color: the section tint, covered below) must read there.
+  for (const [mode, selector] of [["light", ":root"], ["dark", ':root[data-theme="dark"]']] as const) {
+    it(`reads at AA as bold --text on the ${mode} sidebar`, () => {
+      const t = tokens(selector);
+      expect(contrast(t["--text"], t["--sidebar"])).toBeGreaterThanOrEqual(4.5);
+    });
+  }
+});
 
 describe("Color palette", () => {
   for (const [mode, selector, surfaces] of [

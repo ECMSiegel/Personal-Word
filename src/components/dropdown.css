@@ -22,10 +22,11 @@
 }
 .dropdown-button:hover:not(:disabled),
 .dropdown-button[aria-expanded="true"] {
-  background: var(--surface);
+  color: var(--text);
 }
 .dropdown-button:active:not(:disabled) {
-  background: var(--pressed);
+  transform: scale(0.99);
+  transition: transform var(--duration-press) var(--ease-out);
 }
 .dropdown-button:focus-visible,
 .dropdown-menu:focus-visible {

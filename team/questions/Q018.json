@@ -1,0 +1,9 @@
+{
+  "id": "Q018",
+  "at": "2026-10-28T10:53:43+00:00",
+  "by": "agent-a0fd",
+  "task": "T151",
+  "text": "V (T151) owner items: (1) native reliability, native smoke, native screenshots and the P2 native gate were NOT RUN because the screen was locked all night; morning commands are in docs/agent-work/2026-10-28-ui-wave-3/VALIDATION.md (or let an agent run them on an unlocked screen). (2) Page rule at a page foot: keep whole-block moves (shipped) or switch to straddling. (3) Counter digits under Futura: keep, or system-font / monospaced. (4) Cmd+Shift+S now only snapshots (Cmd+S saves): keep? (5) Stray empty folders /Users/ethansiegel/Local and ./Processor to confirm and delete yourself. Full sheet a-v in VALIDATION.md.",
+  "status": "resolved",
+  "resolution": "Owner 2026-10-28: (1) native checks: coordinator runs them now (screen unlocked). (2) Page rule: 'do what Word would' = Word default widow/orphan control: a paragraph splits at a line boundary when at least 2 lines stay on each page (paragraphs of 3 lines or fewer move whole); headings keep with next. Replaces whole-block moves; new task. (3) Futura counter digits: keep. (4) Cmd+Shift+S snapshot-only: keep. F1-F12 bare shortcuts: keep. 'Import writing' label: keep. (5) Stray folders /Users/ethansiegel/Local and ./Processor: owner confirmed no real 'Local' folder; both were empty and removed (rmdir). Commit after the final Fable check; no push."
+}

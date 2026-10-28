@@ -240,25 +240,16 @@
   font-size: var(--type-small);
   color: var(--muted);
 }
-.source-pdf-attach {
-  position: relative;
-  display: inline-flex;
-  width: fit-content;
+.source-pdf-field .drop-target {
+  display: flex;
   align-items: center;
-  min-height: var(--control-height);
+  min-height: 44px;
   padding: 0 var(--space-3);
-  border: 1px solid var(--line);
-  cursor: pointer;
 }
-.source-pdf-attach:focus-within {
-  outline: var(--focus-ring);
-  outline-offset: var(--focus-offset);
-}
-.source-pdf-attach input {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  opacity: 0;
+.source-pdf-field .drop-target-label {
+  left: auto;
+  right: var(--space-2);
+  bottom: auto;
 }
 .field {
   display: grid;
@@ -466,7 +457,7 @@ div.project-settings {
   justify-content: center;
 }
 .project-settings .settings-button:hover {
-  background: var(--surface);
+  border-color: var(--text);
 }
 .project-settings .settings-button.button-primary {
   border-color: var(--accent);

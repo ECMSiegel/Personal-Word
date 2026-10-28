@@ -1,0 +1,61 @@
+{
+  "id": "T163",
+  "title": "Drag reorder: disarm the drag when the button is released outside the row (Fable review F2)",
+  "description": "Fable review F2. src/components/useDragReorder.ts arms DragController.pending on pointerdown without capturing the pointer; capture happens only after the 5 px threshold, and onPointerUp is bound to the row, so a release elsewhere never clears pending. Afterwards the pointer crossing that row with no button down lifts the row, shifts its siblings and shows the drop line until Escape or a click; a click that moves 5 px reorders and saves. Fix: capture on pointerdown (or listen for window pointerup/pointercancel while armed) and ignore moves with e.buttons === 0. Fail-first: add a Playwright case to tests/drag-reorder.spec.ts that presses a manuscript row, moves sideways into the editor at the same y, releases, moves back over the row 20 px lower, and expects no [data-drag-state] (the Fable probe P2 in node_modules/.cache/personal-word-beta/ui3-fable-review/probe/probe.spec.mjs does exactly this and currently finds 1 lifted row). Keep the press-is-a-click rule and the arrows.",
+  "status": "done",
+  "owner": null,
+  "priority": 2,
+  "depends_on": [],
+  "files": [
+    "src/components/useDragReorder.ts",
+    "src/components/dragReorder.ts",
+    "src/components/dragReorder.test.ts",
+    "tests/drag-reorder.spec.ts",
+    "node_modules/.cache/personal-word-beta/ui3-f2",
+    "node_modules/.cache/personal-word-beta/team-serial-check-slot"
+  ],
+  "review_required": true,
+  "created_by": "agent-50eb",
+  "created_at": "2026-10-28T11:19:06+00:00",
+  "claimed_at": "2026-10-28T11:20:27+00:00",
+  "updated_at": "2026-10-28T11:26:16+00:00",
+  "handoff": null,
+  "review": {
+    "by": "agent-66b1",
+    "at": "2026-10-28T11:26:16+00:00",
+    "verdict": "approved",
+    "note": "Reviewed: window capture pointerup/pointercancel one-shot disarm removes itself (no leak; stale ones self-remove on next release), buttons===0 guard in controller.move plus snap cancel, Escape/click-swallow/arrows untouched. Fail-first logs present (unit 2 failed pre, pw-pre 1 failed), pass logs newer than sources; reran vitest src/components 30/30."
+  },
+  "log": [
+    {
+      "at": "2026-10-28T11:19:06+00:00",
+      "agent": "agent-50eb",
+      "event": "created",
+      "note": ""
+    },
+    {
+      "at": "2026-10-28T11:20:27+00:00",
+      "agent": "agent-68c3",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-10-28T11:20:27+00:00",
+      "agent": "agent-68c3",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-10-28T11:25:07+00:00",
+      "agent": "agent-68c3",
+      "event": "review requested",
+      "note": "Fixed F2. dragReorder.ts: DragController.move(y, buttons=1) discards the press when buttons===0. useDragReorder.ts: onPointerDown registers a one-shot window capture-phase pointerup/pointercancel that cancels the controller if not yet captured; onPointerMove passes e.buttons and cancels a lifted snap when buttons===0. Arrows, Escape, click-not-drag unchanged. Tests: 2 new unit tests in dragReorder.test.ts, 1 new Playwright case in drag-reorder.spec.ts (press row, release in editor, hover back over row, expect no data-drag-state). Fail-first: unit-pre.log 2 failed/18 passed on pre-fix controller; pw-pre.log (pre-fix build dist-pre) 1 failed (found 2 data-drag-state elements), 7 passed. Fixed: vitest src/components 30/30, tsc 0, pw-fixed.log drag-reorder+sidebar-selection 15/15. All under node_modules/.cache/personal-word-beta/ui3-t163. CLAIMED, not native-checked."
+    },
+    {
+      "at": "2026-10-28T11:26:16+00:00",
+      "agent": "agent-66b1",
+      "event": "approved",
+      "note": "Reviewed: window capture pointerup/pointercancel one-shot disarm removes itself (no leak; stale ones self-remove on next release), buttons===0 guard in controller.move plus snap cancel, Escape/click-swallow/arrows untouched. Fail-first logs present (unit 2 failed pre, pw-pre 1 failed), pass logs newer than sources; reran vitest src/components 30/30."
+    }
+  ]
+}

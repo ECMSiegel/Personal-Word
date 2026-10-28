@@ -1,0 +1,60 @@
+{
+  "id": "T141",
+  "title": "UI wave 3 S3: Segmented without a fill; roving keys (Styles lane)",
+  "description": "Follow docs/agent-work/2026-10-28-ui-wave-3/PLAN.md section S3 exactly (Files, Interfaces, Steps, Acceptance check, Fail-first, Stop-and-ask, Default) and read its Context, Rules and Notes for the implementer first; RESEARCH.md beside it has the evidence. House rules: register paths = this task's seeded Files (already registered on claim; add more only via files add); serial slot (node_modules/.cache/personal-word-beta/team-serial-check-slot) via files add right before the first expensive check and keep it until done; pinned Node; quoted --outDir on PREVIEW port 1600+N; never edit docs/design-system.md (write DESIGN DOC: text in the done note); motion checks in tests/motion-uN.spec.ts; native rendering runs only with the screen unlocked, by Claude agents or the owner; never put backticks in double-quoted shell text; no installs, no commits; status CLAIMED; independent review required.",
+  "status": "done",
+  "owner": null,
+  "priority": 2,
+  "depends_on": [],
+  "files": [
+    "src/components/Segmented.tsx",
+    "src/components/segmented.css",
+    "tests/appearance.spec.ts",
+    "node_modules/.cache/personal-word-beta/ui3-s3",
+    "node_modules/.cache/personal-word-beta/team-serial-check-slot"
+  ],
+  "review_required": true,
+  "created_by": "agent-9d21",
+  "created_at": "2026-10-28T04:50:55+00:00",
+  "claimed_at": "2026-10-28T06:44:12+00:00",
+  "updated_at": "2026-10-28T07:57:44+00:00",
+  "handoff": null,
+  "review": {
+    "by": "agent-f401",
+    "at": "2026-10-28T07:57:44+00:00",
+    "verdict": "approved",
+    "note": "T141 (S3) APPROVED by agent-f401 (non-author reviewer). Static: src/components/Segmented.tsx removes the sliding highlight span, its useLayoutEffect and the slideHighlight import; adds a roving tabindex (only the chosen segment is tabbable, with the first-option fallback when no option matches the value); keeps arrow stepping with selection and adds Home/End; preventDefault fires only on handled keys. src/components/segmented.css drops the .segmented-highlight rules; the base label is muted, hover and focus-visible lift to the text colour, and the chosen segment is weight 600 in the accent colour on a transparent background -- weight and colour, never a fill, exactly the plan's interface. The deliberate non-change is honoured: the .segmented-highlight display none line in styles.css stays because it is T139's file and still hides .sidebar-highlight until T135 lands. Fail-first: the worker restored the untouched files byte-identically and the new test failed at the intended assertion (highlight count 1, expected 0); the note honestly records that Playwright stopped at the first failed assertion so the remaining assertions were not individually reached in that run. Independent verification on the current tree: fresh build and Playwright on port 1671, tests/appearance.spec.ts and tests/accessibility.spec.ts all pass within the 71-passed run, including the new segmented case (roving tabindex, End and Home move focus and selection, pressed segment has no background). COUPLING NOTE: tests/appearance.spec.ts also carries in-review T139 (S1) hunks in the same file; my verdict covers the S3-authored parts and this run's green state on the combined tree. If T139 is rejected and its diff changes, re-verify this task's acceptance set. DESIGN DOC: Segmented -- the chosen option is semibold in the accent colour on the plain surface; no sliding box and no fill; hover and focus-visible lift the label from muted to text colour; Tab enters at the chosen option (roving tabindex); Left/Right/Up/Down step and select; Home and End jump to the ends."
+  },
+  "log": [
+    {
+      "at": "2026-10-28T04:50:55+00:00",
+      "agent": "agent-9d21",
+      "event": "created",
+      "note": ""
+    },
+    {
+      "at": "2026-10-28T06:44:12+00:00",
+      "agent": "agent-a6ec",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-10-28T06:44:13+00:00",
+      "agent": "agent-a6ec",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-10-28T07:00:52+00:00",
+      "agent": "agent-a6ec",
+      "event": "review requested",
+      "note": "T141 (S3) done. Files: src/components/Segmented.tsx, src/components/segmented.css, tests/appearance.spec.ts.\n\nWHAT CHANGED. Segmented.tsx: removed the sliding highlight span, its useLayoutEffect and the slideHighlight import (the element no longer exists in the DOM); added a roving tabindex so only the chosen segment is in the tab order (with a first-option fallback if no option matches the value); kept the existing arrow-key behaviour and added Home/End, which move focus and selection to the first/last option. segmented.css: removed the .segmented-highlight rule; segmented buttons read muted, hover/focus-visible read text colour, and the chosen segment is font-weight 600 in var(--accent) on a transparent background, so the choice is weight and colour, never a fill.\n\nFAIL-FIRST: phase 1 restored the untouched Segmented.tsx and segmented.css byte-identically from the copies kept in ui3-s3, built, and ran the new test: 1 failed at the intended assertion, segmented-highlight count 1, expected 0 (ui3-s3/fail-first.log, playwright exit 1). Honest limit: Playwright stops a test at its first failed assertion, so the weight/colour/roving/Home-End assertions were not individually reached in that run; they are new behaviour and fail on the untouched component by construction. Phase 2 restored the change and verified both files byte-identical to the reviewed versions (ui3-s3/acceptance.log first line).\n\nACCEPTANCE on the fixed tree: npx tsc --noEmit -p . exit 0 (ui3-s3/typecheck.log); npx vite build exit 0 (ui3-s3/build.log); PREVIEW(11) tests/appearance.spec.ts plus tests/accessibility.spec.ts: 21 passed, playwright exit 0 (ui3-s3/acceptance.log), including the new test at appearance.spec.ts:196 and the S1 entry-row case.\n\nNOT DONE, deliberately: src/styles.css still carries .segmented-highlight { display: none } at line 1439. That rule is S1's and is still needed there for .sidebar-highlight until the App lane removes that element (T135), so I did not touch another lane's file. After T135 lands, both selectors in that block are dead and can be deleted with the .library-heading rule (styles.css 922 and 1607).\n\nFOR OTHER LANES: no other component used .segmented-highlight; ProjectSidebar's own highlight is separate and untouched. The Segmented API (label, value, options, onChange) is unchanged, so App.tsx needed no edit.\n\nDESIGN DOC (for D2/T150, design-system.md): Segmented -- the chosen option is semibold in the accent colour on the plain surface; there is no sliding box and no fill; hover and focus-visible lift the label from muted to text colour; Tab enters at the chosen option (roving tabindex) and Left/Right/Up/Down step and select, Home/End jump to the ends.\n\nStatus CLAIMED: only the owner's own test makes it VERIFIED."
+    },
+    {
+      "at": "2026-10-28T07:57:44+00:00",
+      "agent": "agent-f401",
+      "event": "approved",
+      "note": "T141 (S3) APPROVED by agent-f401 (non-author reviewer). Static: src/components/Segmented.tsx removes the sliding highlight span, its useLayoutEffect and the slideHighlight import; adds a roving tabindex (only the chosen segment is tabbable, with the first-option fallback when no option matches the value); keeps arrow stepping with selection and adds Home/End; preventDefault fires only on handled keys. src/components/segmented.css drops the .segmented-highlight rules; the base label is muted, hover and focus-visible lift to the text colour, and the chosen segment is weight 600 in the accent colour on a transparent background -- weight and colour, never a fill, exactly the plan's interface. The deliberate non-change is honoured: the .segmented-highlight display none line in styles.css stays because it is T139's file and still hides .sidebar-highlight until T135 lands. Fail-first: the worker restored the untouched files byte-identically and the new test failed at the intended assertion (highlight count 1, expected 0); the note honestly records that Playwright stopped at the first failed assertion so the remaining assertions were not individually reached in that run. Independent verification on the current tree: fresh build and Playwright on port 1671, tests/appearance.spec.ts and tests/accessibility.spec.ts all pass within the 71-passed run, including the new segmented case (roving tabindex, End and Home move focus and selection, pressed segment has no background). COUPLING NOTE: tests/appearance.spec.ts also carries in-review T139 (S1) hunks in the same file; my verdict covers the S3-authored parts and this run's green state on the combined tree. If T139 is rejected and its diff changes, re-verify this task's acceptance set. DESIGN DOC: Segmented -- the chosen option is semibold in the accent colour on the plain surface; no sliding box and no fill; hover and focus-visible lift the label from muted to text colour; Tab enters at the chosen option (roving tabindex); Left/Right/Up/Down step and select; Home and End jump to the ends."
+    }
+  ]
+}

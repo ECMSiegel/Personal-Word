@@ -1,0 +1,9 @@
+{
+  "id": "Q015",
+  "at": "2026-10-28T05:47:53+00:00",
+  "by": "agent-236e",
+  "task": "T145",
+  "text": "The approved wave-3 checklist requires R1 (no grey hover/pressed box fills), while current docs/design-system.md says enabled buttons use a surface hover background, pressed buttons use --pressed, and active tabs/segmented controls retain fills. The checklist records R1 as the approved wave-3 target and calls out the mismatch for D2. Should I treat this explicit wave-3 decision as sufficient to finish T145 with the mismatch documented, or should R1 remain blocked until the design-system rule is reconciled?",
+  "status": "resolved",
+  "resolution": "Default applied (coordinator, owner said answer with defaults): finish T145 with the mismatch documented. R1 is the owner-approved wave-3 target; docs/design-system.md is NOT edited in D1; the Known conflicts list goes to D2, which reconciles the design doc."
+}

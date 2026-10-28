@@ -1,0 +1,84 @@
+{
+  "id": "T162",
+  "title": "Shortcuts: refuse chords with no modifier and compare folded Control chords (Fable review F1+F4)",
+  "description": "Fable review docs/agent-work/2026-10-28-ui-wave-3/FABLE-REVIEW.md F1 and F4. Settings > Shortcuts records a chord with no Cmd/Ctrl/Alt (a bare letter, Enter, Space, Backspace, Tab, arrows, Shift+letter); afterwards every press of that key fires the action and never reaches the document (probe: Save recorded as G, typing gag gives a). Fix in src/shortcuts/store.ts chordProblem(): require at least one of meta/ctrl/alt (function keys may be the one exception, decide and document), and compare the folded chord (Ctrl treated as Cmd, as resolveChord does) so a Ctrl+S override for New section is refused as taken by Save instead of being accepted and shadowed. Add fail-first cases to src/shortcuts/shortcuts.test.ts and one Playwright case in tests/shortcuts.spec.ts (press Change then a bare letter: status says why, chord unchanged). Update the Shortcuts paragraph in docs/design-system.md only via a DESIGN DOC note. Evidence of the defect: node_modules/.cache/personal-word-beta/ui3-fable-review/probe.log and shadow.test.ts.",
+  "status": "done",
+  "owner": null,
+  "priority": 1,
+  "depends_on": [],
+  "files": [
+    "src/shortcuts/store.ts",
+    "src/shortcuts/shortcuts.test.ts",
+    "src/settings/ShortcutsSettings.tsx",
+    "tests/shortcuts.spec.ts",
+    "node_modules/.cache/personal-word-beta/ui3-f1",
+    "node_modules/.cache/personal-word-beta/ui3-t162",
+    "node_modules/.cache/personal-word-beta/team-serial-check-slot"
+  ],
+  "review_required": true,
+  "created_by": "agent-50eb",
+  "created_at": "2026-10-28T11:19:06+00:00",
+  "claimed_at": "2026-10-28T11:34:01+00:00",
+  "updated_at": "2026-10-28T11:35:44+00:00",
+  "handoff": {
+    "by": "agent-c535",
+    "at": "2026-10-28T11:27:42+00:00",
+    "text": "Core fix is good: tsc 0, vitest src/shortcuts 14/14 on my rerun; fail-first log shows 2 red before fix; message 'Add Command, Control or Option to that shortcut.' is clear; Ctrl+S for New section now refused as taken by Save; Ctrl+C reserved; no default chord is refused (all defaults have Cmd; Shift+Enter is read-only and not recordable, any user attempt at it gets the modifier message). GAP: readShortcuts in src/shortcuts/store.ts still keeps any stored override that isChord accepts, so a previously stored bare chord (e.g. Save = g, the F1 probe state) or a stored Ctrl duplicate still loads and keeps shadowing typing after this fix. Required behaviour: stored overrides that are now invalid must be dropped on read. Fix: in readShortcuts skip a value when it has no meta/ctrl/alt and is not F1-F12 (reuse the same check as chordProblem), add a vitest case with memory('{\"save\":{\"key\":\"g\"}}') expecting {} (fail-first). Minor: unit-pass.log (07:21) is older than store.ts (07:26); my rerun passes so not blocking."
+  },
+  "review": {
+    "by": "agent-9dc8",
+    "at": "2026-10-28T11:35:44+00:00",
+    "verdict": "approved",
+    "note": "Verified: readShortcuts now drops stored overrides via chordProblem (no Cmd/Ctrl/Alt unless F1-F12; Control-folded reserved/clash, checked against other stored overrides); valid and F-key overrides survive; corrupt JSON returns {} (no throw). Fail-first 3 red in repair-unit-failfirst.log; repair-unit-pass.log (07:34:37) newer than store.ts (07:34:26). My rerun: tsc 0, vitest src/shortcuts 18/18."
+  },
+  "log": [
+    {
+      "at": "2026-10-28T11:19:06+00:00",
+      "agent": "agent-50eb",
+      "event": "created",
+      "note": ""
+    },
+    {
+      "at": "2026-10-28T11:20:27+00:00",
+      "agent": "agent-5864",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-10-28T11:20:27+00:00",
+      "agent": "agent-5864",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-10-28T11:26:56+00:00",
+      "agent": "agent-5864",
+      "event": "review requested",
+      "note": "T162 done (CLAIMED). chordProblem in src/shortcuts/store.ts now (1) refuses a chord with none of Command/Control/Option with 'Add Command, Control or Option to that shortcut.' (function keys F1-F12 excepted, documented in the code comment; Shift+letter, bare letters, Enter, Space, Backspace, Tab, arrows refused), (2) compares Control-folded chords (Ctrl as Command) for both reserved and taken checks, so Ctrl+S for New section says taken by Save. No change needed in ShortcutsSettings.tsx: the existing inline status line shows the message and stays in recording with the chord unchanged. Tests: 3 new vitest cases in shortcuts.test.ts (fail-first: 2 failed before fix, log node_modules/.cache/personal-word-beta/ui3-t162/unit-failfirst.log; 14/14 pass after, unit-pass.log); new Playwright case in tests/shortcuts.spec.ts (bare g for Save refused with message, chord stays, nothing stored; Ctrl+S for New section refused). Playwright fail-first on a doctored build (checks disabled) fails the new case (node_modules/.cache/personal-word-beta/ui3-t162/pw-failfirst.log); fixed build tests/shortcuts.spec.ts + tests/editor-toolbar.spec.ts 14/14 pass (node_modules/.cache/personal-word-beta/ui3-t162/pw.log, port 1670, private outDir). tsc --noEmit 0. Serial slot released. Paths added: node_modules/.cache/personal-word-beta/ui3-t162. DESIGN DOC: Settings > Shortcuts also refuses a chord with no Command, Control or Option (function keys excepted) with an inline reason, and treats Control as Command when checking reserved and taken chords."
+    },
+    {
+      "at": "2026-10-28T11:27:42+00:00",
+      "agent": "agent-c535",
+      "event": "rejected",
+      "note": "Core fix is good: tsc 0, vitest src/shortcuts 14/14 on my rerun; fail-first log shows 2 red before fix; message 'Add Command, Control or Option to that shortcut.' is clear; Ctrl+S for New section now refused as taken by Save; Ctrl+C reserved; no default chord is refused (all defaults have Cmd; Shift+Enter is read-only and not recordable, any user attempt at it gets the modifier message). GAP: readShortcuts in src/shortcuts/store.ts still keeps any stored override that isChord accepts, so a previously stored bare chord (e.g. Save = g, the F1 probe state) or a stored Ctrl duplicate still loads and keeps shadowing typing after this fix. Required behaviour: stored overrides that are now invalid must be dropped on read. Fix: in readShortcuts skip a value when it has no meta/ctrl/alt and is not F1-F12 (reuse the same check as chordProblem), add a vitest case with memory('{\"save\":{\"key\":\"g\"}}') expecting {} (fail-first). Minor: unit-pass.log (07:21) is older than store.ts (07:26); my rerun passes so not blocking."
+    },
+    {
+      "at": "2026-10-28T11:34:01+00:00",
+      "agent": "agent-dc87",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-10-28T11:34:44+00:00",
+      "agent": "agent-dc87",
+      "event": "review requested",
+      "note": "Repair: readShortcuts now drops stored overrides that chordProblem refuses (bare keys, Control-folded reserved/clashing chords), checked against the other stored overrides so valid moved chords are kept; corrupt storage still returns {}. 4 new vitest cases; fail-first 3 red (node_modules/.cache/personal-word-beta/ui3-t162/repair-unit-failfirst.log), after fix src/shortcuts 18/18 (repair-unit-pass.log), tsc 0 (repair-tsc.log). No Playwright added (optional; serial slot not used). CLAIMED."
+    },
+    {
+      "at": "2026-10-28T11:35:44+00:00",
+      "agent": "agent-9dc8",
+      "event": "approved",
+      "note": "Verified: readShortcuts now drops stored overrides via chordProblem (no Cmd/Ctrl/Alt unless F1-F12; Control-folded reserved/clash, checked against other stored overrides); valid and F-key overrides survive; corrupt JSON returns {} (no throw). Fail-first 3 red in repair-unit-failfirst.log; repair-unit-pass.log (07:34:37) newer than store.ts (07:34:26). My rerun: tsc 0, vitest src/shortcuts 18/18."
+    }
+  ]
+}

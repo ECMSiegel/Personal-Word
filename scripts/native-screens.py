@@ -24,7 +24,7 @@ ROOT = Path(__file__).resolve().parents[1]
 BINARY = ROOT / "src-tauri/target/debug/folio"
 DIAGNOSTIC_PROTOCOL = "d1-profile-isolation-v1"
 SCENARIOS = ("light", "dark")
-SCREENS = ("projects", "writing", "research", "settings", "pdf-preview")
+SCREENS = ("projects", "writing", "writing-pages", "research", "settings", "pdf-preview")
 
 
 def tail(path, lines=40):

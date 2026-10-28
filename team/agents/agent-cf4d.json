@@ -1,0 +1,9 @@
+{
+  "id": "agent-cf4d",
+  "label": "Claude Sonnet reviewer-worker 4 (wave 3)",
+  "joined_at": "2026-10-28T08:35:14+00:00",
+  "last_seen": "2026-10-28T08:39:10+00:00",
+  "status": "left",
+  "current_task": null,
+  "inbox_cursor": 714
+}

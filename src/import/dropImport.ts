@@ -19,6 +19,12 @@ export async function readDroppedPath(path: string): Promise<File> {
   return new File([bytes], baseName(path));
 }
 
+/** Mac app: like readDroppedPath, but only for a dropped PDF (at most 25 MB) headed for a source's PDF slot. */
+export async function readDroppedPdf(path: string): Promise<File> {
+  const bytes = await invoke<ArrayBuffer | Uint8Array<ArrayBuffer>>("read_dropped_pdf", { path });
+  return new File([bytes], baseName(path), { type: "application/pdf" });
+}
+
 /** Mac app: Tauri takes file drags before WebKit, so listen to its drag-drop event. */
 export async function listenForNativeDrops(handlers: {
   onHover: (over: boolean) => void;

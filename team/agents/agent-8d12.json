@@ -1,0 +1,9 @@
+{
+  "id": "agent-8d12",
+  "label": "Claude Sonnet worker T133 (E3 finish 2)",
+  "joined_at": "2026-10-28T08:01:32+00:00",
+  "last_seen": "2026-10-28T08:04:22+00:00",
+  "status": "left",
+  "current_task": null,
+  "inbox_cursor": 699
+}

@@ -1,0 +1,9 @@
+{
+  "id": "agent-8946",
+  "label": "Claude Sonnet worker T164",
+  "joined_at": "2026-10-28T11:20:23+00:00",
+  "last_seen": "2026-10-28T11:23:15+00:00",
+  "status": "active",
+  "current_task": null,
+  "inbox_cursor": 0
+}

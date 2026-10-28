@@ -1,0 +1,9 @@
+{
+  "id": "agent-20df",
+  "label": "Claude Sonnet worker T139 repair",
+  "joined_at": "2026-10-28T07:32:25+00:00",
+  "last_seen": "2026-10-28T08:00:41+00:00",
+  "status": "left",
+  "current_task": null,
+  "inbox_cursor": 693
+}

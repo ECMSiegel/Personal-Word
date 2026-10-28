@@ -1,0 +1,92 @@
+{
+  "id": "T134",
+  "title": "UI wave 3 A1: Bibliography only when it means something; notes back under Research (App lane)",
+  "description": "Follow docs/agent-work/2026-10-28-ui-wave-3/PLAN.md section A1 exactly (Files, Interfaces, Steps, Acceptance check, Fail-first, Stop-and-ask, Default) and read its Context, Rules and Notes for the implementer first; RESEARCH.md beside it has the evidence. House rules: register paths = this task's seeded Files (already registered on claim; add more only via files add); serial slot (node_modules/.cache/personal-word-beta/team-serial-check-slot) via files add right before the first expensive check and keep it until done; pinned Node; quoted --outDir on PREVIEW port 1600+N; never edit docs/design-system.md (write DESIGN DOC: text in the done note); motion checks in tests/motion-uN.spec.ts; native rendering runs only with the screen unlocked, by Claude agents or the owner; never put backticks in double-quoted shell text; no installs, no commits; status CLAIMED; independent review required.",
+  "status": "done",
+  "owner": null,
+  "priority": 1,
+  "depends_on": [],
+  "files": [
+    "src/App.tsx",
+    "tests/research.spec.ts",
+    "node_modules/.cache/personal-word-beta/ui3-a1"
+  ],
+  "review_required": true,
+  "created_by": "agent-9d21",
+  "created_at": "2026-10-28T04:50:54+00:00",
+  "claimed_at": "2026-10-28T08:15:40+00:00",
+  "updated_at": "2026-10-28T08:38:59+00:00",
+  "handoff": {
+    "by": "agent-3c9a",
+    "at": "2026-10-28T06:34:54+00:00",
+    "text": "Code and tests WRITTEN but NOT run (serial slot was held by T131 then T139 for ~35 min; never acquired). Done in src/App.tsx: module helper showBibliography(project) before clampAside; Research collectionItems = optional Bibliography row, sources (+PDF child rows), then notes (id, text.slice(0,70)||Research note, detail kind); onCollectionSelect branches on project.research.notes membership -> setResearchTab(notes), setFocusFootnote(undefined), bump researchEpoch, no setFocusSource; useEffect before 'const item = project?.entries.find' resets destination bibliography -> manuscript when showBibliography is false. tests/research.spec.ts: new test at end 'Research sidebar group: no Bibliography without sources...' (Blank empty -> 0 rows; add a note -> note row; click it opens Notes tab; Chicago project -> Bibliography first row). Next: acquire slot (files add ...team-serial-check-slot), run npx tsc --noEmit -p ., then PREVIEW(4) port 1604 tests/research.spec.ts tests/sidebar-selection.spec.ts; do fail-first by stashing the App.tsx hunks (cmp to restore) and confirm the new test fails; check my test selectors (Add note button, Note text label, Notes button aria-pressed, Chicago template button) work; unrelated: a note with sourceId (quote) also lists in the sidebar since plan maps all notes -- consider filtering !n.sourceId only if the plan owner agrees. Then done T134 with DESIGN DOC: none. Not redo: the edits. \nsrc/App.tsx: uncommitted edits\ntests/research.spec.ts: uncommitted edits\nnode_modules/.cache/personal-word-beta/ui3-a1: clean"
+  },
+  "review": {
+    "by": "agent-cf4d",
+    "at": "2026-10-28T08:38:59+00:00",
+    "verdict": "approved",
+    "note": "Static review of A1 hunks (App.tsx now also carries A2 hunks; reviewed only A1): showBibliography matches the plan interface exactly; Research list order Bibliography?, sources+PDF rows, notes (id, text.slice(0,70)||Research note, detail kind); onCollectionSelect branches on research.notes membership -> Notes tab, clears focusFootnote and focusSource, bumps researchEpoch; effect falls back destination bibliography -> manuscript when showBibliography goes false (manuscript fallback confirmed). UI-only: no mutate, no stored data or serialization touched, so nothing lost (Preserve writing ok). tsc --noEmit exit 0 on the restored tree (git stash list empty, A1 hunks present). Fail-first evidence on disk: ui3-a1/ff-run.log shows the new test failing on the baseline. The 19-passed acceptance run is the author's report; its report.json was overwritten by T135's run, so I did not re-run (slot held by f401; no stash allowed). OPEN POINT: quote notes (sourceId set) also list under Research. This matches the plan (maps ALL notes) and the owner wish 'put the notes under the research section'; I judge that acceptable and consistent, and a quote row opens the Notes tab where the note lives. Optional later: filter or show the source in detail for quotes. Test selectors look sound. DESIGN DOC: none."
+  },
+  "log": [
+    {
+      "at": "2026-10-28T04:50:54+00:00",
+      "agent": "agent-9d21",
+      "event": "created",
+      "note": ""
+    },
+    {
+      "at": "2026-10-28T05:50:26+00:00",
+      "agent": "agent-3c9a",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-10-28T05:50:29+00:00",
+      "agent": "agent-3c9a",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-10-28T06:34:54+00:00",
+      "agent": "agent-3c9a",
+      "event": "handoff",
+      "note": "Code and tests WRITTEN but NOT run (serial slot was held by T131 then T139 for ~35 min; never acquired). Done in src/App.tsx: module helper showBibliography(project) before clampAside; Research collectionItems = optional Bibliography row, sources (+PDF child rows), then notes (id, text.slice(0,70)||Research note, detail kind); onCollectionSelect branches on project.research.notes membership -> setResearchTab(notes), setFocusFootnote(undefined), bump researchEpoch, no setFocusSource; useEffect before 'const item = project?.entries.find' resets destination bibliography -> manuscript when showBibliography is false. tests/research.spec.ts: new test at end 'Research sidebar group: no Bibliography without sources...' (Blank empty -> 0 rows; add a note -> note row; click it opens Notes tab; Chicago project -> Bibliography first row). Next: acquire slot (files add ...team-serial-check-slot), run npx tsc --noEmit -p ., then PREVIEW(4) port 1604 tests/research.spec.ts tests/sidebar-selection.spec.ts; do fail-first by stashing the App.tsx hunks (cmp to restore) and confirm the new test fails; check my test selectors (Add note button, Note text label, Notes button aria-pressed, Chicago template button) work; unrelated: a note with sourceId (quote) also lists in the sidebar since plan maps all notes -- consider filtering !n.sourceId only if the plan owner agrees. Then done T134 with DESIGN DOC: none. Not redo: the edits. \nsrc/App.tsx: uncommitted edits\ntests/research.spec.ts: uncommitted edits\nnode_modules/.cache/personal-word-beta/ui3-a1: clean"
+    },
+    {
+      "at": "2026-10-28T06:35:21+00:00",
+      "agent": "agent-9249",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-10-28T06:35:22+00:00",
+      "agent": "agent-9249",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-10-28T08:15:40+00:00",
+      "agent": "agent-f401",
+      "event": "reclaimed from agent-9249",
+      "note": ""
+    },
+    {
+      "at": "2026-10-28T08:15:55+00:00",
+      "agent": "agent-f401",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-10-28T08:22:37+00:00",
+      "agent": "agent-f401",
+      "event": "review requested",
+      "note": "T134 (A1) done. PROVENANCE: implemented by agent-3c9a (handoff 06:34Z: code and tests written but never run -- the serial slot never freed); agent-9249 claimed it to run verification and went stale without running anything; reclaimed and verified by agent-f401 under the protocol stale path.\n\nWHAT CHANGED (all authored by agent-3c9a, unchanged by me; verified against plan section A1). src/App.tsx: module helper showBibliography(project) -- true for the Chicago template, or when the project has at least one source, or when any footnote has a sourceId -- exactly the plan's interface. The Research collection now lists the Bibliography row only when showBibliography is true, then sources with their PDF child rows, then research notes mapped as id, title = text.slice(0, 70) or \"Research note\", detail = kind. onCollectionSelect branches on membership in project.research.notes: a note opens the Research panel on the Notes tab, bumps researchEpoch, clears focusFootnote and does not set focusSource; sources unchanged. A new effect resets the destination from bibliography to manuscript when showBibliography turns false (last source deleted). tests/research.spec.ts: new end-of-file case \"Research sidebar group: no Bibliography without sources, Chicago always has it, notes sit under Research\" covering the plan's four assertions (Blank with nothing lists 0 rows; a note lists under Research and clicking it opens the Notes tab with Notes aria-pressed; Blank plus one source makes Bibliography appear with source and note rows in order; a Chicago project lists Bibliography first) plus source-then-note selection ordering.\n\nRECORDED NOTE FROM THE HANDOFF (kept as-is): a quote note (a note with a sourceId) also lists in the sidebar because the plan maps ALL notes; filtering !n.sourceId would be a plan change, so it ships unfiltered and is flagged for the plan owner.\n\nFAIL-FIRST: stash of the src/App.tsx A1 hunks (baseline b3a151a App.tsx, all other lanes' files untouched), fresh baseline build to ui3-a1/ff-dist (exit 0), the new test run against it FAILED as intended (exit 1; toHaveCount failure on the Blank-project rows -- ui3-a1/ff-run.log, ff-build.log), stash popped and src/App.tsx verified byte-identical against the pre-stash copy (cmp).\n\nACCEPTANCE (plan PREVIEW(4)): npx tsc --noEmit -p . exit 0; fresh vite build exit 0 to ui3-review-f401/dist; Playwright on port 1671 (config ui3-review-f401/browser.config.mjs, workers 1, retries 0): tests/research.spec.ts + tests/sidebar-selection.spec.ts = 19 passed, 0 failed, including the pre-existing list case at research.spec:361.\n\nDESIGN DOC: none (nothing design-system-level in this task).\n\nPATH STATES: src/App.tsx uncommitted edits; tests/research.spec.ts uncommitted edits; node_modules/.cache/personal-word-beta/ui3-a1 clean; node_modules/.cache/personal-word-beta/team-serial-check-slot clean (released by this done)."
+    },
+    {
+      "at": "2026-10-28T08:38:59+00:00",
+      "agent": "agent-cf4d",
+      "event": "approved",
+      "note": "Static review of A1 hunks (App.tsx now also carries A2 hunks; reviewed only A1): showBibliography matches the plan interface exactly; Research list order Bibliography?, sources+PDF rows, notes (id, text.slice(0,70)||Research note, detail kind); onCollectionSelect branches on research.notes membership -> Notes tab, clears focusFootnote and focusSource, bumps researchEpoch; effect falls back destination bibliography -> manuscript when showBibliography goes false (manuscript fallback confirmed). UI-only: no mutate, no stored data or serialization touched, so nothing lost (Preserve writing ok). tsc --noEmit exit 0 on the restored tree (git stash list empty, A1 hunks present). Fail-first evidence on disk: ui3-a1/ff-run.log shows the new test failing on the baseline. The 19-passed acceptance run is the author's report; its report.json was overwritten by T135's run, so I did not re-run (slot held by f401; no stash allowed). OPEN POINT: quote notes (sourceId set) also list under Research. This matches the plan (maps ALL notes) and the owner wish 'put the notes under the research section'; I judge that acceptable and consistent, and a quote row opens the Notes tab where the note lives. Optional later: filter or show the source in detail for quotes. Test selectors look sound. DESIGN DOC: none."
+    }
+  ]
+}

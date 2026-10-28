@@ -1,0 +1,9 @@
+{
+  "id": "agent-64fe",
+  "label": "Claude Sonnet worker T149 (N4)",
+  "joined_at": "2026-10-28T09:16:56+00:00",
+  "last_seen": "2026-10-28T09:46:08+00:00",
+  "status": "left",
+  "current_task": null,
+  "inbox_cursor": 776
+}

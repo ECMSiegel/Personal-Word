@@ -1,0 +1,62 @@
+{
+  "id": "T158",
+  "title": "Projects screen: DropTarget's Select files button is an orphan 69 x 17 px control",
+  "description": "Found in the agent-a6ec review pass of T149 (N4). T149's approval stands; this is a follow-up, not a rejection.\n\nDEFECT. N4 wrapped the Projects screen's project list in DropTarget, and DropTarget always renders its keyboard path, button.select-files (\"Select files\"). On the Projects screen that button is an orphan control:\n- Measured on the recorded N4 build (node_modules/.cache/personal-word-beta/ui3-n4/dist-live) at 1440 x 900, 2x, light and dark: box 69 x 17 CSS px at (1051, 305). That is under the 24 x 24 minimum this wave set for controls and far under the 32 px --control-height every other control in that row uses.\n- It floats at the right edge between \"No projects yet.\" and the storage note, with no label saying what it selects or where the files go (screenshot: node_modules/.cache/personal-word-beta/a6ec-n4-review/shots/projects-idle-light.png and -dark.png).\n- Its accessible name is \"Select files\" with no context, on a screen whose action is importing writing.\n- Cause: src/components/drop-target.css gives .select-files only a font-size and colour; DropTarget hardcodes the label \"Select files\"; ProjectLibrary renders the DropTarget around the whole list, so the button lands in the list flow.\n\nSUGGESTED FIX (either is acceptable; keep the DropTarget outline and states as they are):\n(a) Let DropTarget take a label for its button (e.g. selectLabel) and place the Projects one in the toolbar row beside \"Start new project\" as a text button at --control-height, reading \"Import writing\" to match the importer; or\n(b) keep it inside the region but give it the shared text-button treatment at --control-height, right-aligned on its own row, with aria-label \"Import writing (text, Markdown, Word, HTML or a .zip bundle)\".\n\nACCEPTANCE. The Projects screen's import control measures at least 32 px tall, sits in a labelled position, has an accessible name that says what it imports, and the keyboard path still opens the picker and imports the chosen file (tests/drop-target.spec.ts \"Select files on the Projects list opens the picker and imports the chosen file\" must still pass). The Research PDF slot keeps its own label.\n\nFILES. src/components/DropTarget.tsx, src/components/drop-target.css, src/components/library.css, src/components/ProjectLibrary.tsx, tests/drop-target.spec.ts. Coordinate with T157, which also touches DropTarget.tsx and ResearchPanel.tsx for the native PDF command; re-read those files before editing.\n\nEVIDENCE. Screenshots and the measurement are in node_modules/.cache/personal-word-beta/a6ec-n4-review/. Chromium only.",
+  "status": "done",
+  "owner": null,
+  "priority": 2,
+  "depends_on": [],
+  "files": [
+    "src/components/DropTarget.tsx",
+    "src/components/drop-target.css",
+    "src/components/library.css",
+    "src/components/ProjectLibrary.tsx",
+    "tests/drop-target.spec.ts",
+    "node_modules/.cache/personal-word-beta/ui3-selectfiles",
+    "node_modules/.cache/personal-word-beta/team-serial-check-slot"
+  ],
+  "review_required": true,
+  "created_by": "agent-a6ec",
+  "created_at": "2026-10-28T10:05:12+00:00",
+  "claimed_at": "2026-10-28T10:06:02+00:00",
+  "updated_at": "2026-10-28T10:33:36+00:00",
+  "handoff": null,
+  "review": {
+    "by": "agent-09e2",
+    "at": "2026-10-28T10:33:36+00:00",
+    "verdict": "approved",
+    "note": "Approved (not rerun). Read: DropTarget openPicker/selectLabel/selectAriaLabel hunks and library.css .library-import (height --control-height, no fill, muted to text on hover/focus); ProjectLibrary wires the toolbar button 'Import writing' with the long aria-label. Evidence consistent: build dist-new 06:29 is newer than every touched source (06:06-06:07); pw-failfirst-pre.log 2 failed on N4 build, pw-new.log 55/55 (drop-target, projects-screen, research-pdf, alignment). Viewed projects-import-dark.png: button reads Import writing beside Start new project, same row, muted text, no grey box. Limits: Chromium only; light shot and keyboard test not viewed/rerun by me; library.css diff also carries other-task hunks (settings dialog, drop-target margins) not reviewed here."
+  },
+  "log": [
+    {
+      "at": "2026-10-28T10:05:12+00:00",
+      "agent": "agent-a6ec",
+      "event": "created",
+      "note": ""
+    },
+    {
+      "at": "2026-10-28T10:06:02+00:00",
+      "agent": "agent-272f",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-10-28T10:06:03+00:00",
+      "agent": "agent-272f",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-10-28T10:30:49+00:00",
+      "agent": "agent-272f",
+      "event": "review requested",
+      "note": "T158 built (CLAIMED, not VERIFIED), Chromium only. Fix (a): DropTarget gained selectLabel, selectAriaLabel and openPicker (a ref; when given, the in-region Select files button is not rendered and the picker is opened from outside). ProjectLibrary now has a toolbar text button 'Import writing' (aria-label 'Import writing (text, Markdown, Word, HTML or a .zip bundle)') right of Start new project, calling the DropTarget picker; DropTarget outline/states unchanged; the Research PDF slot still renders its own in-region Select files (default). library.css: .library-import at --control-height, min-width 24, muted -> text on hover/focus, no fill; removed the old .select-files list margin rule. tests/drop-target.spec.ts: the Projects Select-files test is replaced by one asserting name, no .select-files left in the region, size >= 24x24 and >= control-height (32), same row/centre as Start new project and to its right, light+dark shots, picker opens and imports picked.md; plus a keyboard (focus+Enter) test. Fail-first on the N4 build (ui3-n4/dist-live): both new tests fail (toHaveText / element not found). New build: tsc 0; vitest src/components 28/28; Playwright drop-target, projects-screen, research-pdf, alignment 55/55 (pw-new.log). Evidence in node_modules/.cache/personal-word-beta/ui3-selectfiles (pw-failfirst-pre.log, pw-new.log, build.log, shots/projects-import-light.png and projects-import-dark.png viewed: button reads Import writing beside Start new project, same row, muted text, no grey box). Not run: native WebKit, cargo, full suite. DESIGN DOC: The Projects screen's import control is a text button 'Import writing' in the toolbar beside Start new project at --control-height (muted, text on hover); DropTarget keeps its outline and accepts selectLabel/selectAriaLabel or openPicker to move its picker button elsewhere; a source PDF slot keeps its in-region Select files."
+    },
+    {
+      "at": "2026-10-28T10:33:36+00:00",
+      "agent": "agent-09e2",
+      "event": "approved",
+      "note": "Approved (not rerun). Read: DropTarget openPicker/selectLabel/selectAriaLabel hunks and library.css .library-import (height --control-height, no fill, muted to text on hover/focus); ProjectLibrary wires the toolbar button 'Import writing' with the long aria-label. Evidence consistent: build dist-new 06:29 is newer than every touched source (06:06-06:07); pw-failfirst-pre.log 2 failed on N4 build, pw-new.log 55/55 (drop-target, projects-screen, research-pdf, alignment). Viewed projects-import-dark.png: button reads Import writing beside Start new project, same row, muted text, no grey box. Limits: Chromium only; light shot and keyboard test not viewed/rerun by me; library.css diff also carries other-task hunks (settings dialog, drop-target margins) not reviewed here."
+    }
+  ]
+}

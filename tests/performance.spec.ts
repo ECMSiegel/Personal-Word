@@ -164,3 +164,63 @@ test(`100k words across 60 sections and 1000 notes meet the synthetic input budg
 });
 
 }
+
+// Page view (wave 3, P2) re-measures page spacers after each edit; the same
+// budget applies. About 29,000 words in one section, about 90 pages.
+test("page view on a 90-page section meets the synthetic input budget", async ({page}, info) => {
+  test.setTimeout(180_000);
+  await create(page,"Page view benchmark");
+  await page.evaluate(() => {
+    const key=Object.keys(localStorage).find(key=>key.startsWith("folio.preview.project."))!;
+    const p=JSON.parse(localStorage.getItem(key)!);
+    const words=["alpha","beta","gamma","delta","evidence","measure","page"];
+    const blocks:any[]=[];const footnotes:any[]=[];
+    for(let i=0;i<640;i++){
+      if(i%12===0)blocks.push({type:"heading",attrs:{level:2},content:[{type:"text",text:`Heading ${i/12+1}`}]});
+      const content:any[]=[{type:"text",text:`P${i} `+Array.from({length:28+(i%9)*4},(_,j)=>words[(i+j)%7]).join(" ")+"."}];
+      if(i%40===5){const id=`page-bench-${i}`;footnotes.push({id,text:`Note ${i}.`});content.push({type:"footnoteReference",attrs:{id}});}
+      blocks.push({type:"paragraph",content});
+    }
+    p.entries[0].content={type:"doc",content:blocks};
+    p.entries[0].text=blocks.map(b=>b.content.map((c:any)=>c.text??"").join("")).join("\n");
+    p.research={...(p.research??{}),sources:[],notes:[],footnotes};
+    localStorage.setItem(key,JSON.stringify(p));
+    localStorage.setItem("personal-word.restoreTabs","true");
+    localStorage.setItem("folio.lastProject",p.id);
+    localStorage.setItem("personal-word.prose-check","false");
+  });
+  await page.reload();
+  const editor=page.getByRole("textbox",{name:"Writing editor",exact:true});
+  await expect(editor).toBeVisible();
+  const toggle=page.getByRole("button",{name:"Page view",exact:true});
+  if(!(await toggle.count()))await page.getByRole("button",{name:"More formatting"}).click();
+  await toggle.click();
+  await page.keyboard.press("Escape");
+  await expect.poll(()=>page.locator(".page-spacer").count()).toBeGreaterThan(40);
+  const sample=async(where:"start"|"middle")=>{
+    await editor.evaluate((element:any,where:string)=>{
+      const ed=element.editor;
+      let target=3;let index=0;
+      if(where==="middle")ed.state.doc.forEach((_node:any,offset:number)=>{if(index++===Math.floor(ed.state.doc.childCount/2))target=offset+3;});
+      ed.commands.setTextSelection(target);ed.commands.focus();
+      const sync:number[]=[];const paint:number[]=[];let started:number|null=null;
+      (window as any).__pageSamples={sync,paint};
+      const key=(event:KeyboardEvent)=>{if(event.key!=="x")return;const t=performance.now();started=t;requestAnimationFrame(()=>requestAnimationFrame(()=>paint.push(performance.now()-t)));};
+      const update=()=>{if(started!==null){sync.push(performance.now()-started);started=null;}};
+      element.addEventListener("keydown",key);ed.on("update",update);
+      (window as any).__stopPageSamples=()=>{element.removeEventListener("keydown",key);ed.off("update",update);};
+    },where);
+    await editor.pressSequentially("x".repeat(200));
+    await page.evaluate(()=>new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(()=>setTimeout(r,200)))));
+    return page.evaluate(()=>{(window as any).__stopPageSamples();return (window as any).__pageSamples as {sync:number[];paint:number[]};});
+  };
+  const start=await sample("start");
+  const middle=await sample("middle");
+  await info.attach("page-view-input-samples",{body:JSON.stringify({start,middle}),contentType:"application/json"});
+  for(const run of [start,middle]){
+    expect(run.sync).toHaveLength(200);
+    const sorted=[...run.sync].sort((a,b)=>a-b);
+    expect(sorted[Math.floor(sorted.length/2)]).toBeLessThanOrEqual(25);
+    expect(sorted[Math.ceil(sorted.length*.95)-1]).toBeLessThanOrEqual(50);
+  }
+});

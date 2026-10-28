@@ -1,0 +1,9 @@
+{
+  "id": "agent-987c",
+  "label": "Claude Opus worker T146 (P1 spike)",
+  "joined_at": "2026-10-28T05:49:24+00:00",
+  "last_seen": "2026-10-28T07:21:22+00:00",
+  "status": "left",
+  "current_task": null,
+  "inbox_cursor": 651
+}

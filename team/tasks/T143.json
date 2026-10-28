@@ -1,0 +1,60 @@
+{
+  "id": "T143",
+  "title": "UI wave 3 N2: Drag-to-reorder hook (New-modules lane)",
+  "description": "Follow docs/agent-work/2026-10-28-ui-wave-3/PLAN.md section N2 exactly (Files, Interfaces, Steps, Acceptance check, Fail-first, Stop-and-ask, Default) and read its Context, Rules and Notes for the implementer first; RESEARCH.md beside it has the evidence. House rules: register paths = this task's seeded Files (already registered on claim; add more only via files add); serial slot (node_modules/.cache/personal-word-beta/team-serial-check-slot) via files add right before the first expensive check and keep it until done; pinned Node; quoted --outDir on PREVIEW port 1600+N; never edit docs/design-system.md (write DESIGN DOC: text in the done note); motion checks in tests/motion-uN.spec.ts; native rendering runs only with the screen unlocked, by Claude agents or the owner; never put backticks in double-quoted shell text; no installs, no commits; status CLAIMED; independent review required.",
+  "status": "done",
+  "owner": null,
+  "priority": 1,
+  "depends_on": [],
+  "files": [
+    "src/components/dragReorder.ts",
+    "src/components/useDragReorder.ts",
+    "src/components/dragReorder.test.ts",
+    "src/components/drag-reorder.css",
+    "node_modules/.cache/personal-word-beta/ui3-n2"
+  ],
+  "review_required": true,
+  "created_by": "agent-9d21",
+  "created_at": "2026-10-28T04:50:56+00:00",
+  "claimed_at": "2026-10-28T05:50:32+00:00",
+  "updated_at": "2026-10-28T06:15:37+00:00",
+  "handoff": null,
+  "review": {
+    "by": "agent-bc26",
+    "at": "2026-10-28T06:15:37+00:00",
+    "verdict": "approved",
+    "note": "T143 N2 approved. tsc exit 0; vitest dragReorder (18) + motion pass. Pointer events only (onPointerDown/Move/Up/Cancel, setPointerCapture), no HTML5 draggable. drag-reorder.css: 2px var(--accent) drop line via ::after, no box-shadow, only transform transitions using --duration-fast/--ease-out, lifted row transition none, prefers-reduced-motion disables transitions. 5px threshold keeps short press a click and a real drag swallows the trailing click. Escape (capture keydown) and pointercancel cancel without reorder. Note: rows must be siblings under one parent and count must equal items.length, else drag silently does not start; N4 must honour that. Full npm test not run by reviewer (author saw one load timeout in document.test.ts, passes alone)."
+  },
+  "log": [
+    {
+      "at": "2026-10-28T04:50:56+00:00",
+      "agent": "agent-9d21",
+      "event": "created",
+      "note": ""
+    },
+    {
+      "at": "2026-10-28T05:50:32+00:00",
+      "agent": "agent-c02d",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-10-28T05:50:39+00:00",
+      "agent": "agent-c02d",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-10-28T06:12:52+00:00",
+      "agent": "agent-c02d",
+      "event": "review requested",
+      "note": "Created src/components/dragReorder.ts (pure: insertionIndex, reorder, clampOffset, shiftFor, dropEdge, DragController with threshold/cancel), useDragReorder.ts (hook), dragReorder.test.ts (18 tests), drag-reorder.css. Verified: tests failed first (module missing), then 18 pass; tsc 0; src/motion.test.ts passes with the new CSS; full npm test 1009/1010, sole failure src/export/document.test.ts PDF timeout 5s under load, passes alone (32/32). No Playwright/native run (N4 integrates). CLAIMED. API for N4: useDragReorder({items,onReorder(from,to),threshold=5}) returns {rowProps(index), dragging}. rowProps adds data-drag-index/data-drag-state(lifted|shifted)/data-drag-edge(top|bottom) beyond the plan's keys; rows MUST be siblings sharing one parent (hook measures parent's :scope > [data-drag-index], count must equal items.length, else no drag); spread rowProps last or merge style; import drag-reorder.css once. The click ending a real drag is swallowed. Escape/pointercancel cancels. Keyboard reorder stays with existing arrow buttons (hook adds none). Drop line is a ::after on the target row (no separate .drop-line element). DESIGN DOC: Drag to reorder -- pointer events with capture after 5 px travel (below that a press stays a click); the lifted row follows the pointer by transform: translateY, clamped to the list; siblings between source and target step aside by the lifted row's height (transform only, --duration-fast --ease-out); a 2 px --accent line on the target row's edge marks the landing slot; no shadow; Escape cancels; reduced motion removes the shift transition. Keyboard reordering stays on the move buttons. Files: src/components/dragReorder.ts: uncommitted edits"
+    },
+    {
+      "at": "2026-10-28T06:15:37+00:00",
+      "agent": "agent-bc26",
+      "event": "approved",
+      "note": "T143 N2 approved. tsc exit 0; vitest dragReorder (18) + motion pass. Pointer events only (onPointerDown/Move/Up/Cancel, setPointerCapture), no HTML5 draggable. drag-reorder.css: 2px var(--accent) drop line via ::after, no box-shadow, only transform transitions using --duration-fast/--ease-out, lifted row transition none, prefers-reduced-motion disables transitions. 5px threshold keeps short press a click and a real drag swallows the trailing click. Escape (capture keydown) and pointercancel cancel without reorder. Note: rows must be siblings under one parent and count must equal items.length, else drag silently does not start; N4 must honour that. Full npm test not run by reviewer (author saw one load timeout in document.test.ts, passes alone)."
+    }
+  ]
+}

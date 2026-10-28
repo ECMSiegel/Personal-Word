@@ -1,4 +1,4 @@
-import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   ArrowDown,
   ArrowUp,
@@ -17,10 +17,11 @@ import {
   Search,
 } from "lucide-react";
 import { entryWords, type Project, type Entry } from "../model";
-import { slideHighlight } from "../motion";
 import type { PaneContent } from "../split";
 import { readSidebarPreferences, writeSidebarPreferences } from "../sidebarPreferences";
 import { Dropdown } from "./Dropdown";
+import { useDragReorder } from "./useDragReorder";
+import "./drag-reorder.css";
 export const workspaceGroups = [
   "manuscript",
   "fragments",
@@ -34,35 +35,6 @@ export const workspaceGroups = [
 export const collapsibleGroups = ["manuscript", "fragments", "research"];
 /** Feature shortcuts that sit at the bottom of the sidebar. */
 export const bottomGroups = ["read", "comments", "history", "settings"];
-
-function selectedHighlightTarget(container: HTMLElement): HTMLElement | null {
-  const selectedEntry = Array.from(
-    container.querySelectorAll<HTMLElement>(".entry-row.selected"),
-  ).find((row) => !row.closest(".cards-view"));
-  return (
-    selectedEntry ?? container.querySelector<HTMLElement>(".group-title.selected")
-  );
-}
-
-function placeHighlightImmediately(
-  container: HTMLElement,
-  highlight: HTMLElement,
-) {
-  highlight.getAnimations().forEach((animation) => animation.cancel());
-  const target = selectedHighlightTarget(container);
-  if (!target) {
-    highlight.style.opacity = "0";
-    return;
-  }
-  const containerBox = container.getBoundingClientRect();
-  const targetBox = target.getBoundingClientRect();
-  const x =
-    targetBox.left - containerBox.left - container.clientLeft + container.scrollLeft;
-  const y =
-    targetBox.top - containerBox.top - container.clientTop + container.scrollTop;
-  highlight.style.transform = `translate(${x}px, ${y}px) scale(${targetBox.width}, ${targetBox.height})`;
-  highlight.style.opacity = "1";
-}
 
 type Props = {
   project: Project;
@@ -123,14 +95,25 @@ export function ProjectSidebar(props: Props) {
   });
   const [editingTitle, setEditingTitle] = useState(false);
   const [titleDraft, setTitleDraft] = useState("");
+  const titleButtonRef = useRef<HTMLButtonElement>(null);
+  const suppressTitleBlur = useRef(false);
+  const [titleRefocus, setTitleRefocus] = useState(false);
+  const commitTitle = () => {
+    const next = titleDraft.trim();
+    if (next && next !== project.title) onRenameProject(next);
+    setEditingTitle(false);
+  };
+  useEffect(() => {
+    if (!editingTitle && titleRefocus) {
+      titleButtonRef.current?.focus();
+      setTitleRefocus(false);
+    }
+  }, [editingTitle, titleRefocus]);
   const [revealed, setRevealed] = useState(false);
   const [focusKey, setFocusKey] = useState(0);
   const pinnedRef = useRef(prefs.pinned);
-  const previewDragRestorers = useRef(new Set<() => void>());
   const groupsContainer = useRef<HTMLDivElement>(null);
   const bottomGroupsContainer = useRef<HTMLElement>(null);
-  const groupsHighlight = useRef<HTMLSpanElement>(null);
-  const bottomGroupsHighlight = useRef<HTMLSpanElement>(null);
   pinnedRef.current = prefs.pinned;
   const reveal = (focus = false) => {
     setRevealed(true);
@@ -142,12 +125,6 @@ export function ProjectSidebar(props: Props) {
         ?.querySelector<HTMLElement>(".sidebar-title-row .sidebar-pin")
         ?.focus();
   }, [focusKey]);
-  useEffect(
-    () => () => {
-      for (const restore of previewDragRestorers.current) restore();
-    },
-    [],
-  );
   useEffect(() => {
     const toggle = () => {
       setPrefs((p) => ({ ...p, pinned: !p.pinned }));
@@ -206,43 +183,6 @@ export function ProjectSidebar(props: Props) {
       (id) => id === "settings" || !hiddenGroups.includes(id),
     ),
   ];
-  useLayoutEffect(() => {
-    const groups = groupsContainer.current;
-    const bottomGroups = bottomGroupsContainer.current;
-    const groupsMark = groupsHighlight.current;
-    const bottomMark = bottomGroupsHighlight.current;
-    if (!groups || !bottomGroups || !groupsMark || !bottomMark) return;
-    slideHighlight(groupsMark, selectedHighlightTarget(groups), groups);
-    slideHighlight(
-      bottomMark,
-      selectedHighlightTarget(bottomGroups),
-      bottomGroups,
-    );
-  }, [
-    active,
-    mode,
-    props.activeDestination,
-    collapsed,
-    views,
-    query,
-    order.join(),
-    prefs.width,
-  ]);
-
-  useLayoutEffect(() => {
-    const groups = groupsContainer.current;
-    const bottomGroups = bottomGroupsContainer.current;
-    const groupsMark = groupsHighlight.current;
-    const bottomMark = bottomGroupsHighlight.current;
-    if (!groups || !bottomGroups || !groupsMark || !bottomMark) return;
-    const observer = new ResizeObserver(() => {
-      placeHighlightImmediately(groups, groupsMark);
-      placeHighlightImmediately(bottomGroups, bottomMark);
-    });
-    observer.observe(groups);
-    observer.observe(bottomGroups);
-    return () => observer.disconnect();
-  }, []);
   const moveGroup = (id: string, to: number) => {
     // Only the collapsible top three reorder; the bottom rows are fixed.
     if (!collapsibleGroups.includes(id)) return;
@@ -277,6 +217,29 @@ export function ProjectSidebar(props: Props) {
   const sections = project.order
     .map((id) => project.entries.find((e) => e.id === id))
     .filter((e): e is Entry => !!e);
+  const matches = (e: Entry) =>
+    !query || (e.title + " " + e.text).toLowerCase().includes(query.toLowerCase());
+  const manuscriptEntries = sections.filter(matches);
+  // Rows drag with the pointer; the arrow buttons stay as the keyboard way to reorder.
+  const groupDrag = useDragReorder({
+    items: topOrder,
+    onReorder: (from, to) => moveGroup(topOrder[from], to),
+  });
+  const entryDrag = useDragReorder({
+    items: manuscriptEntries,
+    onReorder: (from, to) =>
+      onReorder(
+        manuscriptEntries[from].id,
+        project.order.indexOf(manuscriptEntries[to].id),
+      ),
+  });
+  /** Presses on controls inside a row stay clicks, edits and text selections. */
+  const onRow =
+    (down: (e: React.PointerEvent<HTMLElement>) => void, skip: string) =>
+    (e: React.PointerEvent<HTMLElement>) => {
+      if (e.target instanceof Element && e.target.closest(skip)) return;
+      down(e);
+    };
   const labels: Record<string, string> = {
     manuscript: "Manuscript",
     fragments: "Fragments",
@@ -301,17 +264,13 @@ export function ProjectSidebar(props: Props) {
         : id === "fragments"
           ? "fragment"
           : "research";
-    const entries = (
+    const entries =
       id === "manuscript"
-        ? sections
+        ? manuscriptEntries
         : id === "fragments"
-          ? project.entries.filter((e) => e.kind === "fragment")
-          : []
-    ).filter(
-      (e) =>
-        !query ||
-        (e.title + " " + e.text).toLowerCase().includes(query.toLowerCase()),
-    );
+          ? project.entries.filter((e) => e.kind === "fragment").filter(matches)
+          : [];
+    const dragGroup = collapsibleGroups.includes(id) ? groupDrag.rowProps(index) : null;
     return (
       <section
         className={
@@ -323,25 +282,22 @@ export function ProjectSidebar(props: Props) {
         }
         data-group={id}
         key={id}
-        onDragOver={(e) => {
-          if (collapsibleGroups.includes(id)) e.preventDefault();
-        }}
-        onDrop={(e) => {
-          if (!collapsibleGroups.includes(id)) return;
-          const group = e.dataTransfer.getData("text/personal-word-group");
-          if (group) {
-            e.preventDefault();
-            moveGroup(group, index);
+        {...dragGroup}
+        onPointerDown={
+          dragGroup
+            ? (e) => {
+            // Only the heading lifts a group; its entries and arrows keep their own presses.
+            if (
+              e.target instanceof Element &&
+              e.target.closest(".group-heading") &&
+              !e.target.closest(".group-actions")
+            )
+              dragGroup.onPointerDown(e);
           }
-        }}
+            : undefined
+        }
       >
-        <div
-          className="group-heading"
-          draggable={collapsibleGroups.includes(id)}
-          onDragStart={(e) =>
-            e.dataTransfer.setData("text/personal-word-group", id)
-          }
-        >
+        <div className="group-heading">
           <button
             className={
               "group-title " +
@@ -482,21 +438,15 @@ export function ProjectSidebar(props: Props) {
                   "entry-row " +
                   (active === e.id && mode === "write" ? "selected" : "")
                 }
-                draggable
-                onDragStart={(event) => {
-                  event.stopPropagation();
-                  event.dataTransfer.setData("text/folio-section", e.id);
-                }}
-                onDragOver={(event) => event.preventDefault()}
-                onDrop={(event) => {
-                  const dragged =
-                    event.dataTransfer.getData("text/folio-section");
-                  if (project.order.includes(dragged)) {
-                    event.preventDefault();
-                    event.stopPropagation();
-                    onReorder(dragged, project.order.indexOf(e.id));
-                  }
-                }}
+                {...(id === "manuscript" ? entryDrag.rowProps(entries.indexOf(e)) : {})}
+                onPointerDown={
+                  id === "manuscript"
+                    ? onRow(
+                        entryDrag.rowProps(entries.indexOf(e)).onPointerDown,
+                        "input, select, textarea, [role=combobox], .entry-preview, .entry-details, .reorder",
+                      )
+                    : undefined
+                }
               >
                 <button
                   className="entry-main"
@@ -504,55 +454,6 @@ export function ProjectSidebar(props: Props) {
                     onSelect(e.id, event.metaKey || event.ctrlKey)
                   }
                   onDoubleClick={() => onRename(e)}
-                  onPointerDownCapture={(event) => {
-                    const target = event.target;
-                    if (
-                      !(target instanceof Element) ||
-                      !target.closest(".entry-preview")
-                    ) {
-                      return;
-                    }
-                    const candidateRow =
-                      event.currentTarget.closest<HTMLElement>(".entry-row");
-                    if (!candidateRow || !candidateRow.draggable) return;
-                    const row: HTMLElement = candidateRow;
-
-                    // Let the browser select preview prose instead of starting
-                    // the parent row's native drag gesture.
-                    const wasDraggable = row.draggable;
-                    row.draggable = false;
-                    let restored = false;
-                    function restoreRowDrag() {
-                      if (restored) return;
-                      restored = true;
-                      row.draggable = wasDraggable;
-                      previewDragRestorers.current.delete(restoreRowDrag);
-                      document.removeEventListener("pointerup", restoreRowDrag);
-                      document.removeEventListener(
-                        "pointercancel",
-                        restoreRowDrag,
-                      );
-                      document.removeEventListener(
-                        "visibilitychange",
-                        restoreWhenHidden,
-                      );
-                      window.removeEventListener("blur", restoreRowDrag);
-                    }
-                    function restoreWhenHidden() {
-                      if (document.hidden) restoreRowDrag();
-                    }
-                    previewDragRestorers.current.add(restoreRowDrag);
-                    document.addEventListener("pointerup", restoreRowDrag);
-                    document.addEventListener(
-                      "pointercancel",
-                      restoreRowDrag,
-                    );
-                    document.addEventListener(
-                      "visibilitychange",
-                      restoreWhenHidden,
-                    );
-                    window.addEventListener("blur", restoreRowDrag);
-                  }}
                 >
                   <FileText size={16} />
                   <span>{e.title}</span>
@@ -685,22 +586,29 @@ export function ProjectSidebar(props: Props) {
               onKeyDown={(e) => {
                 if (e.key === "Enter") {
                   e.preventDefault();
-                  const next = titleDraft.trim();
-                  if (next && next !== project.title) onRenameProject(next);
-                  setEditingTitle(false);
+                  suppressTitleBlur.current = true;
+                  commitTitle();
+                  setTitleRefocus(true);
                 } else if (e.key === "Escape") {
                   e.preventDefault();
                   e.stopPropagation();
+                  suppressTitleBlur.current = true;
                   setEditingTitle(false);
+                  setTitleRefocus(true);
                 }
               }}
-              onBlur={() => setEditingTitle(false)}
+              onBlur={() => {
+                if (!suppressTitleBlur.current) commitTitle();
+                suppressTitleBlur.current = false;
+              }}
             />
           ) : (
             <button
+              ref={titleButtonRef}
               className="project-switch"
               title="Rename project"
               onClick={() => {
+                suppressTitleBlur.current = false;
                 setTitleDraft(project.title);
                 setEditingTitle(true);
               }}
@@ -728,11 +636,6 @@ export function ProjectSidebar(props: Props) {
           <kbd>⌘K</kbd>
         </div>
         <div className="sidebar-groups" ref={groupsContainer}>
-          <span
-            ref={groupsHighlight}
-            className="sidebar-highlight"
-            aria-hidden="true"
-          />
           {order
             .filter((id) => collapsibleGroups.includes(id))
             .map((id) => group(id, order.indexOf(id)))}
@@ -742,11 +645,6 @@ export function ProjectSidebar(props: Props) {
           ref={bottomGroupsContainer}
           aria-label="Project features"
         >
-          <span
-            ref={bottomGroupsHighlight}
-            className="sidebar-highlight"
-            aria-hidden="true"
-          />
           {order
             .filter((id) => !collapsibleGroups.includes(id))
             .map((id) => group(id, order.indexOf(id)))}

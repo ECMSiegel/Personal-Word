@@ -1,4 +1,5 @@
 .writer {
+  position: relative;
   display: flex;
   flex-direction: column;
   flex: 1;
@@ -111,7 +112,7 @@
   flex: 0 0 auto;
   flex-wrap: nowrap;
   align-items: center;
-  gap: var(--header-gap);
+  gap: 0; /* icons only: every group that fits stays on the bar */
   height: calc(var(--control-height) + 2 * var(--space-1));
   min-width: 0;
   box-sizing: border-box;
@@ -159,7 +160,7 @@
   border: 0;
   border-radius: 0;
   background: transparent;
-  color: var(--text);
+  color: var(--muted);
   font: inherit;
 }
 .writer .format-bar .toolbar-icon:focus-visible,
@@ -171,20 +172,16 @@
   z-index: 1;
 }
 .writer .format-bar .toolbar-icon:hover:not(:disabled) {
-  background: var(--surface);
+  color: var(--text);
 }
 .writer .format-bar .toolbar-icon:active:not(:disabled) {
-  background: var(--pressed);
+  transform: scale(0.99);
 }
 .writer .format-bar .toolbar-icon:disabled {
   opacity: var(--disabled-opacity);
 }
 .writer .format-bar .toolbar-icon[aria-pressed="true"] {
   color: var(--accent);
-  background: var(--surface);
-}
-.writer .format-bar .toolbar-icon[aria-pressed="true"]:hover {
-  background: var(--surface);
 }
 .writer .format-bar .dropdown-button {
   height: var(--control-height);
@@ -193,13 +190,6 @@
   border: 1px solid var(--line);
   border-radius: 0;
   font-size: var(--type-small);
-}
-.writer .format-bar .dropdown-button:hover:not(:disabled),
-.writer .format-bar .dropdown-button[aria-expanded="true"] {
-  background: var(--surface);
-}
-.writer .format-bar .dropdown-button:active:not(:disabled) {
-  background: var(--pressed);
 }
 .writer .format-bar .extract {
   display: inline-flex;
@@ -216,35 +206,25 @@
   white-space: nowrap;
 }
 .writer .format-bar .extract:hover:not(:disabled) {
-  background: var(--surface);
+  color: var(--text);
 }
 .writer .format-bar .extract:active:not(:disabled) {
-  background: var(--pressed);
+  transform: scale(0.99);
 }
 .writer .format-bar .extract:disabled {
   opacity: var(--disabled-opacity);
 }
-/* Label mode: the bar is wide enough (Writer LABEL_MIN_WIDTH) for a 12 px
-   label beside every icon; the More menu always shows them as rows. */
 .writer .format-bar .toolbar-label {
   display: none;
   margin-left: var(--space-1);
   font-size: var(--type-small);
   white-space: nowrap;
 }
-.writer .format-bar[data-labels] .toolbar-label,
 .writer .toolbar-popover.is-more .toolbar-label {
   display: inline;
 }
-.writer .format-bar[data-labels] .toolbar-icon {
-  width: auto;
-  padding: 0 var(--space-2);
-}
 .writer .format-bar .extract span {
   display: none;
-}
-.writer .format-bar[data-labels] .extract span {
-  display: inline;
 }
 .writer .toolbar-anchor {
   position: relative;
@@ -361,7 +341,7 @@
 }
 .writer .toolbar-presets button:hover,
 .writer .toolbar-text-button:hover {
-  background: var(--surface);
+  color: var(--text);
 }
 .writer .toolbar-presets button[aria-pressed="true"] {
   color: var(--accent);
@@ -460,47 +440,50 @@
     sans-serif;
   color: var(--muted);
 }
+.page-spacer {
+  display: none;
+}
 .is-paged {
   background: var(--surface, var(--line));
   padding: 16px;
-  overflow-x: auto;
+  overflow-x: hidden;
+  overflow-y: auto;
 }
 .is-paged .editor-paper {
   margin: 0 auto;
   padding: var(--page-margin);
-  width: calc(
-    var(--page-count) * (var(--page-width) + var(--page-gap)) - var(--page-gap)
+  width: var(--page-width);
+  min-height: calc(
+    var(--page-count) * (var(--page-height) + var(--page-gap)) - var(--page-gap)
   );
-  min-height: var(--page-height);
   box-sizing: border-box;
   background: repeating-linear-gradient(
-    to right,
+    to bottom,
     var(--paper) 0,
-    var(--paper) var(--page-width),
-    transparent var(--page-width),
-    transparent calc(var(--page-width) + var(--page-gap))
+    var(--paper) var(--page-height),
+    transparent var(--page-height),
+    transparent calc(var(--page-height) + var(--page-gap))
   );
 }
 .is-paged .writing-surface {
+  /* Positioned and its own formatting context, so block offsets are measured
+     from the page's text area and the first block's margin stays inside it. */
+  position: relative;
+  display: flow-root;
   width: var(--content-width);
-  height: calc(var(--content-height) - var(--footnote-reserve, 0px));
   min-height: 0;
   padding: 0;
-  column-width: var(--content-width);
-  column-gap: calc(2 * var(--page-margin) + var(--page-gap));
-  column-fill: auto;
   overflow: visible;
 }
-.is-paged .writing-surface p {
-  orphans: 2;
-  widows: 2;
-}
-.is-paged .writing-surface h1,
-.is-paged .writing-surface h2 {
-  break-after: avoid-column;
+.is-paged .page-spacer {
+  display: block;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  cursor: text;
+  user-select: none;
 }
 .is-paged .manual-page-break {
-  break-after: column;
   height: 0;
   border: 0;
   margin: 0;
@@ -527,7 +510,9 @@
   .is-paged .writing-surface {
     width: auto;
     height: auto;
-    columns: auto;
+  }
+  .page-spacer {
+    display: none !important;
   }
   .manual-page-break {
     break-after: page;
@@ -760,13 +745,32 @@
   flex-direction: column;
   gap: 4px;
 }
+.writer .table-menu-anchor {
+  position: absolute;
+  z-index: 50;
+  display: block;
+  width: 0;
+  height: 0;
+}
+.writer .table-context-menu {
+  display: flex;
+  flex-direction: column;
+  min-width: 190px;
+  padding: 4px 0;
+}
+.writer .table-context-menu .popover-item {
+  justify-content: flex-start;
+  width: 100%;
+  padding: 6px 12px;
+  text-align: left;
+  font-size: var(--type-small);
+}
+.writer .table-context-menu .popover-item.is-danger {
+  color: var(--danger, #c53030);
+}
 .writer .toolbar-text-button.is-danger {
   color: var(--danger, #c53030);
 }
-.writer .toolbar-text-button.is-danger:hover {
-  background: var(--surface);
-}
-
 /* Reading view parity for tables and images */
 .read-document table,
 .read-prose table {

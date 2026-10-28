@@ -133,16 +133,6 @@ export function paperGeometry(layout: PageLayout) {
     gap: 32,
   };
 }
-export function countPages(
-  scrollWidth: number,
-  contentWidth: number,
-  columnGap: number,
-) {
-  return Math.max(
-    1,
-    Math.ceil((scrollWidth + columnGap - 1) / (contentWidth + columnGap)),
-  );
-}
 export const FootnoteReference = Node.create({
   name: "footnoteReference",
   group: "inline",

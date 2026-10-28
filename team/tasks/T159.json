@@ -1,0 +1,58 @@
+{
+  "id": "T159",
+  "title": "A3 split view: assert undo after close and left-Writer DOM identity directly",
+  "description": "From the T136 review: the DoD says opening OR closing a split keeps the left pane's undo history and scroll position. Add direct Playwright assertions in tests/split-view.spec.ts: (1) type in the left pane, open split, close split, Cmd+Z undoes the typed text; (2) tag the left Writer's editor DOM node (e.g. a data attribute set via evaluate) before opening/closing the split and assert the same node persists after open and after close (no remount); (3) scroll position preserved on close. Show each failing on a scratch pre-A3 build (ui3-a3/scratch from f401 may be reused), passing on the live tree; also take and view light+dark screenshots of the split in continuous and page view. Test-only unless a real bug appears (then report to agent-3663 before touching src).",
+  "status": "done",
+  "owner": null,
+  "priority": 2,
+  "depends_on": [],
+  "files": [
+    "tests/split-view.spec.ts",
+    "node_modules/.cache/personal-word-beta/ui3-a3-tests",
+    "node_modules/.cache/personal-word-beta/team-serial-check-slot"
+  ],
+  "review_required": true,
+  "created_by": "agent-3663",
+  "created_at": "2026-10-28T10:27:15+00:00",
+  "claimed_at": "2026-10-28T10:27:31+00:00",
+  "updated_at": "2026-10-28T10:34:10+00:00",
+  "handoff": null,
+  "review": {
+    "by": "agent-56e8",
+    "at": "2026-10-28T10:34:10+00:00",
+    "verdict": "approved",
+    "note": "Approved. New cases tests/split-view.spec.ts 644-740: tag .split-panes, left pane and left .ProseMirror before open; tags must survive open AND close (a remount drops them); then Cmd+Z empties text after the round trip; scroll within 2 px on open and close. Non-vacuous: pre-A3 scratch dist ff-run.log 2 failed (tag mismatch on open; scroll off 1430 px). Live 16/16 (live-run.log 06:32:33, after spec 06:27:52). tsc exit 0 rerun. 4 screenshots viewed light/dark continuous/page: fine. Caveat: on pre-A3 the open-side check fails first, so close-side and undo asserts were not separately seen red."
+  },
+  "log": [
+    {
+      "at": "2026-10-28T10:27:15+00:00",
+      "agent": "agent-3663",
+      "event": "created",
+      "note": ""
+    },
+    {
+      "at": "2026-10-28T10:27:31+00:00",
+      "agent": "agent-09e2",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-10-28T10:27:32+00:00",
+      "agent": "agent-09e2",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-10-28T10:33:15+00:00",
+      "agent": "agent-09e2",
+      "event": "review requested",
+      "note": "Test-only. Added 2 cases at the end of tests/split-view.spec.ts: (a) undo still works after closing the split + left editor DOM identity: tags .split-panes, left .split-pane and left .ProseMirror with data-tag159 before opening, asserts all three tags survive OPEN and CLOSE (no remount), then focus left + Cmd+Z empties the typed text after the round trip; (b) left scroll position holds on open (whileOpen) AND on close (afterClose) within 2 px of beforeOpen. FAIL-FIRST: pre-A3 scratch dist (ui3-a3/scratch/dist, built from pre-a3 App.tsx) ff-run.log: 2 failed (tags lost on open: toEqual mismatch at the open-side tag check; scroll whileOpen off by 1430 px). Close-side checks are not reached on pre-A3 since open already fails (same remount). LIVE: fresh build from shared tree (build.log exit 0), tests/split-view.spec.ts whole file port 1667 workers 1: 16 passed (live-run.log); tsc --noEmit exit 0. No real bug found; src untouched. SCREENSHOTS (viewed): ui3-a3-tests/shots/split-continuous-light.png, split-continuous-dark.png, split-page-light.png, split-page-dark.png -- panes level, headers aligned, no fills, close button on right pane, dark theme correct. All under node_modules/.cache/personal-word-beta/ui3-a3-tests (logs ff-run.log build.log live-run.log, report.json). Serial slot released by this done. Path state: tests/split-view.spec.ts uncommitted edits; ui3-a3-tests clean cache."
+    },
+    {
+      "at": "2026-10-28T10:34:10+00:00",
+      "agent": "agent-56e8",
+      "event": "approved",
+      "note": "Approved. New cases tests/split-view.spec.ts 644-740: tag .split-panes, left pane and left .ProseMirror before open; tags must survive open AND close (a remount drops them); then Cmd+Z empties text after the round trip; scroll within 2 px on open and close. Non-vacuous: pre-A3 scratch dist ff-run.log 2 failed (tag mismatch on open; scroll off 1430 px). Live 16/16 (live-run.log 06:32:33, after spec 06:27:52). tsc exit 0 rerun. 4 screenshots viewed light/dark continuous/page: fine. Caveat: on pre-A3 the open-side check fails first, so close-side and undo asserts were not separately seen red."
+    }
+  ]
+}

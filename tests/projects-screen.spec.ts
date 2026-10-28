@@ -163,8 +163,8 @@ test("create button opens a panel listing every template, then the two file acti
 
 test("the create menu covers the button and grows out of it", async ({ page }) => {
   await page.goto("/");
-  const h1 = page.locator(".library-toolbar h1");
-  const before = (await h1.boundingBox())!;
+  const toolbar = page.locator(".library-toolbar");
+  const before = (await toolbar.boundingBox())!;
   const trigger = page.getByRole("button", { name: "Start new project" });
   await trigger.click();
   const panel = page.locator("#create-panel");
@@ -180,7 +180,7 @@ test("the create menu covers the button and grows out of it", async ({ page }) =
   await expect
     .poll(() => trigger.evaluate((el) => Number(getComputedStyle(el).opacity)))
     .toBe(0);
-  const after = (await h1.boundingBox())!;
+  const after = (await toolbar.boundingBox())!;
   expect(Math.abs(after.y - before.y)).toBeLessThanOrEqual(1);
   await page.keyboard.press("Escape");
   await expect(panel).toHaveCount(0);
@@ -232,8 +232,25 @@ test("Escape on the focused create trigger closes the open panel", async ({
 test("clicking outside closes the panel", async ({ page }) => {
   const { panel } = await openPanel(page);
   await expect(panel).toBeVisible();
-  await page.locator("h1", { hasText: "Projects" }).click();
+  const toolbar = (await page.locator(".library-toolbar").boundingBox())!;
+  await page.mouse.click(toolbar.x + toolbar.width / 2, toolbar.y + toolbar.height / 2);
   await expect(panel).toHaveCount(0);
+});
+
+test("the Projects screen has no heading: the button sits left, the controls right", async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto("/");
+  await expect(page.locator(".library h1")).toHaveCount(0);
+  await expect(page.locator(".library").getByRole("heading")).toHaveCount(0);
+  await expect(page.locator(".library")).toHaveAttribute("aria-label", "Projects");
+  const brand = (await page.locator(".library .brand").boundingBox())!;
+  const create = (await page.getByRole("button", { name: "Start new project" }).boundingBox())!;
+  const display = (await page.locator(".library-display").boundingBox())!;
+  const bar = (await page.locator(".library-toolbar").boundingBox())!;
+  expect(brand.y + brand.height).toBeLessThanOrEqual(create.y);
+  expect(create.x - bar.x).toBeLessThanOrEqual(1);
+  expect(bar.x + bar.width - (display.x + display.width)).toBeLessThanOrEqual(1);
+  expect(display.x).toBeGreaterThan(create.x + create.width);
 });
 
 test("create panel works from the keyboard alone", async ({ page }) => {
@@ -361,28 +378,33 @@ function filesTransfer(page: Page, files: DropFile[]) {
 
 async function dropOnLibrary(page: Page, files: DropFile[]) {
   const dataTransfer = await filesTransfer(page, files);
-  const library = page.locator(".library");
-  await library.dispatchEvent("dragenter", { dataTransfer });
-  await library.dispatchEvent("dragover", { dataTransfer });
-  await library.dispatchEvent("drop", { dataTransfer });
+  const region = page.locator(".library .drop-target");
+  await region.dispatchEvent("dragenter", { dataTransfer });
+  await region.dispatchEvent("dragover", { dataTransfer });
+  await region.dispatchEvent("drop", { dataTransfer });
 }
 
 const DROPPED_MD: DropFile = { name: "dropped.md", body: "# Dropped\n\nBody", type: "text/markdown" };
 
-test("dropping a Markdown file highlights the screen and opens the import preview; Cancel creates nothing", async ({ page }) => {
+test("dropping a Markdown file outlines the project list only and opens the import preview; Cancel creates nothing", async ({ page }) => {
   await page.goto("/");
   const library = page.locator(".library");
+  const region = page.locator(".library .drop-target");
   const dataTransfer = await filesTransfer(page, [DROPPED_MD]);
   await library.dispatchEvent("dragenter", { dataTransfer });
-  await expect(library).toHaveAttribute("data-dropping", "true");
-  const outline = await library.evaluate((el) => {
+  await expect(region).toHaveAttribute("data-state", "accept");
+  await expect(region.locator(".drop-target-label")).toHaveText("Drop to import");
+  const outline = await region.evaluate((el) => {
     const s = getComputedStyle(el);
     return { style: s.outlineStyle, width: s.outlineWidth, radius: s.borderRadius };
   });
-  expect(outline).toEqual({ style: "dashed", width: "2px", radius: "0px" });
-  await library.dispatchEvent("dragover", { dataTransfer });
-  await library.dispatchEvent("drop", { dataTransfer });
+  expect(outline).toEqual({ style: "solid", width: "1px", radius: "0px" });
+  // Nothing on the page body: no outline, no tint.
   await expect(library).not.toHaveAttribute("data-dropping");
+  expect(await library.evaluate((el) => getComputedStyle(el).outlineStyle)).toBe("none");
+  await region.dispatchEvent("dragover", { dataTransfer });
+  await region.dispatchEvent("drop", { dataTransfer });
+  await expect(region).not.toHaveAttribute("data-state");
   const preview = page.getByRole("dialog", { name: "Import writing" });
   await expect(preview).toBeVisible();
   await expect(preview).toContainText("dropped.md -- Markdown");
@@ -391,17 +413,18 @@ test("dropping a Markdown file highlights the screen and opens the import previe
   await expect(page.locator(".project-row")).toHaveCount(0);
 });
 
-test("the drop highlight does not flicker over children and clears on dragleave", async ({ page }) => {
+test("the drop outline does not flicker over children and clears on dragleave", async ({ page }) => {
   await page.goto("/");
   const library = page.locator(".library");
-  const heading = page.locator(".library h1");
+  const region = page.locator(".library .drop-target");
+  const toolbar = page.locator(".library-toolbar");
   const dataTransfer = await filesTransfer(page, [DROPPED_MD]);
   await library.dispatchEvent("dragenter", { dataTransfer });
-  await heading.dispatchEvent("dragenter", { dataTransfer });
+  await toolbar.dispatchEvent("dragenter", { dataTransfer });
   await library.dispatchEvent("dragleave", { dataTransfer });
-  await expect(library).toHaveAttribute("data-dropping", "true");
-  await heading.dispatchEvent("dragleave", { dataTransfer });
-  await expect(library).not.toHaveAttribute("data-dropping");
+  await expect(region).toHaveAttribute("data-state", "accept");
+  await toolbar.dispatchEvent("dragleave", { dataTransfer });
+  await expect(region).not.toHaveAttribute("data-state");
 });
 
 test("a file dropped outside the Projects list does not make the browser open it", async ({ page }) => {
@@ -445,23 +468,23 @@ test("a drop while the new-project name dialog is open opens nothing", async ({ 
   await page.getByRole("button", { name: "Blank", exact: true }).click();
   await expect(page.getByLabel("Project title")).toBeVisible();
   await dropOnLibrary(page, [DROPPED_MD]);
-  await expect(page.locator(".library")).not.toHaveAttribute("data-dropping");
+  await expect(page.locator(".library .drop-target")).not.toHaveAttribute("data-state");
   await page.waitForTimeout(500);
   await expect(page.getByRole("dialog", { name: "Import writing" })).toHaveCount(0);
   await expect(page.getByRole("alert")).toHaveCount(0);
 });
 
-test("the Projects heading stays put as projects are added (no vertical re-centring)", async ({ page }) => {
+test("the Projects toolbar stays put as projects are added (no vertical re-centring)", async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.goto("/");
   await createProject(page, "Alpha draft");
   await expect(page.locator(".project-row")).toHaveCount(1);
-  const heading = page.locator(".library h1");
-  const yOne = (await heading.boundingBox())!.y;
+  const toolbar = page.locator(".library-toolbar");
+  const yOne = (await toolbar.boundingBox())!.y;
   await createProject(page, "Beta notes");
   await createProject(page, "Gamma");
   await expect(page.locator(".project-row")).toHaveCount(3);
-  const yThree = (await heading.boundingBox())!.y;
+  const yThree = (await toolbar.boundingBox())!.y;
   expect(Math.abs(yThree - yOne)).toBeLessThanOrEqual(1);
 });
 
@@ -484,7 +507,35 @@ test("a project saved from the hidden Story template still opens", async ({ page
     .first()
     .click();
   await expect(page.getByRole("textbox", { name: "Writing editor" })).toBeVisible();
-  await expect(page.getByRole("button", { name: "Rename project" })).toHaveText(
-    "Old story",
-  );
+  await expect(page.locator(".project-switch")).toHaveText("Old story");
+});
+
+test("the gear opens Settings from the Projects screen; Dark applies at once and survives a reload", async ({ page }) => {
+  await page.emulateMedia({ colorScheme: "light" });
+  await page.goto("/");
+  const gear = page.locator(".library-display > .library-settings");
+  await expect(gear).toHaveAccessibleName("Settings");
+  await gear.click();
+  const dialog = page.getByRole("dialog", { name: "Settings" });
+  await expect(dialog).toBeVisible();
+  await expect(
+    dialog.getByRole("group", { name: "Appearance" }),
+  ).toBeVisible();
+  // Sidebar and Goals are project settings, not global ones: they stay out.
+  await expect(dialog.getByRole("heading", { name: "Sidebar" })).toHaveCount(0);
+  await expect(dialog.getByRole("heading", { name: "Goals" })).toHaveCount(0);
+  await expect(dialog.getByText("Show Read manuscript")).toHaveCount(0);
+  await expect(dialog.getByText("Total word goal")).toHaveCount(0);
+  await dialog.getByRole("button", { name: "Dark", exact: true }).click();
+  await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
+  await dialog.getByRole("button", { name: "Close", exact: true }).click();
+  await expect(dialog).toHaveCount(0);
+  await expect(gear).toBeFocused();
+  // Escape closes it too.
+  await gear.click();
+  await expect(dialog).toBeVisible();
+  await page.keyboard.press("Escape");
+  await expect(dialog).toHaveCount(0);
+  await page.reload();
+  await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
 });

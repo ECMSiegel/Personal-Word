@@ -37,7 +37,7 @@ test("a source PDF opens beside its section and survives reload", async ({ page 
   await openResearch(page);
   const source = await addSource(page, "A local source");
   await source
-    .locator('input[type="file"][accept="application/pdf,.pdf"]')
+    .locator('.source-pdf-field input[type="file"]')
     .setInputFiles({
       name: "source.pdf",
       mimeType: "application/pdf",
@@ -87,7 +87,7 @@ test("source PDFs reject non-PDF bytes and files over 25 MB", async ({ page }) =
   await create(page, "PDF validation");
   await openResearch(page);
   const source = await addSource(page, "Validation source");
-  const input = source.locator('input[type="file"][accept="application/pdf,.pdf"]');
+  const input = source.locator('.source-pdf-field input[type="file"]');
   await input.setInputFiles({
     name: "not-really.pdf",
     mimeType: "application/pdf",
@@ -103,6 +103,7 @@ test("source PDFs reject non-PDF bytes and files over 25 MB", async ({ page }) =
     mimeType: "application/pdf",
     buffer: tooLarge,
   });
-  await expect(page.getByRole("alert")).toContainText("PDFs must be 25 MB or smaller.");
+  // The PDF slot's drop target refuses it before any bytes are read.
+  await expect(page.locator(".research-status")).toContainText("PDFs must be 25 MB or smaller.");
   await expect(source.getByText("too-large.pdf", { exact: true })).toHaveCount(0);
 });

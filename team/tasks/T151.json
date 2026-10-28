@@ -1,0 +1,62 @@
+{
+  "id": "T151",
+  "title": "UI wave 3 V: Final validation and owner hand-check sheet",
+  "description": "Follow docs/agent-work/2026-10-28-ui-wave-3/PLAN.md section V exactly (Files, Interfaces, Steps, Acceptance check, Fail-first, Stop-and-ask, Default) and read its Context, Rules and Notes for the implementer first; RESEARCH.md beside it has the evidence. House rules: register paths = this task's seeded Files (already registered on claim; add more only via files add); serial slot (node_modules/.cache/personal-word-beta/team-serial-check-slot) via files add right before the first expensive check and keep it until done; pinned Node; quoted --outDir on PREVIEW port 1600+N; never edit docs/design-system.md (write DESIGN DOC: text in the done note); motion checks in tests/motion-uN.spec.ts; native rendering runs only with the screen unlocked, by Claude agents or the owner; never put backticks in double-quoted shell text; no installs, no commits; status CLAIMED; independent review required.",
+  "status": "done",
+  "owner": null,
+  "priority": 2,
+  "depends_on": [
+    "T150"
+  ],
+  "files": [
+    "docs/agent-work/2026-10-28-ui-wave-3/VALIDATION.md",
+    "docs/validation.md",
+    "node_modules/.cache/personal-word-beta/ui3-v",
+    "node_modules/.cache/personal-word-beta/team-serial-check-slot",
+    "node_modules/.cache/personal-word-beta/ui3-final"
+  ],
+  "review_required": true,
+  "created_by": "agent-9d21",
+  "created_at": "2026-10-28T04:50:58+00:00",
+  "claimed_at": "2026-10-28T10:50:40+00:00",
+  "updated_at": "2026-10-28T10:57:16+00:00",
+  "handoff": null,
+  "review": {
+    "by": "agent-a6ec",
+    "at": "2026-10-28T10:57:16+00:00",
+    "verdict": "approved",
+    "note": "T151 (V) APPROVED with two caveats recorded, not blocking. Reviewer agent-a6ec; I did not author or write any part of V.\n\nWHAT I CHECKED MYSELF against the logs in node_modules/.cache/personal-word-beta/ui3-final, not just the record. tsc log: v22.23.3, EXIT=0. Unit: 60 files, 1025 passed, 26 s. Build: EXIT=0. Playwright: 265 passed 0 failed in 7.5 min, first run; browser.config.mjs has workers 1, retries 0, port 1620 and a quoted private outDir; the new-spec counts in the record match the log exactly (page-break 1, tables-context 3, sidebar-rename 4, pages 5, shortcuts 4, drag-reorder 7, drop-target 7, alignment 7, motion-u7 2 at :43 and :61); the named load-sensitive specs passed (notice 7, performance 5 incl. 90-page page view, research:176, split-view:155, writing-aids:21). Cargo: 63 passed 0 failed 1 ignored. Step 8: pagebreak.docx has exactly 1 w:pageBreakBefore and tests/page-break.spec.ts:56 asserts length 1; the PDF text log shows 2 pages with page 2 starting After the break. Step 9: app at the stated path, com.folio.writing 0.1.1, binary sha256 31fff151b20c83626b9693e6b88711dd60eba7ed6f9c063a4ce288c747445479 matching the scan log, marker table with a working control (smoke_snapshot 10 in the debug binary vs 0 in the normal app). Tree: diff of tree-start.txt and tree-end.txt is exactly the 4 new team/agents files, and no file under src, tests or src-tauri/src is newer than the run start stamp (I re-ran the find). docs/validation.md points at VALIDATION.md and says CLAIMED; the owner sheet is empty (Result: ____ throughout); Q018 is open with the native items; native reliability, native smoke, native screenshots and the P2 native gate are marked NOT RUN with the reason and the exact morning commands, and the Not established list is honest.\n\nCAVEAT 1, two wrong timestamps in the record. VALIDATION.md line 15 says D2 docs work finished at 10:45Z and line 29 says T150 done 10:45Z. team/tasks/T150.json shows the third round was submitted at 10:47:59Z and approved by agent-2fba at 10:48:29Z, and the last D2 content edit (docs/design-system.md) is 10:47:36Z. So V ran while D2 was still in review and D2 was approved during the run; docs-only, so no result is affected. The file is registered to T151 and its author (agent-a0fd) has left the board, so I did not edit it; the two numbers need a follow-up.\n\nCAVEAT 2, a thin start fingerprint. Step 0 claims HEAD b3a151a and an empty stash list both times, but tree-start.txt contains only the status list; HEAD and STASH appear only in tree-end-meta.txt. The substantive part (no source change during the run) I verified independently just now, so the conclusion stands; the cited evidence covers the end only.\n\nSCOPE NOTE. Completing T151 does not tick the wave's last Definition-of-done box: native screenshots were not viewed, and the owner hand-check sheet (a-v) is unfilled. Status stays CLAIMED."
+  },
+  "log": [
+    {
+      "at": "2026-10-28T04:50:58+00:00",
+      "agent": "agent-9d21",
+      "event": "created",
+      "note": ""
+    },
+    {
+      "at": "2026-10-28T10:50:40+00:00",
+      "agent": "agent-a0fd",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-10-28T10:50:40+00:00",
+      "agent": "agent-a0fd",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-10-28T10:53:56+00:00",
+      "agent": "agent-a0fd",
+      "event": "review requested",
+      "note": "V done (CLAIMED). Record and owner sheet: docs/agent-work/2026-10-28-ui-wave-3/VALIDATION.md; logs node_modules/.cache/personal-word-beta/ui3-final/. Runs 10:37Z-10:50Z, pinned Node v22.23.3, no source edits, no commits. Results: tsc 0; unit 60 files 1025 passed; npm run build 0; Playwright whole tests/ 265 passed 0 failed (1 worker, no retries, port 1620, private dist); cargo 63 passed 0 failed 1 ignored; step 8 exports: DOCX one w:pageBreakBefore, PDF 2 pages with page 2 starting After the break. (p-2.png viewed); app src-tauri/target/release/bundle/macos/Personal Word.app, com.folio.writing 0.1.1, binary sha256 31fff151b20c83626b9693e6b88711dd60eba7ed6f9c063a4ce288c747445479, 0 smoke markers (control: wave-2 smoke debug binary). T155 dry-run: as given it cannot run (TS under node_modules not stripped) -> filed T160 p3; a type-stripped copy passes 1/1 on the final dist and on ui3-p2/dist (drift 0, mismatches 0). NOT RUN (screen locked, IOConsoleLocked Yes throughout): native reliability, native smoke, native screens, P2 native gate; morning commands in VALIDATION.md. Owner question Q018 opened. Notes for the reviewer: ui3-final writes began 10:37Z before files add at 10:50Z because the claim waited on T150, per the coordinator; V's own step-8 spec first wrote to a percent-encoded stray folder /Users/ethansiegel/Local%20Projects/..., the two files were moved into ui3-final/s8 and only the empty folders V had created were removed with rmdir (no rm -rf), spec fixed and rerun. Tree: HEAD b3a151a, stash empty at start and end, no src/tests/src-tauri file changed during the run.\ndocs/agent-work/2026-10-28-ui-wave-3/VALIDATION.md: uncommitted edits (new)\ndocs/validation.md: uncommitted edits\nnode_modules/.cache/personal-word-beta/ui3-final: cache (logs)\nnode_modules/.cache/personal-word-beta/team-serial-check-slot: clean\nnode_modules/.cache/personal-word-beta/ui3-v: clean, unused"
+    },
+    {
+      "at": "2026-10-28T10:57:16+00:00",
+      "agent": "agent-a6ec",
+      "event": "approved",
+      "note": "T151 (V) APPROVED with two caveats recorded, not blocking. Reviewer agent-a6ec; I did not author or write any part of V.\n\nWHAT I CHECKED MYSELF against the logs in node_modules/.cache/personal-word-beta/ui3-final, not just the record. tsc log: v22.23.3, EXIT=0. Unit: 60 files, 1025 passed, 26 s. Build: EXIT=0. Playwright: 265 passed 0 failed in 7.5 min, first run; browser.config.mjs has workers 1, retries 0, port 1620 and a quoted private outDir; the new-spec counts in the record match the log exactly (page-break 1, tables-context 3, sidebar-rename 4, pages 5, shortcuts 4, drag-reorder 7, drop-target 7, alignment 7, motion-u7 2 at :43 and :61); the named load-sensitive specs passed (notice 7, performance 5 incl. 90-page page view, research:176, split-view:155, writing-aids:21). Cargo: 63 passed 0 failed 1 ignored. Step 8: pagebreak.docx has exactly 1 w:pageBreakBefore and tests/page-break.spec.ts:56 asserts length 1; the PDF text log shows 2 pages with page 2 starting After the break. Step 9: app at the stated path, com.folio.writing 0.1.1, binary sha256 31fff151b20c83626b9693e6b88711dd60eba7ed6f9c063a4ce288c747445479 matching the scan log, marker table with a working control (smoke_snapshot 10 in the debug binary vs 0 in the normal app). Tree: diff of tree-start.txt and tree-end.txt is exactly the 4 new team/agents files, and no file under src, tests or src-tauri/src is newer than the run start stamp (I re-ran the find). docs/validation.md points at VALIDATION.md and says CLAIMED; the owner sheet is empty (Result: ____ throughout); Q018 is open with the native items; native reliability, native smoke, native screenshots and the P2 native gate are marked NOT RUN with the reason and the exact morning commands, and the Not established list is honest.\n\nCAVEAT 1, two wrong timestamps in the record. VALIDATION.md line 15 says D2 docs work finished at 10:45Z and line 29 says T150 done 10:45Z. team/tasks/T150.json shows the third round was submitted at 10:47:59Z and approved by agent-2fba at 10:48:29Z, and the last D2 content edit (docs/design-system.md) is 10:47:36Z. So V ran while D2 was still in review and D2 was approved during the run; docs-only, so no result is affected. The file is registered to T151 and its author (agent-a0fd) has left the board, so I did not edit it; the two numbers need a follow-up.\n\nCAVEAT 2, a thin start fingerprint. Step 0 claims HEAD b3a151a and an empty stash list both times, but tree-start.txt contains only the status list; HEAD and STASH appear only in tree-end-meta.txt. The substantive part (no source change during the run) I verified independently just now, so the conclusion stands; the cited evidence covers the end only.\n\nSCOPE NOTE. Completing T151 does not tick the wave's last Definition-of-done box: native screenshots were not viewed, and the owner hand-check sheet (a-v) is unfilled. Status stays CLAIMED."
+    }
+  ]
+}

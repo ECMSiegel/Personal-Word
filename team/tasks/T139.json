@@ -1,0 +1,99 @@
+{
+  "id": "T139",
+  "title": "UI wave 3 S1: No box highlights: the icon-button recipe, doubling fix, dead rules (Styles lane)",
+  "description": "Follow docs/agent-work/2026-10-28-ui-wave-3/PLAN.md section S1 exactly (Files, Interfaces, Steps, Acceptance check, Fail-first, Stop-and-ask, Default) and read its Context, Rules and Notes for the implementer first; RESEARCH.md beside it has the evidence. House rules: register paths = this task's seeded Files (already registered on claim; add more only via files add); serial slot (node_modules/.cache/personal-word-beta/team-serial-check-slot) via files add right before the first expensive check and keep it until done; pinned Node; quoted --outDir on PREVIEW port 1600+N; never edit docs/design-system.md (write DESIGN DOC: text in the done note); motion checks in tests/motion-uN.spec.ts; native rendering runs only with the screen unlocked, by Claude agents or the owner; never put backticks in double-quoted shell text; no installs, no commits; status CLAIMED; independent review required.",
+  "status": "done",
+  "owner": null,
+  "priority": 1,
+  "depends_on": [],
+  "files": [
+    "src/styles.css",
+    "src/components/popover.css",
+    "src/components/Popover.tsx",
+    "src/research/research.css",
+    "src/organization/fragments.css",
+    "src/palette.test.ts",
+    "src/designTokens.test.ts",
+    "src/motion.test.ts",
+    "tests/appearance.spec.ts",
+    "tests/layout.spec.ts",
+    "tests/sidebar-selection.spec.ts",
+    "tests/motion-u7.spec.ts",
+    "tests/motion.spec.ts",
+    "node_modules/.cache/personal-word-beta/ui3-s1",
+    "src/components/dropdown.css",
+    "node_modules/.cache/personal-word-beta/team-serial-check-slot"
+  ],
+  "review_required": true,
+  "created_by": "agent-9d21",
+  "created_at": "2026-10-28T04:50:55+00:00",
+  "claimed_at": "2026-10-28T07:57:28+00:00",
+  "updated_at": "2026-10-28T08:06:17+00:00",
+  "handoff": {
+    "by": "agent-82ad",
+    "at": "2026-10-28T07:31:10+00:00",
+    "text": "REJECT (agent-82ad, Opus reviewer). Reviewed S1 hunks only (styles.css also carries S2 hunks: separator, tabular-nums, ::after hit area, optical; designTokens.test.ts separator test is S2).\nBLOCKER - icon-button recipe never applies (specificity): the base muted rule wraps the list in :is(...), which takes the specificity of its most specific argument, .topbar > div:first-child > button = (0,2,2), for EVERY matched element. The hover/focus rule :where(list):is(:hover:not(:disabled), :focus-visible) scores (0,2,0), the pressed/selected rule (0,1,0), and the existing .delete-entry:hover / :focus-visible (0,2,0): all lose to (0,2,2). Evidence: (a) a Chromium probe of the current src/styles.css: .delete-entry rest/hover/focus = rgb(108,108,116) (--muted) everywhere; .reorder button hover = muted; .split-close[aria-pressed=true] = muted. Same probe on HEAD styles.css: trash hover/focus = rgb(180,35,24) danger, reorder hover = rgb(36,36,40) text, pressed split-close = rgb(0,105,217) accent. (b) the ui3-s1 dist served statically, light and dark: projects-screen trash hover and keyboard focus stay muted (108,108,116 / 165,165,175), sidebar reorder arrow hover stays muted. So S1 regresses the trash danger hover and adds none of the hover/focus/pressed colours it set out to add; this breaks the owner's ask (icons coloured on hover/selected) and checklist R1's intent. Fix: make the base muted rule :where(list) too (state rules then win), re-check that no other component rule now overrides muted, and keep .delete-entry hover danger.\nTest gap that hid it (fail-first missing): appearance.spec Snapshot hover colour = --text is vacuous (Snapshot is a text button already --text at rest); no spec or screenshot hovers an icon button (shots.mjs hovered .entry-main). Add real assertions, light and dark: hover .project-row .delete-entry -> --danger; hover a reorder arrow -> --text; keyboard focus on the trash -> --danger; an aria-pressed icon (sidebar-pin or a view toggle) -> --accent; show them failing on the current tree first.\nNon-blocking, fix or record: (1) .icon-button is used by no TSX, so .icon-button.danger is dead; trash danger depends on .delete-entry:hover. (2) Scan allowlist entries are dead: .primary:hover uses --text/--accent (not in GREY), .project-tab has no hover/active fill; startsWith also matches .primary-x / .project-tabs. Comment or tighten. (3) .cards-view .entry-row.selected { background: var(--paper) } is a selected-state fill the scan does not cover (hover/active only); the DESIGN DOC line says selection never paints a fill - record a decision for D2. (4) Sort menu: the highlighted item and the current (checked) item are both 600; only the checkmark tells them apart - acceptable under the plan default (underline off), record it. (5) motion.spec (g) dropped the scrollTop > 0 check and motion-u7 dropped the non-empty sample check, so both can pass vacuously; acceptable but say so. (6) Press transition is declared only on :active, so release snaps back instantly (pre-existing pattern).\nWhat holds: no grey fill on any hover/active rule in src css (my own scan agrees; remaining fills are accent/on-primary handles, .project-tab.active paper, cards selected paper); popover data-highlighted works (Sort menu hovered row 600, no fill, light+dark screenshots viewed, no box); doubling fix works; tsc 0; vitest palette+designTokens+motion 42 passed. Not run: the full S1 Playwright set (slot held by T140; verdict does not depend on it - the repair run must include it)."
+  },
+  "review": {
+    "by": "agent-b24d",
+    "at": "2026-10-28T08:06:17+00:00",
+    "verdict": "approved",
+    "note": "Approved (repair of agent-82ad rejection; S1 hunks only). Verified: tsc 0, vitest palette+designTokens+motion 42 passed (Node 22.23.3). styles.css: all three icon-button recipe lists now :where() (zero specificity) and button color:inherit moved to :where(button), so hover/focus/pressed/.delete-entry rules win; fixes the blocker. New appearance.spec icon-button colour test asserts real tokens (arrow hover text, pin pressed accent and back to muted, trash hover and keyboard focus danger); author's failfirst.log shows 4 failures per scheme on the rejected tree. Viewed ui3-s1-repair shots: light-trash-hover red with no box, dark-pinned Shots tab accent, no grey boxes. Author's Playwright 79 pass / 1 fail, the failure being motion (a) clip-path timing (reported 3/3 pass alone). Not verified by me: I did not rerun Playwright (no slot-holding task), so the motion (a) flake claim rests on the author; editor-toolbar and accessibility specs named in the plan acceptance were NOT in the author's run and nobody has run them against S1 (only editor-toolbar hover line 199-219 touches S1 behaviour). Recommend whoever holds the slot next runs tests/editor-toolbar.spec.ts tests/accessibility.spec.ts. Recorded exception for D2: cards-view selected paper fill; sort menu highlighted vs current both 600."
+  },
+  "log": [
+    {
+      "at": "2026-10-28T04:50:55+00:00",
+      "agent": "agent-9d21",
+      "event": "created",
+      "note": ""
+    },
+    {
+      "at": "2026-10-28T05:50:01+00:00",
+      "agent": "agent-0c5b",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-10-28T05:50:05+00:00",
+      "agent": "agent-0c5b",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-10-28T06:35:13+00:00",
+      "agent": "agent-0c5b",
+      "event": "review requested",
+      "note": "S1 done (CLAIMED). Changed: src/styles.css (global button hover/active fills removed; button:active = scale(0.99) over --duration-press; icon-button recipe via one :is/:where selector list for .icon-button, .delete-entry, .reorder/.group-actions buttons, tab close, .library-display and .topbar icon buttons, .split-close, .fragment-icon, open-beside, sidebar-pin: muted -> text on hover/focus, accent when pressed/selected, danger on .icon-button.danger and .delete-entry hover; inactive project tab muted -> text; sidebar button hover/active fills and delete/project-row transparent leftovers removed; .sidebar-highlight and .segmented-highlight now display:none (A2 removes sidebar elements, S3 removes Segmented element; nothing breaks in either order); doubling fix: .sidebar-group:has(.entry-row.selected) .group-title.selected -> weight 500 and --text, also under Color palette; .library h1 rules (3) deleted), src/components/Popover.tsx (highlight element and slideHighlight call removed; target item gets data-highlighted via DOM attribute), popover.css (popover-highlight removed; hover/focus/data-highlighted items weight 600 + --text), dropdown.css (registered extra; hover/active fill removed), research.css (.settings-button hover = border-color text). Tests: designTokens.test.ts (pressed rule sets transform; new stylesheet scan: no grey fill in any :hover/:active rule, allowlist .primary and .project-tab), palette.test.ts (sidebar-highlight case replaced by --text on --sidebar AA in light and dark), appearance.spec.ts (Snapshot hover keeps clear fill, colour text, pressed scale; highlight cases replaced by a doubling test), layout.spec.ts (entry 600, group title not), motion.spec.ts (d, g use data-highlighted + weight), motion-u7.spec.ts (no longer requires a sliding box). Verified: tsc 0; vitest palette+designTokens+motion 41 passed; scan shown to fail on a doctored copy (button:hover fill appended to popover.css, restored with cmp); Playwright on a vite build (port 1639) of the 8 listed spec files: 87 passed, 3 failed: appearance.spec:62 (my test, fixed to use .entry-row.selected, then passed 2x), projects-screen:192 create-menu closing race (fails 8/8 on the older ui2-u4 dist too, so pre-existing flake), projects-screen:240 (A5 test, h1 not removed yet by T138; not mine). Chromium light and dark screenshots viewed (ui3-s1/shots): no grey boxes, Bold shows accent, selected entry bold with section title normal, Sort menu without box. Not done/unknown: tests/sidebar-selection.spec.ts needed no edit (no fill/weight assertions); tests/editor-toolbar.spec.ts popover-highlight case belongs to E1 (told agent-9249); no native WebKit run. DESIGN DOC: Hover, focus and selection never paint a fill. Icon-only buttons are muted, turn to text colour on hover or focus-visible, accent when pressed or selected (aria-pressed), danger on destructive hover; pressing scales to 0.99 over --duration-press. List rows (sidebar rows, group titles, project rows, template choices, popover and dropdown items) go semibold on hover; the keyboard-highlighted menu item is [data-popover-item][data-highlighted] and is shown by weight alone. Text buttons in bars change colour only. When an entry in a sidebar section is selected, the entry alone is bold (tinted in Color) and its group title stays regular. Sliding highlight boxes are removed (sidebar, Segmented, popover). The only hover fills left are accent or on-primary (primary button, resize handles, tab paper fill)."
+    },
+    {
+      "at": "2026-10-28T07:31:10+00:00",
+      "agent": "agent-82ad",
+      "event": "rejected",
+      "note": "REJECT (agent-82ad, Opus reviewer). Reviewed S1 hunks only (styles.css also carries S2 hunks: separator, tabular-nums, ::after hit area, optical; designTokens.test.ts separator test is S2).\nBLOCKER - icon-button recipe never applies (specificity): the base muted rule wraps the list in :is(...), which takes the specificity of its most specific argument, .topbar > div:first-child > button = (0,2,2), for EVERY matched element. The hover/focus rule :where(list):is(:hover:not(:disabled), :focus-visible) scores (0,2,0), the pressed/selected rule (0,1,0), and the existing .delete-entry:hover / :focus-visible (0,2,0): all lose to (0,2,2). Evidence: (a) a Chromium probe of the current src/styles.css: .delete-entry rest/hover/focus = rgb(108,108,116) (--muted) everywhere; .reorder button hover = muted; .split-close[aria-pressed=true] = muted. Same probe on HEAD styles.css: trash hover/focus = rgb(180,35,24) danger, reorder hover = rgb(36,36,40) text, pressed split-close = rgb(0,105,217) accent. (b) the ui3-s1 dist served statically, light and dark: projects-screen trash hover and keyboard focus stay muted (108,108,116 / 165,165,175), sidebar reorder arrow hover stays muted. So S1 regresses the trash danger hover and adds none of the hover/focus/pressed colours it set out to add; this breaks the owner's ask (icons coloured on hover/selected) and checklist R1's intent. Fix: make the base muted rule :where(list) too (state rules then win), re-check that no other component rule now overrides muted, and keep .delete-entry hover danger.\nTest gap that hid it (fail-first missing): appearance.spec Snapshot hover colour = --text is vacuous (Snapshot is a text button already --text at rest); no spec or screenshot hovers an icon button (shots.mjs hovered .entry-main). Add real assertions, light and dark: hover .project-row .delete-entry -> --danger; hover a reorder arrow -> --text; keyboard focus on the trash -> --danger; an aria-pressed icon (sidebar-pin or a view toggle) -> --accent; show them failing on the current tree first.\nNon-blocking, fix or record: (1) .icon-button is used by no TSX, so .icon-button.danger is dead; trash danger depends on .delete-entry:hover. (2) Scan allowlist entries are dead: .primary:hover uses --text/--accent (not in GREY), .project-tab has no hover/active fill; startsWith also matches .primary-x / .project-tabs. Comment or tighten. (3) .cards-view .entry-row.selected { background: var(--paper) } is a selected-state fill the scan does not cover (hover/active only); the DESIGN DOC line says selection never paints a fill - record a decision for D2. (4) Sort menu: the highlighted item and the current (checked) item are both 600; only the checkmark tells them apart - acceptable under the plan default (underline off), record it. (5) motion.spec (g) dropped the scrollTop > 0 check and motion-u7 dropped the non-empty sample check, so both can pass vacuously; acceptable but say so. (6) Press transition is declared only on :active, so release snaps back instantly (pre-existing pattern).\nWhat holds: no grey fill on any hover/active rule in src css (my own scan agrees; remaining fills are accent/on-primary handles, .project-tab.active paper, cards selected paper); popover data-highlighted works (Sort menu hovered row 600, no fill, light+dark screenshots viewed, no box); doubling fix works; tsc 0; vitest palette+designTokens+motion 42 passed. Not run: the full S1 Playwright set (slot held by T140; verdict does not depend on it - the repair run must include it)."
+    },
+    {
+      "at": "2026-10-28T07:57:28+00:00",
+      "agent": "agent-20df",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-10-28T07:57:37+00:00",
+      "agent": "agent-20df",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-10-28T08:00:35+00:00",
+      "agent": "agent-20df",
+      "event": "review requested",
+      "note": "REPAIR of the agent-82ad rejection (agent-20df). FIX: src/styles.css base muted icon-button rule is now :where(list) instead of :is(list) (zero specificity, so hover/focus, pressed/selected and .delete-entry:hover/:focus-visible win), and the global button color: inherit moved to :where(button) so it cannot out-rank the zero-specificity muted rule. Removed dead .icon-button.danger rule (trash danger is .delete-entry:hover/:focus-visible, now winning). FAIL-FIRST: new tests/appearance.spec.ts \"icon buttons recolour on hover, focus and press (light|dark)\" assert reorder/open-beside arrow hover = --text, aria-pressed .sidebar-pin = --accent (and muted again when unpressed), .project-row .delete-entry hover AND keyboard focus = --danger, resolved from tokens. On the rejected tree (soft expects) all 4 failed in both schemes (received muted 108,108,116 / 165,165,175; log ui3-s1-repair/failfirst.log); after the fix both pass. SCAN: designTokens.test.ts hover/active-fill scan ALLOW list deleted (entries were dead: .primary:hover and .project-tab have no grey hover fill; startsWith also matched .primary-x/.project-tabs); scan passes with no allowlist and fails on a doctored .zz:hover background var(--surface). motion.spec (g) scrollTop > 0 restored (passes); motion-u7 samples non-empty restored in both cases (passes). RESULTS: tsc 0; vitest palette+designTokens+motion 42 passed; vite build to ui3-s1/dist-repair; full S1 Playwright set (appearance layout sidebar-selection motion-u7 motion projects-screen, port 1639, serial slot held) 79 passed, 1 failed: motion.spec (a) search-open clip-path animation still running at the final getAnimations check, a timing flake outside S1 CSS; passes 3/3 rerun alone and passed in the scratch run. Screenshots viewed light+dark (ui3-s1-repair/shots): trash hover red with no box, reorder arrow hover, pinned state; no grey boxes. Not done: native WebKit run; editor-toolbar/accessibility specs not in this set. RECORDED: (3) .cards-view .entry-row.selected background var(--paper) is a selected-state fill; DESIGN DOC for D2 must either list it as an exception (cards view selection uses a paper fill) or D2 should decide to drop it -- I did not change it. (4) Sort menu: highlighted and current items are both weight 600, told apart only by the checkmark; accepted under the plan default (underline fallback off). (6) press transition only on :active (release snaps back) is pre-existing. DESIGN DOC: Hover, focus and selection never paint a fill. Icon-only buttons are muted, turn to text colour on hover or focus-visible, accent when pressed or selected (aria-pressed), danger on destructive hover (trash); the recipe selector lists must stay zero-specificity (:where) so state rules win. List rows go semibold on hover; keyboard-highlighted menu item is [data-popover-item][data-highlighted], shown by weight alone. Text buttons in bars change colour only. Selected sidebar entry alone is bold, group title stays regular. Sliding highlight boxes removed. Remaining fills: accent/on-primary handles, tab paper fill, cards-view selected paper (exception)."
+    },
+    {
+      "at": "2026-10-28T08:06:17+00:00",
+      "agent": "agent-b24d",
+      "event": "approved",
+      "note": "Approved (repair of agent-82ad rejection; S1 hunks only). Verified: tsc 0, vitest palette+designTokens+motion 42 passed (Node 22.23.3). styles.css: all three icon-button recipe lists now :where() (zero specificity) and button color:inherit moved to :where(button), so hover/focus/pressed/.delete-entry rules win; fixes the blocker. New appearance.spec icon-button colour test asserts real tokens (arrow hover text, pin pressed accent and back to muted, trash hover and keyboard focus danger); author's failfirst.log shows 4 failures per scheme on the rejected tree. Viewed ui3-s1-repair shots: light-trash-hover red with no box, dark-pinned Shots tab accent, no grey boxes. Author's Playwright 79 pass / 1 fail, the failure being motion (a) clip-path timing (reported 3/3 pass alone). Not verified by me: I did not rerun Playwright (no slot-holding task), so the motion (a) flake claim rests on the author; editor-toolbar and accessibility specs named in the plan acceptance were NOT in the author's run and nobody has run them against S1 (only editor-toolbar hover line 199-219 touches S1 behaviour). Recommend whoever holds the slot next runs tests/editor-toolbar.spec.ts tests/accessibility.spec.ts. Recorded exception for D2: cards-view selected paper fill; sort menu highlighted vs current both 600."
+    }
+  ]
+}

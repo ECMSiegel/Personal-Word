@@ -1,0 +1,70 @@
+{
+  "id": "T153",
+  "title": "split-view.spec.ts:155 fails without A1/A2: shared-bar More formatting menu unreachable in the split fixture (pre-existing, blocks T136 A3 acceptance)",
+  "description": "Found during T135 (A2) acceptance: tests/split-view.spec.ts:155 'the shared bar's menus open in place and act on the focused pane' times out waiting for the Formatting toolbar's More formatting button in the split fixture. Counterfactual verified twice (repeat-each 2, ui3-a2/cf-run.log): the test fails identically with the A1 and A2 hunks stashed, so the cause predates A2 and sits in the changes landed since the wave-2 validation ran split-view green -- prime suspects E1 (icons-only toolbar fitToolbar at narrow split-pane widths) and E3 (contextmenu handling). This blocks T136 (A3) whose PREVIEW(6) requires split-view green, and the wave's final validation. Fix belongs to the Editor lane: verify fitToolbar/More rendering at split-pane width first. Registered paths are minimal (the spec + a cache dir); the owner registers Writer.tsx/editor.css via files add when the lanes free.",
+  "status": "done",
+  "owner": null,
+  "priority": 1,
+  "depends_on": [],
+  "files": [
+    "tests/split-view.spec.ts",
+    "node_modules/.cache/personal-word-beta/ui3-splitmenu",
+    "node_modules/.cache/personal-word-beta/team-serial-check-slot"
+  ],
+  "review_required": true,
+  "created_by": "agent-f401",
+  "created_at": "2026-10-28T08:37:55+00:00",
+  "claimed_at": "2026-10-28T09:20:03+00:00",
+  "updated_at": "2026-10-28T09:41:22+00:00",
+  "handoff": null,
+  "review": {
+    "by": "agent-3663",
+    "at": "2026-10-28T09:41:22+00:00",
+    "verdict": "approved",
+    "note": "Coordinator approve on behalf of reviewer agent-aac3, whose verdict (msg #769) was APPROVED but whose review command did not register: diff is tests/split-view.spec.ts only (+10 lines, 980x900 viewport for the shared-bar menus case + fast guard Bold visible in More); assertions unchanged; guard proven non-vacuous by cf-1240.log; tsc 0 (aac3 rerun); ui3-splitmenu/acceptance.log newer than the spec, 10/10 split-view pass. Chromium only."
+  },
+  "log": [
+    {
+      "at": "2026-10-28T08:37:55+00:00",
+      "agent": "agent-f401",
+      "event": "created",
+      "note": ""
+    },
+    {
+      "at": "2026-10-28T08:38:12+00:00",
+      "agent": "agent-9249",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-10-28T08:38:13+00:00",
+      "agent": "agent-9249",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-10-28T09:20:03+00:00",
+      "agent": "agent-a6ec",
+      "event": "reclaimed from agent-9249",
+      "note": ""
+    },
+    {
+      "at": "2026-10-28T09:20:10+00:00",
+      "agent": "agent-a6ec",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-10-28T09:28:46+00:00",
+      "agent": "agent-a6ec",
+      "event": "review requested",
+      "note": "T153 split-view.spec.ts:155 -- done. Test-only change; no app code touched. Reclaimed from agent-9249 under the stale path at 09:20Z on the coordinator's instruction (#753); agent-9249 was last seen 08:49Z and had applied a fix without verifying it.\n\nDIAGNOSIS (fixture, not product). The shared formatting bar is icons-only since E1, so at the fixture's inherited 1440 x 900 the whole toolbar fits: measured bar width 1170 px and no More button, which is correct behaviour and exactly why the test could not find it. Measured with a read-only probe (ui3-splitmenu/toolbar-probe.mjs) against the current build: 1440 -> 1170 px, no More; 1280 -> 1010 px, More carries spacing, view, aids; 1240 -> 970 px, adds indent; 1180 -> 910 px, adds insert; 1100 -> 830 px, adds lists; 1040 -> 770 px, adds link; 980 -> 710 px, adds marks (Bold, Italic, Underline, Strikethrough); 920 -> 650 px, same. The font control the second half of the test needs stays in the bar at 980.\n\nWHY 9249'S EDIT WAS NOT ENOUGH. Its viewport of 1240 does expose a More button, but the panel there carries only spacing, view, aids and indent -- not marks -- so the case still failed, timing out after 90 s waiting for the Bold button inside the panel (first acceptance run: 1 failed, 9 passed).\n\nWHAT CHANGED (tests/split-view.spec.ts only). This one case now sets 980 x 900, with a comment recording the measured widths and why the width is what it is. A fast guard was added right after the panel opens: the Bold button must be visible in it, so a future toolbar change that stops overflowing the marks group fails in seconds with a clear message instead of hanging for 90 s.\n\nFAIL-FIRST. Two reds on record, both against the same current build: (a) the fixture at 1240 -- the counterfactual copy differs from the committed spec only in that number -- fails in 7.1 s at the new guard with \"element(s) not found\" for the Bold button inside the More panel (ui3-splitmenu/cf-1240.log); (b) the original no-More-at-1440 failure was recorded twice by agent-f401 in ui3-a2/cf-run.log (repeat-each 2, with the A1/A2 hunks stashed), and my probe reproduces the cause directly (bar 1170 px, no More). The guard is therefore not vacuous.\n\nACCEPTANCE. npx tsc --noEmit -p . exit 0 (ui3-splitmenu/typecheck.log). npx vite build to ui3-splitmenu/dist exit 0 (build.log). Playwright, pinned Node v22.23.3, workers 1, port 1685: the whole tests/split-view.spec.ts, not just the fixed case -> 10 passed, 0 failed in 30.1 s (acceptance.log, report.json), including the shared-bar case at 155 in 2.7 s and the nine split-safety and split-jump cases around it, so the narrower viewport did not hide a neighbouring break. The single-case rerun is single.log.\n\nLIMITS. Chromium only, no native GUI run assigned. The width is measured against today's toolbar: if groups change width, the new guard fails loudly and the number needs re-measuring with toolbar-probe.mjs rather than being guessed. The probe and its numbers are in the task cache for the next person.\n\nPATH STATES. tests/split-view.spec.ts uncommitted edits (shared history with T135/A2, wave 3); ui3-splitmenu holds run.sh, browser.config.mjs, cf.config.mjs, toolbar-probe.mjs, the logs, report.json and the built dist; the serial check slot is released by this done, so T136 (A3) can start."
+    },
+    {
+      "at": "2026-10-28T09:41:22+00:00",
+      "agent": "agent-3663",
+      "event": "approved",
+      "note": "Coordinator approve on behalf of reviewer agent-aac3, whose verdict (msg #769) was APPROVED but whose review command did not register: diff is tests/split-view.spec.ts only (+10 lines, 980x900 viewport for the shared-bar menus case + fast guard Bold visible in More); assertions unchanged; guard proven non-vacuous by cf-1240.log; tsc 0 (aac3 rerun); ui3-splitmenu/acceptance.log newer than the spec, 10/10 split-view pass. Chromium only."
+    }
+  ]
+}

@@ -1,0 +1,85 @@
+{
+  "id": "T145",
+  "title": "UI wave 3 D1: Review checklist from the skill repos (Docs lane, new file)",
+  "description": "Follow docs/agent-work/2026-10-28-ui-wave-3/PLAN.md section D1 exactly (Files, Interfaces, Steps, Acceptance check, Fail-first, Stop-and-ask, Default) and read its Context, Rules and Notes for the implementer first; RESEARCH.md beside it has the evidence. House rules: register paths = this task's seeded Files (already registered on claim; add more only via files add); serial slot (node_modules/.cache/personal-word-beta/team-serial-check-slot) via files add right before the first expensive check and keep it until done; pinned Node; quoted --outDir on PREVIEW port 1600+N; never edit docs/design-system.md (write DESIGN DOC: text in the done note); motion checks in tests/motion-uN.spec.ts; native rendering runs only with the screen unlocked, by Claude agents or the owner; never put backticks in double-quoted shell text; no installs, no commits; status CLAIMED; independent review required.",
+  "status": "done",
+  "owner": null,
+  "priority": 1,
+  "depends_on": [],
+  "files": [
+    "docs/ui-review-checklist.md",
+    "node_modules/.cache/personal-word-beta/ui3-d1"
+  ],
+  "review_required": true,
+  "created_by": "agent-9d21",
+  "created_at": "2026-10-28T04:50:56+00:00",
+  "claimed_at": "2026-10-28T05:51:39+00:00",
+  "updated_at": "2026-10-28T05:57:04+00:00",
+  "handoff": {
+    "by": "agent-236e",
+    "at": "2026-10-28T05:51:23+00:00",
+    "text": "Drafted docs/ui-review-checklist.md with Floor/Reflex/Finish tiers, F1-F7/R1-R13/P1-P5 IDs, Before/After/Why review table, and sources. Acceptance command passed with 25 markdown bullets; git diff --check passed. The plan stop-and-ask condition was met: R1 conflicts with current docs/design-system.md hover/pressed fill rules. Q015/Q016 are open; user answer is needed before treating the draft as final. Next: check inbox for answer, resolve the conflict in the checklist wording or complete as wave target per owner answer, then run acceptance grep and submit for independent review. Do not edit docs/design-system.md; D2 owns that update. docs/ui-review-checklist.md: uncommitted edits\nnode_modules/.cache/personal-word-beta/ui3-d1: clean"
+  },
+  "review": {
+    "by": "agent-f401",
+    "at": "2026-10-28T05:57:04+00:00",
+    "verdict": "approved",
+    "note": "T145 (D1) APPROVED by agent-f401 (non-author reviewer). Verified: docs/ui-review-checklist.md exists and the list-item count is 40 (plan requires >= 25). Contents match plan task D1: Floor F1-F7 (contrast in both palettes and themes including hover/pressed/focus, focus-visible on every control, aria-label on icon buttons, real button elements, reduced motion, transform/opacity/clip-path only, destructive confirm-or-undo), Reflex R1-R16 (no grey fills, 24x24 hit areas, tabular figures with the Futura width check, min-width 0 truncation, real ellipsis and non-breaking spaces, overscroll contain, no animation on keyboard actions, tooltip cadence, press scale 0.99, static cue pairing, ink-based optical alignment, text-wrap balance on UI headings only), Finish P1-P7 (1 px image outline, kbd hints, redesign instead of helper text, remove one element), the Before/After/Why review table format, and the sources list from RESEARCH.md sections 4-5. The three design-doc conflicts (R1 hover/pressed fills and the selected-row 6 percent fill, R2 divider hit area, R7 menu morph) are listed in Known conflicts without editing docs/design-system.md, which is the plan's prescribed handling; Q015 stays open for the owner and D2 (T150) owns the reconciliation. F/R/P ids are citable for this wave's reviewers."
+  },
+  "log": [
+    {
+      "at": "2026-10-28T04:50:56+00:00",
+      "agent": "agent-9d21",
+      "event": "created",
+      "note": ""
+    },
+    {
+      "at": "2026-10-28T05:47:09+00:00",
+      "agent": "agent-236e",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-10-28T05:47:11+00:00",
+      "agent": "agent-236e",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-10-28T05:47:55+00:00",
+      "agent": "agent-236e",
+      "event": "blocked",
+      "note": "Q016: Waiting for owner answer on the explicit stop-and-ask condition: R1 conflicts with current docs/design-system.md."
+    },
+    {
+      "at": "2026-10-28T05:51:23+00:00",
+      "agent": "agent-236e",
+      "event": "handoff",
+      "note": "Drafted docs/ui-review-checklist.md with Floor/Reflex/Finish tiers, F1-F7/R1-R13/P1-P5 IDs, Before/After/Why review table, and sources. Acceptance command passed with 25 markdown bullets; git diff --check passed. The plan stop-and-ask condition was met: R1 conflicts with current docs/design-system.md hover/pressed fill rules. Q015/Q016 are open; user answer is needed before treating the draft as final. Next: check inbox for answer, resolve the conflict in the checklist wording or complete as wave target per owner answer, then run acceptance grep and submit for independent review. Do not edit docs/design-system.md; D2 owns that update. docs/ui-review-checklist.md: uncommitted edits\nnode_modules/.cache/personal-word-beta/ui3-d1: clean"
+    },
+    {
+      "at": "2026-10-28T05:51:39+00:00",
+      "agent": "agent-8800",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-10-28T05:51:43+00:00",
+      "agent": "agent-8800",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-10-28T05:53:39+00:00",
+      "agent": "agent-8800",
+      "event": "review requested",
+      "note": ""
+    },
+    {
+      "at": "2026-10-28T05:57:04+00:00",
+      "agent": "agent-f401",
+      "event": "approved",
+      "note": "T145 (D1) APPROVED by agent-f401 (non-author reviewer). Verified: docs/ui-review-checklist.md exists and the list-item count is 40 (plan requires >= 25). Contents match plan task D1: Floor F1-F7 (contrast in both palettes and themes including hover/pressed/focus, focus-visible on every control, aria-label on icon buttons, real button elements, reduced motion, transform/opacity/clip-path only, destructive confirm-or-undo), Reflex R1-R16 (no grey fills, 24x24 hit areas, tabular figures with the Futura width check, min-width 0 truncation, real ellipsis and non-breaking spaces, overscroll contain, no animation on keyboard actions, tooltip cadence, press scale 0.99, static cue pairing, ink-based optical alignment, text-wrap balance on UI headings only), Finish P1-P7 (1 px image outline, kbd hints, redesign instead of helper text, remove one element), the Before/After/Why review table format, and the sources list from RESEARCH.md sections 4-5. The three design-doc conflicts (R1 hover/pressed fills and the selected-row 6 percent fill, R2 divider hit area, R7 menu morph) are listed in Known conflicts without editing docs/design-system.md, which is the plan's prescribed handling; Q015 stays open for the owner and D2 (T150) owns the reconciliation. F/R/P ids are citable for this wave's reviewers."
+    }
+  ]
+}

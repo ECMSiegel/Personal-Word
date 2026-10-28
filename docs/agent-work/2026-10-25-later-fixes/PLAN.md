@@ -135,7 +135,7 @@ L2 touches every import read path: a bug there blocks all rich imports, so its u
 ## Added 2026-10-27 from UI wave 2 (not yet planned in detail)
 - L13 Web article reader (a reading view for a source's web page): a non-goal of UI wave 2; no design recorded yet.
 - L14 Carry source PDFs inside the project archive (`.json`) and the Markdown bundle, so a project moved that way keeps its attachments. Today the bytes stay in the project folder and the attachment is lost on that path.
-- L15 Toolbar label mode threshold (open question 3 of the wave-2 plan): raise `LABEL_MIN_WIDTH` to about 1600-1900 px, or shorten the labels. Measured cliff: bar 1099 px icons = 9 of 13 groups; bar 1100 px labels = 3 of 13.
+- ~~L15 Toolbar label mode threshold~~ -- closed by UI wave 3 (T131): the width-based label switch and its threshold constant are gone; the bar is icons only at every width, so there is no threshold to tune.
 - L16 Passage restore can be overwritten while the save queue is pending (pre-existing, single pane too): the restored content is written, the editors remount after the queue drains, and typing in that window overwrites it. Data safety; highest priority in this list.
 - L17 More menu stays open after clicking one of its rows (U4/U6); also the cause of the split-view menus test flake (about 2 in 20).
 - L18 Plain palette: a brief accent-blue flash while pressing an UNSELECTED sidebar row; Color `:active` on a selected group title uses `--accent` rather than its tint.
@@ -146,3 +146,6 @@ L2 touches every import read path: a bug there blocks all rich imports, so its u
 - L23 Removing a PDF (or deleting its source) while it is open beside leaves the split showing the "not stored" alert instead of closing the pane; `prune()` in `src/split.ts` checks that the source exists, not that it still has a PDF.
 - L24 The PDF size label only counts up to KB (25 MB is shown as "25600.0 KB"), `src/research/ResearchPanel.tsx` `.source-pdf-size`.
 - L25 `tests/research-pdf.spec.ts:33` starts the network check after the first load, so first-load requests are unchecked.
+- L26 Native Tauri menu bar (File, Edit, View, Window, Help): the Mac app has no application menu of its own today, so the standard macOS items and their shortcuts are whatever Tauri supplies. Needs Rust (`src-tauri`) work and a decision on which commands to expose.
+- L27 Tiptap's built-in chord bindings cannot be rebound: the editor library owns Cmd+B/I/U and the other marks, so Settings > Shortcuts lists them but cannot change them (Insert page break is listed read-only for the same reason). Rebinding them means replacing the library's keymap, not adding a registry entry.
+- L28 Tab strip paper fill: an active project tab paints `--paper`, the one remaining selection fill outside the cards view. Remove it only if the owner wants the tab strip to read by weight alone.

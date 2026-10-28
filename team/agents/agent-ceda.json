@@ -1,0 +1,9 @@
+{
+  "id": "agent-ceda",
+  "label": "Claude Sonnet worker K2 tests",
+  "joined_at": "2026-10-28T09:24:12+00:00",
+  "last_seen": "2026-10-28T09:48:19+00:00",
+  "status": "left",
+  "current_task": null,
+  "inbox_cursor": 0
+}

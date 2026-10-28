@@ -11,7 +11,7 @@ import {
   type RefObject,
   type SyntheticEvent,
 } from "react";
-import { slideHighlight, staggerIn, usePresence } from "../motion";
+import { staggerIn, usePresence } from "../motion";
 import "./popover.css";
 
 export type PopoverProps = {
@@ -58,7 +58,6 @@ export function Popover({
   children,
 }: PopoverProps) {
   const el = useRef<HTMLDivElement | null>(null);
-  const box = useRef<HTMLDivElement>(null);
   const [place, setPlace] = useState({ end: false, up: false });
   const up = useRef(false);
   const anchorSize = useRef({ w: 0, h: 0 });
@@ -120,17 +119,18 @@ export function Popover({
     morph === "anchor" ? { showSpeed: "morph", showEasing: "spring" } : undefined,
   );
 
-  // One highlight box slides behind the highlighted (or hovered/focused) item.
+  // The highlighted (or hovered/focused) item is marked data-highlighted; CSS shows it by weight.
   const followed = useRef<HTMLElement | null>(null);
   const sync = () => {
     const popup = el.current;
-    const hl = box.current;
-    if (!popup || !hl) return;
+    if (!popup) return;
     let target: HTMLElement | null = null;
     if (typeof highlight === "number")
       target = popup.querySelectorAll<HTMLElement>(ITEM)[highlight] ?? null;
     else if (highlight === "follow") target = followed.current;
-    slideHighlight(hl, target, popup);
+    for (const item of popup.querySelectorAll<HTMLElement>("[data-highlighted]"))
+      if (item !== target) item.removeAttribute("data-highlighted");
+    target?.setAttribute("data-highlighted", "");
   };
   const syncRef = useRef(sync);
   syncRef.current = sync;
@@ -151,12 +151,6 @@ export function Popover({
       (item) => item.closest(".popover") === popup,
     );
     staggerIn(items);
-    // A highlight measured while items were still moving is re-measured once they rest.
-    const moving = items.flatMap((item) => item.getAnimations());
-    if (moving.length)
-      Promise.all(moving.map((a) => a.finished.catch(() => undefined))).then(() => {
-        if (el.current === popup) syncRef.current();
-      });
   }, [open]);
   useLayoutEffect(() => {
     wasClosing.current = closing;
@@ -209,7 +203,6 @@ export function Popover({
       onPointerOver={follow}
       onFocus={follow}
     >
-      {highlight !== null && <div ref={box} className="popover-highlight" aria-hidden="true" />}
       {children}
     </div>
   );

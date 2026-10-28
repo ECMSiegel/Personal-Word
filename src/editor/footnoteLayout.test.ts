@@ -4,7 +4,7 @@ import { assignPages, computeReserve } from "./footnoteLayout";
 describe("assignPages", () => {
   const pitch = 816 - 96 * 2 + 2 * 96 + 32;
 
-  it("maps reference positions to column indices", () => {
+  it("maps reference positions to page indices", () => {
     expect(
       assignPages([100, 100 + pitch, 100 + 2 * pitch], 100, 624, pitch - 624),
     ).toEqual([0, 1, 2]);
@@ -24,6 +24,13 @@ describe("assignPages", () => {
 
   it("clamps references left of the surface to the first page", () => {
     expect(assignPages([-40], 0, 624, 176)).toEqual([0]);
+  });
+
+  it("assigns stacked pages by their vertical pitch", () => {
+    // Letter page 1056 px tall with a 32 px gap: page 2 starts at 1088.
+    expect(assignPages([0, 1087, 1088, 3 * 1088 + 5], 0, 1056, 32)).toEqual([
+      0, 0, 1, 3,
+    ]);
   });
 
   it("returns an empty array for no references", () => {

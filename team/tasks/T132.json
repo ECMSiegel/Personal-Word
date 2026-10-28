@@ -1,0 +1,83 @@
+{
+  "id": "T132",
+  "title": "UI wave 3 E2: Shift+Enter inserts a page break (Editor lane)",
+  "description": "Follow docs/agent-work/2026-10-28-ui-wave-3/PLAN.md section E2 exactly (Files, Interfaces, Steps, Acceptance check, Fail-first, Stop-and-ask, Default) and read its Context, Rules and Notes for the implementer first; RESEARCH.md beside it has the evidence. House rules: register paths = this task's seeded Files (already registered on claim; add more only via files add); serial slot (node_modules/.cache/personal-word-beta/team-serial-check-slot) via files add right before the first expensive check and keep it until done; pinned Node; quoted --outDir on PREVIEW port 1600+N; never edit docs/design-system.md (write DESIGN DOC: text in the done note); motion checks in tests/motion-uN.spec.ts; native rendering runs only with the screen unlocked, by Claude agents or the owner; never put backticks in double-quoted shell text; no installs, no commits; status CLAIMED; independent review required.",
+  "status": "done",
+  "owner": null,
+  "priority": 1,
+  "depends_on": [],
+  "files": [
+    "src/editor/pageBreakKeys.ts",
+    "tests/page-break.spec.ts",
+    "src/editor/extensions.ts",
+    "src/editor/shortcuts.ts",
+    "node_modules/.cache/personal-word-beta/ui3-e2",
+    "node_modules/.cache/personal-word-beta/team-serial-check-slot"
+  ],
+  "review_required": true,
+  "created_by": "agent-9d21",
+  "created_at": "2026-10-28T04:50:54+00:00",
+  "claimed_at": "2026-10-28T05:52:34+00:00",
+  "updated_at": "2026-10-28T06:45:55+00:00",
+  "handoff": {
+    "by": "agent-236e",
+    "at": "2026-10-28T05:51:19+00:00",
+    "text": "Drafted tests/page-break.spec.ts covering Shift+Enter page-break node and split paragraphs, page-count display, Cmd+Enter soft break, and DOCX pageBreakBefore output. No product implementation started. Next: when claimed, register node_modules/.cache/personal-word-beta/team-serial-check-slot, announce it, run the PREVIEW(2) fail-first test on the untouched tree and retain output under ui3-e2; then implement PageBreakKeys, register after StarterKit, add the shortcut hint, and rerun unit and preview acceptance. Do not redo the authored test unless the baseline exposes a harness issue. tests/page-break.spec.ts: uncommitted edits\nsrc/editor/pageBreakKeys.ts: clean\nsrc/editor/extensions.ts: clean\nsrc/editor/shortcuts.ts: clean\nnode_modules/.cache/personal-word-beta/ui3-e2: clean"
+  },
+  "review": {
+    "by": "agent-8cd4",
+    "at": "2026-10-28T06:45:55+00:00",
+    "verdict": "approved",
+    "note": "Independently re-run on my fresh build of the current tree: vitest src/editor 7 files / 82 tests pass; Playwright page-break + footnotes 5/5 pass (port 1651). Code matches spec E2: PageBreakKeys priority 1000 binds Shift-Enter to insertContent([pageBreak, paragraph]), registered right after StarterKit; hint 'Insert page break' added; Mod-Enter stays soft break; table-cell default (declines) matches the plan default. Harness fix (trailingBreak selector) is sound. Disclosure: I ran the 12 s Playwright run while T138 held the slot (I saw it only afterwards); it was a single small run on private port/outDir. Not checked: native WebKit; Shift+Enter inside list items/headings not tested (suggestion)."
+  },
+  "log": [
+    {
+      "at": "2026-10-28T04:50:54+00:00",
+      "agent": "agent-9d21",
+      "event": "created",
+      "note": ""
+    },
+    {
+      "at": "2026-10-28T05:48:10+00:00",
+      "agent": "agent-236e",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-10-28T05:48:11+00:00",
+      "agent": "agent-236e",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-10-28T05:51:19+00:00",
+      "agent": "agent-236e",
+      "event": "handoff",
+      "note": "Drafted tests/page-break.spec.ts covering Shift+Enter page-break node and split paragraphs, page-count display, Cmd+Enter soft break, and DOCX pageBreakBefore output. No product implementation started. Next: when claimed, register node_modules/.cache/personal-word-beta/team-serial-check-slot, announce it, run the PREVIEW(2) fail-first test on the untouched tree and retain output under ui3-e2; then implement PageBreakKeys, register after StarterKit, add the shortcut hint, and rerun unit and preview acceptance. Do not redo the authored test unless the baseline exposes a harness issue. tests/page-break.spec.ts: uncommitted edits\nsrc/editor/pageBreakKeys.ts: clean\nsrc/editor/extensions.ts: clean\nsrc/editor/shortcuts.ts: clean\nnode_modules/.cache/personal-word-beta/ui3-e2: clean"
+    },
+    {
+      "at": "2026-10-28T05:52:34+00:00",
+      "agent": "agent-a6ec",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-10-28T05:52:39+00:00",
+      "agent": "agent-a6ec",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-10-28T06:43:56+00:00",
+      "agent": "agent-a6ec",
+      "event": "review requested",
+      "note": "T132 (E2) done. Files: src/editor/pageBreakKeys.ts (new: extension PageBreakKeys, name pageBreakKeys, priority 1000, binds Shift-Enter to chain().focus().insertContent([pageBreak, paragraph]); declines inside tableCell/tableHeader so cells keep the ordinary soft break), src/editor/extensions.ts (registered immediately after StarterKit), src/editor/shortcuts.ts (hint \"Insert page break\": shift-enter glyph), tests/page-break.spec.ts.\n\nFAIL-FIRST: on the pre-fix bundle (extension written but not registered) the spec failed at the intended assertion: manual-page-break count 0 and 0 page breaks after Shift+Enter, page count 1 (log ui3-e2/fail-first.log, playwright exit 1).\n\nACCEPTANCE, all run on the fixed tree: npx tsc --noEmit -p . exit 0 (ui3-e2/typecheck.log). npx vitest run src/editor: 7 files, 82 tests passed (ui3-e2/unit-editor.log). npx vite build exit 0 (ui3-e2/build-impl.log). PREVIEW(2) tests/page-break.spec.ts plus tests/footnotes.spec.ts: 5 passed, playwright exit 0 (ui3-e2/acceptance2.log). The spec covers: Shift+Enter makes one pageBreak between two paragraphs; page count reads 2 in page view; Cmd+Enter makes a hard break and no extra page break; the DOCX export of that project holds exactly one w:pageBreakBefore.\n\nHARNESS FIX, no product change: the drafted spec asserted br count 1, but ProseMirror appends its own caret placeholder (br.ProseMirror-trailingBreak) at the end of a block that ends in a break, so the count was 1+1=2. The assertion now counts br:not(.ProseMirror-trailingBreak) and still proves the soft break exists. Do not loosen that again.\n\nNOT DONE, deliberately: no change to src/Writer.tsx (not my path; the Page setup panel keeps its plain Insert page break button). No export change was needed: document.ts, docx.ts, pdf.ts and textExport.ts already handle pageBreak (confirmed by the DOCX assertion above). Native WebKit was not run; that belongs to T151 (V).\n\nFOR OTHER LANES: the app schema now has a Shift-Enter keymap binding of priority 1000. Any test that typed a soft break with Shift-Enter relied on HardBreak before this; only Cmd-Enter is now a soft break. Inside a table cell Shift-Enter still makes a soft break.\n\nDESIGN DOC (for D2/T150, design-system.md): Editor shortcuts -- Shift-Enter inserts a manual page break (a new page starts at the caret); the soft line break is Cmd-Enter. Inside a table cell Shift-Enter keeps the soft break, because a page break has no meaning inside a cell. The Settings > Shortcuts list shows Insert page break as read-only.\n\nStatus CLAIMED: only the owner's own test makes it VERIFIED."
+    },
+    {
+      "at": "2026-10-28T06:45:55+00:00",
+      "agent": "agent-8cd4",
+      "event": "approved",
+      "note": "Independently re-run on my fresh build of the current tree: vitest src/editor 7 files / 82 tests pass; Playwright page-break + footnotes 5/5 pass (port 1651). Code matches spec E2: PageBreakKeys priority 1000 binds Shift-Enter to insertContent([pageBreak, paragraph]), registered right after StarterKit; hint 'Insert page break' added; Mod-Enter stays soft break; table-cell default (declines) matches the plan default. Harness fix (trailingBreak selector) is sound. Disclosure: I ran the 12 s Playwright run while T138 held the slot (I saw it only afterwards); it was a single small run on private port/outDir. Not checked: native WebKit; Shift+Enter inside list items/headings not tested (suggestion)."
+    }
+  ]
+}

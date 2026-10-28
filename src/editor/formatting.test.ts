@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { getSchema } from "@tiptap/core";
 import { documentExtensions } from "./extensions";
-import { countPages, paperGeometry, defaultPageLayout } from "./formatting";
+import { paperGeometry, defaultPageLayout } from "./formatting";
 describe("document formatting schema", () => {
   it("round trips typography, paragraph spacing, explicit page breaks and footnote ids", () => {
     const schema = getSchema(documentExtensions());
@@ -35,14 +35,7 @@ describe("document formatting schema", () => {
     expect(doc.lastChild?.type.name).toBe("pageBreak");
     expect(schema.nodeFromJSON(doc.toJSON()).eq(doc)).toBe(true);
   });
-  it("counts physical column pages and clamps unsafe margins", () => {
-    const geometry = paperGeometry(defaultPageLayout);
-    expect(countPages(geometry.contentWidth, geometry.contentWidth, 176)).toBe(
-      1,
-    );
-    expect(
-      countPages(geometry.contentWidth * 2 + 176, geometry.contentWidth, 176),
-    ).toBe(2);
+  it("clamps unsafe margins", () => {
     expect(paperGeometry({ ...defaultPageLayout, margin: 500 }).margin).toBe(
       144,
     );

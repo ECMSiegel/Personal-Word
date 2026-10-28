@@ -1,0 +1,58 @@
+{
+  "id": "T160",
+  "title": "T155 Chromium dry-run cannot run as given: dry.spec.ts under node_modules is not type-stripped",
+  "description": "Found by V (T151). npx playwright test -c node_modules/.cache/personal-word-beta/ui3-nativefix/dry.config.mjs exits 1: Stripping types is currently unsupported for files under node_modules; No tests found (log node_modules/.cache/personal-word-beta/ui3-final/step4b-t155-dry.log). Harness only, not a product failure. A copy with the 6 type annotations removed (node_modules/.cache/personal-word-beta/ui3-final/t155/dry.spec.mjs) passes 1/1 on both the final dist and ui3-p2/dist (step4b-t155-dry-final.log, step4b-t155-dry-p2.log). Fix: rename dry.spec.ts to .mjs without annotations, or update NATIVE-GATE-MORNING.md to point at the ui3-final/t155 configs.",
+  "status": "done",
+  "owner": null,
+  "priority": 3,
+  "depends_on": [],
+  "files": [
+    "node_modules/.cache/personal-word-beta/ui3-nativefix",
+    "node_modules/.cache/personal-word-beta/ui3-p2/NATIVE-GATE-MORNING.md",
+    "node_modules/.cache/personal-word-beta/team-serial-check-slot"
+  ],
+  "review_required": true,
+  "created_by": "agent-a0fd",
+  "created_at": "2026-10-28T10:53:33+00:00",
+  "claimed_at": "2026-10-28T10:54:44+00:00",
+  "updated_at": "2026-10-28T10:55:43+00:00",
+  "handoff": null,
+  "review": {
+    "by": "agent-7a6a",
+    "at": "2026-10-28T10:55:43+00:00",
+    "verdict": "approved",
+    "note": "Checked: dry.config.mjs runs the type-free dry.spec.mjs (testDir is ui3-nativefix; default testMatch picks up only the .mjs, the .ts.old is not matched). Diff vs dry.spec.ts.old shows only the removed type annotations, assertions identical. t160-dry.log shows 1 passed and is newer (06:55) than the spec (06:54), test path in log is dry.spec.mjs. NATIVE-GATE-MORNING.md command matches the config exactly and the pinned node binary exists. Note: the config names no spec file explicitly, so it depends on testMatch; fine as is."
+  },
+  "log": [
+    {
+      "at": "2026-10-28T10:53:33+00:00",
+      "agent": "agent-a0fd",
+      "event": "created",
+      "note": ""
+    },
+    {
+      "at": "2026-10-28T10:54:44+00:00",
+      "agent": "agent-edb3",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-10-28T10:54:44+00:00",
+      "agent": "agent-edb3",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-10-28T10:55:13+00:00",
+      "agent": "agent-edb3",
+      "event": "review requested",
+      "note": "dry.spec.ts renamed to dry.spec.ts.old; type-free dry.spec.mjs added; NATIVE-GATE-MORNING.md command exact. Dry-run 1 passed (log ui3-nativefix/t160-dry.log). Serial slot released."
+    },
+    {
+      "at": "2026-10-28T10:55:43+00:00",
+      "agent": "agent-7a6a",
+      "event": "approved",
+      "note": "Checked: dry.config.mjs runs the type-free dry.spec.mjs (testDir is ui3-nativefix; default testMatch picks up only the .mjs, the .ts.old is not matched). Diff vs dry.spec.ts.old shows only the removed type annotations, assertions identical. t160-dry.log shows 1 passed and is newer (06:55) than the spec (06:54), test path in log is dry.spec.mjs. NATIVE-GATE-MORNING.md command matches the config exactly and the pinned node binary exists. Note: the config names no spec file explicitly, so it depends on testMatch; fine as is."
+    }
+  ]
+}

@@ -1,0 +1,79 @@
+{
+  "id": "T167",
+  "title": "W1 native gate (T147 steps 1-3b) on the current tree",
+  "description": "Rebuild folio-base and folio-p2 smoke binaries after T155, run native-gate.py --runs 2 per ui3-p2/NATIVE-GATE-MORNING.md; record numbers. Coordinator runs it.",
+  "status": "review",
+  "owner": "agent-47c8",
+  "priority": 1,
+  "depends_on": [],
+  "files": [
+    "node_modules/.cache/personal-word-beta/ui3-p2",
+    "node_modules/.cache/personal-word-beta/team-serial-check-slot"
+  ],
+  "review_required": true,
+  "created_by": "agent-47c8",
+  "created_at": "2026-10-28T19:35:45+00:00",
+  "claimed_at": "2026-10-28T21:34:13+00:00",
+  "updated_at": "2026-10-28T21:34:14+00:00",
+  "handoff": {
+    "by": "agent-0d74",
+    "at": "2026-10-28T19:53:59+00:00",
+    "text": "Reject pending a fresh post-fix native run. The recorded W1 result fails the prescribed caret gate: upFromPage2ToPage1Last=false in both runs (native-gate-results.json; also stated in the T167 done note). NATIVE-GATE-MORNING.md defines every caret flag as required and says a false flag fails the gate. T168 is currently implementing the ArrowUp/Down-across-spacer fix, but it is still in progress; please rerun native-gate.py --runs 2 on the resulting current tree and record all flags before resubmitting T167."
+  },
+  "review": {
+    "by": "agent-0d74",
+    "at": "2026-10-28T19:53:59+00:00",
+    "verdict": "rejected",
+    "note": "Reject pending a fresh post-fix native run. The recorded W1 result fails the prescribed caret gate: upFromPage2ToPage1Last=false in both runs (native-gate-results.json; also stated in the T167 done note). NATIVE-GATE-MORNING.md defines every caret flag as required and says a false flag fails the gate. T168 is currently implementing the ArrowUp/Down-across-spacer fix, but it is still in progress; please rerun native-gate.py --runs 2 on the resulting current tree and record all flags before resubmitting T167."
+  },
+  "log": [
+    {
+      "at": "2026-10-28T19:35:45+00:00",
+      "agent": "agent-47c8",
+      "event": "created",
+      "note": ""
+    },
+    {
+      "at": "2026-10-28T19:35:50+00:00",
+      "agent": "agent-47c8",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-10-28T19:35:51+00:00",
+      "agent": "agent-47c8",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-10-28T19:40:56+00:00",
+      "agent": "agent-47c8",
+      "event": "review requested",
+      "note": "Native gate on WebKit (2 interleaved runs, logs ui3-p2/w1-gate.log, native-gate-results.json): p2 sync p50 9 / p95 10-15 ms (budget 25/50) PASS; paint ratio p2/base <=1.24 PASS; 585 pane zoom 0.678, maxPageStartDrift 0, refPageMismatches 0 PASS. Caret: 5/6 flags true; upFromPage2ToPage1Last FALSE in both runs: WebKit line-up from page 2's first line skips page 1's last line (lands one line higher, top 268 vs 292). Fixed under T168 by handling ArrowUp/Down across a spacer in the plugin."
+    },
+    {
+      "at": "2026-10-28T19:53:59+00:00",
+      "agent": "agent-0d74",
+      "event": "rejected",
+      "note": "Reject pending a fresh post-fix native run. The recorded W1 result fails the prescribed caret gate: upFromPage2ToPage1Last=false in both runs (native-gate-results.json; also stated in the T167 done note). NATIVE-GATE-MORNING.md defines every caret flag as required and says a false flag fails the gate. T168 is currently implementing the ArrowUp/Down-across-spacer fix, but it is still in progress; please rerun native-gate.py --runs 2 on the resulting current tree and record all flags before resubmitting T167."
+    },
+    {
+      "at": "2026-10-28T21:34:13+00:00",
+      "agent": "agent-47c8",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-10-28T21:34:13+00:00",
+      "agent": "agent-47c8",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-10-28T21:34:14+00:00",
+      "agent": "agent-47c8",
+      "event": "review requested",
+      "note": "Rerun on the final T168 tree (17:07-17:10, binary ui3-p2/bin/folio-split, log ui3-p2/w2-gate.log, native-gate-results.json): gate exit 0; p2 sync p50 8-9 / p95 <=11 ms; all six caret flags true for both an inline (mid-paragraph) gap and a block gap in both runs, judged on WebKit's drawn selection rect, plus Up from the far end of page 2's first line; 585 px drift <=1, refPageMismatches 0. Paint p50 ratio 1.13-1.43 (busy machine; p95 above 50 ms for base and split alike)."
+    }
+  ]
+}

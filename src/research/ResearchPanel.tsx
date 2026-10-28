@@ -1,6 +1,8 @@
 import { useEffect, useId, useRef, useState } from "react";
 import { ChevronRight } from "lucide-react";
 import { Dropdown, type DropdownOption } from "../components/Dropdown";
+import { DropTarget, type DropItem } from "../components/DropTarget";
+import { readDroppedPdf } from "../import/dropImport";
 import {
   bibliography,
   citationGuidance,
@@ -26,6 +28,14 @@ import {
 import "./research.css";
 
 export type ResearchTab = "sources" | "notes";
+const MAX_PDF_BYTES = 25 * 1024 * 1024;
+/** Browsers hide a dragged file's name and size until the drop, so a missing name is judged by type only. */
+const acceptPdf = (file: DropItem) => {
+  if (!file.name)
+    return !file.type || file.type === "application/pdf" ? null : "Only PDF files can be attached.";
+  if (!/\.pdf$/i.test(file.name)) return "Only PDF files can be attached.";
+  return file.size > MAX_PDF_BYTES ? "PDFs must be 25 MB or smaller." : null;
+};
 const emptyResearchData: ResearchData = { sources: [], notes: [], footnotes: [] };
 
 const kindLabels: Record<Source["kind"], string> = {
@@ -455,14 +465,21 @@ export function ResearchPanel({
               </div>
             </>
           ) : (
-            <label className="source-pdf-attach">
-              <span>Attach PDF…</span>
-              <input type="file" accept="application/pdf,.pdf" aria-label="Attach PDF" onChange={(event) => {
-                const file = event.currentTarget.files?.[0];
-                event.currentTarget.value = "";
-                if (file) void onAttachPdf?.(source.id, file);
-              }} />
-            </label>
+            <DropTarget
+              accept={acceptPdf}
+              label="Drop to attach"
+              onReject={(reason) => notify(reason, true)}
+              onFiles={(files) => {
+                if (files.length !== 1) return notify("Attach one PDF at a time.", true);
+                notify("");
+                const [file] = files;
+                if (typeof file !== "string") return void onAttachPdf?.(source.id, file);
+                readDroppedPdf(file).then(
+                  (read) => onAttachPdf?.(source.id, read),
+                  (error) => notify(String(error), true),
+                );
+              }}
+            />
           )}
         </div>
         {source.lookupNote && (

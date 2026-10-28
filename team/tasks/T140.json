@@ -1,0 +1,72 @@
+{
+  "id": "T140",
+  "title": "UI wave 3 S2: Separator, tabular figures, hit areas, optical nudges, alignment tests (Styles lane)",
+  "description": "Follow docs/agent-work/2026-10-28-ui-wave-3/PLAN.md section S2 exactly (Files, Interfaces, Steps, Acceptance check, Fail-first, Stop-and-ask, Default) and read its Context, Rules and Notes for the implementer first; RESEARCH.md beside it has the evidence. House rules: register paths = this task's seeded Files (already registered on claim; add more only via files add); serial slot (node_modules/.cache/personal-word-beta/team-serial-check-slot) via files add right before the first expensive check and keep it until done; pinned Node; quoted --outDir on PREVIEW port 1600+N; never edit docs/design-system.md (write DESIGN DOC: text in the done note); motion checks in tests/motion-uN.spec.ts; native rendering runs only with the screen unlocked, by Claude agents or the owner; never put backticks in double-quoted shell text; no installs, no commits; status CLAIMED; independent review required.",
+  "status": "done",
+  "owner": null,
+  "priority": 2,
+  "depends_on": [],
+  "files": [
+    "src/styles.css",
+    "tests/alignment.spec.ts",
+    "src/designTokens.test.ts",
+    "node_modules/.cache/personal-word-beta/ui3-s2",
+    "node_modules/.cache/personal-word-beta/team-serial-check-slot"
+  ],
+  "review_required": true,
+  "created_by": "agent-9d21",
+  "created_at": "2026-10-28T04:50:55+00:00",
+  "claimed_at": "2026-10-28T07:54:16+00:00",
+  "updated_at": "2026-10-28T08:01:51+00:00",
+  "handoff": null,
+  "review": {
+    "by": "agent-f209",
+    "at": "2026-10-28T08:01:51+00:00",
+    "verdict": "approved",
+    "note": "agent-f209 independent review (I did not write it; f401 completed it after a6ec went stale). Read tests/alignment.spec.ts (5 tests; hit-area test measures rect or ::after, ink test uses getScreenCTM) and the styles.css separator/tabular/hit-area/optical hook rules; they match the done note. Evidence: tsc 0 (pinned Node); report.json of ui3-review-f401 (built 07:55Z) 71 passed 0 failed incl. alignment 5/5; previous owner's red-on-doctored-copy fail-first (3 of 5) on disk, accepted as recorded. Plan default applied correctly for the Futura tnum stop rule (rule kept, width-equality check dropped, honest in the test comment). Limit: no per-icon nudges because max measured 0.33 px; sidebar icons covered only by hit-area test, as admitted. styles.css is shared with T139; only the S2 hunks reviewed."
+  },
+  "log": [
+    {
+      "at": "2026-10-28T04:50:55+00:00",
+      "agent": "agent-9d21",
+      "event": "created",
+      "note": ""
+    },
+    {
+      "at": "2026-10-28T07:02:49+00:00",
+      "agent": "agent-a6ec",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-10-28T07:02:51+00:00",
+      "agent": "agent-a6ec",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-10-28T07:54:16+00:00",
+      "agent": "agent-f401",
+      "event": "reclaimed from agent-a6ec",
+      "note": ""
+    },
+    {
+      "at": "2026-10-28T07:54:26+00:00",
+      "agent": "agent-f401",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-10-28T07:57:15+00:00",
+      "agent": "agent-f401",
+      "event": "review requested",
+      "note": "T140 (S2) done. PROVENANCE: implemented by agent-a6ec, which went stale 31 minutes after claiming and died before posting (last disk write 07:25:59Z, no processes running). Reclaimed and completed by agent-f401 under the protocol stale path; the previous owner's full evidence chain was on disk in ui3-s2 and I independently re-verified on the current tree.\n\nWHAT CHANGED. src/styles.css: the separator recipe (1 px of --line; vertical separators stretch, horizontal fixed), font-variant-numeric: tabular-nums on the changing-number counters, a pseudo-element hit-area extension so icon buttons reach 24 x 24, and the --optical-x / --optical-y hook with an ink-based transform on icons. tests/alignment.spec.ts (new, 5 tests): sidebar labels at one depth start at one x; every icon button reaches a 24 x 24 target; counters ask for tabular figures; toolbar icon ink sits at its button centre; a separator draws one pixel of the line colour. src/designTokens.test.ts extended for the new rules.\n\nFAIL-FIRST (previous owner, ui3-s2/fail-first.log): on a doctored copy 3 of 5 alignment cases failed as intended (24 x 24 target, tabular figures, separator pixel), then the source was restored byte-identically.\n\nTABULAR FIGURES DEFAULT (plan S2 stop rule): measure.json proves the system Futura has no tabular figures even with the rule applied (width 111 = 18.719 px, width 888 = 22.219 px). Per the plan's default if unanswered: no font fallback, the tabular-nums rule stays applied, and the width-equality check is dropped; the test asserts the rule is requested, not honoured. D2 must document this font limit.\n\nOPTICAL ALIGNMENT: 18 toolbar icons measured by ink (measure.mjs/measure.json); the largest offset is 0.33 px (Bold, Numbered list), under the plan's 1 px nudge threshold, so no per-icon --optical-* values are set and the hook remains available. Coverage limit recorded honestly: the measure script's iconButtons and entries arrays came back empty on the visited page, so sidebar icons were verified by the 24 x 24 hit-area test rather than by ink measurement.\n\nMY INDEPENDENT VERIFICATION (agent-f401, current tree 07:55Z): npx tsc --noEmit -p . exit 0; npx vitest run src/designTokens.test.ts 12/12; fresh vite build exit 0 to ui3-review-f401/dist; Playwright on port 1671 (config ui3-review-f401/browser.config.mjs, workers 1): tests/alignment.spec.ts 5/5 inside a 71-passed run that also covered projects-screen, layout, appearance and accessibility for the T138/T141 reviews. Previous owner's evidence: acceptance 5/5 twice on port 1610 (acceptance.log, acceptance1.log), build 0, typecheck 0, unit 12/12.\n\nDESIGN DOC: (for D2/T150) Separator: 1 px of --line; vertical separators are aria-orientation aware and stretch to the row, horizontal separators are fixed height. Numbers that change while visible ask for tabular figures; the system Futura ignores font-variant-numeric, so counters stay proportional by measurement (18.719 vs 22.219 px for 111 vs 888) until the owner chooses a fallback font. Icon buttons carry a hit-area extension to at least 24 x 24 px without changing their visual size. Icons align by ink: at the current type scale every measured toolbar icon sits within 0.33 px of its button centre, so the --optical-x/--optical-y hook exists but no icon needs a value; re-measure if icons or sizes change.\n\nPATH STATES: src/styles.css uncommitted edits (shared with in-review T139); tests/alignment.spec.ts uncommitted edits (new file); src/designTokens.test.ts uncommitted edits (shared with T139); node_modules/.cache/personal-word-beta/ui3-s2 clean; node_modules/.cache/personal-word-beta/team-serial-check-slot clean (released by this done)."
+    },
+    {
+      "at": "2026-10-28T08:01:51+00:00",
+      "agent": "agent-f209",
+      "event": "approved",
+      "note": "agent-f209 independent review (I did not write it; f401 completed it after a6ec went stale). Read tests/alignment.spec.ts (5 tests; hit-area test measures rect or ::after, ink test uses getScreenCTM) and the styles.css separator/tabular/hit-area/optical hook rules; they match the done note. Evidence: tsc 0 (pinned Node); report.json of ui3-review-f401 (built 07:55Z) 71 passed 0 failed incl. alignment 5/5; previous owner's red-on-doctored-copy fail-first (3 of 5) on disk, accepted as recorded. Plan default applied correctly for the Futura tnum stop rule (rule kept, width-equality check dropped, honest in the test comment). Limit: no per-icon nudges because max measured 0.33 px; sidebar icons covered only by hit-area test, as admitted. styles.css is shared with T139; only the S2 hunks reviewed."
+    }
+  ]
+}

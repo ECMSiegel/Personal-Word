@@ -1,0 +1,59 @@
+{
+  "id": "T164",
+  "title": "Shift+Enter inside a list item or block quote nests the page break (Fable review F3)",
+  "description": "Fable review F3. src/editor/pageBreakKeys.ts declines only in table cells; inside a listItem it inserts the pageBreak inside the item (probe JSON: listItem > [paragraph, pageBreak, paragraph]). src/editor/pagination.ts paginates top-level blocks only, so page view shows no new page, while src/export/document.ts visits list-item children and emits the break, so DOCX (pageBreakBefore) and PDF start a new page: editor and exports disagree. Decide one rule and apply it to listItem and blockquote (and any other wrapping block): either decline like the table-cell rule, or lift the break to the top level after the wrapping block. Fail-first: a Playwright case in tests/page-break.spec.ts (caret in a bullet item, Shift+Enter, assert the resulting JSON and the page count) and a unit case if a helper is extracted. Note the rule in docs/design-system.md Shortcuts via a DESIGN DOC note and docs/limitations.md if it is a limit.",
+  "status": "done",
+  "owner": null,
+  "priority": 2,
+  "depends_on": [],
+  "files": [
+    "src/editor/pageBreakKeys.ts",
+    "tests/page-break.spec.ts",
+    "node_modules/.cache/personal-word-beta/ui3-f3",
+    "node_modules/.cache/personal-word-beta/team-serial-check-slot"
+  ],
+  "review_required": true,
+  "created_by": "agent-50eb",
+  "created_at": "2026-10-28T11:19:06+00:00",
+  "claimed_at": "2026-10-28T11:20:27+00:00",
+  "updated_at": "2026-10-28T11:25:21+00:00",
+  "handoff": null,
+  "review": {
+    "by": "agent-68c3",
+    "at": "2026-10-28T11:25:21+00:00",
+    "verdict": "approved",
+    "note": "Approved. Decline rule matches table-cell rule and the code; vitest src/editor 93/93 rerun by me; logs show fail-first failing and page-break pass. Did not rerun Playwright or native."
+  },
+  "log": [
+    {
+      "at": "2026-10-28T11:19:06+00:00",
+      "agent": "agent-50eb",
+      "event": "created",
+      "note": ""
+    },
+    {
+      "at": "2026-10-28T11:20:27+00:00",
+      "agent": "agent-8946",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-10-28T11:20:28+00:00",
+      "agent": "agent-8946",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-10-28T11:23:01+00:00",
+      "agent": "agent-8946",
+      "event": "review requested",
+      "note": "FIXED: Shift+Enter in a list item or block quote now declines (keeps soft break), same as table cells, so no page break is nested where page view ignores it but exports honour it. pageBreakKeys.ts: added isActive listItem / blockquote to the decline check; no schema change. Chosen rule: decline (T164 gave two options, no default; consistent with table-cell rule). Fail-first: two new tests in tests/page-break.spec.ts (bullet, quote) failed on old code (.manual-page-break count != 0), pass now. tsc clean; vitest src/editor 93/93; Playwright page-break 3/3; pages.spec 5/5 on rerun (first run hit the known F5/T165 ArrowDown flake 1846 vs 1848, passed on rerun). Logs: node_modules/.cache/personal-word-beta/ui3-t164. Not run: native WebKit. DESIGN DOC: Shortcuts: Shift+Enter inserts a page break at top level; inside a list item, block quote or table cell it stays a soft line break (page breaks are only honoured at the top level). Status CLAIMED, not verified in real use."
+    },
+    {
+      "at": "2026-10-28T11:25:21+00:00",
+      "agent": "agent-68c3",
+      "event": "approved",
+      "note": "Approved. Decline rule matches table-cell rule and the code; vitest src/editor 93/93 rerun by me; logs show fail-first failing and page-break pass. Did not rerun Playwright or native."
+    }
+  ]
+}
