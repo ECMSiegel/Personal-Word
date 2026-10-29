@@ -1,160 +1,87 @@
 # Personal Word
 
-**A private writing app for the Mac, built for research papers.** Write in sections, keep your sources beside the draft, insert Chicago-style footnotes, and export to Word or PDF. Your writing is stored on your Mac. Citation lookup is optional and contacts external services.
+**A free, open-source writing app for the Mac, built for long writing.** I write in sections, keep my sources beside the draft, drop in Chicago-style footnotes, and export to Word or PDF when I'm done. Everything stays on my own Mac.
+
+![Personal Word's writing screen: a manuscript section open, the sidebar on the left](docs/evidence/readme/writing-light.png)
+
+## Why I made it
+
+Word and Google Docs are not built for long writing. Once a paper runs to dozens of pages with sources, notes and drafts, they turn into one endless scroll and a pile of separate files. The apps that do handle long writing well are not open source, and most of them cost money.
+
+I wanted something that worked well and was free, so I built it. Personal Word is for the people: anyone writing something long, whether a paper, a thesis chapter, an essay or a book, who wants a good tool without paying for one or handing their writing to someone else's server.
+
+## Features
+
+**Built for long pieces, not single pages**
+- **Write in sections.** My manuscript is a list of sections in the sidebar. I open one at a time, reorder them by dragging, and never scroll through 80 pages to find a paragraph.
+- **Fragments.** When I cut a passage I am not sure about, it goes to Fragments instead of disappearing. I can put it back into a section later.
+- **Two things side by side.** I can open two sections, a fragment, or a source's PDF next to the draft, each in its own pane with its own page count and word count.
+- **Real pages when I want them.** Page view stacks the section as actual pages at any zoom. Paragraphs split across a page break the way Word does them, and footnotes sit at the bottom of their page.
+
+**Research lives next to the writing**
+- **Sources in the same window.** I paste a DOI, ISBN or web address and Personal Word looks the source up. I can also enter it by hand or import from Zotero (CSL JSON or BibTeX).
+- **Chicago footnotes without the fuss.** "Cite here" drops a numbered footnote in the right Chicago 18 format. Later citations of the same source shorten automatically, and the bibliography builds itself.
+- **Quotes with their page numbers.** "Capture quote" saves a passage with its page and inserts the quotation and the citation together.
+- **PDFs beside the draft.** I attach a source's PDF and read it in the second pane while I write.
+
+**Safe with my work**
+- **Saves as I type**, with crash recovery.
+- **Snapshots and history.** Before a big revision I take a snapshot. I can compare versions side by side and restore one section or a single paragraph.
+- **Mine, on my Mac.** No account, no subscription, no cloud. The only time it touches the internet is when I ask it to look up a citation.
+- **Easy to get out.** Word (with real footnotes), PDF, Markdown and plain text exports, plus a full-project backup file.
+
+**Calm to write in**
+- A quiet, flat design that follows macOS light and dark mode, with a Plain or Color palette.
+- Focus mode dims everything but the paragraph I'm writing and hides the toolbar until I reach for it.
+- Word and daily goals with a deadline, an optional on-device prose check, and keyboard shortcuts I can change.
+
+| My sources beside the draft | Page view in dark mode |
+| --- | --- |
+| ![Research panel open beside the draft](docs/evidence/readme/research-light.png) | ![Page view in dark mode, two pages stacked](docs/evidence/readme/writing-dark.png) |
 
 ## Quick start
 
-**You need a Mac.** There is no app download yet; these steps run Personal Word from source.
+**You need a Mac.** I haven't published a download yet, so these steps build Personal Word from source.
 
-### 1. Install the prerequisites
+1. **Install the tools.** Install [Node.js 22](https://nodejs.org) and [Rust](https://rustup.rs). Then open **Terminal** and install Apple's command line tools if you don't have them:
 
-Install [Node.js 22](https://nodejs.org) and [Rust](https://rustup.rs). Then open **Terminal** and install Apple's command line tools if you do not already have them:
+   ```sh
+   xcode-select --install
+   ```
 
-```sh
-xcode-select --install
-```
+2. **Download and run it.** In Terminal, one line at a time:
 
-Wait for installation to finish before continuing.
+   ```sh
+   git clone https://github.com/ECMSiegel/Personal-Word.git
+   cd Personal-Word
+   npm ci
+   npm run tauri dev
+   ```
 
-### 2. Download and run
+   The first launch takes a few minutes while it builds. When the window opens, choose **Start new project**, then **Chicago**, and start writing.
 
-Run these commands in Terminal, one line at a time:
+3. **Make a real app (optional).** Stop the command above with **Control+C**, then:
 
-```sh
-git clone https://github.com/ECMSiegel/Personal-Word.git
-cd Personal-Word
-npm ci
-npm run tauri dev
-```
+   ```sh
+   npm run tauri build
+   open src-tauri/target/release/bundle/macos
+   ```
 
-The first launch compiles the app and can take a few minutes. When the window opens, choose **Start new project**, then **Chicago**, and start writing. Keep Terminal open while using this development version.
+   Drag **Personal Word.app** into Applications. It isn't signed by Apple yet, so the first time you open it macOS may warn you. If it does, allow it under **System Settings > Privacy & Security**.
 
-### 3. Build a standalone app (optional)
+The [user guide](docs/user-guide.md) walks through a whole paper: projects, sections, sources, citations, snapshots and export.
 
-Close the app and press **Control+C** in Terminal to stop the development command, then run:
+## Good to know
 
-```sh
-npm run tauri build
-open src-tauri/target/release/bundle/macos
-```
-
-The folder contains **Personal Word.app**, which you can copy to Applications. It is unsigned and not notarized, so macOS may warn you when opening it.
-
-For a browser-only preview, run `npm run dev` and open `http://localhost:1420`. **Browser writing is stored separately from the Mac app's database.**
-
-> **Beta.** Personal Word is early software for local writing; keep your own backups and see [Status, limits and history](#status-limits-and-history).
-
-![A Chicago-style paper open in Personal Word, with a footnote marker in the text](docs/evidence/readme/writing-light.png)
-
-## Who it is for
-
-Personal Word is for someone writing a long piece with sources: a student paper, a thesis chapter, an essay, or a book-length draft. It suits writers who:
-
-- cite in **Chicago notes and bibliography** style, or follow a Turabian-style student paper layout;
-- want their research notes, quotations, and sources **in the same window** as the draft;
-- want their writing **stored on their own Mac**, with no account, subscription, or cloud service.
-
-It also includes a screenplay template; projects created from the older Story and Essay templates still open. It is not a replacement for Microsoft Word. It supports inline images (PNG, JPEG), tables (with header rows, row/column operations), Chicago notes, comments, and project archives. It does not handle arbitrary merged table cells, live multi-user collaboration, or tracked changes.
-
-## What it looks like
-
-| Sources and citations beside the draft | Dark mode follows macOS or your choice |
-| --- | --- |
-| ![Research panel showing a book source and the bibliography section](docs/evidence/readme/research-light.png) | ![The writing screen in dark mode](docs/evidence/readme/writing-dark.png) |
-
-![The Projects screen with a search button, the Start new project button and a sort control](docs/evidence/readme/projects-light.png)
-
-These screenshots come from the browser preview, using made-up writing. The installed Mac app uses Apple's WebKit engine, so small rendering details can differ.
-
-## Supported platform
-
-| | |
-| --- | --- |
-| **Supported** | macOS only |
-| **Tested on** | Intel macOS 15 automated checks; Intel and Apple silicon real-use checks confirmed by the owner ([results](docs/agent-work/2026-10-24-team-reconciliation/OWNER_TEST_RESULTS.md)) |
-| **Not yet hand-tested** | Older macOS versions |
-| **Not supported** | Windows, Linux, iPad, phones |
-
-There is no downloadable app. Building from source produces `Personal Word.app`. The build is not signed or notarized by Apple, so macOS may warn you the first time you open it.
-
-Distribution preparation is recorded in [Mac distribution status](docs/distribution.md); see also the [third-party notices](src-tauri/resources/THIRD_PARTY_NOTICES.txt).
-
-## A short workflow
-
-1. **Start a project.** On the Projects screen, choose **Start new project**, then **Chicago**. The template sets 12-point serif type, double spacing, one-inch margins, and a title page. Blank and Screenplay are offered too; Essay and Story are hidden from the menus, and projects already created from them still open.
-2. **Write in sections.** The sidebar lists the paper's sections. Click one to open it, and add more with the **+** button beside Manuscript. Drag a section or a sidebar group to reorder it, or use the arrow buttons that appear on hover or keyboard focus. The toolbar's **Page view** stacks the section as pages and splits a paragraph across a page break the way Word does, keeping at least two lines on each page.
-3. **Add a source.** Open **Research** in the sidebar. Paste a DOI, ISBN, or web address and choose **Look up**, choose **Enter manually**, or import a local Zotero **CSL JSON** or **BibTeX** (.bib) export. Review the preview before adding sources. The panel shows the Chicago note and bibliography entry as you type.
-4. **Cite it.** Put the cursor where the note belongs and choose **Cite here**. A numbered footnote appears in the text and at the bottom of the page. New projects shorten repeated citations automatically; existing projects keep that option off until enabled. Choose a Short title and override a note to Always full or Always short when needed. **Capture quote** saves a passage with its page and can insert both quotation and citation together.
-5. **Take a snapshot.** Before a big revision, choose **Snapshot** at the top right and name it. **Snapshots & history** lets you compare versions side by side and restore a section or a single paragraph.
-6. **Export.** Open **Settings** in the sidebar and scroll to **Export document**. Choose **Export DOCX** for an editable Word file with real footnotes, or **Export PDF**. **Export Markdown** and **Export plain text** include the whole project, including notes, fragments, and research notes. **Markdown with images (.zip)** adds the pictures and a checksum manifest, and can be imported again.
-
-**Bibliography.** The Research part of the sidebar lists **Bibliography** and then every source, with research notes under **Notes**. Bibliography appears only when it means something: for a project started from the **Chicago** template, or once the project has a source or a footnote that cites one; otherwise the entry is hidden. The page is read-only: choose the entry order (Alphabetical by author, Order first cited, By source type) and whether to include uncited sources. The choice is saved with the project and used by Word, PDF, Markdown and plain-text export. **Read manuscript** ends with the same Bibliography.
-
-**PDFs.** Attach a PDF (up to 25 MB) to a source in Research and open it beside the draft. PDFs are stored in the project folder and are never fetched from the internet; they are not carried inside the project's `.json` archive or the Markdown bundle (see [Limitations](docs/limitations.md)).
-
-**Open a section or a fragment beside the draft.** Cmd+click its sidebar row, or use the **Open beside** button that appears on hover or keyboard focus. Drag the divider to change the split; the width ratio is remembered, and each pane edits its own entry, so you can type in both. Opening or closing a split keeps the left pane's undo history and scroll position, and both panes line their pages up under matching headers.
-
-The **Projects** screen has a search button that opens a field and filters the list by title. **Start new project** opens a panel listing the templates, then **Import a file…** and **Recover from a project.json file…**. The **gear** at the right of the display row opens **Settings** without leaving Projects. You can also drag one `.txt`, `.md`, `.docx`, `.html` or `.zip` file onto the Projects screen to open the import preview, or choose **Import writing** for the same picker from the keyboard; Cancel creates nothing.
-
-**Appearance:** in **Settings > General**, choose Appearance (System, Light or Dark) and Palette (Plain or Color). Cmd/Ctrl+Shift+L switches between Light and Dark. System follows macOS live; Color adds section tints in the sidebar and colored buttons without changing the document area.
-
-Set manuscript/daily word goals and a deadline in **Settings > Goals**. **Settings > Shortcuts** lists every shortcut the app binds and lets you change the ones it owns; menu hints follow your changes. The toolbar offers **Focus mode** (Cmd/Ctrl+Shift+F) and an optional local **Prose check** with a keyboard-accessible issue list.
-
-The app saves as you type. The download icon at the top right saves a complete copy of the project as a `.json` file, which is useful as a backup.
-
-## Where your writing lives
-
-Each project is stored in its own folder in your Mac's application-data area, under the name `com.folio.writing`. In **Settings**, choose **Show path** next to Storage location to see the exact folder. Each folder holds a SQLite database, which is the real copy, plus readable JSON and plain-text copies.
-
-To back up, quit the app and copy the whole project folder somewhere else. The only time the app uses the internet is when you choose **Look up** for a citation. It sends the DOI or ISBN you entered to Crossref or Open Library, or fetches the web page you named. A DOI found in that page’s metadata may trigger a follow-up request to Crossref. The optional Zotero refresh (off by default) talks only to Zotero on your own Mac.
-
-## Beta status
-
-Personal Word 0.1.1 is **beta**. Gate D passed automated acceptance, and on 2026-10-25 the owner confirmed personally completing all nine real-use checks successfully. Those owner gates are VERIFIED by owner report. See the [owner results](docs/agent-work/2026-10-24-team-reconciliation/OWNER_TEST_RESULTS.md) for the confirmation and its scope, and the [validation record](docs/validation.md) for automated counts, run IDs and binary hashes.
-
-The nine checks covered keyboard editing and comment navigation, blocked-close retry, recovered images, pre-restore safety copies, Microsoft Word rendering, Apple silicon, VoiceOver and input methods, a long writing session, and native WebKit light/dark visuals. See the [roadmap](ROADMAP.md) for future work.
+- **It's beta.** I use it for real writing, but keep your own backups. The download icon at the top right saves a complete copy of a project. Known gaps are listed in [Limitations](docs/limitations.md).
+- **Mac only.** Windows, Linux, iPad and phones are not supported.
+- **Where it keeps your writing:** each project is a folder in the Mac's app-data area (look under `com.folio.writing`). **Settings > Show path** shows the exact folder. To back up, quit the app and copy the folder.
+- **What it isn't:** a full replacement for Microsoft Word. There are no tracked changes, live collaboration or merged table cells.
 
 ## For developers
 
-- [Architecture and how saving works](docs/architecture.md)
-- [Feature guide](docs/personal-word-v2.md)
-- [Validation record](docs/validation.md)
-- [Contributing](CONTRIBUTING.md) and [security reporting](SECURITY.md)
-- [Third-party licenses](THIRD_PARTY.md)
-
-The app uses Tauri 2, React, TypeScript, the Tiptap editor, and Rust with SQLite. Run the checks with:
-
-```sh
-# Recorded qualification used Node v22.23.3. If available locally:
-export PATH="$PWD/node_modules/.cache/personal-word-alpha-review/tools/node-v22.23.3-darwin-x64/bin:$PATH"
-node --version
-npm run build
-npm test -- --no-file-parallelism --maxWorkers=1
-PLAYWRIGHT_PREVIEW=1 npm run test:e2e -- --workers=1
-cargo test --locked --offline --manifest-path src-tauri/Cargo.toml --jobs 1 -- --test-threads=1
-```
-
-Without `PLAYWRIGHT_PREVIEW=1`, `npm run test:e2e` starts the development server. The board qualified the production preview only; build first as above. The pinned Node path is a local cache, not included in a fresh clone; otherwise install Node v22.23.3 separately to reproduce that runtime.
-
-For the isolated native beta checks, build the diagnostic app first, then run the two suites serially:
-
-```sh
-npm run tauri build -- --debug --features native-smoke --no-bundle --config '{"identifier":"com.folio.smoke"}'
-python3 scripts/native-reliability.py --suite baseline
-python3 scripts/native-reliability.py --suite beta
-python3 scripts/verify-beta-evidence.py --evidence docs/agent-work/2026-10-20-beta-roadmap/06-durability/EVIDENCE.json --source-manifest docs/agent-work/2026-10-20-beta-roadmap/06-durability/SOURCE_MANIFEST.json
-```
-
-The evidence verifier checks recorded evidence and source identity; it does not run the suites. Exit 0 means the recorded evidence and owner reports are consistent; exit 2 means required outcomes are incomplete. Local evidence/build artifacts are required and are not shipped in Git. Rebuild the normal app without diagnostic features before owner testing.
-
-Some internal names still say `folio`, from the app's earlier name. They keep existing projects readable. Do not rename them without a data migration.
+Tauri 2, React, TypeScript, the Tiptap editor, and Rust with SQLite. How to run the tests, the architecture and how saving works are in [Developing Personal Word](docs/development.md). See also [Contributing](CONTRIBUTING.md), the [changelog](docs/changelog.md) and the [validation record](docs/validation.md).
 
 ## License
 
-GPL-3.0-only. See [LICENSE](LICENSE).
-
-## Status, limits and history
-
-- [Limitations](docs/limitations.md) -- current limitations, then resolved issues with dates
-- [Changelog](docs/changelog.md) -- full dated history
-- [Validation record](docs/validation.md) -- how it was checked
+Free and open source under GPL-3.0-only. See [LICENSE](LICENSE) and the [third-party notices](THIRD_PARTY.md).
