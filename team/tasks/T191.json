@@ -1,0 +1,58 @@
+{
+  "id": "T191",
+  "title": "Snapshot name dialog: focus and Escape right after opening",
+  "description": "Found by the H4 crawl (msg #904): right after the Snapshot name dialog opens, it does not reliably take keyboard focus, so Escape does not close it. Reproduce (Playwright, open Snapshot then immediately press Escape / type), find whether this is pre-existing (compare the pre-wave build node_modules/.cache/personal-word-beta/ui3-wordsplit/dist) or a wave-4 regression (hover/press transforms, dock, focus-mode toolbar), and fix so the name field is focused as soon as the dialog shows and Escape always closes it and returns focus to the Snapshot button. Fail-first test required. Find the dialog component with grep (Snapshot) and register its file(s) before editing.",
+  "status": "done",
+  "owner": null,
+  "priority": 2,
+  "depends_on": [],
+  "files": [
+    "tests/snapshots-dialog.spec.ts",
+    "node_modules/.cache/personal-word-beta/ui4-snapdlg",
+    "src/app/ProjectDialogs.tsx"
+  ],
+  "review_required": true,
+  "created_by": "agent-47c8",
+  "created_at": "2026-10-29T05:07:34+00:00",
+  "claimed_at": "2026-10-29T05:07:48+00:00",
+  "updated_at": "2026-10-29T05:13:45+00:00",
+  "handoff": null,
+  "review": {
+    "by": "agent-62b6",
+    "at": "2026-10-29T05:13:45+00:00",
+    "verdict": "approved",
+    "note": "Fresh build ui4-rev4: snapshots-dialog spec 3/3 pass; the 'focus has left' test fails on the pre-fix build (ui4-x1b/dist), so fail-first holds. Diff is a small document-level Escape listener in ModalFrame, only when focus is outside the dialog, respects busy. Minor: if two ModalFrames were ever stacked, one Escape would close both (none seen). Chromium only. CLAIMED."
+  },
+  "log": [
+    {
+      "at": "2026-10-29T05:07:34+00:00",
+      "agent": "agent-47c8",
+      "event": "created",
+      "note": ""
+    },
+    {
+      "at": "2026-10-29T05:07:48+00:00",
+      "agent": "agent-c575",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-10-29T05:07:48+00:00",
+      "agent": "agent-c575",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-10-29T05:12:05+00:00",
+      "agent": "agent-c575",
+      "event": "review requested",
+      "note": "Not reproducible from idle: Snapshot dialog focuses its name input immediately and Escape closes it + returns focus to the Snapshot button on both pre-wave (ui3-wordsplit) and current builds (5 rounds x click/keyboard each). Real defect found: ModalFrame handled Escape only on the dialog element, so once focus left the dialog (backdrop click / dead area / the H4 crawl focusing controls behind it) Escape did nothing. Fail-first: tests/snapshots-dialog.spec.ts 'focus has left' failed on current build (dialog count 1). Fix in src/app/ProjectDialogs.tsx: document-level Escape listener (only when focus is outside the dialog, respects busy). After: 3/3 + notice/housekeeping specs pass, tsc clean. Not a wave-4 regression from Writer/toolbar changes (pre-existing gap). Chromium only. CLAIMED."
+    },
+    {
+      "at": "2026-10-29T05:13:45+00:00",
+      "agent": "agent-62b6",
+      "event": "approved",
+      "note": "Fresh build ui4-rev4: snapshots-dialog spec 3/3 pass; the 'focus has left' test fails on the pre-fix build (ui4-x1b/dist), so fail-first holds. Diff is a small document-level Escape listener in ModalFrame, only when focus is outside the dialog, respects busy. Minor: if two ModalFrames were ever stacked, one Escape would close both (none seen). Chromium only. CLAIMED."
+    }
+  ]
+}

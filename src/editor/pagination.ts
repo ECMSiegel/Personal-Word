@@ -85,15 +85,25 @@ function build(doc: EditorState["doc"], boundaries: Boundary[]) {
   );
 }
 
-const same = (a: Boundary[], b: Boundary[]) =>
-  a.length === b.length &&
-  a.every(
-    (x, i) =>
+/**
+ * Whether two boundary lists place every page alike. Heights are compared as
+ * running totals: each spacer moves every later page, so differences below
+ * the tolerance must not add up (at a fit zoom such as 1.1495 Chromium's
+ * blocks come out about 0.3 px a page shorter, which drifted 4 px by page 13).
+ */
+export function sameBoundaries(a: Boundary[], b: Boundary[]) {
+  if (a.length !== b.length) return false;
+  let drift = 0;
+  return a.every((x, i) => {
+    drift += x.height - b[i].height;
+    return (
       x.pos === b[i].pos &&
       !!x.inline === !!b[i].inline &&
-      Math.abs(x.height - b[i].height) < 0.5 &&
-      Math.abs(x.split - b[i].split) < 0.5,
-  );
+      Math.abs(drift) < 0.5 &&
+      Math.abs(x.split - b[i].split) < 0.5
+    );
+  });
+}
 
 let marginCache = new WeakMap<Element, { mt: number; mb: number }>();
 
@@ -501,7 +511,7 @@ export function paginate(view: EditorView, fresh = false): boolean {
   clean.set(view, current?.dirty ?? null);
   if (
     current &&
-    same(current.boundaries, next.boundaries) &&
+    sameBoundaries(current.boundaries, next.boundaries) &&
     current.pageCount === next.pageCount
   )
     return false;
@@ -626,6 +636,32 @@ function arrowAcrossGap(view: EditorView, event: KeyboardEvent) {
   return false;
 }
 
+/**
+ * Backspace at the start of the paragraph after a page break, or Delete at the
+ * end of the one before it, removes the break (as in Word). ProseMirror would
+ * first select the break node, which page view draws as nothing, so the caret
+ * seemed to vanish. Page view only: continuous view draws the break.
+ */
+function deleteAcrossBreak(view: EditorView, event: KeyboardEvent) {
+  const back = event.key === "Backspace";
+  if ((!back && event.key !== "Delete") || event.altKey || event.metaKey || event.ctrlKey || event.shiftKey)
+    return false;
+  if (!view.dom.closest(".is-paged")) return false;
+  const { selection, doc } = view.state;
+  if (!(selection instanceof TextSelection) || !selection.empty) return false;
+  const $head = selection.$head;
+  if (!$head.parent.isTextblock || $head.depth < 1) return false;
+  if (back ? $head.parentOffset !== 0 : $head.parentOffset !== $head.parent.content.size)
+    return false;
+  const edge = back ? $head.before() : $head.after();
+  const $edge = doc.resolve(edge);
+  const node = back ? $edge.nodeBefore : $edge.nodeAfter;
+  if (!node || node.type.name !== "pageBreak") return false;
+  const from = back ? edge - node.nodeSize : edge;
+  view.dispatch(view.state.tr.delete(from, from + node.nodeSize).scrollIntoView());
+  return true;
+}
+
 export const Pagination = Extension.create({
   name: "pagination",
   addProseMirrorPlugins() {
@@ -687,7 +723,8 @@ export const Pagination = Extension.create({
         },
         props: {
           decorations: (state) => paginationKey.getState(state)?.decorations,
-          handleKeyDown: arrowAcrossGap,
+          handleKeyDown: (view, event) =>
+            deleteAcrossBreak(view, event) || arrowAcrossGap(view, event),
           handleDOMEvents: {
             mousedown: (view, event) => clickSpacer(view, event),
             compositionend: () => {

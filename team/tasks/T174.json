@@ -1,0 +1,66 @@
+{
+  "id": "T174",
+  "title": "W4 G2 -- Measure independent of zoom",
+  "description": "UI wave 4, plan docs/agent-work/2026-10-28-ui-wave-4/PLAN.md section '### G2' -- read the whole task (Files, Interfaces, Steps, Acceptance, Fail-first, Stop and ask, Default) plus the plan's Rules, hotspot-ownership and Notes sections before starting. Plan APPROVED by the owner 2026-10-28 with all open-question defaults. Register team-serial-check-slot only while running heavy checks; private Playwright config/port; double-quote paths; no git stash/checkout/reset; no package installs.",
+  "status": "done",
+  "owner": null,
+  "priority": 1,
+  "depends_on": [
+    "T171"
+  ],
+  "files": [
+    "src/Writer.tsx",
+    "src/editor/pagination.test.ts",
+    "src/editor/pagination.ts",
+    "tests/pages-zoom.spec.ts",
+    "node_modules/.cache/personal-word-beta/ui4-g2",
+    "src/editor/editor.css",
+    "tests/pages-helpers.ts",
+    "tests/native-smoke.js",
+    "node_modules/.cache/personal-word-beta/ui4-g"
+  ],
+  "review_required": true,
+  "created_by": "agent-47c8",
+  "created_at": "2026-10-28T23:39:05+00:00",
+  "claimed_at": "2026-10-29T01:48:25+00:00",
+  "updated_at": "2026-10-29T02:55:35+00:00",
+  "handoff": null,
+  "review": {
+    "by": "agent-b658",
+    "at": "2026-10-29T02:55:35+00:00",
+    "verdict": "approved",
+    "note": "Reviewed G2 per Amendment 1. Sheets are div.page-sheet siblings of EditorContent inside .editor-paper (aria-hidden, no text, pointer-events none, rendered only in pages mode): outside ProseMirror so not in doc/undo/saves/exports/selection/copy/spellcheck/word counts. Print CSS hides .page-sheet. Flat square var(--paper) boxes, theme via token; no motion. sameBoundaries running-total drift change is small and unit tested; no zoom-1 measuring so WebKit numbers unchanged. Native PNGs (75/150 dark, gap-caret-a) show grey gaps and page starts where expected (native evidence reviewed from logs/PNGs only, not rerun). Own Chromium build/port 1681: pages-zoom pass (all zooms), pages-gap 9/9, pages 6/6, page-break 3/3, footnotes 4/4, split-view 16/16. Note: an earlier pages-gap run showed 3 ENOENT failures from my own concurrent runs wiping the results dir; clean rerun passed."
+  },
+  "log": [
+    {
+      "at": "2026-10-28T23:39:05+00:00",
+      "agent": "agent-47c8",
+      "event": "created",
+      "note": ""
+    },
+    {
+      "at": "2026-10-29T01:48:25+00:00",
+      "agent": "agent-7896",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-10-29T01:48:25+00:00",
+      "agent": "agent-7896",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-10-29T02:29:40+00:00",
+      "agent": "agent-7896",
+      "event": "review requested",
+      "note": "G2 per PLAN.md Amendment 1. What changed: (1) Drawing. src/Writer.tsx renders one div.page-sheet per page (aria-hidden, top = page * (height + gap) px) as the first children of .editor-paper. In src/editor/editor.css the .is-paged .editor-paper repeating-linear-gradient is replaced by .is-paged .page-sheet {position:absolute; left/right 0; height var(--page-height); background var(--paper); pointer-events none}, and sheets are hidden in print. Real boxes zoom in WebKit; gradient px stops did not. (2) Chromium drift. src/editor/pagination.ts: the private 'same' check becomes the exported sameBoundaries, which compares spacer heights as a running total. At fit zoom 1.1495 each spacer was ~0.3 px off, under the 0.5 tolerance, so it never re-planned and pages drifted 4 px by page 13. WebKit measurement is unchanged (no zoom-1 measuring). Unit tests: 3 sameBoundaries cases in src/editor/pagination.test.ts. Verified: npx vitest run src/editor/pagination.test.ts -> 21 pass; npx tsc --noEmit -p . -> 0. Fail-first: tests/pages-zoom.spec.ts on the untouched build (ui4-g2/dist-base, config ui4-g2/browser.config.mjs) -> exit 1 (pw-zoom-base.log); on the fix (ui4-g2/dist, ui4-g2/fix.config.mjs) -> pass at 50/75/100/125/150 (max layout 0, drawn 0.12, 0 crossings, pixel gaps exact). Regression: pages, page-break, footnotes, pages-gap and performance specs on the fix -> 28 passed (pw-fix-suite.log). Native WebKit (screen unlocked, ui4-g2/smoke-build.sh, python3 node_modules/.cache/personal-word-beta/ui4-g/native-gate.py --binary g2=<abs>/ui4-g2/bin/folio-g2): grey bands where expected within 0.2 px at every zoom, page-start drift <= 1 px, zero flags True. Untouched G1 binary, same scan (--rescan ui4-g1/native-zoom-results2.json): False, deltas -159/+263/-359 px. pages-probe phase: all six caret flags true (native-gate-probe.log). The 3.png repro view now shows the line on page 2 below a correctly drawn gap (ui4-g2/native-screens/gap-caret-a.png). Gate improvements: scrollerTop recorded; ink check works in dark mode and covers only the checked band; --rescan."
+    },
+    {
+      "at": "2026-10-29T02:55:35+00:00",
+      "agent": "agent-b658",
+      "event": "approved",
+      "note": "Reviewed G2 per Amendment 1. Sheets are div.page-sheet siblings of EditorContent inside .editor-paper (aria-hidden, no text, pointer-events none, rendered only in pages mode): outside ProseMirror so not in doc/undo/saves/exports/selection/copy/spellcheck/word counts. Print CSS hides .page-sheet. Flat square var(--paper) boxes, theme via token; no motion. sameBoundaries running-total drift change is small and unit tested; no zoom-1 measuring so WebKit numbers unchanged. Native PNGs (75/150 dark, gap-caret-a) show grey gaps and page starts where expected (native evidence reviewed from logs/PNGs only, not rerun). Own Chromium build/port 1681: pages-zoom pass (all zooms), pages-gap 9/9, pages 6/6, page-break 3/3, footnotes 4/4, split-view 16/16. Note: an earlier pages-gap run showed 3 ENOENT failures from my own concurrent runs wiping the results dir; clean rerun passed."
+    }
+  ]
+}

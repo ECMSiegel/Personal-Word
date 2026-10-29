@@ -68,6 +68,7 @@ Run expensive builds, Playwright, cargo, and native checks one at a time, in the
 - [x] UI polish plan (2026-10-25) tasks T0-T11 are done with independent reviews, its validation list has run, native screenshots were viewed, and the owner hand checks are prepared with status CLAIMED.
 - [x] UI wave 2 plan (2026-10-26) tasks U1-U21 are done with independent reviews, its validation list has run, native screenshots were viewed, and the owner hand checks are prepared with status CLAIMED.
 - [x] UI wave 3 plan (2026-10-28) tasks E1-V are done with independent reviews, its validation list has run, native screenshots were viewed, and the owner hand checks are prepared with status CLAIMED.
+- [ ] UI wave 4 plan (docs/agent-work/2026-10-28-ui-wave-4/PLAN.md, tasks T171-T186) is done with independent reviews, its validation list has run (native checks on an unlocked screen, screenshots viewed), a Fable review passed, and the owner hand checks are prepared with status CLAIMED.
 
 ## Milestones
 1. Reconcile the current working tree and existing implementation/review reports before assigning remaining work.

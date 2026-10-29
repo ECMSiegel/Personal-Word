@@ -6,6 +6,24 @@
 
 This is a working local desktop slice, not a production durability certification.
 
+## UI wave 4 -- 2026-10-29
+
+Status: CLAIMED. The final validation task (V) has not been recorded in this file yet; its record and the owner hand-check sheet will be in `docs/agent-work/2026-10-28-ui-wave-4/VALIDATION.md`. Each task below was checked in Chromium and unit tests on its own private build (logs under `node_modules/.cache/personal-word-beta/ui4-*`) and approved by a non-author reviewer. No native WebKit run is claimed for wave 4.
+
+New or changed checks, run from the project folder with the pinned Node v22.23.3, one worker, a private preview build and port (see the plan's Validation list for the full order):
+
+- Unit: `npx vitest run src/hoverEmphasis.test.ts src/components/dock.test.ts src/components/scrollspy.test.ts src/editor/pagination.test.ts src/shortcuts/shortcuts.test.ts src/designTokens.test.ts src/motion.test.ts`. `hoverEmphasis.test.ts` fails if any stylesheet other than the one shared block sets a hover or focus weight, scale or text stroke (its fail-first was a doctored copy with extra rules).
+- `tests/hover-emphasis.spec.ts`: the shared emphasis on a create-menu row, Snapshot and others (stroke present, scale 1.04, widths and neighbour offsets unchanged), plus a crawl of about twenty screens that hovers and keyboard-focuses every text control.
+- `tests/pages-zoom.spec.ts` (page starts within 1 px at 50, 75, 100, 125, 150 and the fit zoom 1.1495), `tests/pages-gap.spec.ts` (no caret or empty line painted in the gap, Backspace/Delete at a break), with helpers in `tests/pages-helpers.ts`; `tests/pages.spec.ts` for the footer page status.
+- `tests/editor-toolbar.spec.ts` (dock: hover peak, keyboard peak without motion, Reduce Motion, More-menu icons excluded), `tests/writing-aids.spec.ts` and `tests/shortcuts.spec.ts` (focus-mode bar hidden and revealed by pointer, Tab and Cmd+Alt+T; no text jump; the desk-coloured band in page view in light, dark, Plain and Color).
+- `tests/split-view.spec.ts` (no restore strip in a split, divider junction pixel scan at DPR 1 and 2, per-pane footers), `tests/sidebar-selection.spec.ts` (the wave-4 rule in Plain and Color, light and dark, single and split), `tests/layout.spec.ts`, `tests/appearance.spec.ts`, `tests/alignment.spec.ts`, `tests/writing.spec.ts`.
+- `tests/snapshots-dialog.spec.ts`: Escape closes the Snapshot name dialog even after focus leaves it.
+- `tests/scrollspy.spec.ts`: Read-mode following and eased click-to-scroll (instant under Reduce Motion), Write-mode active and half-expanded lines, hover and keyboard expansion, hover-reveal sidebar, drag and collapse, 190 px width, cards view, and colour/scheme screenshots. Run it like the others: `npx playwright test tests/scrollspy.spec.ts` against the private preview build and port with one worker.
+
+Known test notes: `tests/motion.spec.ts` (e) is a pre-existing timing flake under load; the earlier research-pdf strict-mode and motion (g) weight assertions were updated for the stroke (T193). The live task evidence says full Playwright was 316 passed on one tree during T193; the final full run is the V task's.
+
+Still open (owner or V): native screenshots and native gate (zoom 50-150 pixel check), the Futura look of the stroke, the hand checks listed in the plan's Validation step 12, and the release build.
+
 ## UI wave 3 -- 2026-10-28
 
 Status: CLAIMED. Final validation (T151) ran 10:37Z-10:50Z on the final tree; full record and the owner hand-check sheet in [VALIDATION.md](agent-work/2026-10-28-ui-wave-3/VALIDATION.md), logs in `node_modules/.cache/personal-word-beta/ui3-final/`.

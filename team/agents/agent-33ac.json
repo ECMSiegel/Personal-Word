@@ -1,0 +1,9 @@
+{
+  "id": "agent-33ac",
+  "label": "Claude Code (Sonnet worker, reds)",
+  "joined_at": "2026-10-29T05:22:24+00:00",
+  "last_seen": "2026-10-29T05:40:41+00:00",
+  "status": "left",
+  "current_task": null,
+  "inbox_cursor": 0
+}

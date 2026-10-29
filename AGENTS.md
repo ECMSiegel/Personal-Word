@@ -13,7 +13,9 @@ Personal Word is a Mac-first Tauri 2 app with React, TypeScript, Tiptap, and Rus
 ## Product and UI
 - Read docs/design-system.md before changing any CSS.
 - Product name: Personal Word. All interface text is sans serif, preferring locally installed Futura then Avenir/system fonts. Document typeface is independently configurable.
-- Flat, restrained surfaces; square corners; no decorative folders/quills, curved selection connectors, slogans, or heavy footer strips. Selected sidebar entries are semibold, with no fill: text colour in Plain, their section tint in Color.
+- Flat, restrained surfaces; square corners; no decorative folders/quills, curved selection connectors, slogans, or heavy footer strips.
+- Sidebar selection is weight and colour, never a fill: the section header that holds what is on screen (the main pane's entry, or either split pane's entry) is semibold and coloured (the accent blue in Plain, its section tint in Color), and the open entries themselves are semibold in the normal text colour. The bottom rows (Read, Comments, History, Settings) keep their own look, and while Settings, Comments, Bibliography or Read is on screen nothing in the three sections is lit.
+- Hover and keyboard focus on any text control (button, link, tab, menu row, sidebar row) use one shared rule in `src/styles.css`: a width-neutral faux bold (`-webkit-text-stroke`, `--emph-stroke`) plus a 4 percent grow. Nothing may move its neighbours; danger stays red; Reduce Motion drops the grow. Toolbar icons use the magnifying dock instead. Do not add a second hover weight or scale rule anywhere.
 - UI dash separators are '--'. Do not rewrite punctuation in user documents, citations, code, or paths.
 - Live system light/dark appearance and reduced-motion behavior apply throughout.
 - Sidebar width and pin/hover behavior are global. Feature order and collection list/card views are per project. Cards remain in the sidebar and adapt to its width.

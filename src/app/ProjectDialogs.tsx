@@ -1,4 +1,4 @@
-import { useLayoutEffect, useRef, useId, type ReactNode } from "react";
+import { useEffect, useLayoutEffect, useRef, useId, type ReactNode } from "react";
 
 export type NameDialog = { title: string; label: string; value: string; action: (name: string) => Promise<void> | void };
 export type ChoiceDialog = { title: string; body: string; actions: { label: string; run: () => Promise<void> | void; primary?: boolean; destructive?: boolean; keep?: boolean }[] };
@@ -13,6 +13,20 @@ export function ModalFrame({ title, busy = false, onCancel, children }: { title:
     const focus = box.current?.querySelector<HTMLElement>("input:not([disabled]), button:not([disabled]), [tabindex='0']");
     (focus ?? box.current)?.focus();
     return () => { if (prior?.isConnected) prior.focus(); };
+  }, []);
+  // Escape must close the dialog even when focus has left it (a click on the backdrop drops focus to the page).
+  const cancelRef = useRef(onCancel);
+  cancelRef.current = onCancel;
+  const busyRef = useRef(busy);
+  busyRef.current = busy;
+  useEffect(() => {
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key !== "Escape" || event.defaultPrevented || box.current?.contains(document.activeElement)) return;
+      event.preventDefault();
+      if (!busyRef.current) cancelRef.current();
+    };
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
   }, []);
   return <div className="modal-backdrop"><div className="dialog" ref={box} role="dialog" aria-modal="true" aria-labelledby={label} tabIndex={-1}
     onKeyDown={(event) => {

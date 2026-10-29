@@ -1,0 +1,61 @@
+{
+  "id": "T179",
+  "title": "W4 L2 -- Split divider alignment",
+  "description": "UI wave 4, plan docs/agent-work/2026-10-28-ui-wave-4/PLAN.md section '### L2' -- read the whole task (Files, Interfaces, Steps, Acceptance, Fail-first, Stop and ask, Default) plus the plan's Rules, hotspot-ownership and Notes sections before starting. Plan APPROVED by the owner 2026-10-28 with all open-question defaults. Register team-serial-check-slot only while running heavy checks; private Playwright config/port; double-quote paths; no git stash/checkout/reset; no package installs.",
+  "status": "done",
+  "owner": null,
+  "priority": 1,
+  "depends_on": [
+    "T177"
+  ],
+  "files": [
+    "src/components/SplitDivider.tsx",
+    "src/styles.css",
+    "tests/split-view.spec.ts",
+    "node_modules/.cache/personal-word-beta/ui4-l2"
+  ],
+  "review_required": true,
+  "created_by": "agent-47c8",
+  "created_at": "2026-10-28T23:39:20+00:00",
+  "claimed_at": "2026-10-29T03:35:55+00:00",
+  "updated_at": "2026-10-29T03:59:30+00:00",
+  "handoff": null,
+  "review": {
+    "by": "agent-5ecc",
+    "at": "2026-10-29T03:59:30+00:00",
+    "verdict": "approved",
+    "note": "Reran on my own build (ui4-rev3, Chromium): tests/split-view.spec.ts + alignment.spec.ts 30/31 first run; the one failure (split-view.spec.ts:155 Georgia span not found, a menu-click timing case unrelated to header/divider) passed on solo rerun, so load flake. Viewed junction-light-2.png and junction-dark-2.png (DPR2): header bottom rule runs continuously across the divider, vertical line meets it with no step, no spill. Diff is CSS only (header fixed height control-height, close button -1px, divider 7px with -3/-4 margins); SplitDivider.tsx untouched. Native WebKit not run; hover-accent now paints 7px (was 6) -- minor."
+  },
+  "log": [
+    {
+      "at": "2026-10-28T23:39:20+00:00",
+      "agent": "agent-47c8",
+      "event": "created",
+      "note": ""
+    },
+    {
+      "at": "2026-10-29T03:35:55+00:00",
+      "agent": "agent-170b",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-10-29T03:35:55+00:00",
+      "agent": "agent-170b",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-10-29T03:46:52+00:00",
+      "agent": "agent-170b",
+      "event": "review requested",
+      "note": "Root cause (measured): the right pane header was 1px taller than the left (split-close button 32px + 1px border > min-height 32), so the two header rules sat at y=146 vs 147 -- the visible step in 4.png. Fix in src/styles.css: .split-pane-header fixed box-sizing border-box height var(--control-height); .split-close height calc(control-height - 1px); .split-divider now 7px wide, margins 0 -4px 0 -3px so its 1px centre column is exactly the right pane's left edge. SplitDivider.tsx untouched (no hit-width constant there). Spec: tests/split-view.spec.ts new pixel-scan junction test, DPR 1+2 x light+dark x ratio 0.5/0.373 (8 cases): rule row continuous across divider, no 1px step, vertical line unbroken from toolbar rule to pane bottom, no spill beside it. Fail-first: on untouched tree all 4 cases failed (header bottoms 146 vs 147, rule row broken). After: 8/8 pass; full tests/split-view.spec.ts + tests/alignment.spec.ts 31/31 pass (Chromium, dev server port 1701). Light and dark junction crops viewed: clean. Hit area 6->7px, drag/keyboard unchanged (spec drag passes). Native WebKit not run. CLAIMED only."
+    },
+    {
+      "at": "2026-10-29T03:59:30+00:00",
+      "agent": "agent-5ecc",
+      "event": "approved",
+      "note": "Reran on my own build (ui4-rev3, Chromium): tests/split-view.spec.ts + alignment.spec.ts 30/31 first run; the one failure (split-view.spec.ts:155 Georgia span not found, a menu-click timing case unrelated to header/divider) passed on solo rerun, so load flake. Viewed junction-light-2.png and junction-dark-2.png (DPR2): header bottom rule runs continuously across the divider, vertical line meets it with no step, no spill. Diff is CSS only (header fixed height control-height, close button -1px, divider 7px with -3/-4 margins); SplitDivider.tsx untouched. Native WebKit not run; hover-accent now paints 7px (was 6) -- minor."
+    }
+  ]
+}

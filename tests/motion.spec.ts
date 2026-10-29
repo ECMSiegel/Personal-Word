@@ -124,7 +124,7 @@ test("(f) with Reduce Motion a dropdown opens and closes at once with no animati
   expect(await page.evaluate(() => document.getAnimations().length)).toBe(0);
 });
 
-test("(g) the highlighted item is the active descendant and bold, inside a bordered, scrolled popover", async ({ page }) => {
+test("(g) the highlighted item is the active descendant and emphasised with a text stroke (never a heavier weight), inside a bordered, scrolled popover", async ({ page }) => {
   await openProjects(page);
   await sortButton(page).click();
   const listbox = page.getByRole("listbox", { name: "Sort projects" });
@@ -141,7 +141,7 @@ test("(g) the highlighted item is the active descendant and bold, inside a borde
       border: getComputedStyle(el).borderTopWidth,
       marked: active.hasAttribute("data-highlighted"),
       count: el.querySelectorAll("[data-highlighted]").length,
-      weight: getComputedStyle(active).fontWeight,
+      stroke: getComputedStyle(active).webkitTextStrokeWidth,
       background: getComputedStyle(active).backgroundColor,
     };
   });
@@ -149,6 +149,6 @@ test("(g) the highlighted item is the active descendant and bold, inside a borde
   expect(state.border).toBe("1px");
   expect(state.marked).toBe(true);
   expect(state.count).toBe(1);
-  expect(Number(state.weight)).toBeGreaterThanOrEqual(600);
+  expect(parseFloat(state.stroke)).toBeGreaterThan(0);
   expect(state.background).toBe("rgba(0, 0, 0, 0)");
 });

@@ -1,0 +1,69 @@
+/* Toolbar motion: the magnifying dock (K1). Source/credit: see src/components/dock.ts
+   (https://bencho.dev/blocks/dock, owner: free to use). Only transform changes, so the
+   bar's layout width and height never move. The 24 px hit area (::after) is on the button. */
+.writer .format-bar .toolbar-icon:not([data-popover-item]) > svg {
+  transform: translate(var(--optical-x, 0), var(--optical-y, 0)) scale(var(--dock-scale, 1));
+  transition: transform var(--duration-fast) var(--ease-out);
+}
+/* A key press must not animate. */
+.writer .format-bar[data-dock-key] .toolbar-icon:not([data-popover-item]) > svg,
+.writer .format-bar .toolbar-icon:not([data-popover-item]):focus-visible > svg {
+  transition: none;
+}
+.writer .format-bar .toolbar-icon:not([data-popover-item]):focus-visible {
+  --dock-scale: 1.5;
+}
+@media (prefers-reduced-motion: reduce) {
+  .writer .format-bar .toolbar-icon:not([data-popover-item]) > svg {
+    transform: translate(var(--optical-x, 0), var(--optical-y, 0));
+    transition: none;
+  }
+}
+
+/* Focus mode (X1): the bar leaves the layout and slides in from the top edge of the
+   writing area when needed. It stays focusable (no visibility:hidden), so Tab and the
+   focusToolbar shortcut reach it. Its box width is unchanged while hidden, so
+   fitToolbar still measures the same. A pointer reveal animates; a keyboard reveal
+   (data-reveal="key") is instant; Reduce Motion is instant. */
+.writer > .format-bar[data-focus-hidden] {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 40;
+  transform: translateY(-100%);
+  opacity: 0;
+  pointer-events: none;
+  transition:
+    transform var(--duration-base) var(--ease-out),
+    opacity var(--duration-base) var(--ease-out);
+}
+.writer > .format-bar[data-focus-hidden][data-toolbar-revealed] {
+  transform: translateY(0);
+  opacity: 1;
+  pointer-events: auto;
+}
+.writer > .format-bar[data-focus-hidden][data-reveal="key"] {
+  transition: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  .writer > .format-bar[data-focus-hidden] {
+    transition: none;
+  }
+}
+
+/* X1b: while the bar is an overlay it takes no layout space, so the scroll area reserves
+   the same height at the top. Turning focus mode on/off or revealing the bar then never
+   moves the text, and a revealed bar never covers the first line. */
+.writer[data-focus-toolbar] > .writer-scroll {
+  padding-top: calc(var(--control-height) + 2 * var(--space-1));
+  box-sizing: border-box;
+}
+/* Page view: the reserved band belongs to the desk (the paged viewport's own surface),
+   not to the white scroll area, so it reads as desk in every palette and mode. */
+.writer[data-focus-toolbar] > .writer-scroll:has(> .is-paged) {
+  padding-top: 0;
+}
+.writer[data-focus-toolbar] > .writer-scroll > .is-paged {
+  padding-top: calc(16px + var(--control-height) + 2 * var(--space-1));
+}

@@ -1,0 +1,61 @@
+{
+  "id": "T192",
+  "title": "Focus mode in page view: reserved toolbar space shows a white strip above the grey desk",
+  "description": "From T190's review (msg #906): with focus mode on and the bar hidden, page view shows a 40 px WHITE strip between the header row and the grey desk at scrollTop 0 (screenshot node_modules/.cache/personal-word-beta/ui4-rev7/page-light-no-preference-top-hidden0.png). The reserved space must look like part of the desk (same grey surface as .is-paged), in light and dark and both palettes, with no jump and the first line still never covered when the bar is revealed. Fix in src/editor/toolbar-motion.css (e.g. reserve the space inside the paged viewport, or give the padded region the desk surface). Add an assertion (pixel colour of the reserved band equals the desk colour in page view) with fail-first; view light/dark screenshots.",
+  "status": "done",
+  "owner": null,
+  "priority": 2,
+  "depends_on": [
+    "T190"
+  ],
+  "files": [
+    "src/editor/toolbar-motion.css",
+    "src/Writer.tsx",
+    "tests/writing-aids.spec.ts",
+    "node_modules/.cache/personal-word-beta/ui4-x1c"
+  ],
+  "review_required": true,
+  "created_by": "agent-47c8",
+  "created_at": "2026-10-29T05:10:02+00:00",
+  "claimed_at": "2026-10-29T05:12:06+00:00",
+  "updated_at": "2026-10-29T05:22:54+00:00",
+  "handoff": null,
+  "review": {
+    "by": "agent-579a",
+    "at": "2026-10-29T05:22:54+00:00",
+    "verdict": "approved",
+    "note": "Approved. Read the toolbar-motion.css diff (writer-scroll:has(> .is-paged) padding-top 0; .is-paged padding-top 16px + bar height) and the X1c spec (1-px screenshot sample vs computed .is-paged background, plus paper-top no-jump within 1 px). Reran on a fresh build of the current tree (ui4-b1/review-dist, port 1751): tests/writing-aids.spec.ts 14/14 passed (ui4-b1/review192.log). Viewed band-dark-plain.png: the band above the paper is desk grey, no white strip. Non-blocking: (1) the Color case sets html[data-palette] directly rather than via Settings (acceptable, the desk token is palette-independent); (2) the new rule (0,4,0) beats editor.css's @media print '.is-paged { padding: 0 }', so printing with focus mode on would keep the extra top padding -- only matters if a print path uses the live editor DOM; (3) Chromium only, WebKit not run (as the owner noted)."
+  },
+  "log": [
+    {
+      "at": "2026-10-29T05:10:02+00:00",
+      "agent": "agent-47c8",
+      "event": "created",
+      "note": ""
+    },
+    {
+      "at": "2026-10-29T05:12:06+00:00",
+      "agent": "agent-c575",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-10-29T05:12:06+00:00",
+      "agent": "agent-c575",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-10-29T05:14:25+00:00",
+      "agent": "agent-c575",
+      "event": "review requested",
+      "note": "Page view + focus mode: reserved band is now the paged viewport's own desk surface (toolbar-motion.css: writer-scroll:has(> .is-paged) padding-top 0; .is-paged padding-top 16px+bar). Fail-first: new X1c pixel specs failed on the T190 build in all 4 combos (white 255 vs desk 245; dark 32 vs 40). After: all 4 (light/dark x plain/color) pass; no-jump asserted (paper top within 1px of non-focus), plus all X1/X1b specs (9/9). Screenshots viewed: ui4-x1c/band-{light,dark}-{plain,color}.png. Caveat: palette tested by setting html[data-palette=color] directly; scrollTop 0 only; Chromium only, WebKit not run. CLAIMED."
+    },
+    {
+      "at": "2026-10-29T05:22:54+00:00",
+      "agent": "agent-579a",
+      "event": "approved",
+      "note": "Approved. Read the toolbar-motion.css diff (writer-scroll:has(> .is-paged) padding-top 0; .is-paged padding-top 16px + bar height) and the X1c spec (1-px screenshot sample vs computed .is-paged background, plus paper-top no-jump within 1 px). Reran on a fresh build of the current tree (ui4-b1/review-dist, port 1751): tests/writing-aids.spec.ts 14/14 passed (ui4-b1/review192.log). Viewed band-dark-plain.png: the band above the paper is desk grey, no white strip. Non-blocking: (1) the Color case sets html[data-palette] directly rather than via Settings (acceptable, the desk token is palette-independent); (2) the new rule (0,4,0) beats editor.css's @media print '.is-paged { padding: 0 }', so printing with focus mode on would keep the extra top padding -- only matters if a print path uses the live editor DOM; (3) Chromium only, WebKit not run (as the owner noted)."
+    }
+  ]
+}

@@ -44,7 +44,8 @@ export function transitionDeclarations(file: string): Decl[] {
 }
 
 const ALLOWED_PROPS = new Set(["transform", "opacity", "clip-path", "visibility"]);
-const DURATION = /^var\(--duration-(press|fast|base|morph)\)$/;
+// --emph-duration is the text-control emphasis rule's own alias: --duration-fast at rest, --duration-press while :active (styles.css)
+const DURATION = /^var\(--(duration-(press|fast|base|morph)|emph-duration)\)$/;
 const EASING = /^var\(--ease-(out|in|spring)\)$/;
 
 // Splits a value on top-level commas (var(...) contains none, but keep it safe).

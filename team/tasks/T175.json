@@ -1,0 +1,91 @@
+{
+  "id": "T175",
+  "title": "W4 H2 -- The one emphasis rule",
+  "description": "UI wave 4, plan docs/agent-work/2026-10-28-ui-wave-4/PLAN.md section '### H2' -- read the whole task (Files, Interfaces, Steps, Acceptance, Fail-first, Stop and ask, Default) plus the plan's Rules, hotspot-ownership and Notes sections before starting. Plan APPROVED by the owner 2026-10-28 with all open-question defaults. Register team-serial-check-slot only while running heavy checks; private Playwright config/port; double-quote paths; no git stash/checkout/reset; no package installs.",
+  "status": "done",
+  "owner": null,
+  "priority": 1,
+  "depends_on": [
+    "T172"
+  ],
+  "files": [
+    "src/motion.test.ts",
+    "src/styles.css",
+    "node_modules/.cache/personal-word-beta/ui4-h2",
+    "tests/hover-emphasis.spec.ts",
+    "tests/hover-helpers.ts",
+    "src/designTokens.test.ts"
+  ],
+  "review_required": true,
+  "created_by": "agent-47c8",
+  "created_at": "2026-10-28T23:39:08+00:00",
+  "claimed_at": "2026-10-29T01:36:02+00:00",
+  "updated_at": "2026-10-29T01:49:02+00:00",
+  "handoff": {
+    "by": "agent-47c8",
+    "at": "2026-10-29T01:35:23+00:00",
+    "text": "Owner decision 2026-10-28 (after seeing the 10-13 px neighbour shift): NO-SHIFT bold. Keep one shared rule and the 4% scale (transform, no reflow), but replace the font-weight change with a width-neutral faux bold: -webkit-text-stroke (token --emph-stroke, about 0.03-0.04em, currentColor) so a hovered/focused label looks semibold but its layout width is unchanged; neighbours must move 0 px (assert layout width and neighbour offsets unchanged, not just <20%). Tune the stroke against a true 600 screenshot of Snapshot/Append to section and record both crops. Danger stays red; Reduce Motion drops the scale but keeps the stroke. Keep everything else in T175 as approved-quality. Rulings for H3: label:has(input) rows join the catch-all; H3 registers src/organization/fragments.css for .fragment-link; .prose-issue-dismiss and .footnote-source in src/editor/editor.css are deferred to H4 (after G3 releases editor.css); restore the :active press on div.dropdown-option within the shared rule."
+  },
+  "review": {
+    "by": "agent-23e6",
+    "at": "2026-10-29T01:49:02+00:00",
+    "verdict": "approved",
+    "note": "Reviewed styles.css emphasis block (one catch-all, stroke 0.04em currentColor + 1.04 scale, Reduce Motion drops scale only, inputs inside labels un-stroked, danger colour untouched since stroke=currentColor) and designTokens diff. vitest motion+designTokens 29 pass. Reran 'H2 emphasis' on a fresh build (port 1672): passes, widths identical, all neighbour shifts 0, scale 1.04, stroke ~0.5px. Snapshot stroke vs true-600 crops visually comparable. Not checked: native WebKit rendering of -webkit-text-stroke; tuning was in Chromium fallback font only, so check Futura in the Mac app."
+  },
+  "log": [
+    {
+      "at": "2026-10-28T23:39:08+00:00",
+      "agent": "agent-47c8",
+      "event": "created",
+      "note": ""
+    },
+    {
+      "at": "2026-10-29T01:15:27+00:00",
+      "agent": "agent-44ba",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-10-29T01:15:28+00:00",
+      "agent": "agent-44ba",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-10-29T01:28:07+00:00",
+      "agent": "agent-44ba",
+      "event": "review requested",
+      "note": "H2 shipped: tokens --emph-weight 600/--emph-scale 1.04 on :root; one 'Text-control emphasis' block in src/styles.css after button:focus-visible (catch-all on button, a[href], tab/menuitem/option, summary, .text-action; excludes the icon-only lists + .toolbar-icon + .group-chevron/.library-search-field>button/.research-aside>header>button/.notice button/.panel-heading>button/disabled); press is now scale(calc(--emph-s * --press-s)); deleted styles.css hover-weight rules (sidebar group/entry, project-name); left-aligned rows use --emph-origin left. Also edited src/designTokens.test.ts (press regex, emph tokens exempt from colour-name parity) -- registered. New 'H2 emphasis' test in tests/hover-emphasis.spec.ts. Verified: vitest motion+designTokens 29 pass; ui4-h2 (own build/port 1662) 'H2 emphasis' passes: create-menu row, Snapshot, Projects tab, sidebar entry, Append to section, Delete note, settings button all weight 600, scale 1.04; full crawl re-run: 0 of 699 icon controls changed weight/transform; alignment 7, sidebar-selection 7, motion-u7 2, hover-emphasis 2 pass. Fail-first: same test on the pre-H2 dist (ui4-h2/failfirst.log) fails on scale (1.0). CAVEATS: (1) Plan's 'neighbours move <3 px' cannot hold -- bold is wider (Chromium fallback font +10..13 px on Snapshot/Append/Delete note/settings button; Futura will be less) so right-aligned/flowing neighbours shift by that delta; I print shifts and assert only width delta <20%, per Q4 'accept'; needs the owner's native check. (2) Labels (label:has(input)) are not in the catch-all (plan list); H3 must decide. (3) .group-title.selected stays 500 when its entry is selected (wave-3 doubling rule, B1). (4) Other :active scale(0.99) rules (popover.css:40, dropdown.css:27, editor.css:177/211) lose to the new rule on text controls; buttons still press via --press-s, div.dropdown-option does not -- H3. (5) popover.css:34 and research.css:519 hover weights remain for H3. Chromium only."
+    },
+    {
+      "at": "2026-10-29T01:35:23+00:00",
+      "agent": "agent-47c8",
+      "event": "rejected",
+      "note": "Owner decision 2026-10-28 (after seeing the 10-13 px neighbour shift): NO-SHIFT bold. Keep one shared rule and the 4% scale (transform, no reflow), but replace the font-weight change with a width-neutral faux bold: -webkit-text-stroke (token --emph-stroke, about 0.03-0.04em, currentColor) so a hovered/focused label looks semibold but its layout width is unchanged; neighbours must move 0 px (assert layout width and neighbour offsets unchanged, not just <20%). Tune the stroke against a true 600 screenshot of Snapshot/Append to section and record both crops. Danger stays red; Reduce Motion drops the scale but keeps the stroke. Keep everything else in T175 as approved-quality. Rulings for H3: label:has(input) rows join the catch-all; H3 registers src/organization/fragments.css for .fragment-link; .prose-issue-dismiss and .footnote-source in src/editor/editor.css are deferred to H4 (after G3 releases editor.css); restore the :active press on div.dropdown-option within the shared rule."
+    },
+    {
+      "at": "2026-10-29T01:36:02+00:00",
+      "agent": "agent-679e",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-10-29T01:36:03+00:00",
+      "agent": "agent-679e",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-10-29T01:42:43+00:00",
+      "agent": "agent-679e",
+      "event": "review requested",
+      "note": "Reworked per owner NO-SHIFT bold. Same single catch-all block in src/styles.css, but hover/focus now sets -webkit-text-stroke: var(--emph-stroke) currentColor (--emph-stroke 0.04em, replaces --emph-weight) plus the 1.04 transform scale; no font-weight change, so width cannot change. label:has(input) joined the catch-all (inputs inside reset to no stroke; labels grow from left); :active press (--press-s .99) now also covers [role=option]/[role=menuitem]/labels so div.dropdown-option presses; Reduce Motion sets --emph-scale:1 (stroke stays, transitions already off). Danger stays red (stroke is currentColor; asserted). Evidence: vitest motion+designTokens 29 pass; ui4-h2 build, 'H2 emphasis' test now asserts stroke>0.2px, stroke colour==text colour, scale 1.04, offsetWidth/offsetLeft unchanged and every sibling left edge moves <0.01px: create menu row, Snapshot, Projects tab, sidebar entry, Append to section, Delete note, settings button, settings label all 0 px shift, widths identical (run5.log). Fail-first: same test on pre-H2 dist fails on stroke 0px (failfirst2.log). alignment 7, sidebar-selection 7, motion-u7 2 pass. Crops (stroke 0.035em was lighter than true 600, so tuned to 0.04em): node_modules/.cache/personal-word-beta/ui4-h2/crops/{Snapshot,Append-to-section}-{stroke,true600}.png (0.035em set; rerun regenerates at 0.04em). Note the parking point of the mouse moved to (720,892) because (2,2) hovered the Projects tab. Still for H3: popover.css:34 and research.css:519 hover font-weight (width-changing) must be deleted; .group-title.selected 500 rule is B1's. Chromium only; stroke look vs Futura 600 needs the owner's native glance."
+    },
+    {
+      "at": "2026-10-29T01:49:02+00:00",
+      "agent": "agent-23e6",
+      "event": "approved",
+      "note": "Reviewed styles.css emphasis block (one catch-all, stroke 0.04em currentColor + 1.04 scale, Reduce Motion drops scale only, inputs inside labels un-stroked, danger colour untouched since stroke=currentColor) and designTokens diff. vitest motion+designTokens 29 pass. Reran 'H2 emphasis' on a fresh build (port 1672): passes, widths identical, all neighbour shifts 0, scale 1.04, stroke ~0.5px. Snapshot stroke vs true-600 crops visually comparable. Not checked: native WebKit rendering of -webkit-text-stroke; tuning was in Chromium fallback font only, so check Futura in the Mac app."
+    }
+  ]
+}

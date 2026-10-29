@@ -1,0 +1,67 @@
+{
+  "id": "T181",
+  "title": "W4 B1 -- Sidebar selection rethink",
+  "description": "UI wave 4, plan docs/agent-work/2026-10-28-ui-wave-4/PLAN.md section '### B1' -- read the whole task (Files, Interfaces, Steps, Acceptance, Fail-first, Stop and ask, Default) plus the plan's Rules, hotspot-ownership and Notes sections before starting. Plan APPROVED by the owner 2026-10-28 with all open-question defaults. Register team-serial-check-slot only while running heavy checks; private Playwright config/port; double-quote paths; no git stash/checkout/reset; no package installs.",
+  "status": "done",
+  "owner": null,
+  "priority": 1,
+  "depends_on": [
+    "T180",
+    "T177",
+    "T175"
+  ],
+  "files": [
+    "src/App.tsx",
+    "src/components/ProjectSidebar.tsx",
+    "src/styles.css",
+    "tests/sidebar-selection.spec.ts",
+    "tests/split-view.spec.ts",
+    "node_modules/.cache/personal-word-beta/ui4-b1",
+    "tests/layout.spec.ts",
+    "tests/appearance.spec.ts"
+  ],
+  "review_required": true,
+  "created_by": "agent-47c8",
+  "created_at": "2026-10-28T23:39:22+00:00",
+  "claimed_at": "2026-10-29T04:57:39+00:00",
+  "updated_at": "2026-10-29T05:29:26+00:00",
+  "handoff": null,
+  "review": {
+    "by": "agent-8001",
+    "at": "2026-10-29T05:29:26+00:00",
+    "verdict": "approved",
+    "note": "Fresh build ui4-rev8 of current tree: sidebar-selection+split-view+layout+appearance 64/64 pass (incl. split font-menu test that owner saw red once). Fail-first on pre-wave ui3-wordsplit/dist: all 5 new B1 sidebar-selection specs and the split B1 spec fail (other split reds there are just older build). Own screenshots viewed (light/dark x Plain/Color x single/split, sidebar crops): section header bold + accent blue (Plain) / section tint (Color); selected entry bold in text colour, icon tinted in Color only; split lights both sections and both entries; nothing filled. Non-blocking: deviations (a) bottom groups unchanged, (b) destination pages light no section/entry -- owner to confirm on hand check; palette set via data-palette attribute; Chromium only."
+  },
+  "log": [
+    {
+      "at": "2026-10-28T23:39:22+00:00",
+      "agent": "agent-47c8",
+      "event": "created",
+      "note": ""
+    },
+    {
+      "at": "2026-10-29T04:57:39+00:00",
+      "agent": "agent-579a",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-10-29T04:57:39+00:00",
+      "agent": "agent-579a",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-10-29T05:21:34+00:00",
+      "agent": "agent-579a",
+      "event": "review requested",
+      "note": "B1 done (CLAIMED). Changes: ProjectSidebar.tsx new prop openIds?: ReadonlySet<string>; data-open=\"\" on .sidebar-group (Manuscript/Fragments/Research only) when it is the active destination or holds an open id (search/collapse do not change it), and on .entry-row (sections, fragments, collection rows incl. the source PDF row `pdf:<sourceId>`). Entry .selected is now also gated on the entry being in openIds (so .selected rows are a subset of [data-open] rows). App.tsx computes openIds after focusedPane: when `writing`, split drawn (split && splitLeft -- NOT splitPanes, which is null for a PDF pane) -> left id + right entry id or pdf:<sourceId>; else the active entry; destination pages (Settings/Comments/Bibliography/Read) -> empty. styles.css: doubling rule deleted and replaced by `.sidebar-group[data-open] > .group-heading .group-title {600; color: var(--tint, var(--accent))}` and `.sidebar .entry-row[data-open](, .entry-main) {600; --text}`; :active overrides rewritten for [data-open] (entry stays --text, header keeps its colour while pressed); Color rule no longer tints .entry-row.selected (only .group-title.selected); cards-view selected border/detail-weight rules extended to [data-open]. Entry icons keep the Color tint rule. Real font-weight for state; the shared hover stroke+1.04 scale still applies on top of a lit row (tested: hover and keyboard focus on the open row give matrix(1.04..) and stroke > 0, weight stays 600).\nDEVIATIONS from plan text (please confirm with owner): (a) bottom groups (Read/Comments/History/Settings) get no data-open and keep TODAY's look -- in Plain that is 600 + --text (via .sidebar .group-title.selected), not '600 + accent' as the plan states; Color: accent. (b) On a destination page (Settings, Comments, Bibliography, Read mode) no entry and no section header is lit, because no entry is on screen; wave 3 kept the entry bold there. Owner will notice this in the hand check.\nContrast (stop-and-ask not triggered): Plain accent #0069d9 on --surface #f5f5f7 = 4.79, on --sidebar 4.54; dark #64a8ff on #28282c = 6.0, on #252529 = 6.24. No new token.\nPre-existing, unchanged: an open row's word count <small> inherits 600 (wave 3 did the same via .sidebar .selected).\nTests: sidebar-selection.spec.ts +5 (Plain rule incl. hover/keyboard/press/Enter/Settings; 4x palette x scheme split + fragment beside + right-pane focus + source PDF beside lights Research); split-view.spec.ts +1 (both panes lit, close restores); layout.spec.ts:27 and appearance.spec.ts (Color entry tint -> text + header tint; 'bold alone' test rewritten) updated to the new rule (registered on T181).\nFail-first: pre-wave build ui3-wordsplit/dist, port 1751 -> 8/8 new B1 tests red, all behavioural (header weight 500 / colour text): ui4-b1/failfirst.log. After (ui4-b1/dist): sidebar-selection + split-view + layout + appearance + alignment 70/71, the one red split-view:155 font-menu Georgia span (unrelated), 4/4 on --repeat-each 4 (ui4-b1/pw.log, pw-rerun.log). tsc 0; vitest designTokens+palette+hoverEmphasis+motion 47/47 (vitest.log).\nScreenshots viewed (ui4-b1/results/sidebar-selection-B1-*): sidebar-{plain,color}-{light,dark}-{single,split}.png + window-*-split.png. Single shots show the open row under the pointer (hover on top of selection).\nOut-of-lane reds seen in a wider run (ui4-b1/pw-wider.log, 45 passed 3 failed), not caused by B1: research-pdf.spec:61 strict-mode on [data-side=\"left\"] (L3's footer.pane-footer[data-side]); motion.spec (g) highlighted popover item weight 400 (H-lane stroke replaced weight); motion.spec (a) clip-path animates on opening projects search.\nFor R1: prop openIds; data-open on group (collapsible only) and row; PDF row id pdf:<sourceId>; open-in-split = [data-open]:not(.selected).\nDESIGN DOC (for D1): Sidebar selection -- the section that holds what is on screen (the main pane's entry, or either split pane's entry or source PDF) shows its header semibold in its colour: accent in Plain, the section tint in Color. The open entries are semibold in the text colour, never tinted; their icons keep the section tint in Color. Nothing is filled. A destination page (Settings, Comments, Bibliography, Read) lights its own row and no section. Hover/focus emphasis applies on top of a lit row."
+    },
+    {
+      "at": "2026-10-29T05:29:26+00:00",
+      "agent": "agent-8001",
+      "event": "approved",
+      "note": "Fresh build ui4-rev8 of current tree: sidebar-selection+split-view+layout+appearance 64/64 pass (incl. split font-menu test that owner saw red once). Fail-first on pre-wave ui3-wordsplit/dist: all 5 new B1 sidebar-selection specs and the split B1 spec fail (other split reds there are just older build). Own screenshots viewed (light/dark x Plain/Color x single/split, sidebar crops): section header bold + accent blue (Plain) / section tint (Color); selected entry bold in text colour, icon tinted in Color only; split lights both sections and both entries; nothing filled. Non-blocking: deviations (a) bottom groups unchanged, (b) destination pages light no section/entry -- owner to confirm on hand check; palette set via data-palette attribute; Chromium only."
+    }
+  ]
+}

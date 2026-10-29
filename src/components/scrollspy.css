@@ -1,0 +1,68 @@
+/* Scrollspy line column in the sidebar's Manuscript rows (list view only).
+   Reference: https://kit.cuedesign.space/components/scrollspy-line-navigation
+   owner: free to use (owner statement 2026-10-28). Adapted: lines sit in each row's right
+   gutter, drawn by transform only (scaleX), no tooltip (the row title is beside it).
+   Contract: `.entry-row > .spy-line` with data-state="idle" | "open" | "active".
+   Needs `.entry-row { position: relative }`; `.spy-line` is in the text-emphasis exclusion
+   list in styles.css, so the shared hover rule never touches it. */
+
+/* The list/cards class sits on the group section (.list-view / .cards-view), not on
+   .entry-list; cards view draws no lines and keeps its full width. */
+.sidebar-group[data-group="manuscript"].list-view .entry-list {
+  padding-right: 20px;
+}
+
+.entry-row > button.spy-line {
+  position: absolute;
+  top: 50%;
+  /* In the 20 px gutter beside the row (row right edge + 2 px). */
+  right: -18px;
+  width: 16px;
+  height: 2px;
+  margin: -1px 0 0;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: var(--muted);
+  transform: scaleX(0.375);
+  transform-origin: right center;
+  transition: transform var(--duration-fast) var(--ease-out);
+  cursor: pointer;
+}
+
+/* 24 px hit area without changing the drawn size */
+.entry-row > button.spy-line::after {
+  content: "";
+  position: absolute;
+  inset: -11px -4px;
+}
+
+.entry-row:hover > button.spy-line,
+.entry-row:focus-within > button.spy-line,
+.entry-row > button.spy-line:hover,
+.entry-row > button.spy-line[data-state="open"] {
+  transform: scaleX(0.75);
+}
+
+.entry-row > button.spy-line[data-state="active"] {
+  background: var(--accent);
+  transform: scaleX(1);
+}
+
+.entry-row > button.spy-line:active {
+  transform: scaleX(0.75);
+}
+.entry-row > button.spy-line[data-state="active"]:active {
+  transform: scaleX(1);
+}
+
+/* A key press must not animate. */
+.entry-row:has(:focus-visible) > button.spy-line {
+  transition: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .entry-row > button.spy-line {
+    transition: none;
+  }
+}

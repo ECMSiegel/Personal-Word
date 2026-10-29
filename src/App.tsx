@@ -40,6 +40,9 @@ import {
 import { Writer } from "./Writer";
 import { SplitDivider } from "./components/SplitDivider";
 import "./components/split.css";
+import "./components/pane-footer.css";
+import { PaneFooter } from "./components/PaneFooter";
+import { easedScrollTo, useReadSpy } from "./components/scrollspy";
 import {
   activeOf,
   closeRight,
@@ -438,7 +441,10 @@ export default function App() {
   const [active, setActive] = useState("");
   const [mode, setMode] = useState<"write" | "read">("write");
   const [status, setStatus] = useState<SaveStatus>({ state: "saved" });
-  const [pageStatus, setPageStatus] = useState({ current: 1, total: 1 });
+  const [pageStatus, setPageStatus] = useState<Record<Side, { current: number; total: number }>>({
+    left: { current: 1, total: 1 },
+    right: { current: 1, total: 1 },
+  });
   const [asideWidth, setAsideWidth] = useState(() =>
     clampAside(
       Number(readPreference("personal-word.asidePanelWidth", 390)) || 390,
@@ -1620,6 +1626,23 @@ export default function App() {
   const goals = project ? goalStatus(project, goalDay,
     goalBaseline?.projectId === project.id && goalBaseline.context === goalContext && goalBaseline.date === goalDay
       ? goalBaseline.words : scopedWords, scopedWords) : {};
+  const hasGoals = Boolean(goals.daily || goals.total || goals.daysLeft !== undefined);
+  const goalsNode = (
+    <span className="writing-goals" aria-label="Writing goals">
+                  {goals.daily && <span className="goal-daily">{goals.daily.done.toLocaleString()} of {goals.daily.target.toLocaleString()} today</span>}
+                  {goals.total && <span className="goal-total">{goals.total.done.toLocaleString()} of {goals.total.target.toLocaleString()}</span>}
+                  {goals.daysLeft !== undefined && <span className="goal-deadline">{goals.daysLeft} {goals.daysLeft === 1 ? "day" : "days"} left{goals.perDayNeeded !== undefined ? `, ${goals.perDayNeeded.toLocaleString()} a day` : ""}</span>}
+                </span>
+  );
+  const paneFooter = (entry: Entry, side: "left" | "right") => (
+    <PaneFooter
+      side={side}
+      status={project?.pageLayout?.mode === "pages" ? pageStatus[side] : undefined}
+      words={words(entry.text)}
+      characters={entry.text.length}
+      goals={side === "left" && hasGoals ? goalsNode : undefined}
+    />
+  );
   const patchGoalPreference = (key: "scope" | "dayMode", value: string) => {
     if (key === "scope" && value !== "manuscript" && value !== "manuscript-and-fragments") return;
     if (key === "dayMode" && value !== "local" && value !== "utc") return;
@@ -1753,11 +1776,11 @@ export default function App() {
           }, { entryId: entry.id, transaction });
         }}
         onComment={() => addAnnotation("comment")}
-        onPageStatus={side !== focusedPane ? undefined : (s) =>
+        onPageStatus={(s) =>
           setPageStatus((prev) =>
-            prev.current === s.current && prev.total === s.total
+            prev[side].current === s.current && prev[side].total === s.total
               ? prev
-              : s,
+              : { ...prev, [side]: s },
           )
         }
         header={
@@ -1809,6 +1832,45 @@ export default function App() {
       ? { split, focused: split.focused, left: splitLeft, right: splitRight }
       : null;
   const focusedPane: Side = splitPanes ? splitPanes.focused : "left";
+  // What the sidebar lights (wave 4 B1): what is on screen -- both drawn split
+  // panes (same test as the render: split && splitLeft; a PDF pane as its
+  // `pdf:<sourceId>` row), else the main pane's entry; nothing on a destination page.
+  const openIds = new Set<string>();
+  if (writing) {
+    if (split && splitLeft) {
+      openIds.add(split.left);
+      openIds.add(split.right.kind === "entry" ? split.right.id : `pdf:${split.right.sourceId}`);
+    } else if (active) openIds.add(active);
+  }
+  // Scrollspy lines (R1): in Read mode the sidebar line of the section being read is
+  // active; a line click eases the Read view to that section (instant from a keyboard
+  // or under Reduce Motion), and a wheel or touch by the reader cancels the scroll.
+  const readScroller = () => document.querySelector<HTMLElement>(".manuscript-read");
+  const readActiveId = useReadSpy(mode === "read", sections.map((e) => e.id), readScroller);
+  const cancelReadScroll = useRef<() => void>(() => {});
+  const scrollToSection = (id: string, viaKeyboard: boolean) => {
+    const scroller = readScroller();
+    const target = document.getElementById("read-" + id);
+    if (!scroller || !target || !scroller.contains(target)) return;
+    cancelReadScroll.current();
+    const top =
+      target.getBoundingClientRect().top - scroller.getBoundingClientRect().top + scroller.scrollTop - 100;
+    const stop = () => cancelReadScroll.current();
+    let cancel = () => {};
+    cancelReadScroll.current = () => {
+      cancel();
+      scroller.removeEventListener("wheel", stop);
+      scroller.removeEventListener("touchstart", stop);
+      cancelReadScroll.current = () => {};
+    };
+    scroller.addEventListener("wheel", stop, { passive: true });
+    scroller.addEventListener("touchstart", stop, { passive: true });
+    // The listeners go as soon as the scroll finishes on its own, not only on the next click or wheel.
+    cancel = easedScrollTo(scroller, Math.max(0, top), {
+      instant: viaKeyboard,
+      onDone: () => cancelReadScroll.current(),
+    });
+  };
   focusedSide.current = focusedPane;
   useEffect(() => {
     const editor = paneEditors.current[focusedPane];
@@ -1907,6 +1969,9 @@ export default function App() {
               key={project.id}
               project={project}
               activeDestination={destination}
+              openIds={openIds}
+              readActiveId={readActiveId}
+              onScrollToSection={scrollToSection}
               groupOrder={project.sidebarOrder}
               hiddenGroups={project.sidebarHidden ?? []}
               onGroupOrder={(sidebarOrder) =>
@@ -2470,29 +2535,7 @@ export default function App() {
                             </div>
                           )}
                           {renderWriter((split && splitLeft) || item, "left", Boolean(split && splitLeft))}
-                          {split && splitLeft && splitLeft.kind === "fragment" && (
-                            <div className="split-pane-footer">
-                              <div className="restore-fragment">
-                                <span>Give these words a home</span>
-                                <Dropdown
-                                  label="Restore fragment to section"
-                                  width={220}
-                                  value={target}
-                                  onChange={setTarget}
-                                  options={[
-                                    { value: "", label: "Choose a section" },
-                                    ...sections.map((e) => ({
-                                      value: e.id,
-                                      label: e.title,
-                                    })),
-                                  ]}
-                                />
-                                <button disabled={!target} onClick={restoreFragment}>
-                                  Append to section →
-                                </button>
-                              </div>
-                            </div>
-                          )}
+                          {split && splitLeft && paneFooter(splitLeft, "left")}
                         </section>
                         {split && splitLeft && (
                           <>
@@ -2532,33 +2575,15 @@ export default function App() {
                             </button>
                           </div>
                           {split.right.kind === "entry"
-                            ? splitRight && renderWriter(splitRight, "right", true)
+                            ? splitRight && (
+                                <>
+                                  {renderWriter(splitRight, "right", true)}
+                                  {paneFooter(splitRight, "right")}
+                                </>
+                              )
                             : (() => {
                                 return splitPdfSource ? <PdfPane projectId={project.id} source={splitPdfSource} /> : <p role="alert">This PDF is not stored in this project.</p>;
                               })()}
-                          {split.right.kind === "entry" && splitRight?.kind === "fragment" && (
-                            <div className="split-pane-footer">
-                              <div className="restore-fragment">
-                                <span>Give these words a home</span>
-                                <Dropdown
-                                  label="Restore fragment to section"
-                                  width={220}
-                                  value={target}
-                                  onChange={setTarget}
-                                  options={[
-                                    { value: "", label: "Choose a section" },
-                                    ...sections.map((e) => ({
-                                      value: e.id,
-                                      label: e.title,
-                                    })),
-                                  ]}
-                                />
-                                <button disabled={!target} onClick={restoreFragment}>
-                                  Append to section →
-                                </button>
-                              </div>
-                            </div>
-                          )}
                         </section>
                           </>
                         )}
@@ -2572,25 +2597,15 @@ export default function App() {
                   </button>
                 </div>
               )}
-              <footer className="document-statistics">
-                {writing && project.pageLayout?.mode === "pages" && (
-                  <span aria-label="Page count" aria-live="polite">
-                    Section page {pageStatus.current} of {pageStatus.total}
-                  </span>
-                )}
-                <span title={`${item?.text.length ?? 0} characters`}>
-                  {(mode === "read"
-                    ? sections.reduce((n, e) => n + words(e.text), 0)
-                    : words(item?.text ?? "")
-                  ).toLocaleString()}{" "}
-                  words
-                </span>
-                {(goals.daily || goals.total || goals.daysLeft !== undefined) && <span className="writing-goals" aria-label="Writing goals">
-                  {goals.daily && <span className="goal-daily">{goals.daily.done.toLocaleString()} of {goals.daily.target.toLocaleString()} today</span>}
-                  {goals.total && <span className="goal-total">{goals.total.done.toLocaleString()} of {goals.total.target.toLocaleString()}</span>}
-                  {goals.daysLeft !== undefined && <span className="goal-deadline">{goals.daysLeft} {goals.daysLeft === 1 ? "day" : "days"} left{goals.perDayNeeded !== undefined ? `, ${goals.perDayNeeded.toLocaleString()} a day` : ""}</span>}
-                </span>}
-              </footer>
+              {!(split && splitLeft && item && mode !== "read") && (
+                <PaneFooter
+                  side="single"
+                  status={writing && project.pageLayout?.mode === "pages" ? pageStatus.left : undefined}
+                  words={mode === "read" ? sections.reduce((n, e) => n + words(e.text), 0) : words(item?.text ?? "")}
+                  characters={item?.text.length ?? 0}
+                  goals={hasGoals ? goalsNode : undefined}
+                />
+              )}
             </main>
             {(destination === "fragments" || destination === "research") &&
               asideResizer}

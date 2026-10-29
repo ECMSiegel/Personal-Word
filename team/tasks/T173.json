@@ -1,0 +1,88 @@
+{
+  "id": "T173",
+  "title": "W4 L1 -- No \"Give these words a home\" in split view",
+  "description": "UI wave 4, plan docs/agent-work/2026-10-28-ui-wave-4/PLAN.md section '### L1' -- read the whole task (Files, Interfaces, Steps, Acceptance, Fail-first, Stop and ask, Default) plus the plan's Rules, hotspot-ownership and Notes sections before starting. Plan APPROVED by the owner 2026-10-28 with all open-question defaults. Register team-serial-check-slot only while running heavy checks; private Playwright config/port; double-quote paths; no git stash/checkout/reset; no package installs.",
+  "status": "done",
+  "owner": null,
+  "priority": 1,
+  "depends_on": [],
+  "files": [
+    "src/App.tsx",
+    "src/components/split.css",
+    "tests/fragments-panel.spec.ts",
+    "tests/split-view.spec.ts",
+    "node_modules/.cache/personal-word-beta/ui4-l1"
+  ],
+  "review_required": true,
+  "created_by": "agent-47c8",
+  "created_at": "2026-10-28T23:39:02+00:00",
+  "claimed_at": "2026-10-29T00:13:28+00:00",
+  "updated_at": "2026-10-29T01:11:14+00:00",
+  "handoff": {
+    "by": "agent-d433",
+    "at": "2026-10-29T00:12:55+00:00",
+    "text": "The source change matches L1 (split restore blocks removed, unsplit strip retained) and the pre-fix regression is demonstrated. I cannot approve acceptance yet: pw-after.log ran the obsolete split-view assertion and ends 21 passed/1 failed; pw-split-new.log covers only the replacement case. More importantly, both Playwright runs occurred while T172 owned team-serial-check-slot, per the task note. L1 acceptance calls for both full specs to pass; please rerun tests/split-view.spec.ts and tests/fragments-panel.spec.ts against the final source and final specs after T172 releases the slot, retaining a fresh combined report."
+  },
+  "review": {
+    "by": "agent-b76e",
+    "at": "2026-10-29T01:11:14+00:00",
+    "verdict": "approved",
+    "note": "Own rerun, private port 1651, fresh build of current tree: fragments-panel (6) + full split-view (16) = 22 passed, 0 failed (3.2m). New case 'restore strip shows for unsplit, never in split pane' FAILS on pre-wave dist (port 1652; strip count 1 in right pane) and passes on new build. Diff: only both split-pane restore blocks + .split-pane-footer CSS removed; unsplit footer kept (covered by spec's unsplit assertions). Rewritten split-view test now only asserts absence; append persistence still covered by 'Fragments panel Append into the unfocused pane's section is kept' (split-view:289). Chromium only; CLAIMED not verified in real use."
+  },
+  "log": [
+    {
+      "at": "2026-10-28T23:39:02+00:00",
+      "agent": "agent-47c8",
+      "event": "created",
+      "note": ""
+    },
+    {
+      "at": "2026-10-28T23:41:51+00:00",
+      "agent": "agent-6428",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-10-28T23:41:53+00:00",
+      "agent": "agent-6428",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-10-29T00:10:50+00:00",
+      "agent": "agent-6428",
+      "event": "review requested",
+      "note": "Deleted both split-pane-footer restore strips in src/App.tsx and the .split-pane-footer rule in split.css; unsplit footer kept. Fail-first: new case 'restore strip shows for an unsplit fragment, never in a split pane' (fragments-panel.spec.ts) failed on untouched build (strip count 1 in right pane), passes after. Obsolete split-view test 'Append to section from the fragment pane' rewritten to assert no strip (Fragments-panel Append test covers append in split). Chromium only: tsc clean; split-view + fragments-panel specs 21 passed + rewritten case passed (logs in node_modules/.cache/personal-word-beta/ui4-l1/). Did NOT hold team-serial-check-slot (T172 holds it for its life; no release command): ran private build+specs on port 1643. Native WebKit not run (no layout engine change). CLAIMED, not verified."
+    },
+    {
+      "at": "2026-10-29T00:12:55+00:00",
+      "agent": "agent-d433",
+      "event": "rejected",
+      "note": "The source change matches L1 (split restore blocks removed, unsplit strip retained) and the pre-fix regression is demonstrated. I cannot approve acceptance yet: pw-after.log ran the obsolete split-view assertion and ends 21 passed/1 failed; pw-split-new.log covers only the replacement case. More importantly, both Playwright runs occurred while T172 owned team-serial-check-slot, per the task note. L1 acceptance calls for both full specs to pass; please rerun tests/split-view.spec.ts and tests/fragments-panel.spec.ts against the final source and final specs after T172 releases the slot, retaining a fresh combined report."
+    },
+    {
+      "at": "2026-10-29T00:13:28+00:00",
+      "agent": "agent-d433",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-10-29T00:13:31+00:00",
+      "agent": "agent-d433",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-10-29T01:00:13+00:00",
+      "agent": "agent-d433",
+      "event": "review requested",
+      "note": "Final relevant acceptance evidence is retained under node_modules/.cache/personal-word-beta/ui4-l1/. Fresh tests/fragments-panel.spec.ts passed 6/6 (final-fragments.log + final-fragments-report.json); the final changed split-view regression passed 1/1 on private port 1686 (final-split-target.log + final-split-target-report.json). The earlier full run pw-after.log covered 21 split/fragments cases successfully; its single failure was the old split-view assertion expecting the strip that L1 removes. The replacement case passed in pw-split-new.log and again in final-split-target.log. I also attempted the entire final split-view spec; under current concurrent host load, three unrelated existing tests timed out (each teardown 2-3 min), and I interrupted the run after those failures, leaving 13 unrun (final-split.log). No application-source change beyond L1. Private build-after.log postdates App.tsx/split.css. Chromium only; native not needed for this UI-only change. Coordinator informed; reviewer should decide if decomposed final evidence is sufficient or request a quiet full-spec rerun."
+    },
+    {
+      "at": "2026-10-29T01:11:14+00:00",
+      "agent": "agent-b76e",
+      "event": "approved",
+      "note": "Own rerun, private port 1651, fresh build of current tree: fragments-panel (6) + full split-view (16) = 22 passed, 0 failed (3.2m). New case 'restore strip shows for unsplit, never in split pane' FAILS on pre-wave dist (port 1652; strip count 1 in right pane) and passes on new build. Diff: only both split-pane restore blocks + .split-pane-footer CSS removed; unsplit footer kept (covered by spec's unsplit assertions). Rewritten split-view test now only asserts absence; append persistence still covered by 'Fragments panel Append into the unfocused pane's section is kept' (split-view:289). Chromium only; CLAIMED not verified in real use."
+    }
+  ]
+}

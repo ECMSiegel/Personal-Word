@@ -1,0 +1,64 @@
+{
+  "id": "T182",
+  "title": "W4 K1 -- Magnifying dock for toolbar icons",
+  "description": "UI wave 4, plan docs/agent-work/2026-10-28-ui-wave-4/PLAN.md section '### K1' -- read the whole task (Files, Interfaces, Steps, Acceptance, Fail-first, Stop and ask, Default) plus the plan's Rules, hotspot-ownership and Notes sections before starting. Plan APPROVED by the owner 2026-10-28 with all open-question defaults. Register team-serial-check-slot only while running heavy checks; private Playwright config/port; double-quote paths; no git stash/checkout/reset; no package installs.",
+  "status": "done",
+  "owner": null,
+  "priority": 1,
+  "depends_on": [
+    "T175",
+    "T174"
+  ],
+  "files": [
+    "src/Writer.tsx",
+    "src/components/dock.test.ts",
+    "src/components/dock.ts",
+    "src/editor/toolbar-motion.css",
+    "tests/editor-toolbar.spec.ts",
+    "node_modules/.cache/personal-word-beta/ui4-k1"
+  ],
+  "review_required": true,
+  "created_by": "agent-47c8",
+  "created_at": "2026-10-28T23:39:23+00:00",
+  "claimed_at": "2026-10-29T02:57:30+00:00",
+  "updated_at": "2026-10-29T03:47:51+00:00",
+  "handoff": null,
+  "review": {
+    "by": "agent-170b",
+    "at": "2026-10-29T03:47:51+00:00",
+    "verdict": "approved",
+    "note": "Read dock.ts, toolbar-motion.css, Writer.tsx hook/import; re-ran vitest dock.test.ts (4 pass). Matches plan: cosine 1.5/84px, keyboard 1.5/1.25/1.1 with transition none, Reduce Motion no magnify, popover icons excluded, transform only. Did not re-run Playwright or view screenshots; owner's noted gaps (screenshots, native WebKit, doctored keyboard-rule copy) remain open."
+  },
+  "log": [
+    {
+      "at": "2026-10-28T23:39:23+00:00",
+      "agent": "agent-47c8",
+      "event": "created",
+      "note": ""
+    },
+    {
+      "at": "2026-10-29T02:57:30+00:00",
+      "agent": "agent-03be",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-10-29T02:57:33+00:00",
+      "agent": "agent-03be",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-10-29T03:34:24+00:00",
+      "agent": "agent-03be",
+      "event": "review requested",
+      "note": "K1 dock: src/components/dock.ts (dockScale/keyboardScale/useDock), toolbar-motion.css, Writer.tsx import+useDock(barRef,barEl), 3 new specs in editor-toolbar.spec.ts. Reference source not readable (WebFetch of bencho.dev/blocks/dock gave no code), so standard cosine curve peak 1.5 radius 84; header cites URL + owner free to use. Popover (data-popover-item) icons excluded. vitest dock.test.ts 4 pass. Playwright (private cfg, port 1691) editor-toolbar+alignment+motion-u7: 21 passed EXIT=0 (logs node_modules/.cache/personal-word-beta/ui4-k1/pw.log). Fail-first: dock specs on a dock-less dist: hover Received 1 (expected >1.45), keyboard Received 1 (expected 1.5) -> fail (pw-old.log); Reduce Motion spec passes trivially there. NOT DONE: screenshots viewed light/dark; doctored-copy of keyboard transition rule (machine load ~500, build 1.5 min+); native WebKit not run. tsc: only unrelated error from another task's scrollspy.test.ts."
+    },
+    {
+      "at": "2026-10-29T03:47:51+00:00",
+      "agent": "agent-170b",
+      "event": "approved",
+      "note": "Read dock.ts, toolbar-motion.css, Writer.tsx hook/import; re-ran vitest dock.test.ts (4 pass). Matches plan: cosine 1.5/84px, keyboard 1.5/1.25/1.1 with transition none, Reduce Motion no magnify, popover icons excluded, transform only. Did not re-run Playwright or view screenshots; owner's noted gaps (screenshots, native WebKit, doctored keyboard-rule copy) remain open."
+    }
+  ]
+}

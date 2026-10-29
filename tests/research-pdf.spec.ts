@@ -58,7 +58,7 @@ test("a source PDF opens beside its section and survives reload", async ({ page 
     (await (await fetch(url)).arrayBuffer()).byteLength, blobUrl,
   );
   expect(byteLength).toBe(pdfBytes.length);
-  await expect(page.locator('[data-side="left"]')).toHaveAttribute("data-focused", "");
+  await expect(page.locator('.split-pane[data-side="left"]')).toHaveAttribute("data-focused", "");
 
   await expect(page.locator(".save-status")).toHaveText("Saved", { timeout: 10_000 });
   await page.reload();

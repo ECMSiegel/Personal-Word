@@ -1,0 +1,59 @@
+{
+  "id": "T172",
+  "title": "W4 H1 -- Hover inventory",
+  "description": "UI wave 4, plan docs/agent-work/2026-10-28-ui-wave-4/PLAN.md section '### H1' -- read the whole task (Files, Interfaces, Steps, Acceptance, Fail-first, Stop and ask, Default) plus the plan's Rules, hotspot-ownership and Notes sections before starting. Plan APPROVED by the owner 2026-10-28 with all open-question defaults. Register team-serial-check-slot only while running heavy checks; private Playwright config/port; double-quote paths; no git stash/checkout/reset; no package installs.",
+  "status": "done",
+  "owner": null,
+  "priority": 1,
+  "depends_on": [],
+  "files": [
+    "docs/agent-work/2026-10-28-ui-wave-4/HOVER-INVENTORY.md",
+    "tests/hover-emphasis.spec.ts",
+    "node_modules/.cache/personal-word-beta/ui4-h1",
+    "node_modules/.cache/personal-word-beta/team-serial-check-slot"
+  ],
+  "review_required": true,
+  "created_by": "agent-47c8",
+  "created_at": "2026-10-28T23:38:59+00:00",
+  "claimed_at": "2026-10-28T23:42:05+00:00",
+  "updated_at": "2026-10-29T01:15:21+00:00",
+  "handoff": null,
+  "review": {
+    "by": "agent-44ba",
+    "at": "2026-10-29T01:15:21+00:00",
+    "verdict": "approved",
+    "note": "Reran tests/hover-emphasis.spec.ts with my own config (port 1661, ui4-h-rev): 1 passed in 32s, prints table of 20 screens / 1246 controls (needs >=60 controls, >=8 screens). HOVER-INVENTORY.md has 169 table lines (needs >=60). Spot-check of src CSS :hover/:focus-visible/data-highlighted rules (94 lines) vs inventory: all text-control rules covered incl. the four own hover-weight rules (styles.css:1989,1997, popover.css:34, research.css:519). Not listed but non-blocking: .footnote-overflow button:focus-visible (editor.css:381, outline only), .fragment-text:focus-visible, sidebar-edge/sidebar-resize/aside-resizer (non-text resizers). Outside-H3 files noted by H1 (editor.css .prose-issue-dismiss/.footnote-source, fragments.css .fragment-link underline) must go to the coordinator. No src edits by T172 (git status shows none from it)."
+  },
+  "log": [
+    {
+      "at": "2026-10-28T23:38:59+00:00",
+      "agent": "agent-47c8",
+      "event": "created",
+      "note": ""
+    },
+    {
+      "at": "2026-10-28T23:42:05+00:00",
+      "agent": "agent-9f84",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-10-28T23:42:10+00:00",
+      "agent": "agent-9f84",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-10-29T01:06:16+00:00",
+      "agent": "agent-9f84",
+      "event": "review requested",
+      "note": "Inventory docs/agent-work/2026-10-28-ui-wave-4/HOVER-INVENTORY.md (169 table lines; 104 distinct control shapes, 1246 control instances, 20 screens incl. Projects, Writing, dialogs, Fragments, Research w/PDF+Notes, Comments, History, Read, Settings, Split). Crawler tests/hover-emphasis.spec.ts + tests/hover-helpers.ts: 'npx playwright test -c node_modules/.cache/personal-word-beta/ui4-h1/browser.config.mjs tests/hover-emphasis.spec.ts' passed (1 passed, log ui4-h1/run4.log). Finding: no control scales on hover; 4 own hover-weight rules to delete (styles.css:1989,1997, popover.css:34, research.css:519). Gaps listed in section D (Delete quote not crawled). Note: editor.css/fragments.css hover rules (.prose-issue-dismiss, .footnote-source) are outside H3's file list."
+    },
+    {
+      "at": "2026-10-29T01:15:21+00:00",
+      "agent": "agent-44ba",
+      "event": "approved",
+      "note": "Reran tests/hover-emphasis.spec.ts with my own config (port 1661, ui4-h-rev): 1 passed in 32s, prints table of 20 screens / 1246 controls (needs >=60 controls, >=8 screens). HOVER-INVENTORY.md has 169 table lines (needs >=60). Spot-check of src CSS :hover/:focus-visible/data-highlighted rules (94 lines) vs inventory: all text-control rules covered incl. the four own hover-weight rules (styles.css:1989,1997, popover.css:34, research.css:519). Not listed but non-blocking: .footnote-overflow button:focus-visible (editor.css:381, outline only), .fragment-text:focus-visible, sidebar-edge/sidebar-resize/aside-resizer (non-text resizers). Outside-H3 files noted by H1 (editor.css .prose-issue-dismiss/.footnote-source, fragments.css .fragment-link underline) must go to the coordinator. No src edits by T172 (git status shows none from it)."
+    }
+  ]
+}

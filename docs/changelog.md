@@ -2,6 +2,19 @@
 
 Dated history, newest first, built from `git log --date=short` and [app history](app-history.md). [app-history.md](app-history.md) already gives a fuller narrative for 2026-10-14 to 2026-10-18 (including what each pass did and did not verify), so this file links to it rather than repeating it. Fixed issues are listed with dates in [limitations](limitations.md). Verification details are in the [validation record](validation.md).
 
+## 2026-10-29
+
+UI wave 4 (tasks T171-T193, each independently reviewed; CLAIMED, final validation pending; Chromium and unit evidence only, native WebKit not yet run). Plan: [the wave-4 plan](agent-work/2026-10-28-ui-wave-4/PLAN.md).
+
+- Page view: the page breaks were always correct; the WebKit bug was the grey paper gradient not following zoom. Pages are now drawn as real page-sheet boxes, so gaps follow zoom. Chromium fit-zoom drift (up to 4 px by page 13) fixed. Backspace or Delete next to a page break removes the break and keeps the caret; undo restores it.
+- One hover and keyboard focus rule for every text control: a width-neutral faux bold (text stroke, 0.04em) plus a 4 percent grow, no layout shift, danger stays red, Reduce Motion drops the grow. Enforced by `src/hoverEmphasis.test.ts` and `tests/hover-emphasis.spec.ts`. The Snapshot button has no border. Toolbar icons use a magnifying dock instead (peak 1.5, keyboard equivalent, none under Reduce Motion).
+- Split view: no "Give these words a home" strip in split panes; header and divider rules line up; each pane has its own footer (page status left, word count right) and writing goals show once, in the left pane.
+- Sidebar selection: the section header of what is on screen is bold and coloured (accent blue in Plain, section tint in Color); open entries are bold in the text colour, in split panes too; destination pages light nothing. This replaces the wave-3 rule.
+- Scrollspy lines beside the Manuscript rows (Read mode follows the section being read; a line click eases there).
+- Focus mode hides the formatting bar until the pointer nears the top, focus enters it, or the new rebindable shortcut Show formatting bar (Cmd+Alt+T); its space is reserved so text never jumps or sits under it at the top, and in page view the band is desk-coloured.
+- The Snapshot name dialog now closes on Escape even when focus left it.
+- Docs updated: AGENTS.md (sidebar selection, hover emphasis), design system, architecture, limitations, validation.
+
 ## 2026-10-28
 
 - Page view splits paragraphs like Word (owner decision 2026-10-28, task T168; CLAIMED): a paragraph runs on to the next page between lines when at least two lines stay on each page, headings keep with the paragraph after them, and Up and Down cross a page gap to the adjacent line in WebKit too.

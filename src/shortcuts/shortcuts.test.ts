@@ -114,6 +114,17 @@ describe("chordProblem: modifiers and folding (T162)", () => {
   });
 });
 
+describe("focusToolbar (X1)", () => {
+  it("defaults to Cmd+Alt+T, is listed, unique and accepted by the chord rules", () => {
+    expect(ACTIONS.find((a) => a.id === "focusToolbar")?.default).toEqual({ key: "t", meta: true, alt: true });
+    expect(hintFor("focusToolbar", {})).toBe("⌥⌘T");
+    const defaults = ACTIONS.map((a) => formatChord(a.default));
+    expect(new Set(defaults).size).toBe(defaults.length);
+    expect(chordProblem("focusToolbar", { key: "t", meta: true, alt: true }, {})).toBeNull();
+    expect(resolveChord(ev({ key: "t", code: "KeyT", metaKey: true, altKey: true }), {})).toBe("focusToolbar");
+  });
+});
+
 describe("readShortcuts drops stored overrides that are now refused (T162 repair)", () => {
   it("drops a stored bare-letter override", () => {
     expect(readShortcuts(memory('{"save":{"key":"g"}}'))).toEqual({});

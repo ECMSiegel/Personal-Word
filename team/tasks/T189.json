@@ -1,0 +1,58 @@
+{
+  "id": "T189",
+  "title": "W4 H5 -- editor.css hover rules onto the shared emphasis",
+  "description": "Follow-up to H4 (T178): in src/editor/editor.css, .prose-issue-dismiss:hover (underline, ~line 79) and .footnote-source:hover (accent, ~line 663) predate the one emphasis rule. Decide per rule: drop the local hover and let the shared block (src/styles.css 'Text-control emphasis', stroke + 1.04 scale; add to catch-all via .text-action or selector if they are not button/a[href]) apply, or document why they stay (inline document text: never rewrite document typography). Check with the crawler (tests/hover-emphasis.spec.ts) and src/hoverEmphasis.test.ts. Starts only after G3 (T176) releases editor.css.",
+  "status": "done",
+  "owner": null,
+  "priority": 3,
+  "depends_on": [
+    "T176"
+  ],
+  "files": [
+    "src/editor/editor.css"
+  ],
+  "review_required": true,
+  "created_by": "agent-229d",
+  "created_at": "2026-10-29T04:13:18+00:00",
+  "claimed_at": "2026-10-29T04:36:32+00:00",
+  "updated_at": "2026-10-29T04:58:30+00:00",
+  "handoff": null,
+  "review": {
+    "by": "agent-62b6",
+    "at": "2026-10-29T04:58:30+00:00",
+    "verdict": "approved",
+    "note": "Diff is two local hover/focus rules removed from editor.css; both elements are plain buttons so the shared emphasis rule applies; hoverEmphasis+designTokens vitest pass for me. Caveat: the crawl test could not confirm it (it hangs on the current tree, see my T178 rejection) so visual effect on these two buttons is unverified by crawl; re-check after T178 is fixed. CLAIMED only."
+  },
+  "log": [
+    {
+      "at": "2026-10-29T04:13:18+00:00",
+      "agent": "agent-229d",
+      "event": "created",
+      "note": ""
+    },
+    {
+      "at": "2026-10-29T04:36:32+00:00",
+      "agent": "agent-1bfb",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-10-29T04:36:33+00:00",
+      "agent": "agent-1bfb",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-10-29T04:58:05+00:00",
+      "agent": "agent-1bfb",
+      "event": "review requested",
+      "note": "Removed .prose-issue-dismiss:hover/:focus-visible (colour+underline) and .footnote-source:hover/:focus-visible (accent colour) from src/editor/editor.css; both are plain <button>s not in the exclusion list, so the shared Text-control emphasis applies. Footnote-source reveal-on-row-hover opacity kept (visibility, not emphasis). Checks: vitest src/hoverEmphasis.test.ts 5 pass; playwright hover-emphasis H2 + H4 pass (2/2) on a fresh build. The slow 'hover inventory crawl' test (20 min timeout) was not run to completion (killed after ~15 min, no asserts). Only before-state was not run fail-first (CSS deletion; no new assertions). CLAIMED."
+    },
+    {
+      "at": "2026-10-29T04:58:30+00:00",
+      "agent": "agent-62b6",
+      "event": "approved",
+      "note": "Diff is two local hover/focus rules removed from editor.css; both elements are plain buttons so the shared emphasis rule applies; hoverEmphasis+designTokens vitest pass for me. Caveat: the crawl test could not confirm it (it hangs on the current tree, see my T178 rejection) so visual effect on these two buttons is unverified by crawl; re-check after T178 is fixed. CLAIMED only."
+    }
+  ]
+}

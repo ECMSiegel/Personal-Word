@@ -546,15 +546,18 @@ test.describe("page view in a split pane", () => {
     }
     expect(g.crossings).toEqual([]);
 
-    // The right pane has focus: scrolling the left pane must not move its page number.
+    // Each pane has its own footer: scrolling one moves only its own page number.
     await right.click();
-    const status = page.getByLabel("Page count");
+    const status = page.locator('.split-pane[data-side="right"] [aria-label="Page count"]');
+    const leftStatus = page.locator('.split-pane[data-side="left"] [aria-label="Page count"]');
     await expect(status).toContainText("page 1 of");
+    await expect(leftStatus).toContainText("page 1 of");
     await page.locator('.split-pane[data-side="left"] .writer-scroll').evaluate((el) => {
       el.scrollTop = el.scrollHeight / 2;
     });
     await settle(page);
     await expect(status).toContainText("page 1 of");
+    await expect(leftStatus).not.toContainText("page 1 of");
     await page.locator('.split-pane[data-side="right"] .writer-scroll').evaluate((el) => {
       el.scrollTop = el.scrollHeight / 2;
     });

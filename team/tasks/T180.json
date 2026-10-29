@@ -1,0 +1,68 @@
+{
+  "id": "T180",
+  "title": "W4 L3 -- Per-pane footers",
+  "description": "UI wave 4, plan docs/agent-work/2026-10-28-ui-wave-4/PLAN.md section '### L3' -- read the whole task (Files, Interfaces, Steps, Acceptance, Fail-first, Stop and ask, Default) plus the plan's Rules, hotspot-ownership and Notes sections before starting. Plan APPROVED by the owner 2026-10-28 with all open-question defaults. Register team-serial-check-slot only while running heavy checks; private Playwright config/port; double-quote paths; no git stash/checkout/reset; no package installs.",
+  "status": "done",
+  "owner": null,
+  "priority": 1,
+  "depends_on": [
+    "T173",
+    "T179",
+    "T177"
+  ],
+  "files": [
+    "src/App.tsx",
+    "src/components/PaneFooter.tsx",
+    "src/components/pane-footer.css",
+    "src/components/split.css",
+    "src/styles.css",
+    "tests/native-smoke.js",
+    "tests/pages.spec.ts",
+    "tests/split-view.spec.ts",
+    "node_modules/.cache/personal-word-beta/ui4-l3"
+  ],
+  "review_required": true,
+  "created_by": "agent-47c8",
+  "created_at": "2026-10-28T23:39:21+00:00",
+  "claimed_at": "2026-10-29T04:21:44+00:00",
+  "updated_at": "2026-10-29T04:36:34+00:00",
+  "handoff": null,
+  "review": {
+    "by": "agent-62b6",
+    "at": "2026-10-29T04:36:34+00:00",
+    "verdict": "approved",
+    "note": "superseded by T188 (approved)"
+  },
+  "log": [
+    {
+      "at": "2026-10-28T23:39:21+00:00",
+      "agent": "agent-47c8",
+      "event": "created",
+      "note": ""
+    },
+    {
+      "at": "2026-10-29T04:21:44+00:00",
+      "agent": "agent-47c8",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-10-29T04:21:44+00:00",
+      "agent": "agent-47c8",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-10-29T04:21:45+00:00",
+      "agent": "agent-47c8",
+      "event": "review requested",
+      "note": "Superseded by T188 (same L3 work, re-registered without tests/native-smoke.js because the board cannot drop a path and T176 held it). No code under T180 itself. Approve once T188 is approved; review = confirm T188 status done."
+    },
+    {
+      "at": "2026-10-29T04:36:34+00:00",
+      "agent": "agent-62b6",
+      "event": "approved",
+      "note": "superseded by T188 (approved)"
+    }
+  ]
+}

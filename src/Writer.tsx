@@ -55,6 +55,8 @@ import {
   screenplayAttributes,
 } from "./editor/formatting";
 import "./editor/editor.css";
+import "./editor/toolbar-motion.css";
+import { useDock } from "./components/dock";
 import { documentExtensions } from "./editor/extensions";
 import { Pagination, paginate, paginationKey } from "./editor/pagination";
 import { TableContextMenu } from "./editor/TableContextMenu";
@@ -323,6 +325,87 @@ export function Writer({
     barRef.current = el;
     setBarEl(el);
   }, []);
+  useDock(barRef, barEl);
+  // Focus mode hides the bar until it is needed: the pointer nears the top of
+  // the writing area, keyboard focus enters the bar, or the focusToolbar
+  // shortcut runs. A pointer reveal animates; a keyboard reveal is instant.
+  const [revealed, setRevealed] = useState(false);
+  const [revealByKey, setRevealByKey] = useState(false);
+  const revealedRef = useRef(false);
+  const hideTimer = useRef<number | undefined>(undefined);
+  const panelOpenRef = useRef(false);
+  panelOpenRef.current = panel !== null;
+  // Only the single-pane bar hides in focus mode: split view's shared bar (toolbarTarget set) stays
+  // visible, so neither pane jumps and the bar never covers the pane headers.
+  const hidesBar = focusMode && showToolbar && toolbarTarget === undefined;
+  const reveal = useCallback((byKey: boolean) => {
+    window.clearTimeout(hideTimer.current);
+    hideTimer.current = undefined;
+    revealedRef.current = true;
+    setRevealed(true);
+    if (byKey) setRevealByKey(true);
+  }, []);
+  const scheduleHide = useCallback(() => {
+    if (!revealedRef.current || hideTimer.current !== undefined) return;
+    hideTimer.current = window.setTimeout(() => {
+      hideTimer.current = undefined;
+      if (panelOpenRef.current) return;
+      if (barRef.current?.contains(document.activeElement)) return;
+      revealedRef.current = false;
+      setRevealed(false);
+    }, 600);
+  }, []);
+  const hideNow = useCallback(() => {
+    window.clearTimeout(hideTimer.current);
+    hideTimer.current = undefined;
+    revealedRef.current = false;
+    setRevealed(false);
+  }, []);
+  useEffect(() => {
+    if (!hidesBar) {
+      hideNow();
+      setRevealByKey(false);
+      return;
+    }
+    let frame = 0;
+    let last: PointerEvent | null = null;
+    const onMove = () => {
+      frame = 0;
+      const bar = barRef.current;
+      const host = bar?.parentElement;
+      if (!bar || !host || !last) return;
+      const rect = host.getBoundingClientRect();
+      const nearTop =
+        last.clientX >= rect.left &&
+        last.clientX <= rect.right &&
+        last.clientY >= rect.top &&
+        last.clientY <= rect.top + 56;
+      const overBar = last.target instanceof Node && bar.contains(last.target);
+      if (nearTop || (revealedRef.current && overBar)) {
+        setRevealByKey(false);
+        reveal(false);
+      } else scheduleHide();
+    };
+    const onPointer = (event: PointerEvent) => {
+      last = event;
+      if (!frame) frame = requestAnimationFrame(onMove);
+    };
+    document.addEventListener("pointermove", onPointer);
+    return () => {
+      document.removeEventListener("pointermove", onPointer);
+      cancelAnimationFrame(frame);
+      window.clearTimeout(hideTimer.current);
+      hideTimer.current = undefined;
+    };
+  }, [hidesBar, reveal, scheduleHide, hideNow]);
+  const focusToolbarNow = () => {
+    reveal(true);
+    barRef.current
+      ?.querySelector<HTMLElement>("button:not(:disabled)")
+      ?.focus();
+  };
+  const focusToolbarRef = useRef(focusToolbarNow);
+  focusToolbarRef.current = focusToolbarNow;
   const groupEls = useRef<Partial<Record<ToolbarGroup, HTMLElement | null>>>(
     {},
   );
@@ -489,6 +572,11 @@ export function Writer({
         if (action === "focusMode") {
           event.preventDefault();
           callbacksRef.current.onToggleFocusMode?.();
+          return true;
+        }
+        if (action === "focusToolbar") {
+          event.preventDefault();
+          focusToolbarRef.current();
           return true;
         }
         const activeEditor = editorRef.current;
@@ -1715,6 +1803,25 @@ export function Writer({
       role="toolbar"
       aria-label="Formatting"
       ref={setBar}
+      data-focus-hidden={hidesBar ? "" : undefined}
+      data-toolbar-revealed={hidesBar && revealed ? "" : undefined}
+      data-reveal={hidesBar && revealed && revealByKey ? "key" : undefined}
+      onFocus={() => {
+        if (hidesBar) reveal(true);
+      }}
+      onBlur={(event) => {
+        if (
+          hidesBar &&
+          !event.currentTarget.contains(event.relatedTarget as Node | null)
+        )
+          scheduleHide();
+      }}
+      onKeyDown={(event) => {
+        if (!hidesBar || event.key !== "Escape" || panel) return;
+        event.preventDefault();
+        hideNow();
+        editor?.chain().focus().run();
+      }}
     >
       {TOOLBAR_ORDER.filter((id) =>
         id === "more" ? hidden.length > 0 : !hidden.includes(id),
@@ -1722,7 +1829,11 @@ export function Writer({
     </div>
   ) : null;
   return (
-    <div className="writer" ref={writerRootRef}>
+    <div
+      className="writer"
+      ref={writerRootRef}
+      data-focus-toolbar={hidesBar ? "" : undefined}
+    >
       {toolbarTarget === undefined
         ? bar
         : toolbarTarget && bar && createPortal(bar, toolbarTarget)}
@@ -1751,6 +1862,18 @@ export function Writer({
           className={`editor-viewport ${layout.mode === "pages" ? "is-paged" : "is-continuous"}`}
         >
           <div className="editor-paper" style={pageStyle} ref={footnotePaper}>
+            {/* One sheet per page, laid out inside the zoomed paper so it
+                scales with zoom in every engine (WebKit does not zoom a
+                gradient's px stops, which drew the gaps in the wrong place). */}
+            {layout.mode === "pages" &&
+              Array.from({ length: pages }, (_, page) => (
+                <div
+                  key={page}
+                  className="page-sheet"
+                  aria-hidden="true"
+                  style={{ top: page * (geometry.height + geometry.gap) }}
+                />
+              ))}
             <EditorContent editor={editor} />
             {notes.length > 0 && layout.mode === "continuous" && (
               <FootnoteBlock

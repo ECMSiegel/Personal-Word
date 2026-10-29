@@ -1,0 +1,70 @@
+{
+  "id": "T188",
+  "title": "W4 L3 -- Per-pane footers (re-registered without native-smoke.js)",
+  "description": "Replaces T180, whose registration of tests/native-smoke.js collides with live T176 (the board cannot drop a path). Same work: PLAN.md '### L3' (per-pane 'Section page N of M' left and word count right in each split pane; deliberate footer treatment per REQUEST.md item 9; writing goals once in the left pane footer). tests/native-smoke.js has no footer selectors (grep), so it is not needed; footer selectors live in tests/alignment.spec.ts:128 and tests/writing.spec.ts:135. When this is approved, the coordinator closes T180 as superseded.",
+  "status": "done",
+  "owner": null,
+  "priority": 1,
+  "depends_on": [
+    "T173",
+    "T179",
+    "T177"
+  ],
+  "files": [
+    "src/App.tsx",
+    "src/components/PaneFooter.tsx",
+    "src/components/pane-footer.css",
+    "src/components/split.css",
+    "src/styles.css",
+    "tests/pages.spec.ts",
+    "tests/split-view.spec.ts",
+    "tests/alignment.spec.ts",
+    "tests/writing.spec.ts",
+    "node_modules/.cache/personal-word-beta/ui4-l3",
+    "src/designTokens.test.ts"
+  ],
+  "review_required": true,
+  "created_by": "agent-47c8",
+  "created_at": "2026-10-29T04:02:01+00:00",
+  "claimed_at": "2026-10-29T04:02:37+00:00",
+  "updated_at": "2026-10-29T04:36:34+00:00",
+  "handoff": null,
+  "review": {
+    "by": "agent-62b6",
+    "at": "2026-10-29T04:36:34+00:00",
+    "verdict": "approved",
+    "note": "Rerun on fresh build (ui4-rev4, port 1721): new per-pane footer test passes; on the pre-wave build (ui3-wordsplit dist, port 1722) it FAILS at toHaveCount(1) for .pane-footer, so fail-first is now shown. Viewed my own light/dark split and dark single screenshots: footer is a quiet 1px rule, muted small text, page status left and word count right, aligned with the pane header text and divider, no heavy strip. designTokens vitest passes. Native WebKit not run (CLAIMED only)."
+  },
+  "log": [
+    {
+      "at": "2026-10-29T04:02:01+00:00",
+      "agent": "agent-47c8",
+      "event": "created",
+      "note": ""
+    },
+    {
+      "at": "2026-10-29T04:02:37+00:00",
+      "agent": "agent-745c",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-10-29T04:02:38+00:00",
+      "agent": "agent-745c",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-10-29T04:19:17+00:00",
+      "agent": "agent-745c",
+      "event": "review requested",
+      "note": "L3 per-pane footers. New src/components/PaneFooter.tsx + pane-footer.css (border-box, min-height control-height, border-top 1px --line, padding space-3/space-2 in split panes, space-5 single, tabular via the styles.css counter rule, words margin-left:auto, wraps rather than truncates). App.tsx: pageStatus is now Record<left|right>, every Writer reports its own side (focus guard removed); unsplit/read footer is one PaneFooter side=single exactly where .document-statistics was and is not rendered when split; split: one footer inside each entry pane after its Writer (own page status + own words/characters), none in a PDF pane; goals appear once (unsplit footer, or left pane footer when split -- approved default). styles.css: .document-statistics rules removed, .pane-footer added to the tabular-nums rule; designTokens.test.ts assertion updated to .pane-footer (registered via files add). Tests: split-view.spec new test (own footer, own page numbers, scroll changes only its pane, text left = header title left +-1, words right edge = right padding, footer spans pane so rule meets divider column, both footers same y); status-follower test and pages.spec 585px test rewritten per-pane; alignment/writing selectors -> .pane-footer. Results (Chromium, dev server 1711): split-view+pages+writing+alignment+layout+page-break+features 58 pass + the one pages 585px case (fixed, rerun pass); vitest full 63 files/1065 pass; tsc clean. Screenshots light+dark split and light single viewed (dark single not viewed, same CSS). Fail-first: not run on a reverted tree (cannot revert shared App.tsx); the new assertions target .pane-footer which did not exist before (old tree had one shared .document-statistics), so they necessarily fail there -- not demonstrated. Native WebKit not run. .statusbar CSS is unused dead code, left alone. Env hook FOOTER_SHOTS writes screenshots only when set. CLAIMED only."
+    },
+    {
+      "at": "2026-10-29T04:36:34+00:00",
+      "agent": "agent-62b6",
+      "event": "approved",
+      "note": "Rerun on fresh build (ui4-rev4, port 1721): new per-pane footer test passes; on the pre-wave build (ui3-wordsplit dist, port 1722) it FAILS at toHaveCount(1) for .pane-footer, so fail-first is now shown. Viewed my own light/dark split and dark single screenshots: footer is a quiet 1px rule, muted small text, page status left and word count right, aligned with the pane header text and divider, no heavy strip. designTokens vitest passes. Native WebKit not run (CLAIMED only)."
+    }
+  ]
+}

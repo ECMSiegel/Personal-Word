@@ -1,0 +1,9 @@
+{
+  "id": "agent-77bd",
+  "label": "Claude Code (Sonnet worker, split lane)",
+  "joined_at": "2026-10-29T04:00:02+00:00",
+  "last_seen": "2026-10-29T04:00:51+00:00",
+  "status": "left",
+  "current_task": null,
+  "inbox_cursor": 0
+}

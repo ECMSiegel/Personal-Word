@@ -1,0 +1,24 @@
+/* The strip under each writing pane (L3). It mirrors the pane header: a 1px
+   rule above, the same height and the same side padding, so a split reads as
+   two framed columns -- title and rule above, status and rule below. The rule
+   is the pane's own border, so it meets the divider column (L2) with no gap. */
+.pane-footer {
+  box-sizing: border-box;
+  flex: 0 0 auto;
+  min-height: var(--control-height);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  column-gap: var(--space-4);
+  padding: 0 var(--space-2) 0 var(--space-3);
+  border-top: 1px solid var(--line);
+  color: var(--muted);
+  font-size: var(--type-small);
+}
+.pane-footer[data-side="single"] {
+  padding-inline: var(--space-5);
+}
+.pane-footer-words {
+  margin-left: auto;
+  white-space: nowrap;
+}

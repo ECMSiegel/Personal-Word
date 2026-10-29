@@ -380,3 +380,192 @@ test("a hidden feature row leaves the sidebar, survives reload, and stays per pr
     page.locator('.sidebar-bottom-groups [data-group="comments"]'),
   ).toHaveCount(1);
 });
+
+// UI wave 4 B1 (REQUEST.md item 7): the section that holds an open entry -- in the main
+// pane or either split pane -- shows a semibold header in its colour (accent blue in
+// Plain, the section tint in Color); each open entry is semibold in the text colour.
+// The wave-3 rule (entry tinted, header stepped back) is gone.
+const PDF_BYTES = Buffer.from("%PDF-1.4\n1 0 obj << /Type /Catalog >> endobj\n%%EOF\n", "ascii");
+const groupTitle = (page: Page, id: string) =>
+  page.locator(`.sidebar-group[data-group="${id}"] > .group-heading .group-title`);
+const entryRow = (page: Page, title: string) =>
+  page.locator(".sidebar .entry-row").filter({
+    has: page.locator(".entry-main").filter({ hasText: new RegExp("^" + title) }),
+  });
+async function looks(locator: Locator) {
+  return locator.evaluate((el) => {
+    const s = getComputedStyle(el);
+    return { weight: Number(s.fontWeight), color: s.color, background: s.backgroundColor };
+  });
+}
+// The colour a section header should take: the section tint in Color, the accent in
+// Plain, resolved by the browser in the group's own context.
+async function headerColour(page: Page, id: string) {
+  return page.locator(`.sidebar-group[data-group="${id}"]`).evaluate((group) => {
+    const probe = document.createElement("span");
+    const palette = document.documentElement.getAttribute("data-palette");
+    probe.style.color = palette === "color" ? "var(--tint)" : "var(--accent)";
+    group.appendChild(probe);
+    const colour = getComputedStyle(probe).color;
+    probe.remove();
+    return colour;
+  });
+}
+async function textColour(page: Page) {
+  return page.locator(".sidebar").evaluate((el) => {
+    const probe = document.createElement("span");
+    probe.style.color = "var(--text)";
+    el.appendChild(probe);
+    const colour = getComputedStyle(probe).color;
+    probe.remove();
+    return colour;
+  });
+}
+async function keepFragment(page: Page, text: string) {
+  const editor = page.getByRole("textbox", { name: "Writing editor" }).first();
+  await editor.fill(text);
+  await editor.press("ControlOrMeta+a");
+  await page.getByRole("button", { name: "Keep as fragment" }).click();
+}
+async function addSection(page: Page, title: string) {
+  await page.getByRole("button", { name: "New section", exact: true }).click();
+  await page.getByLabel("Title", { exact: true }).fill(title);
+  await page.getByRole("button", { name: "Save", exact: true }).click();
+  await expect(page.getByRole("dialog")).toHaveCount(0);
+}
+async function expectHeader(page: Page, id: string, open: boolean) {
+  const look = await looks(groupTitle(page, id));
+  expect(look.background, id + " header has no fill").toBe("rgba(0, 0, 0, 0)");
+  if (open) {
+    expect(look.weight, id + " header weight").toBe(600);
+    expect(look.color, id + " header colour").toBe(await headerColour(page, id));
+  } else {
+    expect(look.weight, id + " header weight").toBeLessThan(600);
+    expect(look.color, id + " header colour").toBe(await textColour(page));
+  }
+}
+async function expectEntry(page: Page, title: string, open: boolean) {
+  const row = entryRow(page, title);
+  const look = await looks(row.locator(".entry-main"));
+  expect((await looks(row)).background, title + " row has no fill").toBe("rgba(0, 0, 0, 0)");
+  expect(look.background, title + " entry has no fill").toBe("rgba(0, 0, 0, 0)");
+  expect(look.color, title + " entry colour").toBe(await textColour(page));
+  if (open) expect(look.weight, title + " entry weight").toBe(600);
+  else expect(look.weight, title + " entry weight").toBeLessThan(600);
+}
+
+test("B1 Plain: a clicked section bolds and colours its header; the entry is bold in the text colour", async ({ page }) => {
+  await page.emulateMedia({ colorScheme: "light" });
+  await createProject(page, "Selection rule");
+  await addSection(page, "Second section");
+  await page.locator('.sidebar-group[data-group="manuscript"] .entry-main').first().click();
+  // Plain light: accent blue header, near-black entry.
+  await expect(groupTitle(page, "manuscript")).toHaveCSS("color", "rgb(0, 105, 217)");
+  await expect(groupTitle(page, "manuscript")).toHaveCSS("font-weight", "600");
+  const first = page.locator('.sidebar-group[data-group="manuscript"] .entry-row').first();
+  await expect(first.locator(".entry-main")).toHaveCSS("font-weight", "600");
+  await expect(first.locator(".entry-main")).toHaveCSS("color", "rgb(36, 36, 40)");
+  await expectHeader(page, "manuscript", true);
+  await expectHeader(page, "fragments", false);
+  await expectHeader(page, "research", false);
+  await expectEntry(page, "Second section", false);
+
+  // A selected row still hovers like every other text control (faux-bold stroke + grow),
+  // and keeps its real weight; pressing it does not flash the accent.
+  const main = first.locator(".entry-main");
+  await main.hover();
+  await expect(main).toHaveCSS("transform", /matrix\(1\.04, 0, 0, 1\.04/);
+  expect(await main.evaluate((el) => parseFloat(getComputedStyle(el).webkitTextStrokeWidth))).toBeGreaterThan(0);
+  await expect(main).toHaveCSS("font-weight", "600");
+  await page.mouse.down();
+  await expect(main).toHaveCSS("color", "rgb(36, 36, 40)");
+  await page.mouse.up();
+  await page.mouse.move(900, 450);
+  // Keyboard focus shows the same emphasis on the selected row.
+  await main.focus();
+  await page.keyboard.press("Tab");
+  await page.keyboard.press("Shift+Tab");
+  await expect(main).toBeFocused();
+  await expect(main).toHaveCSS("transform", /matrix\(1\.04, 0, 0, 1\.04/);
+  await expect(main).toHaveCSS("font-weight", "600");
+  // Keyboard selection: Enter on the other row moves the open state.
+  const second = entryRow(page, "Second section").locator(".entry-main");
+  await second.focus();
+  await page.keyboard.press("Enter");
+  await expectEntry(page, "Second section", true);
+  await expect(first.locator(".entry-main")).not.toHaveCSS("font-weight", "600");
+  await expectHeader(page, "manuscript", true);
+
+  // A destination page (Settings) shows no entry, so no section header is lit.
+  await page.locator(".group-title").filter({ hasText: /^Settings$/ }).click();
+  await expectHeader(page, "manuscript", false);
+  await expectEntry(page, "Second section", false);
+});
+
+for (const palette of ["plain", "color"] as const)
+  for (const scheme of ["light", "dark"] as const)
+    test(`B1 ${palette} ${scheme}: split panes light their own sections; a source PDF lights Research`, async ({ page }, testInfo) => {
+      await page.addInitScript((p) => {
+        if (p === "color")
+          localStorage.setItem(
+            "folio.workspace.appearance",
+            JSON.stringify({ theme: "system", palette: "color", sections: { manuscript: "blue", fragments: "green", research: "orange" } }),
+          );
+      }, palette);
+      await page.emulateMedia({ colorScheme: scheme });
+      await createProject(page, "Split selection " + palette + " " + scheme);
+      if (palette === "color") await expect(page.locator("html")).toHaveAttribute("data-palette", "color");
+      else await expect(page.locator("html")).not.toHaveAttribute("data-palette", /.*/);
+      await keepFragment(page, "Beside words");
+      await addSection(page, "Chapter two");
+      await addSection(page, "Chapter three");
+      await entryRow(page, "Chapter two").locator(".entry-main").click();
+      await expectHeader(page, "manuscript", true);
+      await expectHeader(page, "fragments", false);
+      await expectEntry(page, "Chapter two", true);
+      await expectEntry(page, "Chapter three", false);
+      if (palette === "color") {
+        // Icons keep the section tint; the header text takes it too, entries do not.
+        const tint = await headerColour(page, "manuscript");
+        await expect(entryRow(page, "Chapter two").locator(".entry-main svg")).toHaveCSS("color", tint);
+        await expect(groupTitle(page, "manuscript").locator("svg")).toHaveCSS("color", tint);
+      }
+      await page.locator(".sidebar").screenshot({ path: testInfo.outputPath(`sidebar-${palette}-${scheme}-single.png`) });
+
+      // Fragment beside: both sections lit, both open entries bold, nothing else.
+      await entryRow(page, "Beside words").locator(".entry-main").click({ modifiers: ["ControlOrMeta"] });
+      await expect(page.locator(".split-pane")).toHaveCount(2);
+      await expectHeader(page, "manuscript", true);
+      await expectHeader(page, "fragments", true);
+      await expectHeader(page, "research", false);
+      await expectEntry(page, "Chapter two", true);
+      await expectEntry(page, "Beside words", true);
+      await expectEntry(page, "Chapter three", false);
+      await page.locator(".sidebar").screenshot({ path: testInfo.outputPath(`sidebar-${palette}-${scheme}-split.png`) });
+      await page.screenshot({ path: testInfo.outputPath(`window-${palette}-${scheme}-split.png`) });
+
+      // Focusing the right pane keeps both lit (the open state is not the focus).
+      await page.locator('.split-pane[data-side="right"] .ProseMirror').click();
+      await expectHeader(page, "manuscript", true);
+      await expectEntry(page, "Chapter two", true);
+      await expectEntry(page, "Beside words", true);
+
+      // A source PDF beside: Research lit, its PDF row bold; Fragments goes dark again.
+      await page.locator('.split-pane[data-side="left"] .ProseMirror').click();
+      await page.locator(".group-title").filter({ hasText: /^Research$/ }).click();
+      await page.getByRole("button", { name: "Enter manually" }).click();
+      await page.getByLabel("Title", { exact: true }).fill("Lit source");
+      const source = page.locator(".source-item").filter({ hasText: "Lit source" });
+      await source.locator('.source-pdf-field input[type="file"]').setInputFiles({
+        name: "lit.pdf",
+        mimeType: "application/pdf",
+        buffer: PDF_BYTES,
+      });
+      await source.getByRole("button", { name: "Open beside" }).click();
+      await expect(page.locator('iframe[title="PDF: lit.pdf"]')).toBeVisible();
+      await expectHeader(page, "research", true);
+      await expectHeader(page, "fragments", false);
+      await expectHeader(page, "manuscript", true);
+      await expectEntry(page, "lit.pdf", true);
+      await expectEntry(page, "Beside words", false);
+    });

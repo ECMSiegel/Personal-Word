@@ -1,0 +1,60 @@
+{
+  "id": "T190",
+  "title": "W4 X1b -- Revealed focus-mode toolbar must not cover text; check focus flake",
+  "description": "Follow-up to T184 (approved without these checks). (a) The author reported that when focus mode reveals the formatting bar it overlays the top of the first text line in continuous mode and clips glyph tops. Reproduce with light/dark screenshots on a fresh build (continuous and page view, top of a document and mid-scroll). If text is covered or clipped, fix so revealed text is never covered: e.g. reserve the bar's height at the top of the scroll area while focus mode is on, or offset the scroll padding -- without the editor jumping when the bar shows/hides (owner rule) and with Reduce Motion instant. Add a Playwright assertion (first text line's top >= bar bottom when revealed) with fail-first on the current tree. (b) Run tests/writing-aids.spec.ts 'focus mode dims other paragraphs...' 5x on the current build and 5x on the pre-wave build node_modules/.cache/personal-word-beta/ui3-wordsplit/dist; if X1 made it flakier, fix the cause (test or product). (c) Hover the prose-issue dismiss and footnote source buttons in the app (T189) and confirm stroke + 1.04 scale with no layout shift.",
+  "status": "done",
+  "owner": null,
+  "priority": 1,
+  "depends_on": [],
+  "files": [
+    "src/Writer.tsx",
+    "src/editor/toolbar-motion.css",
+    "tests/writing-aids.spec.ts",
+    "tests/shortcuts.spec.ts",
+    "node_modules/.cache/personal-word-beta/ui4-x1b"
+  ],
+  "review_required": true,
+  "created_by": "agent-47c8",
+  "created_at": "2026-10-29T04:59:06+00:00",
+  "claimed_at": "2026-10-29T04:59:23+00:00",
+  "updated_at": "2026-10-29T05:06:42+00:00",
+  "handoff": null,
+  "review": {
+    "by": "agent-62b6",
+    "at": "2026-10-29T05:06:42+00:00",
+    "verdict": "approved",
+    "note": "Fresh build ui4-rev4: writing-aids+shortcuts+editor-toolbar+pages 34/34 pass. New X1b specs FAIL on the pre-fix X1 build (ui4-x1/dist: continuous and page view both fail) and pass now. Viewed continuous-revealed-light: first line sits clearly below the revealed bar. Did not rerun the 20x flake loops or the hover check (c) (the crawl I could not complete is the open T178 issue). Native WebKit not run; CLAIMED only."
+  },
+  "log": [
+    {
+      "at": "2026-10-29T04:59:06+00:00",
+      "agent": "agent-47c8",
+      "event": "created",
+      "note": ""
+    },
+    {
+      "at": "2026-10-29T04:59:23+00:00",
+      "agent": "agent-0c11",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-10-29T04:59:23+00:00",
+      "agent": "agent-0c11",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-10-29T05:04:21+00:00",
+      "agent": "agent-0c11",
+      "event": "review requested",
+      "note": "(a) Reproduced: continuous view first line top 109 < bar bottom 114 when revealed (fail-first spec 'X1b continuous' failed; page view passed because paper has its own top margin). Fix: .writer[data-focus-toolbar] > .writer-scroll gets padding-top = bar height (toolbar-motion.css; attribute set in Writer.tsx on non-split writers), so toggling focus mode, revealing or hiding never moves text (asserted: normal vs hidden vs revealed first-line top within 1px, revealed >= bar bottom), Reduce Motion unchanged (instant). Light/dark screenshots in node_modules/.cache/personal-word-beta/ui4-x1b/{continuous,page-view}-revealed-{light,dark}.png reviewed. Mid-scroll text still passes under the revealed overlay (inherent). Split-view shared bar not changed. (b) 'dims other paragraphs' flake: 20/20 pass current build, 20/20 pre-wave build (earlier failures happened under heavy concurrent machine load; no evidence X1 made it flakier). (c) Hover in app (Chromium, fresh build): .prose-issue-dismiss and .footnote-source go stroke 0->0.48/0.44px, transform scale 1.04, neighbour x/width unchanged. Suites: writing-aids+shortcuts+editor-toolbar+pages 34/34, tsc clean. Native WebKit NOT RUN. CLAIMED."
+    },
+    {
+      "at": "2026-10-29T05:06:42+00:00",
+      "agent": "agent-62b6",
+      "event": "approved",
+      "note": "Fresh build ui4-rev4: writing-aids+shortcuts+editor-toolbar+pages 34/34 pass. New X1b specs FAIL on the pre-fix X1 build (ui4-x1/dist: continuous and page view both fail) and pass now. Viewed continuous-revealed-light: first line sits clearly below the revealed bar. Did not rerun the 20x flake loops or the hover check (c) (the crawl I could not complete is the open T178 issue). Native WebKit not run; CLAIMED only."
+    }
+  ]
+}

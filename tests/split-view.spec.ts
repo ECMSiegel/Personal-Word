@@ -271,7 +271,7 @@ test("split safety: a fragment live in a pane is read-only in the Fragments pane
   await expect(page.locator('.split-pane[data-side="right"] .split-pane-title')).toHaveText("Frag base text");
 });
 
-test("split safety: Append to section from the fragment pane goes through the left editor", async ({ page }) => {
+test("split safety: a fragment in a split pane has no restore strip (Fragments panel Append covers the rest)", async ({ page }) => {
   await page.goto("/");
   await createProject(page, "Split append fixture");
   await keepFragment(page, "Appendable words");
@@ -281,25 +281,9 @@ test("split safety: Append to section from the fragment pane goes through the le
   await page.keyboard.type("Section start");
   await row(page, "Appendable words").click({ modifiers: ["ControlOrMeta"] });
   await expect(page.locator(".split-pane")).toHaveCount(2);
-  await page.getByRole("button", { name: "Restore fragment to section" }).click();
-  await page.getByRole("option", { name: "One" }).click();
-  await page.getByRole("button", { name: /Append to section/ }).click();
-  await saved(page);
-  expect(storedText(await storedProject(page), "One")).toContain("Appendable words");
-  await expect(leftEditor(page)).toContainText("Appendable words");
-  // The append moves focus to the pane holding the section: active stays activeOf(split).
-  await expect(page.locator('.split-pane[data-side="left"]')).toHaveAttribute("data-focused", "");
-  await expect(page.getByRole("button", { name: "Rename section" })).toHaveText("One");
-  await expect(page.locator(".split-pane")).toHaveCount(2);
-
-  await leftEditor(page).click();
-  await page.keyboard.press("ControlOrMeta+End");
-  await page.keyboard.type(" more");
-  await saved(page);
-  const text = storedText(await storedProject(page), "One");
-  expect(text).toContain("Section start");
-  expect(text).toContain("Appendable words");
-  expect(text).toContain("more");
+  await expect(page.getByText("Give these words a home")).toHaveCount(0);
+  await expect(page.getByRole("button", { name: "Restore fragment to section" })).toHaveCount(0);
+  await expect(page.getByRole("button", { name: /Append to section/ })).toHaveCount(0);
 });
 
 test("split safety: Fragments panel Append into the unfocused pane's section is kept", async ({ page }) => {
@@ -625,7 +609,8 @@ test("split view: the footer page status follows the focused pane at once", asyn
   await row(page, "Two").hover();
   await page.getByRole("button", { name: "Open Two beside" }).click();
   await expect(page.locator(".split-pane")).toHaveCount(2);
-  const status = page.locator('[aria-label="Page count"]');
+  const status = page.locator('.split-pane[data-side="right"] [aria-label="Page count"]');
+  const leftStatus = page.locator('.split-pane[data-side="left"] [aria-label="Page count"]');
   // The open-beside flow focuses the right pane: its status is page 1.
   await expect(status).toHaveText(/Section page 1 /, { timeout: 2_000 });
   // Scroll the left pane deep into the document, then focus it.
@@ -633,12 +618,14 @@ test("split view: the footer page status follows the focused pane at once", asyn
   const box = await leftEditor(page).boundingBox();
   await page.mouse.move(box!.x + box!.width / 2, box!.y + box!.height / 2);
   await page.mouse.wheel(0, 3000);
-  await expect(status).not.toHaveText(/Section page 1 /, { timeout: 2_000 });
-  // Focus the right pane and back: the footer follows focus immediately.
+  await expect(leftStatus).not.toHaveText(/Section page 1 /, { timeout: 2_000 });
+  // Each pane keeps its own status; focus does not change either one.
   await rightEditor(page).click();
   await expect(status).toHaveText(/Section page 1 /, { timeout: 300 });
+  await expect(leftStatus).not.toHaveText(/Section page 1 /, { timeout: 300 });
   await leftEditor(page).click();
-  await expect(status).not.toHaveText(/Section page 1 /, { timeout: 300 });
+  await expect(status).toHaveText(/Section page 1 /, { timeout: 300 });
+  await expect(leftStatus).not.toHaveText(/Section page 1 /, { timeout: 300 });
 });
 
 // ---- T159: close-side undo, DOM identity and scroll, asserted directly ----
@@ -714,4 +701,194 @@ test("split view: the left scroll position holds on open and again on close", as
   await page.waitForTimeout(200);
   const afterClose = await scrollerTop(page, "left");
   expect(Math.abs(afterClose - beforeOpen)).toBeLessThanOrEqual(2);
+});
+
+// T179 (UI wave 4, L2): the divider's line is one whole device column on the
+// right pane's left edge, and the pane header rules run unbroken through it.
+for (const dpr of [1, 2]) {
+  for (const scheme of ["light", "dark"] as const) {
+    for (const ratio of ["0.5", "0.373"]) test.describe(`split divider junction at DPR ${dpr}, ${scheme}, ratio ${ratio}`, () => {
+      test.use({ deviceScaleFactor: dpr, colorScheme: scheme });
+      test("the header rule and the divider line meet in one clean junction", async ({ page }, testInfo) => {
+        await page.addInitScript((r) => localStorage.setItem("personal-word.splitRatio", r), ratio);
+        await page.goto("/");
+        await createProject(page, "Junction fixture");
+        await addSection(page, "One");
+        await addSection(page, "Two");
+        await row(page, "One").click();
+        await row(page, "Two").click({ modifiers: ["ControlOrMeta"] });
+        await expect(page.locator(".split-pane")).toHaveCount(2);
+        // Park the pointer and focus away so no hover/focus colour is drawn.
+        await page.mouse.move(5, 5);
+        await page.locator('.split-pane[data-side="right"] .split-pane-title').click();
+        await page.waitForTimeout(300);
+        const g = await page.evaluate(() => {
+          const r = (s: string) => document.querySelector(s)!.getBoundingClientRect();
+          const l = r('.split-pane[data-side="left"]');
+          const rt = r('.split-pane[data-side="right"]');
+          const lh = r('.split-pane[data-side="left"] .split-pane-header');
+          const rh = r('.split-pane[data-side="right"] .split-pane-header');
+          const bar = document.querySelector(".split-toolbar .format-bar")!.getBoundingClientRect();
+          return {
+            leftLeft: l.left, leftRight: l.right, rightLeft: rt.left, headerBottomL: lh.bottom, headerBottomR: rh.bottom,
+            panesTop: l.top, panesBottom: l.bottom, barBottom: bar.bottom,
+          };
+        });
+        const shot = await page.screenshot();
+        await testInfo.attach("junction.png", { body: shot, contentType: "image/png" });
+        if (process.env.JUNCTION_SHOTS) {
+          const { writeFileSync } = await import("node:fs");
+          writeFileSync(`${process.env.JUNCTION_SHOTS}/junction-${scheme}-${dpr}.png`, shot);
+        }
+        const res = await page.evaluate(
+          async ({ b64, g, dpr }) => {
+            const img = new Image();
+            img.src = "data:image/png;base64," + b64;
+            await img.decode();
+            const c = document.createElement("canvas");
+            c.width = img.width;
+            c.height = img.height;
+            const ctx = c.getContext("2d")!;
+            ctx.drawImage(img, 0, 0);
+            const px = (x: number, y: number) => Array.from(ctx.getImageData(x, y, 1, 1).data.slice(0, 3)).join(",");
+            const ruleY = Math.round(g.headerBottomL * dpr) - 1;
+            const col = Math.round(g.rightLeft * dpr); // device column of the right pane's left edge
+            const ref = px(Math.round((g.leftLeft + 40) * dpr), ruleY); // rule colour away from the divider
+            const out: string[] = [];
+            // 1. The rule row is the rule colour across the whole junction (+-6 css px).
+            for (let x = col - 6 * dpr; x <= col + 6 * dpr; x++) {
+              if (px(x, ruleY) !== ref) out.push(`rule row broken at x=${x} (${px(x, ruleY)} vs ${ref})`);
+            }
+            // 2. Rule rows are the same on both sides (no one-pixel step).
+            const above = (x: number) => px(x, ruleY - 1);
+            if (px(col - 3 * dpr, ruleY - 1) !== px(col + 3 * dpr, ruleY - 1)) out.push("rows above the rule differ across the divider");
+            if (px(col - 3 * dpr, ruleY + 1) === ref && px(col + 3 * dpr, ruleY + 1) === ref) out.push("rule is thicker than one pixel at the junction");
+            void above;
+            // 3. The vertical line: the line column is rule colour from the toolbar rule to the pane bottom,
+            // and the columns beside it hold the page colours, not a half-tone spill, below the header.
+            const top = Math.ceil(g.barBottom * dpr);
+            const bottom = Math.floor(g.panesBottom * dpr) - 1;
+            let blanks = 0;
+            for (let y = top; y <= bottom; y++) if (px(col, y) !== ref) blanks++;
+            if (blanks > 0) out.push(`vertical line has ${blanks} non-rule pixels in column ${col}`);
+            const sample = ruleY + 20 * dpr;
+            const leftSide = px(col - dpr, sample);
+            const rightSide = px(col + dpr, sample);
+            const leftFar = px(col - 8 * dpr, sample);
+            const rightFar = px(col + 8 * dpr, sample);
+            if (leftSide !== leftFar) out.push(`left of the line is ${leftSide}, page colour is ${leftFar} (spill)`);
+            if (rightSide !== rightFar) out.push(`right of the line is ${rightSide}, page colour is ${rightFar} (spill)`);
+            return { out, col, ruleY, ref };
+          },
+          { b64: shot.toString("base64"), g, dpr },
+        );
+        console.log(JSON.stringify({ dpr, scheme, g, col: res.col, ruleY: res.ruleY }));
+        expect(res.out, JSON.stringify(g)).toEqual([]);
+        // The line sits exactly on the right pane's left edge.
+        const divider = await page.getByRole("separator", { name: "Resize split view" }).evaluate((el) => {
+          const b = el.getBoundingClientRect();
+          return { left: b.left, width: b.width };
+        });
+        expect(divider.left + divider.width / 2 - 0.5).toBeCloseTo(g.rightLeft, 1);
+      });
+    });
+  }
+}
+
+// T188 (UI wave 4, L3): every split pane has its own footer.
+test("split view: each pane has its own footer with its own page status and word count", async ({ page }, testInfo) => {
+  await page.goto("/");
+  await createProject(page, "Footer fixture");
+  await addSection(page, "Two");
+  await row(page, "Opening").click();
+  await leftEditor(page).fill(longBody);
+  await page.getByRole("button", { name: "Page view", exact: true }).click();
+  await row(page, "Two").click({ modifiers: ["ControlOrMeta"] });
+  await expect(page.locator(".split-pane")).toHaveCount(2);
+  await rightEditor(page).fill("Short right text");
+  const footer = (side: string) => page.locator(`.split-pane[data-side="${side}"] .pane-footer`);
+  await expect(footer("left")).toHaveCount(1);
+  await expect(footer("right")).toHaveCount(1);
+  await expect(page.locator(".pane-footer")).toHaveCount(2); // no shared footer
+  await expect(footer("right")).toContainText("Section page 1 of 1");
+  await expect(footer("right")).toContainText("3 words");
+  const leftWords = Number(((await footer("left").locator(".pane-footer-words").innerText()).match(/[\d,]+/) ?? ["0"])[0].replace(/,/g, ""));
+  expect(leftWords).toBeGreaterThan(50);
+  await expect(footer("left")).toContainText(/Section page \d+ of (?!1\D)\d+/);
+  // Scrolling one pane changes only its own page number.
+  const pageText = () => footer("left").locator('[aria-label="Page count"]').innerText();
+  const before = await pageText();
+  const box = await page.locator('.split-pane[data-side="left"]').boundingBox();
+  await page.mouse.move(box!.x + box!.width / 2, box!.y + box!.height / 2);
+  await page.mouse.wheel(0, -6000);
+  await expect.poll(pageText).not.toBe(before);
+  await expect(footer("right")).toContainText("Section page 1 of 1");
+  // Alignment: text left edge = pane header title left edge; words right edge = right padding;
+  // the footer rule spans the pane, so it meets the divider column.
+  for (const side of ["left", "right"]) {
+    const m = await page.evaluate((sd) => {
+      const pane = document.querySelector(`.split-pane[data-side="${sd}"]`)!;
+      const r = (el: Element) => el.getBoundingClientRect();
+      const f = pane.querySelector(".pane-footer")!;
+      const title = pane.querySelector(".split-pane-title")!;
+      const first = f.firstElementChild!;
+      const words = f.querySelector(".pane-footer-words")!;
+      return {
+        titleLeft: r(title).left, textLeft: r(first).left, wordsRight: r(words).right,
+        footRight: r(f).right, footLeft: r(f).left, paneLeft: r(pane).left, paneRight: r(pane).right,
+        footBottom: r(f).bottom, paneBottom: r(pane).bottom,
+        pad: parseFloat(getComputedStyle(f).paddingRight),
+      };
+    }, side);
+    expect(Math.abs(m.textLeft - m.titleLeft)).toBeLessThanOrEqual(1);
+    expect(Math.abs(m.footRight - m.pad - m.wordsRight)).toBeLessThanOrEqual(1);
+    expect(Math.abs(m.footLeft - m.paneLeft)).toBeLessThanOrEqual(0.5);
+    expect(Math.abs(m.footRight - m.paneRight)).toBeLessThanOrEqual(0.5);
+    expect(Math.abs(m.footBottom - m.paneBottom)).toBeLessThanOrEqual(1);
+  }
+  const tops = await page.evaluate(() =>
+    Array.from(document.querySelectorAll(".pane-footer")).map((f) => f.getBoundingClientRect().top),
+  );
+  expect(Math.abs(tops[0] - tops[1])).toBeLessThanOrEqual(0.5);
+  await page.mouse.move(5, 5);
+  if (process.env.FOOTER_SHOTS) {
+    const { writeFileSync } = await import("node:fs");
+    writeFileSync(`${process.env.FOOTER_SHOTS}/split-light.png`, await page.screenshot());
+    await page.emulateMedia({ colorScheme: "dark" });
+    writeFileSync(`${process.env.FOOTER_SHOTS}/split-dark.png`, await page.screenshot());
+    await page.emulateMedia({ colorScheme: "light" });
+    await page.getByRole("button", { name: "Close right pane" }).click();
+    writeFileSync(`${process.env.FOOTER_SHOTS}/single-light.png`, await page.screenshot());
+    await page.emulateMedia({ colorScheme: "dark" });
+    writeFileSync(`${process.env.FOOTER_SHOTS}/single-dark.png`, await page.screenshot());
+  }
+});
+
+test("split view: the sidebar lights each pane's section header and bolds both open entries (B1)", async ({ page }) => {
+  await page.emulateMedia({ colorScheme: "light" });
+  await page.goto("/");
+  await createProject(page, "Split selection fixture");
+  await keepFragment(page, "Lit fragment");
+  await addSection(page, "Left one");
+  await addSection(page, "Unopened");
+  await row(page, "Left one").click();
+  await row(page, "Lit fragment").click({ modifiers: ["ControlOrMeta"] });
+  await expect(page.locator(".split-pane")).toHaveCount(2);
+  const title = (id: string) => page.locator(`.sidebar-group[data-group="${id}"] > .group-heading .group-title`);
+  for (const id of ["manuscript", "fragments"]) {
+    await expect(title(id)).toHaveCSS("font-weight", "600");
+    await expect(title(id)).toHaveCSS("color", "rgb(0, 105, 217)");
+  }
+  await expect(title("research")).not.toHaveCSS("font-weight", "600");
+  for (const name of ["Left one", "Lit fragment"]) {
+    await expect(row(page, name)).toHaveCSS("font-weight", "600");
+    await expect(row(page, name)).toHaveCSS("color", "rgb(36, 36, 40)");
+  }
+  await expect(row(page, "Unopened")).not.toHaveCSS("font-weight", "600");
+  // Closing the right pane puts the fragment and its section header back to rest.
+  await page.getByRole("button", { name: "Close right pane" }).click();
+  await expect(page.locator('.split-pane[data-side="right"]')).toHaveCount(0);
+  await expect(row(page, "Lit fragment")).not.toHaveCSS("font-weight", "600");
+  await expect(title("fragments")).not.toHaveCSS("font-weight", "600");
+  await expect(row(page, "Left one")).toHaveCSS("font-weight", "600");
 });

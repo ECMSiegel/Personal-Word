@@ -2,8 +2,8 @@
   "id": "T167",
   "title": "W1 native gate (T147 steps 1-3b) on the current tree",
   "description": "Rebuild folio-base and folio-p2 smoke binaries after T155, run native-gate.py --runs 2 per ui3-p2/NATIVE-GATE-MORNING.md; record numbers. Coordinator runs it.",
-  "status": "review",
-  "owner": "agent-47c8",
+  "status": "done",
+  "owner": null,
   "priority": 1,
   "depends_on": [],
   "files": [
@@ -14,17 +14,17 @@
   "created_by": "agent-47c8",
   "created_at": "2026-10-28T19:35:45+00:00",
   "claimed_at": "2026-10-28T21:34:13+00:00",
-  "updated_at": "2026-10-28T21:34:14+00:00",
+  "updated_at": "2026-10-29T00:11:33+00:00",
   "handoff": {
     "by": "agent-0d74",
     "at": "2026-10-28T19:53:59+00:00",
     "text": "Reject pending a fresh post-fix native run. The recorded W1 result fails the prescribed caret gate: upFromPage2ToPage1Last=false in both runs (native-gate-results.json; also stated in the T167 done note). NATIVE-GATE-MORNING.md defines every caret flag as required and says a false flag fails the gate. T168 is currently implementing the ArrowUp/Down-across-spacer fix, but it is still in progress; please rerun native-gate.py --runs 2 on the resulting current tree and record all flags before resubmitting T167."
   },
   "review": {
-    "by": "agent-0d74",
-    "at": "2026-10-28T19:53:59+00:00",
-    "verdict": "rejected",
-    "note": "Reject pending a fresh post-fix native run. The recorded W1 result fails the prescribed caret gate: upFromPage2ToPage1Last=false in both runs (native-gate-results.json; also stated in the T167 done note). NATIVE-GATE-MORNING.md defines every caret flag as required and says a false flag fails the gate. T168 is currently implementing the ArrowUp/Down-across-spacer fix, but it is still in progress; please rerun native-gate.py --runs 2 on the resulting current tree and record all flags before resubmitting T167."
+    "by": "agent-d433",
+    "at": "2026-10-29T00:11:33+00:00",
+    "verdict": "approved",
+    "note": "Approved: the post-T168 native gate in ui3-p2/w2-gate.log and native-gate-results.json contains four interleaved base/p2 probes, with both p2 runs ok. Required caret flags are 6/6 true in each p2 run; sync latency p50/p95 meet the gate budget; narrow 585 px pane drift is 1 px and refPageMismatches is 0. Paint p95 exceeds 50 ms, but the T167 note reports this to the owner as required; native follow-up scope is documented. Evidence is timestamped after the final T168 tree."
   },
   "log": [
     {
@@ -74,6 +74,12 @@
       "agent": "agent-47c8",
       "event": "review requested",
       "note": "Rerun on the final T168 tree (17:07-17:10, binary ui3-p2/bin/folio-split, log ui3-p2/w2-gate.log, native-gate-results.json): gate exit 0; p2 sync p50 8-9 / p95 <=11 ms; all six caret flags true for both an inline (mid-paragraph) gap and a block gap in both runs, judged on WebKit's drawn selection rect, plus Up from the far end of page 2's first line; 585 px drift <=1, refPageMismatches 0. Paint p50 ratio 1.13-1.43 (busy machine; p95 above 50 ms for base and split alike)."
+    },
+    {
+      "at": "2026-10-29T00:11:33+00:00",
+      "agent": "agent-d433",
+      "event": "approved",
+      "note": "Approved: the post-T168 native gate in ui3-p2/w2-gate.log and native-gate-results.json contains four interleaved base/p2 probes, with both p2 runs ok. Required caret flags are 6/6 true in each p2 run; sync latency p50/p95 meet the gate budget; narrow 585 px pane drift is 1 px and refPageMismatches is 0. Paint p95 exceeds 50 ms, but the T167 note reports this to the owner as required; native follow-up scope is documented. Evidence is timestamped after the final T168 tree."
     }
   ]
 }

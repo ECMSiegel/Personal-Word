@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { planPages, type BlockBox } from "./pagination";
+import { planPages, sameBoundaries, type BlockBox, type Boundary } from "./pagination";
 
 // Letter page at 100%: 1056 px tall, 96 px margins, 32 px gap.
 const geometry = { pageHeight: 1056, gap: 32, margin: 96, reserve: 0 };
@@ -188,5 +188,22 @@ describe("planPages splits paragraphs like Word", () => {
     const plan = planPages(all, geometry);
     expect(cuts(plan)).toEqual([[10, 5]]);
     expect(plan.pageCount).toBe(2);
+  });
+});
+
+describe("sameBoundaries", () => {
+  const list = (heights: number[]): Boundary[] =>
+    heights.map((height, i) => ({ pos: i * 10, height, split: 20 }));
+  it("treats sub-pixel noise on one spacer as unchanged", () => {
+    expect(sameBoundaries(list([224, 224, 224]), list([224.3, 224, 224]))).toBe(true);
+  });
+  it("re-places spacers when small differences add up across pages", () => {
+    // Each spacer 0.3 px off (Chromium at fit zoom 1.1495): pages 3 on drift.
+    expect(sameBoundaries(list([224, 224, 224]), list([223.7, 223.7, 223.7]))).toBe(false);
+  });
+  it("compares count, position and kind", () => {
+    expect(sameBoundaries(list([224]), list([224, 224]))).toBe(false);
+    expect(sameBoundaries(list([224]), [{ pos: 1, height: 224, split: 20 }])).toBe(false);
+    expect(sameBoundaries(list([224]), [{ pos: 0, height: 224, split: 20, inline: true }])).toBe(false);
   });
 });

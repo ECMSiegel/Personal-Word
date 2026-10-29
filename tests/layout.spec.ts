@@ -24,24 +24,27 @@ test("the blue reading progress bar is gone", async ({ page }) => {
   await expect(page.getByRole("progressbar")).toHaveCount(0);
 });
 
-test("a selected entry is semibold and its section title does not double it", async ({
+test("a selected entry is semibold and its section title is semibold and coloured (B1)", async ({
   page,
 }) => {
   await create(page, "Weights");
-  const title = page.locator(".group-title.selected").first();
+  const title = page.locator('.sidebar-group[data-group="manuscript"] > .group-heading .group-title');
   await expect(title).toContainText("Manuscript");
   const style = await title.evaluate((el) => {
     const s = getComputedStyle(el);
-    return { weight: Number(s.fontWeight), background: s.backgroundColor };
+    return { weight: Number(s.fontWeight), background: s.backgroundColor, color: s.color };
   });
   expect(style.background).toBe("rgba(0, 0, 0, 0)");
   const row = page.locator(".entry-row.selected").first();
   await expect(row).toBeVisible();
-  expect(
-    Number(await row.evaluate((el) => getComputedStyle(el).fontWeight)),
-  ).toBeGreaterThanOrEqual(600);
-  const hasHas = await page.evaluate(() => CSS.supports("selector(:has(*))"));
-  if (hasHas) expect(style.weight).toBeLessThan(600);
+  const rowStyle = await row.evaluate((el) => {
+    const s = getComputedStyle(el);
+    return { weight: Number(s.fontWeight), color: s.color };
+  });
+  expect(rowStyle.weight).toBeGreaterThanOrEqual(600);
+  // The header carries the colour; the entry stays in the text colour.
+  expect(style.weight).toBe(600);
+  expect(style.color).not.toBe(rowStyle.color);
 });
 
 test("an unpinned sidebar has an invisible edge strip that reveals it on hover", async ({

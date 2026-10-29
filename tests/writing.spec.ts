@@ -132,7 +132,7 @@ test("five thousand words survive rapid section changes and drag reordering", as
   await expect(editor).toContainText("The last words remain.");
   await page.locator(".entry-main").filter({ hasText: "Opening" }).click();
   await expect(editor).toContainText("Paragraph 499");
-  await expect(page.locator(".document-statistics")).toContainText(
+  await expect(page.locator(".pane-footer")).toContainText(
     "5,000 words",
   );
   await page.screenshot({ path: "test-results/writing-view.png" });

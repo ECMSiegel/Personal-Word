@@ -1,0 +1,75 @@
+{
+  "id": "T177",
+  "title": "W4 H3 -- Apply and clean up across surfaces, Snapshot border",
+  "description": "UI wave 4, plan docs/agent-work/2026-10-28-ui-wave-4/PLAN.md section '### H3' -- read the whole task (Files, Interfaces, Steps, Acceptance, Fail-first, Stop and ask, Default) plus the plan's Rules, hotspot-ownership and Notes sections before starting. Plan APPROVED by the owner 2026-10-28 with all open-question defaults. Register team-serial-check-slot only while running heavy checks; private Playwright config/port; double-quote paths; no git stash/checkout/reset; no package installs.",
+  "status": "done",
+  "owner": null,
+  "priority": 1,
+  "depends_on": [
+    "T175"
+  ],
+  "files": [
+    "src/App.tsx",
+    "src/research/research.css",
+    "src/styles.css",
+    "src/components/drag-reorder.css",
+    "src/components/drop-target.css",
+    "src/components/dropdown.css",
+    "src/components/library.css",
+    "src/components/popover.css",
+    "src/components/segmented.css",
+    "src/components/split.css",
+    "src/organization/fragments.css",
+    "src/organization/organization.css",
+    "src/settings/shortcuts-settings.css",
+    "node_modules/.cache/personal-word-beta/ui4-h3",
+    "tests/hover-emphasis.spec.ts",
+    "tests/hover-helpers.ts",
+    "tests/editor-toolbar.spec.ts",
+    "tests/appearance.spec.ts"
+  ],
+  "review_required": true,
+  "created_by": "agent-47c8",
+  "created_at": "2026-10-28T23:39:17+00:00",
+  "claimed_at": "2026-10-29T01:49:30+00:00",
+  "updated_at": "2026-10-29T03:33:18+00:00",
+  "handoff": null,
+  "review": {
+    "by": "agent-fff6",
+    "at": "2026-10-29T03:33:18+00:00",
+    "verdict": "approved",
+    "note": "Reran on a private build of the current tree (ui4-g3/dist-base, port 1643). vitest designTokens + motion: 29 pass. First run of hover-emphasis, appearance and editor-toolbar (ui4-g3/t177-pw.log, machine heavily loaded, 29 min): 29 pass, 4 fail. Two failures are the K1 dock tests in editor-toolbar.spec.ts, which belong to T182 (in progress, owns that spec), not H3. One is a page.goto timeout from the load. One is a single crawl exception: the Snapshot dialog's Cancel had no scale when sampled. Rerun of the crawl and the narrow-bar test (t177-pw2.log): both pass, 'H3 exceptions: 0' over 1247 controls / 537 text on 20 screens. So the Cancel exception was a load timing flake. Flag for H4: the 220 ms hover sample can miss under heavy load. Also read the CSS changes as listed in the done note (Snapshot border gone, popover/research hover weights deleted, [data-highlighted] joins the shared rule). Chromium only, as stated."
+  },
+  "log": [
+    {
+      "at": "2026-10-28T23:39:17+00:00",
+      "agent": "agent-47c8",
+      "event": "created",
+      "note": ""
+    },
+    {
+      "at": "2026-10-29T01:49:30+00:00",
+      "agent": "agent-7acb",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-10-29T01:49:30+00:00",
+      "agent": "agent-7acb",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-10-29T02:31:35+00:00",
+      "agent": "agent-7acb",
+      "event": "review requested",
+      "note": "H3 shipped (Chromium only). CSS: deleted the width-changing hover weight in popover.css (data-popover-item) and research.css (.template-choice strong); removed hover underline/border-colour (.settings-text-action, .template-delete, .settings-button, .fragment-link in fragments.css); Snapshot is a plain text+icon control (border and !important padding gone, padding var(--space-2)); shared block now also fires on [data-highlighted]/.is-highlighted (keyboard-highlighted menu/dropdown rows); exclusion list fixed: .toolbar-icon:not([data-popover-item]) (More-menu rows are text) and .format-bar .extract (icon-only, its label span is display:none; crawler now ignores display:none text). Tests: crawl in tests/hover-emphasis.spec.ts now asserts for EVERY crawled text control (hover sampled 220 ms after landing) stroke>0.2px with colour == text colour, scale 1.04, hover weight == rest weight, and for every icon-only control no stroke/no scale: 'H3 exceptions: 0' (run6.log); Snapshot border-top-width 0px asserted. Fail-first: pre-H3 build (T175 tree, ui4-h3/failfirst3.log) -> 37 exceptions (popover/dropdown 400->600 weight, Snapshot border) and the border assertion fails. Existing specs updated for the new rule (registered): editor-toolbar.spec.ts (More row emphasis is now a text stroke), appearance.spec.ts (pressed Snapshot is 1.04*0.99=1.0296). Pass on the final build: vitest designTokens+motion; hover-emphasis 2, appearance 19, editor-toolbar 9, alignment 7, sidebar-selection 7, motion-u7 2, split-view 16, projects-screen 39, research 12, fragments-panel 6, motion-u5 3, motion-u6 1, accessibility 4 (some of those on the pre-final build; the final build re-ran hover-emphasis, appearance, editor-toolbar, alignment, sidebar-selection, motion-u7, split-view). Not done / notes: App.tsx not touched (CSS-only); label rows were tested via the crawl exclusion of label scale (labels are excluded from the 1.04 assertion in the crawl, stroke asserted). .group-title.selected weight 500/600 doubling rule is B1's. editor.css .prose-issue-dismiss and .footnote-source left for H4 after G3."
+    },
+    {
+      "at": "2026-10-29T03:33:18+00:00",
+      "agent": "agent-fff6",
+      "event": "approved",
+      "note": "Reran on a private build of the current tree (ui4-g3/dist-base, port 1643). vitest designTokens + motion: 29 pass. First run of hover-emphasis, appearance and editor-toolbar (ui4-g3/t177-pw.log, machine heavily loaded, 29 min): 29 pass, 4 fail. Two failures are the K1 dock tests in editor-toolbar.spec.ts, which belong to T182 (in progress, owns that spec), not H3. One is a page.goto timeout from the load. One is a single crawl exception: the Snapshot dialog's Cancel had no scale when sampled. Rerun of the crawl and the narrow-bar test (t177-pw2.log): both pass, 'H3 exceptions: 0' over 1247 controls / 537 text on 20 screens. So the Cancel exception was a load timing flake. Flag for H4: the 220 ms hover sample can miss under heavy load. Also read the CSS changes as listed in the done note (Snapshot border gone, popover/research hover weights deleted, [data-highlighted] joins the shared rule). Chromium only, as stated."
+    }
+  ]
+}

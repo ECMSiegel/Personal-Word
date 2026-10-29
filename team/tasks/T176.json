@@ -1,0 +1,65 @@
+{
+  "id": "T176",
+  "title": "W4 G3 -- No caret or blank line in the gap",
+  "description": "UI wave 4, plan docs/agent-work/2026-10-28-ui-wave-4/PLAN.md section '### G3' -- read the whole task (Files, Interfaces, Steps, Acceptance, Fail-first, Stop and ask, Default) plus the plan's Rules, hotspot-ownership and Notes sections before starting. Plan APPROVED by the owner 2026-10-28 with all open-question defaults. Register team-serial-check-slot only while running heavy checks; private Playwright config/port; double-quote paths; no git stash/checkout/reset; no package installs.",
+  "status": "done",
+  "owner": null,
+  "priority": 1,
+  "depends_on": [
+    "T174"
+  ],
+  "files": [
+    "src/editor/editor.css",
+    "src/editor/pagination.test.ts",
+    "src/editor/pagination.ts",
+    "tests/pages-gap.spec.ts",
+    "node_modules/.cache/personal-word-beta/ui4-g3",
+    "tests/pages-helpers.ts",
+    "tests/native-smoke.js",
+    "node_modules/.cache/personal-word-beta/ui4-g"
+  ],
+  "review_required": true,
+  "created_by": "agent-47c8",
+  "created_at": "2026-10-28T23:39:12+00:00",
+  "claimed_at": "2026-10-29T02:56:48+00:00",
+  "updated_at": "2026-10-29T04:28:41+00:00",
+  "handoff": null,
+  "review": {
+    "by": "agent-3aac",
+    "at": "2026-10-29T04:28:41+00:00",
+    "verdict": "approved",
+    "note": "Reviewed G3 only (Amendment 1). pagination.ts deleteAcrossBreak: page view only (.is-paged), plain Backspace/Delete, empty text selection at paragraph start/end, deletes exactly the adjacent pageBreak node via one view.dispatch(tr.delete) with default history, so undo restores it; no text deleted; continuous view returns false and is unchanged; no export code touched. Sampler (task queued from each rAF, after all that frame's callbacks, dropped if doc changed) is sound for what is painted, and the conclusion that the stale frame was a sampling artifact is plausible (untouched G2 base also gives 0); so (a) has no fail-first, accepted as a regression guard. Own rerun on fresh build ui4-rev5: vitest pagination 21 pass; pages-gap 10/10, pages 6/6, pages-zoom 1/1, page-break 3/3, footnotes 4/4. Backspace test fails on pre-wave build ui3-wordsplit (selection type node, break kept) = fail-first confirmed (only the first of 4 cases reached on base, since it stops at first failure). Native: logs only (zero flags True, fuzz 0/150 at 100 and 75, no transients, probe caret flags true). Non-blocking: undo check asserts break count only, not exact doc equality; editor.css/G2 sheets and native-smoke bulk belong to G1/G2 and were not judged."
+  },
+  "log": [
+    {
+      "at": "2026-10-28T23:39:12+00:00",
+      "agent": "agent-47c8",
+      "event": "created",
+      "note": ""
+    },
+    {
+      "at": "2026-10-29T02:56:48+00:00",
+      "agent": "agent-fff6",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-10-29T02:56:51+00:00",
+      "agent": "agent-fff6",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-10-29T04:21:08+00:00",
+      "agent": "agent-fff6",
+      "event": "review requested",
+      "note": "G3 per PLAN.md Amendment 1. (a) Stale frame: there is no real one. G1's '1-frame transients' (Chromium ~100 steps per seed, WebKit 30/60) came from the sampler. Its frame callback was requested before the key, so it ran ahead of pagination's own requestAnimationFrame in the same frame and saw a state that is never painted. I first sampled from a window keydown/input listener, but older sample chains still ran first in later frames, so tests/pages-gap.spec.ts now samples in a task queued from each frame callback: the page after all of that frame's callbacks, which is what gets painted (a sample is dropped if the next key already changed the doc). Every painted frame out of a text area is now a fuzz violation, and the Enter tests assert 0. Result on both the untouched G2 build (ui4-g3/dist-base, base.config.mjs) and the fix build: seeds 4101/4175/4125 -> 0 settled, 0 painted-frame violations (report-gap-base2.json, report-gap-fix2.json). Native: the sampler in tests/native-smoke.js is now requested after the edit; fuzz at 100 and 75 -> 0/150 violations, 0 transient; sweep 0/100; zero flags True (ui4-g3/native-gate-zoom.log). No source change was needed for (a); the honest per-frame guard is in place. Because the base also passes, (a) has no fail-first. (b) Backspace in an empty paragraph after a page break made ProseMirror delete the paragraph and select the break node, which is invisible in page view. src/editor/pagination.ts: new deleteAcrossBreak, page view only, in the plugin's handleKeyDown before arrowAcrossGap. Backspace at the start of the paragraph after a break, or Delete at the end of the one before, removes the break; the caret stays; undo restores. Fail-first: new targeted test 'Backspace after a page break and Delete before one...' (4 cases) fails on the base build (selection type node, break kept; pw-pb-base2.log) and passes on the fix (pw-pb-fix.log). Verified: npx vitest run src/editor/ -> 104 pass; npx tsc --noEmit -p . -> 0. pages-gap.spec on the fix: 9/10 in pw-gap-fix2.log, where the 10th was a test-setup bug (setContent shared an undo group; fixed), then 1/1 (pw-pb-fix.log). pages, page-break, footnotes, pages-zoom and performance pass on the fix. One unrelated failure: writing.spec 'five thousand words...' expects '.pane-footer', which is L3's in-flight test change; it fails on the base build too. Native pages-probe: all six caret flags true (native-gate-probe.log). src/editor/editor.css untouched by G3. Not done: gapIntrusions/forceBefore from the original G3 steps, because the amendment re-scoped G3 and no layout intrusion exists to guard."
+    },
+    {
+      "at": "2026-10-29T04:28:41+00:00",
+      "agent": "agent-3aac",
+      "event": "approved",
+      "note": "Reviewed G3 only (Amendment 1). pagination.ts deleteAcrossBreak: page view only (.is-paged), plain Backspace/Delete, empty text selection at paragraph start/end, deletes exactly the adjacent pageBreak node via one view.dispatch(tr.delete) with default history, so undo restores it; no text deleted; continuous view returns false and is unchanged; no export code touched. Sampler (task queued from each rAF, after all that frame's callbacks, dropped if doc changed) is sound for what is painted, and the conclusion that the stale frame was a sampling artifact is plausible (untouched G2 base also gives 0); so (a) has no fail-first, accepted as a regression guard. Own rerun on fresh build ui4-rev5: vitest pagination 21 pass; pages-gap 10/10, pages 6/6, pages-zoom 1/1, page-break 3/3, footnotes 4/4. Backspace test fails on pre-wave build ui3-wordsplit (selection type node, break kept) = fail-first confirmed (only the first of 4 cases reached on base, since it stops at first failure). Native: logs only (zero flags True, fuzz 0/150 at 100 and 75, no transients, probe caret flags true). Non-blocking: undo check asserts break count only, not exact doc equality; editor.css/G2 sheets and native-smoke bulk belong to G1/G2 and were not judged."
+    }
+  ]
+}

@@ -34,7 +34,6 @@
 [data-popover-item]:hover:not(:disabled),
 [data-popover-item]:focus-visible,
 [data-popover-item][data-highlighted] {
-  font-weight: 600;
   color: var(--text);
 }
 .popover-item:active:not(:disabled) {

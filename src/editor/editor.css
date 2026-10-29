@@ -76,11 +76,6 @@
   padding: 4px;
   cursor: pointer;
 }
-.prose-issue-dismiss:hover,
-.prose-issue-dismiss:focus-visible {
-  color: var(--text);
-  text-decoration: underline;
-}
 .prose-issue-pagination {
   display: flex;
   align-items: center;
@@ -457,13 +452,17 @@
     var(--page-count) * (var(--page-height) + var(--page-gap)) - var(--page-gap)
   );
   box-sizing: border-box;
-  background: repeating-linear-gradient(
-    to bottom,
-    var(--paper) 0,
-    var(--paper) var(--page-height),
-    transparent var(--page-height),
-    transparent calc(var(--page-height) + var(--page-gap))
-  );
+}
+/* Page sheets (Writer.tsx): real boxes at p * (page height + gap), drawn
+   behind the text (earlier in the paper, positioned). A background gradient
+   is not used because WebKit does not apply CSS zoom to its px stops. */
+.is-paged .page-sheet {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: var(--page-height);
+  background: var(--paper);
+  pointer-events: none;
 }
 .is-paged .writing-surface {
   /* Positioned and its own formatting context, so block offsets are measured
@@ -511,7 +510,8 @@
     width: auto;
     height: auto;
   }
-  .page-spacer {
+  .page-spacer,
+  .page-sheet {
     display: none !important;
   }
   .manual-page-break {
@@ -659,11 +659,6 @@
 .footnote-row:focus-within .footnote-source,
 .footnote-source:focus-visible {
   opacity: 1;
-}
-.footnote-source:hover,
-.footnote-source:focus-visible {
-  color: var(--accent);
-  background: transparent;
 }
 
 /* Images and tables */

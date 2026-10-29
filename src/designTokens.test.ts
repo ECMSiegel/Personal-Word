@@ -144,7 +144,8 @@ describe("design tokens", () => {
     const styles = read("src/styles.css");
     expect(styles).toMatch(/button:active:not\(:disabled\)/);
     const press = cssRules(styles).find((r) => r.selector === "button:active:not(:disabled)");
-    expect(press?.body).toMatch(/transform:\s*scale\(0\.99\)/);
+    expect(press?.body).toMatch(/--press-s:\s*0\.99/);
+    expect(press?.body).toMatch(/transform:\s*scale\(calc\(var\(--emph-s, 1\) \* var\(--press-s\)\)\)/);
     expect(press?.body).not.toMatch(/background/);
     expect(styles).toMatch(/\.primary:active:not\(:disabled\)/);
     const dropdown = read("src/components/dropdown.css");
@@ -217,7 +218,7 @@ describe("design tokens", () => {
       body
         .split(";")
         .map((part) => part.split(":")[0].trim())
-        .filter((prop) => prop.startsWith("--") && !/^--(type|space|ease|duration|focus|pressed|disabled|elevation|shadow-raised|control|header|icon)/.test(prop))
+        .filter((prop) => prop.startsWith("--") && !/^--(type|space|ease|duration|focus|pressed|disabled|elevation|shadow-raised|control|header|icon|emph)/.test(prop))
         .sort();
     const lightNames = names(find(":root")!.body);
     const darkNames = names(find(':root[data-theme="dark"]')!.body);
@@ -324,7 +325,7 @@ describe("design tokens", () => {
     );
     expect(tabular.length).toBeGreaterThan(0);
     const counters = tabular.map((r) => r.selector).join(" ");
-    expect(counters).toContain(".document-statistics");
+    expect(counters).toContain(".pane-footer");
     expect(counters).toContain(".save-status");
 
     const hit = withBody(

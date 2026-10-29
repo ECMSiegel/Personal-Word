@@ -1,0 +1,49 @@
+{
+  "id": "T183",
+  "title": "W4 R1 -- Scrollspy line column in the sidebar",
+  "description": "UI wave 4, plan docs/agent-work/2026-10-28-ui-wave-4/PLAN.md section '### R1' -- read the whole task (Files, Interfaces, Steps, Acceptance, Fail-first, Stop and ask, Default) plus the plan's Rules, hotspot-ownership and Notes sections before starting. Plan APPROVED by the owner 2026-10-28 with all open-question defaults. Register team-serial-check-slot only while running heavy checks; private Playwright config/port; double-quote paths; no git stash/checkout/reset; no package installs.",
+  "status": "in_progress",
+  "owner": "agent-46f0",
+  "priority": 1,
+  "depends_on": [
+    "T181"
+  ],
+  "files": [
+    "src/App.tsx",
+    "src/components/ProjectSidebar.tsx",
+    "src/components/scrollspy.css",
+    "src/components/scrollspy.test.ts",
+    "src/components/scrollspy.ts",
+    "tests/scrollspy.spec.ts",
+    "node_modules/.cache/personal-word-beta/ui4-r1",
+    "src/styles.css",
+    "tests/sidebar-selection.spec.ts"
+  ],
+  "review_required": true,
+  "created_by": "agent-47c8",
+  "created_at": "2026-10-28T23:39:24+00:00",
+  "claimed_at": "2026-10-29T05:49:46+00:00",
+  "updated_at": "2026-10-29T05:49:47+00:00",
+  "handoff": null,
+  "review": null,
+  "log": [
+    {
+      "at": "2026-10-28T23:39:24+00:00",
+      "agent": "agent-47c8",
+      "event": "created",
+      "note": ""
+    },
+    {
+      "at": "2026-10-29T05:49:46+00:00",
+      "agent": "agent-46f0",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-10-29T05:49:47+00:00",
+      "agent": "agent-46f0",
+      "event": "started",
+      "note": ""
+    }
+  ]
+}

@@ -138,3 +138,35 @@ test("inline edits in the panel are saved to the fragment (needs App wiring)", a
     page.locator(".fragment-library .fragment-text").first(),
   ).toContainText("Edited inline.");
 });
+
+// "Give these words a home" belongs to the unsplit fragment view only; a
+// fragment shown in either split pane carries no restore strip.
+test("restore strip shows for an unsplit fragment, never in a split pane", async ({
+  page,
+}) => {
+  await create(page, "Restore strip");
+  await keepAsFragment(page, words("delta", 40));
+  const strip = page.getByText("Give these words a home");
+  const append = page.getByRole("button", { name: "Append to section" });
+
+  // Unsplit: opened from the Fragments panel into the main pane.
+  await openFragments(page);
+  await page.getByRole("button", { name: "Open in editor" }).click();
+  await expect(strip).toHaveCount(1);
+  await expect(append).toHaveCount(1);
+
+  // Right pane: the same fragment opened beside the first section.
+  await page.locator(".sidebar .entry-main").filter({ hasText: /^Opening/ }).click();
+  await expect(strip).toHaveCount(0);
+  await page.getByRole("button", { name: /^Open delta1 .* beside$/ }).click({ force: true });
+  await expect(page.locator(".split-pane")).toHaveCount(2);
+  await expect(strip).toHaveCount(0);
+  await expect(append).toHaveCount(0);
+
+  // Left pane: focus it and open the fragment there; still no strip.
+  await page.getByRole("textbox", { name: "Writing editor", exact: true }).click();
+  await page.locator(".sidebar .entry-main").filter({ hasText: /^delta1/ }).click();
+  await expect(page.locator(".split-pane")).toHaveCount(2);
+  await expect(strip).toHaveCount(0);
+  await expect(append).toHaveCount(0);
+});

@@ -17,8 +17,3 @@
   color: var(--muted);
 }
 
-/* The restore strip lives under the pane's Writer in split view. */
-.split-pane-footer {
-  flex: 0 0 auto;
-  min-width: 0;
-}

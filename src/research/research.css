@@ -456,9 +456,6 @@ div.project-settings {
   color: var(--text);
   justify-content: center;
 }
-.project-settings .settings-button:hover {
-  border-color: var(--text);
-}
 .project-settings .settings-button.button-primary {
   border-color: var(--accent);
 }
@@ -474,8 +471,6 @@ div.project-settings {
 }
 .project-settings .settings-text-action:hover {
   background: transparent;
-  text-decoration: underline;
-  text-underline-offset: 3px;
 }
 .project-settings .settings-status {
   min-height: 1em;
@@ -516,10 +511,6 @@ div.project-settings {
 .template-choice strong {
   font-weight: 500;
 }
-.template-choice:hover strong,
-.template-choice:focus-visible strong {
-  font-weight: 600;
-}
 .template-choice small {
   font-size: 12px;
   font-weight: 400;
@@ -534,8 +525,6 @@ div.project-settings {
 .template-delete:hover {
   background: transparent;
   color: var(--danger);
-  text-decoration: underline;
-  text-underline-offset: 3px;
 }
 
 /* Bibliography page (sidebar Research > Bibliography) and the reader's list:

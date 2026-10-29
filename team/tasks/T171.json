@@ -1,0 +1,90 @@
+{
+  "id": "T171",
+  "title": "W4 G1 -- Reproduce the zoom bug and the gap intruder",
+  "description": "UI wave 4, plan docs/agent-work/2026-10-28-ui-wave-4/PLAN.md section '### G1' -- read the whole task (Files, Interfaces, Steps, Acceptance, Fail-first, Stop and ask, Default) plus the plan's Rules, hotspot-ownership and Notes sections before starting. Plan APPROVED by the owner 2026-10-28 with all open-question defaults. Register team-serial-check-slot only while running heavy checks; private Playwright config/port; double-quote paths; no git stash/checkout/reset; no package installs.",
+  "status": "done",
+  "owner": null,
+  "priority": 1,
+  "depends_on": [],
+  "files": [
+    "docs/agent-work/2026-10-28-ui-wave-4/PAGES-DIAGNOSIS.md",
+    "node_modules/.cache/personal-word-beta/ui4-g/native-gate.py",
+    "tests/pages-gap.spec.ts",
+    "tests/pages-zoom.spec.ts",
+    "node_modules/.cache/personal-word-beta/ui4-g1",
+    "tests/native-smoke.js",
+    "tests/pages-helpers.ts"
+  ],
+  "review_required": true,
+  "created_by": "agent-47c8",
+  "created_at": "2026-10-28T23:38:56+00:00",
+  "claimed_at": "2026-10-29T01:41:25+00:00",
+  "updated_at": "2026-10-29T01:48:03+00:00",
+  "handoff": {
+    "by": "agent-00e1",
+    "at": "2026-10-29T01:40:39+00:00",
+    "text": "T171 (G1) is BLOCKED on Q019 (plan stop rules hit); the work itself is finished. Read docs/agent-work/2026-10-28-ui-wave-4/PAGES-DIAGNOSIS.md first.\n\nDone:\n- Diagnosis: item 1 is a WebKit DRAWING bug, not measurement. WebKit paints the .is-paged .editor-paper repeating-linear-gradient (src/editor/editor.css ~452) with unzoomed px stops, so grey gaps are drawn every 1056/1088 screen px at any zoom. Spacers are correct (native starts 0 px at 75/50). 1.png is reproduced natively at 50 % (ui4-g1/native-screens/zoom-50-top.png). 3.png is reproduced natively at fit zoom 0.826 (ui4-g1/native-screens2/gap-caret-a.png): the caret is on page 2's real text but drawn inside the misplaced grey band.\n- Chromium: pages-gap.spec.ts passes all 9 (3 seeds); pages-zoom.spec.ts fails only at fit zoom 1.1495 (125/150 % at 1240 px): drift up to 4 px, 10 crossings.\n- Files: tests/pages-helpers.ts, tests/pages-zoom.spec.ts, tests/pages-gap.spec.ts (new); tests/native-smoke.js gains a pages-zoom phase (pages-probe is byte-identical; backup at node_modules/.cache/personal-word-beta/ui4-g1/native-smoke.orig.js); node_modules/.cache/personal-word-beta/ui4-g/native-gate.py (adds --phase and a PNG pixel scan).\n- Commands: Chromium: npx playwright test -c node_modules/.cache/personal-word-beta/ui4-g1/browser.config.mjs tests/pages-gap.spec.ts tests/pages-zoom.spec.ts (dist ui4-g1/dist, port 1641; summarise with python3 ui4-g1/report.py <report>). Native: ui4-g1/smoke-build.sh, then python3 ui4-g/native-gate.py --binary g1=<abs>/ui4-g1/bin/folio-g1 --runs 1 (take serial-check.lock first). Logs: ui4-g1/pw-both.log, native-gate2.log, native-gate3.log.\n\nNext (first concrete action): read the answer to Q019 and the coordinator's reply. If G1 is accepted as is, run done T171 with the evidence above. If G2 is re-planned toward fixing the drawing, the native gate's pixel deltas (deltaTop/deltaBottom within 2 px at every zoom) are the fail-first check.\nDo not redo: the native runs, the Chromium runs, or the PNG decoder.\nOpen contradiction: plan G1 step 4 says a click in the gap's upper half goes to page 1's end; tests/pages.spec.ts says split+16 goes to page 2's start. The spec keeps the existing behaviour.\n\ndocs/agent-work/2026-10-28-ui-wave-4/PAGES-DIAGNOSIS.md: uncommitted edits\nnode_modules/.cache/personal-word-beta/ui4-g/native-gate.py: uncommitted edits\ntests/pages-gap.spec.ts: uncommitted edits\ntests/pages-zoom.spec.ts: uncommitted edits\nnode_modules/.cache/personal-word-beta/ui4-g1: uncommitted edits\ntests/native-smoke.js: uncommitted edits\ntests/pages-helpers.ts: uncommitted edits"
+  },
+  "review": {
+    "by": "agent-23e6",
+    "at": "2026-10-29T01:48:03+00:00",
+    "verdict": "approved",
+    "note": "Reviewed. Diagnosis supported: native zoom-50-top.png shows page 1 drawn as one long sheet with no gap in the first ~1000 screen px; gap-caret-a.png shows caret on page 2 text inside misplaced grey band. No src/editor or Writer.tsx change (src diffs are other lanes: App.tsx, split.css, styles.css, designTokens.test). native-smoke.js diff: one added pages-zoom phase + pagesZoomProbe; pages-probe unchanged (only if -> else if; orig backup equals 9d7cd40). Specs non-vacuous: pages-zoom asserts layout/drawn starts <=1px, crossings empty, and pixel grey-band positions (missing grey gives -1 and fails); pages-gap asserts invariant over 3 fuzz seeds + 6 targeted cases. Chromium rerun on current tree (dist ui4-g1-review, port 1671): pages-zoom fails only at fit zoom 1.1495 (125/150: 10 crossings), 100/50/75 clean; pages-gap 9/9 pass. Matches Amendment 1. Native not rerun (log-only). Caveat: Chromium specs cannot catch the WebKit gradient bug; native gate pixel check is the only guard there."
+  },
+  "log": [
+    {
+      "at": "2026-10-28T23:38:56+00:00",
+      "agent": "agent-47c8",
+      "event": "created",
+      "note": ""
+    },
+    {
+      "at": "2026-10-28T23:42:03+00:00",
+      "agent": "agent-00e1",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-10-28T23:42:07+00:00",
+      "agent": "agent-00e1",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-10-29T01:40:09+00:00",
+      "agent": "agent-00e1",
+      "event": "blocked",
+      "note": "Q019: G1 stop rules hit. (1) Item 1 cause is DRAWING, not measurement: in the Mac app page starts are 0 px off at 75/50 %, but WebKit paints the paper gradient's px stops unzoomed, so grey gaps sit 1056 screen px apart at any zoom (1.png reproduced at 50 %). (2) Item 2: no caret/empty line in a real gap in Chromium (3 seeds) or WebKit (sweep+fuzz); 3.png reproduced natively as the SAME drawing bug at fit zoom ~0.83 (3.png's paper is ~677 CSS px wide): caret on page 2's real text drawn inside the misplaced grey band. (3) G2 as written (measure at zoom 1) would break WebKit, whose line heights change with zoom. (4) Acceptance 'pages-gap.spec fails on untouched tree' cannot be met; failing checks are pages-zoom.spec (Chromium fit zoom 1.1495 drift up to 4 px, 10 crossings) and the native gate pixels. Questions: confirm 3.png was a narrow window/split pane; re-plan G2 toward fixing the paper drawing (plus the small Chromium drift); how is G1 accepted? Details: docs/agent-work/2026-10-28-ui-wave-4/PAGES-DIAGNOSIS.md"
+    },
+    {
+      "at": "2026-10-29T01:40:39+00:00",
+      "agent": "agent-00e1",
+      "event": "handoff",
+      "note": "T171 (G1) is BLOCKED on Q019 (plan stop rules hit); the work itself is finished. Read docs/agent-work/2026-10-28-ui-wave-4/PAGES-DIAGNOSIS.md first.\n\nDone:\n- Diagnosis: item 1 is a WebKit DRAWING bug, not measurement. WebKit paints the .is-paged .editor-paper repeating-linear-gradient (src/editor/editor.css ~452) with unzoomed px stops, so grey gaps are drawn every 1056/1088 screen px at any zoom. Spacers are correct (native starts 0 px at 75/50). 1.png is reproduced natively at 50 % (ui4-g1/native-screens/zoom-50-top.png). 3.png is reproduced natively at fit zoom 0.826 (ui4-g1/native-screens2/gap-caret-a.png): the caret is on page 2's real text but drawn inside the misplaced grey band.\n- Chromium: pages-gap.spec.ts passes all 9 (3 seeds); pages-zoom.spec.ts fails only at fit zoom 1.1495 (125/150 % at 1240 px): drift up to 4 px, 10 crossings.\n- Files: tests/pages-helpers.ts, tests/pages-zoom.spec.ts, tests/pages-gap.spec.ts (new); tests/native-smoke.js gains a pages-zoom phase (pages-probe is byte-identical; backup at node_modules/.cache/personal-word-beta/ui4-g1/native-smoke.orig.js); node_modules/.cache/personal-word-beta/ui4-g/native-gate.py (adds --phase and a PNG pixel scan).\n- Commands: Chromium: npx playwright test -c node_modules/.cache/personal-word-beta/ui4-g1/browser.config.mjs tests/pages-gap.spec.ts tests/pages-zoom.spec.ts (dist ui4-g1/dist, port 1641; summarise with python3 ui4-g1/report.py <report>). Native: ui4-g1/smoke-build.sh, then python3 ui4-g/native-gate.py --binary g1=<abs>/ui4-g1/bin/folio-g1 --runs 1 (take serial-check.lock first). Logs: ui4-g1/pw-both.log, native-gate2.log, native-gate3.log.\n\nNext (first concrete action): read the answer to Q019 and the coordinator's reply. If G1 is accepted as is, run done T171 with the evidence above. If G2 is re-planned toward fixing the drawing, the native gate's pixel deltas (deltaTop/deltaBottom within 2 px at every zoom) are the fail-first check.\nDo not redo: the native runs, the Chromium runs, or the PNG decoder.\nOpen contradiction: plan G1 step 4 says a click in the gap's upper half goes to page 1's end; tests/pages.spec.ts says split+16 goes to page 2's start. The spec keeps the existing behaviour.\n\ndocs/agent-work/2026-10-28-ui-wave-4/PAGES-DIAGNOSIS.md: uncommitted edits\nnode_modules/.cache/personal-word-beta/ui4-g/native-gate.py: uncommitted edits\ntests/pages-gap.spec.ts: uncommitted edits\ntests/pages-zoom.spec.ts: uncommitted edits\nnode_modules/.cache/personal-word-beta/ui4-g1: uncommitted edits\ntests/native-smoke.js: uncommitted edits\ntests/pages-helpers.ts: uncommitted edits"
+    },
+    {
+      "at": "2026-10-29T01:41:25+00:00",
+      "agent": "agent-3811",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-10-29T01:41:25+00:00",
+      "agent": "agent-3811",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-10-29T01:41:38+00:00",
+      "agent": "agent-3811",
+      "event": "review requested",
+      "note": "G1 diagnosis: docs/agent-work/2026-10-28-ui-wave-4/PAGES-DIAGNOSIS.md; acceptance per PLAN.md Amendment 1. Fail-first on the untouched tree: (a) Chromium: npx playwright test -c node_modules/.cache/personal-word-beta/ui4-g1/browser.config.mjs tests/pages-gap.spec.ts tests/pages-zoom.spec.ts -> exit 1; pages-zoom fails only at fit zoom 1.14951 (125/150 % at 1240 px): start drift up to 4 px layout / 3.8 px drawn by page 13, 10 crossings; 50/75/100 exact incl. pixel gap checks; pages-gap 9/9 pass (seeds 4101/4175/4125, guard). Log ui4-g1/pw-both.log, report ui4-g1/report-both.json (python3 ui4-g1/report.py <report>). (b) Native WebKit (unlocked screen, smoke binary from ui4-g1/smoke-build.sh, python3 node_modules/.cache/personal-word-beta/ui4-g/native-gate.py --binary g1=<abs>/ui4-g1/bin/folio-g1 --runs 1): zero flags False; page starts 0-1 px at every zoom, but grey bands drawn 1056 screen px from paper top at any zoom (75: +263 px, 125/150: -158 px vs expected); 1.png reproduced at 50 % (ui4-g1/native-screens/zoom-50-top.png), 3.png reproduced at fit zoom 0.826 (ui4-g1/native-screens2/gap-caret-a.png); caret sweep 0/100 and fuzz 0/150 settled violations at 100 and 75, one-frame transients only. Logs ui4-g1/native-gate2.log, native-gate3.log; reports ui4-g1/report-pages-zoom*.json. Cause: WebKit does not zoom the px stops of .is-paged .editor-paper's repeating-linear-gradient; WebKit line heights change with zoom, so measuring at zoom 1 would be wrong. Files: tests/pages-helpers.ts, tests/pages-zoom.spec.ts, tests/pages-gap.spec.ts (new); tests/native-smoke.js new pages-zoom phase (pages-probe byte-identical vs ui4-g1/native-smoke.orig.js); ui4-g/native-gate.py (--phase, PNG pixel scan). No src/ edits."
+    },
+    {
+      "at": "2026-10-29T01:48:03+00:00",
+      "agent": "agent-23e6",
+      "event": "approved",
+      "note": "Reviewed. Diagnosis supported: native zoom-50-top.png shows page 1 drawn as one long sheet with no gap in the first ~1000 screen px; gap-caret-a.png shows caret on page 2 text inside misplaced grey band. No src/editor or Writer.tsx change (src diffs are other lanes: App.tsx, split.css, styles.css, designTokens.test). native-smoke.js diff: one added pages-zoom phase + pagesZoomProbe; pages-probe unchanged (only if -> else if; orig backup equals 9d7cd40). Specs non-vacuous: pages-zoom asserts layout/drawn starts <=1px, crossings empty, and pixel grey-band positions (missing grey gives -1 and fails); pages-gap asserts invariant over 3 fuzz seeds + 6 targeted cases. Chromium rerun on current tree (dist ui4-g1-review, port 1671): pages-zoom fails only at fit zoom 1.1495 (125/150: 10 crossings), 100/50/75 clean; pages-gap 9/9 pass. Matches Amendment 1. Native not rerun (log-only). Caveat: Chromium specs cannot catch the WebKit gradient bug; native gate pixel check is the only guard there."
+    }
+  ]
+}

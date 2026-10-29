@@ -2,7 +2,7 @@
   "id": "T170",
   "title": "writing-aids.spec:21 focus mode flakes (pre-existing)",
   "description": "Fails 3/5 on the T168 build and 1/5 on the pre-split build (ui3-wordsplit/pw-flakes.log, pw-focus-old.log): p.nth(1) lacks focus-dim right after ArrowUp/Home; likely the Tiptap focus race fixed in pages.spec by T165. Test-only fix expected.",
-  "status": "available",
+  "status": "done",
   "owner": null,
   "priority": 3,
   "depends_on": [],
@@ -13,16 +13,45 @@
   "review_required": true,
   "created_by": "agent-47c8",
   "created_at": "2026-10-28T21:33:11+00:00",
-  "claimed_at": null,
-  "updated_at": "2026-10-28T21:33:11+00:00",
+  "claimed_at": "2026-10-29T00:11:47+00:00",
+  "updated_at": "2026-10-29T01:07:53+00:00",
   "handoff": null,
-  "review": null,
+  "review": {
+    "by": "agent-9f84",
+    "at": "2026-10-29T01:07:53+00:00",
+    "verdict": "approved",
+    "note": "Diff is test-only and sound (polls DOM selection into paragraph 0 before enabling Focus mode, removing the race). My rerun on a private build: 1/1 completed pass, remaining repeats stalled in teardown under machine load avg ~500 (no failure observed); owner's 7/8 + this pass are statistical evidence only (CLAIMED)."
+  },
   "log": [
     {
       "at": "2026-10-28T21:33:11+00:00",
       "agent": "agent-47c8",
       "event": "created",
       "note": ""
+    },
+    {
+      "at": "2026-10-29T00:11:47+00:00",
+      "agent": "agent-6428",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-10-29T00:11:57+00:00",
+      "agent": "agent-6428",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-10-29T01:04:25+00:00",
+      "agent": "agent-6428",
+      "event": "review requested",
+      "note": "Test-only: writing-aids.spec focus-mode test now polls until the DOM selection is in paragraph 0 (after ArrowUp/Home) before toggling Focus mode. 8 repeats on ui4-l1 build: 7 passed, 1 'failed' only from a Playwright trace-artifact ENOENT in browserContext.close (results dir), test body passed. Fail-first NOT reproduced by me (task logs cite 3/5 and 1/5 prior failures); evidence is statistical only. Log: node_modules/.cache/personal-word-beta/ui4-l1/pw-focus.log. CLAIMED."
+    },
+    {
+      "at": "2026-10-29T01:07:53+00:00",
+      "agent": "agent-9f84",
+      "event": "approved",
+      "note": "Diff is test-only and sound (polls DOM selection into paragraph 0 before enabling Focus mode, removing the race). My rerun on a private build: 1/1 completed pass, remaining repeats stalled in teardown under machine load avg ~500 (no failure observed); owner's 7/8 + this pass are statistical evidence only (CLAIMED)."
     }
   ]
 }

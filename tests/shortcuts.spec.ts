@@ -145,3 +145,19 @@ test("a chord with no Command, Control or Option is refused with a reason", asyn
   await page.keyboard.press("Control+s");
   await expect(section.getByRole("status")).toHaveText("That shortcut is taken by Save.");
 });
+
+test("Show formatting bar is listed with its default chord and obeys the chord rules", async ({
+  page,
+}) => {
+  await createProject(page, "Toolbar chord");
+  const section = await openShortcuts(page);
+  const row = section.locator('[data-shortcut="focusToolbar"]');
+  await expect(row.locator(".shortcut-chord")).toHaveText("⌥⌘T");
+  await row.getByRole("button", { name: "Change" }).click();
+  await page.keyboard.press("Meta+c");
+  await expect(section.getByRole("status")).toHaveText("That shortcut is reserved by macOS.");
+  await page.keyboard.press("Meta+Shift+f");
+  await expect(section.getByRole("status")).toHaveText("That shortcut is taken by Focus mode.");
+  await page.keyboard.press("Meta+Alt+j");
+  await expect(row.locator(".shortcut-chord")).toHaveText("⌥⌘J");
+});

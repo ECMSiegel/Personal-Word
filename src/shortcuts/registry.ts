@@ -4,6 +4,7 @@ import type { Chord } from "./chords";
 
 export type ActionId =
   | "focusMode"
+  | "focusToolbar"
   | "keepAsFragment"
   | "insertPageBreak"
   | "save"
@@ -24,6 +25,7 @@ export type ActionDef = {
 
 export const ACTIONS: ActionDef[] = [
   { id: "focusMode", label: "Focus mode", scope: "editor", default: { key: "f", meta: true, shift: true } },
+  { id: "focusToolbar", label: "Show formatting bar", scope: "editor", default: { key: "t", meta: true, alt: true } },
   { id: "keepAsFragment", label: "Keep as fragment", scope: "editor", default: { key: "x", meta: true, shift: true } },
   { id: "insertPageBreak", label: "Insert page break", scope: "editor", default: { key: "Enter", shift: true }, readOnly: true },
   { id: "save", label: "Save", scope: "app", default: { key: "s", meta: true } },

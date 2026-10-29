@@ -35,6 +35,10 @@
   --duration-base: 180ms;
   --ease-out: cubic-bezier(0.2, 0, 0, 1);
   --ease-in: cubic-bezier(0.4, 0, 1, 1);
+  /* Text-control emphasis (the one hover/focus rule, see the block after button:focus-visible). */
+  --emph-stroke: 0.04em;
+  --emph-duration: var(--duration-fast); /* the :active state of a text control sets --duration-press */
+  --emph-scale: 1.04;
   --focus-ring: 2px solid var(--accent);
   --focus-offset: 1px;
   --pressed: var(--line);
@@ -254,7 +258,8 @@ button {
 /* No box highlights anywhere: hover, focus and selection are shown by colour or
    weight, and a press is a 1% scale (docs/design-system.md, icon-button recipe). */
 button:active:not(:disabled) {
-  transform: scale(0.99);
+  --press-s: 0.99;
+  transform: scale(calc(var(--emph-s, 1) * var(--press-s)));
   transition: transform var(--duration-press) var(--ease-out);
 }
 /* Icon-only buttons: muted, text on hover/focus, accent when pressed/selected,
@@ -402,6 +407,100 @@ textarea:disabled,
 button:focus-visible {
   outline: var(--focus-ring);
   outline-offset: var(--focus-offset);
+}
+
+/* Text-control emphasis: the ONE hover/focus rule for every control that shows text
+   (docs/agent-work/2026-10-28-ui-wave-4/PLAN.md, H2). A width-neutral faux bold
+   (-webkit-text-stroke, --emph-stroke: owner decision, no layout shift) and a --emph-scale
+   grow by transform; only the scale is animated. Reduce Motion drops the scale, keeps the stroke. Icon-only controls are excluded: they keep the
+   colour rule above (and the toolbar icons get the dock). No other rule may set hover weight
+   or a hover scale. A new button, link, tab, menu row or summary gets this with no new CSS. */
+:is(button, a[href], [role="tab"], [role="menuitem"], [role="option"], summary, label:has(input[type="checkbox"], input[type="radio"]), .text-action):not(:is(
+    .icon-button,
+    .delete-entry,
+    .reorder button,
+    .group-actions button,
+    .collection-open-beside,
+    .open-beside,
+    .sidebar-pin,
+    .split-close,
+    .fragment-icon,
+    .project-tab > button:last-child,
+    .library-display > button,
+    .topbar > div:first-child > button,
+    .toolbar-icon:not([data-popover-item]),
+    .format-bar .extract,
+    .group-chevron,
+    .library-search-field > button,
+    .research-aside > header > button,
+    .notice button,
+    .spy-line,
+    .panel-heading > button,
+    .ProseMirror a,
+    .writing-surface a,
+    .manuscript-read a,
+    .preview-content a,
+    :disabled,
+    [aria-disabled="true"]
+  )) {
+  transform: scale(calc(var(--emph-s, 1) * var(--press-s, 1)));
+  transform-origin: var(--emph-origin, center);
+  transition: transform var(--emph-duration) var(--ease-out);
+}
+:is(button, a[href], [role="tab"], [role="menuitem"], [role="option"], summary, label:has(input[type="checkbox"], input[type="radio"]), .text-action):not(:is(
+    .icon-button,
+    .delete-entry,
+    .reorder button,
+    .group-actions button,
+    .collection-open-beside,
+    .open-beside,
+    .sidebar-pin,
+    .split-close,
+    .fragment-icon,
+    .project-tab > button:last-child,
+    .library-display > button,
+    .topbar > div:first-child > button,
+    .toolbar-icon:not([data-popover-item]),
+    .format-bar .extract,
+    .group-chevron,
+    .library-search-field > button,
+    .research-aside > header > button,
+    .notice button,
+    .spy-line,
+    .panel-heading > button,
+    .ProseMirror a,
+    .writing-surface a,
+    .manuscript-read a,
+    .preview-content a,
+    :disabled,
+    [aria-disabled="true"]
+  )):is(:hover, :focus-visible, [data-highlighted], .is-highlighted, label:has(> input:focus-visible)) {
+  -webkit-text-stroke: var(--emph-stroke) currentColor;
+  --emph-s: var(--emph-scale);
+}
+/* The stroke is inherited: keep typed text in a hovered label un-stroked. */
+:is(label:has(input), label:has(textarea)) :is(input, textarea) {
+  -webkit-text-stroke: 0;
+}
+:is(button, a[href], [role="tab"], [role="menuitem"], [role="option"], summary, label:has(input[type="checkbox"], input[type="radio"]), .text-action):active:not(:disabled) {
+  --press-s: 0.99;
+  --emph-duration: var(--duration-press);
+}
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --emph-scale: 1;
+  }
+}
+/* Full-width left-aligned rows grow from their left edge; the overshoot is empty space. */
+.entry-main,
+.group-title,
+.project-switch,
+.project-row > button:first-child,
+label:has(input[type="checkbox"], input[type="radio"]),
+.popover-item,
+[data-popover-item],
+.dropdown-option {
+  --emph-origin: left center;
 }
 input:not([type="checkbox"]):focus-visible,
 textarea:focus-visible {
@@ -753,8 +852,7 @@ p {
 }
 .snapshot-button {
   font-size: var(--type-small);
-  border: 1px solid var(--line);
-  padding: var(--space-2) var(--space-2) !important;
+  padding: var(--space-2);
 }
 .editor-area {
   flex: 1;
@@ -789,7 +887,9 @@ p {
   display: flex;
   align-items: center;
   gap: var(--space-2);
-  min-height: var(--control-height);
+  box-sizing: border-box;
+  flex: 0 0 auto;
+  height: var(--control-height);
   padding: 0 var(--space-2) 0 var(--space-3);
   border-bottom: 1px solid var(--line);
   font-size: var(--type-small);
@@ -810,7 +910,7 @@ p {
   align-items: center;
   justify-content: center;
   width: var(--control-height);
-  height: var(--control-height);
+  height: calc(var(--control-height) - 1px);
   padding: 0;
   color: var(--muted);
 }
@@ -831,8 +931,8 @@ p {
   color: var(--text);
 }
 .split-divider {
-  flex: 0 0 6px;
-  margin: 0 -3px;
+  flex: 0 0 7px;
+  margin: 0 -4px 0 -3px;
   position: relative;
   z-index: 2;
   cursor: col-resize;
@@ -888,7 +988,7 @@ p {
   margin: 0;
 }
 /* Counters change constantly: tabular figures keep their width steady. */
-.document-statistics,
+.pane-footer,
 .save-status {
   font-variant-numeric: tabular-nums;
 }
@@ -1445,7 +1545,7 @@ button[aria-pressed="true"],
 .sidebar-shell .sidebar {
   width: var(--sidebar-width);
   height: 100%;
-  padding: var(--space-4) var(--space-3) var(--space-3);
+  padding: var(--space-4) var(--space-3) 0;
   position: relative;
   background: var(--surface);
   container-type: inline-size;
@@ -1548,11 +1648,19 @@ button[aria-pressed="true"],
   color: var(--text);
   font-weight: 600;
 }
-/* One emphasis per section: when an entry in the group is selected, the group
-   title steps back so the entry alone is bold (and tinted in Color). */
-.sidebar-group:has(.entry-row.selected) .group-title.selected,
-:root[data-palette="color"] .sidebar-group[data-group]:has(.entry-row.selected) .group-title.selected {
-  font-weight: 500;
+/* Sidebar selection (wave 4 B1): a section that holds an open entry (main pane or
+   either split pane) or is the open destination has a semibold header in its colour
+   -- the accent in Plain, the section tint in Color (--tint is set only in Color).
+   Its open entries are semibold in the text colour, never tinted: the header carries
+   the colour, the entry only the weight. Real weight, not the hover stroke, so a lit
+   row still shows the shared hover emphasis on top. */
+.sidebar-group[data-open] > .group-heading .group-title {
+  font-weight: 600;
+  color: var(--tint, var(--accent));
+}
+.sidebar .entry-row[data-open],
+.sidebar .entry-row[data-open] .entry-main {
+  font-weight: 600;
   color: var(--text);
 }
 .group-actions {
@@ -1594,7 +1702,8 @@ button[aria-pressed="true"],
   border: 1px solid var(--line);
   background: var(--paper);
 }
-.cards-view .entry-row.selected {
+.cards-view .entry-row.selected,
+.cards-view .entry-row[data-open] {
   border-color: color-mix(in srgb, var(--muted) 55%, var(--line));
   background: var(--paper);
 }
@@ -1901,20 +2010,6 @@ button[aria-pressed="true"],
   width: 100%;
   background: transparent;
 }
-.document-statistics {
-  height: 24px;
-  flex-shrink: 0;
-  display: flex;
-  align-items: center;
-  gap: var(--space-4);
-  padding: 0 var(--space-5);
-  color: var(--muted);
-  font-size: var(--type-small);
-  white-space: nowrap;
-}
-.document-statistics > span:last-child {
-  margin-left: auto;
-}
 .research-aside {
   flex: 0 0 auto;
   min-width: 0;
@@ -1980,23 +2075,16 @@ button[aria-pressed="true"],
   color: var(--accent);
 }
 :root:not([data-palette="color"]) .sidebar .group-title.selected:active:not(:disabled),
-:root:not([data-palette="color"]) .sidebar .entry-row.selected .entry-main:active:not(:disabled) {
+.sidebar .entry-row[data-open] .entry-main:active:not(:disabled) {
   color: var(--text);
 }
-:root[data-palette="color"] .sidebar-group[data-group] .entry-row.selected .entry-main:active:not(:disabled) {
-  color: var(--tint);
-}
-.sidebar .group-title:not(.selected):hover,
-.sidebar .entry-row:not(.selected) .entry-main:hover {
-  font-weight: 600;
+/* A lit header keeps its colour while pressed. */
+.sidebar .sidebar-group[data-open] > .group-heading .group-title:active:not(:disabled) {
+  color: var(--tint, var(--accent));
 }
 .delete-entry:hover,
 .delete-entry:focus-visible {
   color: var(--danger);
-}
-.project-row > button:first-child:hover > .project-name,
-.project-row > button:first-child:focus-visible > .project-name {
-  font-weight: 600;
 }
 .project-row .delete-entry {
   opacity: 0;
@@ -2022,9 +2110,9 @@ button[aria-pressed="true"],
 }
 
 /* Selected cards emphasize only the title; details stay regular weight. */
-.cards-view .entry-row.selected .entry-main small,
-.cards-view .entry-row.selected .entry-preview,
-.cards-view .entry-row.selected .entry-details {
+.cards-view .entry-row:is(.selected, [data-open]) .entry-main small,
+.cards-view .entry-row:is(.selected, [data-open]) .entry-preview,
+.cards-view .entry-row:is(.selected, [data-open]) .entry-details {
   font-weight: 400;
 }
 .entry-details .dropdown-button {
@@ -2061,10 +2149,25 @@ button[aria-pressed="true"],
 }
 .sidebar-bottom-groups {
   margin-top: auto;
-  padding-bottom: var(--space-3);
 }
 .sidebar-bottom-groups .sidebar-group + .sidebar-group {
   border-top: 1px solid var(--line);
+}
+/* The last row (Settings) is the sidebar half of the bottom band: it runs to the
+   window edge and matches .pane-footer (1px rule on top, --control-height in all),
+   so its separator is level with the footer's rule (and runs edge to edge, so
+   the rule reads as continuous) and the two texts share a centre line. The sidebar's own bottom padding is dropped below for this. */
+.sidebar-bottom-groups .sidebar-group:last-child {
+  box-sizing: border-box;
+  min-height: var(--control-height);
+  margin: 0 calc(-1 * var(--space-3));
+  padding-inline: var(--space-3);
+  display: flex;
+  align-items: center;
+}
+.sidebar-bottom-groups .sidebar-group:last-child > .group-heading {
+  flex: 1;
+  margin: 0;
 }
 
 .import-preview-text { max-height: 220px; overflow: auto; white-space: pre-wrap; overflow-wrap: anywhere; font: inherit; padding: var(--space-3); border: 1px solid var(--line); }
@@ -2097,7 +2200,7 @@ button[aria-pressed="true"],
 :root[data-palette="color"] .sidebar-group[data-group="research"] {
   --tint: var(--tint-research);
 }
-:root[data-palette="color"] .sidebar-group[data-group] :is(.group-title.selected, .entry-row.selected) {
+:root[data-palette="color"] .sidebar-group[data-group] .group-title.selected {
   color: var(--tint);
 }
 :root[data-palette="color"] .sidebar-group:is([data-group="manuscript"], [data-group="fragments"], [data-group="research"]) :is(.group-title svg, .entry-main svg) {

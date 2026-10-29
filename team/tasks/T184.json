@@ -1,0 +1,65 @@
+{
+  "id": "T184",
+  "title": "W4 X1 -- Focus mode hides the toolbar until needed",
+  "description": "UI wave 4, plan docs/agent-work/2026-10-28-ui-wave-4/PLAN.md section '### X1' -- read the whole task (Files, Interfaces, Steps, Acceptance, Fail-first, Stop and ask, Default) plus the plan's Rules, hotspot-ownership and Notes sections before starting. Plan APPROVED by the owner 2026-10-28 with all open-question defaults. Register team-serial-check-slot only while running heavy checks; private Playwright config/port; double-quote paths; no git stash/checkout/reset; no package installs.",
+  "status": "done",
+  "owner": null,
+  "priority": 1,
+  "depends_on": [
+    "T182",
+    "T176"
+  ],
+  "files": [
+    "src/Writer.tsx",
+    "src/editor/toolbar-motion.css",
+    "src/shortcuts/registry.ts",
+    "src/shortcuts/shortcuts.test.ts",
+    "tests/shortcuts.spec.ts",
+    "tests/writing-aids.spec.ts",
+    "node_modules/.cache/personal-word-beta/ui4-x1"
+  ],
+  "review_required": true,
+  "created_by": "agent-47c8",
+  "created_at": "2026-10-28T23:39:25+00:00",
+  "claimed_at": "2026-10-29T04:29:18+00:00",
+  "updated_at": "2026-10-29T04:58:19+00:00",
+  "handoff": null,
+  "review": {
+    "by": "agent-62b6",
+    "at": "2026-10-29T04:58:19+00:00",
+    "verdict": "approved",
+    "note": "Rerun on fresh build (ui4-rev4): writing-aids+shortcuts+editor-toolbar 26/26 pass; shortcuts vitest 19 pass. Viewed author's hidden-light and revealed-dark shots: hidden bar leaves a clean top, revealed bar overlays the top of the first line as the plan accepts (text stays readable below it). Fail-first taken from author's note (not rerun by me). Note: Chromium only, native WebKit unverified; author's flaky caret-poll step in 'focus mode dims other paragraphs' did not occur in my run."
+  },
+  "log": [
+    {
+      "at": "2026-10-28T23:39:25+00:00",
+      "agent": "agent-47c8",
+      "event": "created",
+      "note": ""
+    },
+    {
+      "at": "2026-10-29T04:29:18+00:00",
+      "agent": "agent-1bfb",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-10-29T04:29:19+00:00",
+      "agent": "agent-1bfb",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-10-29T04:36:27+00:00",
+      "agent": "agent-1bfb",
+      "event": "review requested",
+      "note": "Focus mode hides .format-bar (absolute overlay, translateY(-100%)+opacity 0, stays focusable); reveal on pointer within 56px of top (rAF, animated), focusin or focusToolbar shortcut (instant, data-reveal=key), open panel keeps it; hides 600ms after leave; Escape in bar hides+refocuses editor; Reduce Motion instant. Registry focusToolbar 'Show formatting bar' Cmd+Alt+T. Fail-first: new specs failed on untouched build (2 of 3; third only asserts revealed state). After: writing-aids+shortcuts+editor-toolbar+split-view 50/51 pass, 1 flaky pre-existing caret-poll step in 'focus mode dims other paragraphs' (fails ~1/3 before focus mode is toggled; passed in other runs; not checked on baseline); vitest 1066 pass; tsc clean. Light/dark screenshots in node_modules/.cache/personal-word-beta/ui4-x1/{hidden,revealed}-{light,dark}.png reviewed. Notes: editor swallows Shift+Tab (indent keys) so keyboard entry is via shortcut or focusing the bar; revealed bar overlays top of first text line (inherent to overlay). Chromium only; native WebKit NOT RUN. CLAIMED, not VERIFIED."
+    },
+    {
+      "at": "2026-10-29T04:58:19+00:00",
+      "agent": "agent-62b6",
+      "event": "approved",
+      "note": "Rerun on fresh build (ui4-rev4): writing-aids+shortcuts+editor-toolbar 26/26 pass; shortcuts vitest 19 pass. Viewed author's hidden-light and revealed-dark shots: hidden bar leaves a clean top, revealed bar overlays the top of the first line as the plan accepts (text stays readable below it). Fail-first taken from author's note (not rerun by me). Note: Chromium only, native WebKit unverified; author's flaky caret-poll step in 'focus mode dims other paragraphs' did not occur in my run."
+    }
+  ]
+}

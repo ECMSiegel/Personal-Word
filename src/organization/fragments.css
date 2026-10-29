@@ -127,9 +127,6 @@
   text-align: left;
   cursor: pointer;
 }
-.fragment-link:hover {
-  text-decoration: underline;
-}
 .fragment-link:disabled {
   color: var(--muted);
   cursor: default;

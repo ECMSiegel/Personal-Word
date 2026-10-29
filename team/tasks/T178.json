@@ -1,0 +1,89 @@
+{
+  "id": "T178",
+  "title": "W4 H4 -- Consistency enforcement",
+  "description": "UI wave 4, plan docs/agent-work/2026-10-28-ui-wave-4/PLAN.md section '### H4' -- read the whole task (Files, Interfaces, Steps, Acceptance, Fail-first, Stop and ask, Default) plus the plan's Rules, hotspot-ownership and Notes sections before starting. Plan APPROVED by the owner 2026-10-28 with all open-question defaults. Register team-serial-check-slot only while running heavy checks; private Playwright config/port; double-quote paths; no git stash/checkout/reset; no package installs.",
+  "status": "done",
+  "owner": null,
+  "priority": 1,
+  "depends_on": [
+    "T177"
+  ],
+  "files": [
+    "src/hoverEmphasis.test.ts",
+    "tests/hover-emphasis.spec.ts",
+    "node_modules/.cache/personal-word-beta/ui4-h4",
+    "tests/hover-helpers.ts"
+  ],
+  "review_required": true,
+  "created_by": "agent-47c8",
+  "created_at": "2026-10-28T23:39:19+00:00",
+  "claimed_at": "2026-10-29T04:57:32+00:00",
+  "updated_at": "2026-10-29T05:08:39+00:00",
+  "handoff": {
+    "by": "agent-62b6",
+    "at": "2026-10-29T04:56:59+00:00",
+    "text": "Vitest side is good: fail-first reproduced by me (doctored src copy with button.x:hover{font-weight:700} and .y:focus-visible{transform:scale(1.1)} -> checks (b) and (c) fail naming both; real tree passes hoverEmphasis+motion; T189 exists, depends T176). H2/H4 Playwright tests (Reduce Motion, danger, drift probe, dialog Cancel/Save) pass on my build. BUT the crawl acceptance test FAILS on the current tree, reproduced twice (fresh build ui4-rev4, port 1721, once under load and once with load ~2): crawl reaches only 7 screens, 'fragments: locator.click: Timeout 5000ms' (the 'Keep as fragment' click after editor.fill + select-all, which follows the new 'Writing (page view)' step), then the 'research' step hangs until the 20 min test timeout; result: screens 7 < 8 and the test fails (H3 exceptions 0 on those 7). Author's run reached 20 screens, so something changed in the shared tree since (T176 page view / T188 footers) or the page-view step leaves the editor in a state where the fragment step breaks. Please investigate (e.g. return to continuous view before the fragments step, make the research step not block 20 min: use short click timeouts), rerun, and resubmit. Also minor: check (c)/(a) would not catch a drift rule that only sets '--emph-s: 1.3' on hover without a stroke (the scale filter exempts any rule setting --emph-s); consider flagging --emph-s outside the shared rule. Log: ui4-rev4/run.log, run2.log."
+  },
+  "review": {
+    "by": "agent-62b6",
+    "at": "2026-10-29T05:08:39+00:00",
+    "verdict": "approved",
+    "note": "Rerun on my fresh build (ui4-rev4, port 1721): hover-emphasis spec 3/3 pass (crawl 20 screens, skipped list empty, H3 exceptions 0; H2; H4). vitest hoverEmphasis 5 pass. Earlier fail-first on doctored CSS copy confirmed by me; the --emph-s drift gap is now covered. Chromium only; native WebKit not run. CLAIMED. Side note: Snapshot-name dialog Escape/focus oddity the owner flagged is worth a hand check."
+  },
+  "log": [
+    {
+      "at": "2026-10-28T23:39:19+00:00",
+      "agent": "agent-47c8",
+      "event": "created",
+      "note": ""
+    },
+    {
+      "at": "2026-10-29T03:35:49+00:00",
+      "agent": "agent-229d",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-10-29T03:35:49+00:00",
+      "agent": "agent-229d",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-10-29T04:13:19+00:00",
+      "agent": "agent-229d",
+      "event": "review requested",
+      "note": "H4 shipped (Chromium only). New src/hoverEmphasis.test.ts (5 checks over all src/**/*.css): (a) exactly one rule sets --emph-s with the --emph-stroke text-stroke and it is in styles.css; (b) no other :hover/:focus-visible/[data-highlighted] rule sets font-weight (empty allowlist); (c) no other hover/focus scale or text stroke; (d) tokens 0.04em/1.04, no --emph-weight; (e) Reduce Motion only sets --emph-scale:1, never the stroke. Fail-first: scratch copy of the stylesheets with 'button.x:hover{font-weight:700}', '.y:focus-visible{transform:scale(1.1)}' appended -> (b) and (c) fail naming both rules (scratchpad h4b); real tree passes (vitest hoverEmphasis+designTokens+motion all pass). Playwright (tests/hover-emphasis.spec.ts, helpers focusSample/hover retry): the crawl now also keyboard-focuses (Shift then focus(), :focus-visible verified) every sampled shape and asserts identical stroke, 1.04 scale and transition-duration as hover for text controls and no emphasis for icon-only ones; run2.log 'H3 exceptions: 0', crawl passed. New test 'H4 emphasis': drift probe (injected unstyled button gets stroke+1.04), danger colour unchanged on hover and red, Reduce Motion keeps stroke 0.5px, scale 1, transition 0s; dialog Cancel and Save assert full treatment (run3.log). Fail-first for the crawl: on the pre-H3 build (ui4-h4/failfirst.log) 36 exceptions. DIALOG CANCEL (coordinator question): confirmed it gets the full treatment (stroke 0.52px, scale 1.04, width/neighbours unchanged; Save too once its name is filled, it is disabled when empty by design). The reviewer's one exception was load timing: the dialog was still animating in so the sampled pointer missed the button; hoverSample now re-lands the pointer if :hover did not take, and the H4 test waits 600 ms. Also fixed a bug in my own focus sampler (read style after blur). NOT done: editor.css .prose-issue-dismiss/.footnote-source -- follow-up task filed (depends T176). Machine load made the crawl take 2-20 min; test timeout raised to 20 min."
+    },
+    {
+      "at": "2026-10-29T04:56:59+00:00",
+      "agent": "agent-62b6",
+      "event": "rejected",
+      "note": "Vitest side is good: fail-first reproduced by me (doctored src copy with button.x:hover{font-weight:700} and .y:focus-visible{transform:scale(1.1)} -> checks (b) and (c) fail naming both; real tree passes hoverEmphasis+motion; T189 exists, depends T176). H2/H4 Playwright tests (Reduce Motion, danger, drift probe, dialog Cancel/Save) pass on my build. BUT the crawl acceptance test FAILS on the current tree, reproduced twice (fresh build ui4-rev4, port 1721, once under load and once with load ~2): crawl reaches only 7 screens, 'fragments: locator.click: Timeout 5000ms' (the 'Keep as fragment' click after editor.fill + select-all, which follows the new 'Writing (page view)' step), then the 'research' step hangs until the 20 min test timeout; result: screens 7 < 8 and the test fails (H3 exceptions 0 on those 7). Author's run reached 20 screens, so something changed in the shared tree since (T176 page view / T188 footers) or the page-view step leaves the editor in a state where the fragment step breaks. Please investigate (e.g. return to continuous view before the fragments step, make the research step not block 20 min: use short click timeouts), rerun, and resubmit. Also minor: check (c)/(a) would not catch a drift rule that only sets '--emph-s: 1.3' on hover without a stroke (the scale filter exempts any rule setting --emph-s); consider flagging --emph-s outside the shared rule. Log: ui4-rev4/run.log, run2.log."
+    },
+    {
+      "at": "2026-10-29T04:57:32+00:00",
+      "agent": "agent-6367",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-10-29T04:57:32+00:00",
+      "agent": "agent-6367",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-10-29T05:06:01+00:00",
+      "agent": "agent-6367",
+      "event": "review requested",
+      "note": "Resubmit on the CURRENT tree (fresh build ui4-h4/dist after L3/T176/T188/dock landed). Cause of the reviewer's crawl failure: a STALE CRAWL STEP, not an app regression -- after the 'Snapshot name' dialog step the single Escape did not close the dialog (the dialog was still open at the end of the failed run, editor had focus behind it), so every later click (Fragments, Research, Comments ... Projects) was blocked, and with no action timeout the Research step then ran to the 20 min test timeout. Fixes (tests/hover-emphasis.spec.ts only): closeDialog() = Escape, then the dialog's Cancel, then wait until gone; the page-view crawl step now returns to continuous view; page.setDefaultTimeout(8000) and every crawl step wrapped in a 60 s race that records 'step X exceeded 60 s' -- no more 20-minute hangs; the crawl now fails if ANY step was skipped (expect(skipped).toEqual([])), so a stale selector is a named failure, not a silent short crawl. Observation for agent-47c8 (not asserted): the Snapshot name dialog does not seem to take focus/Escape reliably right after it opens while the editor keeps focus -- worth a hand check, may be a minor a11y gap. Also took the reviewer's minor point: vitest (c) now also fails if any rule other than the one shared rule in styles.css sets --emph-s (scratch copy with '.w:hover{--emph-s:1.3}' -> (c) fails; real tree 5/5 pass). Evidence: crawl reaches 20 screens, 'not crawled/skipped' empty, H3 exceptions 0; full tests/hover-emphasis.spec.ts (crawl + H2 + H4) passed 3/3 TWICE in a row (ui4-h4/final1.log, final2.log); vitest hoverEmphasis 5 pass. Earlier acceptance (keyboard focus parity, Reduce Motion, danger, drift probe, dialog Cancel/Save) unchanged and passing. Follow-up T189 for editor.css still stands. Chromium only."
+    },
+    {
+      "at": "2026-10-29T05:08:39+00:00",
+      "agent": "agent-62b6",
+      "event": "approved",
+      "note": "Rerun on my fresh build (ui4-rev4, port 1721): hover-emphasis spec 3/3 pass (crawl 20 screens, skipped list empty, H3 exceptions 0; H2; H4). vitest hoverEmphasis 5 pass. Earlier fail-first on doctored CSS copy confirmed by me; the --emph-s drift gap is now covered. Chromium only; native WebKit not run. CLAIMED. Side note: Snapshot-name dialog Escape/focus oddity the owner flagged is worth a hand check."
+    }
+  ]
+}

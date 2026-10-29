@@ -487,6 +487,455 @@
     }
     probe = { paged, latency, caret, narrow, userAgent: navigator.userAgent };
   };
+  // Wave 4 G1 (T171): toolbar zoom and caret-in-gap probe, run with
+  // FOLIO_SMOKE_PHASE=pages-zoom. Raw WebKit numbers: which coordinate space
+  // getBoundingClientRect, offsetTop and Range rects use under CSS zoom, page
+  // starts at every toolbar zoom, snapshots across page gaps (the harness scans
+  // their pixels), and a seeded Enter/typing/Backspace fuzz that checks the
+  // caret and every empty paragraph stay inside a page's text area.
+  const pagesZoomProbe = async () => {
+    const el = await wait(editor, "editor");
+    const tiptap = el.editor;
+    const view = tiptap.view;
+    const para = (text) => (text ? { type: "paragraph", content: [{ type: "text", text }] } : { type: "paragraph" });
+    const blocks = [];
+    // The owner's shape (1.png, 3.png): a word, a run of empty lines, short lines, twice.
+    for (let t = 0; t < 2; t++) {
+      blocks.push(para(t ? "hjoij " + t : "hjoij"));
+      for (let i = 0; i < 26; i++) blocks.push(para(""));
+      for (const text of ["khoihdowiahj", "kihjdowaihdowiadoanw", "nldkjwand", "", "dkwajbdwa", "djkwajbdwajk"])
+        blocks.push(para(text));
+      for (let i = 0; i < 6; i++) blocks.push(para(""));
+    }
+    const words = ["alpha", "beta", "gamma", "delta", "evidence", "measure", "page"];
+    for (let i = 0; i < 90; i++)
+      blocks.push(para("P" + i + " " + Array.from({ length: 28 + (i % 9) * 4 }, (_, j) => words[(i + j) % 7]).join(" ") + "."));
+    tiptap.commands.setContent({ type: "doc", content: blocks }, { emitUpdate: true });
+    await saved();
+    step("seeded owner shape + 90 paragraphs");
+    if (!document.querySelector('[aria-label="Page view"]'))
+      document.querySelector('[aria-label="More formatting"]')?.click();
+    (await wait(() => document.querySelector('[aria-label="Page view"]'), "page toggle")).click();
+    await wait(() => document.querySelector(".editor-viewport.is-paged"), "page view");
+    await closeMore();
+    await delay(1200);
+    const paper = () => document.querySelector(".editor-paper");
+    const scroller = () => el.closest(".writer-scroll") || el.closest(".is-paged");
+    const setZoom = async (percent) => {
+      let trigger = document.querySelector('button[aria-label="Editor zoom"]');
+      if (!trigger) {
+        document.querySelector('[aria-label="More formatting"]')?.click();
+        trigger = await wait(() => document.querySelector('button[aria-label="Editor zoom"]'), "zoom trigger");
+      }
+      trigger.click();
+      const option = await wait(
+        () => [...document.querySelectorAll('[role="option"]')].find((o) => o.textContent.trim() === percent + "%"),
+        "zoom option " + percent,
+      );
+      option.click();
+      await delay(100);
+      await closeMore();
+      // Paper zoom = toolbar zoom x fit scale (125 and 150 % are scaled to fit a 1240 px window).
+      await wait(() => {
+        const style = getComputedStyle(paper());
+        const fit = parseFloat(style.getPropertyValue("--page-scale")) || 1;
+        return Math.abs((parseFloat(style.zoom) || 1) - (percent / 100) * fit) < 0.001 && (percent === 100 || style.zoom !== "1");
+      }, "zoom " + percent);
+      await delay(1200);
+      await frames();
+    };
+    const round = (v) => Math.round(v * 100) / 100;
+    const within = (node) => {
+      let y = 0;
+      let cur = node;
+      while (cur && cur !== el) {
+        y += cur.offsetTop;
+        cur = cur.offsetParent;
+      }
+      return cur === el ? y : NaN;
+    };
+    const space = () => {
+      const p = paper();
+      const vars = getComputedStyle(p);
+      const num = (name) => parseFloat(vars.getPropertyValue(name)) || 0;
+      const zoom = parseFloat(vars.zoom) || 1;
+      const surfaceRect = el.getBoundingClientRect();
+      const paperRect = p.getBoundingClientRect();
+      const ratio = el.offsetWidth ? surfaceRect.width / el.offsetWidth : 1;
+      return {
+        zoom,
+        ratio,
+        paperRatio: p.offsetWidth ? paperRect.width / p.offsetWidth : 1,
+        scale: Math.abs(ratio - zoom) <= Math.abs(ratio - 1) ? zoom : 1,
+        pageHeight: num("--page-height"),
+        gap: num("--page-gap"),
+        margin: num("--page-margin"),
+        reserve: num("--footnote-reserve"),
+        pitch: num("--page-height") + num("--page-gap"),
+        surfaceRect,
+        paperRect,
+      };
+    };
+    // The drawn caret and every empty paragraph must lie in a page's text area
+    // (the same check as tests/pages-helpers.ts invariantSource).
+    const invariant = () => {
+      const s = space();
+      const limit = s.pageHeight - 2 * s.margin - s.reserve;
+      const where = (top, bottom) => {
+        const page = Math.max(0, Math.floor((top + 1) / s.pitch));
+        const start = page * s.pitch;
+        const ok = top >= start - 1 && bottom <= start + limit + 1;
+        const off = top - start - limit;
+        const zone = ok ? "text" : off < s.margin ? "margin" : off < s.margin + s.gap ? "gap" : "top-margin";
+        return { page, ok, zone, top: round(top), bottom: round(bottom) };
+      };
+      const { head } = tiptap.state.selection;
+      let rect = null;
+      let source = "dom";
+      const sel = getSelection();
+      // A selected node (Backspace after a page break) shows no caret: use its box.
+      const picked = tiptap.state.selection.node;
+      const nodeDom = picked ? view.nodeDOM(tiptap.state.selection.from) : null;
+      if (nodeDom && nodeDom.getBoundingClientRect) {
+        rect = nodeDom.getBoundingClientRect();
+        source = "node:" + picked.type.name;
+      } else if (sel && sel.rangeCount && el.contains(sel.focusNode)) {
+        const range = sel.getRangeAt(0);
+        const rects = range.getClientRects();
+        rect = rects.length ? rects[rects.length - 1] : range.getBoundingClientRect();
+        if (!rect || !rect.height) rect = null;
+      }
+      if (!rect) {
+        source = "pm";
+        const c = view.coordsAtPos(head);
+        rect = { top: c.top, bottom: c.bottom };
+      }
+      const caret = { head, source, ...where((rect.top - s.surfaceRect.top) / s.scale, (rect.bottom - s.surfaceRect.top) / s.scale) };
+      const empties = [];
+      let index = 0;
+      for (const child of el.children) {
+        if (child.classList.contains("page-spacer")) continue;
+        index++;
+        if (child.tagName !== "P" || child.textContent !== "" || child.querySelector(".page-spacer")) continue;
+        const top = within(child);
+        const w = where(top, top + child.offsetHeight);
+        if (!w.ok) empties.push({ block: index - 1, ...w });
+      }
+      return { caret, empties };
+    };
+    const geometry = () => {
+      const s = space();
+      const spacers = [...el.querySelectorAll(".page-spacer")];
+      const starts = spacers.map((sp) => {
+        const expected = (Number(sp.dataset.page) - 1) * s.pitch;
+        return {
+          page: Number(sp.dataset.page),
+          inline: !!sp.dataset.inline,
+          layout: within(sp) + sp.offsetHeight - expected,
+          drawn: round((sp.getBoundingClientRect().bottom - s.paperRect.top) / s.scale - (expected + s.margin)),
+          offsetHeight: sp.offsetHeight,
+          styleHeight: parseFloat(sp.style.height),
+          rectHeight: round(sp.getBoundingClientRect().height),
+        };
+      });
+      const limit = s.pageHeight - 2 * s.margin - s.reserve;
+      const crossings = [];
+      const range = document.createRange();
+      const walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT);
+      for (let node = walker.nextNode(); node; node = walker.nextNode()) {
+        range.selectNodeContents(node);
+        for (const r of range.getClientRects()) {
+          if (!r.height) continue;
+          const top = (r.top - s.surfaceRect.top) / s.scale;
+          const bottom = (r.bottom - s.surfaceRect.top) / s.scale;
+          const index = Math.floor((top + 1) / s.pitch);
+          if (bottom > index * s.pitch + limit + 1) crossings.push(node.textContent.slice(0, 12) + " " + round(top) + "-" + round(bottom));
+        }
+      }
+      for (const child of el.children) {
+        if (child.classList.contains("page-spacer") || !child.offsetHeight || child.querySelector(".page-spacer")) continue;
+        const top = within(child);
+        const bottom = top + child.offsetHeight;
+        const index = Math.floor((top + 1) / s.pitch);
+        if (bottom > index * s.pitch + limit + 1) crossings.push((child.textContent.slice(0, 12) || "(empty)") + " " + top + "-" + bottom);
+      }
+      // Raw readings for the first 50 blocks: is each API zoomed or not?
+      const raw = [...el.children]
+        .filter((c) => !c.classList.contains("page-spacer"))
+        .slice(0, 50)
+        .map((c) => {
+          const r = c.getBoundingClientRect();
+          let text = null;
+          const t = document.createTreeWalker(c, NodeFilter.SHOW_TEXT).nextNode();
+          if (t) {
+            range.selectNodeContents(t);
+            const rr = range.getClientRects()[0];
+            if (rr) text = { top: round(rr.top - s.surfaceRect.top), height: round(rr.height) };
+          }
+          return {
+            offsetTop: within(c),
+            offsetHeight: c.offsetHeight,
+            rectTop: round(r.top - s.surfaceRect.top),
+            rectHeight: round(r.height),
+            text,
+          };
+        });
+      return {
+        zoom: s.zoom,
+        ratio: round(s.ratio * 1000) / 1000,
+        paperRatio: round(s.paperRatio * 1000) / 1000,
+        scale: s.scale,
+        pitch: s.pitch,
+        margin: s.margin,
+        surfaceOffsetWidth: el.offsetWidth,
+        surfaceRectWidth: round(s.surfaceRect.width),
+        paperOffsetHeight: paper().offsetHeight,
+        paperRectHeight: round(s.paperRect.height),
+        surfaceOffsetHeight: el.offsetHeight,
+        surfaceRectHeight: round(s.surfaceRect.height),
+        pageCount: document.querySelector('[aria-label="Page count"]')?.textContent?.trim(),
+        spacers: spacers.length,
+        maxStartLayout: Math.max(0, ...starts.map((x) => Math.abs(x.layout))),
+        maxStartDrawn: Math.max(0, ...starts.map((x) => Math.abs(x.drawn))),
+        starts: starts.slice(0, 14),
+        crossings: crossings.slice(0, 20),
+        crossingCount: crossings.length,
+        raw,
+      };
+    };
+    // Snapshots across gap k: the screen y (CSS px of the web view) where the
+    // paper says the gap is; the harness reads the pixels.
+    const snapGap = async (percent, k) => {
+      const s = space();
+      // Screen px: Chromium rects are already screen px; WebKit's may be
+      // divided by the element's zoom (paperRatio says which).
+      const toScreen = Math.abs(s.paperRatio - s.zoom) <= Math.abs(s.paperRatio - 1) ? 1 : s.zoom;
+      const sc = scroller();
+      const view0 = sc.getBoundingClientRect();
+      const gapTop0 = s.paperRect.top * toScreen + (k * s.pitch + s.pageHeight) * s.zoom;
+      sc.scrollTop += gapTop0 - (view0.top + view0.height / 2);
+      await frames();
+      await delay(150);
+      const t = space();
+      const top = t.paperRect.top * toScreen;
+      const left = t.paperRect.left * toScreen;
+      const viewport = document.querySelector(".editor-viewport.is-paged").getBoundingClientRect();
+      const name = "zoom-" + percent + "-gap-" + k;
+      let file = null;
+      try {
+        file = await window.__TAURI_INTERNALS__.invoke("smoke_snapshot", { name });
+      } catch (error) {
+        file = "error: " + String(error);
+      }
+      return {
+        name,
+        file,
+        dpr: window.devicePixelRatio,
+        innerWidth: window.innerWidth,
+        innerHeight: window.innerHeight,
+        toScreen,
+        paperTop: round(top),
+        paperLeft: round(left),
+        paperWidthScreen: round(t.paperRect.width * toScreen),
+        viewportLeft: round(viewport.left),
+        viewportTop: round(viewport.top),
+        // The scroller's top: rows above it are the toolbar, not the paper.
+        scrollerTop: round(sc.getBoundingClientRect().top),
+        viewportWidth: round(viewport.width),
+        gapTop: round(top + (k * t.pitch + t.pageHeight) * t.zoom),
+        gapBottom: round(top + (k + 1) * t.pitch * t.zoom),
+        // Where the spacers put page k + 2's first line (screen px), for the
+        // first block spacer after gap k.
+        spacerBottoms: [...el.querySelectorAll(".page-spacer")]
+          .filter((sp) => Number(sp.dataset.page) === k + 2)
+          .map((sp) => round(sp.getBoundingClientRect().bottom * toScreen)),
+        scrollTop: sc.scrollTop,
+      };
+    };
+    const zooms = {};
+    const fuzz = {};
+    // Set now so a later failure still reports what was measured.
+    probe = { zooms, fuzz, userAgent: navigator.userAgent };
+    for (const percent of [100, 75, 50, 125, 150]) {
+      await setZoom(percent);
+      const g = geometry();
+      g.snapshots = [];
+      for (const k of [0, 1]) g.snapshots.push(await snapGap(percent, k));
+      if (percent === 50 || percent === 75) {
+        scroller().scrollTop = 0;
+        await frames();
+        await delay(150);
+        try {
+          g.topSnapshot = await window.__TAURI_INTERNALS__.invoke("smoke_snapshot", { name: "zoom-" + percent + "-top" });
+        } catch (error) {
+          g.topSnapshot = "error: " + String(error);
+        }
+      }
+      zooms[percent] = g;
+      step("zoom " + percent + " measured");
+    }
+    // 3.png's shape: a pane about 680 px wide (fit zoom ~0.83) at toolbar
+    // 100 %. Put the caret on a real line of page 2 whose screen position
+    // falls where WebKit draws the first grey band (1056-1088 screen px below
+    // the paper's top), and snapshot it twice (the caret blinks).
+    try {
+      await setZoom(100);
+      const vp = document.querySelector(".editor-viewport.is-paged");
+      vp.style.width = "710px";
+      vp.style.maxWidth = "710px";
+      await delay(1500);
+      await frames();
+      const s = space();
+      const lo = 1056 / s.zoom - s.margin;
+      const hi = 1088 / s.zoom - s.margin;
+      let target = null;
+      tiptap.state.doc.forEach((node, offset) => {
+        const dom = view.nodeDOM(offset);
+        if (target || !(dom instanceof HTMLElement) || !node.isTextblock) return;
+        const top = within(dom);
+        if (top + dom.offsetHeight / 2 >= lo && top + dom.offsetHeight / 2 <= hi) target = { pos: offset + 1 + node.content.size, top, height: dom.offsetHeight };
+      });
+      const repro = { zoom: s.zoom, band: [round(lo), round(hi)], target };
+      if (target) {
+        tiptap.commands.setTextSelection(target.pos);
+        tiptap.commands.focus();
+        await frames();
+        const c = view.coordsAtPos(target.pos);
+        c && c.top && (scroller().scrollTop += c.top * s.zoom - 400);
+        await frames();
+        await delay(200);
+        repro.invariant = invariant().caret;
+        const t = space();
+        repro.paperTopScreen = round(t.paperRect.top * t.zoom);
+        const cc = view.coordsAtPos(target.pos);
+        repro.caretScreen = [round(cc.top * t.zoom), round(cc.bottom * t.zoom)];
+        repro.bandScreen = [round(t.paperRect.top * t.zoom + 1056), round(t.paperRect.top * t.zoom + 1088)];
+        repro.innerWidth = window.innerWidth;
+        repro.snaps = [];
+        for (const name of ["gap-caret-a", "gap-caret-b"]) {
+          try {
+            repro.snaps.push(await window.__TAURI_INTERNALS__.invoke("smoke_snapshot", { name }));
+          } catch (error) {
+            repro.snaps.push("error: " + String(error));
+          }
+          await delay(350);
+        }
+      }
+      vp.style.width = "";
+      vp.style.maxWidth = "";
+      await delay(800);
+      probe.repro = repro;
+      step("3.png repro attempted");
+    } catch (error) {
+      probe.repro = { error: String(error) };
+    }
+    // Caret sweep at 100 % and 75 %: 100 seeded positions, invariant at each.
+    let seed = 4171;
+    const random = () => {
+      seed = (seed + 0x6d2b79f5) >>> 0;
+      let t = seed;
+      t = Math.imul(t ^ (t >>> 15), t | 1);
+      t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+    const randomPos = () => {
+      const tb = [];
+      tiptap.state.doc.forEach((node, offset) => {
+        if (node.isTextblock) tb.push([offset + 1, offset + 1 + node.content.size]);
+      });
+      const [from, to] = tb[Math.floor(random() * tb.length)];
+      return from + Math.floor(random() * (to - from + 1));
+    };
+    const settleNative = async () => {
+      await frames();
+      await delay(300);
+    };
+    const keydown = (key, extra = {}) =>
+      !view.dom.dispatchEvent(new KeyboardEvent("keydown", { key, bubbles: true, cancelable: true, ...extra }));
+    for (const percent of [100, 75]) {
+      await setZoom(percent);
+      const sweep = [];
+      for (let i = 0; i < 100; i++) {
+        const pos = randomPos();
+        tiptap.commands.setTextSelection(pos);
+        tiptap.commands.focus();
+        await frames();
+        const r = invariant();
+        if (!r.caret.ok) sweep.push({ pos, ...r.caret });
+      }
+      // Fuzz: Enter (PM keymap), Enter x5, typing (insertText), Backspace
+      // (PM keymap, else the browser's delete), random repositioning.
+      const violations = [];
+      const log = [];
+      tiptap.commands.setTextSelection(tiptap.state.doc.content.size - 1);
+      tiptap.commands.focus();
+      await frames();
+      for (let stepNo = 1; stepNo <= 150; stepNo++) {
+        let moved = "";
+        if (random() < 0.35) {
+          const pos = randomPos();
+          tiptap.commands.setTextSelection(pos);
+          tiptap.commands.focus();
+          await frames();
+          moved = "at " + pos + " ";
+        }
+        const r0 = random();
+        let op;
+        const outFrames = [];
+        let n = 0;
+        const sampler = () => {
+          try {
+            const r = invariant();
+            outFrames.push(!r.caret.ok || r.empties.length > 0);
+          } catch {
+            outFrames.push(null);
+          }
+          if (++n < 10) requestAnimationFrame(sampler);
+        };
+        if (r0 < 0.45) {
+          op = "Enter";
+          keydown("Enter");
+        } else if (r0 < 0.55) {
+          op = "Enter x5";
+          for (let i = 0; i < 5; i++) keydown("Enter");
+        } else if (r0 < 0.75) {
+          op = "type";
+          document.execCommand("insertText", false, ["alpha", "khoihdowiahj", "x"][Math.floor(random() * 3)]);
+        } else {
+          op = "Backspace";
+          if (!keydown("Backspace")) document.execCommand("delete");
+        }
+        // Requested after the edit, so after pagination's own frame: each
+        // sample is what WebKit is about to paint.
+        requestAnimationFrame(sampler);
+        await settleNative();
+        const r = invariant();
+        const bad = [];
+        if (!r.caret.ok) bad.push("caret head " + r.caret.head + " in " + r.caret.zone + " (page " + (r.caret.page + 1) + ", " + r.caret.top + "-" + r.caret.bottom + ", " + r.caret.source + ")");
+        for (const e of r.empties) bad.push("empty block " + e.block + " in " + e.zone + " (page " + (e.page + 1) + ", " + e.top + "-" + e.bottom + ")");
+        const out = outFrames.filter(Boolean).length;
+        if (bad.length) {
+          const sel = getSelection();
+          const c = view.coordsAtPos(r.caret.head);
+          const s0 = space();
+          bad.push("pm caret " + round((c.top - s0.surfaceRect.top) / s0.scale) + "-" + round((c.bottom - s0.surfaceRect.top) / s0.scale) +
+            "; dom focus " + (sel.focusNode ? (sel.focusNode.nodeName + "/" + (sel.focusNode.className || "") + "@" + sel.focusOffset) : "none"));
+          violations.push("zoom " + percent + " step " + stepNo + " (" + moved + op + "): " + bad.join("; "));
+        }
+        if (!bad.length && out) violations.push("zoom " + percent + " step " + stepNo + " (" + moved + op + "): out of a text area for " + out + " painted frame(s) before settling");
+        if (bad.length || out) log.push({ step: stepNo, op: moved + op, framesOut: out, settled: bad.length ? "bad" : "ok" });
+        if (bad.length && !fuzz["firstSnapshot" + percent]) {
+          try {
+            fuzz["firstSnapshot" + percent] = await window.__TAURI_INTERNALS__.invoke("smoke_snapshot", { name: "fuzz-" + percent + "-first" });
+          } catch (error) {
+            fuzz["firstSnapshot" + percent] = "error: " + String(error);
+          }
+        }
+      }
+      fuzz[percent] = { sweepOut: sweep.length, sweep: sweep.slice(0, 10), violations: violations.slice(0, 30), violationCount: violations.length, log: log.slice(0, 60) };
+      step("fuzz at " + percent + ": " + violations.length + " violations");
+    }
+  };
   try {
     await wait(() => document.querySelector(".app"), "application mounted");
     diagnosticProfile = await window.__TAURI_INTERNALS__.invoke(
@@ -503,7 +952,15 @@
       throw Error("Native smoke app or isolated WebKit profile identity mismatch");
     }
     localStorage.setItem("personal-word.restoreTabs", "true");
-    if (window.__SMOKE_PHASE__ === "pages-probe") {
+    if (window.__SMOKE_PHASE__ === "pages-zoom") {
+      if (!button("Start new project")) await click("Projects");
+      await click("Start new project");
+      await click("Blank");
+      await input("Project title", "Native zoom probe");
+      await click("Save");
+      await saved();
+      await pagesZoomProbe();
+    } else if (window.__SMOKE_PHASE__ === "pages-probe") {
       if (!button("Start new project")) await click("Projects");
       await click("Start new project");
       await click("Blank");

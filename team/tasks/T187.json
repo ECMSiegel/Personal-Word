@@ -1,0 +1,59 @@
+{
+  "id": "T187",
+  "title": "W4 R1a -- Scrollspy line logic and styles (pure module, ahead of R1)",
+  "description": "Split out of T183 to add parallelism (coordinator 2026-10-28). Build only the new, unshared pieces of PLAN.md '### R1': src/components/scrollspy.ts (pure geometry/state: which line is active/half-active/expanded, eased scroll timing 600 ms quartic, instant under Reduce Motion or keyboard), src/components/scrollspy.test.ts (vitest, fail-first by writing tests first), src/components/scrollspy.css (line gutter styles per design-system.md; no rule in styles.css). Do NOT touch App.tsx or ProjectSidebar.tsx (T183 wires it in after B1). Interfaces must match the names in the R1 plan section; record any deviation in the done note for T183.",
+  "status": "done",
+  "owner": null,
+  "priority": 1,
+  "depends_on": [],
+  "files": [
+    "src/components/scrollspy.ts",
+    "src/components/scrollspy.test.ts",
+    "src/components/scrollspy.css",
+    "node_modules/.cache/personal-word-beta/ui4-r1a"
+  ],
+  "review_required": true,
+  "created_by": "agent-47c8",
+  "created_at": "2026-10-29T02:58:56+00:00",
+  "claimed_at": "2026-10-29T03:00:18+00:00",
+  "updated_at": "2026-10-29T03:34:01+00:00",
+  "handoff": null,
+  "review": {
+    "by": "agent-889c",
+    "at": "2026-10-29T03:34:01+00:00",
+    "verdict": "approved",
+    "note": "Approved. Names/signatures match R1; vitest 11/11 and tsc clean on rerun; fail-first log is a missing-module failure (acceptable for a new pure module); header cites source + owner free to use; CSS flat/square/tokens, no shared files, no packages. Non-blocking: no unit test for the prefersReducedMotion branch of easedScrollTo (only opts.instant is tested; code is correct) -- add a matchMedia stub test or cover in tests/scrollspy.spec.ts. Hover rule on active row stays scaleX(1) correctly (later rule, equal specificity)."
+  },
+  "log": [
+    {
+      "at": "2026-10-29T02:58:56+00:00",
+      "agent": "agent-47c8",
+      "event": "created",
+      "note": ""
+    },
+    {
+      "at": "2026-10-29T03:00:18+00:00",
+      "agent": "agent-4e8b",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-10-29T03:00:19+00:00",
+      "agent": "agent-4e8b",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-10-29T03:31:05+00:00",
+      "agent": "agent-4e8b",
+      "event": "review requested",
+      "note": "scrollspy.ts/.test.ts/.css built. Fail-first: vitest failed (module missing) before impl, log ui4-r1a/failfirst.log; after: 11/11 pass, motion.test+designTokens.test pass (29), tsc --noEmit clean. Reference source read via gh (MIT repo, owner free to use) cited in headers. Interfaces exactly as R1: activeIndex(tops,viewportHeight,atBottom) [tops = section top relative to scroller top], quartic(t), easedScrollTo(scroller,top,{duration?,instant?})->cancel, useReadSpy(enabled,ids,getScroller)->id|undefined (looks up document.getElementById('read-'+id)). No deviation. For T183: import scrollspy.css from ProjectSidebar; render <button className='spy-line' tabIndex={-1} aria-hidden data-state> as direct child of .entry-row (needs position:relative); css uses selector .entry-row > button.spy-line (beats text-emphasis rule) but add .spy-line to the icon exclusion list anyway; gutter rule .sidebar-group[data-group=manuscript] .entry-list:not(.cards-view) assumes list view lacks .cards-view class -- verify; wire easedScrollTo cancel on wheel/touch yourself. Playwright not run (not requested)."
+    },
+    {
+      "at": "2026-10-29T03:34:01+00:00",
+      "agent": "agent-889c",
+      "event": "approved",
+      "note": "Approved. Names/signatures match R1; vitest 11/11 and tsc clean on rerun; fail-first log is a missing-module failure (acceptable for a new pure module); header cites source + owner free to use; CSS flat/square/tokens, no shared files, no packages. Non-blocking: no unit test for the prefersReducedMotion branch of easedScrollTo (only opts.instant is tested; code is correct) -- add a matchMedia stub test or cover in tests/scrollspy.spec.ts. Hover rule on active row stays scaleX(1) correctly (later rule, equal specificity)."
+    }
+  ]
+}

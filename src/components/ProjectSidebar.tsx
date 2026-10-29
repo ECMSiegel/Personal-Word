@@ -22,6 +22,7 @@ import { readSidebarPreferences, writeSidebarPreferences } from "../sidebarPrefe
 import { Dropdown } from "./Dropdown";
 import { useDragReorder } from "./useDragReorder";
 import "./drag-reorder.css";
+import "./scrollspy.css";
 export const workspaceGroups = [
   "manuscript",
   "fragments",
@@ -54,6 +55,13 @@ type Props = {
   onRead: () => void;
   onVersions: () => void;
   activeDestination?: string;
+  /** Ids open on screen: the main pane's entry, or both split panes' entries
+      (a source PDF as `pdf:<sourceId>`). Their rows and section headers are lit. */
+  openIds?: ReadonlySet<string>;
+  /** Read mode: the section the reader is in (scrollspy line drawn active). */
+  readActiveId?: string;
+  /** Read mode: a scrollspy line click scrolls the Read view to that section. */
+  onScrollToSection?: (id: string, viaKeyboard: boolean) => void;
   onDestination?: (id: string) => void;
   groupOrder?: string[];
   onGroupOrder?: (ids: string[]) => void;
@@ -271,6 +279,16 @@ export function ProjectSidebar(props: Props) {
           ? project.entries.filter((e) => e.kind === "fragment").filter(matches)
           : [];
     const dragGroup = collapsibleGroups.includes(id) ? groupDrag.rowProps(index) : null;
+    const titleSelected =
+      props.activeDestination === id || (id === "read" && mode === "read");
+    // A section is lit when it is the open destination or holds an open entry
+    // (search and collapse do not change that). Bottom groups keep their own look.
+    const open =
+      collapsibleGroups.includes(id) &&
+      (titleSelected ||
+        (id === "research"
+          ? (props.collectionItems?.research ?? []).some((i) => props.openIds?.has(i.id))
+          : project.entries.some((e) => e.kind === kind && props.openIds?.has(e.id))));
     return (
       <section
         className={
@@ -281,6 +299,7 @@ export function ProjectSidebar(props: Props) {
           (collapsed[id] ? " is-collapsed" : "")
         }
         data-group={id}
+        data-open={open ? "" : undefined}
         key={id}
         {...dragGroup}
         onPointerDown={
@@ -300,11 +319,7 @@ export function ProjectSidebar(props: Props) {
         <div className="group-heading">
           <button
             className={
-              "group-title " +
-              (props.activeDestination === id ||
-              (id === "read" && mode === "read")
-                ? "selected"
-                : "")
+              "group-title " + (titleSelected ? "selected" : "")
             }
             onClick={() => selectDestination(id)}
           >
@@ -400,6 +415,7 @@ export function ProjectSidebar(props: Props) {
                     (item.beside ? " has-beside" : "")
                   }
                   data-depth={item.depth ?? 0}
+                  data-open={props.openIds?.has(item.id) ? "" : undefined}
                   key={item.id}
                 >
                   <button
@@ -436,14 +452,19 @@ export function ProjectSidebar(props: Props) {
                 key={e.id}
                 className={
                   "entry-row " +
-                  (active === e.id && mode === "write" ? "selected" : "")
+                  (active === e.id &&
+                  mode === "write" &&
+                  (!props.openIds || props.openIds.has(e.id))
+                    ? "selected"
+                    : "")
                 }
+                data-open={props.openIds?.has(e.id) ? "" : undefined}
                 {...(id === "manuscript" ? entryDrag.rowProps(entries.indexOf(e)) : {})}
                 onPointerDown={
                   id === "manuscript"
                     ? onRow(
                         entryDrag.rowProps(entries.indexOf(e)).onPointerDown,
-                        "input, select, textarea, [role=combobox], .entry-preview, .entry-details, .reorder",
+                        "input, select, textarea, [role=combobox], .entry-preview, .entry-details, .reorder, .spy-line",
                       )
                     : undefined
                 }
@@ -499,6 +520,30 @@ export function ProjectSidebar(props: Props) {
                       </>
                     )}
                   </div>
+                )}
+                {id === "manuscript" && !views[id] && (
+                  // Scrollspy line (R1): a pointer-only mirror of the row button, which
+                  // stays the accessible, keyboard path.
+                  <button
+                    type="button"
+                    className="spy-line"
+                    tabIndex={-1}
+                    aria-hidden="true"
+                    data-state={
+                      (mode === "read"
+                        ? props.readActiveId === e.id
+                        : active === e.id && (!props.openIds || props.openIds.has(e.id)))
+                        ? "active"
+                        : props.openIds?.has(e.id)
+                          ? "open"
+                          : "idle"
+                    }
+                    onClick={(event) => {
+                      if (mode === "read")
+                        props.onScrollToSection?.(e.id, event.detail === 0);
+                      else onSelect(e.id);
+                    }}
+                  />
                 )}
                 {views[id] && props.onEntryDetails && (
                   <div className="entry-details">

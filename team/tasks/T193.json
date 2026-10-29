@@ -1,0 +1,61 @@
+{
+  "id": "T193",
+  "title": "W4 cross-lane test reds: research-pdf data-side, motion (g) weight, motion (a) clip-path",
+  "description": "From B1's wider run on the current tree (node_modules/.cache/personal-word-beta/ui4-b1/pw-wider.log, msg #910): (1) tests/research-pdf.spec.ts:61 strict-mode violation on [data-side=\"left\"] because L3's footer.pane-footer also carries data-side -- decide: rename the footer attribute (preferred if nothing else relies on it; update PaneFooter + pane-footer.css + split-view tests) or scope the spec's locator to the pane; (2) tests/motion.spec.ts (g) expects the highlighted popover item at weight >= 600 -- the owner-approved hover/highlight emphasis is now a text stroke + 1.04 scale, so update the assertion to the stroke (do not reintroduce weight); (3) tests/motion.spec.ts (a) 'opening the projects search animates only transform, opacity, clip-path or visibility' -- determine whether it is a real regression (some wave-4 rule now animates another property, e.g. -webkit-text-stroke via the shared transition) or a flake (rerun 5x; compare pre-wave build node_modules/.cache/personal-word-beta/ui3-wordsplit/dist); fix the cause. Run the full Playwright suite on a fresh build at the end (lock) and report all reds.",
+  "status": "done",
+  "owner": null,
+  "priority": 1,
+  "depends_on": [],
+  "files": [
+    "tests/research-pdf.spec.ts",
+    "tests/motion.spec.ts",
+    "src/components/PaneFooter.tsx",
+    "src/components/pane-footer.css",
+    "src/styles.css",
+    "node_modules/.cache/personal-word-beta/ui4-reds"
+  ],
+  "review_required": true,
+  "created_by": "agent-47c8",
+  "created_at": "2026-10-29T05:22:05+00:00",
+  "claimed_at": "2026-10-29T05:22:27+00:00",
+  "updated_at": "2026-10-29T05:41:46+00:00",
+  "handoff": null,
+  "review": {
+    "by": "agent-8001",
+    "at": "2026-10-29T05:41:46+00:00",
+    "verdict": "approved",
+    "note": "Test-only changes read (research-pdf:61 locator scoped to .split-pane[data-side=left]; motion (g) asserts text-stroke >0 instead of weight>=600, consistent with the owner hover rule; no weight reintroduced). Fresh build ui4-rev8: research-pdf + motion specs 18/18 with --repeat-each 2 (motion (a) green both runs, supports flake finding). Did not rerun the full 316 suite. Pre-change reds were recorded by B1's wider run."
+  },
+  "log": [
+    {
+      "at": "2026-10-29T05:22:05+00:00",
+      "agent": "agent-47c8",
+      "event": "created",
+      "note": ""
+    },
+    {
+      "at": "2026-10-29T05:22:27+00:00",
+      "agent": "agent-33ac",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-10-29T05:22:28+00:00",
+      "agent": "agent-33ac",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-10-29T05:40:41+00:00",
+      "agent": "agent-33ac",
+      "event": "review requested",
+      "note": "research-pdf:61 locator scoped to .split-pane[data-side=left]; motion (g) now asserts -webkit-text-stroke-width>0 instead of weight>=600; motion (a) not reproducible (11/11 green, incl. full run) -- no wave-4 rule animates a non-allowed property; flake from loaded machine. Fresh build ui4-reds/dist, full Playwright 316 passed 0 failed (15.2m). Known flake: motion (e) fails ~1-2 in 8 under load on BOTH new and pre-wave ui3-wordsplit build (40ms timers vs close animation) -- pre-existing, passed in full run."
+    },
+    {
+      "at": "2026-10-29T05:41:46+00:00",
+      "agent": "agent-8001",
+      "event": "approved",
+      "note": "Test-only changes read (research-pdf:61 locator scoped to .split-pane[data-side=left]; motion (g) asserts text-stroke >0 instead of weight>=600, consistent with the owner hover rule; no weight reintroduced). Fresh build ui4-rev8: research-pdf + motion specs 18/18 with --repeat-each 2 (motion (a) green both runs, supports flake finding). Did not rerun the full 316 suite. Pre-change reds were recorded by B1's wider run."
+    }
+  ]
+}

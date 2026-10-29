@@ -125,7 +125,7 @@ test("counters ask for tabular figures", async ({ page }) => {
   // asserts the request is in place for any typeface that can honour it. The
   // equal-width check is deliberately absent (see the T140 done note).
   const variant = await page.evaluate(() => {
-    const host = document.querySelector<HTMLElement>(".document-statistics");
+    const host = document.querySelector<HTMLElement>(".pane-footer");
     return host ? getComputedStyle(host).fontVariantNumeric : null;
   });
   expect(variant).toContain("tabular-nums");
@@ -307,3 +307,78 @@ test("reorder arrows keep their hit areas from overlapping", async ({ page }) =>
   expect(overlap).not.toBeNull();
   expect(overlap!).toBeLessThanOrEqual(0);
 });
+
+// (f) The sidebar's last row (Settings) and the pane footer read as one band:
+// the separator above Settings is level with the footer's top rule, the two
+// texts share a centre line, and the two bands are the same height.
+async function bandMetrics(page: Page) {
+  return page.evaluate(() => {
+    const textBox = (el: Element) => {
+      const range = document.createRange();
+      range.selectNodeContents(el);
+      const r = range.getBoundingClientRect();
+      return { mid: r.top + r.height / 2 };
+    };
+    const settings = document.querySelector<HTMLElement>(
+      '.sidebar-group[data-group="settings"]',
+    )!;
+    const sr = settings.getBoundingClientRect();
+    const label = settings.querySelector(".group-title")!;
+    const footers = Array.from(
+      document.querySelectorAll<HTMLElement>(".pane-footer"),
+    ).map((f) => {
+      const r = f.getBoundingClientRect();
+      const words = f.querySelector(".pane-footer-words") ?? f;
+      return {
+        top: r.top,
+        height: r.height,
+        bottom: r.bottom,
+        mid: textBox(words).mid,
+      };
+    });
+    return {
+      settings: {
+        top: sr.top,
+        height: sr.height,
+        bottom: sr.bottom,
+        mid: textBox(label).mid,
+      },
+      footers,
+      viewport: window.innerHeight,
+    };
+  });
+}
+
+for (const split of [false, true]) {
+  test(`sidebar bottom row and pane footer form one band (${split ? "split" : "single"})`, async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await openProject(page, "Band check", "Blank");
+    if (split) {
+      await page.getByRole("button", { name: "New section", exact: true }).click();
+      await page.getByLabel("Title", { exact: true }).fill("Two");
+      await page.getByRole("button", { name: "Save", exact: true }).click();
+      await expect(page.getByRole("dialog")).toHaveCount(0);
+      await page
+        .locator(".sidebar .entry-main")
+        .filter({ hasText: /^Opening/ })
+        .click();
+      await page
+        .locator(".sidebar .entry-main")
+        .filter({ hasText: /^Two/ })
+        .click({ modifiers: ["ControlOrMeta"] });
+      await expect(page.locator(".split-pane")).toHaveCount(2);
+      await expect(page.locator(".pane-footer")).toHaveCount(2);
+    }
+    const m = await bandMetrics(page);
+    expect(m.footers.length).toBe(split ? 2 : 1);
+    for (const f of m.footers) {
+      expect(Math.abs(m.settings.top - f.top)).toBeLessThanOrEqual(1);
+      expect(Math.abs(m.settings.mid - f.mid)).toBeLessThanOrEqual(1);
+      expect(Math.abs(m.settings.height - f.height)).toBeLessThanOrEqual(1);
+      expect(Math.abs(f.bottom - m.viewport)).toBeLessThanOrEqual(1);
+    }
+    expect(Math.abs(m.settings.bottom - m.viewport)).toBeLessThanOrEqual(1);
+  });
+}

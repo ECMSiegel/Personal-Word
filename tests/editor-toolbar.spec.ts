@@ -218,7 +218,8 @@ test("More lists labelled rows with shortcut hints and emphasizes the hovered ro
   await expect(bold).toHaveAttribute("data-popover-item", "");
   await bold.hover();
   await expect(bold).toHaveAttribute("data-highlighted", "");
-  await expect(bold).toHaveCSS("font-weight", "600");
+  // wave 4: emphasis is a width-neutral text stroke (no font-weight change)
+  await expect(bold).not.toHaveCSS("-webkit-text-stroke-width", "0px");
   await bold.click();
   await expect(
     page.getByRole("textbox", { name: "Writing editor" }).locator("p").first(),
@@ -239,4 +240,66 @@ test("a Bold row in More toggles bold", async ({ page }) => {
     .getByRole("button", { name: "Bold (⌘B)", exact: true })
     .click();
   await expect(editor.locator("strong")).toHaveText("Bold me");
+});
+
+// K1: magnifying dock. Scale is read from the icon svg's computed matrix.
+const bold = (page: any) =>
+  page.getByRole("toolbar", { name: "Formatting" }).getByRole("button", { name: /^Bold/ });
+const svgScale = (loc: any) =>
+  loc.locator("svg").first().evaluate((el: Element) => {
+    const m = new DOMMatrix(getComputedStyle(el).transform);
+    return m.a;
+  });
+
+test("dock magnifies the hovered icon with neighbour falloff and no layout shift", async ({
+  page,
+}) => {
+  await page.goto("/");
+  await create(page, "Dock hover");
+  const toolbar = page.getByRole("toolbar", { name: "Formatting" });
+  const icons = toolbar.locator(".toolbar-icon:not([data-popover-item])");
+  const before = await icons.evaluateAll((els) =>
+    els.map((e) => Math.round(e.getBoundingClientRect().x * 100)),
+  );
+  const barH = (await toolbar.boundingBox())!.height;
+  const b = (await bold(page).boundingBox())!;
+  const cx = b.x + b.width / 2;
+  const cy = b.y + b.height / 2;
+  await page.mouse.move(cx - 60, cy);
+  await page.mouse.move(cx, cy, { steps: 4 });
+  await expect.poll(() => svgScale(bold(page))).toBeGreaterThan(1.45);
+  expect(await svgScale(bold(page))).toBeLessThan(1.55);
+  const scales = await icons.evaluateAll((els) =>
+    els.map((e) => new DOMMatrix(getComputedStyle(e.querySelector("svg")!).transform).a),
+  );
+  expect(Math.min(...scales)).toBe(1); // far icons stay 1
+  expect(scales.filter((s) => s > 1.2 && s < 1.45).length).toBeGreaterThan(0);
+  expect(await icons.evaluateAll((els) => els.map((e) => Math.round(e.getBoundingClientRect().x * 100)))).toEqual(before);
+  expect((await toolbar.boundingBox())!.height).toBe(barH);
+  await page.mouse.move(cx, cy + 300);
+  // The scale eases back; allow for the last frame of the transition.
+  await expect.poll(() => svgScale(bold(page)), { timeout: 1000 }).toBeLessThan(1.001);
+});
+
+test("dock: Reduce Motion means no magnification", async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  await page.goto("/");
+  await create(page, "Dock reduced");
+  const b = (await bold(page).boundingBox())!;
+  await page.mouse.move(b.x + 2, b.y + 2);
+  await page.mouse.move(b.x + b.width / 2, b.y + b.height / 2, { steps: 4 });
+  await page.waitForTimeout(250);
+  expect(await svgScale(bold(page))).toBe(1);
+});
+
+test("dock: keyboard focus peaks instantly", async ({ page }) => {
+  await page.goto("/");
+  await create(page, "Dock keys");
+  await bold(page).focus();
+  await page.keyboard.press("Shift+Tab");
+  await page.keyboard.press("Tab");
+  await expect(bold(page)).toBeFocused();
+  expect(await svgScale(bold(page))).toBeCloseTo(1.5, 1);
+  const dur = await bold(page).locator("svg").first().evaluate((el: Element) => getComputedStyle(el).transitionDuration);
+  expect(dur).toBe("0s");
 });
