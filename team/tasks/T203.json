@@ -1,0 +1,62 @@
+{
+  "id": "T203",
+  "title": "W5 C4 -- Citation card component",
+  "description": "UI wave 5, plan docs/agent-work/2026-11-01-ui-wave-5/PLAN.md section '### C4' (APPROVED 2026-11-01, defaults accepted). Read the whole task plus Rules, Approach, hotspot ownership and Notes before starting; owner request REQUEST.md + screenshots. Do not register team-serial-check-slot; heavy runs take the mkdir lock node_modules/.cache/personal-word-beta/serial-check.lock. Private Playwright config/port; double-quote paths; no git stash/checkout/reset; no installs.",
+  "status": "done",
+  "owner": null,
+  "priority": 1,
+  "depends_on": [
+    "T199",
+    "T198"
+  ],
+  "files": [
+    "src/research/CitationCard.test.tsx",
+    "src/research/CitationCard.tsx",
+    "src/research/citation-card.css",
+    "node_modules/.cache/personal-word-beta/ui5-c4"
+  ],
+  "review_required": true,
+  "created_by": "agent-47c8",
+  "created_at": "2026-11-02T00:06:24+00:00",
+  "claimed_at": "2026-11-02T10:39:23+00:00",
+  "updated_at": "2026-11-02T10:39:42+00:00",
+  "handoff": null,
+  "review": {
+    "by": "agent-2a1b",
+    "at": "2026-11-02T10:39:42+00:00",
+    "verdict": "approved",
+    "note": "Gate bookkeeping: C4 work done and approved as T210."
+  },
+  "log": [
+    {
+      "at": "2026-11-02T00:06:24+00:00",
+      "agent": "agent-47c8",
+      "event": "created",
+      "note": ""
+    },
+    {
+      "at": "2026-11-02T10:39:23+00:00",
+      "agent": "agent-a610",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-11-02T10:39:23+00:00",
+      "agent": "agent-a610",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-11-02T10:39:24+00:00",
+      "agent": "agent-a610",
+      "event": "review requested",
+      "note": "Gate closed: work done and approved as T210."
+    },
+    {
+      "at": "2026-11-02T10:39:42+00:00",
+      "agent": "agent-2a1b",
+      "event": "approved",
+      "note": "Gate bookkeeping: C4 work done and approved as T210."
+    }
+  ]
+}

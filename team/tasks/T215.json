@@ -1,0 +1,60 @@
+{
+  "id": "T215",
+  "title": "W5 E3 -- Command palette component and shortcut",
+  "description": "docs/agent-work/2026-11-01-ui-wave-5/PLAN.md section 'Amendment 1' ### E3. EVERY vite build/Playwright run takes node_modules/.cache/personal-word-beta/serial-check.lock. Private config/port; double-quote paths; no git stash/checkout/reset/restore; no installs; no commits; no BoardUI installs.",
+  "status": "done",
+  "owner": null,
+  "priority": 2,
+  "depends_on": [],
+  "files": [
+    "src/components/CommandPalette.tsx",
+    "src/components/command-palette.css",
+    "src/shortcuts/registry.ts",
+    "src/shortcuts/shortcuts.test.ts",
+    "node_modules/.cache/personal-word-beta/ui5-e3"
+  ],
+  "review_required": true,
+  "created_by": "agent-2a1b",
+  "created_at": "2026-11-02T06:33:14+00:00",
+  "claimed_at": "2026-11-02T06:34:43+00:00",
+  "updated_at": "2026-11-02T07:11:35+00:00",
+  "handoff": null,
+  "review": {
+    "by": "agent-c89c",
+    "at": "2026-11-02T07:11:35+00:00",
+    "verdict": "approved",
+    "note": "APPROVE. Runs (node 22.23.3): tsc --noEmit exit 0; vitest shortcuts+designTokens+motion+hoverEmphasis 4 files 57 pass; git diff package.json package-lock.json empty; BoardUI credit comment present (behaviour ideas only, no code/package). Fail-first (scratch copy node_modules/.cache/personal-word-beta/ui5-e3r/ff, no src edit): removing the commandPalette entry fails the new test (expected undefined); mutating its default to Cmd+K fails the collision test ('commandPalette collides on cmd-K') so the pairwise check is real. Harness rerun from own copy node_modules/.cache/personal-word-beta/ui5-e3r (port 1874, lock taken/released): build ok, palette.spec.mjs 12/12 (7 author tests + 4 empty-state shots + computed-style audit), log node_modules/.cache/personal-word-beta/ui5-e3r/pw.log, build.log. Computed: radius 0px, active row bg transparent, stroke 0.52px = shared emphasis, scale 1.04, colour accent; inactive row stroke 0/scale 1; no new hover rule (.is-highlighted only reuses the shared :is(...) rule). Hand token check of command-palette.css: raw values are top 12vh, width min(560px,calc(100vw - space-5*2)), max-height min(420px,70vh), z-index 60, line-height 1.45, 1px borders, translateX(-50%), font-weight 600 -- all layout/geometry, none is a 4-32px padding/margin/gap/font-size; all paddings/gaps/fonts/colours/durations/ease/elevation/shadow are var() tokens. OK. Padding-right space-5 (24px): needed (4% of a 560px row = ~22px) and tight but sufficient; at narrower widths the grow is smaller so safe. Enter order restoreFocus->onClose->run is right (command that moves focus wins; close effect's second restoreFocus is a no-op since opener is cleared). Screenshots, all opened: shot-light-plain: filter s, New section active blue, hints right-aligned, unclipped; shot-light-color: same, slightly different blue; shot-dark-plain: active light blue, headings muted, square raised surface; shot-dark-color: same brighter blue; empty-light-plain/empty-light-color/empty-dark-plain/empty-dark-color: 'zzz' shows muted 'No matching commands', no rows, square. Notes (non-blocking): (1) the active row's hint sits ~21px further right than other hints, 3px from the panel edge, because the whole row grows from its left; cosmetic, not clipped. (2) z-index 60 is below .modal-backdrop 70 (styles.css:1235): E3w should check opening the palette while a modal is open, and that it does not stack under the sidebar overlay (60, same level). (3) Palette does not close on outside click (author noted). (4) Add command-palette.css to designTokens SWEPT when convenient. (5) Pre-existing stray folder /Users/ethansiegel/Local%20Projects/VC%20Projects still exists outside workspace; my run created nothing new. E3w must add commandPalette to runAppAction + keydown, build commands with hint=formatChord/hintFor, pass animateIn only for pointer opens, mount once."
+  },
+  "log": [
+    {
+      "at": "2026-11-02T06:33:14+00:00",
+      "agent": "agent-2a1b",
+      "event": "created",
+      "note": ""
+    },
+    {
+      "at": "2026-11-02T06:34:43+00:00",
+      "agent": "agent-f400",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-11-02T06:34:43+00:00",
+      "agent": "agent-f400",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-11-02T06:52:55+00:00",
+      "agent": "agent-f400",
+      "event": "review requested",
+      "note": "E3 built. API: <CommandPalette open commands onClose animateIn?=false /> (named export + PaletteCommand type + pure groupCommands); commands {id,label,group,hint?,run}; hint is a caller-formatted string (formatChord). ActionId commandPalette, 'Command palette', scope app, default Cmd+Shift+P (not reserved, no collisions). ARIA: role=dialog 'Command palette'; input role=combobox aria-controls list + aria-activedescendant; listbox with role=group + visible headings; hint right-aligned. Keys: Up/Down wrap, Enter runs (focus restored, then onClose, then run, so a command that moves focus wins), Escape closes, Tab trapped; mouse hover activates, click runs; empty result shows 'No matching commands'. Filter = case-insensitive substring on label or group; groups in first-seen order. Active row = colour + shared emphasis via .is-highlighted (no fill); option right padding absorbs the 4% grow (found clipped in first screenshots). Motion: opacity/transform tokens only when animateIn (pointer-open), fade out too; instant when keyboard-opened (default) and under Reduce Motion. Tests: vitest shortcuts+designTokens+motion+hoverEmphasis 57 pass; tsc clean. Fail-first: new 'commandPalette (E3)' test failed (action undefined) before registry edit, passes after. Harness (node_modules/.cache/personal-word-beta/ui5-e3): palette.spec.mjs 7/7 (filter, keys, focus return, mouse, animate, Reduce Motion, 4 screenshots), log node_modules/.cache/personal-word-beta/ui5-e3/pw.log, build node_modules/.cache/personal-word-beta/ui5-e3/build.log. Screenshots viewed: light-plain, light-color, dark-plain, dark-color each show filter 's' with active row blue + hint unclipped. E3w must: add commandPalette to runAppAction + keydown handler; build commands list (hint = formatChord/hintFor); pass animateIn only when opened by pointer; mount once; Escape/Enter focus return is handled inside the component. NOT done: src/designTokens.test.ts does not sweep src/components/command-palette.css (tokens only by hand); add it to SWEPT if wanted. Palette does not close on outside click. Note: a stray folder /Users/ethansiegel/Local%20Projects (from a URL-encoded path; also used by ui5-c4) sits outside the workspace. Paths: src/components/CommandPalette.tsx: uncommitted edits (new); src/components/command-palette.css: uncommitted edits (new); src/shortcuts/registry.ts: uncommitted edits; src/shortcuts/shortcuts.test.ts: uncommitted edits; node_modules/.cache/personal-word-beta/ui5-e3: uncommitted edits (untracked cache)"
+    },
+    {
+      "at": "2026-11-02T07:11:35+00:00",
+      "agent": "agent-c89c",
+      "event": "approved",
+      "note": "APPROVE. Runs (node 22.23.3): tsc --noEmit exit 0; vitest shortcuts+designTokens+motion+hoverEmphasis 4 files 57 pass; git diff package.json package-lock.json empty; BoardUI credit comment present (behaviour ideas only, no code/package). Fail-first (scratch copy node_modules/.cache/personal-word-beta/ui5-e3r/ff, no src edit): removing the commandPalette entry fails the new test (expected undefined); mutating its default to Cmd+K fails the collision test ('commandPalette collides on cmd-K') so the pairwise check is real. Harness rerun from own copy node_modules/.cache/personal-word-beta/ui5-e3r (port 1874, lock taken/released): build ok, palette.spec.mjs 12/12 (7 author tests + 4 empty-state shots + computed-style audit), log node_modules/.cache/personal-word-beta/ui5-e3r/pw.log, build.log. Computed: radius 0px, active row bg transparent, stroke 0.52px = shared emphasis, scale 1.04, colour accent; inactive row stroke 0/scale 1; no new hover rule (.is-highlighted only reuses the shared :is(...) rule). Hand token check of command-palette.css: raw values are top 12vh, width min(560px,calc(100vw - space-5*2)), max-height min(420px,70vh), z-index 60, line-height 1.45, 1px borders, translateX(-50%), font-weight 600 -- all layout/geometry, none is a 4-32px padding/margin/gap/font-size; all paddings/gaps/fonts/colours/durations/ease/elevation/shadow are var() tokens. OK. Padding-right space-5 (24px): needed (4% of a 560px row = ~22px) and tight but sufficient; at narrower widths the grow is smaller so safe. Enter order restoreFocus->onClose->run is right (command that moves focus wins; close effect's second restoreFocus is a no-op since opener is cleared). Screenshots, all opened: shot-light-plain: filter s, New section active blue, hints right-aligned, unclipped; shot-light-color: same, slightly different blue; shot-dark-plain: active light blue, headings muted, square raised surface; shot-dark-color: same brighter blue; empty-light-plain/empty-light-color/empty-dark-plain/empty-dark-color: 'zzz' shows muted 'No matching commands', no rows, square. Notes (non-blocking): (1) the active row's hint sits ~21px further right than other hints, 3px from the panel edge, because the whole row grows from its left; cosmetic, not clipped. (2) z-index 60 is below .modal-backdrop 70 (styles.css:1235): E3w should check opening the palette while a modal is open, and that it does not stack under the sidebar overlay (60, same level). (3) Palette does not close on outside click (author noted). (4) Add command-palette.css to designTokens SWEPT when convenient. (5) Pre-existing stray folder /Users/ethansiegel/Local%20Projects/VC%20Projects still exists outside workspace; my run created nothing new. E3w must add commandPalette to runAppAction + keydown, build commands with hint=formatChord/hintFor, pass animateIn only for pointer opens, mount once."
+    }
+  ]
+}

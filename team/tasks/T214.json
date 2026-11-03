@@ -1,0 +1,60 @@
+{
+  "id": "T214",
+  "title": "W5 E1 -- Sidebar search clear button and Escape",
+  "description": "docs/agent-work/2026-11-01-ui-wave-5/PLAN.md section 'Amendment 1' ### E1. EVERY vite build/Playwright run takes node_modules/.cache/personal-word-beta/serial-check.lock. Private config/port; double-quote paths; no git stash/checkout/reset/restore; no installs; no commits; no BoardUI installs.",
+  "status": "done",
+  "owner": null,
+  "priority": 2,
+  "depends_on": [],
+  "files": [
+    "src/components/ProjectSidebar.tsx",
+    "src/styles.css",
+    "src/components/floating.css",
+    "tests/sidebar-search.spec.ts",
+    "node_modules/.cache/personal-word-beta/ui5-e1"
+  ],
+  "review_required": true,
+  "created_by": "agent-2a1b",
+  "created_at": "2026-11-02T06:33:14+00:00",
+  "claimed_at": "2026-11-02T06:34:27+00:00",
+  "updated_at": "2026-11-02T07:10:42+00:00",
+  "handoff": null,
+  "review": {
+    "by": "agent-7ac9",
+    "at": "2026-11-02T07:10:42+00:00",
+    "verdict": "approved",
+    "note": "Reviewed E1 diff (.search block in ProjectSidebar.tsx, .search rules in styles.css) and tests/sidebar-search.spec.ts. Code: button is visibility:hidden + tabIndex -1 when query empty (out of tab order and a11y tree), aria-label Clear search, click clears and refocuses input, Escape clears non-empty query with stopPropagation only then (empty Escape falls through to the sidebar overlay-close handler at ProjectSidebar ~876/901; covered by a test), kbd shares a grid cell and is hidden via :has() while clear shows, reuses .icon-button recipe (no new hover/scale/stroke rule), no fill, square, fade is opacity+visibility with --duration-fast, instant under Reduce Motion, floating.css transparent rule covers .search. Own run (Node v22.23.3, lock held and released): tsc rc=0; vitest designTokens/motion/hoverEmphasis 36 pass; vite build ok; playwright sidebar-search + sidebar-selection + layout + hover-emphasis + floating = 59 passed, 3 failed, all in floating.spec.ts citation card (lines 493, 580, 676), which belong to C5/T213 in progress, not E1. Log: node_modules/.cache/personal-word-beta/ui5-e1r/pw.log; shots in ui5-e1r/shots (16 written). Fail-first: ui5-e1/failfirst-pw.log shows 6 behaviour tests failing for the right reasons (clear button not found; Escape left value abc; fade/floating locators not found). Screenshots: all 16 opened (light/dark x plain/color x docked/floating x empty/text): every empty state shows the cmd-K hint and no button; every text state shows a plain X and no hint; no fill or box around the X; floating variants show no surface behind the search."
+  },
+  "log": [
+    {
+      "at": "2026-11-02T06:33:14+00:00",
+      "agent": "agent-2a1b",
+      "event": "created",
+      "note": ""
+    },
+    {
+      "at": "2026-11-02T06:34:27+00:00",
+      "agent": "agent-5a68",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-11-02T06:34:27+00:00",
+      "agent": "agent-5a68",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-11-02T07:01:03+00:00",
+      "agent": "agent-5a68",
+      "event": "review requested",
+      "note": "E1 done: Clear search icon button (lucide X, opacity+duration-fast, instant under Reduce Motion via global rule), Escape clears non-empty query w/o blur, kbd hidden while clear shows. New tests/sidebar-search.spec.ts (14 incl 8 screenshot scenarios): failed first (ui5-e1/failfirst-pw.log), now passes. Accept run: sidebar-selection/layout/hover-emphasis/floating pass except 3 citation-card tests in floating.spec.ts (C5/T213 in-progress, not mine); vitest designTokens/motion/hoverEmphasis 36 pass; tsc 0. Shots in ui5-e1/shots."
+    },
+    {
+      "at": "2026-11-02T07:10:42+00:00",
+      "agent": "agent-7ac9",
+      "event": "approved",
+      "note": "Reviewed E1 diff (.search block in ProjectSidebar.tsx, .search rules in styles.css) and tests/sidebar-search.spec.ts. Code: button is visibility:hidden + tabIndex -1 when query empty (out of tab order and a11y tree), aria-label Clear search, click clears and refocuses input, Escape clears non-empty query with stopPropagation only then (empty Escape falls through to the sidebar overlay-close handler at ProjectSidebar ~876/901; covered by a test), kbd shares a grid cell and is hidden via :has() while clear shows, reuses .icon-button recipe (no new hover/scale/stroke rule), no fill, square, fade is opacity+visibility with --duration-fast, instant under Reduce Motion, floating.css transparent rule covers .search. Own run (Node v22.23.3, lock held and released): tsc rc=0; vitest designTokens/motion/hoverEmphasis 36 pass; vite build ok; playwright sidebar-search + sidebar-selection + layout + hover-emphasis + floating = 59 passed, 3 failed, all in floating.spec.ts citation card (lines 493, 580, 676), which belong to C5/T213 in progress, not E1. Log: node_modules/.cache/personal-word-beta/ui5-e1r/pw.log; shots in ui5-e1r/shots (16 written). Fail-first: ui5-e1/failfirst-pw.log shows 6 behaviour tests failing for the right reasons (clear button not found; Escape left value abc; fade/floating locators not found). Screenshots: all 16 opened (light/dark x plain/color x docked/floating x empty/text): every empty state shows the cmd-K hint and no button; every text state shows a plain X and no hint; no fill or box around the X; floating variants show no surface behind the search."
+    }
+  ]
+}

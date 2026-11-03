@@ -1,0 +1,196 @@
+/* Floating citation card (UI wave 5, C4). Tokens only. The one floating thing with a surface:
+   it holds inputs and menus. C5 positions it and sets --card-max-height. */
+.citation-card {
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  max-width: 100%;
+  max-height: var(--card-max-height, 80vh);
+  background: var(--elevation-raised);
+  border: 1px solid var(--line);
+  border-radius: 0;
+  box-shadow: var(--shadow-raised);
+  color: var(--text);
+  font-family: Futura, "Avenir Next", -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: var(--type-body);
+  line-height: 1.45;
+}
+.citation-card *,
+.citation-card *::before,
+.citation-card *::after {
+  box-sizing: border-box;
+}
+.citation-card[data-animate] {
+  transition: opacity var(--duration-base) var(--ease-out), transform var(--duration-base) var(--ease-out);
+}
+.citation-card[data-animate]:not([data-shown]) {
+  opacity: 0;
+  transform: translateY(calc(-1 * var(--space-2)));
+}
+@media (prefers-reduced-motion: reduce) {
+  .citation-card[data-animate] {
+    transition: none;
+  }
+}
+.citation-card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4) 0;
+}
+.citation-card-title {
+  margin: 0;
+  font-size: var(--type-large);
+  font-weight: 600;
+}
+.citation-card-head .icon-button {
+  display: inline-flex;
+  padding: var(--space-1);
+  background: none;
+  border: 0;
+  border-radius: 0;
+  cursor: default;
+}
+.citation-card-body {
+  min-height: 0;
+  overflow-y: auto;
+  padding: var(--space-3) var(--space-4);
+}
+.citation-card-section {
+  display: grid;
+  gap: var(--space-3);
+}
+.citation-card-source {
+  margin: 0;
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+.citation-card-previews {
+  display: grid;
+  gap: var(--space-3);
+}
+.citation-card-foot .citation-card-actions {
+  padding-bottom: var(--space-1);
+}
+.citation-card-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1) var(--space-4);
+}
+.citation-card button:not(.icon-button) {
+  font: inherit;
+  font-size: var(--type-body);
+  color: var(--accent);
+  background: none;
+  border: 0;
+  border-radius: 0;
+  padding: var(--space-1) 0;
+  text-align: left;
+  cursor: default;
+}
+.citation-card button:disabled {
+  color: var(--muted);
+}
+.citation-card button.citation-card-primary {
+  font-weight: 600;
+}
+.citation-card button:focus-visible,
+.citation-card .dropdown-button:focus-visible {
+  outline: 1px solid var(--accent);
+  outline-offset: 1px;
+}
+.citation-card .field {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+.citation-card .field > label,
+.citation-card .field-label {
+  font-size: var(--type-small);
+  color: var(--muted);
+}
+.citation-card input[type="text"],
+.citation-card textarea {
+  width: 100%;
+  min-width: 0;
+  font: inherit;
+  font-size: var(--type-body);
+  color: var(--text);
+  background: transparent;
+  border: 0;
+  border-bottom: 1px solid var(--line);
+  border-radius: 0;
+  padding: var(--space-1) 0;
+}
+.citation-card textarea {
+  min-height: 44px;
+  resize: vertical;
+}
+.citation-card .research-fields {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(128px, 1fr));
+  gap: var(--space-3);
+}
+.citation-card .research-fields .field.is-wide,
+.citation-card .research-fields .field-group {
+  grid-column: 1 / -1;
+}
+.citation-card .field-group {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-3);
+}
+.citation-card .research-fields-source {
+  display: grid;
+  gap: var(--space-3);
+}
+.citation-card .research-hint,
+.citation-card .field-help {
+  margin: 0;
+  font-size: var(--type-small);
+  color: var(--muted);
+}
+.citation-card .preview {
+  display: grid;
+  gap: 2px;
+}
+.citation-card .citation-preview {
+  margin: 0;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+.citation-card .dropdown-button {
+  padding: var(--space-1) 0;
+  border: 0;
+  border-bottom: 1px solid var(--line);
+  border-radius: 0;
+  background: transparent;
+  color: var(--text);
+  font-size: var(--type-body);
+}
+.citation-card .dropdown-button svg {
+  color: var(--muted);
+}
+.citation-card .dropdown-menu {
+  font-size: var(--type-body);
+}
+.citation-card-foot {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  padding: var(--space-2) var(--space-4) var(--space-3);
+  border-top: 1px solid var(--line);
+}
+.citation-card-status {
+  min-height: 1.45em;
+  margin: 0;
+  font-size: var(--type-small);
+  color: var(--muted);
+}
+.citation-card-status.is-error {
+  color: var(--danger);
+}
+.citation-card button.citation-card-link {
+  align-self: flex-start;
+}

@@ -91,15 +91,18 @@ test("(e) a menu reopened mid-close reverses from its current frame without remo
     await wait(0);
     const menu = document.querySelector<HTMLElement>('[role="listbox"][aria-label="Sort projects"]')!;
     menu.dataset.probe = "1";
-    await wait(40);
+    await wait(110);
     menu.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape", bubbles: true }));
     await wait(40);
     const closing = menu.dataset.state ?? null;
+    // Precondition: the menu is still closing (not yet unmounted) when we reopen it.
+    const stillConnected = menu.isConnected;
     trigger.click();
     await wait(300);
     const probe = document.querySelector<HTMLElement>("[data-probe]");
     return {
       closing,
+      stillConnected,
       same: probe === menu,
       connected: menu.isConnected,
       role: probe?.getAttribute("role") ?? null,
@@ -107,6 +110,7 @@ test("(e) a menu reopened mid-close reverses from its current frame without remo
     };
   });
   expect(result.closing).toBe("closing");
+  expect(result.stillConnected).toBe(true);
   expect(result).toMatchObject({ same: true, connected: true, role: "listbox", state: null });
 });
 

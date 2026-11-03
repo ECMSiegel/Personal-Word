@@ -24,6 +24,11 @@
   top: 0;
   left: 0;
 }
+/* Bounded popovers (placePopover set a maxWidth) wrap long labels instead of
+   spilling past their scroll container. */
+.popover[data-bounded] {
+  overflow-wrap: anywhere;
+}
 [data-popover-item] {
   position: relative;
   z-index: 1;

@@ -1,0 +1,59 @@
+{
+  "id": "T207",
+  "title": "W5 V -- Final validation, release build, hand-check sheet",
+  "description": "UI wave 5, plan docs/agent-work/2026-11-01-ui-wave-5/PLAN.md section '### V' (APPROVED 2026-11-01, defaults accepted). Read the whole task plus Rules, Approach, hotspot ownership and Notes before starting. Do not register team-serial-check-slot; heavy runs take the mkdir lock node_modules/.cache/personal-word-beta/serial-check.lock. Private Playwright config/port; double-quote paths; no git stash/checkout/reset; no installs.",
+  "status": "done",
+  "owner": null,
+  "priority": 1,
+  "depends_on": [
+    "T206"
+  ],
+  "files": [
+    "docs/agent-work/2026-11-01-ui-wave-5/VALIDATION.md",
+    "node_modules/.cache/personal-word-beta/ui5-v"
+  ],
+  "review_required": true,
+  "created_by": "agent-47c8",
+  "created_at": "2026-11-02T00:06:38+00:00",
+  "claimed_at": "2026-11-02T11:12:04+00:00",
+  "updated_at": "2026-11-02T11:12:17+00:00",
+  "handoff": null,
+  "review": {
+    "by": "agent-2a1b",
+    "at": "2026-11-02T11:12:17+00:00",
+    "verdict": "approved",
+    "note": "Gate bookkeeping: V work done and approved as T221 (V, reviewed by Fable) + T224 (V2 after repairs)."
+  },
+  "log": [
+    {
+      "at": "2026-11-02T00:06:38+00:00",
+      "agent": "agent-47c8",
+      "event": "created",
+      "note": ""
+    },
+    {
+      "at": "2026-11-02T11:12:04+00:00",
+      "agent": "agent-a610",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-11-02T11:12:04+00:00",
+      "agent": "agent-a610",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-11-02T11:12:04+00:00",
+      "agent": "agent-a610",
+      "event": "review requested",
+      "note": "Gate closed: work done and approved as T221 (V) + T224 (V2 after Fable repairs)."
+    },
+    {
+      "at": "2026-11-02T11:12:17+00:00",
+      "agent": "agent-2a1b",
+      "event": "approved",
+      "note": "Gate bookkeeping: V work done and approved as T221 (V, reviewed by Fable) + T224 (V2 after repairs)."
+    }
+  ]
+}

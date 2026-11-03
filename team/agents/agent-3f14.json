@@ -1,0 +1,9 @@
+{
+  "id": "agent-3f14",
+  "label": "Claude Sonnet worker T217 c2",
+  "joined_at": "2026-11-02T08:30:20+00:00",
+  "last_seen": "2026-11-02T08:34:12+00:00",
+  "status": "left",
+  "current_task": null,
+  "inbox_cursor": 0
+}

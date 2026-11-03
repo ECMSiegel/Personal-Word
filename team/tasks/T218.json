@@ -1,0 +1,66 @@
+{
+  "id": "T218",
+  "title": "W5 E4 -- Right-click menu on sidebar rows",
+  "description": "docs/agent-work/2026-11-01-ui-wave-5/PLAN.md section 'Amendment 1' ### E4. EVERY vite build/Playwright run takes node_modules/.cache/personal-word-beta/serial-check.lock. Private config/port; double-quote paths; no git stash/checkout/reset/restore; no installs; no commits; no BoardUI installs.",
+  "status": "done",
+  "owner": null,
+  "priority": 2,
+  "depends_on": [
+    "T214",
+    "T217"
+  ],
+  "files": [
+    "src/components/ProjectSidebar.tsx",
+    "src/components/ContextMenu.tsx",
+    "src/components/context-menu.css",
+    "src/App.tsx",
+    "tests/sidebar-context-menu.spec.ts",
+    "node_modules/.cache/personal-word-beta/ui5-e4",
+    "src/components/floating.css",
+    "src/designTokens.test.ts"
+  ],
+  "review_required": true,
+  "created_by": "agent-2a1b",
+  "created_at": "2026-11-02T06:33:35+00:00",
+  "claimed_at": "2026-11-02T08:36:04+00:00",
+  "updated_at": "2026-11-02T09:04:25+00:00",
+  "handoff": null,
+  "review": {
+    "by": "agent-e361",
+    "at": "2026-11-02T09:04:25+00:00",
+    "verdict": "approved",
+    "note": "Independent run (Node v22.23.3, lock taken/released, port 1890, ui5-e4r/all.log): tsc 0; vitest designTokens/motion/hoverEmphasis/dragReorder/scrollFade 71 passed; vite build ok; Playwright 9 specs 103 passed, 16 env-gated screenshot skips, 0 failed. Code: ContextMenu role=menu/menuitem + aria-activedescendant, Up/Down/Home/End skip disabled, Enter/Space, Escape -> row focus (stopPropagation), Tab/outside/resize/scroll close, clamped 8px, pointer fade via tokens, keyboard/Reduce Motion instant, no new hover rule, no fills; moveBy keeps chord move fns/announce/pendingFocus; App one prop onDelete={remove}; context-menu.css added to SWEPT, nothing removed (relative to HEAD; other agents' SWEPT edits share the file); floating.css border-top 0 floating only. Fail-first ui5-e4/failfirst-pw.log: 8 failed for the right reasons (menu absent / items missing / dividers 1px); 560 test added after (disclosed). Hands-on covered by spec: fragment Delete -> confirm 'safety snapshot' dialog -> 'Before deleting' snapshot in history (after-delete.png shows it); bottom-right dispatch stays inside window; Shift+F10 on group heading Collapse/Expand focus returns; editor right-click no menu; bottom rows no menu. PDF row 'Move moves its source unit': acceptable reading. Screenshots all 15 opened: menu-section x4 (Open/Open beside/Rename/Move up/Move down disabled on last/Delete red; no fills), menu-group x4 (Collapse/Move up/Move down, anchored at pointer), floating x4 and floating-no-dividers (no lines above Read/Comments/History/Settings), floating-560 (list ends above Read, 5th row hidden), after-delete (normal sidebar still shows dividers above Comments/History). Minor nits: Chromium only, WebKit unchecked; in floating-560 the visible last row 'Four' sits flush above Read and shows little fade."
+  },
+  "log": [
+    {
+      "at": "2026-11-02T06:33:35+00:00",
+      "agent": "agent-2a1b",
+      "event": "created",
+      "note": ""
+    },
+    {
+      "at": "2026-11-02T08:36:04+00:00",
+      "agent": "agent-0655",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-11-02T08:36:04+00:00",
+      "agent": "agent-0655",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-11-02T08:56:47+00:00",
+      "agent": "agent-0655",
+      "event": "review requested",
+      "note": "E4 right-click menu built. NEW src/components/ContextMenu.tsx (role=menu/menuitem, dropdown.css rows, aria-activedescendant + data-highlighted so the shared emphasis rule applies, Up/Down/Home/End skip disabled, Enter/Space run, Escape -> focus back to row (stopPropagation so the unpinned sidebar does not hide), Tab/outside press/resize/sidebar-or-page scroll close; absolutely placed inside the aside, converted from viewport px via offsetParent, flipped/clamped 8px inside the window; pointer open fades opacity+transform with --duration-fast/--ease-out, keyboard open and Reduce Motion instant). NEW src/components/context-menu.css (added to SWEPT in designTokens.test.ts). ProjectSidebar.tsx: chord body factored into moveBy() (same move fns + announce + pendingFocus) reused by Move items (disabled at ends); menuProps() adds onContextMenu + Shift+F10/ContextMenu key on .entry-main and collapsible .group-title. Items: section/fragment Open, Open beside, Rename, Move up/down, Delete (danger, props.onDelete -> App remove: confirm + safety snapshot); source/note Open, Move up/down; PDF row Open, Open beside, Move up/down (moves its source unit -- my reading of \"+ Open beside for PDF rows\"); Bibliography Open; group heading Collapse/Expand, Move up/down. Bottom rows, Comments/History rows and the editor get no menu. App.tsx: one prop onDelete={remove}. floating.css: border-top 0 on .sidebar-bottom-groups .sidebar-group + .sidebar-group when .is-floating (normal keeps them). Coordinator 560px item: measured, .sidebar-groups is already its own overflow:auto region ending above Read (no paint under bottom rows); the reviewer shot showed a row clipped flush at that edge. Fix: floating-only E2 scroll fade on .sidebar-groups (watchScrollFade in a useEffect keyed on isFloating + import scroll-fade.css; mask, no fill); normal panel unchanged (asserted no data-scroll-bottom). EVIDENCE: fail-first ui5-e4/failfirst-pw.log (8 failed/2 passed before; 560 test added after, its mask assertion is new behaviour); acceptance ui5-e4/accept.log 95 passed, 12 env-gated screenshot skips (new spec + drag-reorder, sidebar-selection, floating, hover-emphasis, accessibility, sidebar-search, scrollspy); vitest designTokens/motion/hoverEmphasis/dragReorder/scrollFade 71 passed (ui5-e4/vitest.log); tsc -p . and tsc -b 0. Screenshots viewed: ui5-e4/shots/{light,dark}-{plain,color}-{menu-section,menu-group,floating}.png + floating-560.png. Chromium only; WebKit not checked. PATH STATE: src/components/ContextMenu.tsx new done; src/components/context-menu.css new done; src/components/ProjectSidebar.tsx modified done; src/App.tsx one prop done; src/components/floating.css appended done; src/designTokens.test.ts SWEPT +1 done; tests/sidebar-context-menu.spec.ts new done; node_modules/.cache/personal-word-beta/ui5-e4 scratch (config, run.sh, logs, shots). D1 TODO in design-system.md:306 can now be written. Lock released."
+    },
+    {
+      "at": "2026-11-02T09:04:25+00:00",
+      "agent": "agent-e361",
+      "event": "approved",
+      "note": "Independent run (Node v22.23.3, lock taken/released, port 1890, ui5-e4r/all.log): tsc 0; vitest designTokens/motion/hoverEmphasis/dragReorder/scrollFade 71 passed; vite build ok; Playwright 9 specs 103 passed, 16 env-gated screenshot skips, 0 failed. Code: ContextMenu role=menu/menuitem + aria-activedescendant, Up/Down/Home/End skip disabled, Enter/Space, Escape -> row focus (stopPropagation), Tab/outside/resize/scroll close, clamped 8px, pointer fade via tokens, keyboard/Reduce Motion instant, no new hover rule, no fills; moveBy keeps chord move fns/announce/pendingFocus; App one prop onDelete={remove}; context-menu.css added to SWEPT, nothing removed (relative to HEAD; other agents' SWEPT edits share the file); floating.css border-top 0 floating only. Fail-first ui5-e4/failfirst-pw.log: 8 failed for the right reasons (menu absent / items missing / dividers 1px); 560 test added after (disclosed). Hands-on covered by spec: fragment Delete -> confirm 'safety snapshot' dialog -> 'Before deleting' snapshot in history (after-delete.png shows it); bottom-right dispatch stays inside window; Shift+F10 on group heading Collapse/Expand focus returns; editor right-click no menu; bottom rows no menu. PDF row 'Move moves its source unit': acceptable reading. Screenshots all 15 opened: menu-section x4 (Open/Open beside/Rename/Move up/Move down disabled on last/Delete red; no fills), menu-group x4 (Collapse/Move up/Move down, anchored at pointer), floating x4 and floating-no-dividers (no lines above Read/Comments/History/Settings), floating-560 (list ends above Read, 5th row hidden), after-delete (normal sidebar still shows dividers above Comments/History). Minor nits: Chromium only, WebKit unchecked; in floating-560 the visible last row 'Four' sits flush above Read and shows little fade."
+    }
+  ]
+}

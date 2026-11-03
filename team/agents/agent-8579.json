@@ -1,0 +1,9 @@
+{
+  "id": "agent-8579",
+  "label": "Claude Sonnet worker T211 (W5 N1 early)",
+  "joined_at": "2026-11-02T03:53:06+00:00",
+  "last_seen": "2026-11-02T03:56:57+00:00",
+  "status": "left",
+  "current_task": null,
+  "inbox_cursor": 0
+}

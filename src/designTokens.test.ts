@@ -7,11 +7,18 @@ import { join } from "node:path";
 // padding/margin/gap in the two swept files is a --space-* token, and no UI
 // text anywhere is smaller than 12 px.
 
-const SWEPT = ["src/styles.css", "src/components/dropdown.css"];
+const SWEPT = [
+  "src/styles.css",
+  "src/components/dropdown.css",
+  "src/research/research.css",
+  "src/research/citation-card.css",
+  "src/components/command-palette.css",
+  "src/components/scroll-fade.css",
+  "src/components/context-menu.css",
+];
 const ALL = [
   ...SWEPT,
   "src/editor/editor.css",
-  "src/research/research.css",
   "src/organization/organization.css",
   "src/organization/fragments.css",
 ];

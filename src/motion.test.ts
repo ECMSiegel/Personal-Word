@@ -6,7 +6,7 @@ import { ANIMATABLE, EASING as MOTION_EASING, MOTION_MS, checkKeyframes, play, p
 type Decl = { selector: string; prop: string; value: string };
 
 function stylesheets(): string[] {
-  const files = ["src/styles.css", "src/editor/editor.css", "src/research/research.css"];
+  const files = ["src/styles.css", "src/editor/editor.css", "src/research/research.css", "src/research/citation-card.css"];
   for (const dir of ["src/components", "src/organization"]) {
     for (const f of fs.readdirSync(dir).sort()) if (f.endsWith(".css")) files.push(path.join(dir, f));
   }

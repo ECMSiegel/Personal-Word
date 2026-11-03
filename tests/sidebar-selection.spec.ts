@@ -333,23 +333,29 @@ test("bottom rows keep their fixed order and carry no hover actions", async ({ p
   await expect(
     page.locator('.sidebar-bottom-groups [data-group="comments"]'),
   ).not.toHaveAttribute("data-drag-index");
-  // A top group still offers them.
+  // A top group still offers its view toggle and add button (no move arrows since wave 5 A2).
   await page
     .locator('.sidebar-groups [data-group="manuscript"] .group-heading')
     .hover();
-  await expect(
-    page.getByRole("button", { name: "Move Manuscript up" }),
-  ).toHaveCount(1);
+  await expect(page.locator('.sidebar button[aria-label^="Move "]')).toHaveCount(0);
+  await expect(page.getByRole("button", { name: "Show Manuscript cards" })).toHaveCount(1);
   await expect(page.getByRole("button", { name: "New section" })).toHaveCount(1);
 });
 
-test("Move down is disabled on the third top group", async ({ page }) => {
+test("Option+Down on the last top group leaves the order and says it is already last", async ({ page }) => {
   await createProject(page, "Move limits");
-  await page
-    .locator('.sidebar-groups [data-group="research"] .group-heading')
-    .hover();
-  await expect(page.getByRole("button", { name: "Move Research down" })).toBeDisabled();
-  await expect(page.getByRole("button", { name: "Move Research up" })).toBeEnabled();
+  const names = () =>
+    page
+      .locator(".sidebar-groups > .sidebar-group")
+      .evaluateAll((els) => els.map((el) => el.getAttribute("data-group")));
+  const research = page.locator('.sidebar-groups [data-group="research"] .group-title');
+  await research.focus();
+  await page.keyboard.press("Alt+ArrowDown");
+  expect(await names()).toEqual(["manuscript", "fragments", "research"]);
+  await expect(page.locator('.sidebar [role="status"]')).toHaveText("Research is already last");
+  await page.keyboard.press("Alt+ArrowUp");
+  expect(await names()).toEqual(["manuscript", "research", "fragments"]);
+  await expect(research).toBeFocused();
 });
 
 test("a hidden feature row leaves the sidebar, survives reload, and stays per project", async ({ page }) => {

@@ -17,6 +17,8 @@ export function GeneralSettings({
   onAppearance,
   hoverReveal,
   onHoverReveal,
+  floating,
+  onFloating,
   restoreTabs,
   onRestoreTabs,
   storagePath,
@@ -27,6 +29,8 @@ export function GeneralSettings({
   onAppearance: (appearance: Appearance) => void;
   hoverReveal: boolean;
   onHoverReveal: (value: boolean) => void;
+  floating: boolean;
+  onFloating: (value: boolean) => void;
   restoreTabs: boolean;
   onRestoreTabs: (value: boolean) => void;
   storagePath: string | null;
@@ -124,6 +128,14 @@ export function GeneralSettings({
             onChange={(e) => onHoverReveal(e.target.checked)}
           />
           Reveal sidebar on hover
+        </label>
+        <label className="settings-check">
+          <input
+            type="checkbox"
+            checked={floating}
+            onChange={(e) => onFloating(e.target.checked)}
+          />
+          Floating sidebar and research
         </label>
         <div className="settings-form">
           <div className="settings-field">

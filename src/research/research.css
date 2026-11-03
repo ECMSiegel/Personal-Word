@@ -1,16 +1,16 @@
 .research-panel {
   box-sizing: border-box;
   display: grid;
-  gap: 14px;
+  gap: var(--space-4);
   min-width: 0;
-  padding: 0 0 24px;
+  padding: 0 0 var(--space-5);
   font-family:
     Futura,
     "Avenir Next",
     -apple-system,
     BlinkMacSystemFont,
     sans-serif;
-  font-size: 13px;
+  font-size: var(--type-body);
   line-height: 1.45;
   color: var(--text);
 }
@@ -21,12 +21,12 @@
 }
 .research-panel button {
   font: inherit;
-  font-size: 13px;
+  font-size: var(--type-body);
   color: var(--accent);
   background: none;
   border: 0;
   border-radius: 0;
-  padding: 4px 0;
+  padding: var(--space-1) 0;
   text-align: left;
   cursor: default;
 }
@@ -34,7 +34,7 @@
   color: var(--muted);
 }
 .research-panel button.button-primary {
-  padding: 6px 12px;
+  padding: var(--space-2) var(--space-3);
   background: var(--accent);
   color: var(--paper);
   flex: 0 0 auto;
@@ -58,13 +58,13 @@
   width: 100%;
   min-width: 0;
   font: inherit;
-  font-size: 13px;
+  font-size: var(--type-body);
   color: var(--text);
   background: transparent;
   border: 0;
   border-bottom: 1px solid var(--line);
   border-radius: 0;
-  padding: 4px 0;
+  padding: var(--space-1) 0;
 }
 .research-panel textarea {
   min-height: 44px;
@@ -75,13 +75,13 @@
   accent-color: var(--accent);
 }
 .research-panel .dropdown-button {
-  padding: 4px 0;
+  padding: var(--space-1) 0;
   border: 0;
   border-bottom: 1px solid var(--line);
   border-radius: 0;
   background: transparent;
   color: var(--text);
-  font-size: 13px;
+  font-size: var(--type-body);
 }
 .research-panel .dropdown-button:hover,
 .research-panel .dropdown-button[aria-expanded="true"] {
@@ -91,16 +91,16 @@
   color: var(--muted);
 }
 .research-panel .dropdown-menu {
-  font-size: 13px;
+  font-size: var(--type-body);
 }
 
 .research-tabs {
   display: flex;
-  gap: 18px;
+  gap: var(--space-4);
   border-bottom: 1px solid var(--line);
 }
 .research-tabs button {
-  padding: 6px 0 8px;
+  padding: var(--space-2) 0 var(--space-2);
   color: var(--muted);
   border-bottom: 2px solid transparent;
   margin-bottom: -1px;
@@ -114,13 +114,13 @@
 
 .research-add {
   display: grid;
-  gap: 6px;
+  gap: var(--space-2);
 }
 .research-lookup {
   display: flex;
   flex-wrap: wrap;
   align-items: flex-end;
-  gap: 8px 10px;
+  gap: var(--space-2) var(--space-3);
 }
 .lookup-tip {
   position: absolute;
@@ -169,7 +169,7 @@
 .item-actions {
   display: flex;
   flex-wrap: wrap;
-  gap: 4px 16px;
+  gap: var(--space-1) var(--space-4);
 }
 .research-status {
   min-height: 1em;
@@ -193,9 +193,9 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 10px;
+  gap: var(--space-3);
   width: 100%;
-  padding: 10px 0;
+  padding: var(--space-3) 0;
   color: var(--text);
 }
 .source-text {
@@ -229,8 +229,8 @@
 
 .source-body {
   display: grid;
-  gap: 14px;
-  padding: 0 0 18px;
+  gap: var(--space-4);
+  padding: 0 0 var(--space-4);
 }
 .source-pdf-name {
   font-size: var(--type-small);
@@ -264,21 +264,31 @@
 .research-fields {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(128px, 1fr));
-  gap: 12px;
+  gap: var(--space-3);
 }
 .research-fields .field.is-wide,
-.research-fields .field-group {
+.research-fields .field-group,
+.research-fields > .research-hint,
+.research-fields > details,
+.research-fields > button {
   grid-column: 1 / -1;
+}
+.repeat-rules {
+  display: grid;
+  gap: var(--space-3);
+}
+.note-actions {
+  margin-bottom: var(--space-3);
 }
 .field-group {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 12px;
+  gap: var(--space-3);
 }
 
 .citation-previews {
   display: grid;
-  gap: 10px;
+  gap: var(--space-3);
 }
 .preview,
 .cite-preview {
@@ -287,7 +297,7 @@
 }
 .citation-preview {
   margin: 0;
-  font-size: 13px;
+  font-size: var(--type-body);
   line-height: 1.5;
   white-space: pre-wrap;
   overflow-wrap: anywhere;
@@ -296,11 +306,11 @@
 .linked,
 .research-group {
   display: grid;
-  gap: 10px;
+  gap: var(--space-3);
 }
 .research-subhead {
   margin: 0;
-  font-size: 12px;
+  font-size: var(--type-small);
   font-weight: 600;
   color: var(--text);
 }
@@ -308,8 +318,8 @@
 .note-item,
 .footnote-item {
   display: grid;
-  gap: 8px;
-  padding: 10px 0 10px 10px;
+  gap: var(--space-2);
+  padding: var(--space-3) 0 var(--space-3) var(--space-3);
   border-left: 2px solid var(--selection);
 }
 .note-item {
@@ -321,30 +331,30 @@
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
   align-items: end;
-  gap: 12px;
+  gap: var(--space-3);
 }
 .check {
   display: flex;
   align-items: center;
-  gap: 6px;
-  font-size: 12px;
+  gap: var(--space-2);
+  font-size: var(--type-small);
   color: var(--text);
   cursor: default;
 }
 
 .research-bibliography {
-  font-size: 13px;
+  font-size: var(--type-body);
 }
 .research-bibliography summary {
-  padding: 4px 0;
+  padding: var(--space-1) 0;
   cursor: default;
 }
 .research-bibliography ol {
-  margin: 8px 0 0;
-  padding-left: 18px;
+  margin: var(--space-2) 0 0;
+  padding-left: var(--space-4);
 }
 .research-bibliography li {
-  margin-bottom: 6px;
+  margin-bottom: var(--space-2);
   overflow-wrap: anywhere;
 }
 
@@ -360,7 +370,7 @@ div.project-settings {
   overflow: auto;
   max-width: 720px;
   padding: 40px 48px;
-  font-size: 13px;
+  font-size: var(--type-body);
   line-height: 1.5;
   color: var(--text);
 }
@@ -370,47 +380,47 @@ div.project-settings {
 }
 .project-settings h1 {
   margin: 0;
-  font-size: 22px;
+  font-size: var(--type-title);
   font-weight: 600;
   letter-spacing: -0.3px;
 }
 .project-settings .settings-section {
   display: grid;
-  gap: 16px;
-  margin-top: 32px;
-  padding: 24px 0 0;
+  gap: var(--space-4);
+  margin-top: var(--space-6);
+  padding: var(--space-5) 0 0;
   border-top: 1px solid var(--line);
   min-width: 0;
 }
 .project-settings .settings-section h2 {
   margin: 0;
-  font-size: 15px;
+  font-size: var(--type-large);
   font-weight: 600;
 }
 .project-settings .settings-help {
   margin: 0;
   max-width: 60ch;
-  font-size: 12px;
+  font-size: var(--type-small);
   line-height: 1.6;
   color: var(--muted);
 }
 .project-settings .settings-form {
   display: grid;
-  gap: 12px;
+  gap: var(--space-3);
 }
 .project-settings .settings-field {
   display: grid;
   grid-template-columns: 180px minmax(0, 260px);
   align-items: center;
-  gap: 12px;
+  gap: var(--space-3);
 }
 .project-settings .settings-label {
-  font-size: 12px;
+  font-size: var(--type-small);
   color: var(--muted);
 }
 .project-settings .settings-field input[type="number"] {
   width: 72px;
-  padding: 6px 8px;
+  padding: var(--space-2) var(--space-2);
   border: 1px solid var(--line);
   border-radius: 0;
   background: var(--paper);
@@ -420,18 +430,18 @@ div.project-settings {
   width: 100%;
 }
 .project-settings .settings-field .dropdown-button {
-  padding: 6px 8px;
+  padding: var(--space-2) var(--space-2);
   border: 1px solid var(--line);
 }
 .project-settings .settings-checks {
   display: grid;
-  gap: 8px;
+  gap: var(--space-2);
   justify-items: start;
 }
 .project-settings .settings-check {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: var(--space-2);
   cursor: default;
 }
 .project-settings input[type="checkbox"] {
@@ -446,11 +456,11 @@ div.project-settings {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 8px;
+  gap: var(--space-2);
 }
 .project-settings .settings-button {
   justify-self: start;
-  padding: 6px 12px;
+  padding: var(--space-2) var(--space-3);
   border: 1px solid var(--line);
   background: transparent;
   color: var(--text);
@@ -466,7 +476,7 @@ div.project-settings {
 .project-settings .settings-text-action {
   padding: 0;
   color: var(--accent);
-  font-size: 12px;
+  font-size: var(--type-small);
   justify-content: flex-start;
 }
 .project-settings .settings-text-action:hover {
@@ -475,13 +485,13 @@ div.project-settings {
 .project-settings .settings-status {
   min-height: 1em;
   margin: 0;
-  font-size: 12px;
+  font-size: var(--type-small);
   color: var(--muted);
 }
 
 .template-picker {
   display: grid;
-  gap: 16px;
+  gap: var(--space-4);
 }
 .template-list {
   display: grid;
@@ -489,7 +499,7 @@ div.project-settings {
 .template-row {
   display: flex;
   align-items: stretch;
-  gap: 12px;
+  gap: var(--space-3);
   border-bottom: 1px solid var(--line);
 }
 .template-choice {
@@ -500,7 +510,7 @@ div.project-settings {
   align-items: flex-start;
   justify-content: center;
   gap: 2px;
-  padding: 12px 0;
+  padding: var(--space-3) 0;
   background: transparent;
   color: var(--text);
   text-align: left;
@@ -512,14 +522,14 @@ div.project-settings {
   font-weight: 500;
 }
 .template-choice small {
-  font-size: 12px;
+  font-size: var(--type-small);
   font-weight: 400;
   color: var(--muted);
 }
 .template-delete {
   align-self: center;
   padding: 0;
-  font-size: 12px;
+  font-size: var(--type-small);
   color: var(--muted);
 }
 .template-delete:hover {

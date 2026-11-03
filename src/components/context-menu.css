@@ -1,0 +1,31 @@
+/* Sidebar row context menu (UI wave 5, E4). The surface and rows are
+   dropdown.css (.dropdown-menu, .dropdown-option); this file only places it
+   (ContextMenu.tsx writes left/top), colours the destructive row and runs the
+   pointer-open fade. No hover rule here: menu rows take the one shared
+   emphasis rule in styles.css; no fill. A keyboard open has no data-animate
+   and so appears at once; Reduce Motion drops the transition. */
+.dropdown-menu.context-menu {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 70;
+  min-width: 160px;
+}
+.context-menu-item[data-danger] {
+  color: var(--danger);
+}
+.context-menu[data-animate] {
+  transform-origin: top left;
+  transition:
+    opacity var(--duration-fast) var(--ease-out),
+    transform var(--duration-fast) var(--ease-out);
+}
+.context-menu[data-animate]:not([data-shown]) {
+  opacity: 0;
+  transform: translateY(calc(-1 * var(--space-1)));
+}
+@media (prefers-reduced-motion: reduce) {
+  .context-menu[data-animate] {
+    transition: none;
+  }
+}

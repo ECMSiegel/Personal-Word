@@ -1,0 +1,83 @@
+/* Floating sidebar (wave 5, C3; docs/agent-work/2026-11-01-ui-wave-5/PLAN.md).
+   With Settings > General "Floating sidebar and research" on and room in the
+   left page margin (src/components/floating.ts), the sidebar is bare text on
+   the page's own background: no fill, no border, no shadow. The shell spans
+   from the window edge (so the hover-reveal strip stays at the edge) and the
+   sidebar sits one FLOAT_GAP (--space-4, 16 px) in from it, between the
+   bottom of the format bar and the top of the footer. ProjectSidebar.tsx
+   writes --float-width (min of the user's width and the margin's room),
+   --float-top and --float-bottom (relative to .app). The shell takes no flex
+   space, so the workspace spans the full width. Hover and focus come from the
+   one shared text-emphasis rule in styles.css; nothing here adds another. */
+.sidebar-shell.is-floating {
+  position: absolute;
+  left: 0;
+  top: var(--float-top, 0);
+  bottom: var(--float-bottom, 0);
+  width: calc(var(--space-4) + var(--float-width));
+  flex: none;
+  z-index: 4;
+  pointer-events: none;
+}
+.sidebar-shell.is-floating > * {
+  pointer-events: auto;
+}
+/* The shell sits above the Popover layer's 40 (menus paint over the sidebar);
+   .sidebar-shell.is-overlay in styles.css would otherwise win the tie at 60. */
+.sidebar-shell.is-floating,
+.sidebar-shell.is-floating.is-overlay {
+  z-index: 4;
+}
+/* The edge strip reaches the inset sidebar, so a slow pointer never leaves the shell. */
+.sidebar-shell.is-floating > .sidebar-edge {
+  width: var(--space-4);
+}
+.sidebar-shell.is-floating .sidebar,
+.sidebar-shell.is-floating.is-overlay .sidebar {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: var(--space-4);
+  width: var(--float-width);
+  height: auto;
+  background: transparent;
+  border: 0;
+  box-shadow: none;
+}
+/* Unpinned: hidden until revealed (edge strip, Show sidebar, shortcut or
+   hover), by opacity and a short slide only; the global Reduce Motion block
+   makes it instant and inert={!expanded} keeps it out of the tab order. */
+.sidebar-shell.is-floating.is-overlay .sidebar {
+  opacity: 0;
+  transform: translateX(calc(-1 * var(--space-2)));
+  visibility: hidden;
+  transition:
+    opacity var(--duration-base) var(--ease-out),
+    transform var(--duration-base) var(--ease-out),
+    visibility var(--duration-base);
+}
+/* Revealing leaves visibility out of the transition, so the sidebar is
+   focusable at once (Show sidebar by keyboard focuses the pin); hiding keeps
+   it visible until the fade ends. */
+.sidebar-shell.is-floating.is-overlay.is-revealed .sidebar {
+  opacity: 1;
+  transform: none;
+  visibility: visible;
+  transition:
+    opacity var(--duration-base) var(--ease-out),
+    transform var(--duration-base) var(--ease-out);
+}
+/* No surface anywhere inside: the narrow-width container query backs the
+   overlaid group buttons with --sidebar; here they sit on the page. */
+.sidebar-shell.is-floating .sidebar .group-actions,
+.sidebar-shell.is-floating .sidebar .search,
+.sidebar-shell.is-floating .sidebar .search input,
+.sidebar-shell.is-floating .sidebar .sidebar-title-row {
+  background: transparent;
+}
+/* Purely text (wave 5, E4 extra scope, owner decision): no 1 px --line rules
+   between the bottom rows (Read, Comments, History, Settings). The normal
+   panel keeps them (styles.css). */
+.sidebar-shell.is-floating .sidebar-bottom-groups .sidebar-group + .sidebar-group {
+  border-top: 0;
+}

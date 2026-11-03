@@ -1,0 +1,9 @@
+{
+  "id": "agent-7fff",
+  "label": "Claude Sonnet worker T221 (W5 V)",
+  "joined_at": "2026-11-02T09:05:55+00:00",
+  "last_seen": "2026-11-02T09:39:02+00:00",
+  "status": "left",
+  "current_task": null,
+  "inbox_cursor": 0
+}

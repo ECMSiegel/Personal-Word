@@ -1,5 +1,6 @@
 // Pure maths and state for pointer-based drag-to-reorder (vertical lists).
 // The hook in useDragReorder.ts wires this to pointer events; nothing here touches the DOM.
+import type { Entry } from "../model";
 
 /** Index a row dragged to `pointerY` would land at: the number of row midpoints above it, clamped to the list. */
 export function insertionIndex(pointerY: number, rowTops: number[], rowHeights: number[]): number {
@@ -17,6 +18,30 @@ export function reorder<T>(items: readonly T[], from: number, to: number): T[] {
   const [item] = out.splice(from, 1);
   out.splice(to, 0, item);
   return out;
+}
+
+/** `reorder` with the target clamped into the list (a keyboard move past either end lands on that end). */
+export function moveWithin<T>(items: readonly T[], from: number, to: number): T[] {
+  return reorder(items, from, Math.max(0, Math.min(items.length - 1, to)));
+}
+
+/**
+ * Moves entry `id` to position `to` among the entries of `kind`; entries of the other kind keep their
+ * slots in the array. Unknown ids, or ids of another kind, return an equal copy.
+ */
+export function reorderKind(entries: Entry[], kind: Entry["kind"], id: string, to: number): Entry[] {
+  const slots = entries.flatMap((e, i) => (e.kind === kind ? [i] : []));
+  const ofKind = slots.map((i) => entries[i]);
+  const moved = moveWithin(ofKind, ofKind.findIndex((e) => e.id === id), to);
+  const out = entries.slice();
+  slots.forEach((slot, n) => (out[slot] = moved[n]));
+  return out;
+}
+
+/** Option+Up is -1, Option+Down is 1; any other key, or another modifier with Option, is 0. */
+export function keyboardMove(e: { key: string; altKey: boolean; metaKey: boolean; ctrlKey: boolean; shiftKey: boolean }): -1 | 0 | 1 {
+  if (!e.altKey || e.metaKey || e.ctrlKey || e.shiftKey) return 0;
+  return e.key === "ArrowUp" ? -1 : e.key === "ArrowDown" ? 1 : 0;
 }
 
 /** Limits the lifted row's offset so it never leaves the list's top or bottom edge. */

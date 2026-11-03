@@ -1,22 +1,32 @@
-/* Scrollspy line column in the sidebar's Manuscript rows (list view only).
+/* Scrollspy line column in the sidebar's Manuscript, Fragments and Research rows (list view only).
    Reference: https://kit.cuedesign.space/components/scrollspy-line-navigation
    owner: free to use (owner statement 2026-10-28). Adapted: lines sit in each row's right
-   gutter, drawn by transform only (scaleX), no tooltip (the row title is beside it).
+   gutter, drawn by transform only, no tooltip (the row title is beside it).
    Contract: `.entry-row > .spy-line` with data-state="idle" | "open" | "active".
    Needs `.entry-row { position: relative }`; `.spy-line` is in the text-emphasis exclusion
-   list in styles.css, so the shared hover rule never touches it. */
+   list in styles.css, so the shared hover rule never touches it.
+   Wave 5 A3: the state sets a resting length (--spy-len); useSpyDock (scrollspy.ts) writes
+   --spy-mag (0..1) from pointer proximity, which grows the length toward 1 and the thickness
+   up to 2x. The active line of an open section or fragment shows how far it is scrolled:
+   a muted ::after remainder shrinks as --spy-progress goes from 0 to 1. Every rule's
+   selector names .spy-line (src/hoverEmphasis.test.ts exempts only that). */
 
 /* The list/cards class sits on the group section (.list-view / .cards-view), not on
-   .entry-list; cards view draws no lines and keeps its full width. */
-.sidebar-group[data-group="manuscript"].list-view .entry-list {
-  padding-right: 20px;
+   .entry-list; cards view draws no lines and keeps its full width. The gutter is 14 px, not
+   wave 4's 20: at the 190 px sidebar 20 px clipped a short PDF name (A3 stop rule, plan
+   default "use a 14 px gutter"; ui5-a3/gutter-probe.log). */
+.sidebar-group:is([data-group="manuscript"], [data-group="fragments"], [data-group="research"]).list-view
+  .entry-list {
+  padding-right: 14px;
 }
 
 .entry-row > button.spy-line {
+  --spy-len: 0.375;
   position: absolute;
   top: 50%;
-  /* In the 20 px gutter beside the row (row right edge + 2 px). */
-  right: -18px;
+  /* In the 14 px gutter beside the row: its right end 14 px past the row's edge, so at full
+     length it reaches 2 px into the row's own right padding. */
+  right: -14px;
   width: 16px;
   height: 2px;
   margin: -1px 0 0;
@@ -24,40 +34,56 @@
   border: 0;
   border-radius: 0;
   background: var(--muted);
-  transform: scaleX(0.375);
+  transform: scale(
+    calc(var(--spy-len) + var(--spy-mag, 0) * (1 - var(--spy-len))),
+    calc(1 + var(--spy-mag, 0))
+  );
   transform-origin: right center;
   transition: transform var(--duration-fast) var(--ease-out);
   cursor: pointer;
 }
 
 /* 24 px hit area without changing the drawn size */
-.entry-row > button.spy-line::after {
+.entry-row > button.spy-line::before {
   content: "";
   position: absolute;
   inset: -11px -4px;
 }
 
+/* Hover and focus without the dock (Reduce Motion, touch, no script): half length. */
 .entry-row:hover > button.spy-line,
 .entry-row:focus-within > button.spy-line,
 .entry-row > button.spy-line:hover,
 .entry-row > button.spy-line[data-state="open"] {
-  transform: scaleX(0.75);
+  --spy-len: 0.75;
 }
 
 .entry-row > button.spy-line[data-state="active"] {
+  --spy-len: 1;
   background: var(--accent);
-  transform: scaleX(1);
 }
 
 .entry-row > button.spy-line:active {
-  transform: scaleX(0.75);
+  --spy-len: 0.75;
 }
 .entry-row > button.spy-line[data-state="active"]:active {
-  transform: scaleX(1);
+  --spy-len: 1;
 }
 
-/* A key press must not animate. */
-.entry-row:has(:focus-visible) > button.spy-line {
+/* Scroll progress on the active line: the unread part stays muted. No transition: it
+   follows the scroll position frame by frame. */
+.entry-row > button.spy-line[data-state="active"][data-progress]::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: var(--muted);
+  transform: scaleX(calc(1 - var(--spy-progress, 0)));
+  transform-origin: right center;
+}
+
+/* A key press must not animate: the focused row, and its neighbours' keyboard magnify. */
+.entry-row:has(:focus-visible) > button.spy-line,
+.sidebar-groups[data-spy-key] .entry-row > button.spy-line {
   transition: none;
 }
 

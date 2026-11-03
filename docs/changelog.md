@@ -2,6 +2,28 @@
 
 Dated history, newest first, built from `git log --date=short` and [app history](app-history.md). [app-history.md](app-history.md) already gives a fuller narrative for 2026-10-14 to 2026-10-18 (including what each pass did and did not verify), so this file links to it rather than repeating it. Fixed issues are listed with dates in [limitations](limitations.md). Verification details are in the [validation record](validation.md).
 
+## 2026-11-02
+
+Part of UI wave 5, itemised below under 2026-11-01 because the wave was planned and started that day: floating mode, citation card, sidebar search clear and the command palette component landed overnight 2026-11-01 to 2026-11-02 (tasks T201, T208-T215, T219). The scroll fade (T216), the command palette wiring (T217) and the sidebar right-click menu (T218) landed the same night and are listed below.
+
+## 2026-11-01
+
+UI wave 5 (tasks T194-T220, each independently reviewed; CLAIMED, final validation pending; Chromium and unit evidence only, native WebKit not yet run). Plan: [the wave-5 plan](agent-work/2026-11-01-ui-wave-5/PLAN.md). Entries dated 2026-11-02 below belong to the same wave.
+
+- Sidebar rows: Research, Manuscript and Fragments labels now start at one x position at every sidebar width, with an icon on every Research row (source, note, Bibliography, PDF, Comments, History); a PDF row sits exactly one step deeper.
+- Sidebar reorder: the up and down arrow buttons are gone. Group headings, sections, fragments, research sources and research notes all drag, and Option+Up and Option+Down move the focused row one place at once, announced to screen readers. Order is saved with the project.
+- Scrollspy lines on every Manuscript, Fragments and Research row in list view; they grow toward the pointer, and the active line fills with accent as its section or fragment scrolls (not for research rows). The line gutter is 14 px, not 20.
+- Research panel: spacing and type sizes on the design tokens, hints and buttons span the full panel width, the Notes tab has a labelled Note field with space above it. Side effects accepted: the Project settings heading is 19 px, and some control paddings and gaps snapped to the scale.
+- Menus inside a scrolling container (the Research panel's Full citation again menu) now open inside it and wrap long labels instead of being clipped; toolbar popovers are unchanged.
+- Floating sidebar and research: a new Settings > General checkbox (off by default). When on, and only where the page margin is wide enough, the sidebar floats in the left margin as bare text with no background, border or shadow, and the citation card floats in the right margin; where there is no room, or in split view, on a destination page or on Versions, the normal sidebar and Research panel show. See the design system's Floating layout.
+- Citation card: a small raised card for adding or editing one citation at a time (look up or enter by hand, review, Cite here, then Page and Note form), opened from the Research heading or by clicking a footnote number. It shares its logic with the Research panel, so the footnotes it makes are identical. After Cite here, focus goes to the new footnote's text field, as in the panel.
+- Research panel internals: citation logic moved into shared modules (`citationActions`, `useLookup`, `SourceForm`, `Cite`) with no change to what the panel looks like or does.
+- Sidebar search: a clear button appears in the field when there is text, and Escape clears the text without leaving the field.
+- Command palette: Cmd+Shift+P opens a search box over every app action, "Go to" each section, fragment and page, and New fragment; Enter runs the choice, Escape closes it and puts the cursor back where it was. The shortcut can be changed in Settings > Shortcuts.
+- Scroll fade: the Research panel, the citation card and (in floating mode) the sidebar's list fade at an edge that has more content beyond it; no fade while a menu or dialog is open inside.
+- Sidebar right-click menu: right-click or Shift+F10 on a sidebar row for Open, Open beside, Rename, Move up or down and Delete (sections and fragments), or Collapse/Expand and Move on a group heading. In floating mode the thin lines above Read, Comments, History and Settings are gone.
+- Docs and tests: design system (Floating layout, Search, header), architecture (shared citation modules, floating measurement), limitations, validation, user guide (reordering text corrected). The hover crawl test now scrolls covered controls into view.
+
 ## 2026-10-29
 
 UI wave 4 (tasks T171-T193, each independently reviewed; CLAIMED, final validation pending; Chromium and unit evidence only, native WebKit not yet run). Plan: [the wave-4 plan](agent-work/2026-10-28-ui-wave-4/PLAN.md).

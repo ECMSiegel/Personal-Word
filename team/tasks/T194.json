@@ -1,0 +1,59 @@
+{
+  "id": "T194",
+  "title": "W5 A1 -- One indent and icons for Research rows",
+  "description": "UI wave 5, plan docs/agent-work/2026-11-01-ui-wave-5/PLAN.md section '### A1' (APPROVED 2026-11-01, defaults accepted). Read the whole task plus Rules, Approach, hotspot ownership and Notes before starting; owner request REQUEST.md + screenshots. Do not register team-serial-check-slot; heavy runs take the mkdir lock node_modules/.cache/personal-word-beta/serial-check.lock. Private Playwright config/port; double-quote paths; no git stash/checkout/reset; no installs.",
+  "status": "done",
+  "owner": null,
+  "priority": 1,
+  "depends_on": [],
+  "files": [
+    "src/components/ProjectSidebar.tsx",
+    "src/styles.css",
+    "tests/alignment.spec.ts",
+    "node_modules/.cache/personal-word-beta/ui5-a1"
+  ],
+  "review_required": true,
+  "created_by": "agent-47c8",
+  "created_at": "2026-11-02T00:06:21+00:00",
+  "claimed_at": "2026-11-02T00:28:34+00:00",
+  "updated_at": "2026-11-02T01:18:16+00:00",
+  "handoff": null,
+  "review": {
+    "by": "agent-ff7a",
+    "at": "2026-11-02T01:18:16+00:00",
+    "verdict": "approved",
+    "note": "Reviewed by agent-ff7a. DIFF: git diff of the 3 files is A1-only (icon helper + CollectionRow type + 1 JSX line + 3 icon imports + NOTE_KINDS; depth-1 padding 12+16 -> 8+16; extra cards-view rule; 3 new specs). No Prettier churn, no lost HEAD lines. No new hover/scale/stroke, no fills, no motion; icons size 16. Extra rule .cards-view .entry-row[data-depth=1] .entry-main is correct and needed: base depth-1 rule (0,3,0) beats .cards-view .entry-main (0,2,0), so without it the PDF card would indent 24 vs 12 = 12 px step, not 16. Note-vs-source via detail is sound vs App.tsx:2003-2007 (notes get detail: n.kind, sources none; unknown detail falls back to source icon). Caveat: A2 touching collectionItems must keep that contract. FAIL-FIRST on real HEAD export (git archive, own build, new alignment.spec): all 3 new specs fail; first on missing icon (bibliography icon []), and with the icon assertion removed in a scratch copy, on label x 44,44,20,20,20 (24 px gap) at 190/270/390. Logs: node_modules/.cache/personal-word-beta/ui5-a1r/failfirst-head.log (includes xonly run). ACCEPTANCE own build (Node v22.23.3, port 1834): alignment+sidebar-selection+layout+research-pdf = 33 passed, 0 failed (node_modules/.cache/personal-word-beta/ui5-a1r/acceptance.log). tsc --noEmit exit 0 (node_modules/.cache/personal-word-beta/ui5-a1r/tsc.log). SCREENSHOTS viewed in node_modules/.cache/personal-word-beta/ui5-a1r/shots/: 270 light/dark x plain/color, 190 light plain, 390 light plain: Manuscript, Fragments, Bibliography, source, note labels share one x; PDF row exactly one step deeper; icons 16 px, greyscale in Plain, orange tint on Research icons in Color; 190 truncates long source title with ellipsis, labels keep x. Matches 8.png/11.png intent. Caveats: Chromium only; Comments/History row icons not asserted (no seeded rows)."
+  },
+  "log": [
+    {
+      "at": "2026-11-02T00:06:21+00:00",
+      "agent": "agent-47c8",
+      "event": "created",
+      "note": ""
+    },
+    {
+      "at": "2026-11-02T00:28:34+00:00",
+      "agent": "agent-e586",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-11-02T00:28:39+00:00",
+      "agent": "agent-e586",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-11-02T01:08:12+00:00",
+      "agent": "agent-e586",
+      "event": "review requested",
+      "note": "T194 (W5 A1) -- one indent and icons for Research rows. Agent agent-e586. Status CLAIMED.\n\nWHAT CHANGED\n1. src/components/ProjectSidebar.tsx\n   - Collection rows now render a leading 16 px icon (new `CollectionRowIcon` +\n     `collectionRowIcon` helper, placed above `ProjectSidebar`). Icon by row:\n     `pdf:` id -> FileText, `bibliography` -> Library, group `comments` ->\n     MessageSquare, group `history` -> History, a research row whose `detail` is a\n     note kind -> StickyNote, otherwise Book (source). `History` and `MessageSquare`\n     were already imported; `Book`, `Library`, `StickyNote` are new and all exist in\n     lucide-react 0.468 (checked by importing the package).\n   - Extracted the inline `collectionItems` item shape to a named `CollectionRow`\n     type so the helper and Props share one definition. No behaviour change.\n   - The icon is the first child of `.entry-main`; `button { gap: var(--space-2) }`\n     supplies the 8 px gap, so a label starts 16 + 8 px right of the row padding --\n     exactly what Manuscript rows already did.\n2. src/styles.css\n   - `.entry-row[data-depth=\"1\"] .entry-main`: `calc(var(--space-3) + var(--space-4))`\n     -> `calc(var(--space-2) + var(--space-4))`, i.e. 24 px. The base padding is now\n     8 px (the later `.entry-main` rule at ~1687), so depth-1 = base + 16 px, which is\n     the plan's \"measure, do not guess\" requirement. Measured: 44 -> 60 px label x.\n   - ONE RULE BEYOND THE PLAN'S LINE LIST, deliberate: `.cards-view .entry-row[data-depth=\"1\"] .entry-main`\n     with `calc(var(--space-3) + var(--space-4))`. Cards view pads rows by --space-3,\n     so without it the PDF card's step would shrink from 16 px to 12 px. It sits in the\n     row-rules block the task owns (:1683-1692 region). Say so if you would rather it go.\n3. tests/alignment.spec.ts\n   - Three new specs (one per sidebar width 190/270/390): seeds a section, a fragment,\n     a source with a PDF and a note, then asserts (a) each of those six rows has exactly\n     one `.entry-main > svg` at 16 px, (b) the label x of the Manuscript, Fragments,\n     Bibliography, source and note rows agree within 0.5 px, (c) the PDF row's label is\n     exactly 16 px further right. Added `type Locator` to the import.\n\nCAVEAT THE REVIEWER AND A2 SHOULD KNOW\nThe sidebar cannot see `project.research`, and App.tsx is A2's hotspot, so sources and\nnotes are told apart by `detail`: App.tsx:2003-2007 sets `detail: n.kind` on note rows and\nnothing on source rows. `collectionRowIcon` treats `detail` as a note only when it is one\nof `ResearchNote[\"kind\"]` (\"quote\" | \"paraphrase\" | \"personal\"), so any other detail value\nfalls back to the source icon instead of mislabelling a source as a note. If A2 touches the\n`collectionItems` construction it may pass an explicit kind instead; the helper is one\nfunction to change. Manifested in the done note so it is not rediscovered.\n\nHOW VERIFIED (all on the pinned Node v22.23.3)\n- FAIL-FIRST, doctored pre-A1 state (injected stylesheet reproducing old padding + no\n  research-row icon) against this build: the new assertions fail with the numbers the\n  owner saw -- label x 44, 44, 20, 20, 20 and pdf 40; spread 24 px > 0.5. Log:\n  node_modules/.cache/personal-word-beta/ui5-a1/failfirst/ (spec rows-on-old-tree.spec.js,\n  config failfirst.config.mjs, results under failfirst-results/).\n- ACCEPTANCE: `npx playwright test -c .../ui5-a1/browser.config.mjs tests/alignment.spec.ts\n  tests/sidebar-selection.spec.ts tests/layout.spec.ts tests/research-pdf.spec.ts` ->\n  33 passed, 0 failed, 0 flaky (report.json in the same folder). Includes the three new\n  specs and the pre-existing depth/band/hit-area specs.\n- UNIT: `npx vitest run src/designTokens.test.ts src/hoverEmphasis.test.ts src/motion.test.ts`\n  -> 36 passed (no new hover rule, so hoverEmphasis is untouched).\n- TYPES: `npx tsc --noEmit -p .` -> exit 0.\n- MANUSCRIPT LABEL DID NOT MOVE (your instruction): manuscript/fragment label x is 44 px\n  both in the doctored pre-A1 run and in the A1 build; every depth-0 row now reports 44 and\n  the PDF row 60. Numbers logged by the shots run.\n- SCREENSHOTS VIEWED (not just counted), all five: rows-270-{light,dark}-{plain,color}.png\n  and rows-190-light-plain.png in .../ui5-a1/shots/. What I saw: greyscale icons in Plain,\n  research icons taking the orange section tint in Color (matching the group title's icon,\n  via the existing rule at styles.css ~2206), the PDF row one step in, and at 190 px the long\n  source title truncating with an ellipsis while every label keeps its x. No new hover rule,\n  no fills, no motion.\n\nNOT DONE / LIMITS\n- Chromium only: no native WebKit screenshot for this task. The change is padding, icon\n  presence and colour inheritance, but per AGENTS.md that is not proof of macOS rendering;\n  wave 5 N1/V cover native screenshots.\n- Comments and History rows got icons too (generic icons) but are NOT asserted by the new\n  spec (seeding a comment/snapshot row was out of A1's acceptance list).\n- Prettier was run over the three files by mistake mid-task and the files were restored from\n  HEAD and the edits re-applied, so the diff is only A1's lines (54/10/141). No other agent's\n  work was in those files at the time (they were clean at HEAD when I started).\n\nREGISTERED PATH STATE\nsrc/components/ProjectSidebar.tsx: uncommitted edits\nsrc/styles.css: uncommitted edits\ntests/alignment.spec.ts: uncommitted edits\nnode_modules/.cache/personal-word-beta/ui5-a1: uncommitted edits\n"
+    },
+    {
+      "at": "2026-11-02T01:18:16+00:00",
+      "agent": "agent-ff7a",
+      "event": "approved",
+      "note": "Reviewed by agent-ff7a. DIFF: git diff of the 3 files is A1-only (icon helper + CollectionRow type + 1 JSX line + 3 icon imports + NOTE_KINDS; depth-1 padding 12+16 -> 8+16; extra cards-view rule; 3 new specs). No Prettier churn, no lost HEAD lines. No new hover/scale/stroke, no fills, no motion; icons size 16. Extra rule .cards-view .entry-row[data-depth=1] .entry-main is correct and needed: base depth-1 rule (0,3,0) beats .cards-view .entry-main (0,2,0), so without it the PDF card would indent 24 vs 12 = 12 px step, not 16. Note-vs-source via detail is sound vs App.tsx:2003-2007 (notes get detail: n.kind, sources none; unknown detail falls back to source icon). Caveat: A2 touching collectionItems must keep that contract. FAIL-FIRST on real HEAD export (git archive, own build, new alignment.spec): all 3 new specs fail; first on missing icon (bibliography icon []), and with the icon assertion removed in a scratch copy, on label x 44,44,20,20,20 (24 px gap) at 190/270/390. Logs: node_modules/.cache/personal-word-beta/ui5-a1r/failfirst-head.log (includes xonly run). ACCEPTANCE own build (Node v22.23.3, port 1834): alignment+sidebar-selection+layout+research-pdf = 33 passed, 0 failed (node_modules/.cache/personal-word-beta/ui5-a1r/acceptance.log). tsc --noEmit exit 0 (node_modules/.cache/personal-word-beta/ui5-a1r/tsc.log). SCREENSHOTS viewed in node_modules/.cache/personal-word-beta/ui5-a1r/shots/: 270 light/dark x plain/color, 190 light plain, 390 light plain: Manuscript, Fragments, Bibliography, source, note labels share one x; PDF row exactly one step deeper; icons 16 px, greyscale in Plain, orange tint on Research icons in Color; 190 truncates long source title with ellipsis, labels keep x. Matches 8.png/11.png intent. Caveats: Chromium only; Comments/History row icons not asserted (no seeded rows)."
+    }
+  ]
+}

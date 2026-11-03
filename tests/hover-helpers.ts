@@ -98,6 +98,20 @@ export async function hoverSample(page: Page, id: string, settleMs = 200): Promi
       b = await loc.boundingBox({ timeout: 800 });
       if (!b) return null;
     }
+    // a footer or sticky header can sit over the control: if the centre point does not hit the control,
+    // scroll it to the middle of its scroll container and re-measure. Still covered after that -> null (listed as un-hoverable).
+    const hit = () =>
+      loc.evaluate((el) => {
+        const r = el.getBoundingClientRect();
+        const t = document.elementFromPoint(r.x + r.width / 2, r.y + r.height / 2);
+        return !!t && (t === el || el.contains(t));
+      });
+    if (!(await hit())) {
+      await loc.evaluate((el) => el.scrollIntoView({ block: "center", inline: "nearest" }));
+      await page.waitForTimeout(80);
+      b = await loc.boundingBox({ timeout: 800 });
+      if (!b || !(await hit())) return null;
+    }
     await page.mouse.move(b.x + b.width / 2, b.y + b.height / 2);
     await page.waitForTimeout(settleMs);
     // a dialog that is still animating in can move under the pointer: land again if the hover did not take

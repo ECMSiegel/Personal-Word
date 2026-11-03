@@ -34,6 +34,95 @@ export type PopoverProps = {
 
 const ITEM = "[data-popover-item]";
 
+export type RectLike = {
+  left: number;
+  right: number;
+  top: number;
+  bottom: number;
+  width: number;
+  height: number;
+};
+
+/** Window (and container) margin shared by every placement decision. */
+const MARGIN = 8;
+/** Room kept between a bounded popup and its scroll container's edges. */
+const BOUNDARY_INSET = 16;
+
+/**
+ * One pure placement rule (UI wave 5, B2). Without a scroll-container
+ * boundary it is exactly the behaviour Popover has always had: prefer start,
+ * flip to the end near the window's right edge, flip up near the window's
+ * bottom, cap the height at the room left. With a boundary (the nearest
+ * auto/scroll ancestor, found by the caller) the same decisions run against
+ * the boundary intersected with the viewport, and the popup width is capped
+ * at the boundary width minus 16 so long labels wrap instead of spilling.
+ * The toolbar and More-menu chain has no auto/scroll ancestor, so those
+ * popovers take the window branch and never move.
+ */
+export function placePopover(input: {
+  trigger: RectLike;
+  popupWidth: number;
+  popupHeight: number;
+  viewport: { width: number; height: number };
+  boundary: RectLike | null;
+  align: "start" | "end";
+}): { end: boolean; up: boolean; maxWidth: number | null; maxHeight: number } {
+  const { trigger, popupWidth, popupHeight, viewport, align } = input;
+
+  // The visible part of the boundary; an invisible boundary is no boundary.
+  let box: RectLike | null = null;
+  if (input.boundary) {
+    const b = input.boundary;
+    const left = Math.max(0, b.left);
+    const top = Math.max(0, b.top);
+    const right = Math.min(viewport.width, b.right);
+    const bottom = Math.min(viewport.height, b.bottom);
+    if (right - left > 0 && bottom - top > 0)
+      box = { left, top, right, bottom, width: right - left, height: bottom - top };
+  }
+
+  const fitsStart = (box?.left ?? 0) + MARGIN; // left edge of the room the menu may use
+  const fitsEnd = (box?.right ?? viewport.width) - MARGIN;
+
+  const end =
+    align === "end" ||
+    (trigger.left + popupWidth > fitsEnd &&
+      trigger.right - popupWidth >= (box ? fitsStart : MARGIN));
+
+  const below = (box?.bottom ?? viewport.height) - trigger.bottom - MARGIN;
+  const above = trigger.top - (box?.top ?? 0) - MARGIN;
+  const up = popupHeight > below && above > below;
+
+  return {
+    end,
+    up,
+    maxWidth: box ? box.width - BOUNDARY_INSET : null,
+    maxHeight: Math.max(0, Math.min(popupHeight, up ? above : below)),
+  };
+}
+
+/**
+ * The nearest ancestor of the popup that actually scrolls (overflow auto or
+ * scroll on either axis). Hidden, clipped and visible ancestors are not
+ * scroll containers; the toolbar/workspace chain is all clip, so toolbar
+ * popovers find none and keep the window placement.
+ */
+export function nearestScrollBoundary(popup: Element): HTMLElement | null {
+  let node: HTMLElement | null = popup.parentElement;
+  while (node && node !== document.body) {
+    const style = getComputedStyle(node);
+    if (
+      style.overflowX === "auto" ||
+      style.overflowX === "scroll" ||
+      style.overflowY === "auto" ||
+      style.overflowY === "scroll"
+    )
+      return node;
+    node = node.parentElement;
+  }
+  return null;
+}
+
 /**
  * The one menu and panel surface (docs/design-system.md, Popover). It is an
  * absolutely positioned sibling of its anchor inside the anchor's positioned
@@ -82,25 +171,66 @@ export function Popover({
       anchorSize.current = { w: r.width, h: r.height };
       return;
     }
+    const boundary = nearestScrollBoundary(popup);
     const measure = () => {
       const t = trigger.getBoundingClientRect();
-      const rect = popup.getBoundingClientRect();
-      const naturalHeight = popup.scrollHeight;
-      const below = window.innerHeight - t.bottom - 8;
-      const above = t.top - 8;
-      const vertical = naturalHeight > below && above > below;
+      const viewport = { width: window.innerWidth, height: window.innerHeight };
+      const box = boundary ? boundary.getBoundingClientRect() : null;
+      // Measure the un-clamped menu first so the flip decision uses its natural
+      // width, and so a later resize does not measure the already-clamped width.
+      popup.style.maxWidth = "";
+      popup.removeAttribute("data-bounded");
+      const natural = placePopover({
+        trigger: t,
+        popupWidth: popup.getBoundingClientRect().width,
+        popupHeight: popup.scrollHeight,
+        viewport,
+        boundary: box,
+        align,
+      });
+      if (natural.maxWidth != null) {
+        // Only ever narrow the menu: keep the stylesheet's own cap (320 px for a Dropdown).
+        const cssMax = parseFloat(getComputedStyle(popup).maxWidth);
+        popup.style.maxWidth = `${Math.min(natural.maxWidth, Number.isFinite(cssMax) ? cssMax : Infinity)}px`;
+        popup.setAttribute("data-bounded", "");
+      }
+      // The width clamp can wrap a long label, and a wrapped menu is taller, so
+      // read the size again (forces a reflow) and clamp the height to the menu's
+      // real, wrapped height -- otherwise its last item is cut off.
+      const out = placePopover({
+        trigger: t,
+        popupWidth: popup.getBoundingClientRect().width,
+        popupHeight: popup.scrollHeight,
+        viewport,
+        boundary: box,
+        align,
+      });
       // Panels that let nested menus spill out (overflow: visible) keep their height.
       if (getComputedStyle(popup).overflowY !== "visible")
-        popup.style.maxHeight = `${Math.max(0, Math.min(naturalHeight, vertical ? above : below))}px`;
-      const end =
-        align === "end" ||
-        (t.left + rect.width > window.innerWidth - 8 && t.right - rect.width >= 8);
-      up.current = vertical;
-      setPlace((p) => (p.end === end && p.up === vertical ? p : { end, up: vertical }));
+        popup.style.maxHeight = `${out.maxHeight}px`;
+      up.current = out.up;
+      setPlace((p) =>
+        p.end === natural.end && p.up === out.up
+          ? p
+          : { end: natural.end, up: out.up },
+      );
+    };
+    let raf = 0;
+    const schedule = () => {
+      if (raf) return;
+      raf = requestAnimationFrame(() => {
+        raf = 0;
+        measure();
+      });
     };
     measure();
-    window.addEventListener("resize", measure);
-    return () => window.removeEventListener("resize", measure);
+    window.addEventListener("resize", schedule);
+    boundary?.addEventListener("scroll", schedule, { passive: true });
+    return () => {
+      if (raf) cancelAnimationFrame(raf);
+      window.removeEventListener("resize", schedule);
+      boundary?.removeEventListener("scroll", schedule);
+    };
   }, [open, align, morph, anchor]);
 
   const hidden = useCallback(

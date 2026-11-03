@@ -445,7 +445,7 @@ test("Research sidebar group: no Bibliography without sources, Chicago always ha
   await openResearch(page);
   await page.getByRole("button", { name: "Notes", exact: true }).click();
   await page.getByRole("button", { name: "Add note", exact: true }).click();
-  await page.getByLabel("Note text").first().fill("Remember the tide table");
+  await page.getByLabel("Note", { exact: true }).first().fill("Remember the tide table");
   await page.getByRole("button", { name: "Close research", exact: true }).click();
   await expect(rows).toHaveText(["Remember the tide table"]);
 
@@ -471,10 +471,76 @@ test("Research sidebar group: no Bibliography without sources, Chicago always ha
   await page.getByRole("button", { name: "Close research", exact: true }).click();
   await rows.nth(2).click();
   await expect(page.locator(".research-panel")).toBeVisible();
-  await expect(page.getByLabel("Note text").first()).toBeVisible();
+  await expect(page.getByLabel("Note", { exact: true }).first()).toBeVisible();
   await expect(page.getByRole("button", { name: "Notes", exact: true })).toHaveAttribute("aria-pressed", "true");
 
   await page.goto("/");
   await create(page, "Chicago research", "Chicago");
   await expect(rows.first()).toHaveText("Bibliography");
+});
+
+// Wave 5 B1: geometry, not pixels. The aside is 390 px wide by default.
+test("research hints span the whole field row and the repeat-rule fields are spaced", async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto("/");
+  await create(page, "Research spacing");
+  await openResearch(page);
+  const aside = page.locator(".research-aside");
+  await expect(aside).toBeVisible();
+
+  // Review required details: the paragraph is as wide as the panel, not one grid cell.
+  await page.getByRole("button", { name: "Enter manually" }).click();
+  const hint = page
+    .locator(".research-hint")
+    .filter({ hasText: "Review required details:" });
+  await expect(hint).toBeVisible();
+  const panelWidth = await page
+    .locator(".research-panel")
+    .evaluate((el) => el.getBoundingClientRect().width);
+  const hintWidth = await hint.evaluate((el) => el.getBoundingClientRect().width);
+  expect(Math.abs(hintWidth - panelWidth)).toBeLessThanOrEqual(2);
+
+  // Repeat citation rules: the two menus have a gap between them.
+  await page.getByLabel("Use repeat citation rules").check();
+  const first = await page
+    .locator(".repeat-rules .field")
+    .nth(0)
+    .evaluate((el) => el.getBoundingClientRect());
+  const second = await page
+    .locator(".repeat-rules .field")
+    .nth(1)
+    .evaluate((el) => el.getBoundingClientRect());
+  expect(second.top - first.bottom).toBeGreaterThanOrEqual(12);
+});
+
+test("a note has a visible Note label and room above its field", async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto("/");
+  await create(page, "Research note spacing");
+  await openResearch(page);
+  await page.getByRole("button", { name: "Notes", exact: true }).click();
+  await page.getByRole("button", { name: "Add note", exact: true }).click();
+  const field = page.getByLabel("Note", { exact: true });
+  await expect(field).toBeVisible();
+  await expect(field).toHaveAttribute("placeholder", "Write a note");
+  const label = page.locator(".note-item label", { hasText: /^Note$/ });
+  await expect(label).toBeVisible();
+  const add = await page
+    .getByRole("button", { name: "Add note", exact: true })
+    .evaluate((el) => el.getBoundingClientRect());
+  const labelBox = await label.evaluate((el) => el.getBoundingClientRect());
+  const fieldBox = await field.evaluate((el) => el.getBoundingClientRect());
+  // Panel grid gap (16) plus .note-actions margin-bottom (12): about 27.5 px from the
+  // button to the first note's top edge; without the margin it is only about 15.5 (so 24 is the floor).
+  const noteTop = await page
+    .locator(".note-item")
+    .first()
+    .evaluate((el) => el.getBoundingClientRect().top);
+  expect(noteTop - add.bottom).toBeGreaterThanOrEqual(24);
+  expect(labelBox.top - add.bottom).toBeGreaterThanOrEqual(12);
+  expect(fieldBox.top - labelBox.bottom).toBeGreaterThanOrEqual(0);
 });

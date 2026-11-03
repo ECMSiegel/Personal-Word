@@ -145,3 +145,24 @@ describe("readShortcuts drops stored overrides that are now refused (T162 repair
     expect(readShortcuts(memory('{"save":null,"newSection":5}'))).toEqual({});
   });
 });
+
+describe("commandPalette (E3)", () => {
+  it("is an app-scope action defaulting to Cmd+Shift+P, unreserved and unique", () => {
+    const palette = ACTIONS.find((a) => a.id === "commandPalette");
+    expect(palette).toMatchObject({ label: "Command palette", scope: "app", default: { key: "p", meta: true, shift: true } });
+    expect(hintFor("commandPalette", {})).toBe("⇧⌘P");
+    expect(chordProblem("commandPalette", { key: "p", meta: true, shift: true }, {})).toBeNull();
+    expect(resolveChord(ev({ key: "P", metaKey: true, shiftKey: true }), {})).toBe("commandPalette");
+  });
+  it("no default chord collides with another default or a reserved chord, Control folded into Command", () => {
+    const fold = (c: { key: string; meta?: boolean; ctrl?: boolean; shift?: boolean; alt?: boolean }) =>
+      formatChord({ ...c, meta: c.meta || c.ctrl, ctrl: false });
+    const seen = new Set<string>();
+    for (const a of ACTIONS) {
+      const f = fold(a.default);
+      expect(seen.has(f), `${a.id} collides on ${f}`).toBe(false);
+      seen.add(f);
+      expect(RESERVED.some((r) => fold(r) === f), `${a.id} is reserved`).toBe(false);
+    }
+  });
+});

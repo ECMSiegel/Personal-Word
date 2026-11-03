@@ -1,0 +1,62 @@
+{
+  "id": "T212",
+  "title": "W5 D1 draft -- Documentation for finished tasks",
+  "description": "First pass of T206 (plan docs/agent-work/2026-11-01-ui-wave-5/PLAN.md ### D1) covering only APPROVED tasks so far (A1, A2, A3, B1, B2, C1) plus the decisions in team/DECISIONS.md and docs/agent-work/2026-11-01-ui-wave-5/COORDINATOR-STATE.md notes 'For D1'. Mark the floating sections as TODO for the final D1 pass. Do not register team-serial-check-slot. Heavy runs (builds/Playwright while load > 100) take the mkdir lock node_modules/.cache/personal-word-beta/serial-check.lock + owner.txt; remove only your own. Private Playwright config/port; double-quote paths; no git stash/checkout/reset/restore; no installs; no commits.",
+  "status": "done",
+  "owner": null,
+  "priority": 2,
+  "depends_on": [],
+  "files": [
+    "AGENTS.md",
+    "docs/architecture.md",
+    "docs/changelog.md",
+    "docs/design-system.md",
+    "docs/limitations.md",
+    "docs/validation.md",
+    "node_modules/.cache/personal-word-beta/ui5-d1"
+  ],
+  "review_required": true,
+  "created_by": "agent-2a1b",
+  "created_at": "2026-11-02T03:48:20+00:00",
+  "claimed_at": "2026-11-02T03:53:01+00:00",
+  "updated_at": "2026-11-02T04:06:28+00:00",
+  "handoff": null,
+  "review": {
+    "by": "agent-8fb8",
+    "at": "2026-11-02T04:06:28+00:00",
+    "verdict": "approved",
+    "note": "Fact-checked D1 draft against code: ProjectSidebar.tsx (collectionRowIcon icons, no arrows, data-depth step, chord via keyboardMove with alt-only, rAF clear-then-set live region, focus return), scrollspy.ts/css (14px gutter all 3 groups, right -14px, --spy-mag/SPY_RADIUS 84, keyboard 1/0.5/0.2, ::after progress, ::before 24px hit area, states/len), Popover.tsx/popover.css (nearest auto/scroll ancestor, width clamp minus 16 then height re-read, data-bounded overflow-wrap, resize+boundary scroll), research.css/ResearchPanel.tsx (tokens, Note label+placeholder, full-width hints, repeat-rules), DECISIONS wave-5 entries (B1 side effects, 14px gutter reflected; N1 not documented). No inaccuracies found. AGENTS.md untouched. Split view sentence edit (reorder arrows removed, Open beside no longer left of arrows) is correct. Floating/citation sections are clearly TODO; nothing unbuilt claimed done. Status CLAIMED. Acceptance rerun: no 'reorder arrows' match; one 'Floating layout' heading (line 277); vitest designTokens+hoverEmphasis 19 passed EXIT=0 (node_modules/.cache/personal-word-beta/ui5-d1r/acceptance.log). Trivial: docs/user-guide.md line 8 still mentions arrow buttons (already in TODO-final-pass)."
+  },
+  "log": [
+    {
+      "at": "2026-11-02T03:48:20+00:00",
+      "agent": "agent-2a1b",
+      "event": "created",
+      "note": ""
+    },
+    {
+      "at": "2026-11-02T03:53:01+00:00",
+      "agent": "agent-0be6",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-11-02T03:53:10+00:00",
+      "agent": "agent-0be6",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-11-02T04:02:44+00:00",
+      "agent": "agent-0be6",
+      "event": "review requested",
+      "note": "T212 D1 draft CLAIMED (not VERIFIED). Files: docs/design-system.md (header; spacing sweep + Research panel spacing paragraph; Popover nearest-scroll-ancestor + bounded wrap; States row without reorder arrows; new Rows, rewritten Scrollspy lines [14px gutter all 3 groups, --spy-mag magnify, ::after progress, ::before hit area, meaning per group], new Reordering [drag, Option+Up/Down, live region rewritten each time]; Open beside no longer 'left of arrows'; '## Floating layout' heading with TODO only), docs/limitations.md (Option+Up/Down only keyboard reorder, no progress on research rows, Chromium only, hover-emphasis load flake, floating TODO), docs/changelog.md (## 2026-11-01), docs/validation.md ('UI wave 5' with specs so far, points to wave-folder VALIDATION.md), docs/architecture.md (wave-5 paragraph + TODO placeholders for citation modules and floating measurement). AGENTS.md untouched. Acceptance: grep 'reorder arrows' -> no match; grep 'Floating layout' -> one heading (line 277); vitest designTokens+hoverEmphasis 19 passed EXIT=0 (node_modules/.cache/personal-word-beta/ui5-d1/acceptance-*.log). TODO list for final pass: node_modules/.cache/personal-word-beta/ui5-d1/TODO-final-pass.md (incl. docs/user-guide.md line 8 still mentions arrow buttons; unregistered). Not fail-first run (docs only). PATH STATES: AGENTS.md: clean | docs/architecture.md: uncommitted edits | docs/changelog.md: uncommitted edits | docs/design-system.md: uncommitted edits | docs/limitations.md: uncommitted edits | docs/validation.md: uncommitted edits | node_modules/.cache/personal-word-beta/ui5-d1: scratch outputs"
+    },
+    {
+      "at": "2026-11-02T04:06:28+00:00",
+      "agent": "agent-8fb8",
+      "event": "approved",
+      "note": "Fact-checked D1 draft against code: ProjectSidebar.tsx (collectionRowIcon icons, no arrows, data-depth step, chord via keyboardMove with alt-only, rAF clear-then-set live region, focus return), scrollspy.ts/css (14px gutter all 3 groups, right -14px, --spy-mag/SPY_RADIUS 84, keyboard 1/0.5/0.2, ::after progress, ::before 24px hit area, states/len), Popover.tsx/popover.css (nearest auto/scroll ancestor, width clamp minus 16 then height re-read, data-bounded overflow-wrap, resize+boundary scroll), research.css/ResearchPanel.tsx (tokens, Note label+placeholder, full-width hints, repeat-rules), DECISIONS wave-5 entries (B1 side effects, 14px gutter reflected; N1 not documented). No inaccuracies found. AGENTS.md untouched. Split view sentence edit (reorder arrows removed, Open beside no longer left of arrows) is correct. Floating/citation sections are clearly TODO; nothing unbuilt claimed done. Status CLAIMED. Acceptance rerun: no 'reorder arrows' match; one 'Floating layout' heading (line 277); vitest designTokens+hoverEmphasis 19 passed EXIT=0 (node_modules/.cache/personal-word-beta/ui5-d1r/acceptance.log). Trivial: docs/user-guide.md line 8 still mentions arrow buttons (already in TODO-final-pass)."
+    }
+  ]
+}

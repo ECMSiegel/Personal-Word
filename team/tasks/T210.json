@@ -1,0 +1,60 @@
+{
+  "id": "T210",
+  "title": "W5 C4 early -- Citation card component",
+  "description": "Does the work of T203 (plan docs/agent-work/2026-11-01-ui-wave-5/PLAN.md ### C4) before B3 (T208) is approved, against the plan's B3 interfaces (citationActions.ts, useLookup.ts, SourceForm.tsx variant card, Cite.tsx) as they exist in the tree; if they differ from the plan, msg the coordinator, do not edit them. Re-verify once T208 is approved. Includes the one-line designTokens.test.ts sweep addition for citation-card.css. Do not register team-serial-check-slot. Heavy runs (builds/Playwright while load > 100) take the mkdir lock node_modules/.cache/personal-word-beta/serial-check.lock + owner.txt; remove only your own. Private Playwright config/port; double-quote paths; no git stash/checkout/reset/restore; no installs; no commits.",
+  "status": "done",
+  "owner": null,
+  "priority": 1,
+  "depends_on": [],
+  "files": [
+    "src/research/CitationCard.tsx",
+    "src/research/CitationCard.test.tsx",
+    "src/research/citation-card.css",
+    "src/designTokens.test.ts",
+    "node_modules/.cache/personal-word-beta/ui5-c4"
+  ],
+  "review_required": true,
+  "created_by": "agent-2a1b",
+  "created_at": "2026-11-02T03:48:18+00:00",
+  "claimed_at": "2026-11-02T03:52:26+00:00",
+  "updated_at": "2026-11-02T05:21:40+00:00",
+  "handoff": null,
+  "review": {
+    "by": "agent-97c0",
+    "at": "2026-11-02T05:21:40+00:00",
+    "verdict": "approved",
+    "note": "Independent: tsc 0; vitest designTokens+motion+hoverEmphasis 36/36; rebuilt harness against REAL current src (copy at ui5-b3r/c4-scratch): 6/6 specs pass; all 12 screenshots opened (+1 scrolled): new/preview/cited x light/dark x Plain/Color legible; preview shows real compact form (Source type, Authors, Title, Publisher, Year, DOI, ISBN, URL, Note, Bibliography; no PDF/manual notes) and Cite here stays reachable when card max-height is 380px (scrolls inside body). Code matches plan: tokens/raised surface/1px line/square, role=dialog aria-label Add a citation non-modal, state machine, focus rules, Escape yields to open Dropdown, role=status, reduced-motion, no hover weight rule, transitions only opacity/transform. animateIn default off is fine (rule: key opens never animate; C5 must pass true for pointer opens). Notes for C5: Note form dropdown (form ?? shortened mapping, Automatic label) is duplicated from ResearchPanel UI -- not citation logic but could drift; preview card is ~770px tall unscrolled (relies on C5 --card-max-height); dialog aria-label stays Add a citation even when heading says Edit citation; designTokens.test change is a few lines (research.css moved into SWEPT, citation-card.css added), not one line -- passes; card ISBN shown for books; no jsdom unit test for the card (author explained)."
+  },
+  "log": [
+    {
+      "at": "2026-11-02T03:48:18+00:00",
+      "agent": "agent-2a1b",
+      "event": "created",
+      "note": ""
+    },
+    {
+      "at": "2026-11-02T03:52:26+00:00",
+      "agent": "agent-cb01",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-11-02T03:52:33+00:00",
+      "agent": "agent-cb01",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-11-02T04:24:03+00:00",
+      "agent": "agent-cb01",
+      "event": "review requested",
+      "note": "Built src/research/CitationCard.tsx + citation-card.css (+1 line in designTokens.test.ts sweeping citation-card.css). new->preview->cited machine, footnoteId opens in cited, focus rules, Escape (Dropdown first), role=status, role=dialog non-modal, raised surface tokens only, optional extra prop animateIn (default off = key-opened, no animation; C5 passes it for pointer opens). No CitationCard.test.tsx: vitest config includes only src/**/*.test.ts, environment node, no jsdom. DIFFERENCES vs plan B3: when I started SourceForm had no variant prop (since added by T208, mid-edit), onError is required in SourceForm (plan omits). Card passes variant=card + onError. CHECKS: vitest designTokens+motion+hoverEmphasis 3 files 36 tests pass (EXIT=0, node_modules/.cache/personal-word-beta/ui5-c4/vitest.log). tsc NOT 0 right now: first run's only CitationCard error was missing variant; latest run ($B/tsc.log) shows 5 syntax errors all in SourceForm.tsx (T208 mid-edit, none in my files) -- recheck after T208 approved. Scratch harness ($B/scratch, specs/card.spec.mjs, port 1862): 6 Playwright tests pass ($B/pw2.log): 4 light/dark x Plain/Color flows (lookup focus, Enter runs lookup, manual->preview, Cite here->focus Page, status text, Escape closes menu first then card, Add another focuses empty lookup, link), footnote-open lands in cited with Page=42 focused and no animation, reduce-motion transition 0s. Screenshots in $B/shots (new/preview/cited x 4, viewed light-plain, dark-color, dark-plain, light-color; legible, tokens follow theme). Scratch SourceForm was patched with a variant that only hides PDF, so preview shows long full form; real compact form comes from T208. Fail-first: doctored scratch citation-card.css padding 12px -> designTokens sweep fails naming .citation-card button padding ($B/failfirst.log EXIT=1); undoctored passed. C5 must still prove: real SourceForm variant=card compact layout and card max-height scroll with Cite here reachable; real App wiring/positioning/--card-max-height; insertFootnote keeps editor selection when focus is in card; focus return to editor on close; footnote-click opens cited; Look up with mocked Crossref end to end; no-drift deep-equal vs panel; WebKit check; non-overlap of topbar buttons."
+    },
+    {
+      "at": "2026-11-02T05:21:40+00:00",
+      "agent": "agent-97c0",
+      "event": "approved",
+      "note": "Independent: tsc 0; vitest designTokens+motion+hoverEmphasis 36/36; rebuilt harness against REAL current src (copy at ui5-b3r/c4-scratch): 6/6 specs pass; all 12 screenshots opened (+1 scrolled): new/preview/cited x light/dark x Plain/Color legible; preview shows real compact form (Source type, Authors, Title, Publisher, Year, DOI, ISBN, URL, Note, Bibliography; no PDF/manual notes) and Cite here stays reachable when card max-height is 380px (scrolls inside body). Code matches plan: tokens/raised surface/1px line/square, role=dialog aria-label Add a citation non-modal, state machine, focus rules, Escape yields to open Dropdown, role=status, reduced-motion, no hover weight rule, transitions only opacity/transform. animateIn default off is fine (rule: key opens never animate; C5 must pass true for pointer opens). Notes for C5: Note form dropdown (form ?? shortened mapping, Automatic label) is duplicated from ResearchPanel UI -- not citation logic but could drift; preview card is ~770px tall unscrolled (relies on C5 --card-max-height); dialog aria-label stays Add a citation even when heading says Edit citation; designTokens.test change is a few lines (research.css moved into SWEPT, citation-card.css added), not one line -- passes; card ISBN shown for books; no jsdom unit test for the card (author explained)."
+    }
+  ]
+}

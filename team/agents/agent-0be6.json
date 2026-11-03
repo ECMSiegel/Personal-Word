@@ -1,0 +1,9 @@
+{
+  "id": "agent-0be6",
+  "label": "Claude Sonnet worker T212 (W5 D1 draft)",
+  "joined_at": "2026-11-02T03:52:30+00:00",
+  "last_seen": "2026-11-02T04:02:55+00:00",
+  "status": "left",
+  "current_task": null,
+  "inbox_cursor": 0
+}

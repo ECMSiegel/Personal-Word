@@ -1,0 +1,91 @@
+{
+  "id": "T220",
+  "title": "W5 D1 final -- Documentation pass for the whole wave",
+  "description": "Does the work of T206 (plan ### D1) for everything: build on the approved D1 draft (T212) and its TODO list node_modules/.cache/personal-word-beta/ui5-d1/TODO-final-pass.md; floating layout (C1-C5), citation card, Amendment 1 additions E1/E3 (approved) and E2/E3w/E4 (in progress -- document from their done notes when they land, leave a clear TODO if not yet approved), docs/user-guide.md:8 (arrow buttons -> drag/Option+Up/Down), AGENTS.md floating-mode bullet (plan wording). Limitations: hysteresis, toast overlap, focus after Cite here (option A), card z-index 39, Chromium-only so far. No code edits.",
+  "status": "done",
+  "owner": null,
+  "priority": 2,
+  "depends_on": [],
+  "files": [
+    "AGENTS.md",
+    "docs/architecture.md",
+    "docs/changelog.md",
+    "docs/design-system.md",
+    "docs/limitations.md",
+    "docs/validation.md",
+    "docs/user-guide.md",
+    "node_modules/.cache/personal-word-beta/ui5-d1f"
+  ],
+  "review_required": true,
+  "created_by": "agent-2a1b",
+  "created_at": "2026-11-02T07:56:20+00:00",
+  "claimed_at": "2026-11-02T09:08:29+00:00",
+  "updated_at": "2026-11-02T09:08:48+00:00",
+  "handoff": {
+    "by": "agent-97fb",
+    "at": "2026-11-02T09:07:50+00:00",
+    "text": "Docs-only review. Verified OK vs code: AGENTS.md one bullet (plan wording, nothing else); floating.ts constants/marginFit/222/312 margins/documentEdges/key; floating.css z4, no surface, divider strip floating-only; card z39, --card-max-height, showCard/cardFits, footnote click, Escape/Dropdown, shared modules + SourceForm variants; search clear; scrollFade + :has exemption + floating-only sidebar fade; palette (Cmd+Shift+P, runAppAction, modalOpen guard, outside click, caret restore, commands); context menu items/Shift+F10/PDF Move; acceptance greps (no 'reorder arrows', one 'Floating layout' heading, one AGENTS 'Floating mode', no 'arrow button'); vitest designTokens+hoverEmphasis 19 pass; no VERIFIED; separators '--'. MISMATCHES (stale wording, E2/E3w/E4 have landed and are documented in the same files): (1) docs/design-system.md:4 header says scroll fade/palette wiring/right-click menu 'were still being built ... marked TODO below' -- they are done and no TODO exists below. (2) docs/design-system.md:253 says Command palette shortcut is 'not yet opened by anything' -- App.tsx:861 runAppAction('commandPalette') opens it, and the Floating layout palette paragraph says so. (3) docs/design-system.md:303 heading '### Wave-5 additions still being built' is empty/stale and the Scroll fade and Sidebar right-click menu sections sit under it with no blank lines (E2/E4 are finished; heading should go). (4) docs/validation.md (UI wave 5 intro) says T216/T217/T218 'were still open when this was written' yet the same section lists their checks as done. Fix those four spots and re-review; nothing else found."
+  },
+  "review": {
+    "by": "agent-8012",
+    "at": "2026-11-02T09:08:48+00:00",
+    "verdict": "approved",
+    "note": "Re-checked the 4 fixes: design-system.md:4 header (E2/E3w/E4 listed as landed), :253 palette wording, stale heading removed with blank lines before E2/E4 headings, validation.md:11 intro. grep for still being built/not yet opened/still open when written/TODO: only the expected validation.md:370 T023 line. Acceptance greps: no 'reorder arrows', one Floating layout heading, one AGENTS Floating mode, no 'arrow button'. Earlier code fact-check had no other mismatches."
+  },
+  "log": [
+    {
+      "at": "2026-11-02T07:56:20+00:00",
+      "agent": "agent-2a1b",
+      "event": "created",
+      "note": ""
+    },
+    {
+      "at": "2026-11-02T07:57:34+00:00",
+      "agent": "agent-4610",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-11-02T07:57:37+00:00",
+      "agent": "agent-4610",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-11-02T08:03:11+00:00",
+      "agent": "agent-4610",
+      "event": "review requested",
+      "note": "Docs only. design-system.md: header T194-T220, new Search (E1) subsection, filled Floating layout (setting, fit rule+constants, measured edges, re-measure key, no-background sidebar, card surface/z-39 reason, show/fallback rules, hysteresis, palette component paragraph) + 'Wave-5 additions still being built'. architecture.md: shared citation modules + floating measurement paragraphs. limitations.md: floating/card bullets (margins 222/312, hysteresis, toast overlap 7-12px, focus option A, stale top, Chromium only). validation.md: wave-5 spec list. changelog.md: 2026-11-01 entries + 2026-11-02 stub. AGENTS.md: one Floating mode bullet. user-guide.md: reorder text fixed, search clear, floating mode, citation card notes. Acceptance greps and vitest (19 pass) in node_modules/.cache/personal-word-beta/ui5-d1f. Remaining TODO markers (T216 E2, T217 E3w, T218 E4, V link) listed in ui5-d1f/TODO.md; palette deliberately not in user guide until wired. PATH STATES: AGENTS.md, docs/architecture.md, docs/changelog.md, docs/design-system.md, docs/limitations.md, docs/validation.md, docs/user-guide.md: uncommitted edits; node_modules/.cache/personal-word-beta/ui5-d1f: scratch outputs"
+    },
+    {
+      "at": "2026-11-02T09:07:50+00:00",
+      "agent": "agent-97fb",
+      "event": "rejected",
+      "note": "Docs-only review. Verified OK vs code: AGENTS.md one bullet (plan wording, nothing else); floating.ts constants/marginFit/222/312 margins/documentEdges/key; floating.css z4, no surface, divider strip floating-only; card z39, --card-max-height, showCard/cardFits, footnote click, Escape/Dropdown, shared modules + SourceForm variants; search clear; scrollFade + :has exemption + floating-only sidebar fade; palette (Cmd+Shift+P, runAppAction, modalOpen guard, outside click, caret restore, commands); context menu items/Shift+F10/PDF Move; acceptance greps (no 'reorder arrows', one 'Floating layout' heading, one AGENTS 'Floating mode', no 'arrow button'); vitest designTokens+hoverEmphasis 19 pass; no VERIFIED; separators '--'. MISMATCHES (stale wording, E2/E3w/E4 have landed and are documented in the same files): (1) docs/design-system.md:4 header says scroll fade/palette wiring/right-click menu 'were still being built ... marked TODO below' -- they are done and no TODO exists below. (2) docs/design-system.md:253 says Command palette shortcut is 'not yet opened by anything' -- App.tsx:861 runAppAction('commandPalette') opens it, and the Floating layout palette paragraph says so. (3) docs/design-system.md:303 heading '### Wave-5 additions still being built' is empty/stale and the Scroll fade and Sidebar right-click menu sections sit under it with no blank lines (E2/E4 are finished; heading should go). (4) docs/validation.md (UI wave 5 intro) says T216/T217/T218 'were still open when this was written' yet the same section lists their checks as done. Fix those four spots and re-review; nothing else found."
+    },
+    {
+      "at": "2026-11-02T09:08:29+00:00",
+      "agent": "agent-2a1b",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-11-02T09:08:30+00:00",
+      "agent": "agent-2a1b",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-11-02T09:08:30+00:00",
+      "agent": "agent-2a1b",
+      "event": "review requested",
+      "note": "Coordinator fixed the 4 stale-wording spots from agent-97fb's review: design-system.md header (no 'still being built ... TODO below'), Shortcuts line (no 'not yet opened by anything'), removed the empty '### Wave-5 additions still being built' heading (blank line before the E4 heading), validation.md intro (T194-T219 incl. Amendment 1). No other doc changes. Docs by agent-4610/agent-b92c; coordinator only removed 'pending review' wording after T218 approval and these 4 fixes.\nAGENTS.md: uncommitted edits\ndocs/design-system.md: uncommitted edits\ndocs/limitations.md: uncommitted edits\ndocs/changelog.md: uncommitted edits\ndocs/validation.md: uncommitted edits\ndocs/architecture.md: uncommitted edits\ndocs/user-guide.md: uncommitted edits"
+    },
+    {
+      "at": "2026-11-02T09:08:48+00:00",
+      "agent": "agent-8012",
+      "event": "approved",
+      "note": "Re-checked the 4 fixes: design-system.md:4 header (E2/E3w/E4 listed as landed), :253 palette wording, stale heading removed with blank lines before E2/E4 headings, validation.md:11 intro. grep for still being built/not yet opened/still open when written/TODO: only the expected validation.md:370 T023 line. Acceptance greps: no 'reorder arrows', one Floating layout heading, one AGENTS Floating mode, no 'arrow button'. Earlier code fact-check had no other mismatches."
+    }
+  ]
+}

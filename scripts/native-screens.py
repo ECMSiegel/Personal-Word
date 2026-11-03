@@ -25,6 +25,8 @@ BINARY = ROOT / "src-tauri/target/debug/folio"
 DIAGNOSTIC_PROTOCOL = "d1-profile-isolation-v1"
 SCENARIOS = ("light", "dark")
 SCREENS = ("projects", "writing", "writing-pages", "research", "settings", "pdf-preview")
+# Extra captures, always taken last (wave 5 floating sidebar and research card).
+FLOATING_SCREENS = ("floating-sidebar", "floating-card")
 
 
 def tail(path, lines=40):
@@ -131,8 +133,9 @@ def read_report(work, scenario, invocation_id, run_id):
     if not report.get("ok"):
         raise RuntimeError(f"Native script reported failure: {report}")
     screens = report.get("screens")
-    if not isinstance(screens, list) or len(screens) != len(SCREENS):
-        raise RuntimeError(f"Native script reported {screens!r} instead of {len(SCREENS)} screen paths")
+    expected = len(SCREENS) + len(FLOATING_SCREENS)
+    if not isinstance(screens, list) or len(screens) != expected:
+        raise RuntimeError(f"Native script reported {screens!r} instead of {expected} screen paths")
     for screen_path in screens:
         if not (work / "screens" / Path(screen_path).name).is_file():
             raise RuntimeError(f"Native script reported a missing snapshot: {screen_path}")
@@ -146,7 +149,7 @@ def capture_scenario(scenario, out, palette, timeout):
         for screen_path in report["screens"]:
             source = work / "screens" / Path(screen_path).name
             name = Path(screen_path).stem
-            if name not in SCREENS:
+            if name not in SCREENS and name not in FLOATING_SCREENS:
                 raise RuntimeError(f"Unexpected snapshot name {name!r}")
             shutil.copyfile(source, out / f"{name}-{scenario}.png")
         shutil.copyfile(work / "report-2.json", out / f"report-{scenario}.json")
@@ -175,7 +178,7 @@ def main():
     except Exception as error:  # noqa: BLE001 - the CLI reports failures honestly and exits 1
         print(f"native-screens failed: {error}", file=sys.stderr)
         return 1
-    total = len(SCENARIOS) * len(SCREENS)
+    total = len(SCENARIOS) * (len(SCREENS) + len(FLOATING_SCREENS))
     print(f"{total} native screenshots written to {out}")
     return 0
 

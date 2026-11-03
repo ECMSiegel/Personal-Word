@@ -12,7 +12,8 @@ export type ActionId =
   | "newSection"
   | "findInProject"
   | "toggleSidebar"
-  | "toggleAppearance";
+  | "toggleAppearance"
+  | "commandPalette";
 
 export type ActionDef = {
   id: ActionId;
@@ -34,6 +35,7 @@ export const ACTIONS: ActionDef[] = [
   { id: "findInProject", label: "Find in project", scope: "app", default: { key: "k", meta: true } },
   { id: "toggleSidebar", label: "Toggle sidebar", scope: "app", default: { key: "\\", meta: true } },
   { id: "toggleAppearance", label: "Switch light or dark", scope: "app", default: { key: "l", meta: true, shift: true } },
+  { id: "commandPalette", label: "Command palette", scope: "app", default: { key: "p", meta: true, shift: true } },
 ];
 
 const cmd = (key: string, shift = false): Chord => ({ key, meta: true, ...(shift ? { shift } : {}) });

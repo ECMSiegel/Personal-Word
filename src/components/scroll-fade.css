@@ -1,0 +1,18 @@
+/* Scroll fade (UI wave 5, E2): a mask on the scrolling content, never a surface or fill.
+   useScrollFade sets the attributes; the fade is var(--space-4) deep and has no transition.
+   A menu open inside the region is part of its content and would be faded at the edge, so
+   the mask is dropped while one is open. Same for a modal rendered inside the region
+   (the capture-quote dialog): a masked ancestor breaks its fixed positioning and hit
+   testing (measured: tests/research.spec.ts "captured quote" failed until exempted). */
+[data-scroll-bottom]:not([data-scroll-top]):not(:has(.popover, .modal-backdrop)) {
+  -webkit-mask-image: linear-gradient(to bottom, var(--text) calc(100% - var(--space-4)), transparent);
+  mask-image: linear-gradient(to bottom, var(--text) calc(100% - var(--space-4)), transparent);
+}
+[data-scroll-top]:not([data-scroll-bottom]):not(:has(.popover, .modal-backdrop)) {
+  -webkit-mask-image: linear-gradient(to top, var(--text) calc(100% - var(--space-4)), transparent);
+  mask-image: linear-gradient(to top, var(--text) calc(100% - var(--space-4)), transparent);
+}
+[data-scroll-top][data-scroll-bottom]:not(:has(.popover, .modal-backdrop)) {
+  -webkit-mask-image: linear-gradient(to bottom, transparent, var(--text) var(--space-4), var(--text) calc(100% - var(--space-4)), transparent);
+  mask-image: linear-gradient(to bottom, transparent, var(--text) var(--space-4), var(--text) calc(100% - var(--space-4)), transparent);
+}

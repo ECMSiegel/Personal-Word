@@ -1,0 +1,63 @@
+{
+  "id": "T222",
+  "title": "W5 R -- Fable repairs 1, 2, 3, 5",
+  "description": "Apply FABLE-REVIEW.md (docs/agent-work/2026-11-01-ui-wave-5/FABLE-REVIEW.md) findings 1 (floating unpinned hover-reveal gap: .sidebar-edge width), 2 (floating unpinned z-index 4 vs .is-overlay 60), 3 (Popover inline maxWidth must not exceed the CSS max-width, e.g. dropdown 320 px), 5 (motion.test.ts sweeps citation-card.css) exactly, each with the fail-first spec the report names. Use the review-repair skill. Record finding 4 (motion (e) wave-5 regression) in docs/limitations.md and VALIDATION.md, plus V's two wording corrections. EVERY build/Playwright run takes serial-check.lock.",
+  "status": "done",
+  "owner": null,
+  "priority": 1,
+  "depends_on": [],
+  "files": [
+    "src/components/floating.css",
+    "src/components/Popover.tsx",
+    "src/motion.test.ts",
+    "tests/floating.spec.ts",
+    "tests/popover-bounds.spec.ts",
+    "docs/limitations.md",
+    "docs/agent-work/2026-11-01-ui-wave-5/VALIDATION.md",
+    "node_modules/.cache/personal-word-beta/ui5-r"
+  ],
+  "review_required": true,
+  "created_by": "agent-2a1b",
+  "created_at": "2026-11-02T10:20:48+00:00",
+  "claimed_at": "2026-11-02T10:21:33+00:00",
+  "updated_at": "2026-11-02T10:38:10+00:00",
+  "handoff": null,
+  "review": {
+    "by": "agent-8315",
+    "at": "2026-11-02T10:38:10+00:00",
+    "verdict": "approved",
+    "note": "Verified (node v22.23.3, own build ui5-rr, lock taken/released): tsc EXIT 0; vitest 11 files 127 passed; Playwright (floating, popover-bounds, research, editor-toolbar, motion-u5/6/7, sidebar-selection, hover-emphasis, sidebar-context-menu) 92 passed, 4 skipped, 0 failed. F1 floating.css .sidebar-edge width var(--space-4) reaches the inset sidebar; slow-walk test failed before at x=9 (fail-first-pw.log), passes. F2 z-index 4 on .is-floating and .is-floating.is-overlay; test failed before (60 vs 4), passes. F3 Popover inline maxWidth=min(boundary, parseFloat(computed css max)); NaN/'none' falls to Infinity so safe; css cap is min(320px,100vw-16) which resolves to px. Author's correction is right (min-width max(100%,150px) tracks the 357 trigger); test asserts computed cap, failed before at 374, passes. My scratch probe (ui5-rr/probe.spec.mjs): 140px trigger, 30x-long label in 390px aside -> rendered 320px, inline max-width 320px (cap honoured where it matters). F5 citation-card.css in motion.test.ts list; author's doctored copy shows it fails. Docs: limitations bullet and VALIDATION edits accurate. No new hover rule, fills or non-token values. motion (e) excluded as instructed. Logs: node_modules/.cache/personal-word-beta/ui5-rr/{tsc,vitest,build,probe,pw}.log"
+  },
+  "log": [
+    {
+      "at": "2026-11-02T10:20:48+00:00",
+      "agent": "agent-2a1b",
+      "event": "created",
+      "note": ""
+    },
+    {
+      "at": "2026-11-02T10:21:33+00:00",
+      "agent": "agent-a49c",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-11-02T10:21:34+00:00",
+      "agent": "agent-a49c",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-11-02T10:31:33+00:00",
+      "agent": "agent-a49c",
+      "event": "review requested",
+      "note": "Findings 1,2,3,5 verified real (fail-first in ui5-r/fail-first-pw.log, build before: slow walk lost reveal at x=9; floating unpinned z-index 60 vs 4; popover inline max-width 374). Finding 3 premise partly wrong: the rendered menu stays 357 px because Dropdown min-width is max(100%,150px) and the trigger itself is 357 (probe ui5-r/probe.log), so the named 'width<=320' test cannot pass; test asserts the cap (computed max-width <=320): before 374 FAIL (ff3-before.log), after PASS (ff3-after.log). Fixes: floating.css (.is-floating.is-overlay z-index 4; .sidebar-edge width var(--space-4)), Popover.tsx (maxWidth=min(natural, computed css max)), motion.test.ts (citation-card.css in list; scratch copy with doctored non-token transition: new list FAILS 3 tests, old list passes). New tests: floating.spec.ts (2), popover-bounds.spec.ts (1). Records: limitations.md bullet for (e); VALIDATION.md step 4 -> FAIL w/ explanation, 4r/known-flake wording fixed, step 11 and Fable review section filled (SHIP AFTER REPAIRS). Verify: node v22.23.3, tsc EXIT 0, vitest 11 files 127 passed, build ok; Playwright 12 files: 125 passed, 8 skipped, 1 failed (the old 320px-width test, since replaced and passing 5/5 popover-bounds); toolbar rects diff vs baseline max 0 px (6 menus). Logs in node_modules/.cache/personal-word-beta/ui5-r/ (pw-after.log, ff3-after.log, rects-after.json). Left scratch dir ui5-r/scratch (rm denied). Lock owner.txt now belongs to bisect agent-fc54, not me."
+    },
+    {
+      "at": "2026-11-02T10:38:10+00:00",
+      "agent": "agent-8315",
+      "event": "approved",
+      "note": "Verified (node v22.23.3, own build ui5-rr, lock taken/released): tsc EXIT 0; vitest 11 files 127 passed; Playwright (floating, popover-bounds, research, editor-toolbar, motion-u5/6/7, sidebar-selection, hover-emphasis, sidebar-context-menu) 92 passed, 4 skipped, 0 failed. F1 floating.css .sidebar-edge width var(--space-4) reaches the inset sidebar; slow-walk test failed before at x=9 (fail-first-pw.log), passes. F2 z-index 4 on .is-floating and .is-floating.is-overlay; test failed before (60 vs 4), passes. F3 Popover inline maxWidth=min(boundary, parseFloat(computed css max)); NaN/'none' falls to Infinity so safe; css cap is min(320px,100vw-16) which resolves to px. Author's correction is right (min-width max(100%,150px) tracks the 357 trigger); test asserts computed cap, failed before at 374, passes. My scratch probe (ui5-rr/probe.spec.mjs): 140px trigger, 30x-long label in 390px aside -> rendered 320px, inline max-width 320px (cap honoured where it matters). F5 citation-card.css in motion.test.ts list; author's doctored copy shows it fails. Docs: limitations bullet and VALIDATION edits accurate. No new hover rule, fills or non-token values. motion (e) excluded as instructed. Logs: node_modules/.cache/personal-word-beta/ui5-rr/{tsc,vitest,build,probe,pw}.log"
+    }
+  ]
+}

@@ -200,6 +200,97 @@
     };
     screens.push(await snapshot("pdf-preview"));
 
+    // Wave 5 floating scenarios, always run last so the six scenarios above
+    // are unchanged. Floating is switched on through the real Settings row
+    // (the app reads the preference at startup, so a localStorage write alone
+    // would not take effect live) and also merged into folio.workspace.sidebar
+    // (read, spread, write) so the stored value matches. Both are undone after.
+    const FLOAT_KEY = "folio.workspace.sidebar";
+    const setFloatingPref = (value) => {
+      let saved = {};
+      try {
+        saved = JSON.parse(localStorage.getItem(FLOAT_KEY) || "{}") || {};
+      } catch {
+        saved = {};
+      }
+      localStorage.setItem(FLOAT_KEY, JSON.stringify({ ...saved, floating: value }));
+    };
+    const floatingRow = () =>
+      [...document.querySelectorAll("label")].find((l) =>
+        l.textContent.includes("Floating sidebar and research"),
+      )?.querySelector('input[type="checkbox"]');
+    // Waits for `fn`; a miss is reported as "floating did not engage", not a hang.
+    const engaged = async (fn, label) => {
+      try {
+        return await wait(fn, label, 100);
+      } catch {
+        throw Error(`floating did not engage: ${label}`);
+      }
+    };
+    const setZoom = async (label) => {
+      if (!document.querySelector('button[aria-label="Editor zoom"]'))
+        document.querySelector('button[aria-label="More formatting"]')?.click();
+      (await wait(() => document.querySelector('button[aria-label="Editor zoom"]'), "zoom dropdown")).click();
+      (await wait(
+        () => [...document.querySelectorAll('[role="option"]')].find((o) => o.textContent.trim() === label),
+        `zoom option ${label}`,
+      )).click();
+      await delay(300);
+      await closeMore();
+    };
+    const toggleFloating = async (on) => {
+      const box = await engaged(floatingRow, "Settings row 'Floating sidebar and research' missing");
+      if (box.checked !== on) box.click();
+      await delay(200);
+      setFloatingPref(on);
+    };
+    // Settings is still on screen after the PDF probe.
+    await toggleFloating(true);
+    await click("Manuscript");
+    await wait(editor, "writing editor");
+    if (!document.querySelector(".editor-viewport.is-continuous")) {
+      /* already in page view */
+    } else {
+      if (!document.querySelector('[aria-label="Page view"]'))
+        document.querySelector('[aria-label="More formatting"]')?.click();
+      (await wait(() => document.querySelector('[aria-label="Page view"]'), "page view toggle")).click();
+      await closeMore();
+    }
+    // floating-sidebar: page view, sidebar pinned (the default). The capture
+    // window is 1240x840, too narrow for the margin the floating fit rule needs
+    // beside a 100% page, so the page zoom is 50 (a narrower sheet) instead of
+    // widening the window. 75 left ~314 px per side, on the card's 312 px
+    // threshold, and the card fell back to the panel (V3, 2026-11-02).
+    await setZoom("50%");
+    await engaged(
+      () => document.querySelector(".sidebar-shell.is-floating"),
+      "no .sidebar-shell.is-floating (feature missing or margin too small)",
+    );
+    document.querySelector(".page-spacer")?.scrollIntoView({ block: "center" });
+    await delay(400);
+    screens.push(await snapshot("floating-sidebar"));
+    // floating-card: the Research group header opens the citation card at the
+    // top right. (The card opened on a footnote needs a typed footnote: V hand-check.)
+    const researchButton = button("Research");
+    await click("Research");
+    const box = (s) => {
+      const r = document.querySelector(s)?.getBoundingClientRect();
+      return r ? `${Math.round(r.left)}-${Math.round(r.right)}` : "none";
+    };
+    await engaged(
+      () => document.querySelector('[role="dialog"][aria-label="Add a citation"]'),
+      `no 'Add a citation' card (clicked .${researchButton?.className}; ` +
+        `aside ${box(".research-aside")}, paper ${box(".editor-paper")}, workspace ${box(".workspace")}, ` +
+        `floating ${!!document.querySelector(".sidebar-shell.is-floating")}, dialogs ${document.querySelectorAll('[role="dialog"]').length})`,
+    );
+    await delay(300);
+    screens.push(await snapshot("floating-card"));
+    // Restore.
+    await click("Manuscript");
+    await setZoom("100%");
+    await click("Settings");
+    await toggleFloating(false);
+
     await report({ ok: true, screens, pdfProbe });
     await invoke("smoke_close_window");
   } catch (error) {

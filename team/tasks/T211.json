@@ -1,0 +1,86 @@
+{
+  "id": "T211",
+  "title": "W5 N1 early -- Native screens floating scenario",
+  "description": "Does the work of T205 (plan docs/agent-work/2026-11-01-ui-wave-5/PLAN.md ### N1). Acceptance: python3 scripts/native-screens.py --help lists --floating; node --check tests/native-screens.js. Real capture happens in V. Do not register team-serial-check-slot. Heavy runs (builds/Playwright while load > 100) take the mkdir lock node_modules/.cache/personal-word-beta/serial-check.lock + owner.txt; remove only your own. Private Playwright config/port; double-quote paths; no git stash/checkout/reset/restore; no installs; no commits.",
+  "status": "done",
+  "owner": null,
+  "priority": 2,
+  "depends_on": [],
+  "files": [
+    "scripts/native-screens.py",
+    "tests/native-screens.js",
+    "node_modules/.cache/personal-word-beta/ui5-n1"
+  ],
+  "review_required": true,
+  "created_by": "agent-2a1b",
+  "created_at": "2026-11-02T03:48:19+00:00",
+  "claimed_at": "2026-11-02T04:02:30+00:00",
+  "updated_at": "2026-11-02T04:04:53+00:00",
+  "handoff": {
+    "by": "agent-2a1b",
+    "at": "2026-11-02T04:01:16+00:00",
+    "text": "Coordinator: rework, no fault in the work. The plan forbids Rust changes, so FOLIO_SMOKE_FLOATING cannot reach the page. Decision 'N1 floating flag without Rust': native-screens.js always captures floating-sidebar and floating-card at the END of every run (sets floating:true in folio.workspace.sidebar itself, restores false after); native-screens.py drops --floating/FOLIO_SMOKE_FLOATING and always expects 8 screens; scenarios fail clearly (no hang) if floating does not engage. Acceptance: node --check, py_compile."
+  },
+  "review": {
+    "by": "agent-2a1b",
+    "at": "2026-11-02T04:04:53+00:00",
+    "verdict": "approved",
+    "note": "Coordinator review (agent-2a1b; I did not author it -- I only rejected c1 for the no-Rust rework). Reran: node --check tests/native-screens.js OK; python3 -m py_compile scripts/native-screens.py OK; no src-tauri change (git diff --stat). Read the diff: floating scenarios run last, switched on via the real Settings checkbox + merged pref (read/spread/write), page view, zoom 75, waits for .sidebar-shell.is-floating and dialog 'Add a citation' with a clear 'floating did not engage' failure (no hang), restores zoom 100 and floating off. Margin math at the 1240 capture: 75% sheet ~612 px -> ~314 px margins -> left fits (>=190), right fits narrowly (>=280+32). CARRIED TO V: real native capture after C2/C3/C5; footnote-opened card is a hand-check; if the right margin misses by a few px at 75%, use 67% or note it."
+  },
+  "log": [
+    {
+      "at": "2026-11-02T03:48:19+00:00",
+      "agent": "agent-2a1b",
+      "event": "created",
+      "note": ""
+    },
+    {
+      "at": "2026-11-02T03:53:52+00:00",
+      "agent": "agent-8579",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-11-02T03:53:57+00:00",
+      "agent": "agent-8579",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-11-02T03:56:47+00:00",
+      "agent": "agent-8579",
+      "event": "review requested",
+      "note": "Added --floating to scripts/native-screens.py (sets FOLIO_SMOKE_FLOATING true/false per launch; expects 6 screens, or 8 with the flag; floating-sidebar and floating-card accepted names). tests/native-screens.js reads window.__SMOKE_FLOATING__ (=== true), merges floating:true into folio.workspace.sidebar (read, spread, write) before the appearance reload, and adds scenarios: floating-sidebar (page view after writing-pages, zoom set to 75 via the Editor zoom dropdown because 1240x840 leaves too little margin; waits for .sidebar-shell.is-floating; zoom restored to 100) and floating-card (after clicking Research, waits for role=dialog name 'Add a citation', snapshots; then the old research capture runs, manual form only if the button exists). Card-on-a-footnote variant NOT added (needs footnote typed first) -> V hand-check. HOW FLAG REACHES PAGE: window.__SMOKE_PALETTE__ is injected by Rust (src-tauri/src/smoke.rs lines ~485-490, env FOLIO_SMOKE_PALETTE). FOLIO_SMOKE_FLOATING needs the same in Rust: add 'window.__SMOKE_FLOATING__={};' with std::env::var(\"FOLIO_SMOKE_FLOATING\").unwrap_or_else(|_| \"false\".into()) in the native-screens format!. I did NOT edit Rust (plan forbids). Until then --floating sets the env but the page sees undefined = no floating, and the run fails at 'floating sidebar shell' wait -> V must get the Rust line (coordinator decision) before the real capture. ACCEPTANCE: help-before (node_modules/.cache/personal-word-beta/ui5-n1/help-before.txt) lacks --floating (grep count 0); node_modules/.cache/personal-word-beta/ui5-n1/help-after.txt lists --floating; node --check exit 0 (node_modules/.cache/personal-word-beta/ui5-n1/node-check.txt). V must run: rebuild smoke binary, then python3 scripts/native-screens.py --floating --out <dir> on an unlocked screen, view floating-sidebar-*.png and floating-card-*.png. Not run natively. Path-state: M scripts/native-screens.py, M tests/native-screens.js, ?? node_modules/.cache/personal-word-beta/ui5-n1/ (outputs)"
+    },
+    {
+      "at": "2026-11-02T04:01:16+00:00",
+      "agent": "agent-2a1b",
+      "event": "rejected",
+      "note": "Coordinator: rework, no fault in the work. The plan forbids Rust changes, so FOLIO_SMOKE_FLOATING cannot reach the page. Decision 'N1 floating flag without Rust': native-screens.js always captures floating-sidebar and floating-card at the END of every run (sets floating:true in folio.workspace.sidebar itself, restores false after); native-screens.py drops --floating/FOLIO_SMOKE_FLOATING and always expects 8 screens; scenarios fail clearly (no hang) if floating does not engage. Acceptance: node --check, py_compile."
+    },
+    {
+      "at": "2026-11-02T04:02:30+00:00",
+      "agent": "agent-19e5",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-11-02T04:02:34+00:00",
+      "agent": "agent-19e5",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-11-02T04:03:42+00:00",
+      "agent": "agent-19e5",
+      "event": "review requested",
+      "note": "Reworked per coordinator, no Rust, no env flag. native-screens.py: --floating and FOLIO_SMOKE_FLOATING removed; always expects 8 screens (6 + floating-sidebar, floating-card). native-screens.js: after the pdf-preview snapshot, with Settings on screen, ticks the 'Floating sidebar and research' Settings checkbox (needed because the app reads the pref at startup) and merges floating:true into folio.workspace.sidebar (read, spread, write); goes to Manuscript, page view, zoom 75 (1240x840 too narrow at 100%), waits .sidebar-shell.is-floating, captures floating-sidebar; clicks Research, waits for dialog 'Add a citation', captures floating-card; then restores zoom 100 and floating off (UI + storage). Misses throw 'floating did not engage: ...' after a 100-attempt wait (about 4s), not a hang. Card-on-footnote variant not done: V hand-check. Acceptance: node --check exit 0, py_compile exit 0 (ui5-n1/c2-node-check.txt, c2-pycompile.txt, c2-help.txt). Not run natively; V runs python3 scripts/native-screens.py --out <dir> on an unlocked screen once C2/C3/C5 exist. Until then the run reports 'floating did not engage'. Path-state: M scripts/native-screens.py, M tests/native-screens.js"
+    },
+    {
+      "at": "2026-11-02T04:04:53+00:00",
+      "agent": "agent-2a1b",
+      "event": "approved",
+      "note": "Coordinator review (agent-2a1b; I did not author it -- I only rejected c1 for the no-Rust rework). Reran: node --check tests/native-screens.js OK; python3 -m py_compile scripts/native-screens.py OK; no src-tauri change (git diff --stat). Read the diff: floating scenarios run last, switched on via the real Settings checkbox + merged pref (read/spread/write), page view, zoom 75, waits for .sidebar-shell.is-floating and dialog 'Add a citation' with a clear 'floating did not engage' failure (no hang), restores zoom 100 and floating off. Margin math at the 1240 capture: 75% sheet ~612 px -> ~314 px margins -> left fits (>=190), right fits narrowly (>=280+32). CARRIED TO V: real native capture after C2/C3/C5; footnote-opened card is a hand-check; if the right margin misses by a few px at 75%, use 67% or note it."
+    }
+  ]
+}

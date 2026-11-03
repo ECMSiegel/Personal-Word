@@ -1,4 +1,4 @@
-import { test, expect, type Page } from "@playwright/test";
+import { test, expect, type Locator, type Page } from "@playwright/test";
 
 // T140 (S2): alignment invariants that are easy to break and hard to see.
 // (a) sidebar labels at one depth share a text start, (b) every icon button
@@ -13,7 +13,6 @@ test.use({ viewport: { width: 1280, height: 800 } });
 const ICON_BUTTONS = [
   ".icon-button",
   ".delete-entry",
-  ".reorder button",
   ".group-actions button",
   ".collection-open-beside",
   ".open-beside",
@@ -290,24 +289,6 @@ test("hit-area rule leaves absolutely placed buttons absolute", async ({ page })
   expect(beside).toBe("absolute");
 });
 
-test("reorder arrows keep their hit areas from overlapping", async ({ page }) => {
-  await openProject(page, "Reorder overlap");
-  const overlap = await page.evaluate(() => {
-    const group = document.querySelector<HTMLElement>(".reorder");
-    if (!group) return null;
-    const rects = Array.from(group.querySelectorAll("button")).map((b) => {
-      const r = b.getBoundingClientRect();
-      const after = getComputedStyle(b, "::after");
-      const w = Math.max(r.width, parseFloat(after.width) || 0);
-      return { left: r.left + r.width / 2 - w / 2, right: r.left + r.width / 2 + w / 2 };
-    });
-    if (rects.length < 2) return null;
-    return +Math.max(...rects.slice(1).map((r, i) => rects[i].right - r.left)).toFixed(2);
-  });
-  expect(overlap).not.toBeNull();
-  expect(overlap!).toBeLessThanOrEqual(0);
-});
-
 // (f) The sidebar's last row (Settings) and the pane footer read as one band:
 // the separator above Settings is level with the footer's top rule, the two
 // texts share a centre line, and the two bands are the same height.
@@ -380,5 +361,144 @@ for (const split of [false, true]) {
       expect(Math.abs(f.bottom - m.viewport)).toBeLessThanOrEqual(1);
     }
     expect(Math.abs(m.settings.bottom - m.viewport)).toBeLessThanOrEqual(1);
+  });
+}
+
+// Wave 5 A1 (docs/agent-work/2026-11-01-ui-wave-5/PLAN.md): every row of the
+// three list groups opens with a 16 px icon, so a Research row's label starts
+// where a Manuscript row's does, and a source PDF's row sits one --space-4
+// (16 px) deeper than its source. Before A1 the Research rows had no icon and
+// their labels started about 24 px left of the Manuscript ones.
+const pdfBytes = Buffer.from(
+  "%PDF-1.4\n1 0 obj << /Type /Catalog >> endobj\n%%EOF\n",
+  "ascii",
+);
+
+const groupRow = (page: Page, group: string, text: string) =>
+  page
+    .locator(`.sidebar-group[data-group="${group}"] .entry-row`)
+    .filter({ has: page.locator(".entry-main").filter({ hasText: text }) })
+    .first();
+
+/** Left edge of the row's label text, measured as the depth spec above does. */
+const labelStart = (row: Locator) =>
+  row.evaluate((el) => {
+    const label = el.querySelector<HTMLElement>(".entry-main > span");
+    if (!label) return null;
+    const range = document.createRange();
+    range.selectNodeContents(label);
+    const rects = Array.from(range.getClientRects());
+    return rects.length ? +rects[0].left.toFixed(2) : null;
+  });
+
+/** Width of each leading icon on the row. */
+const rowIcons = (row: Locator) =>
+  row.evaluate((el) =>
+    Array.from(
+      el.querySelectorAll<SVGSVGElement>(".entry-main > svg"),
+    ).map((svg) => +svg.getBoundingClientRect().width.toFixed(2)),
+  );
+
+async function nameDialog(page: Page, title: string) {
+  await page.getByLabel("Title", { exact: true }).fill(title);
+  await page.getByRole("button", { name: "Save", exact: true }).click();
+  await expect(page.getByRole("dialog")).toHaveCount(0);
+}
+
+/** A section, a fragment, a source with its PDF, and a note: one row of every
+ *  kind the sidebar renders in a list group. */
+async function seedLists(page: Page, title: string) {
+  await openProject(page, title, "Blank");
+  await page
+    .locator('.sidebar-group[data-group="manuscript"] .group-heading')
+    .hover();
+  await page.getByRole("button", { name: "New section", exact: true }).click();
+  await nameDialog(page, "Chapter one");
+  await page
+    .locator('.sidebar-group[data-group="fragments"] .group-heading')
+    .hover();
+  await page.getByRole("button", { name: "New fragment", exact: true }).click();
+  await nameDialog(page, "Cut line");
+  await page.locator(".group-title").filter({ hasText: /^Research$/ }).click();
+  await expect(page.locator(".research-panel")).toBeVisible();
+  await page.getByRole("button", { name: "Enter manually" }).click();
+  await page.getByLabel("Title", { exact: true }).fill("A local source");
+  await page.getByLabel("Authors", { exact: true }).fill("Ada Example");
+  await page.getByLabel("Year", { exact: true }).fill("2026");
+  await page
+    .locator(".source-item")
+    .filter({ hasText: "A local source" })
+    .locator('.source-pdf-field input[type="file"]')
+    .setInputFiles({
+      name: "source.pdf",
+      mimeType: "application/pdf",
+      buffer: pdfBytes,
+    });
+  await page
+    .locator(".research-tabs")
+    .getByRole("button", { name: "Notes", exact: true })
+    .click();
+  await page.getByRole("button", { name: "Add note", exact: true }).click();
+  // Bibliography, source, its PDF child, note.
+  await expect(page.locator('.sidebar [data-group="research"] .entry-row')).toHaveCount(
+    4,
+  );
+  await expect(page.locator(".save-status")).toHaveText("Saved", {
+    timeout: 10_000,
+  });
+}
+
+for (const width of [190, 270, 390]) {
+  test(`every list row starts with a 16 px icon and one label x at ${width} px`, async ({
+    page,
+  }) => {
+    await page.addInitScript((w) => {
+      localStorage.setItem(
+        "folio.workspace.sidebar",
+        JSON.stringify({ width: w, pinned: true, hover: true }),
+      );
+    }, width);
+    await seedLists(page, `Row alignment ${width}`);
+
+    const manuscript = groupRow(page, "manuscript", "Chapter one");
+    const fragment = groupRow(page, "fragments", "Cut line");
+    const bibliography = groupRow(page, "research", "Bibliography");
+    const source = groupRow(page, "research", "A local source");
+    const pdf = groupRow(page, "research", "source.pdf");
+    const note = groupRow(page, "research", "Research note");
+    for (const row of [manuscript, fragment, bibliography, source, pdf, note]) {
+      await expect(row).toBeVisible();
+    }
+
+    // One 16 px icon on every row, Research and Manuscript alike.
+    for (const [name, row] of Object.entries({
+      manuscript,
+      fragment,
+      bibliography,
+      source,
+      pdf,
+      note,
+    })) {
+      expect(await rowIcons(row as Locator), name + " icon").toEqual([16]);
+    }
+
+    const depth0 = await Promise.all(
+      [manuscript, fragment, bibliography, source, note].map(labelStart),
+    );
+    expect(depth0.filter((x) => x === null), "every label measured").toEqual(
+      [],
+    );
+    const xs = depth0 as number[];
+    const spread = Math.max(...xs) - Math.min(...xs);
+    expect(
+      spread,
+      `label starts differ across the three groups: ${xs.join(", ")}`,
+    ).toBeLessThanOrEqual(0.5);
+
+    const pdfX = (await labelStart(pdf)) as number;
+    expect(
+      Math.abs(pdfX - xs[0] - 16),
+      `PDF row ${pdfX} vs source ${xs[0]}: one step of 16 px`,
+    ).toBeLessThanOrEqual(0.5);
   });
 }

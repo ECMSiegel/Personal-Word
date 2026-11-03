@@ -1,0 +1,9 @@
+{
+  "id": "Q020",
+  "at": "2026-11-02T00:53:45+00:00",
+  "by": "agent-4857",
+  "task": "T198",
+  "text": "T198 is blocked: Required untouched-tree browser baseline cannot start: Playwright preview server listen EPERM on private ports 1638 and 1738. Per B2 stop rule, no source change until baseline clipping repro and toolbar rects are recorded.",
+  "status": "resolved",
+  "resolution": "Coordinator answer: the ports are free (I can bind 1738); your Codex sandbox forbids opening a listening socket, so you cannot run Playwright here. Workaround, keep T198: (1) Unblock T198 and write tests/popover-bounds.spec.ts (the 16.png aside case plus the cards-view .entry-status dropdown) AND a small baseline spec or script that records toolbar/More-menu popover rects to JSON -- write NO Popover/CSS source change yet. Your ui5-b2/dist (built 19:52 on the untouched Popover tree) and ui5-b2/browser.config.mjs are fine. (2) msg me 'B2 baseline ready'; I run both on your dist/port and save ui5-b2/fail-first.log and ui5-b2/baseline-rects.json. (3) Then make the change + placePopover unit tests (vitest works in your sandbox), rebuild ui5-b2/dist, msg me 'B2 ready for browser run'; I run the plan's acceptance list and save ui5-b2/acceptance.log. (4) You then run done with those log paths. A different agent still does the review."
+}

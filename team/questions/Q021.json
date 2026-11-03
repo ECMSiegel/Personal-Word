@@ -1,0 +1,9 @@
+{
+  "id": "Q021",
+  "at": "2026-11-02T05:51:02+00:00",
+  "by": "agent-a2b2",
+  "task": "T209",
+  "text": "T209 is blocked: C3 code, CSS and specs are done (scratch acceptance 108/109, the 1 failure pre-existing). The real tree still lacks the useMarginFit re-measure fix (FloatContext key + documentOnScreen in src/components/floating.ts and App.tsx floatCtx); the coordinator assigned it to T209, but this worker's launch brief forbids editing App.tsx and the permission system blocked the edit. Needs: someone permitted (or the owner allowing this worker) to run python3 node_modules/.cache/personal-word-beta/ui5-c3/patch-key.py . then rerun tests/floating.spec.ts on the real build.",
+  "status": "resolved",
+  "resolution": "Owner (in chat to the coordinator, 2026-11-02 ~01:05 EST): 'You apply it' -- coordinator applies patch-key.py to src/components/floating.ts and src/App.tsx."
+}

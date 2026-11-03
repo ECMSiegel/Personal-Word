@@ -1,0 +1,9 @@
+{
+  "id": "agent-c49f",
+  "label": "Claude Opus worker T196 (W5 A3)",
+  "joined_at": "2026-11-02T02:16:46+00:00",
+  "last_seen": "2026-11-02T03:17:12+00:00",
+  "status": "left",
+  "current_task": null,
+  "inbox_cursor": 0
+}

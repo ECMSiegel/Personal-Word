@@ -1,17 +1,18 @@
 import { useEffect, useId, useRef, useState } from "react";
+import { useLookup } from "./useLookup";
+import { Cite, Field, Preview } from "./Cite";
+import { firstWords, kindLabels, sourceSummary, addCitation, addManualSource, patchResearchNote, patchSource as patchSourceData, patchFootnote as patchFootnoteData, removeSource } from "./citationActions";
+export { sourceSummary } from "./citationActions";
 import { ChevronRight } from "lucide-react";
 import { Dropdown, type DropdownOption } from "../components/Dropdown";
-import { DropTarget, type DropItem } from "../components/DropTarget";
-import { readDroppedPdf } from "../import/dropImport";
 import {
   bibliography,
   citationGuidance,
   citationParts,
   footnoteParts,
-  type CitationPart,
 } from "./citations";
 import type { BibliographyItem } from "./bibliography";
-import { lookupIdentifier } from "./lookup";
+import { SourceForm } from "./SourceForm";
 import { parseCslJson, type CslImportResult } from "./cslImport";
 import { parseBibtex } from "./bibtexImport";
 import { fetchAllZoteroItems, previewZoteroChanges } from "./zotero";
@@ -26,24 +27,13 @@ import {
   type Source,
 } from "./types";
 import "./research.css";
+import "../components/scroll-fade.css";
+import { watchScrollFade } from "../components/scrollFade";
 
 export type ResearchTab = "sources" | "notes";
-const MAX_PDF_BYTES = 25 * 1024 * 1024;
-/** Browsers hide a dragged file's name and size until the drop, so a missing name is judged by type only. */
-const acceptPdf = (file: DropItem) => {
-  if (!file.name)
-    return !file.type || file.type === "application/pdf" ? null : "Only PDF files can be attached.";
-  if (!/\.pdf$/i.test(file.name)) return "Only PDF files can be attached.";
-  return file.size > MAX_PDF_BYTES ? "PDFs must be 25 MB or smaller." : null;
-};
 const emptyResearchData: ResearchData = { sources: [], notes: [], footnotes: [] };
+const ZOTERO_HINT = "In Zotero, enable the local API in Settings > Advanced before refreshing.";
 
-const kindLabels: Record<Source["kind"], string> = {
-  book: "Book", journal: "Journal article", website: "Website", chapter: "Book chapter",
-  thesis: "Thesis or dissertation", report: "Report", conference: "Conference work",
-  newspaper: "Newspaper article", interview: "Interview", media: "Media", other: "Other",
-};
-const kindOptions: DropdownOption<Source["kind"]>[] = Object.entries(kindLabels).map(([value, label]) => ({ value: value as Source["kind"], label }));
 const quoteKindOptions: DropdownOption<ResearchNote["kind"]>[] = [
   { value: "quote", label: "Direct quote" },
   { value: "paraphrase", label: "Paraphrase" },
@@ -51,103 +41,8 @@ const quoteKindOptions: DropdownOption<ResearchNote["kind"]>[] = [
 
 const plural = (count: number, word: string) =>
   `${count} ${word}${count === 1 ? "" : "s"}`;
-const firstWords = (text: string) => {
-  const words = text.trim().split(/\s+/);
-  return words.slice(0, 6).join(" ") + (words.length > 6 ? "…" : "");
-};
-const leadName = (source: Source) => {
-  const first = source.authors.find((name) => name.trim())?.trim();
-  if (!first) return "";
-  return first.includes(",")
-    ? first.split(",")[0].trim()
-    : (first.split(/\s+/).at(-1) ?? "");
-};
-export const sourceSummary = (source: Source) =>
-  [leadName(source), source.title.trim() || "Untitled source"]
-    .filter(Boolean)
-    .join(" -- ") + (source.year ? ` (${source.year})` : "");
-
-function Cite({ parts }: { parts: CitationPart[] }) {
-  return (
-    <>
-      {parts.map((part, index) =>
-        part.italic ? (
-          <em key={index}>{part.text}</em>
-        ) : (
-          <span key={index}>{part.text}</span>
-        ),
-      )}
-    </>
-  );
-}
-
-const ZOTERO_HINT =
-  "In Zotero, enable the local API in Settings > Advanced before refreshing.";
-
 const LOOKUP_PRIVACY =
   "Look up sends only this identifier to Crossref, Open Library, or the website.";
-
-function Field({
-  id,
-  label,
-  value,
-  onChange,
-  help,
-  wide,
-  multiline,
-  placeholder,
-}: {
-  id: string;
-  label: string;
-  value: string;
-  onChange: (value: string) => void;
-  help?: string;
-  wide?: boolean;
-  multiline?: boolean;
-  placeholder?: string;
-}) {
-  const describedBy = help ? `${id}-help` : undefined;
-  return (
-    <div className={"field" + (wide ? " is-wide" : "")}>
-      <label htmlFor={id}>{label}</label>
-      {multiline ? (
-        <textarea
-          id={id}
-          rows={3}
-          value={value}
-          placeholder={placeholder}
-          aria-describedby={describedBy}
-          onChange={(e) => onChange(e.target.value)}
-        />
-      ) : (
-        <input
-          id={id}
-          type="text"
-          value={value}
-          placeholder={placeholder}
-          aria-describedby={describedBy}
-          onChange={(e) => onChange(e.target.value)}
-        />
-      )}
-      {help && (
-        <p id={describedBy} className="field-help">
-          {help}
-        </p>
-      )}
-    </div>
-  );
-}
-
-function Preview({ label, parts }: { label: string; parts: CitationPart[] }) {
-  return (
-    <div className="preview">
-      <span className="field-label">{label}</span>
-      <p className="citation-preview">
-        <Cite parts={parts} />
-      </p>
-    </div>
-  );
-}
 
 export function ResearchPanel({
   data = emptyResearchData,
@@ -184,9 +79,6 @@ export function ResearchPanel({
     initialTab === "notes" ? "notes" : "sources",
   );
   const [openId, setOpenId] = useState<string | null>(null);
-  const [input, setInput] = useState("");
-  const [busy, setBusy] = useState(false);
-  const [status, setStatus] = useState({ text: "", error: false });
   const [pendingFocus, setPendingFocus] = useState<string | null>(null);
   const [captureSourceId, setCaptureSourceId] = useState<string | undefined>();
   const [capturingQuote, setCapturingQuote] = useState(false);
@@ -199,8 +91,15 @@ export function ResearchPanel({
   const [zoteroMessage, setZoteroMessage] = useState<string>("");
   const importFile = useRef<HTMLInputElement>(null);
   const panel = useRef<HTMLElement>(null);
+  // The panel scrolls inside its host `.research-aside` (App.tsx), so the fade goes on that.
+  useEffect(() => {
+    const scroller = panel.current?.closest<HTMLElement>(".research-aside");
+    return scroller ? watchScrollFade(scroller) : undefined;
+  }, []);
   const latest = useRef(data);
   latest.current = data;
+  const lookup = useLookup(latest, onChange);
+  const { input, setInput, busy, status, notify, run: runLookup } = lookup;
 
   useEffect(() => {
     if (!focusFootnoteId) return;
@@ -234,103 +133,41 @@ export function ResearchPanel({
     setPendingFocus(null);
   }, [pendingFocus, tab, openId, data]);
 
-  const notify = (text: string, error = false) => setStatus({ text, error });
 
-  const patchSource = (id: string, patch: Partial<Source>) =>
-    onChange({
-      ...data,
-      sources: data.sources.map((s) => (s.id === id ? { ...s, ...patch } : s)),
-    });
-  const patchNote = (id: string, patch: Partial<ResearchNote>) =>
-    onChange({
-      ...data,
-      notes: data.notes.map((n) => (n.id === id ? { ...n, ...patch } : n)),
-    });
-  const patchFootnote = (id: string, patch: Partial<Footnote>) =>
-    onChange({
-      ...data,
-      footnotes: data.footnotes.map((f) =>
-        f.id === id ? { ...f, ...patch } : f,
-      ),
-    });
-  const deleteNote = (id: string) =>
-    onChange({ ...data, notes: data.notes.filter((n) => n.id !== id) });
+  const patchSource = (id: string, patch: Partial<Source>) => onChange(patchSourceData(data, id, patch));
+  const patchNote = (id: string, patch: Partial<ResearchNote>) => onChange(patchResearchNote(data, id, patch));
+  const patchFootnote = (id: string, patch: Partial<Footnote>) => onChange(patchFootnoteData(data, id, patch));
+  const deleteNote = (id: string) => onChange({ ...data, notes: data.notes.filter((n) => n.id !== id) });
 
-  const runLookup = async () => {
-    const value = input.trim();
-    if (!value || busy) return;
-    setBusy(true);
-    notify("Looking up...");
-    try {
-      const result = await lookupIdentifier(value);
-      const id = crypto.randomUUID();
-      const current = latest.current;
-      onChange({
-        ...current,
-        sources: [...current.sources, { id, ...result.source }],
-      });
-      setInput("");
-      setOpenId(id);
-      notify(`Found on ${result.provider} -- review the details`);
-    } catch (error) {
-      notify(error instanceof Error ? error.message : "Lookup failed", true);
-    } finally {
-      setBusy(false);
-    }
+  const lookupSource = async () => {
+    const id = await runLookup();
+    if (id) setOpenId(id);
   };
 
   const addManual = () => {
-    const id = crypto.randomUUID();
-    onChange({
-      ...data,
-      sources: [...data.sources, { id, kind: "book", title: "", authors: [] }],
-    });
-    setOpenId(id);
-    notify("");
+    const { data: next, id } = addManualSource(data);
+    onChange(next); setOpenId(id); notify("");
   };
 
   const deleteSource = (source: Source) => {
-    if (
-      data.footnotes.some((f) => f.sourceId === source.id) ||
-      data.notes.some((n) => n.sourceId === source.id)
-    ) {
-      notify(
-        "Remove the quotes and footnotes linked to this source before deleting it. Footnotes can be unlinked.",
-        true,
-      );
-      return;
-    }
-    onChange({
-      ...data,
-      sources: data.sources.filter((s) => s.id !== source.id),
-    });
-    setOpenId(null);
-    notify("");
+    const result = removeSource(data, source.id);
+    if ("error" in result) { notify(result.error, true); return; }
+    onChange(result.data); setOpenId(null); notify("");
   };
 
   const citeHere = (source: Source) => {
-    const id = crypto.randomUUID();
-    onChange({
-      ...data,
-      footnotes: [...data.footnotes, { id, text: "", sourceId: source.id }],
-    });
-    onInsertFootnote?.(id);
-    setPendingFocus(id);
+    const { data: next, footnoteId: id } = addCitation(data, source.id);
+    onChange(next); onInsertFootnote?.(id); setPendingFocus(id);
   };
 
   const insertTextOnly = () => {
-    const id = crypto.randomUUID();
-    onChange({ ...data, footnotes: [...data.footnotes, { id, text: "" }] });
-    onInsertFootnote?.(id);
-    setPendingFocus(id);
+    const { data: next, footnoteId: id } = addCitation(data, undefined);
+    onChange(next); onInsertFootnote?.(id); setPendingFocus(id);
   };
 
   const addNote = () => {
     const id = crypto.randomUUID();
-    onChange({
-      ...data,
-      notes: [...data.notes, { id, kind: "personal", text: "" }],
-    });
+    onChange({ ...data, notes: [...data.notes, { id, kind: "personal", text: "" }] });
     setPendingFocus(id);
   };
 
@@ -446,208 +283,11 @@ export function ResearchPanel({
 
   const renderSource = (source: Source) => {
     const patch = (value: Partial<Source>) => patchSource(source.id, value);
-    const fieldId = (key: string) => `${source.id}-${key}`;
-    const footnotes = data.footnotes.filter((f) => f.sourceId === source.id);
+      const footnotes = data.footnotes.filter((f) => f.sourceId === source.id);
     const quotes = data.notes.filter((n) => n.sourceId === source.id);
     return (
       <div className="source-body" id={`${source.id}-panel`}>
-        <div className="field source-pdf-field">
-          <span className="field-label">PDF</span>
-          {source.pdf ? (
-            <>
-              <span className="source-pdf-name">{source.pdf.name}</span>
-              <span className="source-pdf-size">{source.pdf.byteLength < 1024
-                ? `${source.pdf.byteLength} B`
-                : `${(source.pdf.byteLength / 1024).toFixed(1)} KB`}</span>
-              <div className="item-actions">
-                <button type="button" onClick={() => onOpenPdf?.(source.id)}>Open beside</button>
-                <button type="button" className="is-danger" onClick={() => patch({ pdf: undefined })}>Remove PDF</button>
-              </div>
-            </>
-          ) : (
-            <DropTarget
-              accept={acceptPdf}
-              label="Drop to attach"
-              onReject={(reason) => notify(reason, true)}
-              onFiles={(files) => {
-                if (files.length !== 1) return notify("Attach one PDF at a time.", true);
-                notify("");
-                const [file] = files;
-                if (typeof file !== "string") return void onAttachPdf?.(source.id, file);
-                readDroppedPdf(file).then(
-                  (read) => onAttachPdf?.(source.id, read),
-                  (error) => notify(String(error), true),
-                );
-              }}
-            />
-          )}
-        </div>
-        {source.lookupNote && (
-          <p className="research-hint">
-            {source.lookupNote} -- review the details
-          </p>
-        )}
-        <div className="field">
-          <span className="field-label">Source type</span>
-          <Dropdown<Source["kind"]>
-            label="Source type"
-            value={source.kind}
-            width="100%"
-            options={kindOptions}
-            onChange={(kind) => patch({ kind })}
-          />
-        </div>
-        <div className="research-fields">
-          {source.creators?.map((creator, index) => (
-            <div className="field-group" key={index}>
-              <span>{creator.role} {index + 1}</span>
-              {(creator.literal !== undefined ? ["literal"] : ["given", "family"]).map((key) => (
-                <Field key={key} id={fieldId(`creator-${index}-${key}`)} label={`${creator.role} ${index + 1} ${key === "literal" ? "organization or literal name" : key + " name"}`}
-                  value={creator[key as "given" | "family" | "literal"] ?? ""}
-                  onChange={(value) => {
-                    const creators = source.creators!.map((person, i) => i === index ? { ...person, [key]: value } : person);
-                    patch({ creators, authors: creators.some((person) => person.role === "author") ? creators.filter((person) => person.role === "author").map((person) => person.literal || [person.given, person.family].filter(Boolean).join(" ")) : source.authors });
-                  }} />
-              ))}
-            </div>
-          ))}
-          {!source.creators?.some((creator) => creator.role === "author") && <Field
-            id={fieldId("authors")} label="Authors" multiline wide
-            placeholder="One name per line, first name first" value={source.authors.join("\n")}
-            onChange={(value) => patch({ authors: value.split("\n") })}
-          />}
-          <Field
-            id={fieldId("title")}
-            label="Title"
-            wide
-            value={source.title}
-            onChange={(title) => patch({ title })}
-          />
-          <Field
-            id={fieldId("shortTitle")}
-            label="Short title"
-            wide
-            value={source.shortTitle ?? ""}
-            placeholder="Used in shortened notes"
-            onChange={(shortTitle) => patch({ shortTitle: shortTitle || undefined })}
-          />
-          {source.kind === "book" && (
-            <>
-              <Field
-                id={fieldId("publisher")}
-                label="Publisher"
-                wide
-                value={source.publisher ?? ""}
-                onChange={(publisher) => patch({ publisher })}
-              />
-              <Field
-                id={fieldId("year")}
-                label="Year"
-                value={source.year ?? ""}
-                onChange={(year) => patch({ year })}
-              />
-            </>
-          )}
-          {source.kind === "journal" && (
-            <>
-              <Field
-                id={fieldId("journal")}
-                label="Journal"
-                wide
-                value={source.journal ?? ""}
-                onChange={(journal) => patch({ journal })}
-              />
-              <div className="field-group">
-                <Field
-                  id={fieldId("volume")}
-                  label="Volume"
-                  value={source.volume ?? ""}
-                  onChange={(volume) => patch({ volume })}
-                />
-                <Field
-                  id={fieldId("issue")}
-                  label="Issue"
-                  value={source.issue ?? ""}
-                  onChange={(issue) => patch({ issue })}
-                />
-                <Field
-                  id={fieldId("pages")}
-                  label="Pages"
-                  value={source.pages ?? ""}
-                  onChange={(pages) => patch({ pages })}
-                />
-              </div>
-              <Field
-                id={fieldId("year")}
-                label="Year"
-                value={source.year ?? ""}
-                onChange={(year) => patch({ year })}
-              />
-            </>
-          )}
-          {source.kind === "website" && (
-            <>
-              <Field
-                id={fieldId("website")}
-                label="Website name"
-                wide
-                value={source.website ?? ""}
-                onChange={(website) => patch({ website })}
-              />
-              <Field
-                id={fieldId("published")}
-                label="Published"
-                help="yyyy-mm-dd or a year"
-                value={source.year ?? ""}
-                onChange={(year) => patch({ year })}
-              />
-              <Field
-                id={fieldId("accessed")}
-                label="Accessed"
-                help="yyyy-mm-dd"
-                value={source.accessed ?? ""}
-                onChange={(accessed) => patch({ accessed })}
-              />
-            </>
-          )}
-          {! ["book", "journal", "website"].includes(source.kind) && <>
-            <p className="research-hint">This source type retains its imported fields. Automatic formatting is limited; review every preview and supply manual text wherever a form is requested.</p>
-            {([ ["container", "Container title"], ["publisher", "Publisher"], ["year", "Year"], ["institution", "Institution"], ["event", "Event"], ["publishedDate", "Published date"] ] as const).map(([key, label]) =>
-              <Field key={key} id={fieldId(key)} label={label} value={source[key] ?? ""} onChange={(value) => patch({ [key]: value })} />)}
-          </>}
-          {source.kind === "chapter" && <button type="button" onClick={() => patch({ creators: [...(source.creators ?? []), { role: "editor", literal: "" }] })}>Add editor</button>}
-          <Field id={fieldId("edition")} label="Edition" value={source.edition ?? ""} onChange={(edition) => patch({ edition })} />
-          {([ ["manualFull", "Manual full note"], ["manualShort", "Manual short note"], ["manualBibliography", "Manual bibliography entry"] ] as const).map(([key, label]) =>
-            <Field key={key} id={fieldId(key)} label={label} wide multiline help="When supplied, this exact text overrides automatic formatting." value={source[key] ?? ""} onChange={(value) => patch({ [key]: value })} />)}
-          <p className="research-hint">Review required details: {[
-            !source.title.trim() && "title",
-            !source.authors.some((name) => name.trim()) && !source.creators?.some((creator) => creator.role === "author" && [creator.literal, creator.given, creator.family].some((value) => value?.trim())) && "creator or intentional no-author entry",
-            !source.year && !source.publishedDate && "publication date or intentional no-date entry",
-          ].filter(Boolean).join("; ") || "core fields present -- verify names, dates and publication details"}.</p>
-          {source.cslData && <details><summary>Original imported CSL fields</summary><pre style={{ whiteSpace: "pre-wrap", overflowWrap: "anywhere" }}>{JSON.stringify(source.cslData, null, 2)}</pre></details>}
-          <Field
-            id={fieldId("doi")}
-            label="DOI"
-            wide
-            value={source.doi ?? ""}
-            onChange={(doi) => patch({ doi })}
-          />
-          {source.kind === "book" && (
-            <Field
-              id={fieldId("isbn")}
-              label="ISBN"
-              value={source.isbn ?? ""}
-              onChange={(isbn) => patch({ isbn })}
-            />
-          )}
-          <Field
-            id={fieldId("url")}
-            label="URL"
-            wide
-            value={source.url ?? ""}
-            onChange={(url) => patch({ url })}
-          />
-        </div>
+        <SourceForm source={source} patch={patch} idPrefix={source.id} onError={notify} onAttachPdf={onAttachPdf} onOpenPdf={onOpenPdf} />
         <div className="citation-previews">
           <Preview label="Note" parts={citationParts(source, "full")} />
           <Preview
@@ -759,7 +399,7 @@ export function ResearchPanel({
             Use repeat citation rules
           </label>
           {data.citationPolicy && (
-            <div>
+            <div className="repeat-rules">
               <div className="field">
                 <span className="field-label">Full citation again</span>
                 <Dropdown<CitationPolicy["scope"]>
@@ -840,7 +480,7 @@ export function ResearchPanel({
                 onKeyDown={(e) => {
                   if (e.key === "Enter") {
                     e.preventDefault();
-                    void runLookup();
+                    void lookupSource();
                   }
                 }}
               />
@@ -848,7 +488,7 @@ export function ResearchPanel({
                 type="button"
                 className="button-primary"
                 disabled={busy || !input.trim()}
-                onClick={() => void runLookup()}
+                onClick={() => void lookupSource()}
                 title={LOOKUP_PRIVACY}
                 aria-describedby={lookupTipId}
                 onFocus={() => setLookupTipShown(true)}
@@ -1050,7 +690,7 @@ export function ResearchPanel({
           <p className="research-hint">
             Ideas and reminders. Quotes from a source live under that source.
           </p>
-          <div className="research-actions">
+          <div className="research-actions note-actions">
             <button type="button" onClick={addNote}>
               Add note
             </button>
@@ -1060,13 +700,17 @@ export function ResearchPanel({
           )}
           {looseNotes.map((note) => (
             <div className="note-item" key={note.id}>
-              <textarea
-                aria-label="Note text"
-                data-research-id={note.id}
-                rows={3}
-                value={note.text}
-                onChange={(e) => patchNote(note.id, { text: e.target.value })}
-              />
+              <div className="field">
+                <label htmlFor={`note-${note.id}-text`}>Note</label>
+                <textarea
+                  id={`note-${note.id}-text`}
+                  data-research-id={note.id}
+                  rows={3}
+                  placeholder="Write a note"
+                  value={note.text}
+                  onChange={(e) => patchNote(note.id, { text: e.target.value })}
+                />
+              </div>
               <div className="field">
                 <span className="field-label">Attach to source</span>
                 <Dropdown<string>

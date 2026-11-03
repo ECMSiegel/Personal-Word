@@ -1,0 +1,86 @@
+{
+  "id": "T200",
+  "title": "W5 C1 -- Margin-fit rules and measurement",
+  "description": "UI wave 5, plan docs/agent-work/2026-11-01-ui-wave-5/PLAN.md section '### C1' (APPROVED 2026-11-01, defaults accepted). Read the whole task plus Rules, Approach, hotspot ownership and Notes before starting; owner request REQUEST.md + screenshots. Do not register team-serial-check-slot; heavy runs take the mkdir lock node_modules/.cache/personal-word-beta/serial-check.lock. Private Playwright config/port; double-quote paths; no git stash/checkout/reset; no installs.",
+  "status": "done",
+  "owner": null,
+  "priority": 1,
+  "depends_on": [],
+  "files": [
+    "src/components/floating.test.ts",
+    "src/components/floating.ts",
+    "node_modules/.cache/personal-word-beta/ui5-c1"
+  ],
+  "review_required": true,
+  "created_by": "agent-47c8",
+  "created_at": "2026-11-02T00:06:23+00:00",
+  "claimed_at": "2026-11-02T00:35:02+00:00",
+  "updated_at": "2026-11-02T00:45:33+00:00",
+  "handoff": {
+    "by": "agent-2a1b",
+    "at": "2026-11-02T00:33:04+00:00",
+    "text": "Coordinator review (agent-2a1b). Rejected; fix these and resubmit: (1) FOCUS_REVEAL_BAND_PX = 16 + 2*4 = 24 is wrong: --control-height is 32px (styles.css:52), so the band is 32 + 2*4 = 40 px, and it is measured from the TOP OF .writer, not viewport y=0. Current code Math.max(r.top, barBottom, 24) compares a viewport y to a 24 px constant. Compute top in focus mode as writerRect.top + band (read --control-height/--space-1 via getComputedStyle or measure the reserved padding), not a hard-coded px. (2) Read mode: .manuscript-read (styles.css:1377) is the full-width overflow:auto SCROLLER, so its left/right equal the workspace edges and the margin is always 0 -- floating never fits in Read mode. Use the inner text column (check the .read-prose / column element rendered inside .manuscript-read) and name it in the header comment, as the plan asks. (3) useMarginFit hard-codes 270 as the wanted sidebar width; the plan's fit rule is min(prefs.width, available). Add an optional wanted-width argument (e.g. sidebarWidth = 270 default) so C2 can pass the real preference -- tell me in the done note (small interface addition, approved). (4) Tests are short of the plan's list: add enabled=false (no observers, all fits false), null edges when the document element is missing, the Read-mode path, and the focus-mode top. Use a minimal fake ParentNode/getBoundingClientRect object if vitest has no DOM. (5) Fail-first: actually run a doctored marginFit without FLOAT_GAP and show the boundary cases fail (paste the failing output path in the note). (6) Run npx tsc --noEmit -p . to completion (in background with a log if slow; load is high) and report the exit code. Everything else (constants, marginFit math, rAF+ResizeObserver, cleanup) looks right."
+  },
+  "review": {
+    "by": "agent-2a1b",
+    "at": "2026-11-02T00:45:33+00:00",
+    "verdict": "approved",
+    "note": "Coordinator review (agent-2a1b), cycle 2. Reran npx vitest run src/components/floating.test.ts on pinned Node 22.23.3 -> 5/5. Fail-first: ui5-c1/gap-doctor.log shows the doctored no-gap marginFit failing (250 vs 218). tsc.log empty (tsc prints nothing on success; agent reports exit 0). Read the diff: band = writer top + live --control-height + 2*--space-1 (40 px today); Read mode measures .manuscript-read .read-prose; sidebarWidth param in effect deps. CARRIED TO C3/C5: focus-mode top and the hook itself have no unit coverage (no DOM harness) -- C3/C5 Playwright specs must assert the focus-mode top and fits/no-fit at real widths, and native WebKit must confirm zoom geometry."
+  },
+  "log": [
+    {
+      "at": "2026-11-02T00:06:23+00:00",
+      "agent": "agent-47c8",
+      "event": "created",
+      "note": ""
+    },
+    {
+      "at": "2026-11-02T00:25:09+00:00",
+      "agent": "agent-4857",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-11-02T00:25:14+00:00",
+      "agent": "agent-4857",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-11-02T00:29:36+00:00",
+      "agent": "agent-4857",
+      "event": "review requested",
+      "note": "Implemented the pure margin rules, document-edge measurement, and rAF/ResizeObserver fit hook in the two registered new files. Focused Vitest: 2/2 passed. TypeScript noEmit command returned no diagnostics (tool call timed out at 30s, completion status not observable). Initial test exposed node environment without DOM; replaced that assertion with a pure split guard. Fail-first against missing module is inherent per plan; doctored gap case not separately run. Awaiting independent review. src/components/floating.ts: uncommitted edits\\nsrc/components/floating.test.ts: uncommitted edits\\nnode_modules/.cache/personal-word-beta/ui5-c1: clean"
+    },
+    {
+      "at": "2026-11-02T00:33:04+00:00",
+      "agent": "agent-2a1b",
+      "event": "rejected",
+      "note": "Coordinator review (agent-2a1b). Rejected; fix these and resubmit: (1) FOCUS_REVEAL_BAND_PX = 16 + 2*4 = 24 is wrong: --control-height is 32px (styles.css:52), so the band is 32 + 2*4 = 40 px, and it is measured from the TOP OF .writer, not viewport y=0. Current code Math.max(r.top, barBottom, 24) compares a viewport y to a 24 px constant. Compute top in focus mode as writerRect.top + band (read --control-height/--space-1 via getComputedStyle or measure the reserved padding), not a hard-coded px. (2) Read mode: .manuscript-read (styles.css:1377) is the full-width overflow:auto SCROLLER, so its left/right equal the workspace edges and the margin is always 0 -- floating never fits in Read mode. Use the inner text column (check the .read-prose / column element rendered inside .manuscript-read) and name it in the header comment, as the plan asks. (3) useMarginFit hard-codes 270 as the wanted sidebar width; the plan's fit rule is min(prefs.width, available). Add an optional wanted-width argument (e.g. sidebarWidth = 270 default) so C2 can pass the real preference -- tell me in the done note (small interface addition, approved). (4) Tests are short of the plan's list: add enabled=false (no observers, all fits false), null edges when the document element is missing, the Read-mode path, and the focus-mode top. Use a minimal fake ParentNode/getBoundingClientRect object if vitest has no DOM. (5) Fail-first: actually run a doctored marginFit without FLOAT_GAP and show the boundary cases fail (paste the failing output path in the note). (6) Run npx tsc --noEmit -p . to completion (in background with a log if slow; load is high) and report the exit code. Everything else (constants, marginFit math, rAF+ResizeObserver, cleanup) looks right."
+    },
+    {
+      "at": "2026-11-02T00:35:02+00:00",
+      "agent": "agent-4857",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-11-02T00:35:09+00:00",
+      "agent": "agent-4857",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-11-02T00:44:06+00:00",
+      "agent": "agent-4857",
+      "event": "review requested",
+      "note": "Addressed coordinator review: focus-mode top uses writer top plus live computed --control-height/--space-1 reveal band; Read geometry uses inner .read-prose column (App.tsx:2424); useMarginFit accepts optional sidebarWidth=270. Added missing-column, Read, split and margin boundary cases. Focused Vitest: 5/5 pass. Doctored no-gap fail-first: node_modules/.cache/personal-word-beta/ui5-c1/gap-doctor.log, expected assertion failed (250 vs 218). TypeScript npx tsc --noEmit -p . exited 0; complete log node_modules/.cache/personal-word-beta/ui5-c1/tsc.log. One test initially caught unguarded window reference in DOM-less test; now fixed. Hook disabled path returns before observer creation; unit environment has no React DOM harness for exercising hooks. Uncommitted files: src/components/floating.ts, src/components/floating.test.ts\\nsrc/components/floating.ts: uncommitted edits\\nsrc/components/floating.test.ts: uncommitted edits\\nnode_modules/.cache/personal-word-beta/ui5-c1: uncommitted edits"
+    },
+    {
+      "at": "2026-11-02T00:45:33+00:00",
+      "agent": "agent-2a1b",
+      "event": "approved",
+      "note": "Coordinator review (agent-2a1b), cycle 2. Reran npx vitest run src/components/floating.test.ts on pinned Node 22.23.3 -> 5/5. Fail-first: ui5-c1/gap-doctor.log shows the doctored no-gap marginFit failing (250 vs 218). tsc.log empty (tsc prints nothing on success; agent reports exit 0). Read the diff: band = writer top + live --control-height + 2*--space-1 (40 px today); Read mode measures .manuscript-read .read-prose; sidebarWidth param in effect deps. CARRIED TO C3/C5: focus-mode top and the hook itself have no unit coverage (no DOM harness) -- C3/C5 Playwright specs must assert the focus-mode top and fits/no-fit at real widths, and native WebKit must confirm zoom geometry."
+    }
+  ]
+}

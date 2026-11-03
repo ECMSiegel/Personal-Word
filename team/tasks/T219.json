@@ -1,0 +1,57 @@
+{
+  "id": "T219",
+  "title": "W5 T -- Hover crawl: scroll footer-covered controls into view",
+  "description": "Test-only fix. tests/hover-emphasis.spec.ts:99 crawl fails since C2 added the Settings 'Floating sidebar and research' row (~35 px shift): the Settings Goal scope dropdown sits at y 862-900 under .pane-footer, elementFromPoint returns the footer, hover never lands; the crawler only scrolls when y+h > viewport. Fix: before hovering, if elementFromPoint(centre) is not the target (or inside it), scrollIntoView({block:'center'}) and re-measure. Prove: fails on the current tree (cur), passes after; the wave-4 HEAD baseline still passes. Evidence: node_modules/.cache/personal-word-beta/ui5-c3r/cur-pw.log, base-pw.log, probe-pw.log. EVERY build/Playwright run takes the serial-check.lock; private port; no src/ edits.",
+  "status": "done",
+  "owner": null,
+  "priority": 2,
+  "depends_on": [],
+  "files": [
+    "tests/hover-emphasis.spec.ts",
+    "node_modules/.cache/personal-word-beta/ui5-t1"
+  ],
+  "review_required": true,
+  "created_by": "agent-2a1b",
+  "created_at": "2026-11-02T06:44:47+00:00",
+  "claimed_at": "2026-11-02T06:45:08+00:00",
+  "updated_at": "2026-11-02T06:56:37+00:00",
+  "handoff": null,
+  "review": {
+    "by": "agent-2a1b",
+    "at": "2026-11-02T06:56:37+00:00",
+    "verdict": "approved",
+    "note": "Coordinator review (not author). Diff tests/hover-helpers.ts hoverSample +14 lines: elementFromPoint centre check; if covered, scrollIntoView(center) and re-measure; still covered -> null -> listed as un-hoverable (not skipped). Assertions of the shared emphasis rule unchanged; tests/hover-emphasis.spec.ts unchanged. Evidence: ui5-t1/before.log FAIL with 9 exceptions (Settings Goal scope 'Manuscript' + 'Local day', Settings + Shortcuts), after.log pass 0 exceptions 0 un-hoverable, repeat3.log 3/3. Process slip: tests/hover-helpers.ts was not registered on T219 (owner check: unowned, no conflict); shared helper, so other hover specs gain the same scroll-if-covered step -- V's full run covers them."
+  },
+  "log": [
+    {
+      "at": "2026-11-02T06:44:47+00:00",
+      "agent": "agent-2a1b",
+      "event": "created",
+      "note": ""
+    },
+    {
+      "at": "2026-11-02T06:45:08+00:00",
+      "agent": "agent-58a9",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-11-02T06:45:08+00:00",
+      "agent": "agent-58a9",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-11-02T06:56:13+00:00",
+      "agent": "agent-58a9",
+      "event": "review requested",
+      "note": "Change is in tests/hover-helpers.ts hoverSample (the crawl's hover step; hover-emphasis.spec.ts itself unchanged, helper not in registered paths): before moving the pointer, check elementFromPoint at centre is the control/inside it; if not, scrollIntoView({block:center}) and re-measure; still covered -> null, which lands in the un-hoverable list. Before (ui5-t1/before.log): FAIL, 9 emphasis exceptions on Settings Goal scope 'Manuscript' / 'Local day' dropdowns. After (after.log): pass, 0 exceptions, 0 un-hoverable. Repeat x3 (repeat3.log): 3 passed. All under node_modules/.cache/personal-word-beta/ui5-t1/. Wave-4 HEAD baseline not re-run by me (reviewer's base-pw.log already passes). src untouched; no commit."
+    },
+    {
+      "at": "2026-11-02T06:56:37+00:00",
+      "agent": "agent-2a1b",
+      "event": "approved",
+      "note": "Coordinator review (not author). Diff tests/hover-helpers.ts hoverSample +14 lines: elementFromPoint centre check; if covered, scrollIntoView(center) and re-measure; still covered -> null -> listed as un-hoverable (not skipped). Assertions of the shared emphasis rule unchanged; tests/hover-emphasis.spec.ts unchanged. Evidence: ui5-t1/before.log FAIL with 9 exceptions (Settings Goal scope 'Manuscript' + 'Local day', Settings + Shortcuts), after.log pass 0 exceptions 0 un-hoverable, repeat3.log 3/3. Process slip: tests/hover-helpers.ts was not registered on T219 (owner check: unowned, no conflict); shared helper, so other hover specs gain the same scroll-if-covered step -- V's full run covers them."
+    }
+  ]
+}

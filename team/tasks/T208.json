@@ -1,0 +1,76 @@
+{
+  "id": "T208",
+  "title": "W5 B3 work -- Extract the citation logic into shared modules (no App.tsx)",
+  "description": "Does the work of T199 (UI wave 5 B3), plan docs/agent-work/2026-11-01-ui-wave-5/PLAN.md section '### B3' -- read it all plus Rules, Approach item 5, hotspot ownership and Notes. Same as T199 but WITHOUT src/App.tsx: keep sourceSummary importable by re-exporting it from ResearchPanel.tsx (App.tsx must not change). Acceptance and DOM-snapshot equality exactly as the plan says. Do not register team-serial-check-slot; private Playwright config/port; double-quote paths; no git stash/checkout/reset; no installs. T199 is closed by the coordinator after this is approved.",
+  "status": "done",
+  "owner": null,
+  "priority": 1,
+  "depends_on": [
+    "T197"
+  ],
+  "files": [
+    "src/research/Cite.tsx",
+    "src/research/ResearchPanel.tsx",
+    "src/research/SourceForm.tsx",
+    "src/research/citationActions.test.ts",
+    "src/research/citationActions.ts",
+    "src/research/useLookup.ts",
+    "node_modules/.cache/personal-word-beta/ui5-b3"
+  ],
+  "review_required": true,
+  "created_by": "agent-2a1b",
+  "created_at": "2026-11-02T01:23:08+00:00",
+  "claimed_at": "2026-11-02T04:40:02+00:00",
+  "updated_at": "2026-11-02T05:20:20+00:00",
+  "handoff": null,
+  "review": {
+    "by": "agent-97c0",
+    "at": "2026-11-02T05:20:20+00:00",
+    "verdict": "approved",
+    "note": "Independent rerun: tsc 0; vitest src/research 205/205; own build; DOM sha256 of all four source-body snapshots equal ui5-b3/snap-before.json; research set 35/35 (no flake this run). Read ResearchPanel diff vs before-copy: behaviour preserved, refusal text identical, useLookup keeps latest ref + same Found text, sourceSummary re-exported, no duplicated logic. Fail-first fails on dropped sourceId (right reason). Minor: card variant also shows ISBN for books (beyond plan list); stray indentation line in ResearchPanel renderSource; snapshot covers fresh sources only (no pdf/creators), so full-variant equality for those is by code reading. App.tsx diff in tree is other tasks' (no research-panel change)."
+  },
+  "log": [
+    {
+      "at": "2026-11-02T01:23:08+00:00",
+      "agent": "agent-2a1b",
+      "event": "created",
+      "note": ""
+    },
+    {
+      "at": "2026-11-02T01:29:31+00:00",
+      "agent": "agent-4857",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-11-02T01:29:34+00:00",
+      "agent": "agent-4857",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-11-02T04:40:02+00:00",
+      "agent": "agent-029c",
+      "event": "reclaimed from agent-4857",
+      "note": ""
+    },
+    {
+      "at": "2026-11-02T04:40:17+00:00",
+      "agent": "agent-029c",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-11-02T05:13:45+00:00",
+      "agent": "agent-029c",
+      "event": "review requested",
+      "note": "Codex had: citationActions.ts+test, Cite.tsx, useLookup.ts, SourceForm.tsx (full block, onError required, variant prop), ResearchPanel rewired. I did: SourceForm card variant (book/journal/website core fields, container/publisher/year for other kinds; no PDF/quote/manual notes/hint/CSL), removed the extra wrapper div from variant full (it broke byte equality; card keeps research-fields-source wrapper used by citation-card.css), deduped kindLabels (imported from citationActions), added a no-mutation unit test. Contract differences: SourceForm onError is REQUIRED; extra exports patchResearchNote, Preview/Field live in Cite.tsx; useLookup.run returns id. App.tsx untouched. Results: tsc 0 (CitationCard compiles; node_modules/.cache/personal-word-beta/ui5-b3/tsc-final.log); vitest src/research 205/205 (node_modules/.cache/personal-word-beta/ui5-b3/vitest-final.log). DOM hashes BEFORE=AFTER: Book 15d315728ca84f86, Journal b68676ae94fcd440, Website 10b2370eccb14afb, Other 9944cbffc689c993 (node_modules/.cache/personal-word-beta/ui5-b3/snap-before.json, snap-after.json, snap-after.log). Research set after: 34/35 + known flake research.spec.ts:176 passed on rerun (node_modules/.cache/personal-word-beta/ui5-b3/pw-after.log, pw-after-rerun176.log); earlier run on a build with the wrapper div also 35/35 (pw-after-run1-wrapper.log). Fail-first: real test file against doctored addCitation (drops sourceId) fails (node_modules/.cache/personal-word-beta/ui5-b3/fail-first.log). Nothing committed."
+    },
+    {
+      "at": "2026-11-02T05:20:20+00:00",
+      "agent": "agent-97c0",
+      "event": "approved",
+      "note": "Independent rerun: tsc 0; vitest src/research 205/205; own build; DOM sha256 of all four source-body snapshots equal ui5-b3/snap-before.json; research set 35/35 (no flake this run). Read ResearchPanel diff vs before-copy: behaviour preserved, refusal text identical, useLookup keeps latest ref + same Found text, sourceSummary re-exported, no duplicated logic. Fail-first fails on dropped sourceId (right reason). Minor: card variant also shows ISBN for books (beyond plan list); stray indentation line in ResearchPanel renderSource; snapshot covers fresh sources only (no pdf/creators), so full-variant equality for those is by code reading. App.tsx diff in tree is other tasks' (no research-panel change)."
+    }
+  ]
+}

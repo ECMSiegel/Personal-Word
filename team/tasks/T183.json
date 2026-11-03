@@ -2,8 +2,8 @@
   "id": "T183",
   "title": "W4 R1 -- Scrollspy line column in the sidebar",
   "description": "UI wave 4, plan docs/agent-work/2026-10-28-ui-wave-4/PLAN.md section '### R1' -- read the whole task (Files, Interfaces, Steps, Acceptance, Fail-first, Stop and ask, Default) plus the plan's Rules, hotspot-ownership and Notes sections before starting. Plan APPROVED by the owner 2026-10-28 with all open-question defaults. Register team-serial-check-slot only while running heavy checks; private Playwright config/port; double-quote paths; no git stash/checkout/reset; no package installs.",
-  "status": "in_progress",
-  "owner": "agent-46f0",
+  "status": "done",
+  "owner": null,
   "priority": 1,
   "depends_on": [
     "T181"
@@ -22,10 +22,15 @@
   "review_required": true,
   "created_by": "agent-47c8",
   "created_at": "2026-10-28T23:39:24+00:00",
-  "claimed_at": "2026-10-29T05:49:46+00:00",
-  "updated_at": "2026-10-29T05:49:47+00:00",
+  "claimed_at": "2026-11-02T00:22:35+00:00",
+  "updated_at": "2026-11-02T00:28:15+00:00",
   "handoff": null,
-  "review": null,
+  "review": {
+    "by": "agent-e586",
+    "at": "2026-11-02T00:28:15+00:00",
+    "verdict": "approved",
+    "note": "Bookkeeping approval of already-shipped wave-4 work (agent-e586, independent of owner agent-2a1b). CHECKED: (1) all 8 registered paths -- src/App.tsx, src/components/ProjectSidebar.tsx, scrollspy.css, scrollspy.test.ts, scrollspy.ts, src/styles.css, tests/scrollspy.spec.ts, tests/sidebar-selection.spec.ts -- appear in commit 22eba9a (git show --stat); (2) git status for those 8 paths is empty, i.e. the tree is at HEAD for them, so nothing uncommitted is being waved through; (3) ran the task's own unit suite: npx vitest run src/components/scrollspy.test.ts -> 13/13 passed on pinned Node v22.23.3. NOT RE-RUN (out of scope for a bookkeeping close and deliberately not duplicated): the Playwright scrollspy/sidebar-selection specs and the native screens; those are wave-4 validation evidence recorded in docs/agent-work/2026-10-28-ui-wave-4/VALIDATION.md and the Fable SHIP verdict, and wave 5 final validation (T207) reruns the suite regardless. No files changed by this review."
+  },
   "log": [
     {
       "at": "2026-10-28T23:39:24+00:00",
@@ -44,6 +49,24 @@
       "agent": "agent-46f0",
       "event": "started",
       "note": ""
+    },
+    {
+      "at": "2026-11-02T00:22:35+00:00",
+      "agent": "agent-2a1b",
+      "event": "reclaimed from agent-46f0",
+      "note": ""
+    },
+    {
+      "at": "2026-11-02T00:22:37+00:00",
+      "agent": "agent-2a1b",
+      "event": "review requested",
+      "note": "Already shipped in wave 4 commit 22eba9a (off-board, see HANDOFF.md and docs/agent-work/2026-10-28-ui-wave-4/VALIDATION.md). Closing to release hotspot paths for wave 5. Nothing new to review beyond confirming the commit exists."
+    },
+    {
+      "at": "2026-11-02T00:28:15+00:00",
+      "agent": "agent-e586",
+      "event": "approved",
+      "note": "Bookkeeping approval of already-shipped wave-4 work (agent-e586, independent of owner agent-2a1b). CHECKED: (1) all 8 registered paths -- src/App.tsx, src/components/ProjectSidebar.tsx, scrollspy.css, scrollspy.test.ts, scrollspy.ts, src/styles.css, tests/scrollspy.spec.ts, tests/sidebar-selection.spec.ts -- appear in commit 22eba9a (git show --stat); (2) git status for those 8 paths is empty, i.e. the tree is at HEAD for them, so nothing uncommitted is being waved through; (3) ran the task's own unit suite: npx vitest run src/components/scrollspy.test.ts -> 13/13 passed on pinned Node v22.23.3. NOT RE-RUN (out of scope for a bookkeeping close and deliberately not duplicated): the Playwright scrollspy/sidebar-selection specs and the native screens; those are wave-4 validation evidence recorded in docs/agent-work/2026-10-28-ui-wave-4/VALIDATION.md and the Fable SHIP verdict, and wave 5 final validation (T207) reruns the suite regardless. No files changed by this review."
     }
   ]
 }

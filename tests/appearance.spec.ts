@@ -85,9 +85,8 @@ test("controls show hover, focus, pressed, disabled and selected states", async 
   await page.keyboard.press("Shift+Tab");
   await expect(sidebarButton).toBeFocused();
   await expect(sidebarButton).toHaveCSS("outline-width", "2px");
-  await expect(
-    page.getByRole("button", { name: "Move Manuscript up" }),
-  ).toHaveCSS("opacity", "0.35");
+  // Wave 5 A2: the sidebar has no move arrows (reorder is drag or Option+Up/Down).
+  await expect(page.locator('.sidebar button[aria-label^="Move "]')).toHaveCount(0);
   const selected = page.locator(".sidebar .entry-row.selected").first();
   await expect(selected).toHaveCSS("color", "rgb(36, 36, 40)");
   await expect(selected).toHaveCSS("font-weight", "600");
@@ -473,10 +472,10 @@ for (const scheme of ["light", "dark"] as const) {
     const danger = await tokenColor(page, "--danger");
     expect(new Set([text, muted, accent, danger]).size).toBe(4);
 
-    // Reorder arrow: muted at rest, text on hover.
-    const row = page.locator(".sidebar .entry-row, .sidebar .group-title").first();
+    // Open-beside icon on a sidebar row: muted at rest, text on hover.
+    const row = page.locator(".sidebar .entry-row").first();
     await row.hover();
-    const arrow = page.locator(".sidebar .reorder button:not(:disabled)").first();
+    const arrow = page.locator(".sidebar .open-beside").first();
     await expect(arrow).toBeVisible();
     await arrow.hover();
     await expect.soft(arrow).toHaveCSS("color", text);
@@ -505,3 +504,41 @@ for (const scheme of ["light", "dark"] as const) {
     await expect.soft(trash).toHaveCSS("color", danger);
   });
 }
+
+const SIDEBAR_PREFS_KEY = "folio.workspace.sidebar";
+const sidebarPrefs = (page: import("@playwright/test").Page) =>
+  page.evaluate((k) => JSON.parse(localStorage.getItem(k) ?? "{}"), SIDEBAR_PREFS_KEY);
+
+test("floating sidebar and research: off by default, sits under the hover row, toggles and survives a reload", async ({
+  page,
+}) => {
+  // Restore the tab so the sidebar (and Settings) is there after the reload.
+  await page.addInitScript(() =>
+    localStorage.setItem("personal-word.restoreTabs", "true"),
+  );
+  await openSettings(page, "Floating pref");
+  const row = page.getByLabel("Floating sidebar and research");
+  await expect(row).toBeVisible();
+  await expect(row).not.toBeChecked();
+  // Directly below "Reveal sidebar on hover".
+  const hoverRow = page.getByLabel("Reveal sidebar on hover");
+  const rowBox = (await row.boundingBox())!;
+  const hoverBox = (await hoverRow.boundingBox())!;
+  expect(rowBox.y).toBeGreaterThan(hoverBox.y);
+  expect(Math.abs(rowBox.x - hoverBox.x)).toBeLessThan(2);
+
+  await row.check();
+  await expect(row).toBeChecked();
+  await expect.poll(async () => (await sidebarPrefs(page)).floating).toBe(true);
+  // The write must not drop the sidebar's own fields.
+  const stored = await sidebarPrefs(page);
+  expect(stored.width).toBeGreaterThan(0);
+  expect(stored.pinned).toBe(true);
+  expect(stored.hover).toBe(true);
+
+  await page.reload();
+  await expect.poll(async () => (await sidebarPrefs(page)).floating).toBe(true);
+  // The reload restores the project tab, not the Settings destination: open it again.
+  await page.locator(".group-title").filter({ hasText: /^Settings$/ }).click();
+  await expect(page.getByLabel("Floating sidebar and research")).toBeChecked();
+});

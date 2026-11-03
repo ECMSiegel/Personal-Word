@@ -1,0 +1,97 @@
+/* Command palette (UI wave 5, E3). Tokens only. Same raised surface as the citation card:
+   --elevation-raised, 1px --line, --shadow-raised, square. Rows are dropdown.css-style rows
+   with no fill; the active row is colour + the shared emphasis (.is-highlighted in styles.css). */
+.command-palette {
+  position: fixed;
+  top: 12vh;
+  left: 50%;
+  z-index: 60;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  width: min(560px, calc(100vw - var(--space-5) * 2));
+  max-height: min(420px, 70vh);
+  transform: translateX(-50%);
+  background: var(--elevation-raised);
+  border: 1px solid var(--line);
+  border-radius: 0;
+  box-shadow: var(--shadow-raised);
+  color: var(--text);
+  font-family: Futura, "Avenir Next", -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: var(--type-body);
+  line-height: 1.45;
+}
+.command-palette *,
+.command-palette *::before,
+.command-palette *::after {
+  box-sizing: border-box;
+}
+.command-palette[data-animate] {
+  transition: opacity var(--duration-base) var(--ease-out), transform var(--duration-base) var(--ease-out);
+}
+.command-palette[data-animate]:not([data-shown]) {
+  opacity: 0;
+  transform: translateX(-50%) translateY(calc(-1 * var(--space-2)));
+}
+@media (prefers-reduced-motion: reduce) {
+  .command-palette[data-animate] {
+    transition: none;
+  }
+}
+.command-palette-input {
+  width: 100%;
+  padding: var(--space-3) var(--space-4);
+  border: 0;
+  border-bottom: 1px solid var(--line);
+  border-radius: 0;
+  background: transparent;
+  color: var(--text);
+  font: inherit;
+  font-size: var(--type-large);
+}
+.command-palette-input::placeholder {
+  color: var(--muted);
+}
+.command-palette-list {
+  min-height: 0;
+  overflow-y: auto;
+  padding: var(--space-1) 0;
+  overscroll-behavior: contain;
+}
+.command-palette-heading {
+  padding: var(--space-2) var(--space-4) var(--space-1);
+  color: var(--muted);
+  font-size: var(--type-small);
+  font-weight: 600;
+}
+.command-palette-option {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  /* Right padding absorbs the shared 4 percent grow (grows from the left), so the hint is never clipped. */
+  padding: var(--space-2) var(--space-5) var(--space-2) var(--space-4);
+  color: var(--text);
+  cursor: default;
+  --emph-origin: left center;
+}
+.command-palette-option.is-highlighted {
+  color: var(--accent);
+}
+.command-palette-label {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.command-palette-hint {
+  flex: none;
+  color: var(--muted);
+  font-size: var(--type-small);
+  white-space: nowrap;
+}
+.command-palette-option.is-highlighted .command-palette-hint {
+  color: inherit;
+}
+.command-palette-empty {
+  padding: var(--space-3) var(--space-4);
+  color: var(--muted);
+}

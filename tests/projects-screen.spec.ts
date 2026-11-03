@@ -539,3 +539,24 @@ test("the gear opens Settings from the Projects screen; Dark applies at once and
   await page.reload();
   await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
 });
+
+test("the Projects-screen Settings dialog shows the floating row and it toggles the preference", async ({
+  page,
+}) => {
+  await page.goto("/");
+  await page.locator(".library-display > .library-settings").click();
+  const dialog = page.getByRole("dialog", { name: "Settings" });
+  await expect(dialog).toBeVisible();
+  const row = dialog.getByLabel("Floating sidebar and research");
+  await expect(row).toBeVisible();
+  await expect(row).not.toBeChecked();
+  await row.check();
+  await expect(row).toBeChecked();
+  await expect
+    .poll(() =>
+      page.evaluate(
+        () => JSON.parse(localStorage.getItem("folio.workspace.sidebar") ?? "{}").floating,
+      ),
+    )
+    .toBe(true);
+});

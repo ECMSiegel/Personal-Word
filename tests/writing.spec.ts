@@ -42,7 +42,10 @@ test("writer journey: project, rapid edits, sections, fragments, snapshots, rest
   await expect(page.getByText("Saved", { exact: true })).toBeVisible();
   await page.reload();
   await expect(editor).toContainText("A completely different opening.");
-  await page.getByRole("button", { name: "Move A second place up" }).click();
+  // Wave 5 A2: Option+Up on the focused row replaces the old "Move up" arrow.
+  await page.locator(".sidebar .entry-main").filter({ hasText: "A second place" }).focus();
+  await page.keyboard.press("Alt+ArrowUp");
+  await expect(page.locator('[data-group="manuscript"] .entry-main > span').first()).toHaveText("A second place");
   await page
     .getByRole("button", { name: "Snapshots & history", exact: true })
     .click();

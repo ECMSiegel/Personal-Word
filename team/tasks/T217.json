@@ -1,0 +1,90 @@
+{
+  "id": "T217",
+  "title": "W5 E3w -- Wire the command palette into the app",
+  "description": "docs/agent-work/2026-11-01-ui-wave-5/PLAN.md section 'Amendment 1' ### E3w. EVERY vite build/Playwright run takes node_modules/.cache/personal-word-beta/serial-check.lock. Private config/port; double-quote paths; no git stash/checkout/reset/restore; no installs; no commits; no BoardUI installs.",
+  "status": "done",
+  "owner": null,
+  "priority": 2,
+  "depends_on": [
+    "T213"
+  ],
+  "files": [
+    "src/App.tsx",
+    "tests/command-palette.spec.ts",
+    "node_modules/.cache/personal-word-beta/ui5-e3w",
+    "src/designTokens.test.ts",
+    "src/components/CommandPalette.tsx"
+  ],
+  "review_required": true,
+  "created_by": "agent-2a1b",
+  "created_at": "2026-11-02T06:33:15+00:00",
+  "claimed_at": "2026-11-02T08:30:25+00:00",
+  "updated_at": "2026-11-02T08:35:29+00:00",
+  "handoff": {
+    "by": "agent-2556",
+    "at": "2026-11-02T08:30:01+00:00",
+    "text": "REJECT (one real defect, rest good). Runs (node 22.23.3, own copy node_modules/.cache/personal-word-beta/ui5-e3wr, port 1884, lock taken/released): tsc exit 0; vitest shortcuts+designTokens+motion+hoverEmphasis 4 files 57 pass (pre.log); vite build ok; playwright command-palette+appearance+accessibility+floating+footnotes+writing+shortcuts+hover-emphasis 77 passed 0 failed (pw.log, PALETTE_SHOTS on). DEFECT: Escape does NOT return the caret to where it was. Hands-on spec (scratch, outside tests/, node_modules/.cache/personal-word-beta/ui5-e3wr/hands.log): type 'hello world', ArrowLeft x3, Cmd+Shift+P, Escape, type X -> editor reads 'Xhello world' (caret jumped to start of the document); control without the palette ('hello woYrld') proves the caret setup is right. Editor is focused (the author test only asserts toBeFocused, so it misses this) but the DOM selection is lost because focusing the palette input drops it and opener.focus() on the contenteditable puts the caret at the start. Fix: when the opener is inside the editor, restore via the ProseMirror editor (editor.commands.focus() keeps the stored selection) or have CommandPalette save/restore the Selection range at open; add a test that types after Escape and checks the text position. Same applies after Enter on a command that does not move focus. Branch-by-branch runAppAction: save (always handled, preventDefault, run(saveAll)) same; toggleSidebar same; findInProject same; newSection/snapshot only handled when current.current, else fall through to return false so no preventDefault, same as before; toggleAppearance same; editor-scope chords return false so left alone; preventDefault only when runAppAction true. Handler effect has no deps so it sees fresh paletteOpen/modalOpen. Minor: commandPalette chord with no project returns true (swallows chord, opens nothing) -- harmless. Palette mount: once, after the card block; commands = app actions except commandPalette with hintFor(current shortcuts), New fragment, Go to sections/fragments, destinations (Research, Comments, Bibliography only when showBibliography, Snapshots & history, Settings, Read; hidden groups skipped except Settings); animateIn=pointerInput at open (keyboard false, verified data-animate null). Outside pointerdown closes (capture listener); focus restore skips if focus already moved. Hands-on OK: Take snapshot via palette opens the snapshot dialog with name focused; Go to Opening / Go to Frag One work; Go to Settings shows Project settings; new fragment via palette works; Cmd+\\ / Cmd+Shift+L (light->dark) / Cmd+K chords still work; rename dialog open then Cmd+Shift+P -> no palette; palette open then clicking New section option closes it and the title dialog opens. designTokens: SWEPT += command-palette.css (also research.css/citation-card.css from other tasks, research.css moved from ALL into SWEPT, nothing dropped). No new hover rule, no fills (active row colour + shared emphasis only). Fail-first: ui5-e3w/failfirst-pw.log 6 failed 4 skipped, all at openPalette line 26 (palette not visible) = chord unwired, right reason. Screenshots (author's 4, all opened): palette-light-plain: filter 's', Take snapshot active blue, hints right-aligned, unclipped; palette-light-color: same with tinted sidebar icons; palette-dark-plain: active light blue on dark raised square panel, hints unclipped; palette-dark-color: same, brighter blue. (Toggle sidebar looks bold in all four = real mouse hover from shared rule, not a fill.) Not tested: native WebKit app."
+  },
+  "review": {
+    "by": "agent-79dc",
+    "at": "2026-11-02T08:35:29+00:00",
+    "verdict": "approved",
+    "note": "APPROVE after fix. Own build ui5-e3wr (node 22.23.3, lock taken/released): tsc 0, build ok, tests/command-palette.spec.ts 8 passed 4 skipped (screenshots), pw2.log; my scratch hands spec now gives 'hello woXrld' after palette Escape (hands2.log; control unchanged). Diff: range saved at open only if selection anchor is inside opener, cloned; restored after el.focus() only if startContainer.isConnected and focus did not move. Removed nodes cannot throw: live DOM Ranges auto-adjust on node removal, and a disconnected start is skipped; addRange on a connected range does not throw. Earlier approval points (handler branches, wiring, 77-pass suite) unchanged since App.tsx untouched."
+  },
+  "log": [
+    {
+      "at": "2026-11-02T06:33:15+00:00",
+      "agent": "agent-2a1b",
+      "event": "created",
+      "note": ""
+    },
+    {
+      "at": "2026-11-02T07:57:47+00:00",
+      "agent": "agent-095a",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-11-02T07:57:49+00:00",
+      "agent": "agent-095a",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-11-02T08:16:40+00:00",
+      "agent": "agent-095a",
+      "event": "review requested",
+      "note": "E3w built. App.tsx: handler chain replaced by runAppAction(id) (returns handled; used by keydown and palette), commandPalette toggles it (not opened without a project or over a modal), CommandPalette mounted once, animateIn = pointerInput at open (keyboard never animates). Commands: every app-scope action except commandPalette (hint = hintFor from current shortcut settings), New fragment, Go to <section>/<fragment>, Go to Research/Comments/Bibliography (when shown)/Snapshots & history/Settings/Read (hidden sidebar groups skipped). Follow-ups: (1) outside pointerdown closes (CommandPalette.tsx); (2) modalOpen (name/choice/import/csl/preview dialogs) closes the palette via effect and blocks opening; restoreFocus now skips if focus already moved (so a dialog keeps focus); (3) active-row hint ends 3px inside the 560px panel in all four screenshots, not clipped, no change. designTokens SWEPT += command-palette.css; scroll-fade.css NOT added (file absent, sweep would throw) - E2/T216 must add it. Fail-first: tests/command-palette.spec.ts 6 failed before wiring (ui5-e3w/failfirst-pw.log), 10 pass after (pw.log; 4 are screenshots, need PALETTE_SHOTS). Acceptance (accept.log, node 22.23.3): command-palette+appearance+accessibility+floating+footnotes+writing+shortcuts specs 69 passed 4 skipped; vitest shortcuts+designTokens+motion+hoverEmphasis 57 pass; tsc 0. Screenshots opened: ui5-e3w/shots/palette-{light,dark}-{plain,color}.png each show filter 's', Take snapshot active in accent, hints unclipped. Not tested: native WebKit app, pointer-open animate path (no pointer opener exists yet). Paths: src/App.tsx: uncommitted edits; src/components/CommandPalette.tsx: uncommitted edits; src/designTokens.test.ts: uncommitted edits; tests/command-palette.spec.ts: uncommitted edits (new); node_modules/.cache/personal-word-beta/ui5-e3w: untracked cache"
+    },
+    {
+      "at": "2026-11-02T08:30:01+00:00",
+      "agent": "agent-2556",
+      "event": "rejected",
+      "note": "REJECT (one real defect, rest good). Runs (node 22.23.3, own copy node_modules/.cache/personal-word-beta/ui5-e3wr, port 1884, lock taken/released): tsc exit 0; vitest shortcuts+designTokens+motion+hoverEmphasis 4 files 57 pass (pre.log); vite build ok; playwright command-palette+appearance+accessibility+floating+footnotes+writing+shortcuts+hover-emphasis 77 passed 0 failed (pw.log, PALETTE_SHOTS on). DEFECT: Escape does NOT return the caret to where it was. Hands-on spec (scratch, outside tests/, node_modules/.cache/personal-word-beta/ui5-e3wr/hands.log): type 'hello world', ArrowLeft x3, Cmd+Shift+P, Escape, type X -> editor reads 'Xhello world' (caret jumped to start of the document); control without the palette ('hello woYrld') proves the caret setup is right. Editor is focused (the author test only asserts toBeFocused, so it misses this) but the DOM selection is lost because focusing the palette input drops it and opener.focus() on the contenteditable puts the caret at the start. Fix: when the opener is inside the editor, restore via the ProseMirror editor (editor.commands.focus() keeps the stored selection) or have CommandPalette save/restore the Selection range at open; add a test that types after Escape and checks the text position. Same applies after Enter on a command that does not move focus. Branch-by-branch runAppAction: save (always handled, preventDefault, run(saveAll)) same; toggleSidebar same; findInProject same; newSection/snapshot only handled when current.current, else fall through to return false so no preventDefault, same as before; toggleAppearance same; editor-scope chords return false so left alone; preventDefault only when runAppAction true. Handler effect has no deps so it sees fresh paletteOpen/modalOpen. Minor: commandPalette chord with no project returns true (swallows chord, opens nothing) -- harmless. Palette mount: once, after the card block; commands = app actions except commandPalette with hintFor(current shortcuts), New fragment, Go to sections/fragments, destinations (Research, Comments, Bibliography only when showBibliography, Snapshots & history, Settings, Read; hidden groups skipped except Settings); animateIn=pointerInput at open (keyboard false, verified data-animate null). Outside pointerdown closes (capture listener); focus restore skips if focus already moved. Hands-on OK: Take snapshot via palette opens the snapshot dialog with name focused; Go to Opening / Go to Frag One work; Go to Settings shows Project settings; new fragment via palette works; Cmd+\\ / Cmd+Shift+L (light->dark) / Cmd+K chords still work; rename dialog open then Cmd+Shift+P -> no palette; palette open then clicking New section option closes it and the title dialog opens. designTokens: SWEPT += command-palette.css (also research.css/citation-card.css from other tasks, research.css moved from ALL into SWEPT, nothing dropped). No new hover rule, no fills (active row colour + shared emphasis only). Fail-first: ui5-e3w/failfirst-pw.log 6 failed 4 skipped, all at openPalette line 26 (palette not visible) = chord unwired, right reason. Screenshots (author's 4, all opened): palette-light-plain: filter 's', Take snapshot active blue, hints right-aligned, unclipped; palette-light-color: same with tinted sidebar icons; palette-dark-plain: active light blue on dark raised square panel, hints unclipped; palette-dark-color: same, brighter blue. (Toggle sidebar looks bold in all four = real mouse hover from shared rule, not a fill.) Not tested: native WebKit app."
+    },
+    {
+      "at": "2026-11-02T08:30:25+00:00",
+      "agent": "agent-3f14",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-11-02T08:30:25+00:00",
+      "agent": "agent-3f14",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-11-02T08:34:12+00:00",
+      "agent": "agent-3f14",
+      "event": "review requested",
+      "note": "Caret fix: CommandPalette.tsx saves the DOM selection range at open (when it is inside the focused opener) and re-applies it after opener.focus() on close, so Escape/Enter/outside click return the caret to its spot. Two new specs in tests/command-palette.spec.ts (type hello world, ArrowLeft x3, Cmd+Shift+P, Escape / Enter on 'Switch light or dark', type X, expect 'hello woXrld'): failed on the previous build (ui5-e3w/failfirst-caret.log), pass now. Rebuilt; accept2.log (command-palette+appearance+accessibility+floating+footnotes+writing+shortcuts): 71 passed, 4 skipped (screenshot tests); vitest shortcuts+designTokens+motion+hoverEmphasis 57 pass; tsc 0. Earlier E3w notes still apply (scroll-fade.css still to be added to SWEPT by T216). Paths: src/App.tsx: uncommitted edits; src/components/CommandPalette.tsx: uncommitted edits; src/designTokens.test.ts: uncommitted edits; tests/command-palette.spec.ts: uncommitted edits (new); node_modules/.cache/personal-word-beta/ui5-e3w: untracked cache"
+    },
+    {
+      "at": "2026-11-02T08:35:29+00:00",
+      "agent": "agent-79dc",
+      "event": "approved",
+      "note": "APPROVE after fix. Own build ui5-e3wr (node 22.23.3, lock taken/released): tsc 0, build ok, tests/command-palette.spec.ts 8 passed 4 skipped (screenshots), pw2.log; my scratch hands spec now gives 'hello woXrld' after palette Escape (hands2.log; control unchanged). Diff: range saved at open only if selection anchor is inside opener, cloned; restored after el.focus() only if startContainer.isConnected and focus did not move. Removed nodes cannot throw: live DOM Ranges auto-adjust on node removal, and a disconnected start is skipped; addRange on a connected range does not throw. Earlier approval points (handler branches, wiring, 77-pass suite) unchanged since App.tsx untouched."
+    }
+  ]
+}

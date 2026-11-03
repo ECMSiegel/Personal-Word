@@ -1,0 +1,66 @@
+{
+  "id": "T216",
+  "title": "W5 E2 -- Scroll fade on research panel and citation card",
+  "description": "docs/agent-work/2026-11-01-ui-wave-5/PLAN.md section 'Amendment 1' ### E2. EVERY vite build/Playwright run takes node_modules/.cache/personal-word-beta/serial-check.lock. Private config/port; double-quote paths; no git stash/checkout/reset/restore; no installs; no commits; no BoardUI installs.",
+  "status": "done",
+  "owner": null,
+  "priority": 2,
+  "depends_on": [
+    "T213"
+  ],
+  "files": [
+    "src/components/scrollFade.ts",
+    "src/components/scrollFade.test.ts",
+    "src/components/scroll-fade.css",
+    "src/research/ResearchPanel.tsx",
+    "src/research/CitationCard.tsx",
+    "node_modules/.cache/personal-word-beta/ui5-e2",
+    "src/research/citation-card.css",
+    "tests/scroll-fade.spec.ts",
+    "src/designTokens.test.ts"
+  ],
+  "review_required": true,
+  "created_by": "agent-2a1b",
+  "created_at": "2026-11-02T06:33:15+00:00",
+  "claimed_at": "2026-11-02T07:57:40+00:00",
+  "updated_at": "2026-11-02T08:44:03+00:00",
+  "handoff": null,
+  "review": {
+    "by": "agent-837e",
+    "at": "2026-11-02T08:44:03+00:00",
+    "verdict": "approved",
+    "note": "APPROVE. Own runs, pinned Node v22.23.3, lock taken per run: tsc --noEmit exit 0; vitest scrollFade/designTokens/motion/hoverEmphasis 4 files 40 tests pass (node_modules/.cache/personal-word-beta/ui5-e2r/unit.log); vite build ok; playwright scroll-fade+research+research-library+research-pdf+floating+popover-bounds+accessibility+footnotes 65 passed, 0 failed (incl. research.spec:176, no flake) (node_modules/.cache/personal-word-beta/ui5-e2r/main.log). Fail-first (b): author's failfirst-playwright.log fails for the right reason (css blanked -> mask-image 'none' at the first linear-gradient assert for panel; card fails at the fades assert, line 125) -- but that proves only the mask, not Cite-here. Fail-first (a): scratch copy of src with CitationCard.tsx footer moved back inside the scrolling body (pre-E2 shape; no pre-E2 snapshot existed, reconstructed): the author's card test FAILS at line 104 (outsideBody false; node_modules/.cache/personal-word-beta/ui5-e2r/scratch.log) -- but note at 900 px Cite-here was still inside card/viewport in that scratch, so the test's 'visible' parts alone do not catch the regression, only the outsideBody part does. I added a probe at 560 px with body at top (not in tests/): pre-E2 scratch -> Cite here outside card (inCard false, FAIL, node_modules/.cache/personal-word-beta/ui5-e2r/probe-scratch.log); real -> inCard true (PASS, node_modules/.cache/personal-word-beta/ui5-e2r/probe-real.log). Suggest (non-blocking) adding that 560 px in-card assertion to scroll-fade.spec. Code: mask only, var(--space-4), no transition, tokens only, no fill; footer is a border-top line only. Listeners: scroll+rAF, ResizeObserver, MutationObserver all disconnected/cancelled in cleanup, attrs removed. Tab order fields->actions->link asserted and passing. App.tsx has no scroll-fade reference. designTokens SWEPT line = scroll-fade.css added. Exemption (:has(.popover,.modal-backdrop)): sound -- Dropdown is built on Popover (inline absolute, not portaled), so it is covered; capture-quote dialog is .modal-backdrop; .lookup-tip is visually hidden; limits: mask snaps off/on while a menu is open (no transition, acceptable) and any future in-region overlay with another class would be faded. :has needs WebKit 15.4+, fine. Not WebKit-tested. Screenshots all 12 opened (panel 1280x520 mid-scroll, card at 900 and 560-mid, light/dark x Plain/Color, node_modules/.cache/personal-word-beta/ui5-e2r/shots/): panel-plain-light/dark and panel-color-light/dark: top and bottom edge fade natural, text legible, no grey box, Color tints (blue/green/amber) unaffected; card-900-plain-light/dark and card-900-color-light/dark: Cite here / Start over / Open full research panel footer visible with a line above, Bibliography label fades under the footer edge, no grey box; card-560mid x4: body scrolled, top fades under header, footer stays put. Unrelated: at 560 px height the floating sidebar's list clips behind Read manuscript row (not E2)."
+  },
+  "log": [
+    {
+      "at": "2026-11-02T06:33:15+00:00",
+      "agent": "agent-2a1b",
+      "event": "created",
+      "note": ""
+    },
+    {
+      "at": "2026-11-02T07:57:40+00:00",
+      "agent": "agent-b2f6",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-11-02T07:57:44+00:00",
+      "agent": "agent-b2f6",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-11-02T08:20:35+00:00",
+      "agent": "agent-b2f6",
+      "event": "review requested",
+      "note": "E2: scrollFade.ts (+test), scroll-fade.css, applied to .research-aside (via ResearchPanel) and card body; card action row moved to non-scrolling footer (fields->actions->link); tests/scroll-fade.spec.ts; scroll-fade.css added to designTokens SWEPT. Mask is dropped while a .popover or .modal-backdrop is inside (capture-quote modal broke under a mask). Evidence: ui5-e2/failfirst-playwright.log (fail with css blanked), final.log 43 pass, regress.log. Path state: built+tested in Chromium preview; not WebKit; Color theme screenshots not taken."
+    },
+    {
+      "at": "2026-11-02T08:44:03+00:00",
+      "agent": "agent-837e",
+      "event": "approved",
+      "note": "APPROVE. Own runs, pinned Node v22.23.3, lock taken per run: tsc --noEmit exit 0; vitest scrollFade/designTokens/motion/hoverEmphasis 4 files 40 tests pass (node_modules/.cache/personal-word-beta/ui5-e2r/unit.log); vite build ok; playwright scroll-fade+research+research-library+research-pdf+floating+popover-bounds+accessibility+footnotes 65 passed, 0 failed (incl. research.spec:176, no flake) (node_modules/.cache/personal-word-beta/ui5-e2r/main.log). Fail-first (b): author's failfirst-playwright.log fails for the right reason (css blanked -> mask-image 'none' at the first linear-gradient assert for panel; card fails at the fades assert, line 125) -- but that proves only the mask, not Cite-here. Fail-first (a): scratch copy of src with CitationCard.tsx footer moved back inside the scrolling body (pre-E2 shape; no pre-E2 snapshot existed, reconstructed): the author's card test FAILS at line 104 (outsideBody false; node_modules/.cache/personal-word-beta/ui5-e2r/scratch.log) -- but note at 900 px Cite-here was still inside card/viewport in that scratch, so the test's 'visible' parts alone do not catch the regression, only the outsideBody part does. I added a probe at 560 px with body at top (not in tests/): pre-E2 scratch -> Cite here outside card (inCard false, FAIL, node_modules/.cache/personal-word-beta/ui5-e2r/probe-scratch.log); real -> inCard true (PASS, node_modules/.cache/personal-word-beta/ui5-e2r/probe-real.log). Suggest (non-blocking) adding that 560 px in-card assertion to scroll-fade.spec. Code: mask only, var(--space-4), no transition, tokens only, no fill; footer is a border-top line only. Listeners: scroll+rAF, ResizeObserver, MutationObserver all disconnected/cancelled in cleanup, attrs removed. Tab order fields->actions->link asserted and passing. App.tsx has no scroll-fade reference. designTokens SWEPT line = scroll-fade.css added. Exemption (:has(.popover,.modal-backdrop)): sound -- Dropdown is built on Popover (inline absolute, not portaled), so it is covered; capture-quote dialog is .modal-backdrop; .lookup-tip is visually hidden; limits: mask snaps off/on while a menu is open (no transition, acceptable) and any future in-region overlay with another class would be faded. :has needs WebKit 15.4+, fine. Not WebKit-tested. Screenshots all 12 opened (panel 1280x520 mid-scroll, card at 900 and 560-mid, light/dark x Plain/Color, node_modules/.cache/personal-word-beta/ui5-e2r/shots/): panel-plain-light/dark and panel-color-light/dark: top and bottom edge fade natural, text legible, no grey box, Color tints (blue/green/amber) unaffected; card-900-plain-light/dark and card-900-color-light/dark: Cite here / Start over / Open full research panel footer visible with a line above, Bibliography label fades under the footer edge, no grey box; card-560mid x4: body scrolled, top fades under header, footer stays put. Unrelated: at 560 px height the floating sidebar's list clips behind Read manuscript row (not E2)."
+    }
+  ]
+}

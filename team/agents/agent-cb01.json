@@ -1,0 +1,9 @@
+{
+  "id": "agent-cb01",
+  "label": "Claude Sonnet worker T210 (W5 C4 early)",
+  "joined_at": "2026-11-02T03:51:26+00:00",
+  "last_seen": "2026-11-02T04:24:10+00:00",
+  "status": "left",
+  "current_task": null,
+  "inbox_cursor": 998
+}

@@ -1,5 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
-import { DragController, clampOffset, dropEdge, insertionIndex, reorder, shiftFor } from "./dragReorder";
+import { DragController, clampOffset, dropEdge, insertionIndex, keyboardMove, moveWithin, reorder, reorderKind, shiftFor } from "./dragReorder";
+import type { Entry } from "../model";
 
 // Four rows of height 20 stacked from y=100: tops 100,120,140,160.
 const tops = [100, 120, 140, 160];
@@ -146,5 +147,77 @@ describe("DragController release outside the row", () => {
     expect(c.move(150, 0)).toBeNull();
     expect(c.up()).toBe(false);
     expect(onReorder).not.toHaveBeenCalled();
+  });
+});
+
+// Wave 5 A2: keyboard and per-kind reordering (docs/agent-work/2026-11-01-ui-wave-5/PLAN.md).
+describe("moveWithin", () => {
+  it("moves like reorder", () => {
+    expect(moveWithin(["a", "b", "c"], 0, 2)).toEqual(["b", "c", "a"]);
+    expect(moveWithin(["a", "b", "c"], 2, 0)).toEqual(["c", "a", "b"]);
+  });
+  it("clamps the target into the list instead of ignoring the move", () => {
+    expect(moveWithin(["a", "b", "c"], 1, -4)).toEqual(["b", "a", "c"]);
+    expect(moveWithin(["a", "b", "c"], 1, 99)).toEqual(["a", "c", "b"]);
+  });
+  it("returns an equal copy for an unknown source index", () => {
+    const items = ["a", "b"];
+    const out = moveWithin(items, 5, 0);
+    expect(out).toEqual(items);
+    expect(out).not.toBe(items);
+  });
+});
+
+const e = (id: string, kind: Entry["kind"]) => ({ id, kind }) as Entry;
+const ids = (entries: Entry[]) => entries.map((x) => x.id);
+
+describe("reorderKind", () => {
+  // Sections and fragments interleaved: s1 f1 s2 f2 f3
+  const entries = [e("s1", "section"), e("f1", "fragment"), e("s2", "section"), e("f2", "fragment"), e("f3", "fragment")];
+
+  it("moves one fragment among fragments while sections keep their slots", () => {
+    expect(ids(reorderKind(entries, "fragment", "f1", 2))).toEqual(["s1", "f2", "s2", "f3", "f1"]);
+    expect(ids(reorderKind(entries, "fragment", "f3", 0))).toEqual(["s1", "f3", "s2", "f1", "f2"]);
+  });
+  it("moves sections among sections while fragments keep their slots", () => {
+    expect(ids(reorderKind(entries, "section", "s2", 0))).toEqual(["s2", "f1", "s1", "f2", "f3"]);
+  });
+  it("clamps the target position", () => {
+    expect(ids(reorderKind(entries, "fragment", "f1", 40))).toEqual(["s1", "f2", "s2", "f3", "f1"]);
+    expect(ids(reorderKind(entries, "fragment", "f3", -3))).toEqual(["s1", "f3", "s2", "f1", "f2"]);
+  });
+  it("is a no-op copy for an unknown id or an id of another kind", () => {
+    expect(ids(reorderKind(entries, "fragment", "nope", 0))).toEqual(ids(entries));
+    expect(ids(reorderKind(entries, "fragment", "s1", 2))).toEqual(ids(entries));
+  });
+  it("keeps the entry objects themselves", () => {
+    const out = reorderKind(entries, "fragment", "f1", 1);
+    expect(out.find((x) => x.id === "f1")).toBe(entries[1]);
+  });
+});
+
+describe("keyboardMove", () => {
+  const key = (k: string, mods: Partial<{ altKey: boolean; metaKey: boolean; ctrlKey: boolean; shiftKey: boolean }> = {}) => ({
+    key: k,
+    altKey: false,
+    metaKey: false,
+    ctrlKey: false,
+    shiftKey: false,
+    ...mods,
+  });
+  it("Option+Up is -1 and Option+Down is 1", () => {
+    expect(keyboardMove(key("ArrowUp", { altKey: true }))).toBe(-1);
+    expect(keyboardMove(key("ArrowDown", { altKey: true }))).toBe(1);
+  });
+  it("plain arrows and other keys do nothing", () => {
+    expect(keyboardMove(key("ArrowUp"))).toBe(0);
+    expect(keyboardMove(key("ArrowDown"))).toBe(0);
+    expect(keyboardMove(key("ArrowLeft", { altKey: true }))).toBe(0);
+    expect(keyboardMove(key("Enter", { altKey: true }))).toBe(0);
+  });
+  it("any extra modifier cancels the chord", () => {
+    expect(keyboardMove(key("ArrowUp", { altKey: true, shiftKey: true }))).toBe(0);
+    expect(keyboardMove(key("ArrowDown", { altKey: true, metaKey: true }))).toBe(0);
+    expect(keyboardMove(key("ArrowDown", { altKey: true, ctrlKey: true }))).toBe(0);
   });
 });

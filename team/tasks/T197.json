@@ -1,0 +1,89 @@
+{
+  "id": "T197",
+  "title": "W5 B1 -- Research panel spacing, Notes tab, token sweep",
+  "description": "UI wave 5, plan docs/agent-work/2026-11-01-ui-wave-5/PLAN.md section '### B1' (APPROVED 2026-11-01, defaults accepted). Read the whole task plus Rules, Approach, hotspot ownership and Notes before starting; owner request REQUEST.md + screenshots. Do not register team-serial-check-slot; heavy runs take the mkdir lock node_modules/.cache/personal-word-beta/serial-check.lock. Private Playwright config/port; double-quote paths; no git stash/checkout/reset; no installs.",
+  "status": "done",
+  "owner": null,
+  "priority": 1,
+  "depends_on": [],
+  "files": [
+    "src/designTokens.test.ts",
+    "src/research/ResearchPanel.tsx",
+    "src/research/research.css",
+    "tests/research-library.spec.ts",
+    "tests/research.spec.ts",
+    "node_modules/.cache/personal-word-beta/ui5-b1"
+  ],
+  "review_required": true,
+  "created_by": "agent-47c8",
+  "created_at": "2026-11-02T00:06:22+00:00",
+  "claimed_at": "2026-11-02T01:16:27+00:00",
+  "updated_at": "2026-11-02T01:22:38+00:00",
+  "handoff": {
+    "by": "agent-9e84",
+    "at": "2026-11-02T01:15:51+00:00",
+    "text": "Everything else passes, one fail-first gap. PASSED on my build (node v22.23.3, node_modules/.cache/personal-word-beta/ui5-b1r/dist): vitest designTokens 12/12 (node_modules/.cache/personal-word-beta/ui5-b1r/vitest.log); playwright research+research-library+research-pdf+accessibility 28/28 (node_modules/.cache/personal-word-beta/ui5-b1r/playwright.log). Diff review OK: ResearchPanel.tsx touches only repeat-rules wrapper div + Notes markup; label htmlFor/id ok; no new hover/stroke/fill; only transition is the pre-existing transform one; remaining raw px are 2px nudges, -1px, 710px, and project-settings 40/48 (>32); SWEPT now contains research.css and ALL only dropped research.css (spread of SWEPT re-adds it) -- no other file lost. Screenshots (own, light/dark x Plain/Color, node_modules/.cache/personal-word-beta/ui5-b1r/shots, viewed): 12-source-form (Review required details is one full-width line, fields evenly spaced, dark+light); 13-notes (visible Note label above textarea, Add note then divider then Note; fine); 16-repeat-menu (menu open inside panel; fields spaced); 20-settings light-plain and dark-color (h1 19px Project settings, looks right). Caveat: the trigger text sits left of its label (x10 vs x17) as in owner 16.png -- B2. PROBLEM: fail-first. With a doctored CSS build (.repeat-rules gap 0 AND .note-actions margin-bottom 0, in node_modules/.cache/personal-word-beta/ui5-b1r/dist-doctored, log node_modules/.cache/personal-word-beta/ui5-b1r/failfirst-doctored.log) the repeat-rule gap assertion fails (Received 0, expected >=12) as it should, but the Add note -> Note label assertion STILL PASSES. The >=12 px there is supplied by .note-item (padding-top var(--space-3) plus 1px border-top), not by .note-actions, so the assertion cannot catch the margin it claims to test and the .note-actions rule is redundant. author's geometry-before.log failed that spec only on the missing label. EXACT FIX: make the assertion depend on the margin, e.g. measure from the Add note button bottom to the .note-item top edge (page.locator('.note-item').first() bounding top - add.bottom >= 12), re-run on a doctored build with .note-actions margin 0 to show it fails (0), then on the real build to show it passes; or drop the redundant .note-actions rule and the gap claim. No other changes needed; re-submit and I (or another reviewer) can approve quickly."
+  },
+  "review": {
+    "by": "agent-4e15",
+    "at": "2026-11-02T01:22:38+00:00",
+    "verdict": "approved",
+    "note": "Re-review of the Add note gap. tests/research.spec.ts now asserts first .note-item top minus Add note bottom >= 24; the .note-actions rule is kept; the only test change since my review is that assertion. Fresh build from current sources. Fail-first on doctored build (.note-actions margin-bottom 0): fails, Received 15.56 vs >= 24 (node_modules/.cache/personal-word-beta/ui5-b1r/failfirst-notegap-c2.log). Real build: research+research-library+research-pdf+accessibility 28/28 (node_modules/.cache/personal-word-beta/ui5-b1r/acceptance-c2.log). Earlier review items (vitest 12/12, screenshots, diff review) stand. Caveats: native WebKit not checked; menu clipping is B2."
+  },
+  "log": [
+    {
+      "at": "2026-11-02T00:06:22+00:00",
+      "agent": "agent-47c8",
+      "event": "created",
+      "note": ""
+    },
+    {
+      "at": "2026-11-02T00:49:10+00:00",
+      "agent": "agent-5b30",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-11-02T00:49:17+00:00",
+      "agent": "agent-5b30",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-11-02T01:06:42+00:00",
+      "agent": "agent-5b30",
+      "event": "review requested",
+      "note": "Research CSS fully on --space-*/--type-* tokens and added to the designTokens sweep; .research-fields hints/details/buttons span the full row (hint now equals panel width); repeat-rule menus in .repeat-rules grid gap space-3; Notes tab: 'Add note' margin-bottom space-3, labelled visible 'Note' field (label htmlFor, placeholder 'Write a note', replaces aria-label 'Note text'; 2 lines in tests/research.spec.ts updated), 2 new geometry specs. Snapping side effects (default applied): project-settings h1 22px->--type-title 19px; 6px input/button padding -> 8px; 14/18px gaps -> 16px. Acceptance: vitest designTokens 12/12 (node_modules/.cache/personal-word-beta/ui5-b1/acceptance-vitest.log); playwright research+research-library+research-pdf+accessibility 28/28 (node_modules/.cache/personal-word-beta/ui5-b1/acceptance-playwright.log, private port 1830). Fail-first: node_modules/.cache/personal-word-beta/ui5-b1/sweep-before.log (2 tests failed, 59 research.css lines), node_modules/.cache/personal-word-beta/ui5-b1/geometry-before.log (both new specs fail on untouched build: hint 184.5px off panel width; no 'Note' label). Screenshots (viewed) in node_modules/.cache/personal-word-beta/ui5-b1/shots/: 12-source-form-{light,dark}-{plain,color}.png = Review hint now one full-width line, fields evenly spaced; 13-notes-*.png = Note label above textarea with space under Add note; 16-repeat-menu-*.png = repeat-rule menu open, fields spaced, menu inside panel (menu clipping itself is B2). Not verified: native WebKit; Color vs Plain look near-identical in these panels; the 16.png clipping case needs a narrower trigger (B2). Load avg was ~550 throughout so I did not wait for it to drop. Paths: src/research/research.css: uncommitted edits | src/research/ResearchPanel.tsx: uncommitted edits | src/designTokens.test.ts: uncommitted edits | tests/research.spec.ts: uncommitted edits | tests/research-library.spec.ts: clean | node_modules/.cache/personal-word-beta/ui5-b1: new cache folder"
+    },
+    {
+      "at": "2026-11-02T01:15:51+00:00",
+      "agent": "agent-9e84",
+      "event": "rejected",
+      "note": "Everything else passes, one fail-first gap. PASSED on my build (node v22.23.3, node_modules/.cache/personal-word-beta/ui5-b1r/dist): vitest designTokens 12/12 (node_modules/.cache/personal-word-beta/ui5-b1r/vitest.log); playwright research+research-library+research-pdf+accessibility 28/28 (node_modules/.cache/personal-word-beta/ui5-b1r/playwright.log). Diff review OK: ResearchPanel.tsx touches only repeat-rules wrapper div + Notes markup; label htmlFor/id ok; no new hover/stroke/fill; only transition is the pre-existing transform one; remaining raw px are 2px nudges, -1px, 710px, and project-settings 40/48 (>32); SWEPT now contains research.css and ALL only dropped research.css (spread of SWEPT re-adds it) -- no other file lost. Screenshots (own, light/dark x Plain/Color, node_modules/.cache/personal-word-beta/ui5-b1r/shots, viewed): 12-source-form (Review required details is one full-width line, fields evenly spaced, dark+light); 13-notes (visible Note label above textarea, Add note then divider then Note; fine); 16-repeat-menu (menu open inside panel; fields spaced); 20-settings light-plain and dark-color (h1 19px Project settings, looks right). Caveat: the trigger text sits left of its label (x10 vs x17) as in owner 16.png -- B2. PROBLEM: fail-first. With a doctored CSS build (.repeat-rules gap 0 AND .note-actions margin-bottom 0, in node_modules/.cache/personal-word-beta/ui5-b1r/dist-doctored, log node_modules/.cache/personal-word-beta/ui5-b1r/failfirst-doctored.log) the repeat-rule gap assertion fails (Received 0, expected >=12) as it should, but the Add note -> Note label assertion STILL PASSES. The >=12 px there is supplied by .note-item (padding-top var(--space-3) plus 1px border-top), not by .note-actions, so the assertion cannot catch the margin it claims to test and the .note-actions rule is redundant. author's geometry-before.log failed that spec only on the missing label. EXACT FIX: make the assertion depend on the margin, e.g. measure from the Add note button bottom to the .note-item top edge (page.locator('.note-item').first() bounding top - add.bottom >= 12), re-run on a doctored build with .note-actions margin 0 to show it fails (0), then on the real build to show it passes; or drop the redundant .note-actions rule and the gap claim. No other changes needed; re-submit and I (or another reviewer) can approve quickly."
+    },
+    {
+      "at": "2026-11-02T01:16:27+00:00",
+      "agent": "agent-b141",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-11-02T01:16:28+00:00",
+      "agent": "agent-b141",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-11-02T01:19:09+00:00",
+      "agent": "agent-b141",
+      "event": "review requested",
+      "note": "Fixed reviewer point: tests/research.spec.ts now measures Add note button bottom to first .note-item top edge >= 24 (real 27.5, with .note-actions margin 0 only 15.5). Fail-first on doctored build (margin-bottom 0, cache-only build, src restored byte-identical): node_modules/.cache/personal-word-beta/ui5-b1/failfirst-notegap.log (received 15.48; run at threshold 28, same failure at 24). Pass on real build: node_modules/.cache/personal-word-beta/ui5-b1/pass-notegap.log (tests/research.spec.ts 14/14; one earlier unrelated flaky failure of 'captured quote' at :176 passed on rerun). .note-actions rule kept. Paths: tests/research.spec.ts: uncommitted edits | src/research/research.css: uncommitted edits (unchanged this round) | src/research/ResearchPanel.tsx: uncommitted edits | src/designTokens.test.ts: uncommitted edits | tests/research-library.spec.ts: clean"
+    },
+    {
+      "at": "2026-11-02T01:22:38+00:00",
+      "agent": "agent-4e15",
+      "event": "approved",
+      "note": "Re-review of the Add note gap. tests/research.spec.ts now asserts first .note-item top minus Add note bottom >= 24; the .note-actions rule is kept; the only test change since my review is that assertion. Fresh build from current sources. Fail-first on doctored build (.note-actions margin-bottom 0): fails, Received 15.56 vs >= 24 (node_modules/.cache/personal-word-beta/ui5-b1r/failfirst-notegap-c2.log). Real build: research+research-library+research-pdf+accessibility 28/28 (node_modules/.cache/personal-word-beta/ui5-b1r/acceptance-c2.log). Earlier review items (vitest 12/12, screenshots, diff review) stand. Caveats: native WebKit not checked; menu clipping is B2."
+    }
+  ]
+}

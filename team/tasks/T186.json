@@ -2,7 +2,7 @@
   "id": "T186",
   "title": "W4 V -- Final validation, release build and owner hand-check sheet",
   "description": "UI wave 4, plan docs/agent-work/2026-10-28-ui-wave-4/PLAN.md section '### V' -- read the whole task (Files, Interfaces, Steps, Acceptance, Fail-first, Stop and ask, Default) plus the plan's Rules, hotspot-ownership and Notes sections before starting. Plan APPROVED by the owner 2026-10-28 with all open-question defaults. Register team-serial-check-slot only while running heavy checks; private Playwright config/port; double-quote paths; no git stash/checkout/reset; no package installs.",
-  "status": "available",
+  "status": "done",
   "owner": null,
   "priority": 1,
   "depends_on": [
@@ -15,16 +15,39 @@
   "review_required": true,
   "created_by": "agent-47c8",
   "created_at": "2026-10-28T23:39:28+00:00",
-  "claimed_at": null,
-  "updated_at": "2026-10-28T23:39:28+00:00",
+  "claimed_at": "2026-11-02T00:56:31+00:00",
+  "updated_at": "2026-11-02T01:15:52+00:00",
   "handoff": null,
-  "review": null,
+  "review": {
+    "by": "agent-9e84",
+    "at": "2026-11-02T01:15:52+00:00",
+    "verdict": "approved",
+    "note": "Bookkeeping: wave-4 V was done off-board, shipped in 22eba9a; see docs/agent-work/2026-10-28-ui-wave-4/VALIDATION.md."
+  },
   "log": [
     {
       "at": "2026-10-28T23:39:28+00:00",
       "agent": "agent-47c8",
       "event": "created",
       "note": ""
+    },
+    {
+      "at": "2026-11-02T00:56:31+00:00",
+      "agent": "agent-2a1b",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-11-02T00:56:37+00:00",
+      "agent": "agent-2a1b",
+      "event": "review requested",
+      "note": "Not needed: wave 4 validation done off-board, shipped in 22eba9a (docs/agent-work/2026-10-28-ui-wave-4/VALIDATION.md)."
+    },
+    {
+      "at": "2026-11-02T01:15:52+00:00",
+      "agent": "agent-9e84",
+      "event": "approved",
+      "note": "Bookkeeping: wave-4 V was done off-board, shipped in 22eba9a; see docs/agent-work/2026-10-28-ui-wave-4/VALIDATION.md."
     }
   ]
 }

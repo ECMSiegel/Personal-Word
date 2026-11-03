@@ -270,7 +270,6 @@ button:active:not(:disabled) {
 :where(
     .icon-button,
     .delete-entry,
-    .reorder button,
     .group-actions button,
     .collection-open-beside,
     .open-beside,
@@ -286,7 +285,6 @@ button:active:not(:disabled) {
 :where(
     .icon-button,
     .delete-entry,
-    .reorder button,
     .group-actions button,
     .collection-open-beside,
     .open-beside,
@@ -302,7 +300,6 @@ button:active:not(:disabled) {
 :where(
     .icon-button,
     .delete-entry,
-    .reorder button,
     .group-actions button,
     .collection-open-beside,
     .open-beside,
@@ -316,7 +313,6 @@ button:active:not(:disabled) {
 :where(
     .icon-button,
     .delete-entry,
-    .reorder button,
     .group-actions button,
     .collection-open-beside,
     .open-beside,
@@ -335,7 +331,6 @@ button:active:not(:disabled) {
 :where(
     .icon-button,
     .delete-entry,
-    .reorder button,
     .group-actions button,
     .collection-open-beside,
     .open-beside,
@@ -352,7 +347,6 @@ button:active:not(:disabled) {
 :is(
     .icon-button,
     .delete-entry,
-    .reorder button,
     .group-actions button,
     .collection-open-beside,
     .open-beside,
@@ -375,7 +369,6 @@ button:active:not(:disabled) {
 :where(
     .icon-button,
     .delete-entry,
-    .reorder button,
     .group-actions button,
     .collection-open-beside,
     .open-beside,
@@ -418,7 +411,6 @@ button:focus-visible {
 :is(button, a[href], [role="tab"], [role="menuitem"], [role="option"], summary, label:has(input[type="checkbox"], input[type="radio"]), .text-action):not(:is(
     .icon-button,
     .delete-entry,
-    .reorder button,
     .group-actions button,
     .collection-open-beside,
     .open-beside,
@@ -450,7 +442,6 @@ button:focus-visible {
 :is(button, a[href], [role="tab"], [role="menuitem"], [role="option"], summary, label:has(input[type="checkbox"], input[type="radio"]), .text-action):not(:is(
     .icon-button,
     .delete-entry,
-    .reorder button,
     .group-actions button,
     .collection-open-beside,
     .open-beside,
@@ -543,6 +534,7 @@ p {
   height: 100vh;
   display: flex;
   overflow: clip;
+  position: relative;
 }
 .writing-goals {
   display: inline-flex;
@@ -639,6 +631,30 @@ p {
   font-size: var(--type-small);
   white-space: nowrap;
 }
+/* kbd hint and clear button share one cell; only one shows at a time. */
+.search-end {
+  display: grid;
+  align-items: center;
+  justify-items: end;
+}
+.search-end > * {
+  grid-area: 1 / 1;
+}
+.search-clear {
+  padding: var(--space-1);
+  opacity: 0;
+  visibility: hidden;
+  transition:
+    opacity var(--duration-fast) var(--ease-out),
+    visibility var(--duration-fast) var(--ease-out);
+}
+.search-clear[data-shown] {
+  opacity: 1;
+  visibility: visible;
+}
+.search-end:has(.search-clear[data-shown]) kbd {
+  visibility: hidden;
+}
 .group-heading {
   display: flex;
   align-items: center;
@@ -662,8 +678,11 @@ p {
   align-items: center;
   position: relative;
 }
+/* A PDF child of a source sits one step deeper: one --space-4 (16 px) past the
+   depth-0 label, since every row now starts with a 16 px icon. The base padding
+   comes from the later .entry-main rule (--space-2). */
 .entry-row[data-depth="1"] .entry-main {
-  padding-left: calc(var(--space-3) + var(--space-4));
+  padding-left: calc(var(--space-2) + var(--space-4));
 }
 .entry-row.has-beside .entry-main {
   padding-right: 40px;
@@ -708,7 +727,7 @@ p {
 .entry-main small {
   font-size: var(--type-small);
   color: var(--muted);
-  /* The reveal of the reorder arrows replaces the count rather than
+  /* The reveal of the open-beside button replaces the count rather than
      covering it; reduced motion makes this an instant swap. */
   transition: opacity var(--duration-fast) var(--ease-out);
 }
@@ -721,8 +740,6 @@ p {
 }
 .reorder {
   display: flex;
-  /* --space-1 between 20 px arrows keeps their 24 px hit areas from overlapping. */
-  gap: var(--space-1);
   opacity: 0;
   position: absolute;
   right: 2px;
@@ -1683,6 +1700,16 @@ button[aria-pressed="true"],
 .entry-row {
   margin: 1px 0;
 }
+/* Research reorders in two lists (sources, notes) that must not change the
+   layout: the list wrappers vanish from the box tree, and a source's unit
+   (source row + its PDF row) is one draggable block. */
+.entry-sublist {
+  display: contents;
+}
+.cards-view .entry-unit {
+  display: grid;
+  gap: var(--space-2);
+}
 .entry-main {
   padding: var(--space-2) var(--space-2);
   min-height: 32px;
@@ -1711,6 +1738,11 @@ button[aria-pressed="true"],
   flex-wrap: wrap;
   gap: var(--space-2);
   padding: var(--space-3);
+}
+/* Cards pad their row by --space-3, so the depth step is measured from there
+   and the PDF child still sits one --space-4 past its source card. */
+.cards-view .entry-row[data-depth="1"] .entry-main {
+  padding-left: calc(var(--space-3) + var(--space-4));
 }
 .cards-view .entry-main > span {
   flex-basis: calc(100% - 25px);
@@ -1755,9 +1787,6 @@ button[aria-pressed="true"],
     min-width: 0;
   }
   .entry-main small {
-    display: none;
-  }
-  .group-actions button:nth-child(-n + 2) {
     display: none;
   }
   .group-heading {

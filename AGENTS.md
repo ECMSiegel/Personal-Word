@@ -19,6 +19,7 @@ Personal Word is a Mac-first Tauri 2 app with React, TypeScript, Tiptap, and Rus
 - UI dash separators are '--'. Do not rewrite punctuation in user documents, citations, code, or paths.
 - Live system light/dark appearance and reduced-motion behavior apply throughout.
 - Sidebar width and pin/hover behavior are global. Feature order and collection list/card views are per project. Cards remain in the sidebar and adapt to its width.
+- Floating mode (Settings, off by default) never overlaps document text: the sidebar and the citation card appear only in margins wide enough for them and otherwise the normal panels show; the floating sidebar has no background, border or shadow.
 - View toggles sit to the left of add buttons and appear on hover or keyboard focus. Every hover interaction must have keyboard access.
 - Launch to Projects by default; restoring open tabs is optional. Closing tabs never deletes projects.
 - Manuscript reading has separate display settings. Export formatting must not silently change when reading preferences change.

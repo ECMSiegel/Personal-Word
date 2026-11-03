@@ -1,5 +1,6 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { activeIndex, easedScrollTo, quartic } from "./scrollspy";
+import { activeIndex, easedScrollTo, quartic, scrollProgress, sectionProgress, spyMagnify, SPY_RADIUS } from "./scrollspy";
+import { DOCK_PEAK, dockScale } from "./dock";
 
 describe("activeIndex", () => {
   it("is 0 for an empty list", () => expect(activeIndex([], 900, false)).toBe(0));
@@ -105,5 +106,75 @@ describe("easedScrollTo", () => {
     queue.shift()!(100);
     expect(el.scrollTop).toBe(0);
     expect(queue.length).toBe(0);
+  });
+});
+
+// Wave 5 A3: proximity magnify and scroll progress.
+describe("spyMagnify", () => {
+  it("is 1 at zero distance and 0 at or beyond the radius", () => {
+    expect(SPY_RADIUS).toBe(84);
+    expect(spyMagnify(0)).toBeCloseTo(1, 10);
+    expect(spyMagnify(84)).toBe(0);
+    expect(spyMagnify(200)).toBe(0);
+    expect(spyMagnify(-84)).toBe(0);
+  });
+  it("is symmetric and follows the dock curve rescaled to 0..1", () => {
+    for (const d of [5, 20, 34, 42, 68]) {
+      expect(spyMagnify(d)).toBeCloseTo(spyMagnify(-d), 10);
+      expect(spyMagnify(d)).toBeCloseTo((dockScale(d, 84) - 1) / (DOCK_PEAK - 1), 10);
+    }
+    expect(spyMagnify(42)).toBeCloseTo(0.5, 10);
+  });
+  it("falls monotonically and stays inside 0..1", () => {
+    let prev = 2;
+    for (let d = 0; d <= 100; d += 2) {
+      const v = spyMagnify(d);
+      expect(v).toBeLessThanOrEqual(prev);
+      expect(v).toBeGreaterThanOrEqual(0);
+      expect(v).toBeLessThanOrEqual(1);
+      prev = v;
+    }
+  });
+  it("takes a custom radius", () => {
+    expect(spyMagnify(20, 40)).toBeCloseTo(0.5, 10);
+    expect(spyMagnify(40, 40)).toBe(0);
+  });
+});
+
+describe("scrollProgress", () => {
+  it("is 0 at the top, 1 at the bottom and linear between", () => {
+    expect(scrollProgress(0, 500, 1500)).toBe(0);
+    expect(scrollProgress(500, 500, 1500)).toBeCloseTo(0.5, 10);
+    expect(scrollProgress(1000, 500, 1500)).toBe(1);
+  });
+  it("is 1 when nothing scrolls", () => {
+    expect(scrollProgress(0, 500, 500)).toBe(1);
+    expect(scrollProgress(0, 500, 300)).toBe(1);
+  });
+  it("clamps overscroll", () => {
+    expect(scrollProgress(-20, 500, 1500)).toBe(0);
+    expect(scrollProgress(1100, 500, 1500)).toBe(1);
+  });
+});
+
+describe("sectionProgress", () => {
+  // viewport 900: the one-third line is at 300
+  it("is 0 while the section's top is at or below the one-third line", () => {
+    expect(sectionProgress(300, 1000, 900, false)).toBe(0);
+    expect(sectionProgress(450, 1000, 900, false)).toBe(0);
+  });
+  it("is the fraction of the section above the one-third line", () => {
+    expect(sectionProgress(-200, 1000, 900, false)).toBeCloseTo(0.5, 10);
+    expect(sectionProgress(200, 400, 900, false)).toBeCloseTo(0.25, 10);
+  });
+  it("clamps at 1 once the section has passed the line", () => {
+    expect(sectionProgress(-2000, 1000, 900, false)).toBe(1);
+  });
+  it("is 1 at the bottom of the scroll (the caller passes atBottom for the last section)", () => {
+    expect(sectionProgress(100, 1000, 900, true)).toBe(1);
+  });
+  it("a zero-height section counts as read once its top passes the line", () => {
+    expect(sectionProgress(0, 0, 900, false)).toBe(1);
+    expect(sectionProgress(400, 0, 900, false)).toBe(0);
   });
 });

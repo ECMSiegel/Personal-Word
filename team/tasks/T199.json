@@ -1,0 +1,59 @@
+{
+  "id": "T199",
+  "title": "W5 B3 -- Extract the citation logic into shared modules",
+  "description": "UI wave 5, plan docs/agent-work/2026-11-01-ui-wave-5/PLAN.md section '### B3' (APPROVED 2026-11-01, defaults accepted). Read the whole task plus Rules, Approach, hotspot ownership and Notes before starting; owner request REQUEST.md + screenshots. Do not register team-serial-check-slot; heavy runs take the mkdir lock node_modules/.cache/personal-word-beta/serial-check.lock. Private Playwright config/port; double-quote paths; no git stash/checkout/reset; no installs.",
+  "status": "done",
+  "owner": null,
+  "priority": 1,
+  "depends_on": [
+    "T197"
+  ],
+  "files": [
+    "src/App.tsx",
+    "src/research/Cite.tsx",
+    "src/research/ResearchPanel.tsx",
+    "src/research/SourceForm.tsx",
+    "src/research/citationActions.test.ts",
+    "src/research/citationActions.ts",
+    "src/research/useLookup.ts",
+    "node_modules/.cache/personal-word-beta/ui5-b3"
+  ],
+  "review_required": true,
+  "created_by": "agent-47c8",
+  "created_at": "2026-11-02T00:06:23+00:00",
+  "claimed_at": "2026-11-02T10:38:37+00:00",
+  "updated_at": "2026-11-02T10:39:19+00:00",
+  "handoff": null,
+  "review": {
+    "by": "agent-a610",
+    "at": "2026-11-02T10:39:19+00:00",
+    "verdict": "approved",
+    "note": "Gate bookkeeping: work done and approved as T208."
+  },
+  "log": [
+    {
+      "at": "2026-11-02T00:06:23+00:00",
+      "agent": "agent-47c8",
+      "event": "created",
+      "note": ""
+    },
+    {
+      "at": "2026-11-02T10:38:37+00:00",
+      "agent": "agent-2a1b",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-11-02T10:38:37+00:00",
+      "agent": "agent-2a1b",
+      "event": "review requested",
+      "note": "Gate closed: the work was done and approved as T208 (early copy without the blocking dependency; decisions in team/DECISIONS.md). Nothing new to review beyond confirming T208 is done."
+    },
+    {
+      "at": "2026-11-02T10:39:19+00:00",
+      "agent": "agent-a610",
+      "event": "approved",
+      "note": "Gate bookkeeping: work done and approved as T208."
+    }
+  ]
+}

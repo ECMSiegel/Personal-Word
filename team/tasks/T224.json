@@ -1,0 +1,57 @@
+{
+  "id": "T224",
+  "title": "W5 V2 -- Re-validation after Fable repairs + release rebuild",
+  "description": "Rerun V steps 1-4 (tsc, unit, build, full Playwright one worker) and step 12 (npm run tauri build, sha256, identifier, smoke markers) on the repaired tree (T222, T223). Update VALIDATION.md (new rows V2, new app sha256; mark old sha stale). Native still NOT RUN. Holds serial-check.lock for the run.",
+  "status": "done",
+  "owner": null,
+  "priority": 1,
+  "depends_on": [],
+  "files": [
+    "docs/agent-work/2026-11-01-ui-wave-5/VALIDATION.md",
+    "node_modules/.cache/personal-word-beta/ui5-v2"
+  ],
+  "review_required": true,
+  "created_by": "agent-2a1b",
+  "created_at": "2026-11-02T10:47:30+00:00",
+  "claimed_at": "2026-11-02T10:47:53+00:00",
+  "updated_at": "2026-11-02T11:11:56+00:00",
+  "handoff": null,
+  "review": {
+    "by": "agent-2a1b",
+    "at": "2026-11-02T11:11:56+00:00",
+    "verdict": "approved",
+    "note": "Coordinator review (not author). ui5-v2/summary.txt: tsc 0, unit 0 (1124), builds 0, pw-full 0 (411 passed, 0 failed, 16 env skips), src-tauri diff empty, tauri2 0. Verified folio sha256 3f6c7e66... matches the note; differs from V's stale 6704f6e2 (V's release build reused a stale binary -- cargo didn't see dist/ changes; V2 forced recompile via touch src-tauri/src/lib.rs, mtime only). Smoke marker native-screens = 0. VALIDATION.md marks the old sha STALE."
+  },
+  "log": [
+    {
+      "at": "2026-11-02T10:47:30+00:00",
+      "agent": "agent-2a1b",
+      "event": "created",
+      "note": ""
+    },
+    {
+      "at": "2026-11-02T10:47:53+00:00",
+      "agent": "agent-7061",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-11-02T10:47:53+00:00",
+      "agent": "agent-7061",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-11-02T11:11:25+00:00",
+      "agent": "agent-7061",
+      "event": "review requested",
+      "note": "Done V2: tsc 0; unit 1124 pass; build 0; Playwright full 411 passed/16 skipped/0 failed (motion (e) passes, no flakes, no reruns); src-tauri diff empty. Step 12: first tauri build was STALE (cargo did not recompile, sha identical to V's); touched src-tauri/src/lib.rs (mtime only) and rebuilt: Personal Word.app com.folio.writing 0.1.1, 16.3MB, zero smoke markers, NEW sha256 3f6c7e667a04add7b6a8a6be087143fa856ba8edfb9c0e7d5e5f923172a8006b (V's 6704f6e2 stale). Logs/summary: node_modules/.cache/personal-word-beta/ui5-v2/. Path state: VALIDATION.md modified (V2 section, stale marks, touch in morning cmds); ui5-v2 created; lock released; no source/test edits (lib.rs mtime touched only). Not committed."
+    },
+    {
+      "at": "2026-11-02T11:11:56+00:00",
+      "agent": "agent-2a1b",
+      "event": "approved",
+      "note": "Coordinator review (not author). ui5-v2/summary.txt: tsc 0, unit 0 (1124), builds 0, pw-full 0 (411 passed, 0 failed, 16 env skips), src-tauri diff empty, tauri2 0. Verified folio sha256 3f6c7e66... matches the note; differs from V's stale 6704f6e2 (V's release build reused a stale binary -- cargo didn't see dist/ changes; V2 forced recompile via touch src-tauri/src/lib.rs, mtime only). Smoke marker native-screens = 0. VALIDATION.md marks the old sha STALE."
+    }
+  ]
+}

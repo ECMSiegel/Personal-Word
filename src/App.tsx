@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, type CSSProperties } from "react";
 import type { Editor } from "@tiptap/react";
 import type { Transaction } from "@tiptap/pm/state";
 import { invoke } from "@tauri-apps/api/core";
@@ -42,7 +42,9 @@ import { SplitDivider } from "./components/SplitDivider";
 import "./components/split.css";
 import "./components/pane-footer.css";
 import { PaneFooter } from "./components/PaneFooter";
-import { easedScrollTo, useReadSpy } from "./components/scrollspy";
+import { easedScrollTo, useReadSpy, useWriteProgress } from "./components/scrollspy";
+import { FLOAT_GAP, useMarginFit } from "./components/floating";
+import { CitationCard } from "./research/CitationCard";
 import {
   activeOf,
   closeRight,
@@ -62,6 +64,7 @@ import { createProjectIndex } from "./derived/projectIndex";
 import { applyRestorePatch, type RestorePatch } from "./organization/revisionDiff";
 import { ProjectLibrary } from "./components/ProjectLibrary";
 import { ProjectSidebar } from "./components/ProjectSidebar";
+import { moveWithin, reorderKind } from "./components/dragReorder";
 import { ReadDocument } from "./components/ReadDocument";
 import { Dropdown } from "./components/Dropdown";
 import {
@@ -72,7 +75,9 @@ import {
 } from "./appearance";
 import { GeneralSettings } from "./settings/GeneralSettings";
 import { ShortcutsSettings } from "./settings/ShortcutsSettings";
-import { readShortcuts, resolveChord, writeShortcuts, type ShortcutOverrides } from "./shortcuts/store";
+import { readShortcuts, resolveChord, hintFor, writeShortcuts, type ShortcutOverrides } from "./shortcuts/store";
+import { ACTIONS, type ActionId } from "./shortcuts/registry";
+import { CommandPalette, type PaletteCommand } from "./components/CommandPalette";
 import { readSidebarPreferences, writeSidebarPreferences } from "./sidebarPreferences";
 import { footnoteText } from "./research/citations";
 import { resolveCitationContext, type SectionReferences } from "./research/noteForms";
@@ -117,6 +122,8 @@ function readPreference<T>(key: string, fallback: T): T {
 }
 const asideMin = 260;
 const asideMax = 720;
+/** The sidebar's resize clamp (ProjectSidebar.tsx): C3 renders min(prefs.width, floatFit.width). */
+const SIDEBAR_MAX = 520;
 function showBibliography(project: Project): boolean {
   return (
     project.templateId === "chicago" ||
@@ -177,6 +184,16 @@ export default function App() {
   >("sources");
   const [focusFootnote, setFocusFootnote] = useState<string>();
   const [focusSource, setFocusSource] = useState<string>();
+  // Citation card (wave 5 C5): fullResearch forces the panel even when the card
+  // fits; cardFootnote opens the card on that footnote; cardEpoch remounts it on
+  // every open (its stage is internal); cardReturn is the element focused when it
+  // opened (captured in the event, before the card takes focus).
+  const [fullResearch, setFullResearch] = useState(false);
+  const [cardFootnote, setCardFootnote] = useState<string>();
+  const [cardEpoch, setCardEpoch] = useState(0);
+  const [cardAnimate, setCardAnimate] = useState(false);
+  const cardReturn = useRef<Element | null>(null);
+  const cardBox = useRef<HTMLDivElement>(null);
   const opening = useRef(false);
   const editorRef = useRef<Editor | null>(null);
   const pendingJump = useRef<string | null>(null);
@@ -240,6 +257,14 @@ export default function App() {
   const [hoverReveal, setHoverReveal] = useState(
     () => readSidebarPreferences(localStorage).hover,
   );
+  // Floating sidebar and research (wave 5 C2): a preference plus, when it is on,
+  // the measured room beside the document column (C1's useMarginFit). C3 draws it.
+  const [floating, setFloating] = useState(
+    () => readSidebarPreferences(localStorage).floating,
+  );
+  // Measured from .workspace, not .app: a pinned panel would otherwise inflate the
+  // margin. See decision "Floating fit: measure from .workspace, pass sidebar max".
+  const workspaceRef = useRef<HTMLElement | null>(null);
   const [restoreTabs, setRestoreTabs] = useState(() =>
     readPreference("personal-word.restoreTabs", false),
   );
@@ -469,6 +494,8 @@ export default function App() {
   const [versions, setVersions] = useState<Version[] | null>(null);
   const [history, setHistory] = useState(false);
   const [preview, setPreview] = useState<Project | null>(null);
+  const [paletteOpen, setPaletteOpen] = useState(false);
+  const [paletteAnimate, setPaletteAnimate] = useState(false);
   const [previewName, setPreviewName] = useState("");
   const [target, setTarget] = useState("");
   const [path, setPath] = useState("");
@@ -813,38 +840,37 @@ export default function App() {
           setVersions(await storage.versions(current.current!.id, history));
       },
     });
+  // One place for every app-scope action: the keydown handler and the command
+  // palette both call it. Returns true when the action is handled here (the
+  // handler then swallows the key); editor-scope actions return false.
+  const runAppAction = (id: ActionId): boolean => {
+    if (id === "save") void run(saveAll);
+    else if (id === "toggleSidebar")
+      window.dispatchEvent(new Event("personal-word:toggle-sidebar"));
+    else if (id === "findInProject")
+      document
+        .querySelector<HTMLInputElement>('[aria-label="Search project"]')
+        ?.focus();
+    else if (id === "newSection" && current.current) add("section");
+    else if (id === "snapshot" && current.current) snapshot();
+    else if (id === "toggleAppearance")
+      setAppearance((a) => ({
+        ...a,
+        theme: nextTheme(a.theme, window.matchMedia("(prefers-color-scheme: dark)").matches),
+      }));
+    else if (id === "commandPalette") {
+      if (paletteOpen) setPaletteOpen(false);
+      else if (current.current && !modalOpen) {
+        setPaletteAnimate(pointerInput.current);
+        setPaletteOpen(true);
+      }
+    } else return false;
+    return true;
+  };
   useEffect(() => {
     const handler = (event: KeyboardEvent) => {
       const action = resolveChord(event, shortcuts);
-      if (action === "save") {
-        event.preventDefault();
-        void run(saveAll);
-      }
-      if (action === "toggleSidebar") {
-        event.preventDefault();
-        window.dispatchEvent(new Event("personal-word:toggle-sidebar"));
-      }
-      if (action === "findInProject") {
-        event.preventDefault();
-        document
-          .querySelector<HTMLInputElement>('[aria-label="Search project"]')
-          ?.focus();
-      }
-      if (action === "newSection" && current.current) {
-        event.preventDefault();
-        add("section");
-      }
-      if (action === "snapshot" && current.current) {
-        event.preventDefault();
-        snapshot();
-      }
-      if (action === "toggleAppearance") {
-        event.preventDefault();
-        setAppearance((a) => ({
-          ...a,
-          theme: nextTheme(a.theme, window.matchMedia("(prefers-color-scheme: dark)").matches),
-        }));
-      }
+      if (action && runAppAction(action)) event.preventDefault();
     };
     window.addEventListener("keydown", handler);
     return () => window.removeEventListener("keydown", handler);
@@ -1039,6 +1065,22 @@ export default function App() {
       const order = p.order.filter((x) => x !== id);
       order.splice(Math.max(0, Math.min(to, order.length)), 0, id);
       return { ...p, order };
+    });
+  // Fragments have no order array: their order is their place in `entries` (saved as the header's entryIds).
+  const reorderFragment = (id: string, to: number) =>
+    mutate((p) => ({ ...p, entries: reorderKind(p.entries, "fragment", id, to) }));
+  const reorderResearch = (list: "sources" | "notes", id: string, to: number) =>
+    mutate((p) => {
+      const r = p.research;
+      if (!r) return p;
+      const at = (items: { id: string }[]) => items.findIndex((x) => x.id === id);
+      return {
+        ...p,
+        research:
+          list === "sources"
+            ? { ...r, sources: moveWithin(r.sources, at(r.sources), to) }
+            : { ...r, notes: moveWithin(r.notes, at(r.notes), to) },
+      };
     });
   const extract = (editor: Editor) => {
     const p = current.current;
@@ -1728,6 +1770,12 @@ export default function App() {
           });
         }}
         onFootnote={(id) => {
+          if (cardFits) {
+            openCard(id);
+            setDestination("research");
+            return;
+          }
+          setFullResearch(true);
           setFocusFootnote(id);
           setFocusSource(undefined);
           setResearchEpoch((n) => n + 1);
@@ -1846,7 +1894,16 @@ export default function App() {
   // active; a line click eases the Read view to that section (instant from a keyboard
   // or under Reduce Motion), and a wheel or touch by the reader cancels the scroll.
   const readScroller = () => document.querySelector<HTMLElement>(".manuscript-read");
-  const readActiveId = useReadSpy(mode === "read", sections.map((e) => e.id), readScroller);
+  const readSpy = useReadSpy(mode === "read", sections.map((e) => e.id), readScroller);
+  const readActiveId = readSpy.id;
+  // Wave 5 A3: the active line fills as the focused pane's editor scrolls (Write mode) or
+  // as the reader moves through the section (Read mode). `.writer-scroll` is the element
+  // that scrolls in every layout (measured; see scrollspy.ts).
+  const writeScroller = () =>
+    document.querySelector<HTMLElement>(`.split-pane[data-side="${focusedPane}"] .writer-scroll`) ??
+    document.querySelector<HTMLElement>(".writer-scroll");
+  const writeProgress = useWriteProgress(writing, writeScroller);
+  const spyProgress = mode === "read" ? readSpy.progress : writeProgress;
   const cancelReadScroll = useRef<() => void>(() => {});
   const scrollToSection = (id: string, viaKeyboard: boolean) => {
     const scroller = readScroller();
@@ -1876,6 +1933,121 @@ export default function App() {
     const editor = paneEditors.current[focusedPane];
     if (editorRef.current !== editor) editorReady(editor);
   }, [focusedPane, editorReady]);
+  // Floating sidebar (wave 5 C2, consumed by C3): measure the room beside the
+  // document column with C1's useMarginFit, and pass the left fit + vertical
+  // extent down. Read mode, page view and split view feed the context; a
+  // destination page or Versions hides the document (no fit), and the key
+  // re-measures on changes that resize nothing the hook observes (C3).
+  const documentOnScreen = (mode === "read" || writing) && !versions;
+  const floatKey = [project?.id, destination, active, project?.pageLayout?.zoom, focusMode].join("|");
+  const floatCtx = useMemo(
+    () => ({
+      mode,
+      paged: project?.pageLayout?.mode === "pages",
+      split: !!split,
+      documentOnScreen,
+      key: floatKey,
+    }),
+    [mode, project?.pageLayout?.mode, split, documentOnScreen, floatKey],
+  );
+  const floatFitRaw = useMarginFit(workspaceRef, floatCtx, floating, SIDEBAR_MAX);
+  const floatFit = {
+    fits: floatFitRaw.left.fits,
+    width: floatFitRaw.left.width,
+    top: floatFitRaw.top,
+    bottom: floatFitRaw.bottom,
+  };
+  // Citation card (C5): shown instead of the research panel while floating is
+  // on, the right margin has room and there is one pane. Otherwise the panel
+  // renders exactly as before, so the fallback is automatic.
+  const cardFits = floating && floatFitRaw.right.fits && !split;
+  const showCard = cardFits && !fullResearch && destination === "research";
+  // Last input was a pointer (not a key): a pointer open animates, a key open
+  // never does. Focus-visible cannot tell: the editor always matches it, and
+  // WebKit does not focus a clicked button.
+  const pointerInput = useRef(false);
+  useEffect(() => {
+    const pointer = () => { pointerInput.current = true; };
+    const key = () => { pointerInput.current = false; };
+    window.addEventListener("pointerdown", pointer, true);
+    window.addEventListener("keydown", key, true);
+    return () => {
+      window.removeEventListener("pointerdown", pointer, true);
+      window.removeEventListener("keydown", key, true);
+    };
+  }, []);
+  const openCard = (footnoteId?: string) => {
+    cardReturn.current = document.activeElement;
+    setCardAnimate(pointerInput.current);
+    setCardFootnote(footnoteId);
+    setFullResearch(false);
+    setCardEpoch((n) => n + 1);
+  };
+  // Command palette (E3w). A modal that is up (or opens) keeps the palette shut:
+  // the palette sits below .modal-backdrop in z-order.
+  const modalOpen = !!(nameDialog || choice || importBusy || importPreview || cslImportPreview || preview);
+  useEffect(() => {
+    if (modalOpen) setPaletteOpen(false);
+  }, [modalOpen]);
+  const goToDestination = (id: string) => {
+    if (id === "research") openCard();
+    setDestination(id);
+    setFocusSource(undefined);
+    if (id === "read") setMode("read");
+    else if (id !== "history") setMode("write");
+    if (id === "history") showVersions();
+  };
+  const paletteCommands: PaletteCommand[] = !project ? [] : [
+    ...ACTIONS.filter((a) => a.scope === "app" && a.id !== "commandPalette").map((a) => ({
+      id: "action:" + a.id,
+      label: a.label,
+      group: "Actions",
+      hint: hintFor(a.id, shortcuts),
+      run: () => { runAppAction(a.id); },
+    })),
+    { id: "new-fragment", label: "New fragment", group: "Actions", run: () => add("fragment") },
+    ...project.order.flatMap((id) => {
+      const e = project.entries.find((x) => x.id === id);
+      return e ? [{ id: "entry:" + e.id, label: "Go to " + e.title, group: "Sections", run: () => selectEntry(e.id) }] : [];
+    }),
+    ...project.entries.filter((e) => e.kind === "fragment").map((e) => ({
+      id: "entry:" + e.id, label: "Go to " + e.title, group: "Fragments", run: () => selectEntry(e.id),
+    })),
+    ...([
+      ["research", "Research"],
+      ["comments", "Comments"],
+      ...(showBibliography(project) ? [["bibliography", "Bibliography"]] : []),
+      ["history", "Snapshots & history"],
+      ["settings", "Settings"],
+      ["read", "Read"],
+    ] as const)
+      .filter(([id]) => id === "settings" || !(project.sidebarHidden ?? []).includes(id))
+      .map(([id, label]) => ({
+        id: "dest:" + id, label: "Go to " + label, group: "Destinations",
+        run: () => {
+          if (id === "bibliography") { setDestination("bibliography"); setMode("write"); }
+          else goToDestination(id);
+        },
+      })),
+  ];
+  const closeCard = () => {
+    setDestination("manuscript");
+    const back = cardReturn.current;
+    cardReturn.current = null;
+    const editor = editorRef.current;
+    if (back && back.isConnected && back !== document.body && !editor?.view.dom.contains(back))
+      (back as HTMLElement).focus();
+    else editor?.commands.focus();
+  };
+  // The card's box: floatFit is in viewport px; the card sits inside .workspace.
+  useLayoutEffect(() => {
+    const el = cardBox.current;
+    const box = workspaceRef.current?.getBoundingClientRect();
+    if (!el || !box || !showCard) return;
+    const top = Math.max(0, floatFitRaw.top - box.top);
+    el.style.top = top + "px";
+    el.style.setProperty("--card-max-height", Math.max(0, floatFitRaw.bottom - floatFitRaw.top - FLOAT_GAP) + "px");
+  }, [showCard, floatFitRaw.top, floatFitRaw.bottom]);
   // One element, shown in the Settings destination and in the Projects-screen
   // dialog, so the two cannot drift apart.
   const generalSettings = (
@@ -1889,6 +2061,11 @@ export default function App() {
           ...readSidebarPreferences(localStorage),
           hover: value,
         });
+      }}
+      floating={floating}
+      onFloating={(value) => {
+        setFloating(value);
+        writeSidebarPreferences(localStorage, { floating: value });
       }}
       restoreTabs={restoreTabs}
       onRestoreTabs={(value) => {
@@ -1972,12 +2149,15 @@ export default function App() {
               openIds={openIds}
               readActiveId={readActiveId}
               onScrollToSection={scrollToSection}
+              spyProgress={spyProgress}
+              activeResearchId={destination === "research" ? focusSource : undefined}
               groupOrder={project.sidebarOrder}
               hiddenGroups={project.sidebarHidden ?? []}
               onGroupOrder={(sidebarOrder) =>
                 mutate((p) => ({ ...p, sidebarOrder }))
               }
               onDestination={(id) => {
+                if (id === "research") openCard();
                 setDestination(id);
                 setFocusSource(undefined);
                 if (id === "read") setMode("read");
@@ -2030,11 +2210,13 @@ export default function App() {
                   group === "research" &&
                   project.research?.notes.some((n) => n.id === id)
                 ) {
+                  setFullResearch(true);
                   setResearchTab("notes");
                   setFocusFootnote(undefined);
                   setFocusSource(undefined);
                   setResearchEpoch((n) => n + 1);
                 } else if (group === "research") {
+                  setFullResearch(true);
                   setResearchTab("sources");
                   setFocusFootnote(undefined);
                   setFocusSource(id);
@@ -2045,6 +2227,8 @@ export default function App() {
                 if (group === "comments") addAnnotation();
                 else if (group === "history") snapshot();
                 else {
+                  // Adding a research note needs the panel's Notes tab.
+                  setFullResearch(true);
                   setDestination(group);
                   setMode("write");
                   setResearchTab("notes");
@@ -2073,6 +2257,8 @@ export default function App() {
               onQuery={setQuery}
               onRenameProject={(title) => mutate((p) => ({ ...p, title }))}
               hoverReveal={hoverReveal}
+              floating={floating}
+              floatFit={floatFit}
               onAdd={add}
               onSelect={selectEntry}
               onOpenBeside={(target) => {
@@ -2080,14 +2266,17 @@ export default function App() {
                 else openPdfBeside(target.sourceId);
               }}
               onRename={rename}
+              onDelete={remove}
               onReorder={reorder}
+              onReorderFragment={reorderFragment}
+              onReorderResearch={reorderResearch}
               onRead={() => {
                 setMode("read");
                 setDestination("read");
               }}
               onVersions={() => showVersions()}
             />
-            <main className="workspace" aria-busy={busy}>
+            <main className="workspace" aria-busy={busy} ref={workspaceRef}>
               <header className="topbar">
                 <div>
                   <button
@@ -2606,8 +2795,36 @@ export default function App() {
                   goals={hasGoals ? goalsNode : undefined}
                 />
               )}
+              {showCard && (
+                // z-index 39: above the document, below the format bar, its
+                // menus and every Popover (all 40), so no menu opens under it.
+                <div
+                  ref={cardBox}
+                  className="citation-card-float"
+                  style={{ position: "absolute", right: FLOAT_GAP, zIndex: 39 }}
+                >
+                  <CitationCard
+                    key={cardEpoch}
+                    data={project.research ?? { sources: [], notes: [], footnotes: [] }}
+                    onChange={(research) => mutate((p) => ({ ...p, research }))}
+                    onInsertFootnote={editorRef.current ? insertFootnote : undefined}
+                    footnoteId={cardFootnote}
+                    citationContext={citationContext}
+                    width={floatFitRaw.right.width}
+                    animateIn={cardAnimate}
+                    onOpenFullPanel={(target) => {
+                      setFocusSource(target.sourceId);
+                      setFocusFootnote(target.footnoteId);
+                      setResearchTab("sources");
+                      setResearchEpoch((n) => n + 1);
+                      setFullResearch(true);
+                    }}
+                    onClose={closeCard}
+                  />
+                </div>
+              )}
             </main>
-            {(destination === "fragments" || destination === "research") &&
+            {(destination === "fragments" || (destination === "research" && !showCard)) &&
               asideResizer}
             {destination === "fragments" && (
               <aside
@@ -2675,13 +2892,16 @@ export default function App() {
                 />
               </aside>
             )}
-            {destination === "research" && (
+            {destination === "research" && !showCard && (
               <aside className="research-aside" style={{ width: asideWidth }}>
                 <header>
                   <strong>Research</strong>
                   <button
                     aria-label="Close research"
-                    onClick={() => setDestination("manuscript")}
+                    onClick={() => {
+                      setFullResearch(false);
+                      setDestination("manuscript");
+                    }}
                   >
                     <X size={16} />
                   </button>
@@ -2808,6 +3028,12 @@ export default function App() {
             </button>
           </div>
         )}
+        <CommandPalette
+          open={paletteOpen}
+          commands={paletteCommands}
+          animateIn={paletteAnimate}
+          onClose={() => setPaletteOpen(false)}
+        />
         <ProjectDialogs name={nameDialog} choice={choice} busy={busy} setName={setNameDialog} setChoice={setChoice} setBusy={setBusy} run={run} />
         {importBusy && <ImportBusy filename={importBusy.filename} onCancel={cancelImport} />}
         {importPreview && <ImportPreview preview={importPreview} busy={busy} onCancel={() => setImportPreview(null)} onImport={(title) => {

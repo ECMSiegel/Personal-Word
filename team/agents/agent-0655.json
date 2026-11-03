@@ -1,0 +1,9 @@
+{
+  "id": "agent-0655",
+  "label": "Claude Opus worker T218 (W5 E4)",
+  "joined_at": "2026-11-02T08:36:00+00:00",
+  "last_seen": "2026-11-02T08:56:47+00:00",
+  "status": "left",
+  "current_task": null,
+  "inbox_cursor": 0
+}

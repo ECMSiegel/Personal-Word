@@ -1,0 +1,9 @@
+{
+  "id": "agent-4610",
+  "label": "Claude Sonnet worker T220 (W5 D1 final)",
+  "joined_at": "2026-11-02T07:57:21+00:00",
+  "last_seen": "2026-11-02T08:03:14+00:00",
+  "status": "left",
+  "current_task": null,
+  "inbox_cursor": 0
+}

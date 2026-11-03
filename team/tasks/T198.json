@@ -1,0 +1,123 @@
+{
+  "id": "T198",
+  "title": "W5 B2 -- Dropdown and popover stay inside their scroll container",
+  "description": "UI wave 5, plan docs/agent-work/2026-11-01-ui-wave-5/PLAN.md section '### B2' (APPROVED 2026-11-01, defaults accepted). Read the whole task plus Rules, Approach, hotspot ownership and Notes before starting; owner request REQUEST.md + screenshots. Do not register team-serial-check-slot; heavy runs take the mkdir lock node_modules/.cache/personal-word-beta/serial-check.lock. Private Playwright config/port; double-quote paths; no git stash/checkout/reset; no installs.",
+  "status": "done",
+  "owner": null,
+  "priority": 1,
+  "depends_on": [],
+  "files": [
+    "src/components/Popover.tsx",
+    "src/components/dropdown.css",
+    "src/components/popover.css",
+    "tests/editor-toolbar.spec.ts",
+    "tests/motion-u5.spec.ts",
+    "tests/motion-u6.spec.ts",
+    "tests/motion-u7.spec.ts",
+    "tests/popover-bounds.spec.ts",
+    "node_modules/.cache/personal-word-beta/ui5-b2",
+    "src/components/Popover.test.ts"
+  ],
+  "review_required": true,
+  "created_by": "agent-47c8",
+  "created_at": "2026-11-02T00:06:23+00:00",
+  "claimed_at": "2026-11-02T02:48:06+00:00",
+  "updated_at": "2026-11-02T03:42:32+00:00",
+  "handoff": {
+    "by": "agent-d1d3",
+    "at": "2026-11-02T02:38:40+00:00",
+    "text": "REJECT (agent-d1d3, independent). B2 is sound in its core and all its own checks pass on MY own build, but the exact case it exists to fix (narrow aside, 16.png) still shows a visible defect: the clamped menu's last option is CUT. Details below; every claim has a log path.\n\nMY VERIFICATION (own build, own port 1846, pinned Node v22.23.3):\n- npx vitest run src/components -> 87/87 passed (Popover.test 12/12). ui5-rev-d1d3/vitest-components.log\n- npx vite build --outDir ui5-rev-d1d3/dist --emptyOutDir -> exit 0. ui5-rev-d1d3/build.log\n- Playwright: popover-bounds + research + editor-toolbar + motion-u5/u6/u7 + split-view + sidebar-selection -> 74 passed / 0 failed; all 4 popover-bounds tests pass incl. the narrow aside and the toolbar baseline (<=1px vs ui5-b2/baseline-rects.json). ui5-rev-d1d3/acceptance.log\n- Fail-first accepted: ui5-b2-review/fail-first-real.log fails at the bounds assertion (spec line 88) with the menu OPEN in results-pre/.../error-context.md -- failing for the right reason, not a timeout. Post-change pass confirmed on my build.\n- My own light/dark x Plain/Color shots: ui5-rev-d1d3/shots/narrow-menu-{light,dark}-{plain,color}.png. The horizontal fix is real: the 16.png left-cut is gone, the menu sits inside the aside's left edge and the long label wraps.\n\nDEFECT (narrow 260 only): Research -> check 'Use repeat citation rules' -> click 'Full citation again'. The menu gets inline maxHeight 78px while its scrollHeight is 115px, so the 2nd option 'In each section (one manuscript entry)' is cut 35px (option bottom 332 vs menu bottom 297) and the menu scrolls (clientHeight 76). Root cause: in measure(), popupHeight passed to placePopover is popup.scrollHeight read BEFORE the maxWidth clamp is applied, so it is the UN-WRAPPED height; after maxWidth=244 wraps the labels the content is 115px tall while maxHeight stays 78. Absent at 390 (labels do not wrap; last option bottom 294 <= menu bottom 297) and a REGRESSION: pre-B2 there was no maxWidth, so no wrap and no clip. Measurements: ui5-rev-d1d3/measure-clip-evidence.log (ASIDE260 'Full citation again' scrollH=115 clientH=76 maxHeight=78).\n\nFIX: in measure(), apply maxWidth first, then (after a forced reflow) read popup.scrollHeight for the maxHeight clamp -- i.e. compute/apply width, re-measure height, then apply maxHeight; or call measure() twice after the width clamp. The menu then fits its wrapped content. ADD an assertion to tests/popover-bounds.spec.ts at the narrow width: last option bottom <= popup bottom + 1 (no cut / scrollHeight <= clientHeight + 1), so this cannot regress silently. Then re-run the B2 acceptance set and the narrow screenshots.\n\nMINOR (not blocking by itself): at 260 the menu's right edge is 1441 vs the aside's right 1440 (1px past), inside the test's 1px tolerance.\nALSO: ui5-b2-review has no shots dir -- the plan's B2 visible-change screenshot step was not done. Please take and view them with the fix.\nUnverified/unchanged: native WebKit (Chromium only).\nPATH STATES: src/components/Popover.tsx: uncommitted edits | src/components/popover.css: uncommitted edits | src/components/dropdown.css: clean | tests/popover-bounds.spec.ts: uncommitted edits (new file) | src/components/Popover.test.ts: uncommitted edits (new file)."
+  },
+  "review": {
+    "by": "agent-1393",
+    "at": "2026-11-02T03:42:32+00:00",
+    "verdict": "approved",
+    "note": "APPROVE (agent-1393, independent; own build node_modules/.cache/personal-word-beta/ui5-b2r2/dist, Node v22.23.3, port 1848). CODE: boundary = nearest ancestor with overflow-x/y auto|scroll only; no-boundary path = old window rules (same 8px margins/flip conditions); width clamp applied first, then size re-read (forced reflow) so maxHeight uses the WRAPPED height (cycle-1 bug fixed); end-flip uses natural width; resize + boundary scroll re-run via rAF, listeners and raf cleaned up; no portal; CSS adds only .popover[data-bounded]{overflow-wrap:anywhere} -- no hover/scale rule, no fill, no transition; acceptable (design-system.md:63 'size to their content' is deliberately deviated from for bounded menus; D1 should note it). RUNS: vitest src/components 87/87 (node_modules/.cache/personal-word-beta/ui5-b2r2/vitest.log). Playwright 8-spec acceptance node_modules/.cache/personal-word-beta/ui5-b2r2/acceptance.log: 73 pass / 1 fail = split-view.spec.ts:155 (shared-bar font menu, no auto/scroll ancestor so B2 cannot affect it; known render-race flake); isolated rerun --repeat-each=3 of split-view:155 and research:176 = 6/6 pass (node_modules/.cache/personal-word-beta/ui5-b2r2/flake.log); research:176 passed in the full run. All 4 popover-bounds tests pass incl. narrow-260 and last-item-not-cut. TOOLBAR: rects rerun on my build (node_modules/.cache/personal-word-beta/ui5-b2r2/rects-after.json vs ui5-b2/baseline-rects.json): 6 menus, max delta 0.00 px x/y/w/h. FAIL-FIRST (a): scratch tree with HEAD Popover.tsx+popover.css (build has no data-bounded) -> popover-bounds narrow-aside test FAILS at spec line 112 within(asideBox,menu) (16.png left cut), other 3 pass (node_modules/.cache/personal-word-beta/ui5-b2r2/failfirst-orig.log). (b): ui5-b2/d1d3/failfirst-newassert.log shows the 'last item is cut' assertion failing on the cycle-1 build (EXIT 1, 'Full citation again last item is cut'), passing now. SHOTS (node_modules/.cache/personal-word-beta/ui5-b2r2/shots, all opened): menu-260-{light,dark}-{plain,color}: menu inside aside, both options fully visible, long label wraps in 2 lines each, no scrollbar (scrollH 115 vs clientH 113 = border); menu-390-*: one-line options, both visible, inside aside; toolbar-{light,dark}-{plain,color} Line spacing popover renders normally. CAVEATS: Chromium only, no native WebKit; at 260 the menu right edge is 1441 vs aside 1440 (1 px, within test tolerance, maxWidth = boundary-16 symmetric formula, cosmetic only)."
+  },
+  "log": [
+    {
+      "at": "2026-11-02T00:06:23+00:00",
+      "agent": "agent-47c8",
+      "event": "created",
+      "note": ""
+    },
+    {
+      "at": "2026-11-02T00:46:29+00:00",
+      "agent": "agent-4857",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-11-02T00:46:35+00:00",
+      "agent": "agent-4857",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-11-02T00:53:45+00:00",
+      "agent": "agent-4857",
+      "event": "blocked",
+      "note": "Q020: Required untouched-tree browser baseline cannot start: Playwright preview server listen EPERM on private ports 1638 and 1738. Per B2 stop rule, no source change until baseline clipping repro and toolbar rects are recorded."
+    },
+    {
+      "at": "2026-11-02T00:55:57+00:00",
+      "agent": "agent-4857",
+      "event": "unblocked",
+      "note": ""
+    },
+    {
+      "at": "2026-11-02T01:14:03+00:00",
+      "agent": "agent-4857",
+      "event": "handoff",
+      "note": "B2 baseline could not be completed in this sandbox because Playwright socket binding is denied. Initial spec run timed out due to setup errors; spec revised to create a manual source before menus and use the actual Line spacing name. Second coordinator run reportedly passed setup but was handed to browser-capable agent before bounds proof; see ui5-b2/fail-first.log (uncommitted cache). No Popover/CSS changes were made. tests/popover-bounds.spec.ts: uncommitted edits\\nsrc/components/Popover.tsx: clean\\nsrc/components/dropdown.css: clean\\nsrc/components/popover.css: clean\\ntests/editor-toolbar.spec.ts: clean\\ntests/motion-u5.spec.ts: clean\\ntests/motion-u6.spec.ts: clean\\ntests/motion-u7.spec.ts: clean\\ntests/popover-bounds.spec.ts: uncommitted edits\\nnode_modules/.cache/personal-word-beta/ui5-b2: uncommitted edits"
+    },
+    {
+      "at": "2026-11-02T01:23:34+00:00",
+      "agent": "agent-e586",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-11-02T01:23:39+00:00",
+      "agent": "agent-e586",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-11-02T02:32:00+00:00",
+      "agent": "agent-e586",
+      "event": "review requested",
+      "note": "B2 done. CHANGED: src/components/Popover.tsx adds exported pure placePopover({trigger,popupWidth,popupHeight,viewport,boundary,align}) ({end,up,maxWidth,maxHeight}) and nearestScrollBoundary(popup) (nearest ancestor with computed overflow auto/scroll; clip/hidden/visible excluded), the measure() now uses them, re-runs on window resize AND boundary scroll (rAF-throttled), and sets inline maxWidth + data-bounded when bounded; popover.css adds .popover[data-bounded]{overflow-wrap:anywhere} so clamped long labels wrap. No-boundary branch reproduces today's window rules exactly (same 8px margins, same flip conditions). Boundary branch: intersect with viewport, prefer start, flip to end only when it fits the boundary, maxWidth = boundary width - 16, up/maxHeight against boundary top/bottom. dropdown.css and editor-toolbar/motion-u5/u6/u7 specs untouched. NEW FILES: src/components/Popover.test.ts (12 unit cases: no-boundary = old results incl. exact flip margins; narrow boundary at right edge; menu wider than boundary; near-boundary bottom flip-up + maxHeight clamp; align end inside boundary; empty-intersection fallback) and the rewritten tests/popover-bounds.spec.ts (4 tests: default-390 aside menus incl. Note form via Cite here; NARROW aside via personal-word.asidePanelWidth=260 (asideMin, App.tsx:119) repeat-rule menus; cards-view entry-status inside .sidebar-groups; toolbar popovers compared <=1px against ui5-b2/baseline-rects.json). FAIL-FIRST (right reason, real source): ui5-b2-review/fail-first-real.log -- on the untouched build (dist, no B2 code) the narrow-aside test FAILS at the bounds assertion expect(within(asideBox,menu)).toBe(true) line 88 (menu.left < aside.left, the 16.png case); default-390/cards/toolbar pass there as my #953 measured. Post-change: ui5-b2-review/bounds-after-narrow.log 4/4 pass. Earlier supporting reds: bounds-doctored-RED.log (built copy with the end-flip disabled: aside + toolbar guards fire) and the unit tests failing 12/12 before placePopover existed (vitest log in console history; reproducible by deleting the export). ACCEPTANCE: npx vitest run src/components 87/87 (Popover.test 12/12; full npm test 1110/1110; tsc -b exit 0); npx playwright on my fresh build ui5-b2-review/dist2 port 1838: acceptance-final.log 87 passed across popover-bounds+research+research-library+research-pdf+accessibility+editor-toolbar+motion-u5/u6/u7+split-view+sidebar-selection. TOOLBAR UNCHANGED: coordinator's recorder rerun on dist2 -> AFTER-rects.json; worst delta vs ui5-b2/baseline-rects.json across 6 menus x/y/width/height = 0.00 px. FLAKES (not B2): research.spec.ts:176 failed in the first full acceptance run and flakes in isolation on the PRE-B2 build too (4/10 runs failed there, attribution-pre.log + repeat logs); split-view.spec.ts:155 failed once in the 9.6-minute loaded full run, passes 9/9 pre-B2 and 5/5 post-B2 in isolation, and the probe (ui5-b2-review/probe-split.mjs) shows the split shared-bar font menu has NO auto/scroll ancestor (bounded:false, maxWidth none) so B2 cannot move it. Both are the empty-citation/late-render race family (persisted research data is correct; the row renders stale); App.tsx/Writer.tsx are outside my registered paths, so I only record it. CAVEATS: Chromium-only, no native WebKit run; the focus() scroll-reveal jump on edge-scrolled triggers is pre-existing browser behaviour, untouched; maxWidth cannot override CSS min-width (dropdown-menu min-width: max(100%,150px)) -- in reachable states the clamp never fights min-width. PATH STATES: src/components/Popover.tsx: uncommitted edits | src/components/popover.css: uncommitted edits | src/components/dropdown.css: clean | tests/popover-bounds.spec.ts: uncommitted edits (new file) | src/components/Popover.test.ts: uncommitted edits (new file) | tests/editor-toolbar.spec.ts: clean | tests/motion-u5.spec.ts: clean | tests/motion-u6.spec.ts: clean | tests/motion-u7.spec.ts: clean | node_modules/.cache/personal-word-beta/ui5-b2: uncommitted cache edits (baseline artifacts from the coordinator, untouched) | node_modules/.cache/personal-word-beta/ui5-b2-review: new cache dir (my builds, logs, probes)."
+    },
+    {
+      "at": "2026-11-02T02:38:40+00:00",
+      "agent": "agent-d1d3",
+      "event": "rejected",
+      "note": "REJECT (agent-d1d3, independent). B2 is sound in its core and all its own checks pass on MY own build, but the exact case it exists to fix (narrow aside, 16.png) still shows a visible defect: the clamped menu's last option is CUT. Details below; every claim has a log path.\n\nMY VERIFICATION (own build, own port 1846, pinned Node v22.23.3):\n- npx vitest run src/components -> 87/87 passed (Popover.test 12/12). ui5-rev-d1d3/vitest-components.log\n- npx vite build --outDir ui5-rev-d1d3/dist --emptyOutDir -> exit 0. ui5-rev-d1d3/build.log\n- Playwright: popover-bounds + research + editor-toolbar + motion-u5/u6/u7 + split-view + sidebar-selection -> 74 passed / 0 failed; all 4 popover-bounds tests pass incl. the narrow aside and the toolbar baseline (<=1px vs ui5-b2/baseline-rects.json). ui5-rev-d1d3/acceptance.log\n- Fail-first accepted: ui5-b2-review/fail-first-real.log fails at the bounds assertion (spec line 88) with the menu OPEN in results-pre/.../error-context.md -- failing for the right reason, not a timeout. Post-change pass confirmed on my build.\n- My own light/dark x Plain/Color shots: ui5-rev-d1d3/shots/narrow-menu-{light,dark}-{plain,color}.png. The horizontal fix is real: the 16.png left-cut is gone, the menu sits inside the aside's left edge and the long label wraps.\n\nDEFECT (narrow 260 only): Research -> check 'Use repeat citation rules' -> click 'Full citation again'. The menu gets inline maxHeight 78px while its scrollHeight is 115px, so the 2nd option 'In each section (one manuscript entry)' is cut 35px (option bottom 332 vs menu bottom 297) and the menu scrolls (clientHeight 76). Root cause: in measure(), popupHeight passed to placePopover is popup.scrollHeight read BEFORE the maxWidth clamp is applied, so it is the UN-WRAPPED height; after maxWidth=244 wraps the labels the content is 115px tall while maxHeight stays 78. Absent at 390 (labels do not wrap; last option bottom 294 <= menu bottom 297) and a REGRESSION: pre-B2 there was no maxWidth, so no wrap and no clip. Measurements: ui5-rev-d1d3/measure-clip-evidence.log (ASIDE260 'Full citation again' scrollH=115 clientH=76 maxHeight=78).\n\nFIX: in measure(), apply maxWidth first, then (after a forced reflow) read popup.scrollHeight for the maxHeight clamp -- i.e. compute/apply width, re-measure height, then apply maxHeight; or call measure() twice after the width clamp. The menu then fits its wrapped content. ADD an assertion to tests/popover-bounds.spec.ts at the narrow width: last option bottom <= popup bottom + 1 (no cut / scrollHeight <= clientHeight + 1), so this cannot regress silently. Then re-run the B2 acceptance set and the narrow screenshots.\n\nMINOR (not blocking by itself): at 260 the menu's right edge is 1441 vs the aside's right 1440 (1px past), inside the test's 1px tolerance.\nALSO: ui5-b2-review has no shots dir -- the plan's B2 visible-change screenshot step was not done. Please take and view them with the fix.\nUnverified/unchanged: native WebKit (Chromium only).\nPATH STATES: src/components/Popover.tsx: uncommitted edits | src/components/popover.css: uncommitted edits | src/components/dropdown.css: clean | tests/popover-bounds.spec.ts: uncommitted edits (new file) | src/components/Popover.test.ts: uncommitted edits (new file)."
+    },
+    {
+      "at": "2026-11-02T02:48:06+00:00",
+      "agent": "agent-d1d3",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-11-02T02:48:14+00:00",
+      "agent": "agent-d1d3",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-11-02T03:14:50+00:00",
+      "agent": "agent-d1d3",
+      "event": "review requested",
+      "note": "B2 fix done -> review (author agent-d1d3; NOTE: I authored this, so I cannot be its independent reviewer -- e586 originally wrote the B2 change and I rejected it; please assign a different reviewer).\n\nWHAT CHANGED (src/components/Popover.tsx, measure()): measure the NATURAL width first (clear any clamp), apply the maxWidth clamp, then read the size again (forces a reflow) and clamp maxHeight to the menu's real, WRAPPED height; the flip/end decision uses the natural width so a later resize cannot measure the already-clamped width. Previously popupHeight came from scrollHeight read BEFORE the clamp, so a wrapped menu was taller than the maxHeight set and its last item was cut.\ntests/popover-bounds.spec.ts: new assertion in the narrow-aside test and the default research test (incl. the Note form menu): last item bottom <= menu bottom + 1.\n\nFAIL-FIRST (real source, pre-fix build ui5-rev-d1d3/dist): the new assertion FAILS with 'Full citation again last item is cut' at the narrow 260 aside; the other 3 popover-bounds tests pass. Log ui5-b2/d1d3/failfirst-newassert.log (EXIT 1).\n\nACCEPTANCE on MY own build (ui5-b2/d1d3/dist, private config port 1854, pinned Node v22.23.3):\n- npx tsc --noEmit -p . -> exit 0 (tsc.log)\n- npx vitest run src/components -> 87/87 (vitest-components.log)\n- Playwright popover-bounds + research + editor-toolbar + motion-u5/u6/u7 + split-view + sidebar-selection -> 73 passed, 1 failed (acceptance.log, port 1854). The 1 failure is the KNOWN pre-existing split-view.spec.ts:155 flake: rerun in isolation --repeat-each=5 -> 4 pass / 1 fail, failing at line 212 applying the Georgia font (a render race), NOT at menu placement (split155-isolation.log).\n- all 4 popover-bounds tests pass incl. the narrow aside and the unchanged toolbar baseline.\n\nNUMERIC PROOF (projected against my fixed build): narrow 'Full citation again' -> scrollH 115 == clientH 113 (+2 px border), last item bottom 331.8 <= menu bottom 334.5 (was: maxHeight 78 vs scrollH 115, last item bottom 332 vs menu bottom 297 -- cut 35 px). Overflow probe: ui5-b2/d1d3/overflow.log.\n\nTOOLBAR UNCHANGED: 'Line and paragraph spacing' popover rect {x 1176, y 115.5, 232x185} identical to ui5-b2/baseline-rects.json in all 4 theme x palette combos (toolbar-shots.log); the spec's baseline test passes too.\n\nSCREENSHOTS (taken AND viewed, light/dark x Plain/Color): ui5-b2/d1d3/shots/narrow-menu-*.png, narrow-aside-*.png, toolbar-*.png. The narrow menu now shows BOTH options fully; the long label wraps.\n\nDESIGN SYSTEM: kept .popover[data-bounded]{overflow-wrap:anywhere}. For D1: a bounded menu wraps instead of sizing to content (design-system.md:63 'size to their content'), a deliberate deviation the plan asked for.\n\nKNOWN 1 px (not fixed; low severity; plan-specified formula): at the narrow 260 aside the start-aligned menu's right edge is 1441 vs the aside's 1440, so the aside has 1 px of horizontal scrollable overflow (aside scrollWidth 260 vs clientWidth 259). Cause: maxWidth = boundary.width - 16 is a symmetric inset, but the menu's left sits at the trigger (17 px from the boundary's left here), so the clamp can exceed the room to the right by the trigger offset beyond 8 px. Fixing exactly would change placePopover's documented interface and its unit expectations (390-16/270-16/174-16), so I left the formula as the plan states; the acceptance tolerance is 1 px.\n\nPATH STATES: src/components/Popover.tsx: uncommitted edits | tests/popover-bounds.spec.ts: uncommitted edits (new file) | src/components/popover.css: uncommitted edits (e586's version, unchanged) | src/components/dropdown.css: clean | src/components/Popover.test.ts: uncommitted edits (new file, unchanged) | tests/editor-toolbar.spec.ts: clean | tests/motion-u5.spec.ts: clean | tests/motion-u6.spec.ts: clean | tests/motion-u7.spec.ts: clean | node_modules/.cache/personal-word-beta/ui5-b2: uncommitted cache edits (d1d3/ subtree: builds, logs, shots)."
+    },
+    {
+      "at": "2026-11-02T03:42:32+00:00",
+      "agent": "agent-1393",
+      "event": "approved",
+      "note": "APPROVE (agent-1393, independent; own build node_modules/.cache/personal-word-beta/ui5-b2r2/dist, Node v22.23.3, port 1848). CODE: boundary = nearest ancestor with overflow-x/y auto|scroll only; no-boundary path = old window rules (same 8px margins/flip conditions); width clamp applied first, then size re-read (forced reflow) so maxHeight uses the WRAPPED height (cycle-1 bug fixed); end-flip uses natural width; resize + boundary scroll re-run via rAF, listeners and raf cleaned up; no portal; CSS adds only .popover[data-bounded]{overflow-wrap:anywhere} -- no hover/scale rule, no fill, no transition; acceptable (design-system.md:63 'size to their content' is deliberately deviated from for bounded menus; D1 should note it). RUNS: vitest src/components 87/87 (node_modules/.cache/personal-word-beta/ui5-b2r2/vitest.log). Playwright 8-spec acceptance node_modules/.cache/personal-word-beta/ui5-b2r2/acceptance.log: 73 pass / 1 fail = split-view.spec.ts:155 (shared-bar font menu, no auto/scroll ancestor so B2 cannot affect it; known render-race flake); isolated rerun --repeat-each=3 of split-view:155 and research:176 = 6/6 pass (node_modules/.cache/personal-word-beta/ui5-b2r2/flake.log); research:176 passed in the full run. All 4 popover-bounds tests pass incl. narrow-260 and last-item-not-cut. TOOLBAR: rects rerun on my build (node_modules/.cache/personal-word-beta/ui5-b2r2/rects-after.json vs ui5-b2/baseline-rects.json): 6 menus, max delta 0.00 px x/y/w/h. FAIL-FIRST (a): scratch tree with HEAD Popover.tsx+popover.css (build has no data-bounded) -> popover-bounds narrow-aside test FAILS at spec line 112 within(asideBox,menu) (16.png left cut), other 3 pass (node_modules/.cache/personal-word-beta/ui5-b2r2/failfirst-orig.log). (b): ui5-b2/d1d3/failfirst-newassert.log shows the 'last item is cut' assertion failing on the cycle-1 build (EXIT 1, 'Full citation again last item is cut'), passing now. SHOTS (node_modules/.cache/personal-word-beta/ui5-b2r2/shots, all opened): menu-260-{light,dark}-{plain,color}: menu inside aside, both options fully visible, long label wraps in 2 lines each, no scrollbar (scrollH 115 vs clientH 113 = border); menu-390-*: one-line options, both visible, inside aside; toolbar-{light,dark}-{plain,color} Line spacing popover renders normally. CAVEATS: Chromium only, no native WebKit; at 260 the menu right edge is 1441 vs aside 1440 (1 px, within test tolerance, maxWidth = boundary-16 symmetric formula, cosmetic only)."
+    }
+  ]
+}
