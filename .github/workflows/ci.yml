@@ -40,6 +40,8 @@ jobs:
         run: npx playwright install chromium
 
       - name: Run browser tests
+        env:
+          PLAYWRIGHT_PREVIEW: "1"
         run: npm run test:e2e -- --workers=1
 
       - name: Upload browser failure artifacts

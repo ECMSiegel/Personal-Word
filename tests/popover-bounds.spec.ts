@@ -170,7 +170,7 @@ test("toolbar popovers keep their recorded untouched-tree placement", async ({
     process.env.RECTS_BASELINE ??
     join(
       process.cwd(),
-      "node_modules/.cache/personal-word-beta/ui5-b2/baseline-rects.json",
+      "tests/fixtures/popover-baseline-rects.json",
     );
   const baseline = JSON.parse(readFileSync(baselinePath, "utf8")) as Record<
     string,

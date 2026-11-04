@@ -1,0 +1,38 @@
+{
+  "Editor zoom": {
+    "x": 345,
+    "y": 111.5,
+    "width": 150,
+    "height": 164
+  },
+  "Paragraph style": {
+    "x": 428,
+    "y": 111.5,
+    "width": 183.796875,
+    "height": 102
+  },
+  "Font family": {
+    "x": 541,
+    "y": 111.5,
+    "width": 150,
+    "height": 222
+  },
+  "Line and paragraph spacing": {
+    "x": 1176,
+    "y": 115.5,
+    "width": 232,
+    "height": 185
+  },
+  "Prose check": {
+    "x": 1022,
+    "y": 115.5,
+    "width": 286,
+    "height": 232
+  },
+  "Page setup": {
+    "x": 1113,
+    "y": 115.5,
+    "width": 232,
+    "height": 136
+  }
+}
