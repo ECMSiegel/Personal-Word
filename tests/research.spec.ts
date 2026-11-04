@@ -174,6 +174,20 @@ test("imports sources from a Zotero CSL JSON file", async ({ page }) => {
   await expect(page.locator(".source-list")).toContainText("Keeping the Harbor Lights");
 });
 
+test("Cite here shows the citation at once, not an empty note field", async ({ page }) => {
+  await page.goto("/");
+  await create(page, "Cite shows citation");
+  const editor = page.getByRole("textbox", { name: "Writing editor" });
+  await editor.fill("Evidence here.");
+  await openResearch(page);
+  await page.getByRole("button", { name: "Enter manually" }).click();
+  await page.getByLabel("Authors", { exact: true }).fill("Marguerite Halloway");
+  await page.getByLabel("Title", { exact: true }).fill("Lamps and Ledgers");
+  await page.getByRole("button", { name: "Cite here", exact: true }).click();
+  await expect(page.locator(".footnote-area")).toContainText("Lamps and Ledgers");
+  await expect(page.getByLabel("Footnote 1 text")).toHaveCount(0);
+});
+
 test("captured quote inserts with its citation and one undo removes both", async ({ page }) => {
   await page.goto("/");
   await create(page, "Quote capture");
@@ -193,6 +207,7 @@ test("captured quote inserts with its citation and one undo removes both", async
   await page.getByRole("button", { name: "Save and insert" }).click();
   await expect(editor).toContainText("“A captured passage”");
   await expect(page.locator(".footnote-area")).toContainText(", 48.");
+  await expect(page.getByLabel("Footnote 1 text")).toHaveCount(0);
   await editor.focus();
   await page.keyboard.press(process.platform === "darwin" ? "Meta+z" : "Control+z");
   await expect(editor).not.toContainText("A captured passage");

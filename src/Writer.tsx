@@ -759,7 +759,8 @@ export function Writer({
     pendingNotes.current = pendingNotes.current.filter((id) => {
       if (!ids.has(id)) return false;
       const note = notes.find((item) => item.id === id);
-      return !note || note.text === "";
+      // A note that cites a source already has its text: opening the empty field would hide the citation.
+      return !note || (note.text === "" && !note.sourced);
     });
     const ready = pendingNotes.current.find((id) =>
       notes.some((item) => item.id === id && item.editable),
