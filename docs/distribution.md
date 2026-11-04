@@ -6,6 +6,8 @@ account available for this preparation, and only an Intel test machine is
 currently available. No download link should be published until the binary,
 license, signing, and install gates are complete.
 
+On 2026-11-03 the owner chose to publish v0.2.0 as an unsigned, ad-hoc-signed Intel `.dmg` on GitHub Releases. The blockers below still apply to a signed general-user release.
+
 The owner removed signing and downloadable distribution from beta scope on 2026-10-23. The preparation below is retained for possible future use; it is not active beta delivery work. Pushing source changes does not publish an app download.
 
 ## Candidate checks

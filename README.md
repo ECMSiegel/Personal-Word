@@ -41,7 +41,11 @@ I wanted something that worked well and was free, so I built it. Personal Word i
 
 ## Quick start
 
-**You need a Mac.** I haven't published a download yet, so these steps build Personal Word from source.
+**You need a Mac running macOS 15 or later.**
+
+**Download it.** Get the `.dmg` from the [latest release](https://github.com/ECMSiegel/Personal-Word/releases/latest), open it, and drag **Personal Word** into Applications. The download is built for Intel; on Apple silicon it needs Rosetta, and I haven't tested that yet. The app isn't signed by Apple yet, so macOS blocks it the first time. Try to open it, then go to **System Settings > Privacy & Security** and choose **Open Anyway**.
+
+**Or build it from source:**
 
 1. **Install the tools.** Install [Node.js 22](https://nodejs.org) and [Rust](https://rustup.rs). Then open **Terminal** and install Apple's command line tools if you don't have them:
 
