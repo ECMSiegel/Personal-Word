@@ -479,6 +479,15 @@ pub fn configure<R: Runtime>(builder: tauri::Builder<R>) -> tauri::Builder<R> {
         let scenario = std::env::var("FOLIO_SMOKE_SCENARIO").unwrap_or_default();
         let run = std::env::var("FOLIO_SMOKE_RUN").unwrap_or_default();
         let invocation = std::env::var("FOLIO_SMOKE_INVOCATION").unwrap_or_default();
+        // Focus-driven captures (rail previews) need a key window, and another app may
+        // hold the front during a run, so the screens harness keeps taking it back.
+        if std::env::var("FOLIO_SMOKE_SCRIPT").as_deref() == Ok("native-screens") {
+            let window = webview.window();
+            std::thread::spawn(move || loop {
+                let _ = window.set_focus();
+                std::thread::sleep(std::time::Duration::from_secs(1));
+            });
+        }
         let script = match std::env::var("FOLIO_SMOKE_SCRIPT").unwrap_or_default().as_str() {
             "native-reliability" => include_str!("../../tests/native-reliability.js").to_string(),
             // The screens harness receives its palette as a JSON string, same

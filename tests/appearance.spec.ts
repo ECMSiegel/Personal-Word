@@ -542,3 +542,40 @@ test("floating sidebar and research: off by default, sits under the hover row, t
   await page.locator(".group-title").filter({ hasText: /^Settings$/ }).click();
   await expect(page.getByLabel("Floating sidebar and research")).toBeChecked();
 });
+
+test("settings has a centered column and a dedicated Sidebar section", async ({ page }) => {
+  await page.addInitScript(() => localStorage.setItem("personal-word.restoreTabs", "true"));
+  await openSettings(page, "Settings layout");
+  const pane = page.locator(".workspace");
+  const settings = page.locator(".project-settings");
+  const paneBox = (await pane.boundingBox())!;
+  const settingsBox = (await settings.boundingBox())!;
+  expect(Math.abs((settingsBox.x + settingsBox.width / 2) - (paneBox.x + paneBox.width / 2))).toBeLessThanOrEqual(1);
+  const sidebar = settings.locator(".settings-section").filter({ has: page.getByRole("heading", { name: "Sidebar", exact: true }) });
+  await expect(sidebar.getByLabel("Reveal sidebar on hover")).toBeVisible();
+  await expect(sidebar.getByLabel("Floating sidebar and research")).toBeVisible();
+  await expect(sidebar.getByLabel("Show Read manuscript")).toBeVisible();
+  await expect(sidebar.getByLabel("Show Comments")).toBeVisible();
+  await expect(sidebar.getByLabel("Show Snapshots & history")).toBeVisible();
+
+  await page.getByRole("button", { name: "Projects", exact: true }).click();
+  await page.locator(".library-display > .library-settings").click();
+  const dialog = page.getByRole("dialog", { name: "Settings" });
+  const dialogSidebar = dialog.locator(".settings-section").filter({ has: page.getByRole("heading", { name: "Sidebar", exact: true }) });
+  await expect(dialogSidebar.getByLabel("Reveal sidebar on hover")).toBeVisible();
+  await expect(dialogSidebar.getByLabel("Floating sidebar and research")).toBeVisible();
+  await expect(dialog.getByLabel("Show Read manuscript")).toHaveCount(0);
+  // Each section after the first keeps the --space-5 gap between the previous section's
+  // last control and its own heading (the dialog once zeroed section spacing).
+  const gaps = await dialog.locator(".library-settings-body > section").evaluateAll((sections) => {
+    const token = parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--space-5"));
+    return sections.slice(1).map((section, i) => {
+      const controls = Array.from(sections[i].querySelectorAll("button, input, select, li"));
+      const lastBottom = Math.max(...controls.map((c) => c.getBoundingClientRect().bottom));
+      const h2 = section.querySelector("h2")!;
+      return { heading: h2.textContent, gap: h2.getBoundingClientRect().top - lastBottom, token };
+    });
+  });
+  expect(gaps.length).toBeGreaterThanOrEqual(2);
+  for (const g of gaps) expect(g.gap, `${g.heading} heading gap ${JSON.stringify(gaps)}`).toBeGreaterThanOrEqual(g.token);
+});

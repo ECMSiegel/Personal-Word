@@ -69,8 +69,8 @@
   align-items: center;
   justify-content: space-between;
   gap: var(--space-4);
-  /* Right padding absorbs the shared 4 percent grow (grows from the left), so the hint is never clipped. */
-  padding: var(--space-2) var(--space-5) var(--space-2) var(--space-4);
+  /* Wave 6 T1: equal left/right padding (label scales, row does not). */
+  padding: var(--space-2) var(--space-4) var(--space-2) var(--space-4);
   color: var(--text);
   cursor: default;
   --emph-origin: left center;

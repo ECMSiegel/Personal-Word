@@ -27,6 +27,7 @@ import { ContextMenu, type ContextMenuItem } from "./ContextMenu";
 import { keyboardMove } from "./dragReorder";
 import { useDragReorder } from "./useDragReorder";
 import { useSpyDock } from "./scrollspy";
+import { SpyRail, type RailItem } from "./SpyRail";
 import { watchScrollFade } from "./scrollFade";
 import "./drag-reorder.css";
 import "./scrollspy.css";
@@ -475,33 +476,28 @@ export function ProjectSidebar(props: Props) {
       if (e.target instanceof Element && e.target.closest(skip)) return;
       down(e);
     };
-  // Scrollspy lines (wave 4 R1, wave 5 A3): a pointer-only mirror of each row of the three
-  // list groups; the row button stays the accessible, keyboard path. useSpyDock magnifies
-  // them by pointer proximity; `progress` (Manuscript/Fragments active line only) fills it.
+  // Line rail (wave 6 T7b): one SpyRail per list group, a button per item (named by its title);
+  // the row buttons stay as they are. useSpyDock magnifies the lines by pointer proximity.
   useSpyDock(groupsContainer);
-  const spyLine = (
-    state: "idle" | "open" | "active",
-    onClick: (event: React.MouseEvent) => void,
-    progress?: number,
-  ) => {
-    const filled = state === "active" && progress !== undefined;
-    return (
-      <button
-        type="button"
-        className="spy-line"
-        tabIndex={-1}
-        aria-hidden="true"
-        data-state={state}
-        data-progress={filled ? "" : undefined}
-        style={
-          filled
-            ? ({ "--spy-progress": progress.toFixed(3) } as React.CSSProperties)
-            : undefined
-        }
-        onClick={onClick}
-      />
-    );
+  const openCollectionItem = (group: string, item: CollectionRow) => {
+    if (item.beside) {
+      props.onOpenBeside?.(item.beside);
+      return;
+    }
+    selectDestination(group);
+    props.onCollectionSelect?.(group, item.id);
   };
+  const collectionRailItem = (group: string, item: CollectionRow): RailItem => ({
+    id: item.id,
+    title: item.title,
+    state:
+      item.id === props.activeDestination || item.id === props.activeResearchId
+        ? "active"
+        : props.openIds?.has(item.id)
+          ? "open"
+          : "idle",
+    onActivate: () => openCollectionItem(group, item),
+  });
   const labels: Record<string, string> = {
     manuscript: "Manuscript",
     fragments: "Fragments",
@@ -579,16 +575,6 @@ export function ProjectSidebar(props: Props) {
           <Columns2 size={16} />
         </button>
       )}
-      {group === "research" &&
-        !views[group] &&
-        spyLine(
-          item.id === props.activeDestination || item.id === props.activeResearchId
-            ? "active"
-            : props.openIds?.has(item.id)
-              ? "open"
-              : "idle",
-          open,
-        )}
     </div>
     );
   };
@@ -647,6 +633,30 @@ export function ProjectSidebar(props: Props) {
         (id === "research"
           ? (props.collectionItems?.research ?? []).some((i) => props.openIds?.has(i.id))
           : project.entries.some((e) => e.kind === kind && props.openIds?.has(e.id))));
+    const railItems: RailItem[] =
+      id === "research"
+        ? [
+            ...(bibliographyRow && shownItem(bibliographyRow) ? [bibliographyRow] : []),
+            ...shownSources.flatMap((unit) => unit.rows),
+            ...shownNotes,
+          ].map((item) => collectionRailItem(id, item))
+        : entries.map((e) => ({
+            id: e.id,
+            title: e.title,
+            state:
+              (mode === "read"
+                ? id === "manuscript" && props.readActiveId === e.id
+                : active === e.id && (!props.openIds || props.openIds.has(e.id)))
+                ? "active"
+                : props.openIds?.has(e.id)
+                  ? "open"
+                  : "idle",
+            progress: props.spyProgress,
+            onActivate: (event: React.MouseEvent) => {
+              if (mode === "read" && id === "manuscript") props.onScrollToSection?.(e.id, event.detail === 0);
+              else onSelect(e.id);
+            },
+          }));
     return (
       <section
         className={
@@ -933,22 +943,6 @@ export function ProjectSidebar(props: Props) {
                     </button>
                   </div>
                 )}
-                {!views[id] &&
-                  spyLine(
-                    (mode === "read"
-                      ? id === "manuscript" && props.readActiveId === e.id
-                      : active === e.id && (!props.openIds || props.openIds.has(e.id)))
-                      ? "active"
-                      : props.openIds?.has(e.id)
-                        ? "open"
-                        : "idle",
-                    (event) => {
-                      if (mode === "read" && id === "manuscript")
-                        props.onScrollToSection?.(e.id, event.detail === 0);
-                      else onSelect(e.id);
-                    },
-                    props.spyProgress,
-                  )}
                 {views[id] && props.onEntryDetails && (
                   <div className="entry-details">
                     <input
@@ -980,6 +974,7 @@ export function ProjectSidebar(props: Props) {
                 )}
               </div>
             ))}
+            {!views[id] && railItems.length > 0 && <SpyRail items={railItems} label={labels[id]} />}
           </div>
         )}
       </section>

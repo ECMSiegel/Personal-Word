@@ -1,0 +1,9 @@
+{
+  "id": "agent-faa0",
+  "label": "Claude Sonnet worker W6 T7b",
+  "joined_at": "2026-11-03T05:40:05+00:00",
+  "last_seen": "2026-11-03T06:28:35+00:00",
+  "status": "left",
+  "current_task": null,
+  "inbox_cursor": 1136
+}

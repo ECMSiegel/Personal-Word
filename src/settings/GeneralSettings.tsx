@@ -23,6 +23,7 @@ export function GeneralSettings({
   onRestoreTabs,
   storagePath,
   onShowPath,
+  sidebarExtras,
   children,
 }: {
   appearance: Appearance;
@@ -35,6 +36,7 @@ export function GeneralSettings({
   onRestoreTabs: (value: boolean) => void;
   storagePath: string | null;
   onShowPath?: (path: string) => void;
+  sidebarExtras?: ReactNode;
   children?: ReactNode;
 }) {
   return (
@@ -121,6 +123,21 @@ export function GeneralSettings({
             </div>
           )}
         </div>
+        <div className="settings-form">
+          <div className="settings-field">
+            <span className="settings-label">Storage location</span>
+            <button
+              className="settings-button"
+              title={storagePath ?? undefined}
+              onClick={() => storagePath && onShowPath?.(storagePath)}
+            >
+              Show path
+            </button>
+          </div>
+        </div>
+      </section>
+      <section className="settings-section">
+        <h2>Sidebar</h2>
         <label className="settings-check">
           <input
             type="checkbox"
@@ -137,18 +154,7 @@ export function GeneralSettings({
           />
           Floating sidebar and research
         </label>
-        <div className="settings-form">
-          <div className="settings-field">
-            <span className="settings-label">Storage location</span>
-            <button
-              className="settings-button"
-              title={storagePath ?? undefined}
-              onClick={() => storagePath && onShowPath?.(storagePath)}
-            >
-              Show path
-            </button>
-          </div>
-        </div>
+        {sidebarExtras}
       </section>
       {children}
     </>

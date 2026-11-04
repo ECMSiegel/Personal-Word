@@ -27,6 +27,23 @@ SCENARIOS = ("light", "dark")
 SCREENS = ("projects", "writing", "writing-pages", "research", "settings", "pdf-preview")
 # Extra captures, always taken last (wave 5 floating sidebar and research card).
 FLOATING_SCREENS = ("floating-sidebar", "floating-card")
+# Wave 6 every-state captures (Amendment 1). Each is optional in the report; a
+# missing one is listed in stateErrors and makes the run exit 1 after copying.
+STATE_SCREENS = (
+    "state-toast-card",
+    "state-toolbar-rest",
+    "state-toolbar-magnified",
+    "state-palette-long",
+    "state-rail-0-and-1",
+    "state-no-research",
+    "state-notes-empty",
+    "state-notes-two",
+    "state-sources-import",
+    "state-sidebar190-long",
+    "state-rail-fragments-1",
+    "state-split-rail",
+    "state-projects-long",
+)
 
 
 def tail(path, lines=40):
@@ -152,9 +169,19 @@ def capture_scenario(scenario, out, palette, timeout):
             if name not in SCREENS and name not in FLOATING_SCREENS:
                 raise RuntimeError(f"Unexpected snapshot name {name!r}")
             shutil.copyfile(source, out / f"{name}-{scenario}.png")
+        for screen_path in report.get("states") or []:
+            name = Path(screen_path).stem
+            if name not in STATE_SCREENS:
+                raise RuntimeError(f"Unexpected state snapshot name {name!r}")
+            shutil.copyfile(work / "screens" / Path(screen_path).name, out / f"{name}-{scenario}.png")
         shutil.copyfile(work / "report-2.json", out / f"report-{scenario}.json")
         print(f"{scenario}: pdfProbe {json.dumps(report.get('pdfProbe'))}")
         print(f"{scenario}: captured {', '.join(Path(p).stem for p in report['screens'])}")
+        captured = {Path(p).stem for p in report.get("states") or []}
+        print(f"{scenario}: states {len(captured)}/{len(STATE_SCREENS)}")
+        for error in report.get("stateErrors") or []:
+            print(f"{scenario}: STATE FAILED {error}")
+        return [name for name in STATE_SCREENS if name not in captured]
 
 
 def main():
@@ -172,14 +199,18 @@ def main():
         raise SystemExit(f"Smoke binary missing: {BINARY}. Build it with the SMOKE command first.")
     out = Path(args.out)
     out.mkdir(parents=True, exist_ok=True)
+    missing = []
     try:
         for scenario in SCENARIOS:
-            capture_scenario(scenario, out, args.palette, args.timeout)
+            missing += [f"{name}-{scenario}" for name in capture_scenario(scenario, out, args.palette, args.timeout)]
     except Exception as error:  # noqa: BLE001 - the CLI reports failures honestly and exits 1
         print(f"native-screens failed: {error}", file=sys.stderr)
         return 1
     total = len(SCENARIOS) * (len(SCREENS) + len(FLOATING_SCREENS))
     print(f"{total} native screenshots written to {out}")
+    if missing:
+        print(f"native-screens: {len(missing)} state captures missing: {', '.join(missing)}", file=sys.stderr)
+        return 1
     return 0
 
 

@@ -1,0 +1,172 @@
+{
+  "id": "T228",
+  "title": "W6 T4 -- Notes tab rework: no hint, one line between notes",
+  "description": "Do PLAN.md task T4. Regions: ResearchPanel.tsx 686-745 and research.css 150-335 only (T2 owns research.css 367-405). Notes -> docs/agent-work/2026-11-02-ui-wave-6/notes/T4.md. Scratch node_modules/.cache/personal-word-beta/ui6-t4, port 1914. Shared files src/styles.css, src/App.tsx, tests/split-view.spec.ts, tests/hover-emphasis.spec.ts are NOT registered: edit only your PLAN regions, never files-add them (decision \"W6 shared-file regions\").",
+  "status": "done",
+  "owner": null,
+  "priority": 1,
+  "depends_on": [],
+  "files": [
+    "src/research/ResearchPanel.tsx",
+    "tests/research.spec.ts",
+    "docs/agent-work/2026-11-02-ui-wave-6/notes/T4.md",
+    "node_modules/.cache/personal-word-beta/ui6-t4",
+    "src/research/research.css"
+  ],
+  "review_required": true,
+  "created_by": "agent-81bd",
+  "created_at": "2026-11-03T03:40:11+00:00",
+  "claimed_at": "2026-11-03T09:20:04+00:00",
+  "updated_at": "2026-11-03T09:55:36+00:00",
+  "handoff": {
+    "by": "agent-9d19",
+    "at": "2026-11-03T09:18:54+00:00",
+    "text": "REJECT r1 (Fable agent-9d19). The product is right: fresh-build Playwright research 25/25 (126/0 overall on port 1930); my geometric probe with two notes (light+dark, 1440x900) counts exactly 1 visible 1 px horizontal border between note 1's dropdown bottom and note 2's textarea top (the .note-item border-top at y=343.8), and no two lines in the Notes tab within 8 px except the pre-existing active-tab underline on the research-tabs nav line; 0 notes shows 'No notes yet.' and no hint; a 1500-char note and the dropdown+Delete row stay inside the panel on one row. The 24->12 px floor change at tests/research.spec.ts:~541 (the brief's '15' is the old measured value; the floor went 24->12) IS justified: the old comment documented 24 as guarding the 12 px .note-actions margin-bottom that PLAN step 2 removes; the old test now pins 12..20 and the new T4 test pins 16+/-2. Write that reason into notes/T4.md so the open flag closes. BLOCKER (PLAN T4 step 4 + its fail-first, unlogged deviation): the spec at tests/research.spec.ts:549 ('Notes tab rework...') checks only the computed border-top of .note-item; it does not count rendered 1 px lines between note 1's last field and note 2's first field, nor assert that no two lines are within 8 px, so a stacked line from .field/.note-row/textarea/dropdown borders would pass it. The recorded fail-first tripped on the hint toHaveCount(0), so the line checks have never been shown to fail. FIX in tests/research.spec.ts (T228's file), inside that test after the second note is added: collect every element in .note-list whose computed borderTopStyle/borderBottomStyle is not 'none', width > 0 and colour not transparent (textarea and .dropdown-button included), record each edge's y, assert exactly one edge lies between note1 .dropdown-button bottom and note2 textarea top, and that no two distinct edges are within 8 px (scope to .note-list, or exclude .research-tabs, or the pre-existing tab/nav pair fails it). A working template is the 'lines' evaluate in node_modules/.cache/personal-word-beta/ui6-fable-batch/shots.mjs. Then prove it fails against the wave-5 dist (ui5-v3/dist, where the dropdown's bottom line and the next note's border-top stack) and log the output next to fail-first.log; rerun research on a fresh build."
+  },
+  "review": {
+    "by": "agent-354a",
+    "at": "2026-11-03T09:55:36+00:00",
+    "verdict": "approved",
+    "note": "APPROVE r2 (Opus agent-354a, targeted). New research.spec.ts tests: hint test separate; line test counts rendered border edges in .research-panel (exactly 1 between note 1's last field and note 2's textarea, 0 above note 1, no pair within 8 px, only .research-tabs excluded). Wave-5 probe of the same measurement (node_modules/.cache/personal-word-beta/ui6-rev-t226-228/probe.mjs, log node_modules/.cache/personal-word-beta/ui6-rev-t226-228/run2.log) on ui5-v3/dist at 1440x900, 1240, 1180, 1100, 1000 and 900 wide, plus the panel forced to 272 and 240 px: the research panel stays 357 px at every Chromium window size, and wave 5 gives between=1, close=0 everywhere and fails only on above=1 (the line under Add note seen in owner shot 11). So in Chromium wave 5 never stacks lines within 8 px; shot 11's defect is the extra line above note 1, which the test does catch. No extra viewport needed. Current build at all those sizes: between=1, above=0, close=0, Delete on the dropdown row; screenshots node_modules/.cache/personal-word-beta/ui6-rev-t226-228/shots/cur-*.png checked. src/research/* mtimes 01:15-01:16 local, before the fixer claimed (04:20 local): src untouched by the fixer. research Playwright inside the 123/0 main run."
+  },
+  "log": [
+    {
+      "at": "2026-11-03T03:40:11+00:00",
+      "agent": "agent-81bd",
+      "event": "created",
+      "note": ""
+    },
+    {
+      "at": "2026-11-03T03:43:52+00:00",
+      "agent": "agent-3693",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-11-03T03:43:57+00:00",
+      "agent": "agent-3693",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-11-03T04:02:23+00:00",
+      "agent": "agent-81bd",
+      "event": "reclaimed from agent-3693",
+      "note": ""
+    },
+    {
+      "at": "2026-11-03T04:02:24+00:00",
+      "agent": "agent-81bd",
+      "event": "handoff",
+      "note": "Freed by coordinator agent-81bd: the original worker was stopped by the owner before finishing. Start from the PLAN.md task section and node_modules/.cache/personal-word-beta/ui6-brief.md.\nRegistered paths: clean (no edits from the stopped worker)."
+    },
+    {
+      "at": "2026-11-03T05:31:45+00:00",
+      "agent": "agent-7185",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-11-03T05:31:47+00:00",
+      "agent": "agent-7185",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-11-03T06:21:15+00:00",
+      "agent": "agent-7185",
+      "event": "handoff",
+      "note": "WHAT IS DONE:\n- Removed 'Ideas and reminders...' hint paragraph from Notes tab in src/research/ResearchPanel.tsx (lines 688-747).\n- Wrapped note list in .note-list div; notes now only render when looseNotes.length > 0.\n- Combined 'Attach to source' dropdown + 'Delete note' button into a shared .note-row row (dropdown grows via minmax(0,1fr), delete button to its right via auto column).\n- Updated src/research/research.css (lines 280-344): .note-actions margin-bottom removed; new .note-list, .note-item, .note-item + .note-item, .note-row rules; first note has no border-top; consecutive notes get border-top: 1px solid var(--line) + margin-top/padding-top: var(--space-5) (24px).\n- Updated tests/research.spec.ts: changed existing 'Ideas and reminders' assertion to toHaveCount(0) + added 'No notes yet.' visible assertion; relaxed old spacing floor (15->12); added new T4 test covering all DoD items.\n- Wrote docs/agent-work/2026-11-02-ui-wave-6/notes/T4.md with plan, changes, and evidence.\n- tsc --noEmit exits 0.\n- Fail-first confirmed: pre-T4 baseline (ui5-v3/dist) fails the new test at 'Ideas and reminders' toHaveCount(0) (received 1). Evidence in node_modules/.cache/personal-word-beta/ui6-t4/fail-first.log.\n\nWHAT IS NEXT (first action):\n- Run acceptance: take the serial lock, build dist into node_modules/.cache/personal-word-beta/ui6-t4/dist (run-accept.sh), then run npx playwright test -c node_modules/.cache/personal-word-beta/ui6-t4/browser.config.mjs tests/research.spec.ts on port 1914. Fix any failures (the old spacing test was relaxed to 12-20 px floor/ceiling; the new T4 test should pass). Then done T228 --note with results for review.\n\nWHAT NOT TO REDO:\n- Do not re-run fail-first (already captured in fail-first.log).\n- Do not re-run tsc (passes cleanly).\n- Do not redo the TSX/CSS structural changes (all complete).\n\nPATH STATE:\nsrc/research/ResearchPanel.tsx: uncommitted edits\ntests/research.spec.ts: uncommitted edits\ndocs/agent-work/2026-11-02-ui-wave-6/notes/T4.md: uncommitted edits\nsrc/research/research.css: uncommitted edits\nnode_modules/.cache/personal-word-beta/ui6-t4: uncommitted edits (browser.config.mjs, browser-w5.config.mjs, run-ff.sh, run-accept.sh, fail-first.log, report-w5.json)"
+    },
+    {
+      "at": "2026-11-03T06:22:09+00:00",
+      "agent": "agent-0461",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-11-03T06:22:11+00:00",
+      "agent": "agent-0461",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-11-03T06:23:14+00:00",
+      "agent": "agent-0461",
+      "event": "handoff",
+      "note": "Coordinator says reclaim T225 first if review rejects it; T225 is now available with reviewer findings. T228 was claimed/started by me but I made no file edits. Next action for the next owner: execute node_modules/.cache/personal-word-beta/ui6-t4/run-accept.sh under serial lock, then read the full log and run/fix acceptance as its task handoff directs. Existing inherited edits remain in the working tree; do not redo TSX/CSS/spec changes or fail-first.\\nsrc/research/ResearchPanel.tsx: uncommitted edits\\ntests/research.spec.ts: uncommitted edits\\ndocs/agent-work/2026-11-02-ui-wave-6/notes/T4.md: uncommitted edits\\nnode_modules/.cache/personal-word-beta/ui6-t4: uncommitted edits\\nsrc/research/research.css: uncommitted edits"
+    },
+    {
+      "at": "2026-11-03T06:28:34+00:00",
+      "agent": "agent-0461",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-11-03T06:28:36+00:00",
+      "agent": "agent-0461",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-11-03T08:20:04+00:00",
+      "agent": "agent-81bd",
+      "event": "reclaimed from agent-0461",
+      "note": ""
+    },
+    {
+      "at": "2026-11-03T08:20:05+00:00",
+      "agent": "agent-81bd",
+      "event": "handoff",
+      "note": "Freed by coordinator agent-81bd: previous owner stale ~100 min. Code is in the tree; read the earlier handoff/log entries and notes/<task>.md for what's done and what remains.\nRegistered paths: uncommitted edits (from previous owners)."
+    },
+    {
+      "at": "2026-11-03T08:21:09+00:00",
+      "agent": "agent-7e65",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-11-03T08:21:10+00:00",
+      "agent": "agent-7e65",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-11-03T08:45:43+00:00",
+      "agent": "agent-7e65",
+      "event": "review requested",
+      "note": "T4 finish: code and fail-first were already in place (fail-first.log, Ideas-and-reminders test failed with Received 1). Acceptance: vite build exit 0; playwright research (25 tests incl. T4 test at tests/research.spec.ts:549) 25 passed, logs ui6-t4/accept-7e65.log and build-7e65.log. Screenshots ui6-t4/shots-7e65/ (light/dark x 0,1,2 notes) looked at: no hint, one line only between two notes, dropdown+delete share a row. Verification section appended to docs/agent-work/2026-11-02-ui-wave-6/notes/T4.md. Open: relaxed 15->12px spacing floor reason not recorded in earlier notes (flagged for reviewer)."
+    },
+    {
+      "at": "2026-11-03T09:18:54+00:00",
+      "agent": "agent-9d19",
+      "event": "rejected",
+      "note": "REJECT r1 (Fable agent-9d19). The product is right: fresh-build Playwright research 25/25 (126/0 overall on port 1930); my geometric probe with two notes (light+dark, 1440x900) counts exactly 1 visible 1 px horizontal border between note 1's dropdown bottom and note 2's textarea top (the .note-item border-top at y=343.8), and no two lines in the Notes tab within 8 px except the pre-existing active-tab underline on the research-tabs nav line; 0 notes shows 'No notes yet.' and no hint; a 1500-char note and the dropdown+Delete row stay inside the panel on one row. The 24->12 px floor change at tests/research.spec.ts:~541 (the brief's '15' is the old measured value; the floor went 24->12) IS justified: the old comment documented 24 as guarding the 12 px .note-actions margin-bottom that PLAN step 2 removes; the old test now pins 12..20 and the new T4 test pins 16+/-2. Write that reason into notes/T4.md so the open flag closes. BLOCKER (PLAN T4 step 4 + its fail-first, unlogged deviation): the spec at tests/research.spec.ts:549 ('Notes tab rework...') checks only the computed border-top of .note-item; it does not count rendered 1 px lines between note 1's last field and note 2's first field, nor assert that no two lines are within 8 px, so a stacked line from .field/.note-row/textarea/dropdown borders would pass it. The recorded fail-first tripped on the hint toHaveCount(0), so the line checks have never been shown to fail. FIX in tests/research.spec.ts (T228's file), inside that test after the second note is added: collect every element in .note-list whose computed borderTopStyle/borderBottomStyle is not 'none', width > 0 and colour not transparent (textarea and .dropdown-button included), record each edge's y, assert exactly one edge lies between note1 .dropdown-button bottom and note2 textarea top, and that no two distinct edges are within 8 px (scope to .note-list, or exclude .research-tabs, or the pre-existing tab/nav pair fails it). A working template is the 'lines' evaluate in node_modules/.cache/personal-word-beta/ui6-fable-batch/shots.mjs. Then prove it fails against the wave-5 dist (ui5-v3/dist, where the dropdown's bottom line and the next note's border-top stack) and log the output next to fail-first.log; rerun research on a fresh build."
+    },
+    {
+      "at": "2026-11-03T09:20:04+00:00",
+      "agent": "agent-9c65",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-11-03T09:20:05+00:00",
+      "agent": "agent-9c65",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-11-03T09:47:07+00:00",
+      "agent": "agent-9c65",
+      "event": "review requested",
+      "note": "Rejection r1 fixed (spec + notes only). tests/research.spec.ts: hint check split into its own test; new test counts rendered border edges (all elements in .research-panel incl. textarea/dropdown): exactly 1 between note1 last field and note2 textarea, 0 between Add note and note1, no two lines within 8px (only the .research-tabs nav/tab-underline pair excluded, by closest('.research-tabs')). Fail-first vs wave-5 dist (ui6-t4/fail-first-lines.log): hint test and old test fail; new line test fails at 'rendered lines above the first note' (wave 5 draws a line above note 1 at y=243.7); the 'exactly 1 between notes' count passes on wave 5 too (its Delete row sits between, no stacked pair at 1440x900) -- honest limit. Fresh build ui6-t4/dist; playwright research port 1914: 27 passed (accept-9c65.log). notes/T4.md has the 24->12 floor reason."
+    },
+    {
+      "at": "2026-11-03T09:55:36+00:00",
+      "agent": "agent-354a",
+      "event": "approved",
+      "note": "APPROVE r2 (Opus agent-354a, targeted). New research.spec.ts tests: hint test separate; line test counts rendered border edges in .research-panel (exactly 1 between note 1's last field and note 2's textarea, 0 above note 1, no pair within 8 px, only .research-tabs excluded). Wave-5 probe of the same measurement (node_modules/.cache/personal-word-beta/ui6-rev-t226-228/probe.mjs, log node_modules/.cache/personal-word-beta/ui6-rev-t226-228/run2.log) on ui5-v3/dist at 1440x900, 1240, 1180, 1100, 1000 and 900 wide, plus the panel forced to 272 and 240 px: the research panel stays 357 px at every Chromium window size, and wave 5 gives between=1, close=0 everywhere and fails only on above=1 (the line under Add note seen in owner shot 11). So in Chromium wave 5 never stacks lines within 8 px; shot 11's defect is the extra line above note 1, which the test does catch. No extra viewport needed. Current build at all those sizes: between=1, above=0, close=0, Delete on the dropdown row; screenshots node_modules/.cache/personal-word-beta/ui6-rev-t226-228/shots/cur-*.png checked. src/research/* mtimes 01:15-01:16 local, before the fixer claimed (04:20 local): src untouched by the fixer. research Playwright inside the 123/0 main run."
+    }
+  ]
+}

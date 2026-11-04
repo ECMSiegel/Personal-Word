@@ -20,7 +20,8 @@ Words used below:
   (30 by default, set in `team/config.json`). Its tasks can be taken over by other agents.
 - **The user**: the human. The user runs commands with the literal agent ID `user`.
 - **Views**: `team/BOARD.md`, `team/MESSAGES.md`, `team/DECISIONS.md`, `team/DISCOVERIES.md`, and
-  `team/QUESTIONS.md`. The tool rewrites them after every change; they are for reading only.
+  `team/QUESTIONS.md`. The tool rewrites them after every change (read-only commands such as `show`
+  and `owner` leave them alone); they are for reading only.
 
 What is in `team/`:
 - `team/team.py`: the command you run. Usually a small launcher (a "shim") that finds and runs the
@@ -287,6 +288,28 @@ python3 team/team.py review <T> --agent user --approve --note "checked"
 The user can also add tasks (`add --agent user ...`) and answer questions
 (`resolve <Q> --agent user --text "..."`) the same way.
 
+## Coordinating a team
+
+A coordinator is the session that writes the plan, adds tasks, spawns worker and reviewer agents, and
+reports to the user. It is usually the most expensive model in the room, so it should do the least
+typing. The 2026-11-02 workflow retro measured coordinators running for days at 300k-760k tokens of
+context, mostly on bookkeeping. Five rules follow from that:
+
+- **Compact at wave boundaries.** When a wave of tasks is approved, write `HANDOFF.md`, then end the
+  turn telling the user to compact or open a new session before the next wave. A coordinator cannot
+  compact itself; it has to ask.
+- **A clerk does the bookkeeping.** `claim`, `show`, `review`, `msg`, `inbox` and reading `status`
+  go to a Sonnet sub-agent that returns at most ten lines. The coordinator itself runs `team.py`
+  only for `add`, `decide` and `resolve`.
+- **One reviewer per batch.** When several tasks sit in `review`, spawn one reviewer agent for all of
+  them (up to five), not one per task. Every spawned agent costs about 60k tokens before it reads a
+  single task.
+- **Sonnet workers by default.** Use Opus for a worker only when `pick-model` says so or after a
+  Sonnet rejection, and give every worker brief a cap: hand off after about 40 tool calls if not done.
+- **Recurring checks keep one ID.** A scheduled check (for example an hourly Codex check) re-joins
+  with a fixed ID: `join --agent codex-hourly --label "Codex hourly check"`. A fresh ID per run adds
+  a dead agent row every hour.
+
 ## Command reference
 
 Run every command as `python3 team/team.py <command> ...` from the project folder. Exit codes:
@@ -318,7 +341,8 @@ Setup and identity:
   the launcher, never overwrites `PLAN.md`, `config.json`, or state; `--standalone` copies the whole
   tool for projects outside a workspace. Exit 2: never. Exit 1 if the new launcher cannot reach the
   tool (then use `--standalone`).
-- `join [--agent <ID>] [--label "<text>"]` — register as a new agent and print your ID. Exit 2: the
+- `join [--agent <ID>] [--label "<text>"]` — register as a new agent and print your ID. A new agent
+  starts with an empty inbox (messages sent before it joined are in `team/MESSAGES.md`). Exit 2: the
   requested ID belongs to an active agent.
 - `leave --agent <ID>` — mark yourself as left. Exit 2: you still own a claimed, in-progress, or
   blocked task (run `handoff` first).
@@ -329,10 +353,13 @@ Tasks:
   its ID. Exit 2: only the unknown-agent rule.
 - `next --agent <ID>` — list tasks you can claim now, best first, then tasks awaiting review by
   someone other than their owner. Exit 2: only the unknown-agent rule.
-- `show <T> [--agent <ID>]` — print one task in full, including its registered paths, handoff, and
-  log; with `--agent`, counts as a sign of life. Exit 2: only the unknown-agent rule.
-- `status [--agent <ID>]` — print the board; with `--agent`, also your unread message count (and
-  counts as a sign of life). Exit 2: only the unknown-agent rule.
+- `show <T> [--full] [--agent <ID>]` — print one task, including its registered paths, handoff, and
+  log. Long log notes are cut to 240 characters (reject, review-requested and handoff notes are never
+  cut); `--full`
+  prints everything. With `--agent`, counts as a sign of life. Exit 2: only the unknown-agent rule.
+- `status [--all] [--agent <ID>]` — print the board. Agents that have left are hidden (a count line
+  says how many); `--all` lists them. With `--agent`, also your unread message count (and counts as
+  a sign of life). Exit 2: only the unknown-agent rule.
 - `claim <T> --agent <ID>` — take an available task; prints it, including any handoff note.
   Exit 2: the task is not `available`, a dependency is not `done`, or one of its registered paths
   overlaps a path of a live task. An unknown task ID is exit 1.

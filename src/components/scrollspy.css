@@ -1,35 +1,50 @@
-/* Scrollspy line column in the sidebar's Manuscript, Fragments and Research rows (list view only).
+/* Scrollspy line rail in the sidebar's Manuscript, Fragments and Research groups (list view only).
    Reference: https://kit.cuedesign.space/components/scrollspy-line-navigation
-   owner: free to use (owner statement 2026-10-28). Adapted: lines sit in each row's right
-   gutter, drawn by transform only, no tooltip (the row title is beside it).
-   Contract: `.entry-row > .spy-line` with data-state="idle" | "open" | "active".
-   Needs `.entry-row { position: relative }`; `.spy-line` is in the text-emphasis exclusion
-   list in styles.css, so the shared hover rule never touches it.
-   Wave 5 A3: the state sets a resting length (--spy-len); useSpyDock (scrollspy.ts) writes
-   --spy-mag (0..1) from pointer proximity, which grows the length toward 1 and the thickness
-   up to 2x. The active line of an open section or fragment shows how far it is scrolled:
-   a muted ::after remainder shrinks as --spy-progress goes from 0 to 1. Every rule's
-   selector names .spy-line (src/hoverEmphasis.test.ts exempts only that). */
+   owner: free to use (owner statement 2026-10-28). Wave 6 T7b (owner's Variant B): one
+   `.spy-rail` per group, a compact stack of short, evenly spaced lines in the group's right
+   gutter (SpyRail.tsx), drawn by transform only. Contract: `.spy-rail > button.spy-line` with
+   data-state="idle" | "open" | "active", named by its item title (aria-label). `.spy-line` is in the text-emphasis exclusion list in styles.css, so the shared
+   hover rule never touches it.
+   Wave 5 A3 behaviours kept: the state sets a resting length (--spy-len); useSpyDock
+   (scrollspy.ts) writes --spy-mag (0..1) from pointer proximity over the rail, which grows the
+   length toward 1 and the thickness up to 2x. The active line shows how far the item is scrolled:
+   a muted ::after remainder shrinks as --spy-progress goes from 0 to 1. Every rule's selector
+   names .spy-line (src/hoverEmphasis.test.ts exempts only that). */
 
 /* The list/cards class sits on the group section (.list-view / .cards-view), not on
-   .entry-list; cards view draws no lines and keeps its full width. The gutter is 14 px, not
-   wave 4's 20: at the 190 px sidebar 20 px clipped a short PDF name (A3 stop rule, plan
-   default "use a 14 px gutter"; ui5-a3/gutter-probe.log). */
+   .entry-list; cards view draws no rail and keeps its full width. The gutter is 14 px (A3 stop
+   rule; ui5-a3/gutter-probe.log). The list is the rail's positioning box. */
 .sidebar-group:is([data-group="manuscript"], [data-group="fragments"], [data-group="research"]).list-view
   .entry-list {
+  position: relative;
   padding-right: 14px;
 }
 
-.entry-row > button.spy-line {
-  --spy-len: 0.375;
+/* One rail per group: lines stacked from the vertical centre of the list, equal pitch
+   (a 2 px line plus a gap of 10 px = 12 px). A long group shrinks the gap (never below zero)
+   so the whole stack stays inside the list; --spy-n and --spy-gaps come from SpyRail. */
+.spy-rail {
   position: absolute;
-  top: 50%;
-  /* In the 14 px gutter beside the row: its right end 14 px past the row's edge, so at full
-     length it reaches 2 px into the row's own right padding. */
-  right: -14px;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 14px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-end;
+  gap: max(0px, min(calc(var(--space-3) - 2px), calc((100% - var(--spy-n, 1) * 2px) / var(--spy-gaps, 1))));
+  pointer-events: none;
+}
+
+.spy-rail > button.spy-line {
+  --spy-len: 0.375;
+  position: relative;
+  flex: none;
+  pointer-events: auto;
   width: 16px;
   height: 2px;
-  margin: -1px 0 0;
+  margin: 0;
   padding: 0;
   border: 0;
   border-radius: 0;
@@ -43,36 +58,41 @@
   cursor: pointer;
 }
 
-/* 24 px hit area without changing the drawn size */
-.entry-row > button.spy-line::before {
+/* A hit area one pitch tall (so neighbours never overlap), unscaled by the line's own magnify. */
+.spy-rail > button.spy-line::before {
   content: "";
   position: absolute;
-  inset: -11px -4px;
+  inset: -5px -4px;
+  transform: scale(
+    calc(1 / (var(--spy-len) + var(--spy-mag, 0) * (1 - var(--spy-len)))),
+    calc(1 / (1 + var(--spy-mag, 0)))
+  );
+  transform-origin: right center;
+  transition: transform var(--duration-fast) var(--ease-out);
 }
 
 /* Hover and focus without the dock (Reduce Motion, touch, no script): half length. */
-.entry-row:hover > button.spy-line,
-.entry-row:focus-within > button.spy-line,
-.entry-row > button.spy-line:hover,
-.entry-row > button.spy-line[data-state="open"] {
+.spy-rail > button.spy-line:hover,
+.spy-rail > button.spy-line:focus-visible,
+.spy-rail > button.spy-line[data-state="open"] {
   --spy-len: 0.75;
 }
 
-.entry-row > button.spy-line[data-state="active"] {
+.spy-rail > button.spy-line[data-state="active"] {
   --spy-len: 1;
   background: var(--accent);
 }
 
-.entry-row > button.spy-line:active {
+.spy-rail > button.spy-line:active {
   --spy-len: 0.75;
 }
-.entry-row > button.spy-line[data-state="active"]:active {
+.spy-rail > button.spy-line[data-state="active"]:active {
   --spy-len: 1;
 }
 
 /* Scroll progress on the active line: the unread part stays muted. No transition: it
    follows the scroll position frame by frame. */
-.entry-row > button.spy-line[data-state="active"][data-progress]::after {
+.spy-rail > button.spy-line[data-state="active"][data-progress]::after {
   content: "";
   position: absolute;
   inset: 0;
@@ -81,14 +101,21 @@
   transform-origin: right center;
 }
 
-/* A key press must not animate: the focused row, and its neighbours' keyboard magnify. */
-.entry-row:has(:focus-visible) > button.spy-line,
-.sidebar-groups[data-spy-key] .entry-row > button.spy-line {
+/* Keyboard focus ring sits inside the 2 px line's own box, never over a neighbour. */
+.spy-rail > button.spy-line:focus-visible {
+  outline-offset: 2px;
+}
+
+/* A key press must not animate: the focused line, and its neighbours' keyboard magnify. */
+.spy-rail > button.spy-line:focus-visible,
+.sidebar-groups[data-spy-key] .spy-rail > button.spy-line,
+.sidebar-groups[data-spy-key] .spy-rail > button.spy-line::before {
   transition: none;
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .entry-row > button.spy-line {
+  .spy-rail > button.spy-line,
+  .spy-rail > button.spy-line::before {
     transition: none;
   }
 }

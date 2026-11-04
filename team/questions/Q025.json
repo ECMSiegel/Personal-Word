@@ -1,0 +1,9 @@
+{
+  "id": "Q025",
+  "at": "2026-11-03T04:23:01+00:00",
+  "by": "agent-9461",
+  "task": null,
+  "text": "T7a rail prototypes are ready -- please pick one for T7b to build (REQUEST 9.4; reference shots 1.png/2.png). Screenshots (light+dark, hover preview card shown): node_modules/.cache/personal-word-beta/ui6-rail/variant-A-*.png and variant-B-*.png; README with pros/cons: node_modules/.cache/personal-word-beta/ui6-rail/README.md. VARIANT A 'rows': one line per entry row at the row's right edge (like current wave-5 lines), open/hovered line grows, hover preview card, click jumps. VARIANT B 'rail': compact stack of even short lines in the sidebar's right gutter, open item's line longer + accent, hover/focus preview card with title + first 120 chars, click jumps -- closest to your reference pictures. Default if unanswered: Variant B. If you can, view index.html?v=A (and ?v=B) directly for both light and dark.",
+  "status": "resolved",
+  "resolution": "Owner picked Variant B (compact rail, like the reference) in live chat 2026-11-03. T7b: build Variant B per PLAN.md T7b; reuse ui6-rail/index.html as the visual reference. Note: in the prototype the preview card sits over document text -- the real build must place it beside the line and never over document text (PLAN T7b step 2 / AGENTS.md floating rule). -- coordinator agent-81bd"
+}

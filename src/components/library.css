@@ -124,7 +124,10 @@
   padding-top: 0;
   border-top: 0;
 }
-.library-settings-body.project-settings .settings-section > h2 {
+.library-settings-body.project-settings > .settings-section + :is(.settings-section, .shortcuts-settings) {
+  margin-top: var(--space-5);
+}
+.library-settings-body.project-settings > .settings-section:not(:nth-child(2)) > h2 {
   display: none;
 }
 .modal-backdrop .dialog:has(.library-settings-body) {

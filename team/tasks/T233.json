@@ -1,0 +1,75 @@
+{
+  "id": "T233",
+  "title": "W6 V -- Final check: Chromium + native, docs merge, app build",
+  "description": "Do PLAN.md task V: one pass, serial lock, pinned Node, full Playwright on a private config (port 1918), cargo, native smoke/reliability/gates/screens (plain+color) on an unlocked screen with caffeinate, merge notes/*.md into docs/*.md, touch src-tauri/src/lib.rs then npm run tauri build, record sha256, write VALIDATION.md with an owner hand-check line per Definition-of-done bullet. Read every new PNG. Logs under node_modules/.cache/personal-word-beta/ui6-v.",
+  "status": "done",
+  "owner": null,
+  "priority": 1,
+  "depends_on": [
+    "T225",
+    "T226",
+    "T227",
+    "T228",
+    "T229",
+    "T230",
+    "T232"
+  ],
+  "files": [
+    "tests/native-screens.js",
+    "scripts/native-screens.py",
+    "docs/design-system.md",
+    "docs/changelog.md",
+    "docs/limitations.md",
+    "docs/user-guide.md",
+    "docs/agent-work/2026-11-02-ui-wave-6/VALIDATION.md",
+    "node_modules/.cache/personal-word-beta/ui6-v",
+    "tests/native-smoke.js",
+    "docs/agent-work/2026-11-02-ui-wave-6/notes/T2.md",
+    "docs/architecture.md",
+    "docs/validation.md"
+  ],
+  "review_required": true,
+  "created_by": "agent-81bd",
+  "created_at": "2026-11-03T03:40:44+00:00",
+  "claimed_at": "2026-11-03T16:45:02+00:00",
+  "updated_at": "2026-11-03T17:38:08+00:00",
+  "handoff": null,
+  "review": {
+    "by": "agent-7271",
+    "at": "2026-11-03T17:38:08+00:00",
+    "verdict": "approved",
+    "note": "VALIDATION.md matches logs: summaryA-E, pw-full 443/2/16 with 3/3 reruns, cargo 63, native screens plain2/color2 8+17 per theme EXIT 0, native-smoke2 pass, release sha 7bf6e695. Files touched in V's window are only its registered paths (docs/case-study.md at 11:48 is the other session's). src-tauri diff empty. Product findings go to FABLE-REVIEW.md."
+  },
+  "log": [
+    {
+      "at": "2026-11-03T03:40:44+00:00",
+      "agent": "agent-81bd",
+      "event": "created",
+      "note": ""
+    },
+    {
+      "at": "2026-11-03T16:45:02+00:00",
+      "agent": "agent-30f0",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-11-03T16:45:02+00:00",
+      "agent": "agent-30f0",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-11-03T17:36:37+00:00",
+      "agent": "agent-30f0",
+      "event": "review requested",
+      "note": "V one pass done 2026-11-03 16:45-17:35 UTC under the serial lock. tsc 0; unit 1134/1134; build 0; full Playwright 443 pass / 2 timing flakes (motion:36, research:177; 3/3 rerun pass) / 16 env-gated skips; cargo 63/0; native reliability baseline+beta, native smoke (after fixing tests/native-smoke.js, which still clicked the removed fragment footer), gates pages-zoom+probe, native screens Plain+Color 8 std + 17 every-state captures each (EXIT 0); Chromium every-state spec 16/16. Docs merged (changelog, design-system, limitations o/p/s/t/u fixed, user-guide, architecture, validation). Release app sha256 7bf6e6953a2e792cdfd14a6ad4f93510a00674b64ef707fe4300b15ed78e6009. Every-state ISSUES for F: rail preview cards repeat title + cut mid-word/year; 190 px titles to 3-4 letters; tab bar clips long project name at start; header title/download clipped with Research open. Record: docs/agent-work/2026-11-02-ui-wave-6/VALIDATION.md."
+    },
+    {
+      "at": "2026-11-03T17:38:08+00:00",
+      "agent": "agent-7271",
+      "event": "approved",
+      "note": "VALIDATION.md matches logs: summaryA-E, pw-full 443/2/16 with 3/3 reruns, cargo 63, native screens plain2/color2 8+17 per theme EXIT 0, native-smoke2 pass, release sha 7bf6e695. Files touched in V's window are only its registered paths (docs/case-study.md at 11:48 is the other session's). src-tauri diff empty. Product findings go to FABLE-REVIEW.md."
+    }
+  ]
+}

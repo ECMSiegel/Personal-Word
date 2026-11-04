@@ -1,0 +1,112 @@
+{
+  "id": "T232",
+  "title": "W6 T7b -- Build the chosen line rail",
+  "description": "Do PLAN.md task T7b with the variant named in T231's done note. Starts from T6's approved tree. Line-rail markup in ProjectSidebar.tsx only. Notes -> docs/agent-work/2026-11-02-ui-wave-6/notes/T7b.md. Scratch node_modules/.cache/personal-word-beta/ui6-t7b, port 1917. Shared files src/styles.css, src/App.tsx, tests/split-view.spec.ts, tests/hover-emphasis.spec.ts are NOT registered: edit only your PLAN regions, never files-add them (decision \"W6 shared-file regions\").",
+  "status": "done",
+  "owner": null,
+  "priority": 1,
+  "depends_on": [
+    "T230",
+    "T231"
+  ],
+  "files": [
+    "src/components/scrollspy.ts",
+    "src/components/scrollspy.css",
+    "src/components/scrollspy.test.ts",
+    "tests/scrollspy.spec.ts",
+    "src/components/ProjectSidebar.tsx",
+    "docs/agent-work/2026-11-02-ui-wave-6/notes/T7b.md",
+    "node_modules/.cache/personal-word-beta/ui6-t7b",
+    "src/components/SpyRail.tsx"
+  ],
+  "review_required": true,
+  "created_by": "agent-81bd",
+  "created_at": "2026-11-03T03:40:42+00:00",
+  "claimed_at": "2026-11-03T07:19:51+00:00",
+  "updated_at": "2026-11-03T08:02:20+00:00",
+  "handoff": {
+    "by": "agent-ecc2",
+    "at": "2026-11-03T07:18:34+00:00",
+    "text": "Rail itself is good: my fresh build (ui6-rev-t232) vitest 27/27, scrollspy/split-view/sidebar-selection/writing 82 pass; card measured inside sidebar and clear of every .ProseMirror in continuous, page, split (both panes), unpinned overlay and floating@1600, light+dark; split pitches 12/11.8/11.5/11.7 px; role=tooltip+aria-describedby, Escape, no transition, transform-only, tokens, no fills, no new hover rule; fail-first real (ui6-t7b/failfirst.log 4 failed). REJECT only because PLAN T7b acceptance 'scrollspy -> pass' is unmet and both failures are STALE expectations in T7b's own spec, not regressions: T6 (notes/T6.md, PLAN T6 step 1, approved) made .group-label ellipsize at every width and made .entry-main small nowrap+flex-shrink:0 so the title truncates before the count. Measured at 190: 'Manuscript' label scrollWidth 71 > clientWidth 67 (text-overflow ellipsis); selected 'Frag two' semibold text 62.8px in a 50.2px span beside a 53px '0 words'. FIX (tests/scrollspy.spec.ts only): (1) (g) line 213: replace the no-overflow assert with fit-or-ellipsis, i.e. if scrollWidth > clientWidth then computed text-overflow==='ellipsis' and white-space==='nowrap' (same as T6's sidebar-selection 190 guard); rename the test (drop 'lines miss the counts'). Keep the 12-char row check and the line-inside-sidebar check. (2) (o) lines 557-570: replace 'label not ellipsized' with: label fits OR (span text-overflow ellipsis AND its first 6 characters visible) AND the row's .entry-main small is fully inside the row (count visible). Keep 'line inside the sidebar'. Say both changes in notes/T7b.md contracts list. Rerun scrollspy green. Separate, for coordinator (not required here): Research rail cards show item.detail as preview, which for notes is the note KIND (e.g. 'quote') and for sources nothing, so Research cards are not 'title + first 120 chars'; needs App.tsx collectionItems to pass note text (outside T7b's files)."
+  },
+  "review": {
+    "by": "agent-3fe5",
+    "at": "2026-11-03T08:02:20+00:00",
+    "verdict": "approved",
+    "note": "r2 approve. Fresh build ui6-rev-t232b: vitest 27/27; Playwright scrollspy split-view sidebar-selection writing 86 pass, 1 fail = known writing.spec journey line 57 (restore empty editor, not T7b). (A) (g)/(o) now fit-or-ellipsis per T6, count fully visible in (o). The 12->6 char relax is justified, not a regression: measured at 190 px the title span is 59.1 px (50.2 px selected semibold) beside a 43.9 px '0 words' count, 7-9 chars visible, IDENTICAL on T6's pre-rail dist ui6-t6/dist, so the rail takes no title width; truncating before the count is PLAN T6 step 1. (B) notes pass n.text, sources title -- container/journal/publisher -- year; previewText cuts at 120 + ellipsis; React text children, HTML-in-note/source rendered escaped (0 img nodes). Research-preview spec uses a 144-char note so the cut is exercised. App.tsx T232 diff = the two preview lines in collectionItems only. Screens light+dark (note + source card) inside sidebar, not over document. Evidence: node_modules/.cache/personal-word-beta/ui6-rev-t232b/run.log, mresults/."
+  },
+  "log": [
+    {
+      "at": "2026-11-03T03:40:42+00:00",
+      "agent": "agent-81bd",
+      "event": "created",
+      "note": ""
+    },
+    {
+      "at": "2026-11-03T05:40:16+00:00",
+      "agent": "agent-faa0",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-11-03T05:40:18+00:00",
+      "agent": "agent-faa0",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-11-03T06:28:23+00:00",
+      "agent": "agent-faa0",
+      "event": "handoff",
+      "note": "Rail BUILT (not yet green). Files: src/components/SpyRail.tsx (new, registered), scrollspy.ts (previewText, RAIL_RADIUS, useSpyDock retargeted to .spy-rail), scrollspy.css (rewritten), scrollspy.test.ts (+previewText; 27 pass), tests/scrollspy.spec.ts (helpers + 4 new T7b tests, old contracts adapted), ProjectSidebar.tsx (spyLine removed, SpyRail per group), notes/T7b.md written. tsc clean. Fail-first: unit previewText 'is not a function'; Playwright -g T7b on old dist 4 failed (ui6-t7b/failfirst.log). Acceptance run 1 (pw.log): 47 pass, 5 fail: hover-emphasis crawl (Dialog Cancel scale + Projects emph-row weight, not rail, other lanes), (g) fails at heading .group-label overflow at 190px (line 213, before any rail code; likely not mine), (i)(o) and T7b screens were spec bugs, fixed after. A rerun of (g)(i)(o)+T7b is queued/running: node_modules/.cache/personal-word-beta/ui6-t7b/run2.sh -> pw2.log (+g-old.log = (g) on pre-rail dist ui6-t5). Screenshot seen: card sits inside sidebar left of rail, not over page text (light). TODO: read pw2.log, look at rail-card-page-dark.png in results/, confirm (g) cause via g-old.log, then done + check-exit + leave."
+    },
+    {
+      "at": "2026-11-03T06:30:21+00:00",
+      "agent": "agent-726d",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-11-03T06:30:22+00:00",
+      "agent": "agent-726d",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-11-03T06:56:34+00:00",
+      "agent": "agent-726d",
+      "event": "review requested",
+      "note": "Rail verified. Line aria-label now 'Go to <title>' (fixes writing.spec line 33); spec updated. scrollspy/split-view/sidebar-selection green; vitest 27 pass; tsc clean. Not T7b (also fail on pre-rail dist): scrollspy (g) heading .group-label overflow at 190px, (o) 'Frag two label not ellipsized', writing.spec journey line 57 restore empty editor, hover-emphasis crawl Dialog Cancel. Details in notes/T7b.md Verification."
+    },
+    {
+      "at": "2026-11-03T07:18:34+00:00",
+      "agent": "agent-ecc2",
+      "event": "rejected",
+      "note": "Rail itself is good: my fresh build (ui6-rev-t232) vitest 27/27, scrollspy/split-view/sidebar-selection/writing 82 pass; card measured inside sidebar and clear of every .ProseMirror in continuous, page, split (both panes), unpinned overlay and floating@1600, light+dark; split pitches 12/11.8/11.5/11.7 px; role=tooltip+aria-describedby, Escape, no transition, transform-only, tokens, no fills, no new hover rule; fail-first real (ui6-t7b/failfirst.log 4 failed). REJECT only because PLAN T7b acceptance 'scrollspy -> pass' is unmet and both failures are STALE expectations in T7b's own spec, not regressions: T6 (notes/T6.md, PLAN T6 step 1, approved) made .group-label ellipsize at every width and made .entry-main small nowrap+flex-shrink:0 so the title truncates before the count. Measured at 190: 'Manuscript' label scrollWidth 71 > clientWidth 67 (text-overflow ellipsis); selected 'Frag two' semibold text 62.8px in a 50.2px span beside a 53px '0 words'. FIX (tests/scrollspy.spec.ts only): (1) (g) line 213: replace the no-overflow assert with fit-or-ellipsis, i.e. if scrollWidth > clientWidth then computed text-overflow==='ellipsis' and white-space==='nowrap' (same as T6's sidebar-selection 190 guard); rename the test (drop 'lines miss the counts'). Keep the 12-char row check and the line-inside-sidebar check. (2) (o) lines 557-570: replace 'label not ellipsized' with: label fits OR (span text-overflow ellipsis AND its first 6 characters visible) AND the row's .entry-main small is fully inside the row (count visible). Keep 'line inside the sidebar'. Say both changes in notes/T7b.md contracts list. Rerun scrollspy green. Separate, for coordinator (not required here): Research rail cards show item.detail as preview, which for notes is the note KIND (e.g. 'quote') and for sources nothing, so Research cards are not 'title + first 120 chars'; needs App.tsx collectionItems to pass note text (outside T7b's files)."
+    },
+    {
+      "at": "2026-11-03T07:19:51+00:00",
+      "agent": "agent-b65f",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-11-03T07:19:52+00:00",
+      "agent": "agent-b65f",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-11-03T07:34:04+00:00",
+      "agent": "agent-b65f",
+      "event": "review requested",
+      "note": "Rework: (g)/(o) specs now match T6 ellipsis behaviour (also 12-char row check -> first 6 chars when ellipsized, since it failed the same way); research previews: notes pass text, sources pass title--container--year via new CollectionRow.preview (ProjectSidebar.tsx + App.tsx collectionItems). Fail-first: new research-card spec showed 'personal' (ff2.log). vitest 27 pass, tsc clean, Playwright scrollspy split-view sidebar-selection 69 pass (acc2.log). notes/T7b.md updated."
+    },
+    {
+      "at": "2026-11-03T08:02:20+00:00",
+      "agent": "agent-3fe5",
+      "event": "approved",
+      "note": "r2 approve. Fresh build ui6-rev-t232b: vitest 27/27; Playwright scrollspy split-view sidebar-selection writing 86 pass, 1 fail = known writing.spec journey line 57 (restore empty editor, not T7b). (A) (g)/(o) now fit-or-ellipsis per T6, count fully visible in (o). The 12->6 char relax is justified, not a regression: measured at 190 px the title span is 59.1 px (50.2 px selected semibold) beside a 43.9 px '0 words' count, 7-9 chars visible, IDENTICAL on T6's pre-rail dist ui6-t6/dist, so the rail takes no title width; truncating before the count is PLAN T6 step 1. (B) notes pass n.text, sources title -- container/journal/publisher -- year; previewText cuts at 120 + ellipsis; React text children, HTML-in-note/source rendered escaped (0 img nodes). Research-preview spec uses a 144-char note so the cut is exercised. App.tsx T232 diff = the two preview lines in collectionItems only. Screens light+dark (note + source card) inside sidebar, not over document. Evidence: node_modules/.cache/personal-word-beta/ui6-rev-t232b/run.log, mresults/."
+    }
+  ]
+}

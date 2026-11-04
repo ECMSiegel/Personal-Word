@@ -1,0 +1,9 @@
+{
+  "id": "agent-9461",
+  "label": "OpenCode worker (T6 done, picking up)",
+  "joined_at": "2026-11-03T03:53:47+00:00",
+  "last_seen": "2026-11-03T06:35:45+00:00",
+  "status": "active",
+  "current_task": null,
+  "inbox_cursor": 1162
+}

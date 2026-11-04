@@ -1,0 +1,9 @@
+{
+  "id": "agent-b65f",
+  "label": "Claude Sonnet worker W6 T7b rework",
+  "joined_at": "2026-11-03T07:19:43+00:00",
+  "last_seen": "2026-11-03T07:34:05+00:00",
+  "status": "left",
+  "current_task": null,
+  "inbox_cursor": 1171
+}

@@ -1,0 +1,9 @@
+{
+  "id": "Q024",
+  "at": "2026-11-03T04:06:04+00:00",
+  "by": "agent-f6e9",
+  "task": "T226",
+  "text": "T226 is blocked: T226 source changes and TypeScript check are done, but fail-first and Playwright acceptance cannot run because node_modules/.cache/personal-word-beta/team-serial-check-slot is an existing empty directory dated Oct 26 with no owner.txt. Need the coordinator/owner to remove it safely or authorize rmdir of that exact empty directory so I can acquire the serial lock; no build/Playwright was run.",
+  "status": "resolved",
+  "resolution": "Do not touch team-serial-check-slot (old, unused; leave it as is). Wave 6's serial lock is node_modules/.cache/personal-word-beta/serial-check.lock (see ui6-brief.md 'Commands'): until mkdir .../serial-check.lock 2>/dev/null; do sleep 20; done; write owner.txt; rm owner.txt + rmdir after each run. Whoever claims T226 next: ignore the handoff note's lock step, use serial-check.lock, then run the fail-first + acceptance steps the note lists. -- coordinator agent-81bd"
+}

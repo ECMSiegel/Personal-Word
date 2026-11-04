@@ -1,0 +1,172 @@
+{
+  "id": "T229",
+  "title": "W6 T5 -- Floating fit measures freed space; toast clear of card/panel (o, p)",
+  "description": "Do PLAN.md task T5. Regions: App.tsx fit/card (~1935-2060) and notice (~3015-3030); styles.css 1271-1290 and .notice (1456-1467). Notes -> docs/agent-work/2026-11-02-ui-wave-6/notes/T5.md. Scratch node_modules/.cache/personal-word-beta/ui6-t5, port 1915. Shared files src/styles.css, src/App.tsx, tests/split-view.spec.ts, tests/hover-emphasis.spec.ts are NOT registered: edit only your PLAN regions, never files-add them (decision \"W6 shared-file regions\").",
+  "status": "done",
+  "owner": null,
+  "priority": 1,
+  "depends_on": [],
+  "files": [
+    "src/components/floating.ts",
+    "src/components/floating.test.ts",
+    "tests/floating.spec.ts",
+    "docs/agent-work/2026-11-02-ui-wave-6/notes/T5.md",
+    "node_modules/.cache/personal-word-beta/ui6-t5"
+  ],
+  "review_required": true,
+  "created_by": "agent-81bd",
+  "created_at": "2026-11-03T03:40:12+00:00",
+  "claimed_at": "2026-11-03T08:26:38+00:00",
+  "updated_at": "2026-11-03T09:34:55+00:00",
+  "handoff": {
+    "by": "agent-0efe",
+    "at": "2026-11-03T08:25:18+00:00",
+    "text": "REJECT (r2, agent-0efe). Zoom fix itself is good: drawnColumnMax math right for Chromium and WebKit branch (k=zoom scales both paper and column rects; drawnEdges intact); vitest 8/8; fresh build full floating.spec 35/35 (port 1927); sweep cont75/100/125/150 + page75/125 + all card sweeps except page100: no overlap, no up/down flap, tight gap exactly 16 (cont125 1240/1300, cont150 1400). Fixed widen/toast checks pass in page AND continuous view (panel at 1000 -> 1600 shows card without click; toast clear of card; toast clear of research panel). NEW DEFECT, page view 100%, 1600x800: card sweep page100 (Research opened at 940 -> panel, widen 940..1400 -> 1600) shows the citation card OVER the sheet: card 1226-1584 vs .editor-paper 527-1343 (117 px overlap). Probe (node_modules/.cache/personal-word-beta/ui6-rev-t229b/probe.log, 20 samples over 4 s at a FIXED 1600 window after 1400): it oscillates forever between A = sidebar floating + research aside docked (sheet 196-1012, ws 0-1207) and B = sidebar docked + card shown (sheet 527-1343, card overlapping). Also at 1400 first sample: sidebar floating + card 1024-1384 vs sheet 348-1053 (29 px overlap). Path 1240->1600 or fresh 1600 land in the stable good state C (both floating, sheet 392-1208, card 1224, gap 16). Cause: useMarginFit judges each side with only its own docked room freed but App applies both flips together. In A, left (196 measured) says dock, right (freed aside) says card -> B. In B, left freed 257+135=392 says float, right measured 257 < 312 says no card -> A. Repeat. The comment 'the fit holds in the state it produces' is false when both sides flip at once. Fix idea: judge the right side in the state the left decision produces (or vice versa / freeze one side per measure, hysteresis), then add a spec: page view 100%, 940 open Research, 1400 then 1600, sample several frames: state steady and card never intersects .editor-paper. Native WebKit branch only unit-tested; left to V's native screens."
+  },
+  "review": {
+    "by": "agent-54db",
+    "at": "2026-11-03T09:34:55+00:00",
+    "verdict": "approved",
+    "note": "APPROVE (r3, agent-54db). Code: jointFit is pure over row width, colMax/pad (page: drawn sheet / own zoom x layout zoom = natural width, independent of current fitScale; continuous: drawnColumnMax kept, paper padding fixed var), skew and room (pinned --sidebar-width, asideWidth+3, asideStays) -- no input depends on the docked/floating state, so no feedback loop. drawnEdges zoom correction intact. freedMargins was wave-6-only (not in HEAD); its 1240/75% layout is covered by jointFit unit cases + the T5 spec. Spec diff removes only the 1100->1040 viewport line (owner ruling); no assertion loosened. T5 App.tsx edit confined to floatCtx.zoom + dockedRoom; toast offset unchanged and passing. Verified (pinned Node, fresh build ui6-rev-t229c, port 1928, serial lock): vitest 10/10, tsc clean, floating.spec 37/37; r2 sweep 21/21, 375 rows, 0 hits, 0 up/down flaps, min gap 16; r2 probe steady at every fixed width (1600: floating + card 1224-1584, sheet 392-1208; only the first fresh-1600 sample is the resize in flight). Own adversarial (adv.log): page75/100/125 + cont75/100/125/150, Research opened at 940 then widened and opened at 1600 then narrowed, 15 samples over 3 s at 940/1100/1240/1400/1600: every hold one state, no sidebar/card overlap, tightest gaps 16 (page75 1240 card, cont150 1600 card, cont75 1100 card, read 1240 sidebar); Read view steady and clear; split cont 1100-2600 never floats (documentEdges returns null in split; my split page-view leg aborted on a harness selector, not the app). Screens at tightest fits look clean. Conservative fallbacks noted (cont125/150 and page100 dock with Research open until 1600; page125 never floats with Research) -- allowed, no overlap. Native WebKit (shrink-to-fit sheet zoom + reportsUnzoomedRects branch) only unit-tested: left to V's native screens."
+  },
+  "log": [
+    {
+      "at": "2026-11-03T03:40:12+00:00",
+      "agent": "agent-81bd",
+      "event": "created",
+      "note": ""
+    },
+    {
+      "at": "2026-11-03T03:43:35+00:00",
+      "agent": "agent-a41b",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-11-03T03:43:38+00:00",
+      "agent": "agent-a41b",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-11-03T04:02:25+00:00",
+      "agent": "agent-81bd",
+      "event": "reclaimed from agent-a41b",
+      "note": ""
+    },
+    {
+      "at": "2026-11-03T04:02:27+00:00",
+      "agent": "agent-81bd",
+      "event": "handoff",
+      "note": "Freed by coordinator agent-81bd: the original worker was stopped by the owner before finishing. Start from the PLAN.md task section and node_modules/.cache/personal-word-beta/ui6-brief.md.\nRegistered paths: clean (no edits from the stopped worker)."
+    },
+    {
+      "at": "2026-11-03T05:38:03+00:00",
+      "agent": "agent-7bef",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-11-03T05:38:05+00:00",
+      "agent": "agent-7bef",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-11-03T05:50:53+00:00",
+      "agent": "agent-7bef",
+      "event": "handoff",
+      "note": "W6 T5 state at handoff (agent-7bef). App.tsx wiring present (dockedRoom arg at useMarginFit, noticeClear inline style on .notice). floating.ts freedMargins + 5th arg done; floating.test.ts 7/7 pass; tsc clean. tests/floating.spec.ts has 4 new T5 cases. Queued: node_modules/.cache/personal-word-beta/ui6-t5/run-t5.sh (waits on serial-check.lock). It writes fail-first.log (T5 cases on wave-5 build via browser-w5.config.mjs, no rebuild) then builds current tree and writes accept.log (full floating.spec.ts). The earlier fail-first.log/build-fail.log were invalid and deleted. Next: read both logs; if a floating spec shows sidebar or card over the sheet, block T229 with spec name; otherwise write fail-first + acceptance results to notes/T5.md and team.py done T229. Lock: if run-t5.sh was killed, release serial-check.lock only if owner.txt says agent-7bef."
+    },
+    {
+      "at": "2026-11-03T05:56:42+00:00",
+      "agent": "agent-19df",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-11-03T05:56:42+00:00",
+      "agent": "agent-19df",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-11-03T05:56:56+00:00",
+      "agent": "agent-19df",
+      "event": "handoff",
+      "note": "W6 T5 finish (agent-19df). fail-first.log (wave-5 build): all 4 new T5 cases FAIL as expected (tests/floating.spec.ts:646, :658, :669, :684; reasons: sidebar not floating at 1240/75%, card missing after widen, toast right 1584 > card left, toast intersects research panel). accept.log: 31 passed, 1 failed. Failing non-T5 spec: 'floating sidebar > a narrow window falls back to the normal panel' tests/floating.spec.ts:147 (fails at :153): at 1100px the shell is still is-floating (class 'sidebar-shell is-pinned is-floating is-revealed') where it must fall back. Not a measured overlap, but it is a fit regression from the new docked-room logic in floating.ts/App.tsx useMarginFit. Logs: node_modules/.cache/personal-word-beta/ui6-t5/fail-first.log and accept.log. Notes/T5.md Verification section NOT written (not done).\ndocs/agent-work/2026-11-02-ui-wave-6/notes/T5.md: uncommitted edits\nsrc/components/floating.ts: uncommitted edits\nsrc/components/floating.test.ts: uncommitted edits\ntests/floating.spec.ts: uncommitted edits\ndocs/agent-work/2026-11-02-ui-wave-6/notes/T5.md: uncommitted edits\nnode_modules/.cache/personal-word-beta/ui6-t5: uncommitted edits"
+    },
+    {
+      "at": "2026-11-03T05:59:17+00:00",
+      "agent": "agent-61a7",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-11-03T05:59:18+00:00",
+      "agent": "agent-61a7",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-11-03T07:23:00+00:00",
+      "agent": "agent-61a7",
+      "event": "review requested",
+      "note": "T5 finished. Measured 1100x800: continuous view floated clear at 1100 but flapped/overlapped at 1000 and 940 (squeezed continuous column overstated freed margin). Fixed in floating.ts (documentEdges maxWidth + freedMargins maxWidth cap). Now continuous floats+clear at 1100/1080, falls back <=1060; page view falls back at 1100 (75% floats clear). Spec: 'narrow falls back' moved 1100->1040 with assertions unchanged; added 1100 spec (continuous floats+clear, page falls back). Fail-first for the 4 T5 cases per earlier logs. vitest 7/7, tsc clean, floating.spec 33/33 (final-floating.log). Notes: notes/T5.md Verification."
+    },
+    {
+      "at": "2026-11-03T07:44:51+00:00",
+      "agent": "agent-ff0c",
+      "event": "rejected",
+      "note": "REJECT: floating sidebar overlaps the text column in continuous view at 125/150% zoom, and the fit flaps. Reviewer sweep (fresh vite build, port 1925, 800 high, floating on, widths 940..1600 up then down; log node_modules/.cache/personal-word-beta/ui6-rev-t229/sweep.log): cont150 1080 floating, sidebar 16-260 vs .writing-surface left 146 (114 px overlap); cont150 1240 sidebar 0-270 vs col 152; cont150 1040 sidebar right 270 vs col 146; cont150 1000 sidebar 16-220 vs col 146. cont125 flaps (is-floating differs between up and down sweeps at 1040/1060/1080/1100/1240). Cause: src/components/floating.ts columnMaxWidth (~line 60) mixes units: getComputedStyle(paper).maxWidth is the CSS 816px (unzoomed), but .editor-paper carries CSS zoom = layout.zoom/100 in continuous view (Writer.tsx:969), so rect widths are drawn px; at 125/150% maxWidth comes out far too small, grow=0, and freedMargins counts the whole docked width as margin -> floats -> paper widens to 816*zoom -> no margin -> falls back -> repeat. Fix: express maxWidth in drawn px (cssMax * totalZoom(paper) minus the drawn paper-column difference; under reportsUnzoomedRects scale the rect widths by zoom too), then add a floating.spec case: continuous view at 125% and 150%, sweep 1000-1240 both directions, expectClear on .writing-surface whenever is-floating and same is-floating state up vs down. Everything else checked OK: fail-first log real (4 T5 cases fail on wave-5 build); vitest 7/7; full floating.spec 33/33; cont/page 100%, cont75, page75, page125 never overlap, no flapping, gap exactly 16 at tight fits (cont 1080/1100, page75 1060-1100); card sweeps no card/column overlap; page view 1100 panel -> widen 1600 shows card without click; toast with card open right 1208 < card left 1224; drawnEdges/zoom probe intact; narrow-fallback spec assertions unchanged (1100->1040), 1100 spec matches owner ruling."
+    },
+    {
+      "at": "2026-11-03T07:46:01+00:00",
+      "agent": "agent-25bd",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-11-03T07:46:02+00:00",
+      "agent": "agent-25bd",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-11-03T08:08:17+00:00",
+      "agent": "agent-25bd",
+      "event": "review requested",
+      "note": "Zoom fix: floating.ts cap now in drawn px (drawnColumnMax, WebKit rect scaling). Fail-first: new 125/150% continuous sweep spec fails on pre-fix build (sidebar right 270 vs text left 140). After: vitest 8/8, tsc clean, floating.spec 35/35, reviewer sweep 17 pass (cont75-150, page75-125 never overlap/flap); 1 sweep-harness test 'widen with panel open' fails at create() as in reviewer's own run. Notes: notes/T5.md"
+    },
+    {
+      "at": "2026-11-03T08:25:18+00:00",
+      "agent": "agent-0efe",
+      "event": "rejected",
+      "note": "REJECT (r2, agent-0efe). Zoom fix itself is good: drawnColumnMax math right for Chromium and WebKit branch (k=zoom scales both paper and column rects; drawnEdges intact); vitest 8/8; fresh build full floating.spec 35/35 (port 1927); sweep cont75/100/125/150 + page75/125 + all card sweeps except page100: no overlap, no up/down flap, tight gap exactly 16 (cont125 1240/1300, cont150 1400). Fixed widen/toast checks pass in page AND continuous view (panel at 1000 -> 1600 shows card without click; toast clear of card; toast clear of research panel). NEW DEFECT, page view 100%, 1600x800: card sweep page100 (Research opened at 940 -> panel, widen 940..1400 -> 1600) shows the citation card OVER the sheet: card 1226-1584 vs .editor-paper 527-1343 (117 px overlap). Probe (node_modules/.cache/personal-word-beta/ui6-rev-t229b/probe.log, 20 samples over 4 s at a FIXED 1600 window after 1400): it oscillates forever between A = sidebar floating + research aside docked (sheet 196-1012, ws 0-1207) and B = sidebar docked + card shown (sheet 527-1343, card overlapping). Also at 1400 first sample: sidebar floating + card 1024-1384 vs sheet 348-1053 (29 px overlap). Path 1240->1600 or fresh 1600 land in the stable good state C (both floating, sheet 392-1208, card 1224, gap 16). Cause: useMarginFit judges each side with only its own docked room freed but App applies both flips together. In A, left (196 measured) says dock, right (freed aside) says card -> B. In B, left freed 257+135=392 says float, right measured 257 < 312 says no card -> A. Repeat. The comment 'the fit holds in the state it produces' is false when both sides flip at once. Fix idea: judge the right side in the state the left decision produces (or vice versa / freeze one side per measure, hysteresis), then add a spec: page view 100%, 940 open Research, 1400 then 1600, sample several frames: state steady and card never intersects .editor-paper. Native WebKit branch only unit-tested; left to V's native screens."
+    },
+    {
+      "at": "2026-11-03T08:26:38+00:00",
+      "agent": "agent-f1f9",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-11-03T08:26:41+00:00",
+      "agent": "agent-f1f9",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-11-03T09:11:39+00:00",
+      "agent": "agent-f1f9",
+      "event": "review requested",
+      "note": "Coupled fit (r2 reject). Cause: each side judged with only its own docked room freed but both flips applied together (A<->B forever at page100 1600), plus page view fit-to-pane sheet scaling unmodelled (29 px overlap at 1400). Fix: floating.ts jointFit lays out the 4 end states (both/sidebar only/card only/neither) from state-free inputs (row width, pinned --sidebar-width, asideWidth+3 resizer, research panel only gives way to the card; column=min(colMax, ws-pad), page colMax = drawn sheet / fitScale via new FloatContext.zoom; continuous drawnColumnMax kept) and picks the most floating that fits: pure function, cannot oscillate. App.tsx T5 block only (dockedRoom -> {sidebar, aside, asideStays}; floatCtx.zoom). freedMargins removed (replaced); its unit case superseded by jointFit cases. Fail-first: new spec 'T5: page view, Research open, widening/narrowing' FAILS pre-fix: '1600: card left 1225.5 vs sheet right 1343' (ui6-t5/coupled-fail.log); narrowing passed pre-fix (new reverse guard). After: vitest 10/10, tsc clean, fresh build, full floating.spec 37/37 port 1915 (coupled-floating.log); reviewer sweep 21/21, 371 rows, no hit, no up/down flap, min gap 16, only improvements vs previous build (coupled-sweep.log); reviewer probe steady every path (1600: floating + card 1224-1584, sheet 392-1208; first fresh-1600 sample is the resize in flight) (coupled-probe.log). Notes: notes/T5.md 'Coupled fit after rejection r2'."
+    },
+    {
+      "at": "2026-11-03T09:34:55+00:00",
+      "agent": "agent-54db",
+      "event": "approved",
+      "note": "APPROVE (r3, agent-54db). Code: jointFit is pure over row width, colMax/pad (page: drawn sheet / own zoom x layout zoom = natural width, independent of current fitScale; continuous: drawnColumnMax kept, paper padding fixed var), skew and room (pinned --sidebar-width, asideWidth+3, asideStays) -- no input depends on the docked/floating state, so no feedback loop. drawnEdges zoom correction intact. freedMargins was wave-6-only (not in HEAD); its 1240/75% layout is covered by jointFit unit cases + the T5 spec. Spec diff removes only the 1100->1040 viewport line (owner ruling); no assertion loosened. T5 App.tsx edit confined to floatCtx.zoom + dockedRoom; toast offset unchanged and passing. Verified (pinned Node, fresh build ui6-rev-t229c, port 1928, serial lock): vitest 10/10, tsc clean, floating.spec 37/37; r2 sweep 21/21, 375 rows, 0 hits, 0 up/down flaps, min gap 16; r2 probe steady at every fixed width (1600: floating + card 1224-1584, sheet 392-1208; only the first fresh-1600 sample is the resize in flight). Own adversarial (adv.log): page75/100/125 + cont75/100/125/150, Research opened at 940 then widened and opened at 1600 then narrowed, 15 samples over 3 s at 940/1100/1240/1400/1600: every hold one state, no sidebar/card overlap, tightest gaps 16 (page75 1240 card, cont150 1600 card, cont75 1100 card, read 1240 sidebar); Read view steady and clear; split cont 1100-2600 never floats (documentEdges returns null in split; my split page-view leg aborted on a harness selector, not the app). Screens at tightest fits look clean. Conservative fallbacks noted (cont125/150 and page100 dock with Research open until 1600; page125 never floats with Research) -- allowed, no overlap. Native WebKit (shrink-to-fit sheet zoom + reportsUnzoomedRects branch) only unit-tested: left to V's native screens."
+    }
+  ]
+}

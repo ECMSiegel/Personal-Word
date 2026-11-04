@@ -433,8 +433,10 @@ button:focus-visible {
     .manuscript-read a,
     .preview-content a,
     :disabled,
-    [aria-disabled="true"]
-  )) {
+    [aria-disabled="true"],
+    .emph-row
+  )),
+  .emph-row .emph-label {
   transform: scale(calc(var(--emph-s, 1) * var(--press-s, 1)));
   transform-origin: var(--emph-origin, center);
   transition: transform var(--emph-duration) var(--ease-out);
@@ -464,11 +466,13 @@ button:focus-visible {
     .manuscript-read a,
     .preview-content a,
     :disabled,
-    [aria-disabled="true"]
-  )):is(:hover, :focus-visible, [data-highlighted], .is-highlighted, label:has(> input:focus-visible)) {
-  -webkit-text-stroke: var(--emph-stroke) currentColor;
-  --emph-s: var(--emph-scale);
-}
+    [aria-disabled="true"],
+    .emph-row
+  )):is(:hover, :focus-visible, [data-highlighted], .is-highlighted, label:has(> input:focus-visible)),
+  .emph-row:is(:hover, :focus-visible, [data-highlighted], .is-highlighted) .emph-label {
+    -webkit-text-stroke: var(--emph-stroke) currentColor;
+    --emph-s: var(--emph-scale);
+  }
 /* The stroke is inherited: keep typed text in a hovered label un-stroked. */
 :is(label:has(input), label:has(textarea)) :is(input, textarea) {
   -webkit-text-stroke: 0;
@@ -491,6 +495,9 @@ label:has(input[type="checkbox"], input[type="radio"]),
 .popover-item,
 [data-popover-item],
 .dropdown-option {
+  --emph-origin: left center;
+}
+.emph-label {
   --emph-origin: left center;
 }
 input:not([type="checkbox"]):focus-visible,
@@ -811,6 +818,10 @@ p {
   gap: var(--header-gap);
   min-width: 0;
 }
+/* The status, Snapshot and export group keeps its size; only the title gives way. */
+.topbar > div:last-child {
+  flex-shrink: 0;
+}
 .topbar button {
   padding: var(--space-2);
 }
@@ -849,6 +860,7 @@ p {
   align-items: center;
   gap: 2px;
   min-width: 0;
+  overflow: hidden;
 }
 .save-status {
   font-size: var(--type-small);
@@ -1076,7 +1088,7 @@ p {
   font-size: var(--type-small);
   padding: var(--space-1);
 }
-.restore-fragment {
+.reattach-banner {
   border-top: 1px solid var(--line);
   margin-top: 36px;
   padding-top: var(--space-5);
@@ -1086,12 +1098,12 @@ p {
   font-size: var(--type-small);
   flex-wrap: wrap;
 }
-.restore-fragment > span {
+.reattach-banner > span {
   width: 100%;
   color: var(--muted);
   margin-bottom: var(--space-2);
 }
-.restore-fragment button {
+.reattach-banner button {
   padding: var(--space-2);
   color: var(--text);
 }
@@ -1150,6 +1162,9 @@ p {
 .delete-entry {
   padding: var(--space-2);
   color: var(--muted);
+  /* Wave 6 T1: fixed slot so it never overlaps the dates (which are flex:1). */
+  flex: 0 0 auto;
+  margin-left: var(--space-2);
 }
 .delete-entry:hover {
   color: var(--danger);
@@ -1158,6 +1173,13 @@ p {
   font-size: var(--type-small);
   color: inherit;
   padding: 2px var(--space-1);
+  /* A long entry title ellipsizes instead of being cut mid-word by the breadcrumb box. */
+  display: block;
+  min-width: 0;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 .damaged {
   margin: 0 0 var(--space-5);
@@ -1535,8 +1557,13 @@ button[aria-pressed="true"],
   max-width: 220px;
 }
 .project-tab > button:first-child {
+  /* Block (not the base inline-flex, which centres an overflowing name) plus min-width 0 lets the
+     ellipsis act; otherwise a long name overflows and the bar shows its end. */
+  display: block;
+  min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
+  text-align: left;
 }
 .project-tab > button:last-child {
   padding-inline: var(--space-2);
@@ -1655,6 +1682,15 @@ button[aria-pressed="true"],
   font-weight: 500;
   min-width: 0;
 }
+/* The label truncates at every width (wave 6 T6): room is reserved for the
+   heading's in-flow action buttons, so a long label ellipsizes before the
+   chevron, the buttons or the entries' word counts move or wrap. */
+.group-label {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
+}
 .group-title.selected {
   background: transparent;
   color: var(--accent);
@@ -1717,6 +1753,10 @@ button[aria-pressed="true"],
 }
 .entry-main small {
   font-size: var(--type-small);
+  /* Wave 6 T6: the count survives the narrow widths (no overlay of actions), so
+     the title ellipsizes first; the count itself never wraps or shrinks. */
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 .entry-row.selected::before {
   content: none;
@@ -1780,33 +1820,6 @@ button[aria-pressed="true"],
   outline: 0;
 }
 @container (max-width: 240px) {
-  .group-label {
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    min-width: 0;
-  }
-  .entry-main small {
-    display: none;
-  }
-  .group-heading {
-    position: relative;
-  }
-  .group-actions {
-    position: absolute;
-    top: 0;
-    bottom: 0;
-    right: calc(var(--space-5) + var(--space-1));
-    align-items: center;
-    background: var(--sidebar);
-  }
-  .group-actions {
-    pointer-events: none;
-  }
-  .sidebar-group:hover > .group-heading .group-actions,
-  .sidebar-group:focus-within > .group-heading .group-actions {
-    pointer-events: auto;
-  }
   .cards-view .entry-preview {
     -webkit-line-clamp: 2;
   }

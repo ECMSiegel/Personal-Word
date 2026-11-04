@@ -40,7 +40,10 @@ const row = (page: Page, title: string) =>
   page.locator('.sidebar-group[data-group="manuscript"] .entry-row').filter({
     has: page.locator(".entry-main").filter({ hasText: new RegExp("^" + title) }),
   });
-const line = (page: Page, title: string) => row(page, title).locator("> .spy-line");
+// Wave 6 T7b: one rail of lines per group (not one line per row); a line's name is its item title.
+const railLine = (page: Page, group: string, title: string) =>
+  page.locator(`.sidebar-group[data-group="${group}"] .spy-rail > button.spy-line[aria-label="Go to ${title}"]`);
+const line = (page: Page, title: string) => railLine(page, "manuscript", title);
 const matrix = (l: Locator, pseudo?: string) =>
   l.evaluate((el, p) => {
     const m = /matrix\(([^)]+)\)/.exec(getComputedStyle(el, p).transform);
@@ -143,8 +146,8 @@ test("(c) hover or keyboard focus on a row expands its line; the keyboard change
   await row(page, "Alpha part").locator(".entry-main").click();
   await page.mouse.move(900, 500);
   await expect.poll(() => scaleX(line(page, "Gamma part"))).toBeCloseTo(0.375, 2);
-  // Wave 5 A3: the pointer on the row's centre magnifies its line to full length, twice as thick.
-  await row(page, "Gamma part").locator(".entry-main").hover();
+  // Wave 5 A3 (T7b: the pointer on the line itself): magnifies it to full length, twice as thick.
+  await line(page, "Gamma part").hover();
   await expect.poll(() => scaleX(line(page, "Gamma part"))).toBeCloseTo(1, 2);
   await expect.poll(() => scaleY(line(page, "Gamma part"))).toBeCloseTo(2, 2);
   await page.mouse.move(900, 500);
@@ -158,9 +161,10 @@ test("(c) hover or keyboard focus on a row expands its line; the keyboard change
   await expect(row(page, "Gamma part").locator(".entry-main")).toBeFocused();
   await expect(line(page, "Gamma part")).toHaveCSS("transition-duration", "0s");
   expect(await scaleX(line(page, "Gamma part"))).toBeCloseTo(1, 2);
-  // The line itself is never a Tab stop and is hidden from assistive tech.
-  await expect(line(page, "Gamma part")).toHaveAttribute("tabindex", "-1");
-  await expect(line(page, "Gamma part")).toHaveAttribute("aria-hidden", "true");
+  // T7b: the line is a real button named by the item title (a Tab stop, not hidden).
+  await expect(line(page, "Gamma part")).not.toHaveAttribute("tabindex", "-1");
+  await expect(line(page, "Gamma part")).not.toHaveAttribute("aria-hidden", "true");
+  await expect(page.getByRole("button", { name: "Go to Gamma part", exact: true })).toBeVisible();
   // Enter on the focused row opens the section; its line becomes active.
   await page.keyboard.press("Enter");
   await expect(line(page, "Gamma part")).toHaveAttribute("data-state", "active");
@@ -188,47 +192,50 @@ test("(d) the lines hide with a hover-reveal sidebar", async ({ page }) => {
   await expect(line(page, "Alpha part")).toBeVisible();
 });
 
-test("(e, f) a dragged row keeps its line; collapsing Manuscript removes the lines", async ({ page }) => {
+test("(e, f) a dragged row keeps the rail in row order; collapsing Manuscript removes the rail", async ({ page }) => {
   await seed(page, "Spy drag");
   const rows = page.locator('.sidebar-group[data-group="manuscript"] .entry-row');
   await rows.nth(1).dragTo(rows.nth(3), { sourcePosition: { x: 6, y: 6 } });
-  for (const name of SECTIONS) {
-    const inside = await row(page, name).evaluate((r) => {
-      const l = r.querySelector(":scope > .spy-line")!.getBoundingClientRect();
-      const b = r.getBoundingClientRect();
-      return l.top >= b.top && l.bottom <= b.bottom;
-    });
-    expect(inside, name + " line inside its row").toBe(true);
-  }
+  const names = await rows.locator(".entry-main span").allTextContents();
+  const labels = await page.locator('.sidebar-group[data-group="manuscript"] .spy-rail > .spy-line').evaluateAll((els) => els.map((e) => (e.getAttribute("aria-label") ?? "").replace(/^Go to /, "")));
+  expect(labels).toEqual(names);
   await page.getByRole("button", { name: "Hide Manuscript", exact: true }).click();
   await expect(page.locator('[data-group="manuscript"] .spy-line')).toHaveCount(0);
 });
 
-test("(g) at the 190 px sidebar the heading and titles stay readable and lines miss the counts", async ({ page }) => {
+test("(g) at the 190 px sidebar the heading and titles stay readable (labels fit or ellipsize)", async ({ page }) => {
   await page.addInitScript(() =>
     localStorage.setItem("folio.workspace.sidebar", JSON.stringify({ width: 190, pinned: true, hover: true })),
   );
   await seed(page, "Spy narrow");
   await page.mouse.move(900, 500);
   const heading = page.locator('.sidebar-group[data-group="manuscript"] .group-label');
-  expect(await heading.evaluate((el) => el.scrollWidth <= el.clientWidth)).toBe(true);
+  expect(
+    await heading.evaluate((el) => {
+      const cs = getComputedStyle(el);
+      return el.scrollWidth <= el.clientWidth || (cs.textOverflow === "ellipsis" && cs.whiteSpace === "nowrap");
+    }),
+    "heading label fits or ellipsizes",
+  ).toBe(true);
   for (const name of SECTIONS) {
     const r = row(page, name);
     const fits = await r.locator(".entry-main span").evaluate((span) => {
       const node = span.firstChild!;
       const range = document.createRange();
       range.setStart(node, 0);
-      range.setEnd(node, Math.min(12, node.textContent!.length));
-      return range.getBoundingClientRect().right <= span.getBoundingClientRect().right + 0.5;
+      const whole = document.createRange();
+      whole.selectNodeContents(span);
+      const sb = span.getBoundingClientRect();
+      if (whole.getBoundingClientRect().width <= sb.width + 0.01) return true;
+      // T6: titles ellipsize before the count shrinks; the first 6 characters must stay visible.
+      range.setEnd(node, Math.min(6, node.textContent!.length));
+      return getComputedStyle(span).textOverflow === "ellipsis" && range.getBoundingClientRect().right <= sb.right + 0.5;
     });
-    expect(fits, name + " first 12 characters visible").toBe(true);
-    const gap = await r.evaluate((el) => {
-      const l = el.querySelector(":scope > .spy-line")!.getBoundingClientRect();
-      const small = el.querySelector(".entry-main small")!.getBoundingClientRect();
+    expect(fits, name + " title fits, or ellipsizes with its first 6 characters visible").toBe(true);
+    const gap = await line(page, name).evaluate((l) => {
       const sidebar = document.querySelector(".sidebar")!.getBoundingClientRect();
-      return { clear: l.left - small.right, inside: l.right <= sidebar.right };
+      return { inside: l.getBoundingClientRect().right <= sidebar.right };
     });
-    expect(gap.clear, name + " line clears the word count").toBeGreaterThanOrEqual(0);
     expect(gap.inside, name + " line inside the sidebar").toBe(true);
   }
 });
@@ -285,7 +292,8 @@ for (const palette of ["plain", "color"] as const)
 // Manuscript, Fragments and Research; proximity magnify; scroll progress on the active line.
 
 /** The cosine falloff the sidebar uses (spyMagnify, radius 84 px): 1 at 0, 0 at the radius. */
-const mag = (dy: number) => (Math.abs(dy) >= 84 ? 0 : 0.5 + 0.5 * Math.cos((Math.PI * Math.abs(dy)) / 84));
+const RADIUS = 36; // T7b: the rail pitch is 12 px, so the falloff is 3 lines, not 84 px
+const mag = (dy: number) => (Math.abs(dy) >= RADIUS ? 0 : 0.5 + 0.5 * Math.cos((Math.PI * Math.abs(dy)) / RADIUS));
 const centreY = async (l: Locator) => {
   const b = (await l.boundingBox())!;
   return b.y + b.height / 2;
@@ -344,11 +352,11 @@ test("(i) Fragments and Research rows have lines with idle/open/active states an
     const rows = groupRows(page, group);
     const n = await rows.count();
     expect(n, group + " rows").toBeGreaterThan(1);
-    for (let i = 0; i < n; i++) await expect(rows.nth(i).locator("> button.spy-line"), `${group} row ${i}`).toHaveCount(1);
+    await expect(page.locator(`.sidebar-group[data-group="${group}"] .spy-rail > button.spy-line`), `${group} lines`).toHaveCount(n);
     await expect(page.locator(`.sidebar-group[data-group="${group}"] .entry-list`)).toHaveCSS("padding-right", "14px");
   }
-  const fragLine = (t: string) => groupRow(page, "fragments", t).locator("> .spy-line");
-  const resLine = (t: string) => groupRow(page, "research", t).locator("> .spy-line");
+  const fragLine = (t: string) => railLine(page, "fragments", t);
+  const resLine = (t: string) => railLine(page, "research", t === "Alpha source" ? "Ames -- Alpha source (2020)" : t);
 
   // A fragment open in Write mode: its line is active, the other idle.
   await groupRow(page, "fragments", "Frag one").locator(".entry-main").click();
@@ -388,7 +396,7 @@ test("(j) lines grow toward the pointer with a cosine falloff; keyboard focus ma
   for (const s of SECTIONS.slice(1)) await expect.poll(() => scaleX(line(page, s))).toBeCloseTo(0.375, 2);
 
   // Pointer on Gamma's line height, over the row: Gamma peaks, neighbours fall off with distance.
-  const x = ((await row(page, "Gamma part").boundingBox())!).x + 40;
+  const x = ((await line(page, "Gamma part").boundingBox())!).x + 4;
   const yG = await centreY(line(page, "Gamma part"));
   await page.mouse.move(x, yG - 6);
   await page.mouse.move(x, yG, { steps: 2 });
@@ -397,8 +405,8 @@ test("(j) lines grow toward the pointer with a cosine falloff; keyboard focus ma
   const dD = (await centreY(line(page, "Delta part"))) - yG;
   const dB = (await centreY(line(page, "Beta part"))) - yG;
   const dA = (await centreY(line(page, "Alpha part"))) - yG;
-  expect(mag(dD), "one row away is partly magnified").toBeGreaterThan(0.2);
-  expect(mag(dA), "two rows away is barely magnified").toBeLessThan(mag(dB));
+  expect(mag(dD), "one line away is partly magnified").toBeGreaterThan(0.2);
+  expect(mag(dA), "three lines away is not magnified").toBeLessThan(mag(dB));
   await expect.poll(() => scaleX(line(page, "Delta part"))).toBeCloseTo(0.375 + mag(dD) * 0.625, 2);
   await expect.poll(() => scaleY(line(page, "Delta part"))).toBeCloseTo(1 + mag(dD), 2);
   await expect.poll(() => scaleY(line(page, "Beta part"))).toBeCloseTo(1 + mag(dB), 2);
@@ -470,7 +478,7 @@ test("(k) Write mode: the active line fills as the open section or fragment scro
 
   // A long fragment fills its own line too.
   await addFragment(page, "Long frag", 600);
-  const fragLine = groupRow(page, "fragments", "Long frag").locator("> .spy-line");
+  const fragLine = railLine(page, "fragments", "Long frag");
   await expect(fragLine).toHaveAttribute("data-state", "active");
   await scrollTo(page, "top");
   await expect.poll(() => remainder(fragLine)).toBeCloseTo(1, 2);
@@ -512,7 +520,7 @@ test("(m) Reduce Motion: no magnify; hover and focus fall back to the half-lengt
   await seed(page, "Spy reduced");
   await row(page, "Alpha part").locator(".entry-main").click();
   await page.mouse.move(900, 500);
-  const x = ((await row(page, "Gamma part").boundingBox())!).x + 40;
+  const x = ((await line(page, "Gamma part").boundingBox())!).x + 4;
   const yG = await centreY(line(page, "Gamma part"));
   await page.mouse.move(x, yG - 6);
   await page.mouse.move(x, yG, { steps: 2 });
@@ -553,7 +561,7 @@ test("(o) at the 190 px sidebar idle lines are unchanged and Fragments/Research 
   // The new fragment is open (active); the first section and Frag one are idle.
   const lines = page.locator(".sidebar-groups .spy-line[data-state='idle']");
   expect(await lines.count()).toBeGreaterThanOrEqual(2);
-  await expect(groupRow(page, "fragments", "Frag one").locator("> .spy-line")).toHaveAttribute("data-state", "idle");
+  await expect(railLine(page, "fragments", "Frag one")).toHaveAttribute("data-state", "idle");
   for (const l of await lines.all()) {
     await expect.poll(() => scaleX(l)).toBeCloseTo(0.375, 2);
     expect(await scaleY(l)).toBeCloseTo(1, 2);
@@ -561,17 +569,86 @@ test("(o) at the 190 px sidebar idle lines are unchanged and Fragments/Research 
   // A3 stop rule: a 20 px gutter clipped "alpha.pdf" by 0.2 px here; the gutter is 14 px.
   for (const t of ["Frag one", "Frag two", "Bibliography", "alpha.pdf", "Note one"]) {
     const r = groupRow(page, t.startsWith("Frag") ? "fragments" : "research", t);
-    const ok = await r.evaluate((el) => {
+    const ok: { fits: boolean; inside?: boolean } = await r.evaluate((el) => {
       const span = el.querySelector(".entry-main span")!;
       const range = document.createRange();
       range.selectNodeContents(span);
-      const l = el.querySelector(":scope > .spy-line")!.getBoundingClientRect();
-      return {
-        fits: range.getBoundingClientRect().width <= span.getBoundingClientRect().width + 0.01,
-        inside: l.right <= document.querySelector(".sidebar")!.getBoundingClientRect().right,
-      };
+      const sb = span.getBoundingClientRect();
+      const fitsWhole = range.getBoundingClientRect().width <= sb.width + 0.01;
+      const cs = getComputedStyle(span);
+      const node = span.firstChild!;
+      const head = document.createRange();
+      head.setStart(node, 0);
+      head.setEnd(node, Math.min(6, node.textContent!.length));
+      const sixVisible = head.getBoundingClientRect().right <= sb.right + 0.5;
+      const count = el.querySelector(".entry-main small");
+      const rb = el.getBoundingClientRect();
+      const cb = count?.getBoundingClientRect();
+      const countVisible = !cb || (cb.left >= rb.left - 0.5 && cb.right <= rb.right + 0.5);
+      return { fits: (fitsWhole || (cs.textOverflow === "ellipsis" && sixVisible)) && countVisible };
     });
-    expect(ok.fits, t + " label not ellipsized").toBe(true);
+    const l = railLine(page, t.startsWith("Frag") ? "fragments" : "research", t);
+    ok.inside = await l.evaluate((el) => el.getBoundingClientRect().right <= document.querySelector(".sidebar")!.getBoundingClientRect().right);
+    expect(ok.fits, t + " label fits or ellipsizes with 6 characters visible, count fully visible").toBe(true);
     expect(ok.inside, t + " line inside the sidebar").toBe(true);
   }
 });
+
+// ---- Wave 6 T7b (docs/agent-work/2026-11-02-ui-wave-6/PLAN.md): the line rail (owner's Variant B).
+
+const tooltip = (page: Page) => page.locator('[role="tooltip"].spy-card');
+const pitches = (page: Page, group = "manuscript") =>
+  page.locator(`.sidebar-group[data-group="${group}"] .spy-rail > .spy-line`).evaluateAll((els) => {
+    const c = els.map((e) => {
+      const b = e.getBoundingClientRect();
+      return b.top + b.height / 2;
+    });
+    return c.slice(1).map((y, i) => y - c[i]);
+  });
+
+test("T7b: clicking the second line opens the second section; Enter and Space on a focused line do the same", async ({ page }) => {
+  await seed(page, "Rail click");
+  await line(page, "Beta part").click();
+  await expect(line(page, "Beta part")).toHaveAttribute("data-state", "active");
+  await expect(row(page, "Beta part")).toHaveClass(/selected/);
+  await line(page, "Gamma part").focus();
+  await page.keyboard.press("Enter");
+  await expect(line(page, "Gamma part")).toHaveAttribute("data-state", "active");
+  await expect(row(page, "Gamma part")).toHaveClass(/selected/);
+  await line(page, "Delta part").focus();
+  await page.keyboard.press("Space");
+  await expect(line(page, "Delta part")).toHaveAttribute("data-state", "active");
+});
+
+test("T7b: hover or focus on a line shows no preview card (owner removed it 2026-11-03)", async ({ page }) => {
+  await seed(page, "Rail no card", 300);
+  await row(page, "Alpha part").locator(".entry-main").click();
+  await line(page, "Gamma part").hover();
+  await page.waitForTimeout(200);
+  await expect(tooltip(page)).toHaveCount(0);
+  await line(page, "Beta part").focus();
+  await page.waitForTimeout(200);
+  await expect(tooltip(page)).toHaveCount(0);
+  await expect(line(page, "Beta part")).not.toHaveAttribute("aria-describedby", /.+/);
+  // The line still does its job.
+  await page.keyboard.press("Enter");
+  await expect(line(page, "Beta part")).toHaveAttribute("data-state", "active");
+});
+
+test("T7b: lines are evenly spaced (+/-1 px) in each group, single and split", async ({ page }) => {
+  await seed(page, "Rail spacing");
+  const even = (d: number[]) => d.length > 1 && Math.max(...d) - Math.min(...d) <= 1;
+  const d1 = await pitches(page);
+  expect(d1.length).toBe(SECTIONS.length);
+  expect(even(d1), `single ${d1}`).toBe(true);
+  await row(page, "Gamma part").locator(".entry-main").click({ modifiers: ["ControlOrMeta"] });
+  await expect(page.locator(".split-pane")).toHaveCount(2);
+  await expect(line(page, "Gamma part")).toHaveAttribute("data-state", /open|active/);
+  const d2 = await pitches(page);
+  expect(even(d2), `split ${d2}`).toBe(true);
+  expect(Math.abs(d2[0] - d1[0])).toBeLessThanOrEqual(1);
+  // An active, an open and idle lines have the same centre-to-centre distance.
+  const states2 = await Promise.all(SECTIONS.map((s) => line(page, s).getAttribute("data-state")));
+  expect(new Set(states2).size).toBeGreaterThan(1);
+});
+

@@ -1070,11 +1070,19 @@
         () => editor()?.textContent.includes("Original prose"),
         "fragment",
       );
-      await click("Append to section →");
+      // Wave 6 removed the fragment footer ("Append to section"): words go
+      // back by copy and paste, so the prose is put back in Opening by hand.
+      await click("Opening");
+      await wait(
+        () => !editor()?.textContent.includes("Original prose"),
+        "opening after cut",
+      );
+      await type("Original prose kept for a fragment.");
       await wait(
         () => editor()?.textContent.includes("Original prose"),
         "restored",
       );
+      await saved();
       step("fragment extraction and restoration");
       await click("Snapshot");
       await input("Snapshot name", "Native milestone");

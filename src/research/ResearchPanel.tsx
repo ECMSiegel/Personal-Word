@@ -687,9 +687,6 @@ export function ResearchPanel({
         </>
       ) : (
         <>
-          <p className="research-hint">
-            Ideas and reminders. Quotes from a source live under that source.
-          </p>
           <div className="research-actions note-actions">
             <button type="button" onClick={addNote}>
               Add note
@@ -698,48 +695,54 @@ export function ResearchPanel({
           {looseNotes.length === 0 && (
             <p className="research-hint">No notes yet.</p>
           )}
-          {looseNotes.map((note) => (
-            <div className="note-item" key={note.id}>
-              <div className="field">
-                <label htmlFor={`note-${note.id}-text`}>Note</label>
-                <textarea
-                  id={`note-${note.id}-text`}
-                  data-research-id={note.id}
-                  rows={3}
-                  placeholder="Write a note"
-                  value={note.text}
-                  onChange={(e) => patchNote(note.id, { text: e.target.value })}
-                />
-              </div>
-              <div className="field">
-                <span className="field-label">Attach to source</span>
-                <Dropdown<string>
-                  label="Attach to source"
-                  value={note.sourceId ?? ""}
-                  width="100%"
-                  options={[
-                    { value: "", label: "No source" },
-                    ...data.sources.map((s) => ({
-                      value: s.id,
-                      label: sourceSummary(s),
-                    })),
-                  ]}
-                  onChange={(value) =>
-                    patchNote(note.id, { sourceId: value || undefined })
-                  }
-                />
-              </div>
-              <div className="item-actions">
-                <button
-                  type="button"
-                  className="is-danger"
-                  onClick={() => deleteNote(note.id)}
-                >
-                  Delete note
-                </button>
-              </div>
+          {looseNotes.length > 0 && (
+            <div className="note-list">
+              {looseNotes.map((note) => (
+                <div className="note-item" key={note.id}>
+                  <div className="field">
+                    <label htmlFor={`note-${note.id}-text`}>Note</label>
+                    <textarea
+                      id={`note-${note.id}-text`}
+                      data-research-id={note.id}
+                      rows={3}
+                      placeholder="Write a note"
+                      value={note.text}
+                      onChange={(e) => patchNote(note.id, { text: e.target.value })}
+                    />
+                  </div>
+                  <div className="note-row">
+                    <div className="field note-source-field">
+                      <span className="field-label">Attach to source</span>
+                      <Dropdown<string>
+                        label="Attach to source"
+                        value={note.sourceId ?? ""}
+                        width="100%"
+                        options={[
+                          { value: "", label: "No source" },
+                          ...data.sources.map((s) => ({
+                            value: s.id,
+                            label: sourceSummary(s),
+                          })),
+                        ]}
+                        onChange={(value) =>
+                          patchNote(note.id, { sourceId: value || undefined })
+                        }
+                      />
+                    </div>
+                    <div className="item-actions">
+                      <button
+                        type="button"
+                        className="is-danger"
+                        onClick={() => deleteNote(note.id)}
+                      >
+                        Delete note
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ))}
             </div>
-          ))}
+          )}
         </>
       )}
       <p className="research-help">

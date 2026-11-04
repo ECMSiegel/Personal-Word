@@ -184,12 +184,12 @@ export function CommandPalette({ open, commands, onClose, animateIn = false }: C
                   id={optionId(i)}
                   role="option"
                   aria-selected={i === activeIndex}
-                  className={`command-palette-option${i === activeIndex ? " is-highlighted" : ""}`}
+                  className={`command-palette-option${i === activeIndex ? " is-highlighted" : ""} emph-row`}
                   onMouseMove={() => { if (i !== activeIndex) setActive(i); }}
                   onMouseDown={(e) => e.preventDefault()}
                   onClick={() => finish(c)}
                 >
-                  <span className="command-palette-label">{c.label}</span>
+                  <span className="command-palette-label emph-label">{c.label}</span>
                   {c.hint ? <span className="command-palette-hint">{c.hint}</span> : null}
                 </div>
               );

@@ -1,0 +1,9 @@
+{
+  "id": "agent-c046",
+  "label": "Claude Sonnet worker W6 T6",
+  "joined_at": "2026-11-03T03:43:32+00:00",
+  "last_seen": "2026-11-03T03:43:32+00:00",
+  "status": "active",
+  "current_task": null,
+  "inbox_cursor": 1102
+}

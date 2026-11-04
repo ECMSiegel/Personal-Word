@@ -53,7 +53,8 @@ test("research panel has Sources and Notes tabs in the app font", async ({
     page.getByText(
       "Ideas and reminders. Quotes from a source live under that source.",
     ),
-  ).toBeVisible();
+  ).toHaveCount(0);
+  await expect(page.getByText("No notes yet.")).toBeVisible();
 });
 
 test("manual source shows a Chicago bibliography preview and lookup fills a new source", async ({
@@ -534,13 +535,170 @@ test("a note has a visible Note label and room above its field", async ({
     .evaluate((el) => el.getBoundingClientRect());
   const labelBox = await label.evaluate((el) => el.getBoundingClientRect());
   const fieldBox = await field.evaluate((el) => el.getBoundingClientRect());
-  // Panel grid gap (16) plus .note-actions margin-bottom (12): about 27.5 px from the
-  // button to the first note's top edge; without the margin it is only about 15.5 (so 24 is the floor).
+  // Panel grid gap (16 px) from "Add note" button to the first note's top edge.
   const noteTop = await page
     .locator(".note-item")
     .first()
     .evaluate((el) => el.getBoundingClientRect().top);
-  expect(noteTop - add.bottom).toBeGreaterThanOrEqual(24);
+  expect(noteTop - add.bottom).toBeGreaterThanOrEqual(12);
+  expect(noteTop - add.bottom).toBeLessThanOrEqual(20);
   expect(labelBox.top - add.bottom).toBeGreaterThanOrEqual(12);
   expect(fieldBox.top - labelBox.bottom).toBeGreaterThanOrEqual(0);
+});
+
+test("Notes tab rework: add-note spacing, divider line only between notes, dropdown and delete share a row", async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto("/");
+  await create(page, "Notes tab rework");
+  await openResearch(page);
+  await page.getByRole("button", { name: "Notes", exact: true }).click();
+
+  await expect(page.getByText("No notes yet.")).toBeVisible();
+
+  // Add first note
+  const addBtn = page.getByRole("button", { name: "Add note", exact: true });
+  await addBtn.click();
+  await expect(page.getByText("No notes yet.")).toHaveCount(0);
+
+  const notes = page.locator(".note-item");
+  await expect(notes).toHaveCount(1);
+
+  // Step 2: "Add note" row, then --space-4 (16px), then the notes
+  const addBox = await addBtn.boundingBox();
+  const note1Box = await notes.nth(0).boundingBox();
+  expect(addBox).toBeTruthy();
+  expect(note1Box).toBeTruthy();
+  expect(Math.abs(note1Box!.y - (addBox!.y + addBox!.height) - 16)).toBeLessThanOrEqual(2);
+
+  // First note has NO border-top line
+  const note1BorderTop = await notes.nth(0).evaluate((el) => {
+    const s = getComputedStyle(el);
+    return {
+      style: s.borderTopStyle,
+      width: parseFloat(s.borderTopWidth || "0"),
+    };
+  });
+  expect(note1BorderTop.style === "none" || note1BorderTop.width === 0).toBe(true);
+
+  // Inside note 1: Attach to source dropdown and Delete note share one row (dropdown grows, Delete to its right)
+  const dropdown = notes.nth(0).locator(".dropdown-button");
+  const deleteBtn = notes.nth(0).getByRole("button", { name: "Delete note", exact: true });
+  await expect(dropdown).toBeVisible();
+  await expect(deleteBtn).toBeVisible();
+
+  const dropBox = await dropdown.boundingBox();
+  const delBox = await deleteBtn.boundingBox();
+  expect(dropBox).toBeTruthy();
+  expect(delBox).toBeTruthy();
+
+  // Shared row: vertical positions overlap
+  expect(Math.abs(dropBox!.y - delBox!.y)).toBeLessThanOrEqual(8);
+  // Delete note is to the right of the dropdown
+  expect(delBox!.x).toBeGreaterThan(dropBox!.x);
+  // Dropdown grows to take available space
+  expect(dropBox!.width).toBeGreaterThan(delBox!.width);
+
+  // Add second note
+  await addBtn.click();
+  await expect(notes).toHaveCount(2);
+
+  // Step 2 & 3: one 1px --line between consecutive notes only (.note-item + .note-item)
+  const note2BorderTop = await notes.nth(1).evaluate((el) => {
+    const s = getComputedStyle(el);
+    return {
+      style: s.borderTopStyle,
+      width: parseFloat(s.borderTopWidth || "0"),
+    };
+  });
+  expect(note2BorderTop.width).toBe(1);
+  expect(note2BorderTop.style).toBe("solid");
+
+  // First note still has no border-top
+  const note1BorderTopAgain = await notes.nth(0).evaluate((el) => {
+    const s = getComputedStyle(el);
+    return {
+      style: s.borderTopStyle,
+      width: parseFloat(s.borderTopWidth || "0"),
+    };
+  });
+  expect(note1BorderTopAgain.style === "none" || note1BorderTopAgain.width === 0).toBe(true);
+});
+
+test("Notes tab: no 'Ideas and reminders' hint", async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto("/");
+  await create(page, "Notes hint");
+  await openResearch(page);
+  await page.getByRole("button", { name: "Notes", exact: true }).click();
+  await expect(page.getByText(/Ideas and reminders/)).toHaveCount(0);
+  await expect(page.getByText("No notes yet.")).toBeVisible();
+});
+
+// Every drawn horizontal 1px rule in the research panel: an element's top or bottom border edge
+// (textarea and dropdown button included). The only pre-wave-6 close pair is the active-tab
+// underline sitting on the .research-tabs bottom border; it is excluded by that exact shape.
+test("Notes tab: exactly one rendered line between two notes, no two lines within 8 px", async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto("/");
+  await create(page, "Notes lines");
+  await openResearch(page);
+  await page.getByRole("button", { name: "Notes", exact: true }).click();
+  const addBtn = page.getByRole("button", { name: "Add note", exact: true });
+  await addBtn.click();
+  await addBtn.click();
+  const notes = page.locator(".note-item");
+  await expect(notes).toHaveCount(2);
+  await page.mouse.move(5, 5);
+  await page.waitForTimeout(300);
+  // Note 1's last field: the lower of its dropdown and its Delete button.
+  const n1Drop = await notes.nth(0).locator(".dropdown-button").boundingBox();
+  const n1Del = await notes.nth(0).getByRole("button", { name: "Delete note", exact: true }).boundingBox();
+  const n1Text = await notes.nth(0).locator("textarea").boundingBox();
+  const n2Field = await notes.nth(1).locator("textarea").boundingBox();
+  const addBox = await addBtn.boundingBox();
+  expect(n1Drop && n1Del && n1Text && n2Field && addBox).toBeTruthy();
+  const n1Bottom = Math.max(n1Drop!.y + n1Drop!.height, n1Del!.y + n1Del!.height);
+  const n1Field = { y: n1Bottom, height: 0 };
+  const lines = await page.locator(".research-panel").evaluate((root) => {
+    const out: { y: number; tab: boolean; what: string }[] = [];
+    const drawn = (c: string) => !!c && c !== "rgba(0, 0, 0, 0)" && c !== "transparent";
+    for (const el of root.querySelectorAll("*")) {
+      const st = getComputedStyle(el);
+      const r = el.getBoundingClientRect();
+      if (r.width === 0 || r.height === 0 || st.visibility === "hidden") continue;
+      const tab = !!el.closest(".research-tabs");
+      const tag = el.tagName + "." + el.className.toString().slice(0, 30);
+      const tw = parseFloat(st.borderTopWidth);
+      const bw = parseFloat(st.borderBottomWidth);
+      if (st.borderTopStyle !== "none" && tw > 0 && drawn(st.borderTopColor))
+        out.push({ y: +r.top.toFixed(1), tab, what: "top " + tag });
+      if (st.borderBottomStyle !== "none" && bw > 0 && drawn(st.borderBottomColor))
+        out.push({ y: +(r.bottom - bw).toFixed(1), tab, what: "bottom " + tag });
+    }
+    return out.sort((a, b) => a.y - b.y);
+  });
+  const dump = JSON.stringify(lines);
+  // Rules strictly below note 1's last field (its own bottom border is the field edge) and
+  // above note 2's first field: must be exactly one.
+  const between = lines.filter(
+    (l) => l.y > n1Field!.y + n1Field!.height - 0.5 && l.y < n2Field!.y + 0.5,
+  );
+  expect(between.length, "rendered lines between notes: " + dump).toBe(1);
+  // No rule between the Add note button and the first note's first field.
+  const above = lines.filter(
+    (l) => !l.tab && l.y > addBox!.y + addBox!.height - 0.5 && l.y < n1Text!.y + 0.5,
+  );
+  expect(above.length, "rendered lines above the first note: " + dump).toBe(0);
+  // No two distinct horizontal lines within 8 px of each other outside the tabs nav.
+  const rest = lines.filter((l) => !l.tab);
+  const close: unknown[] = [];
+  for (let i = 1; i < rest.length; i++) {
+    const d = rest[i].y - rest[i - 1].y;
+    if (d > 0.5 && d < 8) close.push([rest[i - 1], rest[i]]);
+  }
+  expect(close, "line pairs under 8 px apart: " + dump).toEqual([]);
 });

@@ -242,13 +242,13 @@ test("a Bold row in More toggles bold", async ({ page }) => {
   await expect(editor.locator("strong")).toHaveText("Bold me");
 });
 
-// K1: magnifying dock. Scale is read from the icon svg's computed matrix.
+// K1/T3: effective scale is relative to the original 16 px icon artwork.
 const bold = (page: any) =>
   page.getByRole("toolbar", { name: "Formatting" }).getByRole("button", { name: /^Bold/ });
 const svgScale = (loc: any) =>
   loc.locator("svg").first().evaluate((el: Element) => {
     const m = new DOMMatrix(getComputedStyle(el).transform);
-    return m.a;
+    return m.a * 1.5; // 24 px SVG artwork scaled to 16 px at rest.
   });
 
 test("dock magnifies the hovered icon with neighbour falloff and no layout shift", async ({
@@ -270,9 +270,9 @@ test("dock magnifies the hovered icon with neighbour falloff and no layout shift
   await expect.poll(() => svgScale(bold(page))).toBeGreaterThan(1.45);
   expect(await svgScale(bold(page))).toBeLessThan(1.55);
   const scales = await icons.evaluateAll((els) =>
-    els.map((e) => new DOMMatrix(getComputedStyle(e.querySelector("svg")!).transform).a),
+    els.map((e) => new DOMMatrix(getComputedStyle(e.querySelector("svg")!).transform).a * 1.5),
   );
-  expect(Math.min(...scales)).toBe(1); // far icons stay 1
+  expect(Math.min(...scales)).toBeCloseTo(1, 3); // far icons stay at their 16 px resting size
   expect(scales.filter((s) => s > 1.2 && s < 1.45).length).toBeGreaterThan(0);
   expect(await icons.evaluateAll((els) => els.map((e) => Math.round(e.getBoundingClientRect().x * 100)))).toEqual(before);
   expect((await toolbar.boundingBox())!.height).toBe(barH);
@@ -289,7 +289,7 @@ test("dock: Reduce Motion means no magnification", async ({ page }) => {
   await page.mouse.move(b.x + 2, b.y + 2);
   await page.mouse.move(b.x + b.width / 2, b.y + b.height / 2, { steps: 4 });
   await page.waitForTimeout(250);
-  expect(await svgScale(bold(page))).toBe(1);
+  expect(await svgScale(bold(page))).toBeCloseTo(1, 5);
 });
 
 test("dock: keyboard focus peaks instantly", async ({ page }) => {
@@ -302,4 +302,63 @@ test("dock: keyboard focus peaks instantly", async ({ page }) => {
   expect(await svgScale(bold(page))).toBeCloseTo(1.5, 1);
   const dur = await bold(page).locator("svg").first().evaluate((el: Element) => getComputedStyle(el).transitionDuration);
   expect(dur).toBe("0s");
+});
+
+test("scissor uses the cursor paragraph and keeps dock geometry fixed", async ({ page }) => {
+  await page.goto("/");
+  await create(page, "Scissor paragraph");
+  const editor = page.getByRole("textbox", { name: "Writing editor" });
+  const toolbar = bar(page);
+  const scissor = toolbar.getByRole("button", { name: "Keep as fragment", exact: true });
+  const comment = toolbar.getByRole("button", { name: "Comment on selection", exact: true });
+  await expect(scissor).toBeDisabled();
+  await expect(comment).toBeDisabled();
+  const paragraph = "Keep this whole paragraph as a fragment.";
+  await editor.fill(paragraph);
+  await editor.press("End");
+  await expect.poll(() => editor.evaluate((el: any) => el.editor.state.selection.empty)).toBe(true);
+
+  await expect(scissor).toBeEnabled();
+  await expect(comment).toBeEnabled();
+
+  const geometry = () => toolbar.evaluate((el) => ({
+    width: el.getBoundingClientRect().width,
+    height: el.getBoundingClientRect().height,
+    centers: [...el.querySelectorAll<HTMLElement>(".toolbar-icon, .extract")].map((button) => [
+      button.getAttribute("aria-label"),
+      button.getBoundingClientRect().left + button.getBoundingClientRect().width / 2,
+    ]),
+  }));
+  const atRest = await geometry();
+  const scissorSvgAtRest = (await scissor.locator("svg").boundingBox())!.width;
+  await scissor.hover();
+  await expect.poll(async () => (await scissor.locator("svg").boundingBox())!.width).toBeGreaterThan(scissorSvgAtRest);
+  const hovered = await geometry();
+  expect(hovered.width).toBeCloseTo(atRest.width, 1);
+  expect(hovered.height).toBeCloseTo(atRest.height, 1);
+  expect(hovered.centers.map(([label]) => label)).toEqual(atRest.centers.map(([label]) => label));
+  hovered.centers.forEach(([, center], index) => {
+    expect(Math.abs(center - atRest.centers[index][1])).toBeLessThanOrEqual(0.5);
+  });
+  await scissor.click();
+  await expect(editor).not.toContainText(paragraph);
+  await page.locator(".group-title").filter({ hasText: /^Fragments$/ }).click();
+  await expect(page.locator(".fragment-library")).toContainText(paragraph);
+});
+
+test("comment on a collapsed cursor captures the whole paragraph", async ({ page }) => {
+  await page.goto("/");
+  await create(page, "Comment paragraph");
+  const editor = page.getByRole("textbox", { name: "Writing editor" });
+  const paragraph = "Comment on this complete paragraph.";
+  await editor.fill(paragraph);
+  await editor.press("End");
+  await expect.poll(() => editor.evaluate((el: any) => el.editor.state.selection.empty)).toBe(true);
+  const comment = bar(page).getByRole("button", { name: "Comment on selection", exact: true });
+  await expect(comment).toBeEnabled();
+  await comment.click();
+  await page.getByLabel("Note", { exact: true }).fill("Paragraph comment");
+  await page.getByRole("button", { name: "Save", exact: true }).click();
+  await page.locator(".group-title").filter({ hasText: /^Comments$/ }).click();
+  await expect(page.locator("article.feature-item").filter({ hasText: "Paragraph comment" })).toContainText(paragraph);
 });

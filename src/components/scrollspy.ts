@@ -188,85 +188,118 @@ export function useWriteProgress(enabled: boolean, getScroller: () => HTMLElemen
   return enabled ? progress : 0;
 }
 
-const LINES = ".entry-row > button.spy-line";
+const LINES = ".spy-rail > button.spy-line";
 
-/** Keyboard focus: the focused row's line peaks, its neighbours step down by row distance. */
+/** Pointer distance (px) at which a rail line stops growing: three lines (the rail's pitch is 12 px). */
+export const RAIL_RADIUS = 36;
+
+/** A text's first words: whitespace collapsed, at most `max` characters, "..." when cut. */
+export function previewText(text: string | undefined, max = 120): string {
+  const flat = (text ?? "").replace(/\s+/g, " ").trim();
+  return flat.length > max ? flat.slice(0, max) + "\u2026" : flat;
+}
+
+/** Keyboard focus: the focused line peaks, its neighbours step down by distance in the rail. */
 function keyboardMagnify(rowDistance: number): number {
   const d = Math.abs(rowDistance);
   return d === 0 ? 1 : d === 1 ? 0.5 : d === 2 ? 0.2 : 0;
 }
 
-/** Proximity magnify for the sidebar's lines: writes `--spy-mag` (0..1) on every line inside
- *  `container` from the pointer's vertical distance (spyMagnify). Keyboard focus on a row sets
- *  1 / 0.5 / 0.2 by row distance at once (`data-spy-key` turns the transition off). Touch and
- *  Reduce Motion: nothing is written. */
+/** The rail line a focused element stands for: the line itself, or the row button with its id. */
+function lineFor(container: HTMLElement, target: HTMLElement | null): HTMLElement | null {
+  if (!target) return null;
+  if (target.matches(LINES)) return target;
+  const id = target.matches(".entry-main[data-row-id]") ? target.getAttribute("data-row-id") : null;
+  if (!id) return null;
+  const group = target.closest(".sidebar-group");
+  return (
+    Array.from((group ?? container).querySelectorAll<HTMLElement>(LINES)).find(
+      (l) => l.getAttribute("data-row-id") === id,
+    ) ?? null
+  );
+}
+
+/** Proximity magnify for the sidebar's rail lines: writes `--spy-mag` (0..1) on the lines of the
+ *  rail under the pointer (spyMagnify, RAIL_RADIUS). Keyboard focus on a line or its row sets
+ *  1 / 0.5 / 0.2 by distance in the rail at once (`data-spy-key` turns the transition off).
+ *  Touch and Reduce Motion: nothing is written. */
 export function useSpyDock(container: RefObject<HTMLElement | null>): void {
   useEffect(() => {
     const el = container.current;
     if (!el) return;
     let frame = 0;
-    let pointerY: number | null = null;
+    let pointer: { y: number; rail: Element } | null = null;
     const lines = () => Array.from(el.querySelectorAll<HTMLElement>(LINES));
     const reset = () => {
       for (const line of lines()) line.style.removeProperty("--spy-mag");
     };
     const flush = () => {
       frame = 0;
-      if (pointerY === null) return;
+      if (!pointer) return;
       for (const line of lines()) {
+        if (line.parentElement !== pointer.rail) {
+          line.style.removeProperty("--spy-mag");
+          continue;
+        }
         const r = line.getBoundingClientRect();
         if (!r.height) continue;
         // The line's resting centre: a transform does not move its layout box's centre.
-        line.style.setProperty("--spy-mag", spyMagnify(pointerY - (r.top + r.height / 2)).toFixed(3));
+        line.style.setProperty("--spy-mag", spyMagnify(pointer.y - (r.top + r.height / 2), RAIL_RADIUS).toFixed(3));
       }
     };
     const schedule = () => {
       if (!frame) frame = requestAnimationFrame(flush);
     };
-    const onMove = (e: PointerEvent) => {
-      if (e.pointerType === "touch" || prefersReducedMotion()) return;
-      el.removeAttribute("data-spy-key");
-      pointerY = e.clientY;
-      schedule();
-    };
-    const onScroll = () => {
-      if (pointerY !== null) schedule();
-    };
-    const onLeave = () => {
-      pointerY = null;
+    const clearPointer = () => {
+      pointer = null;
       if (frame) cancelAnimationFrame(frame);
       frame = 0;
       if (!el.hasAttribute("data-spy-key")) reset();
     };
+    const onMove = (e: PointerEvent) => {
+      if (e.pointerType === "touch" || prefersReducedMotion()) return;
+      const rail = (e.target as Element | null)?.closest?.(".spy-rail") ?? null;
+      if (!rail || !el.contains(rail)) {
+        if (pointer) clearPointer();
+        return;
+      }
+      el.removeAttribute("data-spy-key");
+      pointer = { y: e.clientY, rail };
+      schedule();
+    };
+    const onScroll = () => {
+      if (pointer) schedule();
+    };
     const onFocusIn = (e: FocusEvent) => {
       const target = e.target as HTMLElement | null;
       if (prefersReducedMotion() || !target?.matches?.(":focus-visible")) return;
-      const own = target.closest(".entry-row")?.querySelector<HTMLElement>(":scope > .spy-line");
-      if (!own) return;
-      const list = lines();
+      const own = lineFor(el, target);
+      if (!own?.parentElement) return;
+      const list = Array.from(own.parentElement.children).filter((c) => c.matches(".spy-line")) as HTMLElement[];
       const at = list.indexOf(own);
       if (at < 0) return;
-      pointerY = null;
+      pointer = null;
       if (frame) cancelAnimationFrame(frame);
       frame = 0;
       el.setAttribute("data-spy-key", "");
+      for (const line of lines()) line.style.removeProperty("--spy-mag");
       list.forEach((line, i) => line.style.setProperty("--spy-mag", keyboardMagnify(i - at).toString()));
     };
     const onFocusOut = (e: FocusEvent) => {
       if (!el.hasAttribute("data-spy-key")) return;
       const next = e.relatedTarget as HTMLElement | null;
-      if (next && el.contains(next) && next.closest(".entry-row")?.querySelector(":scope > .spy-line")) return;
+      if (next && el.contains(next) && lineFor(el, next)) return;
       el.removeAttribute("data-spy-key");
       reset();
     };
     el.addEventListener("pointermove", onMove);
-    el.addEventListener("pointerleave", onLeave);
+    el.addEventListener("pointerleave", clearPointer);
     el.addEventListener("scroll", onScroll, { passive: true });
     el.addEventListener("focusin", onFocusIn);
     el.addEventListener("focusout", onFocusOut);
     return () => {
       el.removeEventListener("pointermove", onMove);
-      el.removeEventListener("pointerleave", onLeave);
+      el.removeEventListener("pointerleave", clearPointer);
       el.removeEventListener("scroll", onScroll);
       el.removeEventListener("focusin", onFocusIn);
       el.removeEventListener("focusout", onFocusOut);

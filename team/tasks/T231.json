@@ -1,0 +1,73 @@
+{
+  "id": "T231",
+  "title": "W6 T7a -- Line rail prototypes A and B for the owner",
+  "description": "Do PLAN.md task T7a. Scratch only: node_modules/.cache/personal-word-beta/ui6-rail (static HTML using the app tokens, or a private build never written back). Two variants, light+dark PNGs, README.md. Post the pick to the owner with 'question'. The done note must name the owner's pick (default Variant B if unanswered).",
+  "status": "done",
+  "owner": null,
+  "priority": 1,
+  "depends_on": [],
+  "files": [
+    "node_modules/.cache/personal-word-beta/ui6-rail"
+  ],
+  "review_required": false,
+  "created_by": "agent-81bd",
+  "created_at": "2026-11-03T03:40:15+00:00",
+  "claimed_at": "2026-11-03T04:18:19+00:00",
+  "updated_at": "2026-11-03T04:23:08+00:00",
+  "handoff": {
+    "by": "agent-81bd",
+    "at": "2026-11-03T04:02:31+00:00",
+    "text": "Freed by coordinator agent-81bd: the original worker was stopped by the owner before finishing. Start from the PLAN.md task section and node_modules/.cache/personal-word-beta/ui6-brief.md. Partial prototype from the stopped worker is in node_modules/.cache/personal-word-beta/ui6-rail (index.html, shoot.mjs, variant-A-light/dark.png, variant-B-light.png); variant-B-dark, README.md and the owner question are still to do -- reuse or redo.\nRegistered paths: clean (no edits from the stopped worker)."
+  },
+  "review": null,
+  "log": [
+    {
+      "at": "2026-11-03T03:40:15+00:00",
+      "agent": "agent-81bd",
+      "event": "created",
+      "note": ""
+    },
+    {
+      "at": "2026-11-03T03:43:48+00:00",
+      "agent": "agent-42ed",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-11-03T03:43:51+00:00",
+      "agent": "agent-42ed",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-11-03T04:02:29+00:00",
+      "agent": "agent-81bd",
+      "event": "reclaimed from agent-42ed",
+      "note": ""
+    },
+    {
+      "at": "2026-11-03T04:02:31+00:00",
+      "agent": "agent-81bd",
+      "event": "handoff",
+      "note": "Freed by coordinator agent-81bd: the original worker was stopped by the owner before finishing. Start from the PLAN.md task section and node_modules/.cache/personal-word-beta/ui6-brief.md. Partial prototype from the stopped worker is in node_modules/.cache/personal-word-beta/ui6-rail (index.html, shoot.mjs, variant-A-light/dark.png, variant-B-light.png); variant-B-dark, README.md and the owner question are still to do -- reuse or redo.\nRegistered paths: clean (no edits from the stopped worker)."
+    },
+    {
+      "at": "2026-11-03T04:18:19+00:00",
+      "agent": "agent-9461",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-11-03T04:18:19+00:00",
+      "agent": "agent-9461",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-11-03T04:23:08+00:00",
+      "agent": "agent-9461",
+      "event": "done",
+      "note": "Rail prototypes complete (scratch-only lane; no src/tests edits). Completed the stopped worker's partial prototype in ui6-rail: kept its index.html + shoot.mjs (both variants already used the app's light/dark tokens), re-ran shoot.mjs under the serial lock with pinned Node -- all four screenshots regenerated and verified by eye: variant-A-{light,dark}.png (per-row lines at each row's right edge, open/hovered line grows, hover preview card, click jumps) and variant-B-{light,dark}.png (compact even-pitch stack of short lines in the sidebar's right gutter, open item's line longer + accent, hover/focus preview card title + first 120 chars beside the line, click jumps -- matches reference shots 1/2). README.md written with view instructions (index.html?v=A|B&t=light|dark&card=N), pros/cons and 9.3('lines don't reorder; reorder stays row drag'). Owner question Q025 posted with both variants for the pick. Owner's pick: UNANSWERED so far, defaulting to Variant B per PLAN ('closest to the reference'). Acceptance check: ls ui6-rail/*.png | wc -l -> 4 (>= 4 required). T7b (T232) can start once T230's review approves; it should consume the owner's Q025 answer or the Variant B default. Files: node_modules/.cache/personal-word-beta/ui6-rail/* only."
+    }
+  ]
+}

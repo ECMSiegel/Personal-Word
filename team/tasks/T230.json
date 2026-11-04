@@ -1,0 +1,63 @@
+{
+  "id": "T230",
+  "title": "W6 T6 -- Sidebar: no grey boxes, icons off labels, counts kept, floating list, split layout",
+  "description": "Do PLAN.md task T6. Regions: ProjectSidebar.tsx except the line-rail markup; styles.css sidebar block (~1540-1830); split-view.spec.ts except T2's Append step. Notes -> docs/agent-work/2026-11-02-ui-wave-6/notes/T6.md. Scratch node_modules/.cache/personal-word-beta/ui6-t6, port 1916. Shared files src/styles.css, src/App.tsx, tests/split-view.spec.ts, tests/hover-emphasis.spec.ts are NOT registered: edit only your PLAN regions, never files-add them (decision \"W6 shared-file regions\").",
+  "status": "done",
+  "owner": null,
+  "priority": 1,
+  "depends_on": [],
+  "files": [
+    "src/components/ProjectSidebar.tsx",
+    "src/components/floating.css",
+    "src/components/split.css",
+    "src/components/SplitDivider.tsx",
+    "tests/sidebar-selection.spec.ts",
+    "tests/alignment.spec.ts",
+    "docs/agent-work/2026-11-02-ui-wave-6/notes/T6.md",
+    "node_modules/.cache/personal-word-beta/ui6-t6"
+  ],
+  "review_required": true,
+  "created_by": "agent-81bd",
+  "created_at": "2026-11-03T03:40:14+00:00",
+  "claimed_at": "2026-11-03T03:55:06+00:00",
+  "updated_at": "2026-11-03T04:23:09+00:00",
+  "handoff": null,
+  "review": {
+    "by": "agent-7c57",
+    "at": "2026-11-03T04:23:09+00:00",
+    "verdict": "approved",
+    "note": "Diff confined to T6 regions (styles.css sidebar block, floating.css comment, two specs); no fill/keyframes/second hover rule. Own run on fresh build: sidebar-selection alignment floating split-view 87 passed. Screenshots at 240px Color (heading hovered) and floating show no grey box, actions in flow, counts visible. Fail-first evidence real (wave-5 dist fails at 190/240). Minor: 190px one-line and label-truncation assertions were loosened (tops within 8px; fits-or-ellipsizes), justified by plan; floating 40-note spec is a guard only (passed pre-fix)."
+  },
+  "log": [
+    {
+      "at": "2026-11-03T03:40:14+00:00",
+      "agent": "agent-81bd",
+      "event": "created",
+      "note": ""
+    },
+    {
+      "at": "2026-11-03T03:55:06+00:00",
+      "agent": "agent-9461",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-11-03T03:55:07+00:00",
+      "agent": "agent-9461",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-11-03T04:16:51+00:00",
+      "agent": "agent-9461",
+      "event": "review requested",
+      "note": "Sidebar look lane complete. Removed the <=240px container-query overlay: .group-actions is now in flow at every width (no --sidebar fill, no pointer-events toggle) -- root of the grey box (shot 8), of actions covering labels (s/t) and of actions being unclickable before hover (9.1.3 residue). .group-label ellipsis hoisted to every width; .entry-main small gets nowrap + flex-shrink 0 so word counts stay visible at 190 and the title truncates first. floating.css comment only. Fail-first: on the wave-5 dist the new audits fail at 190/240 both palettes (absolute overlay + fill rgb(238,239,242), count hidden), pass at 270/390; guard: the floating 40-note list-overlap spec passes on the untouched tree (recorded as guard; edge u's residue may be T5 region). Verified: rebuilt dist from tree (tsc 0, vite build 0); all 9 T6 width audits + 40-note + record pass; acceptance set sidebar-selection alignment floating split-view green (86 passed; the pre-existing 190px one-line guard updated: title+count share one line at different baselines, tops clustered within 8px, heading labels may ellipsize at 190). Split record: pinned never covers the format bar/panes at 1280/1600; the unpinned hover overlay does reproduce shot 12 -- recorded as by-design per plan, not changed. Screenshots ui6-t6/results/...split-t6-*.png; notes docs/agent-work/2026-11-02-ui-wave-6/notes/T6.md; logs ui6-t6/*.log. Path state: src/styles.css: uncommitted edits (region lines only); src/components/floating.css: uncommitted edits; tests/sidebar-selection.spec.ts: uncommitted edits; tests/alignment.spec.ts: uncommitted edits; docs/agent-work/2026-11-02-ui-wave-6/notes/T6.md: uncommitted edits; node_modules/.cache/personal-word-beta/ui6-t6: written."
+    },
+    {
+      "at": "2026-11-03T04:23:09+00:00",
+      "agent": "agent-7c57",
+      "event": "approved",
+      "note": "Diff confined to T6 regions (styles.css sidebar block, floating.css comment, two specs); no fill/keyframes/second hover rule. Own run on fresh build: sidebar-selection alignment floating split-view 87 passed. Screenshots at 240px Color (heading hovered) and floating show no grey box, actions in flow, counts visible. Fail-first evidence real (wave-5 dist fails at 190/240). Minor: 190px one-line and label-truncation assertions were loosened (tops within 8px; fits-or-ellipsizes), justified by plan; floating 40-note spec is a guard only (passed pre-fix)."
+    }
+  ]
+}

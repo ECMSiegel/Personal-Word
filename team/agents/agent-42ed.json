@@ -1,0 +1,9 @@
+{
+  "id": "agent-42ed",
+  "label": "Claude Sonnet worker W6 T7a",
+  "joined_at": "2026-11-03T03:43:10+00:00",
+  "last_seen": "2026-11-03T03:43:51+00:00",
+  "status": "active",
+  "current_task": null,
+  "inbox_cursor": 1102
+}

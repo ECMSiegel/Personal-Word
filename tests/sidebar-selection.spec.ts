@@ -250,20 +250,33 @@ test("at the 190 px minimum sidebar width every row stays on one line", async ({
         ".sidebar .group-title, .sidebar .entry-main, .sidebar .project-switch",
       ),
     ];
-    return targets.map((el) => {
+    // Wave 6 T6: the word count stays visible at 190 px, and one row paints the
+    // title (body size) and the count (small size) on ONE line at different
+    // baselines. Tops within 8 px are one visual line; a real wrap puts the
+    // second text a full line lower (~15 px line height).
+    const textLines = (el: HTMLElement) => {
       const walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT);
-      const tops = new Set<number>();
+      const tops: number[] = [];
       for (let node = walker.nextNode(); node; node = walker.nextNode()) {
         if (!node.textContent?.trim()) continue;
         const range = document.createRange();
         range.selectNodeContents(node);
-        for (const rect of range.getClientRects()) tops.add(Math.round(rect.top));
+        for (const rect of range.getClientRects()) tops.push(Math.round(rect.top));
       }
+      tops.sort((a, b) => a - b);
+      const lines: number[] = [];
+      for (const t of tops) {
+        const last = lines[lines.length - 1];
+        if (last === undefined || t - last > 8) lines.push(t);
+      }
+      return lines.length;
+    };
+    return targets.map((el) => {
       const style = getComputedStyle(el);
       return {
         label: (el.textContent ?? "").trim(),
         kind: el.className,
-        lines: tops.size,
+        lines: textLines(el),
         height: Math.round(el.getBoundingClientRect().height),
         font: parseFloat(style.fontSize),
       };
@@ -289,12 +302,23 @@ test("at the 190 px minimum sidebar width every row stays on one line", async ({
       const el = [...document.querySelectorAll<HTMLElement>(".sidebar .group-label")].find(
         (e) => e.textContent?.trim() === name,
       );
-      return { name, found: !!el, fits: !!el && el.scrollWidth <= el.clientWidth };
+      return {
+        name,
+        found: !!el,
+        fits: !!el && el.scrollWidth <= el.clientWidth,
+        ellipses: !!el && getComputedStyle(el).textOverflow === "ellipsis",
+      };
     }),
   );
   for (const c of clipped) {
     expect(c.found, c.name + " heading exists").toBe(true);
-    expect(c.fits, c.name + " label is not truncated").toBe(true);
+    // Wave 6 T6: room is reserved for the in-flow action buttons at every
+    // width, so at 190 px a long heading name may ellipsize (one line either
+    // way, never overlapping the buttons or the word counts).
+    expect(
+      c.fits || c.ellipses,
+      c.name + " label fits or ellipsizes on one line",
+    ).toBe(true);
   }
   const heading = page.locator(".sidebar .group-heading", {
     has: page.getByRole("button", { name: "Hide Manuscript" }),
@@ -574,4 +598,96 @@ for (const palette of ["plain", "color"] as const)
       await expectHeader(page, "manuscript", true);
       await expectEntry(page, "lit.pdf", true);
       await expectEntry(page, "Beside words", false);
+    });
+
+// UI wave 6 T6 (REQUEST 9.1, rough edges s, t): at every width the heading's
+// action buttons stay in the heading's flow -- never an absolute overlay, never
+// backed by a --sidebar fill (the grey box shot 8 shows) -- and never cover a
+// label, and the word count survives at the 190 px minimum width.
+function t6SidebarAudit() {
+  const fillVerdicts: string[] = [];
+  const textRects = (el: Element) => {
+    const out: { left: number; right: number; top: number; bottom: number }[] = [];
+    const walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT);
+    for (let n = walker.nextNode(); n; n = walker.nextNode()) {
+      if (!n.textContent?.trim()) continue;
+      const range = document.createRange();
+      range.selectNodeContents(n);
+      for (const r of range.getClientRects()) {
+        if (r.width > 0 && r.height > 0)
+          out.push({ left: r.left, right: r.right, top: r.top, bottom: r.bottom });
+      }
+    }
+    return out;
+  };
+  for (const heading of document.querySelectorAll<HTMLElement>(".sidebar .group-heading")) {
+    const actions = heading.querySelector(".group-actions");
+    const label = heading.querySelector(".group-label");
+    const name = (label?.textContent ?? heading.className).trim();
+    if (!(actions instanceof HTMLElement)) continue;
+    const actionsStyle = getComputedStyle(actions);
+    if (actionsStyle.display === "none") continue;
+    if (actionsStyle.position !== "static")
+      fillVerdicts.push(name + ": action row is " + actionsStyle.position + ", not in flow");
+    for (let el: HTMLElement | null = actions; el; el = el.parentElement) {
+      const bg = getComputedStyle(el).backgroundColor;
+      if (bg !== "rgba(0, 0, 0, 0)")
+        fillVerdicts.push(name + ": fill " + bg + " on '" + (el.classList[0] || el.tagName) + "'");
+      if (el === heading) break;
+    }
+    const rects = label ? textRects(label) : [];
+    for (const b of actions.querySelectorAll("button")) {
+      const r = b.getBoundingClientRect();
+      if (r.width <= 0) continue;
+      for (const t of rects) {
+        const overlaps = !(r.right <= t.left || r.left >= t.right || r.bottom <= t.top || r.top >= t.bottom);
+        if (overlaps) fillVerdicts.push(name + ": an action button covers the label text");
+      }
+    }
+  }
+  return fillVerdicts;
+}
+
+const T6_COLOR_APPEARANCE = {
+  theme: "system",
+  palette: "color",
+  sections: { manuscript: "blue", fragments: "green", research: "orange" },
+};
+
+for (const palette of ["plain", "color"] as const)
+  for (const width of [190, 240, 270, 390] as const)
+    test(`T6 ${palette} @${width}px: heading actions in flow, no fill, clear of labels`, async ({ page }) => {
+      await page.emulateMedia({ colorScheme: "light" });
+      await page.addInitScript(
+        ([pal, w]) => {
+          localStorage.setItem(
+            "folio.workspace.sidebar",
+            JSON.stringify({ width: w, pinned: true, hover: true, floating: false }),
+          );
+          if (pal === "color")
+            localStorage.setItem(
+              "folio.workspace.appearance",
+              JSON.stringify(T6_COLOR_APPEARANCE),
+            );
+        },
+        [palette, width] as const,
+      );
+      await createProject(page, "Action placement");
+      const sidebar = page.locator(".sidebar");
+      expect(
+        await sidebar.evaluate((el) => el.getBoundingClientRect().width),
+        "sidebar counts its own width",
+      ).toBe(width);
+      await page
+        .locator('.sidebar [data-group="manuscript"] > .group-heading')
+        .hover();
+      const verdicts = await page.evaluate(t6SidebarAudit);
+      expect(verdicts, "every heading audit passes").toEqual([]);
+      // s/t + 9.1: the word count stays visible at the narrow widths; a count the
+      // row swaps for the open-beside button only moves on hover, by design.
+      const count = page.locator(".sidebar .entry-main small").first();
+      expect(
+        await count.evaluate((el) => getComputedStyle(el).display),
+        "word count is rendered",
+      ).not.toBe("none");
     });

@@ -32,6 +32,7 @@ describe("hover emphasis consistency", () => {
   it("(a) exactly one rule sets the stroke and --emph-s together, and it is in styles.css", () => {
     const hits = ALL.filter((r) => /--emph-s\s*:/.test(r.body) && /-webkit-text-stroke\s*:\s*var\(--emph-stroke\)/.test(r.body));
     expect(hits.map((r) => r.file)).toEqual(["src/styles.css"]);
+    expect(hits).toHaveLength(1);
     expect(hits[0].selector).toMatch(/:hover/);
   });
 
@@ -41,16 +42,22 @@ describe("hover emphasis consistency", () => {
   });
 
   it("(c) no other rule sets a hover/focus scale or a text stroke", () => {
-    // .spy-line is the one allowed hover transform: its own scaleX line (scrollspy.css), not text emphasis
-    const SCALE_ALLOWLIST = [".spy-line"];
+    // .spy-line is the one allowed hover transform: its own scaleX line (scrollspy.css), not text emphasis.
+    const sharedTransform = ALL.filter(
+      (r) => r.file === "src/styles.css" && r.selector.includes(":is(button") && r.selector.includes(".emph-row .emph-label") && /transform\s*:[^;]*scale[XYZ3d]*\(/.test(r.body),
+    );
+    expect(sharedTransform).toHaveLength(1);
     const scale = ALL.filter(
-      (r) => INTERACTIVE.test(r.selector) && /transform\s*:[^;]*scale[XYZ3d]*\(/.test(r.body) && !SCALE_ALLOWLIST.some((a) => r.selector.includes(a)),
+      (r) => INTERACTIVE.test(r.selector) && /transform\s*:[^;]*scale[XYZ3d]*\(/.test(r.body) && !r.selector.includes(".spy-line") && !sharedTransform.includes(r),
     );
     expect(scale.map((r) => `${r.file}: ${r.selector}`)).toEqual([]);
-    // --emph-s drives the scale: only the shared rule may set it (a drift rule `--emph-s: 1.3` would slip past the check above)
+    // --emph-s and its non-zero stroke belong to the same single shared rule.
     const emphS = ALL.filter((r) => /(^|[;\s])--emph-s\s*:/.test(r.body));
-    expect(emphS.map((r) => `${r.file}: ${r.selector}`).length).toBe(1);
+    expect(emphS).toHaveLength(1);
     expect(emphS[0].file).toBe("src/styles.css");
+    const emphStroke = ALL.filter((r) => /-webkit-text-stroke\s*:\s*var\(--emph-stroke\)/.test(r.body));
+    expect(emphStroke).toHaveLength(1);
+    expect(emphStroke[0]).toBe(emphS[0]);
     const stroke = ALL.filter((r) => has(r.body, "-webkit-text-stroke") && !/^\s*-webkit-text-stroke\s*:\s*0\s*;?\s*$/m.test(r.body) && !/var\(--emph-stroke\)/.test(r.body));
     expect(stroke.map((r) => `${r.file}: ${r.selector}`)).toEqual([]);
   });

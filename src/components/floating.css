@@ -67,8 +67,9 @@
     opacity var(--duration-base) var(--ease-out),
     transform var(--duration-base) var(--ease-out);
 }
-/* No surface anywhere inside: the narrow-width container query backs the
-   overlaid group buttons with --sidebar; here they sit on the page. */
+/* No surface anywhere inside: these keep floating bare text even if a future
+   rule fills the group buttons or search again (the narrow-width fill is gone
+   since wave 6 T6; the plain sidebars have no fill at any width). */
 .sidebar-shell.is-floating .sidebar .group-actions,
 .sidebar-shell.is-floating .sidebar .search,
 .sidebar-shell.is-floating .sidebar .search input,

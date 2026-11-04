@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { activeIndex, easedScrollTo, quartic, scrollProgress, sectionProgress, spyMagnify, SPY_RADIUS } from "./scrollspy";
+import { activeIndex, easedScrollTo, previewText, quartic, scrollProgress, sectionProgress, spyMagnify, SPY_RADIUS } from "./scrollspy";
 import { DOCK_PEAK, dockScale } from "./dock";
 
 describe("activeIndex", () => {
@@ -176,5 +176,18 @@ describe("sectionProgress", () => {
   it("a zero-height section counts as read once its top passes the line", () => {
     expect(sectionProgress(0, 0, 900, false)).toBe(1);
     expect(sectionProgress(400, 0, 900, false)).toBe(0);
+  });
+});
+
+describe("previewText", () => {
+  it("returns short text as it is, whitespace collapsed", () => {
+    expect(previewText("Dear  Anna,\n the sea")).toBe("Dear Anna, the sea");
+    expect(previewText("")).toBe("");
+    expect(previewText(undefined)).toBe("");
+  });
+  it("cuts at 120 characters and marks the cut", () => {
+    const long = "x".repeat(300);
+    expect(previewText(long)).toBe("x".repeat(120) + "…");
+    expect(previewText("y".repeat(120))).toBe("y".repeat(120));
   });
 });

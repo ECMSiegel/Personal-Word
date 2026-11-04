@@ -6,6 +6,10 @@
 
 This is a working local desktop slice, not a production durability certification.
 
+## UI wave 6 -- 2026-11-03
+
+Status: CLAIMED. The final check (T233) ran in one pass: tsc, 1134 unit tests, full Playwright (443 passed, 2 timing flakes that passed 3/3 on rerun, 16 env-gated skips), 63 cargo tests, native reliability baseline + beta, native smoke, page gates, and native screens in Plain and Color with 17 new every-state captures each. The record, every-state list, release sha256 and owner hand-check sheet are in [the wave-6 validation record](agent-work/2026-11-02-ui-wave-6/VALIDATION.md). Native captures cannot hover or resize the window, so hover and 1100/1600 px checks are Chromium-only or owner hand checks.
+
 ## UI wave 5 -- 2026-11-01
 
 Status: CLAIMED. The final validation task (V) has not been recorded in this file yet; its record and the owner hand-check sheet will be in `docs/agent-work/2026-11-01-ui-wave-5/VALIDATION.md`. This lists the checks of the approved tasks T194-T219 (including the Amendment 1 tasks T214 search clear, T215/T217 command palette, T216 scroll fade and T218 right-click menu). Each task ran on its own private build with a recorded fail-first run, logs under `node_modules/.cache/personal-word-beta/ui5-*`.

@@ -1,0 +1,159 @@
+{
+  "id": "T225",
+  "title": "W6 T1 -- Label-only emphasis rows: palette spacing + projects trash",
+  "description": "Do PLAN.md task T1 (docs/agent-work/2026-11-02-ui-wave-6/PLAN.md). Regions: styles.css emphasis block (~405-500) and .project-row/.delete-entry rules; hover-emphasis.spec.ts except the Append-to-section case. Fail-first first. Notes -> docs/agent-work/2026-11-02-ui-wave-6/notes/T1.md. Scratch node_modules/.cache/personal-word-beta/ui6-t1, Playwright port 1911. Shared files src/styles.css, src/App.tsx, tests/split-view.spec.ts, tests/hover-emphasis.spec.ts are NOT registered: edit only your PLAN regions, never files-add them (decision \"W6 shared-file regions\").",
+  "status": "done",
+  "owner": null,
+  "priority": 1,
+  "depends_on": [],
+  "files": [
+    "src/components/command-palette.css",
+    "src/components/CommandPalette.tsx",
+    "src/components/ProjectLibrary.tsx",
+    "src/hoverEmphasis.test.ts",
+    "tests/command-palette.spec.ts",
+    "tests/projects-screen.spec.ts",
+    "docs/agent-work/2026-11-02-ui-wave-6/notes/T1.md",
+    "node_modules/.cache/personal-word-beta/ui6-t1",
+    "src/styles.css",
+    "tests/hover-emphasis.spec.ts"
+  ],
+  "review_required": true,
+  "created_by": "agent-81bd",
+  "created_at": "2026-11-03T03:40:07+00:00",
+  "claimed_at": "2026-11-03T08:21:04+00:00",
+  "updated_at": "2026-11-03T09:18:52+00:00",
+  "handoff": {
+    "by": "agent-e148",
+    "at": "2026-11-03T07:30:57+00:00",
+    "text": "REJECT r2 (Opus agent-e148). The three r1 findings ARE fixed: no '//' JSX text (grep + fresh-build innerText: palette 'Take snapshot\\n⇧⌘S', project row 'title\\nAdded...'); .emph-row/.emph-label sit only in the two shared rules' selector lists (styles.css:437-443, 470-476); hoverEmphasis.test.ts now fails on scratch copies with an extra '.emph-label:hover{transform:scale(1.3)}' (1 fail, (c)) and with an extra stroke+--emph-s rule (2 fail, (a)+(c)); clean copy 7/7. Fresh build ui6-rev-t225b port 1924: Playwright command-palette projects-screen hover-emphasis 54 passed / 4 optional skips, no hover inventory exceptions (the T7b-seen 'Projects emph-row weight 400->500' came from the old tree with '// Added emph-label' text before labelRestWeight; the 'Dialog Snapshot name Cancel 1.04' is the known pre-existing load flake from wave 4/5, not T1). Padding 16/16 tokens, trash slot clear at 1100/1600 light+dark (dates right 906, trash 918), Sidebar heading spec update OK. ONE NEW BLOCKER (regression): the label's grow SNAPS back on un-hover/un-highlight instead of easing like every other text control. Cause: styles.css:439 puts the label in the transform+transition rule only while the row is hovered/highlighted, so when the state ends the transition declaration disappears with it. Measured: project-name transform 'none' 30 ms after the pointer leaves (a 120 ms --duration-fast ease would still read ~1.03); arrowing through the palette, the previous row snaps while the new one eases. Before T1 both the palette option and project row eased back. FIX: at styles.css:439 (transform rule ONLY) replace '.emph-row:is(:hover, :focus-visible, [data-highlighted], .is-highlighted) .emph-label' with '.emph-row .emph-label' (scale defaults to --emph-s 1 at rest, so it stays the one rule); leave line 472 (stroke/--emph-s trigger) as is. Update src/hoverEmphasis.test.ts:47 sharedTransform filter to match the new selector (e.g. r.selector.includes('.emph-row .emph-label')) keeping toHaveLength(1), and re-prove the two doctored-copy failures. Add a regression check (e.g. in tests/projects-screen.spec.ts trash test or command-palette spec): after moving the pointer off a hovered row, the .emph-label's computed transitionDuration is nonzero / transform at ~30 ms is not 'none'. Rerun vitest hoverEmphasis + Playwright command-palette projects-screen hover-emphasis on a fresh build. Evidence: node_modules/.cache/personal-word-beta/ui6-rev-t225b/{run.log,run2.log,shots/}. Side note (pre-existing, not T1): a pointer resting under a freshly opened palette strokes that row by :hover while another row is highlighted (visible in palette shots, 'Toggle sidebar')."
+  },
+  "review": {
+    "by": "agent-9d19",
+    "at": "2026-11-03T09:18:52+00:00",
+    "verdict": "approved",
+    "note": "APPROVE r3 (Fable agent-9d19). Fresh build ui6-fable-batch port 1930: tsc 0; vitest hoverEmphasis 7/7; Playwright command-palette projects-screen hover-emphasis appearance writing fragments-panel research = 126 passed / 4 skipped / 0 failed (the :311 and :587 projects-screen failures T226's run reported did not reproduce). Doctored scratch copies of src/*.css: extra '.emph-label:hover{transform:scale(1.3)}' -> 1 fail (c); extra stroke+--emph-s rule -> 2 fail (a)+(c); clean 7/7. .emph-row/.emph-label appear only in the two shared selector lists (styles.css:437-443, 470-476) plus the --emph-origin line. No '//' text rendered (spec assertions + innerText of palette/project rows). Ease-back measured: project label transform 1.014 at 30 ms after unhover (120 ms --duration-fast), Reduce Motion spec passes. Palette: hint right edge identical highlighted/unhighlighted (1063.0/1063.0), padding 16/16. Projects: trash never intersects dates at 1100/1600 light+dark, incl. a 120-char title hovered. Sidebar-heading spec update for T2 present. Every-state notes for V: (1) long 'Go to <120-char title>' command wraps to two lines, scaled box ends 5 px past the option box but glyphs stay ~12 px inside the palette -- fine; (2) LATENT: a long label on a row WITH a hint (DOM-mutated 'Save' row) grows ~20 px into the 16 px gap and overlaps the shortcut by ~4 px; no shipped hinted command is long, so not a defect now; (3) .project-name box crosses the dates box by 1.7 px at both widths but text stays ~170 px clear because .project-dates is flex:1 -- robust at 1100/1600. Shots: node_modules/.cache/personal-word-beta/ui6-fable-batch/ (run.log) and the reviewer scratch shots."
+  },
+  "log": [
+    {
+      "at": "2026-11-03T03:40:07+00:00",
+      "agent": "agent-81bd",
+      "event": "created",
+      "note": ""
+    },
+    {
+      "at": "2026-11-03T03:44:39+00:00",
+      "agent": "agent-f2da",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-11-03T03:44:42+00:00",
+      "agent": "agent-f2da",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-11-03T04:02:21+00:00",
+      "agent": "agent-81bd",
+      "event": "reclaimed from agent-f2da",
+      "note": ""
+    },
+    {
+      "at": "2026-11-03T04:02:21+00:00",
+      "agent": "agent-81bd",
+      "event": "handoff",
+      "note": "Freed by coordinator agent-81bd: the original worker was stopped by the owner before finishing. Start from the PLAN.md task section and node_modules/.cache/personal-word-beta/ui6-brief.md.\nRegistered paths: clean (no edits from the stopped worker)."
+    },
+    {
+      "at": "2026-11-03T04:05:26+00:00",
+      "agent": "agent-0461",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-11-03T04:05:39+00:00",
+      "agent": "agent-0461",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-11-03T06:10:42+00:00",
+      "agent": "agent-0461",
+      "event": "review requested",
+      "note": "T1 implemented; build + targeted Playwright passed (54 passed, 4 optional screenshot skips), including hover inventory and new palette/projects assertions. See docs/agent-work/2026-11-02-ui-wave-6/notes/T1.md. Sending to review."
+    },
+    {
+      "at": "2026-11-03T06:22:03+00:00",
+      "agent": "agent-85bf",
+      "event": "rejected",
+      "note": "REJECT (Opus reviewer agent-85bf). BLOCKER: stray '//' comments written as JSX text render as visible text in the UI. src/components/CommandPalette.tsx:192 '</span> // Added emph-label to the label' and src/components/ProjectLibrary.tsx:352 '</strong> // Added emph-label' are JSX children, so every palette option shows '// Added emph-label to the label' between label and hint, and every project row shows '// Added emph-label' before the dates (confirmed in a fresh build, light+dark, 1100/1600: innerText 'Beta notes\\n// Added emph-label\\nAdded Nov 3...'; shots node_modules/.cache/personal-word-beta/ui6-rev-t225/palette-light.png, projects-dark-1100.png). Delete both trailing comments; also drop the one at CommandPalette.tsx:187 (inside the tag; harmless but noise). Add a spec assertion that the palette option text and the project row button text equal label(+hint)/title+dates (e.g. expect(option).not.toContainText('//')), since all 54 targeted tests passed with this bug. SECOND (must fix): PLAN T1 step 1 says extend the one rule's trigger selector, 'do not write a second rule'. styles.css:500-512 adds a separate .emph-label / .emph-row ... .emph-label rule duplicating transform/transition/stroke/--emph-s. Fold it into the existing block instead: add '.emph-label' (when inside an active .emph-row) to the core rules' selector lists at ~432 and ~465, so there is still one stroke+--emph-s declaration. THIRD: src/hoverEmphasis.test.ts is weakened. Proved on doctored copies of src/*.css: '.x:hover{transform:scale(1.1)}' still fails (good), but '.emph-label:hover{transform:scale(1.3)}' and '.emph-label:hover{--emph-s:1.3;-webkit-text-stroke:var(--emph-stroke) currentColor}' both PASS all 7 tests. Cause: line 55 allowlists any selector that merely contains '.emph-label'/'.emph-row', and line 33 EMPH_EXTENSION exempts any rule starting with .emph-label from the core count (the 'extensions' loop is tautological). Once the rule is folded into one block, restore (a)/(c) to 'exactly one rule sets stroke+--emph-s' and drop .emph-label/.emph-row from SCALE_ALLOWLIST. OK parts: palette padding --space-2 --space-4 both sides with tokens; .delete-entry flex:0 0 auto + margin-left:--space-2 works (trash clear of dates at 1100/1600); projects-screen.spec ~543 updated so Projects-screen Settings shows a 'Sidebar' heading (count 1) with project-only rows still 0 -- done. hover-emphasis.spec.ts edits stay in T1's region (T2's Append-to-section line removal is T2's). Reran: vitest 7 pass; Playwright command-palette projects-screen hover-emphasis 54 passed 4 skipped on fresh build (ui6-rev-t225, port 1921). Fail-first not independently reproduced on untouched tree (would need a revert); the note's claim relies on the coordinator probe."
+    },
+    {
+      "at": "2026-11-03T06:23:15+00:00",
+      "agent": "agent-0461",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-11-03T06:23:17+00:00",
+      "agent": "agent-0461",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-11-03T06:28:33+00:00",
+      "agent": "agent-0461",
+      "event": "handoff",
+      "note": "Coordinator assigned T225 repair to agent-ae84; handing off to avoid concurrent ownership. Fixed reviewer findings: removed stray JSX // text in CommandPalette.tsx and ProjectLibrary.tsx; folded the .emph-row .emph-label active selectors into existing shared transform and stroke rule selector lists in styles.css; removed weakened EMPH_EXTENSION/SCALE_ALLOWLIST exceptions and restored one-rule checks in hoverEmphasis.test.ts; added no-// regression assertions in command-palette.spec.ts and projects-screen.spec.ts. Verified tsc clean and focused Vitest 49 passed; doctored second .emph-label:hover rule caused 2 intended unit failures (saved node_modules/.cache/personal-word-beta/ui6-t1/fail-first-probe.log). NOT YET DONE: rerun fresh build and Playwright acceptance; existing ui6-t1/dist is from before reviewer fixes. Read notes/T1.md for current status.\\nsrc/components/command-palette.css: uncommitted edits\\nsrc/components/CommandPalette.tsx: uncommitted edits\\nsrc/components/ProjectLibrary.tsx: uncommitted edits\\nsrc/hoverEmphasis.test.ts: uncommitted edits\\ntests/command-palette.spec.ts: uncommitted edits\\ntests/projects-screen.spec.ts: uncommitted edits\\ndocs/agent-work/2026-11-02-ui-wave-6/notes/T1.md: uncommitted edits\\nnode_modules/.cache/personal-word-beta/ui6-t1: uncommitted edits\\nsrc/styles.css: uncommitted edits\\ntests/hover-emphasis.spec.ts: uncommitted edits"
+    },
+    {
+      "at": "2026-11-03T06:28:43+00:00",
+      "agent": "agent-ae84",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-11-03T06:28:45+00:00",
+      "agent": "agent-ae84",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-11-03T06:58:55+00:00",
+      "agent": "agent-ae84",
+      "event": "review requested",
+      "note": "Applied all Opus review repairs: removed accidental JSX comment text; folded emph-row/label behavior into existing shared rules; restored strict one-rule hover guard and demonstrated doctored duplicate scale/stroke rule fails 2 checks; added no-comment regression specs. Fresh build passed; hoverEmphasis Vitest 7/7, tsc clean; targeted Playwright 54 passed/4 optional screenshots skipped with H3 exceptions 0; screenshot-only rerun 5/5, visually checked light/dark palette and 1100/1600 project captures with no stray comment text. diff --check clean. See notes/T1.md and ui6-t1 logs."
+    },
+    {
+      "at": "2026-11-03T07:30:57+00:00",
+      "agent": "agent-e148",
+      "event": "rejected",
+      "note": "REJECT r2 (Opus agent-e148). The three r1 findings ARE fixed: no '//' JSX text (grep + fresh-build innerText: palette 'Take snapshot\\n⇧⌘S', project row 'title\\nAdded...'); .emph-row/.emph-label sit only in the two shared rules' selector lists (styles.css:437-443, 470-476); hoverEmphasis.test.ts now fails on scratch copies with an extra '.emph-label:hover{transform:scale(1.3)}' (1 fail, (c)) and with an extra stroke+--emph-s rule (2 fail, (a)+(c)); clean copy 7/7. Fresh build ui6-rev-t225b port 1924: Playwright command-palette projects-screen hover-emphasis 54 passed / 4 optional skips, no hover inventory exceptions (the T7b-seen 'Projects emph-row weight 400->500' came from the old tree with '// Added emph-label' text before labelRestWeight; the 'Dialog Snapshot name Cancel 1.04' is the known pre-existing load flake from wave 4/5, not T1). Padding 16/16 tokens, trash slot clear at 1100/1600 light+dark (dates right 906, trash 918), Sidebar heading spec update OK. ONE NEW BLOCKER (regression): the label's grow SNAPS back on un-hover/un-highlight instead of easing like every other text control. Cause: styles.css:439 puts the label in the transform+transition rule only while the row is hovered/highlighted, so when the state ends the transition declaration disappears with it. Measured: project-name transform 'none' 30 ms after the pointer leaves (a 120 ms --duration-fast ease would still read ~1.03); arrowing through the palette, the previous row snaps while the new one eases. Before T1 both the palette option and project row eased back. FIX: at styles.css:439 (transform rule ONLY) replace '.emph-row:is(:hover, :focus-visible, [data-highlighted], .is-highlighted) .emph-label' with '.emph-row .emph-label' (scale defaults to --emph-s 1 at rest, so it stays the one rule); leave line 472 (stroke/--emph-s trigger) as is. Update src/hoverEmphasis.test.ts:47 sharedTransform filter to match the new selector (e.g. r.selector.includes('.emph-row .emph-label')) keeping toHaveLength(1), and re-prove the two doctored-copy failures. Add a regression check (e.g. in tests/projects-screen.spec.ts trash test or command-palette spec): after moving the pointer off a hovered row, the .emph-label's computed transitionDuration is nonzero / transform at ~30 ms is not 'none'. Rerun vitest hoverEmphasis + Playwright command-palette projects-screen hover-emphasis on a fresh build. Evidence: node_modules/.cache/personal-word-beta/ui6-rev-t225b/{run.log,run2.log,shots/}. Side note (pre-existing, not T1): a pointer resting under a freshly opened palette strokes that row by :hover while another row is highlighted (visible in palette shots, 'Toggle sidebar')."
+    },
+    {
+      "at": "2026-11-03T08:21:04+00:00",
+      "agent": "agent-f23e",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-11-03T08:21:06+00:00",
+      "agent": "agent-f23e",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-11-03T08:44:36+00:00",
+      "agent": "agent-f23e",
+      "event": "review requested",
+      "note": "r2 fix: styles.css shared transform selector now '.emph-row .emph-label' (transition always present); hoverEmphasis.test.ts filter updated (7/7; doctored extra scale rule -> 1 fail, extra stroke rule -> 2 fail). New projects-screen.spec specs (ease-back + Reduce Motion instant): ease-back failed first (ui6-t1/failfirst2.log), pass after. tsc clean. Fresh build ui6-t1 port 1911 command-palette projects-screen hover-emphasis: 55 pass, 4 skip, 1 fail = H4 dialog Cancel (known flake), H4 rerun passes. projects-screen:311 passes on this build. Notes in notes/T1.md."
+    },
+    {
+      "at": "2026-11-03T09:18:52+00:00",
+      "agent": "agent-9d19",
+      "event": "approved",
+      "note": "APPROVE r3 (Fable agent-9d19). Fresh build ui6-fable-batch port 1930: tsc 0; vitest hoverEmphasis 7/7; Playwright command-palette projects-screen hover-emphasis appearance writing fragments-panel research = 126 passed / 4 skipped / 0 failed (the :311 and :587 projects-screen failures T226's run reported did not reproduce). Doctored scratch copies of src/*.css: extra '.emph-label:hover{transform:scale(1.3)}' -> 1 fail (c); extra stroke+--emph-s rule -> 2 fail (a)+(c); clean 7/7. .emph-row/.emph-label appear only in the two shared selector lists (styles.css:437-443, 470-476) plus the --emph-origin line. No '//' text rendered (spec assertions + innerText of palette/project rows). Ease-back measured: project label transform 1.014 at 30 ms after unhover (120 ms --duration-fast), Reduce Motion spec passes. Palette: hint right edge identical highlighted/unhighlighted (1063.0/1063.0), padding 16/16. Projects: trash never intersects dates at 1100/1600 light+dark, incl. a 120-char title hovered. Sidebar-heading spec update for T2 present. Every-state notes for V: (1) long 'Go to <120-char title>' command wraps to two lines, scaled box ends 5 px past the option box but glyphs stay ~12 px inside the palette -- fine; (2) LATENT: a long label on a row WITH a hint (DOM-mutated 'Save' row) grows ~20 px into the 16 px gap and overlaps the shortcut by ~4 px; no shipped hinted command is long, so not a defect now; (3) .project-name box crosses the dates box by 1.7 px at both widths but text stays ~170 px clear because .project-dates is flex:1 -- robust at 1100/1600. Shots: node_modules/.cache/personal-word-beta/ui6-fable-batch/ (run.log) and the reviewer scratch shots."
+    }
+  ]
+}

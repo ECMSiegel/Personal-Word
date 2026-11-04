@@ -1,0 +1,9 @@
+{
+  "id": "agent-a41b",
+  "label": "Claude Sonnet worker W6 T5",
+  "joined_at": "2026-11-03T03:43:14+00:00",
+  "last_seen": "2026-11-03T03:43:41+00:00",
+  "status": "active",
+  "current_task": null,
+  "inbox_cursor": 1102
+}

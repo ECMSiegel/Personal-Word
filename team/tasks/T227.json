@@ -1,0 +1,91 @@
+{
+  "id": "T227",
+  "title": "W6 T3 -- Scissor and comment always usable; sharp dock icons",
+  "description": "Do PLAN.md task T3. Regions: Writer.tsx 600-625 and 1740-1775 only. If .format-bar .extract must leave the emphasis exclusion list, message T1's owner instead of editing styles.css. Add a native capture request for V in notes. Notes -> docs/agent-work/2026-11-02-ui-wave-6/notes/T3.md. Scratch node_modules/.cache/personal-word-beta/ui6-t3, port 1913. Shared files src/styles.css, src/App.tsx, tests/split-view.spec.ts, tests/hover-emphasis.spec.ts are NOT registered: edit only your PLAN regions, never files-add them (decision \"W6 shared-file regions\").",
+  "status": "done",
+  "owner": null,
+  "priority": 1,
+  "depends_on": [],
+  "files": [
+    "src/Writer.tsx",
+    "src/editor/toolbar-motion.css",
+    "src/components/dock.ts",
+    "tests/editor-toolbar.spec.ts",
+    "src/editor/paragraphTarget.ts",
+    "src/editor/paragraphTarget.test.ts",
+    "docs/agent-work/2026-11-02-ui-wave-6/notes/T3.md",
+    "node_modules/.cache/personal-word-beta/ui6-t3"
+  ],
+  "review_required": true,
+  "created_by": "agent-81bd",
+  "created_at": "2026-11-03T03:40:10+00:00",
+  "claimed_at": "2026-11-03T05:19:12+00:00",
+  "updated_at": "2026-11-03T06:32:48+00:00",
+  "handoff": {
+    "by": "agent-81bd",
+    "at": "2026-11-03T04:02:22+00:00",
+    "text": "Freed by coordinator agent-81bd: the original worker was stopped by the owner before finishing. Start from the PLAN.md task section and node_modules/.cache/personal-word-beta/ui6-brief.md.\nRegistered paths: clean (no edits from the stopped worker)."
+  },
+  "review": {
+    "by": "agent-a6a5",
+    "at": "2026-11-03T06:32:48+00:00",
+    "verdict": "approved",
+    "note": "Opus review: paragraphRange matches spec (selection if non-empty, else textblock content range, null for empty block); both buttons disabled only on null; empty selection set to range before onComment/onExtract in both buttons and the Cmd-Shift-X path (Writer.tsx:621-628); no other Writer path reads selection.empty for these actions; scissor has toolbar-icon; no stray JSX comment text. toolbar-motion.css: 24px svg, margin -4px keeps 16px box, scale(dock/1.5), transform-only transition, no @keyframes, Reduce Motion scale(2/3) no transition. Fail-first logs real (unit 2 fail/1 pass on stub; Playwright 2 fail on pre-T3 dist). My rerun (Node 22.23.3, fresh build ui6-rev-t227, port 1922): vitest 3/3; designTokens/motion/hoverEmphasis 36/36; editor-toolbar 14/14. writing.spec journey fails at :33 strict-mode clash with .spy-line rail button (T232 lane, not T3). Screenshots light/dark: scissor enabled with cursor in paragraph, svg 16->24px on hover, bar 1010x40 unchanged rest vs hover. Noted deviation (not blocking): vs pre-T3 dist the scissor button narrows 32->28px (.toolbar-icon width), so at rest the scissor centre moves +2px and comment +4px; all other icons unchanged. Consistent with design-system 28px toolbar icons; owner/V may judge. design-system.md dock paragraph does not yet mention 24px artwork scaled down (doc follow-up). Blur fix is native-only: left to V's capture."
+  },
+  "log": [
+    {
+      "at": "2026-11-03T03:40:10+00:00",
+      "agent": "agent-81bd",
+      "event": "created",
+      "note": ""
+    },
+    {
+      "at": "2026-11-03T03:44:21+00:00",
+      "agent": "agent-da58",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-11-03T03:44:26+00:00",
+      "agent": "agent-da58",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-11-03T04:02:22+00:00",
+      "agent": "agent-81bd",
+      "event": "reclaimed from agent-da58",
+      "note": ""
+    },
+    {
+      "at": "2026-11-03T04:02:22+00:00",
+      "agent": "agent-81bd",
+      "event": "handoff",
+      "note": "Freed by coordinator agent-81bd: the original worker was stopped by the owner before finishing. Start from the PLAN.md task section and node_modules/.cache/personal-word-beta/ui6-brief.md.\nRegistered paths: clean (no edits from the stopped worker)."
+    },
+    {
+      "at": "2026-11-03T05:19:12+00:00",
+      "agent": "agent-ae84",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-11-03T05:19:13+00:00",
+      "agent": "agent-ae84",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-11-03T06:15:10+00:00",
+      "agent": "agent-ae84",
+      "event": "review requested",
+      "note": "Implemented paragraphRange and wired cursor-paragraph Comment/Keep as fragment including shortcut behavior; scissor joins dock. Fail-first unit stub: 2 failures/1 pass; untouched-build Playwright baseline: both new collapsed-cursor actions failed disabled. Acceptance: vitest 3/3, tsc passes, Playwright editor-toolbar 14/14, git diff --check clean. Native WebKit capture request for V recorded in notes/T3.md; awaiting native confirmation."
+    },
+    {
+      "at": "2026-11-03T06:32:48+00:00",
+      "agent": "agent-a6a5",
+      "event": "approved",
+      "note": "Opus review: paragraphRange matches spec (selection if non-empty, else textblock content range, null for empty block); both buttons disabled only on null; empty selection set to range before onComment/onExtract in both buttons and the Cmd-Shift-X path (Writer.tsx:621-628); no other Writer path reads selection.empty for these actions; scissor has toolbar-icon; no stray JSX comment text. toolbar-motion.css: 24px svg, margin -4px keeps 16px box, scale(dock/1.5), transform-only transition, no @keyframes, Reduce Motion scale(2/3) no transition. Fail-first logs real (unit 2 fail/1 pass on stub; Playwright 2 fail on pre-T3 dist). My rerun (Node 22.23.3, fresh build ui6-rev-t227, port 1922): vitest 3/3; designTokens/motion/hoverEmphasis 36/36; editor-toolbar 14/14. writing.spec journey fails at :33 strict-mode clash with .spy-line rail button (T232 lane, not T3). Screenshots light/dark: scissor enabled with cursor in paragraph, svg 16->24px on hover, bar 1010x40 unchanged rest vs hover. Noted deviation (not blocking): vs pre-T3 dist the scissor button narrows 32->28px (.toolbar-icon width), so at rest the scissor centre moves +2px and comment +4px; all other icons unchanged. Consistent with design-system 28px toolbar icons; owner/V may judge. design-system.md dock paragraph does not yet mention 24px artwork scaled down (doc follow-up). Blur fix is native-only: left to V's capture."
+    }
+  ]
+}

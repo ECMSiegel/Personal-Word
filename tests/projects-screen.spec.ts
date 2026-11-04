@@ -474,6 +474,26 @@ test("a drop while the new-project name dialog is open opens nothing", async ({ 
   await expect(page.getByRole("alert")).toHaveCount(0);
 });
 
+test("the trash icon never overlaps the dates when a project row is hovered", async ({ page }) => {
+  await page.setViewportSize({ width: 1100, height: 900 });
+  await seed(page);
+  for (const width of [1100, 1600]) {
+    await page.setViewportSize({ width, height: 900 });
+    const row = page.locator(".project-row").first();
+    await expect(row.locator("button").first()).not.toContainText("//");
+    const dates = row.locator(".project-dates");
+    const trash = row.locator(".delete-entry");
+    await row.hover();
+    const d = (await dates.boundingBox())!;
+    const t = (await trash.boundingBox())!;
+    // Hovering the row must not push the trash over the dates text.
+    const intersects = t.x < d.x + d.width && t.x + t.width > d.x && t.y < d.y + d.height && t.y + t.height > d.y;
+    expect(intersects, `width ${width}: trash ${JSON.stringify(t)} overlaps dates ${JSON.stringify(d)}`).toBe(false);
+    if (process.env.T1_PROJECT_SHOTS)
+      await page.screenshot({ path: `${process.env.T1_PROJECT_SHOTS}/projects-${width}.png` });
+  }
+});
+
 test("the Projects toolbar stays put as projects are added (no vertical re-centring)", async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.goto("/");
@@ -521,8 +541,9 @@ test("the gear opens Settings from the Projects screen; Dark applies at once and
   await expect(
     dialog.getByRole("group", { name: "Appearance" }),
   ).toBeVisible();
-  // Sidebar and Goals are project settings, not global ones: they stay out.
-  await expect(dialog.getByRole("heading", { name: "Sidebar" })).toHaveCount(0);
+  // Wave 6 T2: the Projects-screen Settings has its own Sidebar section for the two global
+  // toggles; project-only things (Show Read manuscript, goals) still stay out.
+  await expect(dialog.getByRole("heading", { name: "Sidebar" })).toHaveCount(1);
   await expect(dialog.getByRole("heading", { name: "Goals" })).toHaveCount(0);
   await expect(dialog.getByText("Show Read manuscript")).toHaveCount(0);
   await expect(dialog.getByText("Total word goal")).toHaveCount(0);
@@ -560,3 +581,25 @@ test("the Projects-screen Settings dialog shows the floating row and it toggles 
     )
     .toBe(true);
 });
+
+// Wave 6 T1: the label's grow eases back when the row stops being hovered (the transition stays on the label at rest).
+for (const reduced of [false, true]) {
+  test(`a project row label ${reduced ? "drops its grow instantly under Reduce Motion" : "eases its grow back after unhover"}`, async ({ page }) => {
+    if (reduced) await page.emulateMedia({ reducedMotion: "reduce" });
+    await seed(page);
+    const row = page.locator(".project-row").first();
+    const label = row.locator(".emph-label").first();
+    const scaleNow = () => label.evaluate((el) => {
+      const t = getComputedStyle(el).transform;
+      return t === "none" ? 1 : Number(t.slice(7).split(",")[0]);
+    });
+    await row.hover();
+    if (!reduced) await expect.poll(scaleNow).toBeGreaterThan(1.039);
+    await page.mouse.move(2, 2);
+    await page.waitForTimeout(30);
+    const after = await scaleNow();
+    if (reduced) expect(after).toBeCloseTo(1, 3);
+    else expect(after).toBeGreaterThan(1.005);
+    await expect.poll(scaleNow).toBeCloseTo(1, 3);
+  });
+}

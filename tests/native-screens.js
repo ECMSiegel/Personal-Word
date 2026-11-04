@@ -92,6 +92,36 @@
     mark(`captured ${name}`);
     return path;
   };
+  // Wave 6 every-state captures (Amendment 1). Each one is independent: a
+  // failure is recorded in stateErrors and the next state still runs.
+  const states = [];
+  const stateErrors = [];
+  const measures = {};
+  const rect = (selector) => {
+    const el = typeof selector === "string" ? document.querySelector(selector) : selector;
+    const r = el?.getBoundingClientRect();
+    return r ? { left: r.left, right: r.right, top: r.top, bottom: r.bottom } : null;
+  };
+  const state = async (name, fn) => {
+    try {
+      measures[name] = (await fn()) ?? {};
+      states.push(await snapshot(name));
+    } catch (error) {
+      stateErrors.push(`${name}: ${String(error?.message ?? error)} [windowFocused=${document.hasFocus()}]`);
+    }
+  };
+  const setValue = (el, text) => {
+    const proto = el instanceof HTMLTextAreaElement ? HTMLTextAreaElement.prototype : HTMLInputElement.prototype;
+    Object.getOwnPropertyDescriptor(proto, "value").set.call(el, text);
+    el.dispatchEvent(new Event("input", { bubbles: true }));
+  };
+  const key = (target, init) => {
+    target.dispatchEvent(new KeyboardEvent("keydown", { bubbles: true, cancelable: true, ...init }));
+  };
+  const railLine = (group, label) =>
+    [...document.querySelectorAll(`.sidebar-group[data-group="${group}"] .spy-rail > button.spy-line`)].find(
+      (b) => b.getAttribute("aria-label") === `Go to ${label}` || b.getAttribute("aria-label").includes(label),
+    );
   let diagnosticProfile;
   const report = (data) =>
     invoke("smoke_report", {
@@ -285,13 +315,203 @@
     );
     await delay(300);
     screens.push(await snapshot("floating-card"));
+    // Wave 6 every-state: a toast raised while the card is open.
+    await state("state-toast-card", async () => {
+      await click("Snapshot");
+      await input("Snapshot name", "A snapshot while the card is open");
+      await click("Save");
+      await wait(() => document.querySelector(".notice"), "toast");
+      await delay(300);
+      return { toast: rect(".notice"), card: rect(".citation-card"), sheet: rect(".editor-paper") };
+    });
     // Restore.
     await click("Manuscript");
     await setZoom("100%");
     await click("Settings");
     await toggleFloating(false);
 
-    await report({ ok: true, screens, pdfProbe });
+    // ---- Wave 6 every-state captures (docs/agent-work/2026-11-02-ui-wave-6/PLAN.md, Amendment 1).
+    // Pointer hover cannot be driven natively; the
+    // palette highlight uses its own arrow keys, the dock a synthetic pointermove.
+    const LONG_SECTION = "A very long section title about the early correspondence of the river commissioners";
+    const LONG_NOTE = "A long research note that keeps going well past the width of any narrow sidebar row to see wrapping";
+    const LONG_SOURCE = "An extremely long source title on the administrative history of inland waterways and their keepers";
+    const LONG_PROJECT = "A very long project name that should never run under the dates or the trash icon on hover";
+    await click("Manuscript");
+    await wait(editor, "writing editor");
+    await state("state-toolbar-rest", async () => {
+      await delay(200);
+      const bar = document.querySelector(".format-bar");
+      return { bar: rect(bar), extract: rect(".format-bar .extract") };
+    });
+    await state("state-toolbar-magnified", async () => {
+      const target = await wait(() => document.querySelector(".format-bar .extract"), "scissor", 100);
+      const r = target.getBoundingClientRect();
+      const bar = target.closest(".format-bar") ?? target.parentElement;
+      const init = { bubbles: true, clientX: r.left + r.width / 2, clientY: r.top + r.height / 2, pointerType: "mouse" };
+      bar.dispatchEvent(new PointerEvent("pointermove", init));
+      target.dispatchEvent(new PointerEvent("pointermove", init));
+      await delay(400);
+      return { scale: getComputedStyle(target).getPropertyValue("--dock-scale"), extract: rect(target) };
+    });
+    document.querySelector(".format-bar")?.dispatchEvent(new PointerEvent("pointerleave", { bubbles: false }));
+    await delay(200);
+    // Long section title, then the palette with it highlighted.
+    (await wait(() => document.querySelector('button[aria-label="New section"]'), "New section button")).click();
+    await input("Title", LONG_SECTION);
+    await click("Save");
+    await wait(() => railLine("manuscript", LONG_SECTION), "long section line");
+    await state("state-palette-long", async () => {
+      // The Save dialog must be gone and React's shortcut handler re-registered before the key.
+      await wait(() => !document.querySelector(".modal-backdrop"), "name dialog closed", 100);
+      await delay(250);
+      editor()?.focus();
+      key(document.activeElement ?? document.body, { key: "P", code: "KeyP", metaKey: true, shiftKey: true });
+      const box = await wait(() => document.querySelector('[aria-label="Search commands"]'), "palette input", 100);
+      setValue(box, "early correspondence");
+      await delay(200);
+      key(box, { key: "ArrowDown", code: "ArrowDown" });
+      key(box, { key: "ArrowUp", code: "ArrowUp" });
+      await delay(250);
+      const option = document.querySelector(".command-palette-option");
+      const label = option?.querySelector(".emph-label");
+      return {
+        palette: rect(".command-palette"),
+        option: rect(option),
+        label: rect(label),
+        highlighted: !!document.querySelector(".command-palette-option[data-highlighted], .command-palette-option.is-highlighted, .command-palette-option[aria-selected='true']"),
+        labelSpill: label ? label.scrollWidth > label.clientWidth + 1 : null,
+      };
+    });
+    const paletteBox = document.querySelector('[aria-label="Search commands"]');
+    if (paletteBox) key(paletteBox, { key: "Escape", code: "Escape" });
+    await delay(200);
+    // Narrow the sidebar to 190 px with its own keyboard resizer (ArrowLeft = -20 px, clamped).
+    const resizer = await wait(() => document.querySelector('[role="separator"][aria-label="Sidebar width"]'), "sidebar resizer");
+    const startWidth = Number(resizer.getAttribute("aria-valuenow"));
+    for (let i = 0; i < 20; i++) key(resizer, { key: "ArrowLeft", code: "ArrowLeft" });
+    await delay(400);
+    await state("state-rail-0-and-1", async () => ({
+      width: resizer.getAttribute("aria-valuenow"),
+      manuscriptLines: document.querySelectorAll('.sidebar-group[data-group="manuscript"] .spy-rail > .spy-line').length,
+      fragmentLines: document.querySelectorAll('.sidebar-group[data-group="fragments"] .spy-rail > .spy-line').length,
+    }));
+    await state("state-no-research", async () => {
+      await click("Research");
+      await wait(() => document.querySelector(".research-panel"), "research panel");
+      await delay(300);
+      return { text: document.querySelector(".research-panel")?.innerText.slice(0, 300) };
+    });
+    await state("state-notes-empty", async () => {
+      const notes = await wait(
+        () => [...document.querySelectorAll(".research-tabs button")].find((b) => b.textContent.trim() === "Notes"),
+        "Notes tab",
+      );
+      notes.click();
+      await delay(300);
+      return { text: document.querySelector(".research-panel")?.innerText.slice(0, 300) };
+    });
+    // Two notes (one long) and two sources (one long, one with no title or year).
+    for (const text of [LONG_NOTE, "Second note"]) {
+      await click("Add note");
+      await delay(150);
+      const areas = document.querySelectorAll(".note-item textarea");
+      setValue(areas[areas.length - 1], text);
+      await delay(150);
+    }
+    await state("state-notes-two", async () => ({ items: [...document.querySelectorAll(".note-item")].map(rect) }));
+    await state("state-sources-import", async () => {
+      const sourcesTab = [...document.querySelectorAll(".research-tabs button")].find((b) => b.textContent.trim() === "Sources");
+      sourcesTab?.click();
+      await delay(200);
+      const file = await wait(() => document.querySelector('input[aria-label^="Zotero CSL JSON file"]'), "CSL file input", 100);
+      const data = new DataTransfer();
+      data.items.add(
+        new File(
+          [
+            JSON.stringify([
+              { type: "book", title: LONG_SOURCE, author: [{ given: "Ann", family: "Ames" }], issued: { "date-parts": [[2020]] }, publisher: "River Press" },
+            ]),
+          ],
+          "sources.json",
+          { type: "application/json" },
+        ),
+      );
+      file.files = data.files;
+      file.dispatchEvent(new Event("change", { bubbles: true }));
+      await click("Add sources");
+      await wait(() => railLine("research", LONG_SOURCE), "long source line", 200);
+      // A source with no title or year: the manual form keeps it with only an author.
+      await click("Enter manually");
+      const authors = await wait(() => {
+        const l = [...document.querySelectorAll("label")].find((c) => c.textContent === "Authors");
+        return l && (l.querySelector("textarea, input") ?? (l.htmlFor ? document.getElementById(l.htmlFor) : null));
+      }, "Authors field");
+      setValue(authors, "Bo Berg");
+      await wait(() => railLine("research", "Untitled source"), "untitled source line", 200);
+      await delay(400);
+      return {
+        researchLines: [...document.querySelectorAll('.sidebar-group[data-group="research"] .spy-rail > .spy-line')].map((b) =>
+          b.getAttribute("aria-label"),
+        ),
+      };
+    });
+    await click("Manuscript");
+    await wait(editor, "writing editor");
+    await delay(300);
+    await state("state-sidebar190-long", async () => ({
+      rows: [...document.querySelectorAll(".sidebar-group .entry-row .entry-main span")].map((s) => ({
+        text: s.textContent.slice(0, 30),
+        clipped: s.scrollWidth > s.clientWidth + 1 && getComputedStyle(s).textOverflow !== "ellipsis",
+      })),
+    }));
+    await state("state-rail-fragments-1", async () => {
+      (await wait(() => document.querySelector('button[aria-label="New fragment"]'), "New fragment button")).click();
+      await input("Title", "Only fragment");
+      await click("Save");
+      await wait(() => railLine("fragments", "Only fragment"), "fragment line");
+      await delay(300);
+      return { fragmentLines: document.querySelectorAll('.sidebar-group[data-group="fragments"] .spy-rail > .spy-line').length };
+    });
+    await state("state-split-rail", async () => {
+      const beside = await wait(() => document.querySelector(`button[aria-label="Open ${LONG_SECTION} beside"]`), "Open beside button", 100);
+      beside.click();
+      await wait(() => document.querySelector('[aria-label="Right pane"]'), "right pane", 100);
+      await delay(400);
+      return { lines: [...document.querySelectorAll(".spy-line")].map((b) => b.getAttribute("data-state")) };
+    });
+    document.querySelector('button[aria-label="Close right pane"]')?.click();
+    await delay(200);
+    // Back to the normal width, then the Projects screen with a long project name.
+    for (let i = 0; i < 20 && Number(resizer.isConnected ? resizer.getAttribute("aria-valuenow") : startWidth) < startWidth; i++)
+      key(resizer, { key: "ArrowRight", code: "ArrowRight" });
+    await delay(200);
+    await state("state-projects-long", async () => {
+      await click("Projects");
+      await click("Start new project");
+      await click("Blank");
+      await input("Project title", LONG_PROJECT);
+      await click("Save");
+      await wait(editor, "writing editor (long project)");
+      await click("Projects");
+      const row = await wait(
+        () => [...document.querySelectorAll(".project-row")].find((r) => r.textContent.includes("A very long project name")),
+        "long project row",
+      );
+      const open = row.querySelector("button");
+      key(open, { key: "Tab", code: "Tab" });
+      open.focus();
+      await delay(350);
+      return {
+        row: rect(row),
+        name: rect(row.querySelector(".project-name")),
+        trash: rect(row.querySelector(".delete-entry")),
+        dates: [...row.querySelectorAll(".project-dates")].map(rect),
+        trashVisible: getComputedStyle(row.querySelector(".delete-entry") ?? row).opacity,
+      };
+    });
+
+    await report({ ok: true, screens, pdfProbe, states, stateErrors, measures });
     await invoke("smoke_close_window");
   } catch (error) {
     await report({ ok: false, screens: [], error: String(error?.message ?? error) });

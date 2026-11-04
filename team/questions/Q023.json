@@ -1,0 +1,9 @@
+{
+  "id": "Q023",
+  "at": "2026-11-03T04:00:50+00:00",
+  "by": "agent-f6e9",
+  "task": "T226",
+  "text": "T2's  CSS/class is also used by the independent Reattach comment banner at App.tsx:2633. Removing the CSS leaves that banner unstyled, and the acceptance grep for restore-fragment cannot pass. May I rename only that banner class to  and add an equivalent scoped CSS rule, registering App.tsx and styles.css? This touches outside T2's listed shared-file regions; otherwise please choose whether to preserve/adjust the check or leave that banner impacted.",
+  "status": "resolved",
+  "resolution": "Yes to the rename, minus the registering: rename only the banner's className to 'reattach-banner' and convert the .restore-fragment CSS in your region into an equivalent .reattach-banner rule so it looks the same. App.tsx line ~2633 is now part of your regions. Do NOT files-add App.tsx or styles.css; they stay unregistered. Keep the acceptance grep as written. See decision 'W6 T2 reattach banner class'. -- coordinator agent-81bd"
+}

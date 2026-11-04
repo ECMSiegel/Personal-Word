@@ -58,6 +58,7 @@ import "./editor/editor.css";
 import "./editor/toolbar-motion.css";
 import { useDock } from "./components/dock";
 import { documentExtensions } from "./editor/extensions";
+import { paragraphRange } from "./editor/paragraphTarget";
 import { Pagination, paginate, paginationKey } from "./editor/pagination";
 import { TableContextMenu } from "./editor/TableContextMenu";
 import { setImageSourceResolver } from "./editor/media";
@@ -617,7 +618,14 @@ export function Writer({
         }
         if (action === "keepAsFragment" && itemRef.current.kind === "section") {
           event.preventDefault();
-          if (activeEditor) callbacksRef.current.onExtract(activeEditor);
+          if (activeEditor) {
+            const range = paragraphRange(activeEditor.state);
+            if (range) {
+              if (activeEditor.state.selection.empty)
+                activeEditor.commands.setTextSelection(range);
+              callbacksRef.current.onExtract(activeEditor);
+            }
+          }
           return true;
         }
         return false;
@@ -1752,8 +1760,14 @@ export function Writer({
               {...mp}
               title="Comment on selection"
               aria-label="Comment on selection"
-              disabled={editor.state.selection.empty}
-              onClick={() => onComment?.()}
+              disabled={paragraphRange(editor.state) === null}
+              onClick={() => {
+                const range = paragraphRange(editor.state);
+                if (!range) return;
+                if (editor.state.selection.empty)
+                  editor.commands.setTextSelection(range);
+                onComment?.();
+              }}
             >
               <MessageSquarePlus size={16} aria-hidden="true" />
               {lab("Comment on selection")}
@@ -1761,11 +1775,17 @@ export function Writer({
             {item.kind === "section" && (
               <button
                 type="button"
-                className="extract"
+                className="toolbar-icon extract"
                 aria-label="Keep as fragment"
-                disabled={editor.state.selection.empty}
+                disabled={paragraphRange(editor.state) === null}
                 title="Move selection to Fragments (⌘⇧X)"
-                onClick={() => onExtract(editor)}
+                onClick={() => {
+                  const range = paragraphRange(editor.state);
+                  if (!range) return;
+                  if (editor.state.selection.empty)
+                    editor.commands.setTextSelection(range);
+                  onExtract(editor);
+                }}
               >
                 <Scissors size={16} aria-hidden="true" />
                 <span>Keep as fragment</span>

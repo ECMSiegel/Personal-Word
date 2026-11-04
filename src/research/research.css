@@ -278,7 +278,7 @@
   gap: var(--space-3);
 }
 .note-actions {
-  margin-bottom: var(--space-3);
+  margin-bottom: 0;
 }
 .field-group {
   display: grid;
@@ -315,17 +315,32 @@
   color: var(--text);
 }
 .linked-item,
-.note-item,
 .footnote-item {
   display: grid;
   gap: var(--space-2);
   padding: var(--space-3) 0 var(--space-3) var(--space-3);
   border-left: 2px solid var(--selection);
 }
+.note-list {
+  display: grid;
+  gap: 0;
+}
 .note-item {
-  padding-left: 0;
+  display: grid;
+  gap: var(--space-2);
+  padding: 0;
   border-left: 0;
+}
+.note-item + .note-item {
   border-top: 1px solid var(--line);
+  margin-top: var(--space-5);
+  padding-top: var(--space-5);
+}
+.note-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: end;
+  gap: var(--space-3);
 }
 .footnote-options {
   display: grid;
@@ -367,6 +382,8 @@
 div.project-settings {
   box-sizing: border-box;
   flex: 1;
+  width: 100%;
+  margin-inline: auto;
   overflow: auto;
   max-width: 720px;
   padding: 40px 48px;

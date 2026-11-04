@@ -17,6 +17,7 @@ Addendum 2026-10-25 (owner approved, UI polish): also execute `docs/agent-work/2
 
 Addendum 2026-10-26 (owner approved, UI wave 2): also execute `docs/agent-work/2026-10-26-ui-wave-2/PLAN.md` tasks U1-U21 (board T098-T118) and its Validation list, one board task each, with its files, fail-first checks, acceptance commands and the seven answered open questions; U1-U14 and U16-U21 run as a serial chain, U15 and U17 may run alongside.
 Addendum 2026-10-28 (owner approved, UI wave 3): also execute `docs/agent-work/2026-10-28-ui-wave-3/PLAN.md` tasks E1-E3, A1-A5, S1-S3, N1-N4, D1-D2, P1-P2, K2 and V (board T131-T151), one board task each, with its files, fail-first checks and acceptance commands; lanes run in parallel and the board file-overlap check is the only sequencing inside a lane.
+Addendum 2026-11-02 (owner approved, UI wave 6): also execute `docs/agent-work/2026-11-02-ui-wave-6/PLAN.md` tasks T1-T6, T7a, T7b, V, F and R (board titles start "W6"), one board task each, with its files, fail-first checks and acceptance commands; lanes run in parallel, and the shared files `src/styles.css`, `src/App.tsx`, `tests/split-view.spec.ts` and `tests/hover-emphasis.spec.ts` are owned by region per decision "W6 shared-file regions", not registered.
 
 ## Non-goals
 No signing or distribution work, publishing or pushing, new packages, unrelated redesign, or changes to real user data. Layout implementation beyond WP8 is conditional on WP8 passing its feasibility check; follow its stop rules if the probe fails.
@@ -70,6 +71,7 @@ Run expensive builds, Playwright, cargo, and native checks one at a time, in the
 - [x] UI wave 3 plan (2026-10-28) tasks E1-V are done with independent reviews, its validation list has run, native screenshots were viewed, and the owner hand checks are prepared with status CLAIMED.
 - [x] UI wave 4 plan (docs/agent-work/2026-10-28-ui-wave-4/PLAN.md, tasks T171-T186) is done with independent reviews, its validation list has run (native checks on an unlocked screen, screenshots viewed), a Fable review passed, and the owner hand checks are prepared with status CLAIMED.
 - [ ] UI wave 5 plan (docs/agent-work/2026-11-01-ui-wave-5/PLAN.md, tasks T194-T207) is done with independent reviews, its validation list has run (native checks on an unlocked screen, screenshots viewed in light/dark x Plain/Color x floating on/off), a Fable review passed, and the owner hand checks are prepared with status CLAIMED.
+- [ ] UI wave 6 plan (docs/agent-work/2026-11-02-ui-wave-6/PLAN.md) is done with independent reviews, its final check V has run (native screens on an unlocked screen, screenshots viewed), a Fable review passed with repairs re-run, and the owner hand checks are prepared with status CLAIMED.
 
 ## Milestones
 1. Reconcile the current working tree and existing implementation/review reports before assigning remaining work.

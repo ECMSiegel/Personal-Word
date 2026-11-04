@@ -1,0 +1,9 @@
+{
+  "id": "agent-f23e",
+  "label": "Claude Sonnet worker W6 T1 fix",
+  "joined_at": "2026-11-03T08:20:52+00:00",
+  "last_seen": "2026-11-03T08:44:37+00:00",
+  "status": "left",
+  "current_task": null,
+  "inbox_cursor": 1179
+}

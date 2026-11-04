@@ -146,13 +146,29 @@ test.describe("floating sidebar", () => {
 
   test("a narrow window falls back to the normal panel", async ({ page }) => {
     await seedFloating(page, true);
-    await page.setViewportSize({ width: 1100, height: 800 });
+    // Wave 6 (T5): the fit counts the room floating would free, so the old 1100 px
+    // window now floats in continuous view; 1040 px is below both views' fit.
+    await page.setViewportSize({ width: 1040, height: 800 });
     await create(page, "Floating narrow");
     for (const paged of [true, false]) {
       await setPaged(page, paged);
       await expect(shell(page)).not.toHaveClass(/is-floating/);
       await expect(sidebar(page)).not.toHaveCSS("background-color", TRANSPARENT);
     }
+  });
+
+  test("a 1100 px window: continuous view floats and stays clear, page view keeps the panel", async ({ page }) => {
+    await seedFloating(page, true);
+    await page.setViewportSize({ width: 1100, height: 800 });
+    await create(page, "Floating 1100");
+    await setPaged(page, false);
+    await expect(shell(page)).toHaveClass(/is-floating/);
+    await expectBare(page);
+    await expectClear(page, ".writing-surface");
+    // The page sheet leaves a margin too small for the sidebar: the normal panel stays.
+    await setPaged(page, true);
+    await expect(shell(page)).not.toHaveClass(/is-floating/);
+    await expect(sidebar(page)).not.toHaveCSS("background-color", TRANSPARENT);
   });
 
   test("page view at 150 % falls back, and floats again at 100 %", async ({ page }) => {
@@ -643,6 +659,126 @@ test.describe("citation card", () => {
     await expect(page.locator(".aside-resizer")).toHaveCount(1);
   });
 
+  test("T5: a 1240 window at 75 %: the docked sidebar's room counts, so the sidebar floats and Research opens the card", async ({ page }) => {
+    await page.setViewportSize({ width: 1240, height: 840 });
+    await writingProject(page, "Fit freed room", true);
+    await setZoom(page, 75);
+    await settle(page);
+    await expect(shell(page)).toHaveClass(/is-floating/);
+    await expectClear(page, ".editor-paper");
+    await researchHeader(page).click();
+    await expect(card(page)).toBeVisible();
+    await expect(aside(page)).toHaveCount(0);
+  });
+
+  test("T5: widening the window while the research panel is open hands it back to the card", async ({ page }) => {
+    await page.setViewportSize({ width: 1100, height: 800 });
+    await writingProject(page, "Card widened", true);
+    await researchHeader(page).click();
+    await expect(aside(page)).toBeVisible();
+    await page.setViewportSize({ width: 1600, height: 900 });
+    await settle(page);
+    await expect(card(page)).toBeVisible();
+    await expect(aside(page)).toHaveCount(0);
+  });
+
+  test("T5: a toast raised while the card is open never covers the card or the sheet", async ({ page }) => {
+    await writingProject(page, "Toast card", true);
+    await researchHeader(page).click();
+    await expect(card(page)).toBeVisible();
+    await page.getByRole("button", { name: "Snapshot", exact: true }).click();
+    await page.getByLabel("Snapshot name").fill("A snapshot while the card is open");
+    await page.getByRole("button", { name: "Save", exact: true }).click();
+    await expect(page.locator(".notice")).toBeVisible();
+    await settle(page);
+    const toast = await rect(page, ".notice");
+    const box = await cardRect(page);
+    expect(intersects(toast, box)).toBe(false);
+    // Wave 6 R: it moves left of the card only when the card reaches its corner, so it never lands on the sheet.
+    expect(intersects(toast, await rect(page, ".editor-paper"))).toBe(false);
+  });
+
+  test("T5: on a short window the card reaches the toast's corner, so the toast sits left of it", async ({ page }) => {
+    await page.setViewportSize({ width: 1600, height: 420 });
+    await writingProject(page, "Toast short", true);
+    await researchHeader(page).click();
+    await expect(card(page)).toBeVisible();
+    await page.getByRole("button", { name: "Snapshot", exact: true }).click();
+    await page.getByLabel("Snapshot name").fill("Short window snapshot");
+    await page.getByRole("button", { name: "Save", exact: true }).click();
+    await expect(page.locator(".notice")).toBeVisible();
+    await settle(page);
+    const toast = await rect(page, ".notice");
+    const box = await cardRect(page);
+    expect(box.bottom + GAP).toBeGreaterThan(420 - GAP - 80);
+    expect(intersects(toast, box)).toBe(false);
+    expect(toast.right).toBeLessThanOrEqual(box.left - GAP + 0.5);
+  });
+
+  test("T5: a toast raised while the research panel is open sits left of the panel", async ({ page }) => {
+    await page.setViewportSize({ width: 1100, height: 800 });
+    await writingProject(page, "Toast panel", true);
+    await researchHeader(page).click();
+    await expect(aside(page)).toBeVisible();
+    await page.getByRole("button", { name: "Snapshot", exact: true }).click();
+    await page.getByLabel("Snapshot name").fill("A snapshot while the panel is open");
+    await page.getByRole("button", { name: "Save", exact: true }).click();
+    await expect(page.locator(".notice")).toBeVisible();
+    await settle(page);
+    const toast = await rect(page, ".notice");
+    const panel = await rect(page, ".research-aside");
+    expect(intersects(toast, panel)).toBe(false);
+  });
+
+  // T229 r2 reject: page view 100 %, Research opened at 940 then widened, flipped forever between
+  // "sidebar floating + panel" and "sidebar docked + card over the sheet". Both sides are now judged
+  // together, so each width has one steady state that never covers the sheet.
+  for (const [label, widths] of [
+    ["widening", [940, 1000, 1100, 1240, 1400, 1600]],
+    ["narrowing", [1600, 1400, 1240, 1100, 1000, 940]],
+  ] as const) {
+    test(`T5: page view, Research open, ${label}: one steady state per width, never over the sheet`, async ({ page }) => {
+      await page.setViewportSize({ width: widths[0], height: 800 });
+      await writingProject(page, `Coupled fit ${label}`, true);
+      await settle(page);
+      await researchHeader(page).click();
+      await settle(page);
+      for (const w of widths) {
+        await page.setViewportSize({ width: w, height: 800 });
+        await settle(page);
+        await settle(page);
+        const states = new Set<string>();
+        const samples = w >= 1400 ? 15 : 3;
+        for (let i = 0; i < samples; i++) {
+          const s = await page.evaluate(() => {
+            const r = (q: string) => {
+              const e = document.querySelector(q);
+              if (!e) return null;
+              const b = e.getBoundingClientRect();
+              return { left: b.left, right: b.right, top: b.top, bottom: b.bottom };
+            };
+            return {
+              floating: !!document.querySelector(".sidebar-shell.is-floating"),
+              side: r("aside.sidebar"),
+              card: r(".citation-card"),
+              panel: !!document.querySelector(".research-aside"),
+              sheet: r(".editor-paper"),
+            };
+          });
+          states.add(`${w}: floating=${s.floating} card=${!!s.card} panel=${s.panel}`);
+          expect(s.sheet).not.toBeNull();
+          if (s.floating && s.side) expect(s.side.right + GAP, `${w}: sidebar right ${s.side.right} vs sheet left ${s.sheet!.left}`).toBeLessThanOrEqual(s.sheet!.left + 0.5);
+          if (s.card) expect(s.card.left - GAP, `${w}: card left ${s.card.left} vs sheet right ${s.sheet!.right}`).toBeGreaterThanOrEqual(s.sheet!.right - 0.5);
+          expect(!!s.card || s.panel, `${w}: research shows as card or panel`).toBe(true);
+          await page.waitForTimeout(200);
+        }
+        expect([...states], `${w}: the state must not change while the window stands still`).toHaveLength(1);
+        // At 1600 both fit together (margins 392): the sidebar floats and Research is the card.
+        if (w === 1600) expect([...states][0]).toBe("1600: floating=true card=true panel=false");
+      }
+    });
+  }
+
   test("floating off: the research panel as before", async ({ page }) => {
     await writingProject(page, "Card off", false);
     await researchHeader(page).click();
@@ -825,4 +961,35 @@ test.describe("citation card screenshots", () => {
     await settle(page);
     await page.screenshot({ path: out("card-narrow-fallback.png") });
   });
+});
+
+test.describe("floating sidebar: zoomed continuous view", () => {
+  test.use({ viewport: { width: 1600, height: 800 } });
+  const widths = [940, 980, 1020, 1040, 1060, 1080, 1100, 1140, 1180, 1240, 1300, 1400, 1500, 1600];
+
+  for (const zoom of [125, 150]) {
+    test(`continuous view at ${zoom} %: never over the text, same state resizing up and down`, async ({ page }) => {
+      await seedFloating(page, true);
+      await create(page, `Floating cont ${zoom}`);
+      await setPaged(page, false);
+      const ed = page.getByRole("textbox", { name: "Writing editor", exact: true });
+      await ed.click();
+      await ed.pressSequentially("A line of text for the column.");
+      await setZoom(page, zoom);
+      await settle(page);
+      const state = async (w: number) => {
+        await page.setViewportSize({ width: w, height: 800 });
+        await settle(page);
+        await settle(page);
+        const floating = await shell(page).evaluate((el) => el.classList.contains("is-floating"));
+        if (floating) await expectClear(page, ".writing-surface");
+        return floating;
+      };
+      const up: Record<number, boolean> = {};
+      const down: Record<number, boolean> = {};
+      for (const w of widths) up[w] = await state(w);
+      for (const w of [...widths].reverse()) down[w] = await state(w);
+      expect(down).toEqual(up);
+    });
+  }
 });

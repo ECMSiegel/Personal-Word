@@ -154,6 +154,28 @@ test("Enter on a command that does not move focus keeps the caret", async ({ pag
   await expect(editor(page)).toContainText("hello woXrld");
 });
 
+test("the highlighted row's hint does not move and its padding is equal", async ({ page }) => {
+  await createProject(page, "Palette spacing");
+  await openPalette(page);
+  const option = page.getByRole("option").filter({ hasText: "Take snapshot" });
+  await expect(option).not.toContainText("//");
+  const hint = option.locator(".command-palette-hint");
+  const right = async () => {
+    const box = (await hint.boundingBox())!;
+    return box.x + box.width;
+  };
+  const before = await right();
+  await option.hover();
+  const after = await right();
+  expect(Math.abs(before - after)).toBeLessThanOrEqual(0.5);
+  // Left and right padding are equal on every option.
+  const pad = await option.evaluate((el) => {
+    const s = getComputedStyle(el);
+    return { left: parseFloat(s.paddingLeft), right: parseFloat(s.paddingRight) };
+  });
+  expect(pad.left).toBe(pad.right);
+});
+
 const SHOTS = process.env.PALETTE_SHOTS;
 for (const scheme of ["light", "dark"] as const)
   for (const palettePick of ["Plain", "Color"] as const)

@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, type CSSProperties } from "react";
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, type CSSProperties, type ReactNode } from "react";
 import type { Editor } from "@tiptap/react";
 import type { Transaction } from "@tiptap/pm/state";
 import { invoke } from "@tauri-apps/api/core";
@@ -42,7 +42,7 @@ import { SplitDivider } from "./components/SplitDivider";
 import "./components/split.css";
 import "./components/pane-footer.css";
 import { PaneFooter } from "./components/PaneFooter";
-import { easedScrollTo, useReadSpy, useWriteProgress } from "./components/scrollspy";
+import { easedScrollTo, previewText, useReadSpy, useWriteProgress } from "./components/scrollspy";
 import { FLOAT_GAP, useMarginFit } from "./components/floating";
 import { CitationCard } from "./research/CitationCard";
 import {
@@ -497,7 +497,6 @@ export default function App() {
   const [paletteOpen, setPaletteOpen] = useState(false);
   const [paletteAnimate, setPaletteAnimate] = useState(false);
   const [previewName, setPreviewName] = useState("");
-  const [target, setTarget] = useState("");
   const [path, setPath] = useState("");
   const [busy, setBusy] = useState(false);
   const [queue] = useState(
@@ -603,7 +602,6 @@ export default function App() {
           ? tabs.map((t) => (t.id === p.id ? { id: p.id, title: p.title } : t))
           : [...tabs, { id: p.id, title: p.title }],
       );
-      setTarget(p.order[0] ?? "");
       setVersions(null);
       setPreview(null);
       setQuery("");
@@ -1025,7 +1023,6 @@ export default function App() {
             setSplit(pruned);
             if (active === e.id)
               setActive(survivor || p.order[0] || p.entries[0]?.id || "");
-            if (target === e.id) setTarget("");
             setNotice(`“${e.title}” deleted. A safety snapshot keeps it.`);
           },
         },
@@ -1136,10 +1133,6 @@ export default function App() {
       "Selection kept in Fragments. Its original section and position are remembered.",
     );
   };
-  const restoreFragment = () => {
-    if (!item || item.kind !== "fragment" || !target) return;
-    appendFragment(item, target);
-  };
   const appendFragment = (fragment: Entry, target: string, open = true) => {
     const editor = mode === "write" ? editorFor(target) : null;
     if (editor) {
@@ -1164,9 +1157,7 @@ export default function App() {
         ),
       }));
       if (open) openEntry(target);
-      setNotice(
-        "Fragment appended to the section. The original remains in Fragments.",
-      );
+      setNotice("Fragment appended to the section. The original remains in Fragments.");
       return;
     }
     mutate((p) => ({
@@ -1192,9 +1183,7 @@ export default function App() {
       }),
     }));
     if (open) openEntry(target);
-    setNotice(
-      "Fragment appended to the section. The original remains in Fragments.",
-    );
+    setNotice("Fragment appended to the section. The original remains in Fragments.");
   };
   const insertFragment = (fragment: Entry) => {
     const editor = editorFor(active);
@@ -1333,7 +1322,6 @@ export default function App() {
         setQuery("");
         apply(p);
         setActive(p.order[0]);
-        setTarget(p.order[0]);
         setMode("write");
         localStorage.setItem("folio.lastProject", p.id);
         await queue.flush();
@@ -1839,29 +1827,6 @@ export default function App() {
             </p>
           ) : undefined
         }
-        footer={
-          !inSplit && entry.kind === "fragment" ? (
-            <div className="restore-fragment">
-              <span>Give these words a home</span>
-              <Dropdown
-                label="Restore fragment to section"
-                width={220}
-                value={target}
-                onChange={setTarget}
-                options={[
-                  { value: "", label: "Choose a section" },
-                  ...sections.map((e) => ({
-                    value: e.id,
-                    label: e.title,
-                  })),
-                ]}
-              />
-              <button disabled={!target} onClick={restoreFragment}>
-                Append to section →
-              </button>
-            </div>
-          ) : undefined
-        }
         editorLabel={side === "right" ? "Writing editor, right pane" : undefined}
         showToolbar={side === focusedPane}
         toolbarTarget={split && splitLeft ? splitToolbar : undefined}
@@ -1947,10 +1912,25 @@ export default function App() {
       split: !!split,
       documentOnScreen,
       key: floatKey,
+      zoom: project?.pageLayout?.zoom,
     }),
-    [mode, project?.pageLayout?.mode, split, documentOnScreen, floatKey],
+    [mode, project?.pageLayout?.mode, split, documentOnScreen, floatKey, project?.pageLayout?.zoom],
   );
-  const floatFitRaw = useMarginFit(workspaceRef, floatCtx, floating, SIDEBAR_MAX);
+  // Room the pinned sidebar takes when docked (its --sidebar-width, whether it floats now or
+  // not) and the room an open aside takes (panel + the resizer's 3 px: 6 px less its -3 px
+  // margin). The fit lays out each floating/docked combination from these, so it never depends
+  // on which one is on screen now. Only the research panel gives way to the card.
+  const dockedRoom = () => {
+    const shell = document.querySelector<HTMLElement>(".sidebar-shell");
+    const pinned = !!shell && shell.classList.contains("is-pinned");
+    const asideOpen = destination === "fragments" || destination === "research";
+    return {
+      sidebar: pinned && shell ? parseFloat(shell.style.getPropertyValue("--sidebar-width")) || 0 : 0,
+      aside: asideOpen ? asideWidth + 3 : 0,
+      asideStays: destination === "fragments" || fullResearch,
+    };
+  };
+  const floatFitRaw = useMarginFit(workspaceRef, floatCtx, floating, SIDEBAR_MAX, dockedRoom);
   const floatFit = {
     fits: floatFitRaw.left.fits,
     width: floatFitRaw.left.width,
@@ -1962,6 +1942,11 @@ export default function App() {
   // renders exactly as before, so the fallback is automatic.
   const cardFits = floating && floatFitRaw.right.fits && !split;
   const showCard = cardFits && !fullResearch && destination === "research";
+  // The toast sits left of an aside, and left of the card only when the card reaches down to
+  // the toast's corner; otherwise it stays in the corner, clear of the card and the sheet.
+  const asideOnScreen = destination === "fragments" || (destination === "research" && !showCard);
+  const [cardLow, setCardLow] = useState(false);
+  const noticeClear = showCard ? (cardLow ? floatFitRaw.right.width + FLOAT_GAP : 0) : asideOnScreen ? asideWidth : 0;
   // Last input was a pointer (not a key): a pointer open animates, a key open
   // never does. Focus-visible cannot tell: the editor always matches it, and
   // WebKit does not focus a clicked button.
@@ -2048,9 +2033,38 @@ export default function App() {
     el.style.top = top + "px";
     el.style.setProperty("--card-max-height", Math.max(0, floatFitRaw.bottom - floatFitRaw.top - FLOAT_GAP) + "px");
   }, [showCard, floatFitRaw.top, floatFitRaw.bottom]);
+  // Measured when a toast appears: does the card reach the toast's band (16 px inset, up to 80 px tall)?
+  useLayoutEffect(() => {
+    const r = showCard && notice ? cardBox.current?.getBoundingClientRect() : undefined;
+    setCardLow(!!r && r.bottom + FLOAT_GAP > window.innerHeight - FLOAT_GAP - 80);
+  }, [notice, showCard]);
   // One element, shown in the Settings destination and in the Projects-screen
   // dialog, so the two cannot drift apart.
-  const generalSettings = (
+  const projectSidebarExtras = project ? (
+    <>
+      {([ ["read", "Show Read manuscript"], ["comments", "Show Comments"], ["history", "Show Snapshots & history"] ] as const).map(([id, label]) => (
+        <label className="settings-check" key={id}>
+          <input
+            type="checkbox"
+            checked={!(project.sidebarHidden ?? []).includes(id)}
+            onChange={(e) => {
+              const hidden = new Set(project.sidebarHidden ?? []);
+              if (e.target.checked) hidden.delete(id);
+              else hidden.add(id);
+              const next = ["read", "comments", "history"].filter((group) => hidden.has(group));
+              mutate((p) => ({ ...p, sidebarHidden: next }));
+              if (!e.target.checked && (destination as string) === id) {
+                setDestination("manuscript");
+                setMode("write");
+              }
+            }}
+          />
+          {label}
+        </label>
+      ))}
+    </>
+  ) : null;
+  const generalSettings = (sidebarExtras?: ReactNode) => (
     <GeneralSettings
       appearance={appearance}
       onAppearance={setAppearance}
@@ -2074,6 +2088,7 @@ export default function App() {
       }}
       storagePath={path}
       onShowPath={setNotice}
+      sidebarExtras={sidebarExtras}
     >
       <section className="settings-section">
         <ShortcutsSettings overrides={shortcuts} onChange={changeShortcuts} />
@@ -2117,7 +2132,7 @@ export default function App() {
             onImportWriting={(file) => void run(() => importWriting(file))}
             dropEnabled={!busy && !importBusy && !importPreview && !nameDialog && !choice}
             onDropError={(message) => setError(message)}
-            settings={generalSettings}
+            settings={generalSettings()}
             damagedJournals={damagedJournals}
             onExportJournal={(d) =>
               download(d.key + ".txt", d.raw, "text/plain")
@@ -2182,7 +2197,7 @@ export default function App() {
                   ]),
                   ...(project.research?.notes ?? []).map((n) => ({
                     id: n.id,
-                    title: n.text.slice(0, 70) || "Research note",
+                    title: previewText(n.text, 70) || "Research note",
                     detail: n.kind,
                   })),
                 ],
@@ -2387,40 +2402,7 @@ export default function App() {
               {destination === "settings" ? (
                 <div className="project-settings">
                   <h1>Project settings</h1>
-                  {generalSettings}
-                  <section className="settings-section">
-                    <h2>Sidebar</h2>
-                    {(
-                      [
-                        ["read", "Show Read manuscript"],
-                        ["comments", "Show Comments"],
-                        ["history", "Show Snapshots & history"],
-                      ] as const
-                    ).map(([id, label]) => (
-                      <label className="settings-check" key={id}>
-                        <input
-                          type="checkbox"
-                          checked={
-                            !(project.sidebarHidden ?? []).includes(id)
-                          }
-                          onChange={(e) => {
-                            const hidden = new Set(project.sidebarHidden ?? []);
-                            if (e.target.checked) hidden.delete(id);
-                            else hidden.add(id);
-                            const next = ["read", "comments", "history"].filter(
-                              (group) => hidden.has(group),
-                            );
-                            mutate((p) => ({ ...p, sidebarHidden: next }));
-                            if (!e.target.checked && (destination as string) === id) {
-                              setDestination("manuscript");
-                              setMode("write");
-                            }
-                          }}
-                        />
-                        {label}
-                      </label>
-                    ))}
-                  </section>
+                  {generalSettings(projectSidebarExtras)}
                   <section className="settings-section">
                     <h2>Goals</h2>
                     <div className="settings-form">
@@ -2673,7 +2655,7 @@ export default function App() {
               ) : item ? (
                 <div className={"editor-area" + (split && splitLeft ? " is-split" : "")}>
                   {reattachment?.projectId === project.id && reattachment.entryId === item.id && (
-                    <div className="restore-fragment" role="region" aria-label="Reattach comment">
+                    <div className="reattach-banner" role="region" aria-label="Reattach comment">
                       <span>Select the passage to attach this comment.</span>
                       <button disabled={!reattachment.selection} onMouseDown={(event) => event.preventDefault()} onClick={finishReattachment}>
                         Attach comment to selection
@@ -3018,7 +3000,11 @@ export default function App() {
           </div>
         )}
         {notice && (
-          <div className="notice" role="status">
+          <div
+            className="notice"
+            role="status"
+            style={noticeClear ? { right: `calc(${noticeClear}px + var(--space-4))` } : undefined}
+          >
             <span>{notice}</span>
             <button
               aria-label="Dismiss notification"

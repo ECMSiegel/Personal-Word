@@ -1,0 +1,9 @@
+{
+  "id": "agent-9a33",
+  "label": "Claude Haiku worker W6 T4",
+  "joined_at": "2026-11-03T05:37:35+00:00",
+  "last_seen": "2026-11-03T05:38:14+00:00",
+  "status": "left",
+  "current_task": null,
+  "inbox_cursor": 1135
+}

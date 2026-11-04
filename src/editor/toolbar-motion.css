@@ -2,7 +2,10 @@
    (https://bencho.dev/blocks/dock, owner: free to use). Only transform changes, so the
    bar's layout width and height never move. The 24 px hit area (::after) is on the button. */
 .writer .format-bar .toolbar-icon:not([data-popover-item]) > svg {
-  transform: translate(var(--optical-x, 0), var(--optical-y, 0)) scale(var(--dock-scale, 1));
+  width: 24px;
+  height: 24px;
+  margin: -4px;
+  transform: translate(var(--optical-x, 0), var(--optical-y, 0)) scale(calc(var(--dock-scale, 1) / 1.5));
   transition: transform var(--duration-fast) var(--ease-out);
 }
 /* A key press must not animate. */
@@ -15,7 +18,7 @@
 }
 @media (prefers-reduced-motion: reduce) {
   .writer .format-bar .toolbar-icon:not([data-popover-item]) > svg {
-    transform: translate(var(--optical-x, 0), var(--optical-y, 0));
+    transform: translate(var(--optical-x, 0), var(--optical-y, 0)) scale(0.6666667);
     transition: none;
   }
 }

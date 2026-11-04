@@ -8,12 +8,78 @@ import { crawlControls, focusSample, hoverSample, type Control, type HoverSample
 const OUT = process.env.HOVER_OUT ?? "node_modules/.cache/personal-word-beta/ui4-h1";
 const pdfBytes = Buffer.from("%PDF-1.4\n1 0 obj << /Type /Catalog >> endobj\n%%EOF\n", "ascii");
 
-type Row = Control & { hover: HoverSample | null; sampled: boolean; focus?: HoverSample | null };
+// Wave 6 T1: `.emph-row` is a control whose right-side content (a hint, dates) must not move, so
+// the row itself never scales. Its `.emph-label` child carries the shared stroke + 1.04 grow; the
+// crawler therefore samples the label for the emphasis and keeps the row's own sample to prove it
+// does not scale.
+type Row = Control & {
+  hover: HoverSample | null;
+  sampled: boolean;
+  focus?: HoverSample | null;
+  emphRow?: boolean;
+  labelRestWeight?: string;
+  rowHover?: HoverSample | null;
+  rowFocus?: HoverSample | null;
+};
+type Sampled = { hover: HoverSample | null; focus: HoverSample | null; rowHover?: HoverSample | null; rowFocus?: HoverSample | null; labelRestWeight?: string };
 const rows: Row[] = [];
 const skipped: string[] = [];
 const seen = new Set<string>();
-const byShape = new Map<string, HoverSample | null>();
-const focusByShape = new Map<string, HoverSample | null>();
+const byShape = new Map<string, Sampled>();
+
+const readEmphasis = (el: Element): HoverSample => {
+  const cs = getComputedStyle(el);
+  return {
+    weight: cs.fontWeight,
+    transform: cs.transform,
+    color: cs.color,
+    duration: cs.transitionDuration,
+    stroke: parseFloat(cs.webkitTextStrokeWidth) || 0,
+    strokeColor: cs.webkitTextStrokeColor,
+  };
+};
+
+/** Read the label's emphasis while the pointer still rests on its `.emph-row` (after hoverSample). */
+async function labelHover(page: Page, id: string): Promise<HoverSample | null> {
+  const label = page.locator(`[data-h1-id="${id}"] .emph-label`);
+  if ((await label.count()) !== 1) return null;
+  try {
+    return await label.evaluate(readEmphasis);
+  } catch {
+    return null;
+  }
+}
+
+/** Focus the row from the keyboard, read its label's emphasis, then restore focus. */
+async function labelFocus(page: Page, id: string): Promise<HoverSample | null> {
+  const row = page.locator(`[data-h1-id="${id}"]`);
+  if ((await row.count()) !== 1) return null;
+  try {
+    await page.mouse.move(720, 892);
+    await page.keyboard.press("Shift"); // keyboard modality, so :focus-visible applies on focus()
+    await row.evaluate((el) => (el as HTMLElement).focus());
+    await page.waitForTimeout(220);
+    const ok = await row.evaluate((el) => el.matches(":focus-visible"));
+    const out = ok ? await page.locator(`[data-h1-id="${id}"] .emph-label`).evaluate(readEmphasis) : null;
+    await row.evaluate((el) => (el as HTMLElement).blur());
+    return out;
+  } catch {
+    return null;
+  }
+}
+
+async function sampleControl(page: Page, id: string): Promise<Sampled> {
+  const emphRow = (await page.locator(`[data-h1-id="${id}"].emph-row`).count()) === 1;
+  const label = page.locator(`[data-h1-id="${id}"] .emph-label`);
+  const labelRestWeight = emphRow && (await label.count()) === 1
+    ? await label.evaluate((el) => getComputedStyle(el).fontWeight)
+    : undefined;
+  const own = await hoverSample(page, id, 220);
+  const hover = emphRow ? await labelHover(page, id) : own;
+  const focusOwn = await focusSample(page, id);
+  const focus = emphRow ? await labelFocus(page, id) : focusOwn;
+  return emphRow ? { hover, focus, rowHover: own, rowFocus: focusOwn, labelRestWeight } : { hover, focus };
+}
 
 async function record(page: Page, screen: string) {
   await page.mouse.move(2, 2);
@@ -22,20 +88,15 @@ async function record(page: Page, screen: string) {
     const key = screen.replace(/ \(popup \d+\)$/, "") + "|" + c.selector + "|" + c.text;
     if (seen.has(key)) continue;
     seen.add(key);
-    // computed hover style is class-driven, so one hover per distinct selector shape is enough
+    // computed hover style is class-driven, so one sample per distinct selector shape is enough
     const gk = c.selector + "|" + c.kind;
-    let hover = byShape.get(gk);
-    const fresh = hover === undefined;
-    if (hover === undefined) {
-      hover = await hoverSample(page, c.id, 220);
-      byShape.set(gk, hover);
+    let sampled = byShape.get(gk);
+    const fresh = sampled === undefined;
+    if (!sampled) {
+      sampled = await sampleControl(page, c.id);
+      byShape.set(gk, sampled);
     }
-    let focus: HoverSample | null | undefined;
-    if (fresh) {
-      focus = await focusSample(page, c.id);
-      focusByShape.set(gk, focus);
-    }
-    rows.push({ ...c, hover, sampled: fresh, focus });
+    rows.push({ ...c, hover: sampled.hover, sampled: fresh, focus: sampled.focus, emphRow: sampled.rowHover !== undefined, labelRestWeight: sampled.labelRestWeight, rowHover: sampled.rowHover, rowFocus: sampled.rowFocus });
   }
   await page.mouse.move(2, 2);
 }
@@ -241,8 +302,17 @@ test("hover inventory: crawl controls across screens", async ({ page }) => {
   for (const r of rows) {
     if (!r.hover || r.disabled) continue;
     const id = `${r.screen} | ${r.selector} | ${r.text}`;
+    if (r.emphRow) {
+      // Wave 6 T1: the grow lives on the label; the row holding right-side content must stay put.
+      if (!r.rowHover) failures.push(`no row hover sample: ${id}`);
+      else {
+        if (r.rowHover.stroke > 0) failures.push(`emph-row takes a stroke itself: ${id}`);
+        if (Math.abs(scaleOf(r.rowHover.transform) - 1) > 0.002) failures.push(`emph-row scales instead of its label (${r.rowHover.transform}): ${id}`);
+      }
+    }
     if (r.kind === "text" && !ICON_LIST.test(r.selector)) {
-      if (r.sampled && r.hover.weight !== r.rest.weight) failures.push(`hover changes weight ${r.rest.weight}->${r.hover.weight}: ${id}`);
+      const restWeight = r.emphRow ? r.labelRestWeight : r.rest.weight;
+      if (r.sampled && r.hover.weight !== restWeight) failures.push(`hover changes weight ${restWeight}->${r.hover.weight}: ${id}`);
       if (!(r.hover.stroke > 0.2)) failures.push(`no stroke: ${id}`);
       else if (r.hover.strokeColor !== r.hover.color) failures.push(`stroke colour != text colour: ${id}`);
       if (Math.abs(scaleOf(r.hover.transform) - 1.04) > 0.002) failures.push(`no 1.04 scale (${r.hover.transform}): ${id}`);
@@ -255,6 +325,13 @@ test("hover inventory: crawl controls across screens", async ({ page }) => {
   for (const r of rows) {
     if (!r.sampled || !r.hover || r.disabled || !r.focus) continue;
     const id = `${r.screen} | ${r.selector} | ${r.text}`;
+    if (r.emphRow) {
+      if (!r.rowFocus) failures.push(`focus: no row sample: ${id}`);
+      else {
+        if (r.rowFocus.stroke > 0) failures.push(`focus: emph-row takes a stroke itself: ${id}`);
+        if (Math.abs(scaleOf(r.rowFocus.transform) - 1) > 0.002) failures.push(`focus: emph-row scales instead of its label (${r.rowFocus.transform}): ${id}`);
+      }
+    }
     if (r.kind === "text" && !ICON_LIST.test(r.selector)) {
       if (!(r.focus.stroke > 0.2)) failures.push(`focus: no stroke: ${id}`);
       if (Math.abs(r.focus.stroke - r.hover.stroke) > 0.01) failures.push(`focus stroke differs from hover: ${id}`);
@@ -352,7 +429,6 @@ test("H2 emphasis: no-shift faux bold and scale 1.04 on hover", async ({ page })
   await page.getByRole("button", { name: "Keep as fragment" }).click();
   await group(page, "Fragments").click();
   await expect(page.locator(".fragment-library")).toBeVisible();
-  await assertEmphasis(page, page.locator(".fragment-link").last(), "Append to section", true);
   await group(page, "Research").click();
   await page.locator(".research-tabs button", { hasText: /^Notes/ }).first().click();
   await page.getByRole("button", { name: /^Add note/i }).first().click();

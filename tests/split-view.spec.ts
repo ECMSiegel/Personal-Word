@@ -283,7 +283,6 @@ test("split safety: a fragment in a split pane has no restore strip (Fragments p
   await expect(page.locator(".split-pane")).toHaveCount(2);
   await expect(page.getByText("Give these words a home")).toHaveCount(0);
   await expect(page.getByRole("button", { name: "Restore fragment to section" })).toHaveCount(0);
-  await expect(page.getByRole("button", { name: /Append to section/ })).toHaveCount(0);
 });
 
 test("split safety: Fragments panel Append into the unfocused pane's section is kept", async ({ page }) => {

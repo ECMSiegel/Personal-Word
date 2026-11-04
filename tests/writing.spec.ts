@@ -27,13 +27,15 @@ test("writer journey: project, rapid edits, sections, fragments, snapshots, rest
   await page.getByRole("button", { name: "Keep as fragment" }).click();
   await expect(editor).not.toContainText("The first paragraph belongs here.");
   await page
-    .getByRole("button", {
-      name: /^The first paragraph belongs here\./,
-    })
+    .locator('.sidebar [data-group="fragments"] .entry-main')
+    .filter({ hasText: /^The first paragraph belongs here\./ })
     .click();
   await expect(editor).toContainText("The first paragraph belongs here.");
-  await page.getByRole("button", { name: "Append to section" }).click();
-  await expect(editor).toContainText("The first paragraph belongs here.");
+  // The removed restore footer used to put the fragment text back into the
+  // manuscript; do it by hand so the snapshot holds it and restore returns it.
+  await page.locator('.sidebar [data-group="manuscript"] .entry-main').first().click();
+  await editor.fill("The first paragraph belongs here.");
+  await expect(page.getByText("Saved", { exact: true })).toBeVisible();
   await page.getByRole("button", { name: "Snapshot", exact: true }).click();
   await page.getByLabel("Snapshot name").fill("Before workshop");
   await page.getByRole("button", { name: "Save", exact: true }).click();

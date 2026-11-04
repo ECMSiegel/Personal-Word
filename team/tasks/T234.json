@@ -1,0 +1,58 @@
+{
+  "id": "T234",
+  "title": "W6 F -- Fable review",
+  "description": "Do PLAN.md task F: one Fable reviewer, read-only, checks REQUEST.md + PLAN.md + the wave 6 diff (git diff 08e9f85) + V's results and screenshots; writes docs/agent-work/2026-11-02-ui-wave-6/FABLE-REVIEW.md.",
+  "status": "done",
+  "owner": null,
+  "priority": 1,
+  "depends_on": [
+    "T233"
+  ],
+  "files": [
+    "docs/agent-work/2026-11-02-ui-wave-6/FABLE-REVIEW.md"
+  ],
+  "review_required": true,
+  "created_by": "agent-81bd",
+  "created_at": "2026-11-03T03:40:46+00:00",
+  "claimed_at": "2026-11-03T17:38:16+00:00",
+  "updated_at": "2026-11-03T17:51:02+00:00",
+  "handoff": null,
+  "review": {
+    "by": "agent-30f0",
+    "at": "2026-11-03T17:51:02+00:00",
+    "verdict": "approved",
+    "note": "FABLE-REVIEW.md read in full: no blocker, should-fix 1-6 (App.tsx preview text x2, App.tsx toast vs sheet, styles.css tab clip + header clip, docs native wording), backlog 7-13. Evidence cites real captures/lines I spot-checked (preview-note/source text, tab clip, header clip). R takes 1-6."
+  },
+  "log": [
+    {
+      "at": "2026-11-03T03:40:46+00:00",
+      "agent": "agent-81bd",
+      "event": "created",
+      "note": ""
+    },
+    {
+      "at": "2026-11-03T17:38:16+00:00",
+      "agent": "agent-7271",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-11-03T17:38:17+00:00",
+      "agent": "agent-7271",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-11-03T17:50:38+00:00",
+      "agent": "agent-7271",
+      "event": "review requested",
+      "note": "13 findings (0 blocker, 6 should-fix, 7 backlog); see FABLE-REVIEW.md. Should-fix: App.tsx source/note preview card text (2), toast over the sheet beside the card, styles.css project tab clip + header title/download clip with Research open, docs still say native pending."
+    },
+    {
+      "at": "2026-11-03T17:51:02+00:00",
+      "agent": "agent-30f0",
+      "event": "approved",
+      "note": "FABLE-REVIEW.md read in full: no blocker, should-fix 1-6 (App.tsx preview text x2, App.tsx toast vs sheet, styles.css tab clip + header clip, docs native wording), backlog 7-13. Evidence cites real captures/lines I spot-checked (preview-note/source text, tab clip, header clip). R takes 1-6."
+    }
+  ]
+}

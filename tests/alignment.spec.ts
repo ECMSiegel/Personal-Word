@@ -502,3 +502,122 @@ for (const width of [190, 270, 390]) {
     ).toBeLessThanOrEqual(0.5);
   });
 }
+
+// UI wave 6 T6 (9.1 floating, rough edge u): with floating on and room, the
+// scrolling list lives inside its own region and no list row ever runs behind
+// the bottom rows (Read / Comments / History / Settings). 40 research notes
+// make the Research list long enough to prove the scroll region holds.
+test("floating sidebar: with 40 notes the list ends above the bottom rows", async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 1600, height: 900 });
+  await page.addInitScript(() => {
+    localStorage.setItem("personal-word.restoreTabs", "true");
+    localStorage.setItem(
+      "folio.workspace.sidebar",
+      JSON.stringify({ width: 270, pinned: true, hover: true, floating: true }),
+    );
+  });
+  await openProject(page, "Floating list rail");
+  await page.evaluate(() => {
+    const key = Object.keys(localStorage).find((k) =>
+      k.startsWith("folio.preview.project."),
+    )!;
+    const p = JSON.parse(localStorage.getItem(key)!);
+    p.entries[0].text = "Seed prose so the page has real margins.";
+    p.research = {
+      sources: [],
+      footnotes: [],
+      notes: Array.from({ length: 40 }, (_, i) => ({
+        id: "note-" + i,
+        kind: "quote",
+        text: "Remember the tide table with entry " + (i + 1),
+      })),
+      autoShortNotes: true,
+    };
+    localStorage.setItem(key, JSON.stringify(p));
+    localStorage.setItem("folio.lastProject", p.id);
+  });
+  await page.reload();
+  await expect(page.locator(".sidebar-shell.is-floating"), "floating engaged").toBeVisible();
+  const measured = await page.evaluate(() => {
+    const groups = document.querySelector<HTMLElement>(".sidebar .sidebar-groups")!;
+    groups.scrollTop = groups.scrollHeight;
+    const rows = groups.querySelectorAll(".entry-row");
+    const last = rows[rows.length - 1] as HTMLElement;
+    const nav = document.querySelector<HTMLElement>(".sidebar .sidebar-bottom-groups")!;
+    return {
+      rows: rows.length,
+      groupBoxBottom: groups.getBoundingClientRect().bottom,
+      lastRowBottom: last.getBoundingClientRect().bottom,
+      navTop: nav.getBoundingClientRect().top,
+    };
+  });
+  expect(measured.rows, "the notes seeded into the sidebar").toBeGreaterThanOrEqual(40);
+  expect(
+    measured.groupBoxBottom,
+    "the scroll region ends above the bottom rows",
+  ).toBeLessThanOrEqual(measured.navTop);
+  expect(
+    measured.lastRowBottom,
+    "the last list row ends above the bottom rows",
+  ).toBeLessThanOrEqual(measured.navTop + 0.5);
+});
+
+// UI wave 6 T6 (9.2): record the sidebar's placement beside split view so the
+// by-design hover overlay case is distinguished from a pinned-layout bug.
+// No layout assertion: the screenshots are the record.
+test("T6 record: split view sidebar placement, pinned and overlay, at 1280 and 1600", async ({
+  page,
+}, testInfo) => {
+  await page.addInitScript(() => {
+    localStorage.setItem("personal-word.restoreTabs", "true");
+    localStorage.setItem(
+      "folio.workspace.sidebar",
+      JSON.stringify({ width: 270, pinned: true, hover: true, floating: false }),
+    );
+  });
+  await openProject(page, "Split placement");
+  await page.evaluate(() => {
+    const key = Object.keys(localStorage).find((k) =>
+      k.startsWith("folio.preview.project."),
+    )!;
+    const p = JSON.parse(localStorage.getItem(key)!);
+    p.entries[0].text = "Left pane prose to fill the page.";
+    localStorage.setItem(key, JSON.stringify(p));
+    localStorage.setItem("folio.lastProject", p.id);
+  });
+  await page.reload();
+  await page.getByRole("textbox", { name: "Writing editor" }).waitFor();
+  // Two rows: left and right pane are different entries (openBeside keeps the
+  // left entry, so an entry cannot be dragged from beneath itself).
+  await page.getByRole("button", { name: "New section", exact: true }).click();
+  await page.getByLabel("Title", { exact: true }).fill("Second pane");
+  await page.getByRole("button", { name: "Save", exact: true }).click();
+  await expect(page.getByRole("dialog")).toHaveCount(0);
+  for (const width of [1280, 1600] as const) {
+    await page.setViewportSize({ width, height: 800 });
+    // Pinned: open row one in the main pane, then Cmd+click row two to open beside.
+    await page.locator(".sidebar .entry-main").first().click();
+    await page
+      .locator(".sidebar .entry-main")
+      .nth(1)
+      .click({ modifiers: ["ControlOrMeta"] });
+    await expect(page.locator(".split-pane")).toHaveCount(2);
+    await page.screenshot({
+      path: testInfo.outputPath(`split-t6-${width}-pinned.png`),
+      fullPage: false,
+    });
+    // Unpinned overlay: unpin, move the pointer away, hover in from the edge.
+    await page.getByRole("button", { name: "Unpin sidebar" }).click();
+    await page.mouse.move(width / 2, 400);
+    await page.mouse.move(3, 400);
+    await expect(page.locator(".sidebar-shell")).toHaveClass(/is-revealed/);
+    await page.screenshot({
+      path: testInfo.outputPath(`split-t6-${width}-overlay.png`),
+      fullPage: false,
+    });
+    await page.getByRole("button", { name: "Pin sidebar" }).click();
+    await page.mouse.move(width / 2, 400);
+  }
+});

@@ -2,6 +2,22 @@
 
 Dated history, newest first, built from `git log --date=short` and [app history](app-history.md). [app-history.md](app-history.md) already gives a fuller narrative for 2026-10-14 to 2026-10-18 (including what each pass did and did not verify), so this file links to it rather than repeating it. Fixed issues are listed with dates in [limitations](limitations.md). Verification details are in the [validation record](validation.md).
 
+## 2026-11-03
+
+UI wave 6 (tasks T225-T232, each independently reviewed; CLAIMED; final check, Fable review and repairs done 2026-11-03 with Chromium, unit and native WebKit captures at the fixed 1240 px window, light and dark, Plain and Color (palette, settings, Notes tab, 190 px sidebar, rail and preview cards, split view, toast beside the card, toolbar at rest and magnified, floating sidebar and card at page 50 %); hover, window resizing (1100/1600 px) and continuous 125/150 % stay Chromium-only or owner hand checks; see the [wave-6 validation record](agent-work/2026-11-02-ui-wave-6/VALIDATION.md)). Plan: [the wave-6 plan](agent-work/2026-11-02-ui-wave-6/PLAN.md).
+
+- Command palette: the highlighted row's shortcut no longer runs into the right edge. Rows with text on the right (palette rows, project rows) now grow only their label on hover or focus, through the same one emphasis rule.
+- Projects screen: the trash button has its own slot and no longer overlaps the dates on a hovered row.
+- Settings: the project settings column is centred, and the sidebar options (Reveal sidebar on hover, Floating sidebar and research, and per project Read, Comments, History) live together in a new Sidebar section.
+- The "Give these words a home" strip under a fragment is gone. Move a fragment's words by copy and paste from the split view or the sidebar right-click menu; the Fragments panel's Append action is unchanged.
+- Scissor (Keep as fragment) and Comment work with just the cursor in a paragraph: they act on that paragraph when nothing is selected, and stay off in an empty paragraph. The scissor now magnifies in the toolbar dock like the other icons.
+- Sharper toolbar icons: the artwork is drawn at 24 px and scaled down at rest, so the biggest magnification draws at full size instead of stretching a small image.
+- Notes tab: the "Ideas and reminders" hint is gone, there is one line between notes with equal space either side, and the source dropdown and Delete note share a row.
+- Floating mode: the fit now judges every end state together (sidebar and card floating, one of them, neither) so widening or narrowing the window settles on one layout instead of flipping, and widening hands the Research panel back to the card. The notice toast keeps clear of the card or panel.
+- Sidebar: no grey box behind the group action icons at narrow widths (and they stay clickable), word counts stay visible at 190 px, and labels ellipsize at every width.
+- Line rail: each Manuscript, Fragments and Research group has one short line per item (idle 6 px, open 12 px, active 16 px, evenly spaced). Click, Enter or Space on a line opens the item (in Read mode, scrolls to the section); Reorder stays row drag and Option+Up or Down. Each line is a Tab stop after its group's rows.
+- Docs: design system (emphasis rows, dock artwork, line rail, Notes tab, sidebar widths), limitations (wave-5 rough edges o, p, s, t, u closed), user guide.
+
 ## 2026-11-02
 
 Part of UI wave 5, itemised below under 2026-11-01 because the wave was planned and started that day: floating mode, citation card, sidebar search clear and the command palette component landed overnight 2026-11-01 to 2026-11-02 (tasks T201, T208-T215, T219). The scroll fade (T216), the command palette wiring (T217) and the sidebar right-click menu (T218) landed the same night and are listed below.

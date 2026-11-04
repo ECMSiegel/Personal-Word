@@ -348,8 +348,8 @@ export function ProjectLibrary({
       <div className={"project-list project-list--" + view}>
         {sorted.map((p) => (
           <div className="project-row" key={p.id}>
-            <button onClick={() => onOpen(p.id)}>
-              <strong className="project-name">{p.title}</strong>
+            <button className="emph-row" onClick={() => onOpen(p.id)}>
+              <strong className="project-name emph-label">{p.title}</strong>
               <span className="project-dates">
                 <span>Added {date(added(p))}</span>
                 <span>--</span>
