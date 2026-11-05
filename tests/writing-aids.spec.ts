@@ -27,6 +27,8 @@ test("focus mode dims other paragraphs and the shortcut toggles it", async ({ pa
   await editor.press("Enter");
   await editor.pressSequentially("Second paragraph");
   await expect(editor.locator("p")).toHaveCount(2);
+  // ProseMirror puts the caret back if it lands on the doc start within 200 ms of focus.
+  await page.waitForTimeout(250);
   await editor.press("ArrowUp");
   await editor.press("Home");
   // Wait until the editor's own selection is in the first paragraph, so the

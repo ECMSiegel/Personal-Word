@@ -1,0 +1,46 @@
+{
+  "id": "T239",
+  "title": "W7 Rv -- Independent review of lanes A, B, C and the Cite here focus fix",
+  "description": "Read AGENTS.md, team/PROTOCOL.md, docs/agent-work/2026-11-04-ui-wave-7/REQUEST.md. Brief: node_modules/.cache/personal-word-beta/ui6-brief.md. Never commit. Adversarial Opus-class review of uncommitted work done without a board review: sidebar word count, Cmd-K hint and row hover (ProjectSidebar.tsx, scrollspy.ts, specs, notes/A.md); unboxed toolbar dropdowns and snapshot spacing (editor.css, organization.css, styles.css, specs, notes/B.md); floating left alignment (floating.css, notes/C.md); src/research/CitationCard.tsx Page focus after Cite here, src/Writer.tsx cited notes no longer auto-opening (already released in v0.2.1; replaces decision C5). Check: the screenplay style dropdown lost its box too (intended?); a row hover test really measures the line; the C test edit to expectClear did not weaken the overlap guarantee; keyboard flow after Cite here. Findings to docs/agent-work/2026-11-04-ui-wave-7/REVIEW.md; open repair tasks for real defects. Port 1938, scratch ui7-rv.",
+  "status": "done",
+  "owner": null,
+  "priority": 2,
+  "depends_on": [],
+  "files": [
+    "docs/agent-work/2026-11-04-ui-wave-7/REVIEW.md",
+    "node_modules/.cache/personal-word-beta/ui7-rv"
+  ],
+  "review_required": false,
+  "created_by": "agent-81bd",
+  "created_at": "2026-11-04T05:01:08+00:00",
+  "claimed_at": "2026-11-04T05:05:57+00:00",
+  "updated_at": "2026-11-04T05:22:30+00:00",
+  "handoff": null,
+  "review": null,
+  "log": [
+    {
+      "at": "2026-11-04T05:01:08+00:00",
+      "agent": "agent-81bd",
+      "event": "created",
+      "note": ""
+    },
+    {
+      "at": "2026-11-04T05:05:57+00:00",
+      "agent": "agent-9461",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-11-04T05:05:58+00:00",
+      "agent": "agent-9461",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-11-04T05:22:30+00:00",
+      "agent": "agent-9461",
+      "event": "done",
+      "note": "Read-only adversarial review completed; findings at docs/agent-work/2026-11-04-ui-wave-7/REVIEW.md. Verified current lane diffs/tests/source selectors and notes A/B/C. A row-hover logic maps the hovered row to its corresponding SpyRail line and test samples real line transforms; word count and Cmd-K hint are removed while shortcut remains. B's intended toolbar/snapshot changes and screenshots look correct, but confirmed medium scope regression: the broad format-bar dropdown border reset also strips Paper size and Page margins boxes inside the Page setup popover. Opened repair task T241 for CSS scoping + regression test. C preserves the marginFit document clearance and unchanged format-bar/topbar overlap checks; only left inset assertion changed, while new alignment spec verifies content. Cite here schedules focus back to Page after Tiptap insertion; keyboard test covers Page -> Add another -> lookup -> Escape flow. No builds/Playwright run by this review because serial-check.lock remained held by coordinator W7 full suite; lane artifacts reviewed (A 50 pass/8 skip, B 20 pass, C earlier 37 pass/2 stale failures). No native WebKit evidence. T236's in-progress CSS work was excluded from review; T240 should run final current-tree suite."
+    }
+  ]
+}

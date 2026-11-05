@@ -3,8 +3,10 @@
    left page margin (src/components/floating.ts), the sidebar is bare text on
    the page's own background: no fill, no border, no shadow. The shell spans
    from the window edge (so the hover-reveal strip stays at the edge) and the
-   sidebar sits one FLOAT_GAP (--space-4, 16 px) in from it, between the
-   bottom of the format bar and the top of the footer. ProjectSidebar.tsx
+   sidebar box starts at that edge too, so its padding puts the contents at
+   the docked sidebar's left (wave 7 C), between the bottom of the format bar
+   and the top of the footer. The margin fit still keeps FLOAT_GAP clear of the
+   text column. ProjectSidebar.tsx
    writes --float-width (min of the user's width and the margin's room),
    --float-top and --float-bottom (relative to .app). The shell takes no flex
    space, so the workspace spans the full width. Hover and focus come from the
@@ -28,21 +30,32 @@
 .sidebar-shell.is-floating.is-overlay {
   z-index: 4;
 }
-/* The edge strip reaches the inset sidebar, so a slow pointer never leaves the shell. */
+/* The edge strip is the docked 8 px. The sidebar starts at the window edge (left 0), like the
+   docked one, so its own padding puts the contents where the docked contents are; a 16 px strip
+   here would sit over the search icon and the first rows. */
 .sidebar-shell.is-floating > .sidebar-edge {
-  width: var(--space-4);
+  width: 8px;
 }
 .sidebar-shell.is-floating .sidebar,
 .sidebar-shell.is-floating.is-overlay .sidebar {
   position: absolute;
   top: 0;
   bottom: 0;
-  left: var(--space-4);
+  left: 0;
   width: var(--float-width);
   height: auto;
   background: transparent;
   border: 0;
   box-shadow: none;
+}
+/* Floating mode lets the groups take their natural height: bottom rows follow
+   Research instead of being pinned to the footer. The list can still shrink
+   and scroll on short windows, while the bottom rows remain reachable below it. */
+.sidebar-shell.is-floating .sidebar-groups {
+  flex: 0 1 auto;
+}
+.sidebar-shell.is-floating .sidebar-bottom-groups {
+  margin-top: 0;
 }
 /* Unpinned: hidden until revealed (edge strip, Show sidebar, shortcut or
    hover), by opacity and a short slide only; the global Reduce Motion block

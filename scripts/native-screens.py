@@ -43,6 +43,25 @@ STATE_SCREENS = (
     "state-rail-fragments-1",
     "state-split-rail",
     "state-projects-long",
+    # Wave 7 (T242): ruler alignment, caret, sticky and clip, SQLite round trip, Cite here focus, row hover.
+    "state-ruler-page-75",
+    "state-ruler-page-100",
+    "state-ruler-page-150",
+    "state-ruler-cont-75",
+    "state-ruler-cont-100",
+    "state-ruler-cont-150",
+    "state-ruler-caret-page-75",
+    "state-ruler-caret-page-100",
+    "state-ruler-caret-page-150",
+    "state-ruler-caret-page-75-off",
+    "state-ruler-caret-cont-75",
+    "state-ruler-caret-split-75",
+    "state-ruler-node-image-75",
+    "state-ruler-sticky-clip",
+    "state-gap-persist",
+    "state-margin-persist",
+    "state-cite-here-page",
+    "state-row-hover-rail",
 )
 
 
@@ -159,6 +178,9 @@ def read_report(work, scenario, invocation_id, run_id):
     return report
 
 
+measure_failures = []
+
+
 def capture_scenario(scenario, out, palette, timeout):
     run_id = f"{uuid.uuid4().hex}{scenario}"[:24]
     work = out / scenario
@@ -181,6 +203,9 @@ def capture_scenario(scenario, out, palette, timeout):
         print(f"{scenario}: states {len(captured)}/{len(STATE_SCREENS)}")
         for error in report.get("stateErrors") or []:
             print(f"{scenario}: STATE FAILED {error}")
+        for failure in report.get("measureFailures") or []:
+            print(f"{scenario}: MEASURE FAILED {failure}")
+        measure_failures.extend(f"{scenario}: {item}" for item in report.get("measureFailures") or [])
         return [name for name in STATE_SCREENS if name not in captured]
 
 
@@ -210,6 +235,9 @@ def main():
     print(f"{total} native screenshots written to {out}")
     if missing:
         print(f"native-screens: {len(missing)} state captures missing: {', '.join(missing)}", file=sys.stderr)
+        return 1
+    if measure_failures:
+        print(f"native-screens: {len(measure_failures)} measured checks failed (see MEASURE FAILED lines)", file=sys.stderr)
         return 1
     return 0
 

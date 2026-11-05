@@ -1,0 +1,113 @@
+{
+  "id": "T236",
+  "title": "W7 D -- Sidebar hierarchy, resize edges, floating small try",
+  "description": "Read AGENTS.md, team/PROTOCOL.md, docs/design-system.md, docs/agent-work/2026-11-04-ui-wave-7/REQUEST.md (decisions included), docs/agent-work/2026-11-04-ui-wave-7/RESEARCH.md and shots/. Brief: node_modules/.cache/personal-word-beta/ui6-brief.md (board steps, pinned Node, private Playwright config, SERIAL LOCK, Never list). Shared files src/styles.css, src/App.tsx stay on no task: edit your regions only, Edit tool, re-read first. Do not touch README.md, ROADMAP.md, docs/case-study.md (uncommitted owner review). Never commit. Doc notes go to docs/agent-work/2026-11-04-ui-wave-7/notes/<task>.md, not docs/*.md. Fail-first evidence in the done note. Port 1935, scratch ui7-d. (1) Hierarchy per owner decision: rows and headings same size (13 px); heading of the section on screen bold in NORMAL text colour, never coloured, in Plain and Color; icons keep colour when Color is on; no row ever bold; rows at rest dim (--muted); hovered, keyboard-focused and open rows (both split panes) full text colour; no width jump. Colour change only, no second hover weight or scale rule. Report dim contrast in light and dark. Bottom rows unchanged; nothing lit while Settings, Comments, Bibliography or Read is on screen. Update the AGENTS.md sidebar bullet (owner approved) and tests. (2) Resize handles (RESEARCH section 3): no line or colour on pointer hover or drag, only the cursor; keyboard focus stays visible. (3) Floating (RESEARCH section 4): no painted resize edge; list hugs its content if possible without changing jointFit/floating.ts or the overlap guarantee, else block and say so. Acceptance: tsc, npm test, specs sidebar-selection, floating, hover-emphasis, layout, split-view, alignment; light/dark Plain/Color screenshots read.",
+  "status": "done",
+  "owner": null,
+  "priority": 1,
+  "depends_on": [],
+  "files": [
+    "src/components/floating.css",
+    "tests/sidebar-selection.spec.ts",
+    "AGENTS.md",
+    "tests/layout.spec.ts",
+    "tests/split-view.spec.ts",
+    "tests/appearance.spec.ts"
+  ],
+  "review_required": true,
+  "created_by": "agent-81bd",
+  "created_at": "2026-11-04T05:00:53+00:00",
+  "claimed_at": "2026-11-04T10:17:49+00:00",
+  "updated_at": "2026-11-04T11:38:56+00:00",
+  "handoff": {
+    "by": "agent-571b",
+    "at": "2026-11-04T10:16:46+00:00",
+    "text": "Hierarchy itself is right in Plain and Color, light and dark; do not touch it. Resize paint on sidebar and research, floating hug, contrast 4.53/6.25, heading width (only the label widens, nothing moves) all hold. Fix, full detail in docs/agent-work/2026-11-04-ui-wave-7/REVIEW-T236-T237.md: (1 firm) tests that cannot fail: tests/split-view.spec.ts:881 and :891 assert not 600 on a heading that is now 700; assert 500; lines 883, 886, 890, 892 assert 400. tests/sidebar-selection.spec.ts W7 Plain dropped the 1.04 transform and stroke checks on an open row on hover and focus although the behaviour still exists (measured matrix 1.04, 0.52 px): restore. Add nothing-lit tests for Comments, Read, Bibliography. (2 firm) src/styles.css:1709 uses :focus-within, so the Bibliography row stays --text after a mouse click with all headings 500, and returns to --muted after blur; AGENTS.md says nothing lit. Use .entry-row:has(:focus-visible) on that rule; a test clicking Bibliography with the pointer away must fail first. (3 reading, owner may settle) .split-divider hover, active and focus-visible remove its resting 1 px line, so during a drag panes run together (art/edge-split-drag.png in ui7-rv-de); the test asserts background-image none. Default fix: delete those background overrides, keep the focus outline, assert rest equals hover. Also put 'never a fill' back in the AGENTS.md bullet. docs/design-system.md is stale: T240 docs merge."
+  },
+  "review": {
+    "by": "agent-f8b6",
+    "at": "2026-11-04T11:38:56+00:00",
+    "verdict": "approved",
+    "note": "Approved. split-view :881/:891 at 500 are correct (those headings are unlit; the earlier 700 was a misread). 1.04 and stroke restored; nothing-lit tests real. :has(:focus-visible) measured right in Plain/Color light/dark: clicked row dim, keyboard lit, hover intact; a key press after a click lights the focused row (Chromium, fits keyboard focus clause). Divider line identical at rest, hover, drag, focus; outline only on keyboard focus; rest and hover pixel-identical. AGENTS.md right. tsc clean, npm test 1137. Chromium only, CLAIMED. Detail: docs/agent-work/2026-11-04-ui-wave-7/REVIEW-r3.md"
+  },
+  "log": [
+    {
+      "at": "2026-11-04T05:00:53+00:00",
+      "agent": "agent-81bd",
+      "event": "created",
+      "note": ""
+    },
+    {
+      "at": "2026-11-04T05:03:24+00:00",
+      "agent": "agent-ae84",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-11-04T05:03:24+00:00",
+      "agent": "agent-ae84",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-11-04T08:12:41+00:00",
+      "agent": "agent-81bd",
+      "event": "reclaimed from agent-ae84",
+      "note": ""
+    },
+    {
+      "at": "2026-11-04T08:13:32+00:00",
+      "agent": "agent-81bd",
+      "event": "handoff",
+      "note": "agent-ae84 went silent at 06:58 UTC waiting for a coordinator reply. Partial work is in the tree, uncommitted: AGENTS.md bullet, src/styles.css (hierarchy and resize rules, about 105 lines changed), tests/sidebar-selection.spec.ts. Not updated: tests/layout.spec.ts:27, tests/split-view.spec.ts:866, tests/appearance.spec.ts:263, :353, :392 (approved to register and update when they assert the old weight or colour). No notes/T236.md yet. Floating hug state unknown: check src/components/floating.css. Verify everything rather than trusting this list."
+    },
+    {
+      "at": "2026-11-04T08:13:44+00:00",
+      "agent": "agent-26b0",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-11-04T08:13:45+00:00",
+      "agent": "agent-26b0",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-11-04T08:35:37+00:00",
+      "agent": "agent-26b0",
+      "event": "review requested",
+      "note": "Hierarchy (13px, heading bold 700 normal colour Plain+Color, icons keep tint, rows never bold, dim --muted at rest, full on hover/focus/open), resize handles unpainted (focus ring kept), floating list hugs content (flex 0 1 auto, no floating.ts change). Fixed bottom rows regression in Color rule (scoped to sidebar-bottom-groups). Updated old-rule asserts layout:27, split-view:866, appearance:92/263/353/392. Fail-first: doctored build -> 10 failures; real build: tsc clean, npm test 1137 pass, playwright sidebar-selection floating hover-emphasis layout split-view alignment appearance 132 pass. Contrast muted: light 4.53 (sidebar bg), dark 6.25. Notes docs/agent-work/2026-11-04-ui-wave-7/notes/T236.md; shots node_modules/.cache/personal-word-beta/ui7-d/shots/"
+    },
+    {
+      "at": "2026-11-04T10:16:46+00:00",
+      "agent": "agent-571b",
+      "event": "rejected",
+      "note": "Hierarchy itself is right in Plain and Color, light and dark; do not touch it. Resize paint on sidebar and research, floating hug, contrast 4.53/6.25, heading width (only the label widens, nothing moves) all hold. Fix, full detail in docs/agent-work/2026-11-04-ui-wave-7/REVIEW-T236-T237.md: (1 firm) tests that cannot fail: tests/split-view.spec.ts:881 and :891 assert not 600 on a heading that is now 700; assert 500; lines 883, 886, 890, 892 assert 400. tests/sidebar-selection.spec.ts W7 Plain dropped the 1.04 transform and stroke checks on an open row on hover and focus although the behaviour still exists (measured matrix 1.04, 0.52 px): restore. Add nothing-lit tests for Comments, Read, Bibliography. (2 firm) src/styles.css:1709 uses :focus-within, so the Bibliography row stays --text after a mouse click with all headings 500, and returns to --muted after blur; AGENTS.md says nothing lit. Use .entry-row:has(:focus-visible) on that rule; a test clicking Bibliography with the pointer away must fail first. (3 reading, owner may settle) .split-divider hover, active and focus-visible remove its resting 1 px line, so during a drag panes run together (art/edge-split-drag.png in ui7-rv-de); the test asserts background-image none. Default fix: delete those background overrides, keep the focus outline, assert rest equals hover. Also put 'never a fill' back in the AGENTS.md bullet. docs/design-system.md is stale: T240 docs merge."
+    },
+    {
+      "at": "2026-11-04T10:17:49+00:00",
+      "agent": "agent-b252",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-11-04T10:17:50+00:00",
+      "agent": "agent-b252",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-11-04T10:26:37+00:00",
+      "agent": "agent-b252",
+      "event": "review requested",
+      "note": "r3 review-repair of agent-571b REJECT. Hierarchy untouched. (1) tests: split-view:881 and :891 now assert unlit headings 500 in text colour (review text said 700; those headings are unlit at that point), rows 400 (lines 883,886,890,892). Restored 1.04 transform and stroke checks on the open row (hover and focus). Added nothing-lit tests for Comments, Read manuscript (Chicago project) and a Bibliography click-then-move-away test. (2) src/styles.css sidebar row rule :focus-within -> :has(:focus-visible). (3) src/styles.css .split-divider hover/active/focus-visible background overrides removed; outline on keyboard focus kept; resize test asserts resting 1px gradient equals hover, mouse-down and focus. (4) AGENTS.md sidebar bullet starts 'Sidebar selection is weight and colour, never a fill.' Fail-first (build before CSS edits, port 1935, scratch ui7-d, log ui7-d/fail-first-1.log): Bibliography test FAIL 'Bibliography resting row is dim'; resize test FAIL divider background-image none vs linear-gradient(rgb(220,221,226)). Acceptance: tsc --noEmit clean; vitest src/hoverEmphasis.test.ts 7/7 pass; Playwright sidebar-selection+split-view+layout+appearance+hover-emphasis 83 passed (log ui7-d/accept-1.log). Not run: alignment, floating, light/dark screenshots not re-read this round. Notes: docs/agent-work/2026-11-04-ui-wave-7/notes/T236.md. Evidence level: CLAIMED (Chromium only). styles.css/AGENTS.md uncommitted; never committed. src/components/floating.css: clean\nsrc/components/floating.css: clean\ntests/sidebar-selection.spec.ts: uncommitted edits\nAGENTS.md: uncommitted edits\ntests/layout.spec.ts: clean\ntests/split-view.spec.ts: uncommitted edits\ntests/appearance.spec.ts: clean"
+    },
+    {
+      "at": "2026-11-04T11:38:56+00:00",
+      "agent": "agent-f8b6",
+      "event": "approved",
+      "note": "Approved. split-view :881/:891 at 500 are correct (those headings are unlit; the earlier 700 was a misread). 1.04 and stroke restored; nothing-lit tests real. :has(:focus-visible) measured right in Plain/Color light/dark: clicked row dim, keyboard lit, hover intact; a key press after a click lights the focused row (Chromium, fits keyboard focus clause). Divider line identical at rest, hover, drag, focus; outline only on keyboard focus; rest and hover pixel-identical. AGENTS.md right. tsc clean, npm test 1137. Chromium only, CLAIMED. Detail: docs/agent-work/2026-11-04-ui-wave-7/REVIEW-r3.md"
+    }
+  ]
+}

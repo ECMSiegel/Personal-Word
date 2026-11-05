@@ -97,6 +97,12 @@
   const states = [];
   const stateErrors = [];
   const measures = {};
+  // Measured pass/fail results (T242). A failed check is listed here and in the report; it does not stop the run.
+  const measureFailures = [];
+  const check = (name, ok, detail) => {
+    if (!ok) measureFailures.push(`${name}: ${detail}`);
+    return !!ok;
+  };
   const rect = (selector) => {
     const el = typeof selector === "string" ? document.querySelector(selector) : selector;
     const r = el?.getBoundingClientRect();
@@ -324,6 +330,31 @@
       await delay(300);
       return { toast: rect(".notice"), card: rect(".citation-card"), sheet: rect(".editor-paper") };
     });
+    // T242: Cite here in the floating card must land focus on the Page (locator) field, not the editor.
+    await state("state-cite-here-page", async () => {
+      const dialog = () => document.querySelector('[role="dialog"][aria-label="Add a citation"]');
+      if (!dialog()) {
+        await click("Research");
+        await engaged(dialog, "no 'Add a citation' card for Cite here");
+      }
+      const within = (text) => [...dialog().querySelectorAll("button")].find((b) => b.textContent.trim() === text);
+      (await wait(() => within("Enter manually"), "Enter manually in the card", 100)).click();
+      const cite = await wait(() => within("Cite here"), "Cite here in the card", 100);
+      if (cite.disabled) throw Error("Cite here is disabled (no open section)");
+      cite.click();
+      await delay(700);
+      const a = document.activeElement;
+      const out = {
+        tag: a?.tagName ?? null,
+        id: a?.id ?? null,
+        ariaLabel: a?.getAttribute?.("aria-label") ?? null,
+        label: a?.labels?.[0]?.textContent ?? null,
+        inCard: !!dialog()?.contains(a),
+        inEditor: !!a?.closest?.('[aria-label="Writing editor"]'),
+      };
+      out.onPage = check("cite-here focus", out.inCard && /-locator$/.test(out.id ?? ""), JSON.stringify(out));
+      return out;
+    });
     // Restore.
     await click("Manuscript");
     await setZoom("100%");
@@ -333,6 +364,29 @@
     // ---- Wave 6 every-state captures (docs/agent-work/2026-11-02-ui-wave-6/PLAN.md, Amendment 1).
     // Pointer hover cannot be driven natively; the
     // palette highlight uses its own arrow keys, the dock a synthetic pointermove.
+    // Native WebKit reports rects under CSS zoom in that element's zoomed space (see floating.ts).
+    const zoomedSpace = (() => {
+      const probe = document.createElement("div");
+      probe.style.cssText = "position:absolute;visibility:hidden;width:100px;height:1px;zoom:0.5";
+      document.body.appendChild(probe);
+      const yes = probe.getBoundingClientRect().width > 75;
+      probe.remove();
+      return yes;
+    })();
+    // The element's zoom times every ancestor's; WebKit reports rects of zoomed content as drawn / this.
+    const zoomOf = (el) => {
+      let z = 1;
+      for (let n = el; n; n = n.parentElement) z *= parseFloat(getComputedStyle(n).zoom) || 1;
+      return z;
+    };
+    // A y from ProseMirror (coordsAtPos) or getBoundingClientRect of zoomed content, in drawn px.
+    const drawnY = (raw, el) => (zoomedSpace ? raw * zoomOf(el) : raw);
+    const drawnRect = (el) => {
+      const r = el.getBoundingClientRect();
+      if (!zoomedSpace) return r;
+      const z = zoomOf(el);
+      return { left: r.left * z, right: r.right * z, top: r.top * z, bottom: r.bottom * z };
+    };
     const LONG_SECTION = "A very long section title about the early correspondence of the river commissioners";
     const LONG_NOTE = "A long research note that keeps going well past the width of any narrow sidebar row to see wrapping";
     const LONG_SOURCE = "An extremely long source title on the administrative history of inland waterways and their keepers";
@@ -483,8 +537,383 @@
     document.querySelector('button[aria-label="Close right pane"]')?.click();
     await delay(200);
     // Back to the normal width, then the Projects screen with a long project name.
-    for (let i = 0; i < 20 && Number(resizer.isConnected ? resizer.getAttribute("aria-valuenow") : startWidth) < startWidth; i++)
+    // Each key must be awaited: React only updates aria-valuenow between ticks, so an unawaited loop always ran
+    // all 20 keys and left the sidebar at 520 px (the page-view states then drew at 0.843, never at 1 or above).
+    for (let i = 0; i < 20 && Number(resizer.isConnected ? resizer.getAttribute("aria-valuenow") : startWidth) < startWidth; i++) {
       key(resizer, { key: "ArrowRight", code: "ArrowRight" });
+      await delay(60);
+    }
+    await delay(200);
+    check("sidebar width restored", Number(resizer.getAttribute("aria-valuenow")) === startWidth, `${resizer.getAttribute("aria-valuenow")} vs ${startWidth}`);
+    // ---- T242: wave 7 ruler and top gap, measured natively (Chromium cannot give WebKit's zoom, sticky and clip behaviour).
+    // Each state is optional. Numbers go in `measures`; a failed check goes in measureFailures.
+    const pagesOn = () => !!document.querySelector(".editor-viewport.is-paged");
+    const ensureMode = async (pages) => {
+      if (pagesOn() === pages) return;
+      if (!document.querySelector('[aria-label="Page view"]')) document.querySelector('[aria-label="More formatting"]')?.click();
+      (await wait(() => document.querySelector('[aria-label="Page view"]'), "page view toggle")).click();
+      await wait(() => pagesOn() === pages, pages ? "page view" : "continuous view");
+      await closeMore();
+      await delay(250);
+    };
+    const rulerToggle = () =>
+      [...document.querySelectorAll("button")].find((b) => b.textContent.trim() === "Ruler" && b.hasAttribute("aria-pressed"));
+    const ensureRuler = async (on) => {
+      if (!!document.querySelector(".document-ruler") === on) return;
+      if (!rulerToggle()) {
+        const trigger = () => document.querySelector('button[aria-label="Page setup"]') ?? button("Page setup");
+        if (!trigger()) document.querySelector('button[aria-label="More formatting"]')?.click();
+        (await wait(trigger, "Page setup button")).click();
+        await wait(rulerToggle, "Ruler toggle in Page setup");
+      }
+      if (rulerToggle().getAttribute("aria-pressed") !== String(on)) rulerToggle().click();
+      await wait(() => !!document.querySelector(".document-ruler") === on, on ? "ruler shown" : "ruler hidden");
+      const panel = document.querySelector('[role="dialog"][aria-label="Page setup"]');
+      panel?.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape", code: "Escape", bubbles: true, cancelable: true }));
+      await delay(150);
+      if (document.querySelector('[role="dialog"][aria-label="Page setup"]'))
+        (document.querySelector('button[aria-label="Page setup"]') ?? button("Page setup"))?.click();
+      await closeMore();
+      await delay(250);
+    };
+    // The open entry needs enough text to scroll in both views.
+    const ensureLongText = async () => {
+      const ed = (await wait(editor, "writing editor")).editor;
+      if (ed.state.doc.childCount < 40)
+        ed.commands.insertContentAt(
+          ed.state.doc.content.size,
+          Array.from({ length: 120 }, (_, i) => ({
+            type: "paragraph",
+            content: [{ type: "text", text: `Ruler fixture paragraph ${i + 1} gives the scroller something to scroll under the ruler.` }],
+          })),
+        );
+      await delay(400);
+      return ed;
+    };
+    const scrollerEl = () => document.querySelector(".writer-scroll");
+    const firstGlyph = () => {
+      const walker = document.createTreeWalker(document.querySelector(".ProseMirror"), NodeFilter.SHOW_TEXT);
+      let node;
+      while ((node = walker.nextNode())) if (node.textContent.trim()) break;
+      if (!node) return null;
+      const range = document.createRange();
+      range.setStart(node, 0);
+      range.setEnd(node, 1);
+      return range.getBoundingClientRect();
+    };
+    const near = (a, b) => Math.abs(a - b) <= 1;
+    const measureRuler = (tag) => {
+      const need = (selector) => {
+        const r = rect(selector);
+        if (!r) throw Error(`missing ${selector}`);
+        return r;
+      };
+      const ruler = need(".document-ruler");
+      const paper = need(".editor-paper");
+      const text = need(".ProseMirror");
+      const left = need(".ruler-margin-marker--left");
+      const right = need(".ruler-margin-marker--right");
+      const tick0 = need(".ruler-tick");
+      const glyph = firstGlyph();
+      const scroller = scrollerEl();
+      const m = {
+        rulerLeft: ruler.left, rulerRight: ruler.right, paperLeft: paper.left, paperRight: paper.right,
+        textLeft: text.left, textRight: text.right, tick0Left: tick0.left,
+        leftPoint: (left.left + left.right) / 2, rightPoint: (right.left + right.right) / 2,
+        glyphLeft: glyph?.left ?? null,
+        drawnZoom: zoomOf(document.querySelector(".ProseMirror")),
+        // Recorded, not asserted: T237 removed the 8 px continuous padding, so this should be near 0; near 8 would be a real finding.
+        glyphInsetFromMarker: glyph ? glyph.left - (left.left + left.right) / 2 : null,
+        scrollerClientWidth: scroller?.clientWidth, scrollerScrollWidth: scroller?.scrollWidth,
+        scrollerBarWidth: scroller ? scroller.offsetWidth - scroller.clientWidth : null,
+      };
+      check(`${tag} ruler box = paper box`, near(m.rulerLeft, m.paperLeft) && near(m.rulerRight, m.paperRight), `ruler ${m.rulerLeft}-${m.rulerRight} paper ${m.paperLeft}-${m.paperRight}`);
+      check(`${tag} ruler 0 = paper left`, near(m.tick0Left, m.paperLeft), `${m.tick0Left} vs ${m.paperLeft}`);
+      check(`${tag} left marker = text left`, near(m.leftPoint, m.textLeft), `${m.leftPoint} vs ${m.textLeft}`);
+      check(`${tag} right marker = text right`, near(m.rightPoint, m.textRight), `${m.rightPoint} vs ${m.textRight}`);
+      check(`${tag} no horizontal overflow`, m.scrollerScrollWidth - m.scrollerClientWidth <= 0, `${m.scrollerScrollWidth} vs ${m.scrollerClientWidth}`);
+      return m;
+    };
+    await click("Manuscript");
+    await wait(editor, "writing editor (ruler states)");
+    const rulerEd = await ensureLongText();
+    let rulerSetupError = null;
+    try {
+      await ensureRuler(true);
+    } catch (error) {
+      rulerSetupError = String(error?.message ?? error);
+      stateErrors.push(`ruler-setup: ${rulerSetupError}`);
+    }
+    if (!rulerSetupError) {
+      // Alignment: ruler 0, both markers, paper and text edges at three zooms in both views.
+      for (const [modeName, pages] of [["page", true], ["cont", false]]) {
+        for (const zoom of [75, 100, 150]) {
+          await state(`state-ruler-${modeName}-${zoom}`, async () => {
+            await ensureMode(pages);
+            await setZoom(`${zoom}%`);
+            scrollerEl().scrollTop = 0;
+            await delay(300);
+            const m = measureRuler(`${modeName} ${zoom}`);
+            return { ...m, mode: modeName, zoom, paperScale: getComputedStyle(document.querySelector(".editor-paper")).getPropertyValue("--page-scale") };
+          });
+        }
+      }
+      // Caret stays below the sticky ruler after moving up. A synthetic keydown cannot move a caret, so the move
+      // is a selection change plus scrollIntoView (what ProseMirror runs after ArrowUp); a native line move is recorded too.
+      const paragraphStarts = (ed) => {
+        const out = [];
+        ed.state.doc.descendants((node, pos) => {
+          if (node.isTextblock && node.textContent) out.push(pos + 1);
+        });
+        return out;
+      };
+      // One walk of about 20 "ArrowUp"s in drawn px: the caret starts 4 px under the floor (ruler bottom, or the scroller
+      // top with the ruler off), then each step moves one line up and scrolls like ProseMirror does after a key.
+      // Asserted per step: clear of the floor (>= -1), not over-scrolled (clearance <= 7; the margin is 5) and the
+      // caret's bottom inside the scroller. `zoom` is the drawn zoom of this editor and is recorded in every state.
+      const caretWalk = async (ed, tag) => {
+        const scroller = ed.view.dom.closest(".writer-scroll");
+        const ruler = scroller.querySelector(".document-ruler");
+        const floor = () => (ruler ? drawnRect(ruler).bottom : scroller.getBoundingClientRect().top);
+        const starts = paragraphStarts(ed);
+        const k = Math.min(30, starts.length - 1);
+        const top = (pos) => drawnY(ed.view.coordsAtPos(pos, 1).top, ed.view.dom);
+        const bottom = (pos) => drawnY(ed.view.coordsAtPos(pos, 1).bottom, ed.view.dom);
+        for (let pass = 0; pass < 2; pass++) {
+          scroller.scrollTop += top(starts[k]) - (floor() + 4);
+          await delay(250);
+        }
+        ed.view.focus();
+        ed.commands.setTextSelection(starts[k]);
+        await delay(250);
+        const startScroll = scroller.scrollTop;
+        // A fixture miss (document too short to scroll the start under the ruler) must read as one, not as an app failure.
+        const startClearance = top(starts[k]) - floor();
+        const scrollRoom = { scrollHeight: scroller.scrollHeight, clientHeight: scroller.clientHeight };
+        check(`${tag} walk starts about 4 px clear`, Math.abs(startClearance - 4) <= 2, `start ${startClearance}, ${JSON.stringify(scrollRoom)}`);
+        const trace = [];
+        for (let i = 1; i <= Math.min(20, k); i++) {
+          ed.chain().setTextSelection(starts[k - i]).scrollIntoView().run();
+          await delay(150);
+          trace.push({ clearance: top(starts[k - i]) - floor(), bottomGap: scroller.getBoundingClientRect().bottom - bottom(starts[k - i]) });
+        }
+        const clearances = trace.map((t) => t.clearance);
+        const worst = { minClearance: Math.min(...clearances), maxClearance: Math.max(...clearances), minBottomGap: Math.min(...trace.map((t) => t.bottomGap)) };
+        const detail = JSON.stringify(worst);
+        check(`${tag} steps walked`, trace.length >= 15, `${trace.length} steps`);
+        check(`${tag} below floor`, worst.minClearance >= -1, detail);
+        check(`${tag} not over-scrolled`, worst.maxClearance <= 7, detail);
+        check(`${tag} caret bottom inside scroller`, worst.minBottomGap >= -1, detail);
+        check(`${tag} scrolled up`, scroller.scrollTop < startScroll, `${startScroll} -> ${scroller.scrollTop}`);
+        return { zoom: zoomOf(ed.view.dom), steps: trace.length, ...worst, startClearance, ...scrollRoom, startScroll, endScroll: scroller.scrollTop, rulerShown: !!ruler, trace };
+      };
+      for (const [name, pages, zoom, ruler] of [
+        ["page-75", true, 75, true], ["page-100", true, 100, true], ["page-150", true, 150, true],
+        ["page-75-off", true, 75, false], ["cont-75", false, 75, true],
+      ]) {
+        await state(`state-ruler-caret-${name}`, async () => {
+          try {
+            await ensureMode(pages);
+            await ensureRuler(ruler);
+            await setZoom(`${zoom}%`);
+            return { mode: pages ? "page" : "cont", ...(await caretWalk(rulerEd, `caret ${name}`)) };
+          } finally {
+            await ensureRuler(true);
+          }
+        });
+      }
+      // Two panes at 75%: each walks its own scroller and the other pane must not move.
+      await state("state-ruler-caret-split-75", async () => {
+        await ensureMode(true);
+        await setZoom("75%");
+        const beside = await wait(() => document.querySelector(`button[aria-label="Open ${LONG_SECTION} beside"]`), "Open beside button (ruler split)", 100);
+        beside.click();
+        await wait(() => document.querySelector('[aria-label="Right pane"]'), "right pane (ruler split)", 100);
+        await delay(500);
+        const out = {};
+        for (const side of ["left", "right"]) {
+          const ed = (await wait(() => document.querySelector(`.split-pane[data-side="${side}"] .ProseMirror`), `${side} editor`)).editor;
+          if (ed.state.doc.childCount < 40)
+            ed.commands.insertContentAt(
+              ed.state.doc.content.size,
+              Array.from({ length: 60 }, (_, i) => ({ type: "paragraph", content: [{ type: "text", text: `Pane fixture paragraph ${i + 1} gives this pane something to scroll.` }] })),
+            );
+          await delay(400);
+          const other = document.querySelector(`.split-pane[data-side="${side === "left" ? "right" : "left"}"] .writer-scroll`);
+          const otherBefore = other.scrollTop;
+          out[side] = await caretWalk(ed, `caret split ${side}`);
+          out[side].otherPaneMoved = other.scrollTop - otherBefore;
+          check(`caret split ${side} leaves the other pane alone`, out[side].otherPaneMoved === 0, `moved ${out[side].otherPaneMoved}`);
+        }
+        return out;
+      });
+      document.querySelector('button[aria-label="Close right pane"]')?.click();
+      await delay(300);
+      // A selected image (NodeSelection) must be scrolled by its own box, like at zoom 100 (T243 r2).
+      // The picture is taken by state() after fn returns, so the image is removed afterwards, not inside fn.
+      let removeImage = async () => {};
+      await state("state-ruler-node-image-75", async () => {
+        await ensureMode(true);
+        await setZoom("75%");
+        const ed = (await wait(editor, "writing editor (image state)")).editor;
+        const scroller = scrollerEl();
+        const ruler = document.querySelector(".document-ruler");
+        const floor = () => drawnRect(ruler).bottom;
+        const at = paragraphStarts(ed)[30] - 1;
+        // A valid asset id; with no resolver the figure is a small placeholder, so it is made 300 px tall.
+        ed.commands.insertContentAt(at, { type: "image", attrs: { assetId: "ab".repeat(32), alt: "ruler fixture" } });
+        removeImage = async () => {
+          // Remove only the image this state inserted, never a fixture paragraph at the same position.
+          const node = ed.state.doc.nodeAt(at);
+          if (node?.type.name === "image" && node.attrs.alt === "ruler fixture") ed.chain().setNodeSelection(at).deleteSelection().run();
+          await delay(300);
+        };
+        {
+          await delay(500);
+          const el = ed.view.nodeDOM(at);
+          if (!(el instanceof Element)) throw Error("no image node drawn");
+          el.style.minHeight = "300px";
+          await delay(150);
+          const before = drawnRect(el);
+          // Image top 60% of its height above the ruler, then select the node and scroll to it.
+          scroller.scrollTop += before.top - floor() + (before.bottom - before.top) * 0.6;
+          await delay(300);
+          const placed = drawnRect(el);
+          ed.view.focus();
+          ed.chain().setNodeSelection(at).scrollIntoView().run();
+          await delay(500);
+          const after = drawnRect(el);
+          const sr = scroller.getBoundingClientRect();
+          const m = {
+            zoom: zoomOf(ed.view.dom), selection: ed.state.selection.toJSON().type,
+            clearanceBefore: placed.top - floor(), clearance: after.top - floor(), bottomGap: sr.bottom - after.bottom,
+          };
+          check("image node selection is a node selection", m.selection === "node", m.selection);
+          check("image started behind the ruler", m.clearanceBefore < -1, JSON.stringify(m));
+          check("image top below ruler", m.clearance >= -1, JSON.stringify(m));
+          check("image not over-scrolled", m.clearance <= 7, JSON.stringify(m));
+          check("image bottom inside scroller", m.bottomGap >= -1, JSON.stringify(m));
+          return m;
+        }
+      });
+      await removeImage();
+      // Sticky ruler with zoom, and the overflow-x: clip scroller, in both views at 150%.
+      await state("state-ruler-sticky-clip", async () => {
+        await setZoom("150%");
+        const out = {};
+        for (const [modeName, pages] of [["cont", false], ["page", true]]) {
+          await ensureMode(pages);
+          const scroller = scrollerEl();
+          const viewport = document.querySelector(".editor-viewport");
+          scroller.scrollTop = 0;
+          scroller.scrollLeft = 0;
+          await delay(250);
+          const ruler = document.querySelector(".document-ruler");
+          // At 0 the ruler still sits below the viewport's padding; it pins once scrolled.
+          scroller.scrollTop = 300;
+          await delay(250);
+          const topAt300 = drawnRect(ruler).top - scroller.getBoundingClientRect().top;
+          scroller.scrollTop = 600;
+          await delay(300);
+          const scrolled = scroller.scrollTop;
+          const topAt600 = drawnRect(ruler).top - scroller.getBoundingClientRect().top;
+          const bg = getComputedStyle(ruler).backgroundColor;
+          scroller.scrollLeft = 60;
+          viewport.scrollLeft = 60;
+          const sheets = [...document.querySelectorAll(".page-sheet")].map((s) => drawnRect(s));
+          const sr = scroller.getBoundingClientRect();
+          out[modeName] = {
+            position: getComputedStyle(ruler).position, drawnZoom: zoomOf(document.querySelector(".ProseMirror")),
+            scrollTopApplied: scrolled, rulerTopAt300: topAt300, rulerTopAt600: topAt600,
+            rulerBackground: bg,
+            viewportOverflowX: getComputedStyle(viewport).overflowX, viewportOverflowY: getComputedStyle(viewport).overflowY,
+            scrollerOverflowX: getComputedStyle(scroller).overflowX, scrollerOverflowY: getComputedStyle(scroller).overflowY,
+            scrollerScrollMinusClient: scroller.scrollWidth - scroller.clientWidth,
+            scrollLeftAfterWrite: scroller.scrollLeft, viewportScrollLeftAfterWrite: viewport.scrollLeft,
+            sheetCount: sheets.length,
+            sheetsWithinScroller: sheets.every((s) => s.left >= sr.left - 1 && s.right <= sr.right + 1),
+          };
+          check(`sticky ${modeName} scrolled`, scrolled > 100, `scrollTop ${scrolled}`);
+          check(`sticky ${modeName} ruler pinned`, Math.abs(topAt600 - topAt300) <= 2, `top ${topAt300} -> ${topAt600}`);
+          check(`sticky ${modeName} ruler at scroller top`, Math.abs(topAt600) <= 2, `distance from scroller top ${topAt600}`);
+          check(`sticky ${modeName} ruler opaque`, !/rgba\(0, 0, 0, 0\)|transparent/.test(bg), bg);
+          check(`clip ${modeName} no sideways scroll`, out[modeName].scrollLeftAfterWrite === 0 && out[modeName].viewportScrollLeftAfterWrite === 0, `scroller ${out[modeName].scrollLeftAfterWrite}, viewport ${out[modeName].viewportScrollLeftAfterWrite}`);
+          if (pages) {
+            check("clip page viewport overflow-x", out.page.viewportOverflowX === "clip", out.page.viewportOverflowX);
+            check("clip page sheets within scroller", out.page.sheetsWithinScroller, JSON.stringify(sheets.map((s) => [s.left, s.right])));
+          }
+          scroller.scrollTop = 0;
+        }
+        return out;
+      });
+      // Top gap and margin through SQLite. Reads go to the Rust store (list_projects, load_project), the same
+      // path a relaunch reads. A real quit and relaunch is not driven here.
+      const projectId = async () => (await invoke("list_projects")).projects.find((p) => p.title === "Screens fixture")?.id;
+      const savedLayout = async (id) => {
+        const p = await invoke("load_project", { id });
+        return { marginInches: p.documentSettings?.marginInches, layoutMargin: p.pageLayout?.margin, topGap: p.pageLayout?.topGap, mode: p.pageLayout?.mode, zoom: p.pageLayout?.zoom };
+      };
+      const savedWhen = async (id, test, label) => {
+        let last;
+        for (let i = 0; i < 40; i++) {
+          last = await savedLayout(id);
+          if (test(last)) return last;
+          await delay(250);
+        }
+        throw Error(`${label} never reached SQLite; last ${JSON.stringify(last)}`);
+      };
+      await state("state-gap-persist", async () => {
+        await setZoom("100%");
+        await ensureMode(false);
+        const id = await wait(projectId, "fixture project id", 50);
+        const gapHandle = await wait(() => document.querySelector(".continuous-top-gap-handle"), "top gap handle");
+        const startGap = Number(gapHandle.getAttribute("aria-valuenow"));
+        const baseline = await savedLayout(id);
+        gapHandle.focus();
+        key(gapHandle, { key: "ArrowDown", code: "ArrowDown", shiftKey: true });
+        await delay(100);
+        const shownGap = Number(document.querySelector(".continuous-top-gap-handle").getAttribute("aria-valuenow"));
+        const after = await savedWhen(id, (s) => s.topGap === startGap + 16, "top gap");
+        check("gap changed on screen", shownGap === startGap + 16, `${startGap} -> ${shownGap}`);
+        check("gap-only change leaves marginInches", after.marginInches === baseline.marginInches && after.layoutMargin === baseline.layoutMargin, JSON.stringify({ baseline, after }));
+        return { startGap, shownGap, baseline, after, topGapAbsentBefore: baseline.topGap === undefined };
+      });
+      await state("state-margin-persist", async () => {
+        const id = await wait(projectId, "fixture project id", 50);
+        const before = await savedLayout(id);
+        const marker = await wait(() => document.querySelector(".ruler-margin-marker--left"), "left margin marker");
+        const startMargin = Number(marker.getAttribute("aria-valuenow"));
+        marker.focus();
+        key(marker, { key: "ArrowRight", code: "ArrowRight", shiftKey: true });
+        await delay(100);
+        const shownMargin = Number(document.querySelector(".ruler-margin-marker--left").getAttribute("aria-valuenow"));
+        const after = await savedWhen(id, (s) => s.layoutMargin === startMargin + 24, "margin");
+        check("margin changed on screen", shownMargin === startMargin + 24, `${startMargin} -> ${shownMargin}`);
+        check("marginInches follows the margin", Math.abs(after.marginInches - after.layoutMargin / 96) < 0.01, JSON.stringify(after));
+        check("margin change keeps the gap", after.topGap === before.topGap, JSON.stringify({ before, after }));
+        await delay(300);
+        return { startMargin, shownMargin, before, after, ...measureRuler("margin-persist") };
+      });
+    }
+    // Row hover grows its rail line (synthetic pointermove: the dock listens to pointer events, as the toolbar state does).
+    await state("state-row-hover-rail", async () => {
+      await click("Manuscript");
+      const row = await wait(() => button(LONG_SECTION), "long section row", 100);
+      const line = await wait(() => railLine("manuscript", LONG_SECTION), "long section line", 100);
+      const grab = () => {
+        const r = line.getBoundingClientRect();
+        return { width: r.width, height: r.height, mag: line.style.getPropertyValue("--spy-mag") || "0" };
+      };
+      const rest = grab();
+      const rr = row.getBoundingClientRect();
+      const init = { bubbles: true, clientX: rr.left + rr.width / 2, clientY: rr.top + rr.height / 2, pointerType: "mouse" };
+      row.dispatchEvent(new PointerEvent("pointermove", init));
+      await delay(500);
+      const hovered = grab();
+      check("row hover grows its rail line", hovered.width > rest.width + 1 || hovered.height > rest.height + 0.5, JSON.stringify({ rest, hovered }));
+      return { rest, hovered, reducedMotion: matchMedia("(prefers-reduced-motion: reduce)").matches };
+    });
+    document.querySelector(".sidebar-groups")?.dispatchEvent(new PointerEvent("pointerleave", { bubbles: false }));
     await delay(200);
     await state("state-projects-long", async () => {
       await click("Projects");
@@ -511,7 +940,7 @@
       };
     });
 
-    await report({ ok: true, screens, pdfProbe, states, stateErrors, measures });
+    await report({ ok: true, screens, pdfProbe, states, stateErrors, measures, measureFailures });
     await invoke("smoke_close_window");
   } catch (error) {
     await report({ ok: false, screens: [], error: String(error?.message ?? error) });

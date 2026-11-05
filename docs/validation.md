@@ -6,6 +6,10 @@
 
 This is a working local desktop slice, not a production durability certification.
 
+## UI wave 7 -- 2026-11-04
+
+Status: CLAIMED. T240 ran as one pass of Chromium, unit and cargo; the final Chromium and unit rerun on this tree had one failure, a probable timing flake (Rust was unchanged, so cargo was not rerun); two native WebKit harness runs ran between them (T242), which drive the app by commands only; real keys, drags, resize edges, A4 and export with a changed margin are not checked. The results table, the native list (each item pass, partial or not checked, with evidence), open items and the owner hand-check sheet are in [the wave-7 validation record](agent-work/2026-11-04-ui-wave-7/VALIDATION.md). New checks: `tests/ruler.spec.ts` (ruler alignment at three zooms in both views, drag and keys, linked margin, top gap, caret never behind the ruler, export margin untouched by a gap-only change), the sidebar-selection hierarchy and resize-edge specs, `tests/floating.spec.ts` left-alignment, `tests/editor-toolbar.spec.ts` unboxed dropdowns, `tests/revisions.spec.ts` snapshot spacing, and `tests/split-view.spec.ts` select-all-after-click. Native WebKit cannot hover or resize the window, so hover checks stay Chromium-only or owner hand checks.
+
 ## UI wave 6 -- 2026-11-03
 
 Status: CLAIMED. The final check (T233) ran in one pass: tsc, 1134 unit tests, full Playwright (443 passed, 2 timing flakes that passed 3/3 on rerun, 16 env-gated skips), 63 cargo tests, native reliability baseline + beta, native smoke, page gates, and native screens in Plain and Color with 17 new every-state captures each. The record, every-state list, release sha256 and owner hand-check sheet are in [the wave-6 validation record](agent-work/2026-11-02-ui-wave-6/VALIDATION.md). Native captures cannot hover or resize the window, so hover and 1100/1600 px checks are Chromium-only or owner hand checks.

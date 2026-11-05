@@ -18,7 +18,7 @@ import {
   StickyNote,
   X,
 } from "lucide-react";
-import { entryWords, type Project, type Entry } from "../model";
+import { type Project, type Entry } from "../model";
 import type { ResearchNote } from "../research/types";
 import type { PaneContent } from "../split";
 import { readSidebarPreferences, writeSidebarPreferences } from "../sidebarPreferences";
@@ -303,10 +303,15 @@ export function ProjectSidebar(props: Props) {
   let bibliographyRow: CollectionRow | undefined;
   const sourceUnits: { id: string; rows: CollectionRow[] }[] = [];
   const noteRows: CollectionRow[] = [];
+  // A `pdf:` row with no source of its own is a standalone Research PDF.
+  const looseRows: CollectionRow[] = [];
   for (const item of props.collectionItems?.research ?? []) {
     if (item.id === "bibliography") bibliographyRow = item;
-    else if (item.id.startsWith("pdf:"))
-      sourceUnits.find((u) => "pdf:" + u.id === item.id)?.rows.push(item);
+    else if (item.id.startsWith("pdf:")) {
+      const unit = sourceUnits.find((u) => "pdf:" + u.id === item.id);
+      if (unit) unit.rows.push(item);
+      else looseRows.push(item);
+    }
     else if (item.detail && NOTE_KINDS.has(item.detail)) noteRows.push(item);
     else sourceUnits.push({ id: item.id, rows: [item] });
   }
@@ -314,6 +319,7 @@ export function ProjectSidebar(props: Props) {
     .map((u) => ({ ...u, rows: u.rows.filter(shownItem) }))
     .filter((u) => u.rows.length > 0);
   const shownNotes = noteRows.filter(shownItem);
+  const shownLoose = looseRows.filter(shownItem);
   const allSourceIds = sourceUnits.map((u) => u.id);
   const allNoteIds = noteRows.map((n) => n.id);
   // Rows drag with the pointer; Option+Up/Down (`chord`) is the keyboard way.
@@ -623,8 +629,10 @@ export function ProjectSidebar(props: Props) {
           ? fragmentEntries
           : [];
     const dragGroup = collapsibleGroups.includes(id) ? groupDrag.rowProps(index) : null;
+    // Manuscript has no page of its own: its heading lights only through an open section
+    // (below), so a stale destination cannot light it over a fragment on screen (T244).
     const titleSelected =
-      props.activeDestination === id || (id === "read" && mode === "read");
+      (props.activeDestination === id && id !== "manuscript") || (id === "read" && mode === "read");
     // A section is lit when it is the open destination or holds an open entry
     // (search and collapse do not change that). Bottom groups keep their own look.
     const open =
@@ -638,6 +646,7 @@ export function ProjectSidebar(props: Props) {
         ? [
             ...(bibliographyRow && shownItem(bibliographyRow) ? [bibliographyRow] : []),
             ...shownSources.flatMap((unit) => unit.rows),
+            ...shownLoose,
             ...shownNotes,
           ].map((item) => collectionRailItem(id, item))
         : entries.map((e) => ({
@@ -715,17 +724,6 @@ export function ProjectSidebar(props: Props) {
             <span className="group-label">{labels[id]}</span>
           </button>
           {collapsibleGroups.includes(id) && (
-            <button
-              className="group-chevron"
-              aria-label={(collapsed[id] ? "Show " : "Hide ") + labels[id]}
-              aria-expanded={!collapsed[id]}
-              data-collapsed={collapsed[id] ? "true" : undefined}
-              onClick={() => setCollapsed((c) => ({ ...c, [id]: !c[id] }))}
-            >
-              <ChevronDown size={14} />
-            </button>
-          )}
-          {collapsibleGroups.includes(id) && (
             <div className="group-actions">
             {collection && (
               <>
@@ -764,6 +762,17 @@ export function ProjectSidebar(props: Props) {
               </>
             )}
           </div>
+          )}
+          {collapsibleGroups.includes(id) && (
+            <button
+              className="group-chevron"
+              aria-label={(collapsed[id] ? "Show " : "Hide ") + labels[id]}
+              aria-expanded={!collapsed[id]}
+              data-collapsed={collapsed[id] ? "true" : undefined}
+              onClick={() => setCollapsed((c) => ({ ...c, [id]: !c[id] }))}
+            >
+              <ChevronDown size={14} />
+            </button>
           )}
         </div>
         {collection && !collapsed[id] && (
@@ -817,6 +826,11 @@ export function ProjectSidebar(props: Props) {
                     );
                   })}
                 </div>
+                {shownLoose.length > 0 && (
+                  <div className="entry-sublist" data-list="pdfs">
+                    {shownLoose.map((row) => collectionRow(id, row))}
+                  </div>
+                )}
                 <div className="entry-sublist" data-list="notes">
                   {shownNotes.map((note, i) =>
                     collectionRow(
@@ -922,7 +936,6 @@ export function ProjectSidebar(props: Props) {
                 >
                   <FileText size={16} />
                   <span>{e.title}</span>
-                  <small>{entryWords(e)} words</small>
                   {views[id] && (
                     <p className="entry-preview">{e.text || "Empty"}</p>
                   )}
@@ -1093,7 +1106,6 @@ export function ProjectSidebar(props: Props) {
             }}
           />
           <span className="search-end">
-            <kbd>⌘K</kbd>
             <button
               type="button"
               className="icon-button search-clear"

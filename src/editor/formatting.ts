@@ -113,7 +113,11 @@ export type PageLayout = {
   paper: "letter" | "a4";
   margin: number;
   zoom: number;
+  /** Space above the first line in continuous view only (top of the document, screen only, never exported), in px. Absent means DEFAULT_PAGE_GAP. */
+  topGap?: number;
 };
+export const DEFAULT_PAGE_GAP = 32;
+export const MAX_PAGE_GAP = 200;
 export const defaultPageLayout: PageLayout = {
   mode: "continuous",
   paper: "letter",
@@ -123,7 +127,13 @@ export const defaultPageLayout: PageLayout = {
 export function paperGeometry(layout: PageLayout) {
   const width = layout.paper === "a4" ? 793.7 : 816;
   const height = layout.paper === "a4" ? 1122.5 : 1056;
-  const margin = Math.min(144, Math.max(24, layout.margin));
+  // 24..192px is 0.25in..2in, the same range native print and export accept,
+  // so the on-screen margin never disagrees with the exported one.
+  const margin = Math.min(192, Math.max(24, layout.margin));
+  const gap =
+    typeof layout.topGap === "number" && Number.isFinite(layout.topGap)
+      ? Math.min(MAX_PAGE_GAP, Math.max(0, layout.topGap))
+      : DEFAULT_PAGE_GAP;
   return {
     width,
     height,
@@ -131,6 +141,7 @@ export function paperGeometry(layout: PageLayout) {
     contentWidth: width - 2 * margin,
     contentHeight: height - 2 * margin,
     gap: 32,
+    topGap: gap,
   };
 }
 export const FootnoteReference = Node.create({

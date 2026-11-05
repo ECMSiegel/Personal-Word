@@ -1,0 +1,9 @@
+{
+  "id": "agent-e3cf",
+  "label": "Claude Sonnet worker W7 T243",
+  "joined_at": "2026-11-04T17:34:09+00:00",
+  "last_seen": "2026-11-04T17:58:58+00:00",
+  "status": "left",
+  "current_task": null,
+  "inbox_cursor": 1223
+}

@@ -70,8 +70,9 @@ Run expensive builds, Playwright, cargo, and native checks one at a time, in the
 - [x] UI wave 2 plan (2026-10-26) tasks U1-U21 are done with independent reviews, its validation list has run, native screenshots were viewed, and the owner hand checks are prepared with status CLAIMED.
 - [x] UI wave 3 plan (2026-10-28) tasks E1-V are done with independent reviews, its validation list has run, native screenshots were viewed, and the owner hand checks are prepared with status CLAIMED.
 - [x] UI wave 4 plan (docs/agent-work/2026-10-28-ui-wave-4/PLAN.md, tasks T171-T186) is done with independent reviews, its validation list has run (native checks on an unlocked screen, screenshots viewed), a Fable review passed, and the owner hand checks are prepared with status CLAIMED.
-- [ ] UI wave 5 plan (docs/agent-work/2026-11-01-ui-wave-5/PLAN.md, tasks T194-T207) is done with independent reviews, its validation list has run (native checks on an unlocked screen, screenshots viewed in light/dark x Plain/Color x floating on/off), a Fable review passed, and the owner hand checks are prepared with status CLAIMED.
+- [x] UI wave 5 plan (docs/agent-work/2026-11-01-ui-wave-5/PLAN.md, tasks T194-T207) is done with independent reviews, its validation list has run (native checks on an unlocked screen, screenshots viewed in light/dark x Plain/Color x floating on/off), a Fable review passed, and the owner hand checks are prepared with status CLAIMED.
 - [ ] UI wave 6 plan (docs/agent-work/2026-11-02-ui-wave-6/PLAN.md) is done with independent reviews, its final check V has run (native screens on an unlocked screen, screenshots viewed), a Fable review passed with repairs re-run, and the owner hand checks are prepared with status CLAIMED.
+- [ ] UI wave 7 (docs/agent-work/2026-11-04-ui-wave-7/REQUEST.md): sidebar hierarchy, resize edges, floating small try, ruler and top gap, CI diagnosed, lanes A-C reviewed, final check V run, owner hand checks prepared.
 
 ## Milestones
 1. Reconcile the current working tree and existing implementation/review reports before assigning remaining work.

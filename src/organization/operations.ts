@@ -94,6 +94,9 @@ export function mergeMissingResearch(
       ...a.sources,
       ...b.sources.filter((x) => !a.sources.some((y) => y.id === x.id)),
     ],
+    ...(a.pdfs || b.pdfs
+      ? { pdfs: [...(a.pdfs ?? []), ...(b.pdfs ?? []).filter((x) => !a.pdfs?.some((y) => y.id === x.id))] }
+      : {}),
     notes: a.notes,
     footnotes: [
       ...a.footnotes,

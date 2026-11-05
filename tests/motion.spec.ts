@@ -38,6 +38,12 @@ test("(a) opening the projects search animates only transform, opacity, clip-pat
   const props = samples.flatMap((s) => s.props);
   expect(props.length).toBeGreaterThan(0);
   expect(props.filter((p) => !ALLOWED.includes(p))).toEqual([]);
+  // The 300 ms sample window can close before a slow runner even starts the
+  // 220 ms clip-path morph. Whatever is still running must be allowed, so a
+  // finite forbidden animation cannot slip through, then wait for it to drain;
+  // a never-ending one would time out here.
+  expect((await animatedProperties(page)).filter((p) => !ALLOWED.includes(p))).toEqual([]);
+  await page.waitForFunction(() => document.getAnimations().length === 0);
   expect(await animatedProperties(page)).toEqual([]);
 });
 

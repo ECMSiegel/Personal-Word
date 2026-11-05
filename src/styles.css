@@ -634,11 +634,7 @@ p {
   font-size: var(--type-small);
   padding: var(--space-1);
 }
-.search kbd {
-  font-size: var(--type-small);
-  white-space: nowrap;
-}
-/* kbd hint and clear button share one cell; only one shows at a time. */
+/* The clear button sits alone in its cell (the Cmd-K hint is gone). */
 .search-end {
   display: grid;
   align-items: center;
@@ -658,9 +654,6 @@ p {
 .search-clear[data-shown] {
   opacity: 1;
   visibility: visible;
-}
-.search-end:has(.search-clear[data-shown]) kbd {
-  visibility: hidden;
 }
 .group-heading {
   display: flex;
@@ -691,12 +684,15 @@ p {
 .entry-row[data-depth="1"] .entry-main {
   padding-left: calc(var(--space-2) + var(--space-4));
 }
-.entry-row.has-beside .entry-main {
+.entry-row.has-beside .entry-main,
+.entry-row:has(.reorder):is(:hover, :focus-within) .entry-main {
   padding-right: 40px;
 }
+/* The glyph's right edge sits on the row's right edge (the 30 px box centred on a 16 px
+   glyph overhangs by 7 px), so every split icon keeps the same gap from the rail. */
 .collection-open-beside {
   position: absolute;
-  right: 4px;
+  right: -7px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -724,23 +720,10 @@ p {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  /* Title steps up from the row's small size so the word count reads as
-     metadata, mirroring the Projects screen's name/dates hierarchy. */
   font-size: var(--type-body);
 }
 .entry-main svg {
   color: var(--muted);
-}
-.entry-main small {
-  font-size: var(--type-small);
-  color: var(--muted);
-  /* The reveal of the open-beside button replaces the count rather than
-     covering it; reduced motion makes this an instant swap. */
-  transition: opacity var(--duration-fast) var(--ease-out);
-}
-.entry-row:hover .entry-main small,
-.entry-row:focus-within .entry-main small {
-  opacity: 0;
 }
 .selected {
   color: var(--text);
@@ -749,7 +732,7 @@ p {
   display: flex;
   opacity: 0;
   position: absolute;
-  right: 2px;
+  right: 0;
 }
 .entry-row:hover .reorder,
 .entry-row:focus-within .reorder {
@@ -757,7 +740,7 @@ p {
   opacity: 1;
 }
 .reorder button {
-  padding: var(--space-2) 3px;
+  padding: var(--space-2) 0;
 }
 .read-button {
   font-size: var(--type-small);
@@ -968,10 +951,9 @@ p {
   touch-action: none;
   background: linear-gradient(var(--line), var(--line)) center / 1px 100% no-repeat;
 }
-.split-divider:hover,
 .split-divider:focus-visible {
-  background: var(--accent);
-  outline: 0;
+  outline: var(--focus-ring);
+  outline-offset: calc(var(--focus-offset) * -1);
 }
 .eyebrow {
   font-size: var(--type-small);
@@ -1391,11 +1373,13 @@ p {
 }
 .preview-content {
   overflow: auto;
-  margin: 10px 0 25px;
+  margin: var(--space-3) 0 var(--space-5);
   flex: 1;
 }
-.preview-content section {
-  margin-bottom: 30px;
+/* Direct children only: the comparison's own column sections are not separate
+   document sections and must not take this gap above "Restore this section". */
+.preview-content > section {
+  margin-bottom: var(--space-6);
 }
 .preview-content h3 {
   font:
@@ -1682,6 +1666,10 @@ button[aria-pressed="true"],
   font-weight: 500;
   min-width: 0;
 }
+.sidebar-groups .group-title {
+  font-size: var(--type-body);
+  color: var(--text);
+}
 /* The label truncates at every width (wave 6 T6): room is reserved for the
    heading's in-flow action buttons, so a long label ellipsizes before the
    chevron, the buttons or the entries' word counts move or wrap. */
@@ -1701,24 +1689,28 @@ button[aria-pressed="true"],
   color: var(--text);
   font-weight: 600;
 }
-/* Sidebar selection (wave 4 B1): a section that holds an open entry (main pane or
-   either split pane) or is the open destination has a semibold header in its colour
-   -- the accent in Plain, the section tint in Color (--tint is set only in Color).
-   Its open entries are semibold in the text colour, never tinted: the header carries
-   the colour, the entry only the weight. Real weight, not the hover stroke, so a lit
-   row still shows the shared hover emphasis on top. */
-.sidebar-group[data-open] > .group-heading .group-title {
-  font-weight: 600;
-  color: var(--tint, var(--accent));
+/* W7: primary headings carry hierarchy through weight, never tint. Rows stay
+   regular-weight and dim until hovered, focused, or open. */
+.sidebar-groups .group-title.selected,
+.sidebar-groups .sidebar-group[data-open] > .group-heading .group-title {
+  font-weight: 700;
+  color: var(--text);
 }
-.sidebar .entry-row[data-open],
-.sidebar .entry-row[data-open] .entry-main {
-  font-weight: 600;
+.sidebar-groups .entry-row.selected {
+  font-weight: 400;
+}
+.sidebar-groups .entry-main {
+  font-size: var(--type-body);
+  font-weight: 400;
+  color: var(--muted);
+}
+.sidebar-groups .entry-row:is(:hover, :has(:focus-visible), [data-open]) .entry-main {
   color: var(--text);
 }
 .group-actions {
   display: flex;
   flex-shrink: 0;
+  margin-left: auto;
   opacity: 0;
 }
 .sidebar-group:hover > .group-heading .group-actions,
@@ -1751,13 +1743,6 @@ button[aria-pressed="true"],
   min-height: 32px;
   font-size: var(--type-small);
 }
-.entry-main small {
-  font-size: var(--type-small);
-  /* Wave 6 T6: the count survives the narrow widths (no overlay of actions), so
-     the title ellipsizes first; the count itself never wraps or shrinks. */
-  white-space: nowrap;
-  flex-shrink: 0;
-}
 .entry-row.selected::before {
   content: none;
 }
@@ -1787,11 +1772,6 @@ button[aria-pressed="true"],
 .cards-view .entry-main > span {
   flex-basis: calc(100% - 25px);
 }
-.cards-view .entry-main small {
-  display: block;
-  width: 100%;
-  text-align: left;
-}
 .entry-preview {
   font-size: var(--type-small);
   line-height: 1.5;
@@ -1815,9 +1795,13 @@ button[aria-pressed="true"],
   z-index: 6;
 }
 .sidebar-resize:hover,
+.sidebar-resize:active {
+  background: transparent;
+}
 .sidebar-resize:focus-visible {
-  background: var(--accent);
-  outline: 0;
+  background: transparent;
+  outline: var(--focus-ring);
+  outline-offset: calc(var(--focus-offset) * -1);
 }
 @container (max-width: 240px) {
   .cards-view .entry-preview {
@@ -2116,13 +2100,17 @@ button[aria-pressed="true"],
 .project-row > button:first-child:active:not(:disabled) {
   color: var(--accent);
 }
+:root .sidebar-groups .group-title:active:not(:disabled),
+:root .sidebar-groups .entry-main:active:not(:disabled) {
+  color: var(--text);
+}
 :root:not([data-palette="color"]) .sidebar .group-title.selected:active:not(:disabled),
 .sidebar .entry-row[data-open] .entry-main:active:not(:disabled) {
   color: var(--text);
 }
-/* A lit header keeps its colour while pressed. */
+/* Primary sidebar selection stays normal-colour while pressed in either palette. */
 .sidebar .sidebar-group[data-open] > .group-heading .group-title:active:not(:disabled) {
-  color: var(--tint, var(--accent));
+  color: var(--text);
 }
 .delete-entry:hover,
 .delete-entry:focus-visible {
@@ -2146,13 +2134,16 @@ button[aria-pressed="true"],
   touch-action: none;
 }
 .aside-resizer:hover,
+.aside-resizer:active {
+  background: transparent;
+}
 .aside-resizer:focus-visible {
-  background: var(--accent);
-  outline: 0;
+  background: transparent;
+  outline: var(--focus-ring);
+  outline-offset: calc(var(--focus-offset) * -1);
 }
 
 /* Selected cards emphasize only the title; details stay regular weight. */
-.cards-view .entry-row:is(.selected, [data-open]) .entry-main small,
 .cards-view .entry-row:is(.selected, [data-open]) .entry-preview,
 .cards-view .entry-row:is(.selected, [data-open]) .entry-details {
   font-weight: 400;
@@ -2172,10 +2163,12 @@ button[aria-pressed="true"],
 .group-title svg {
   flex-shrink: 0;
 }
+/* The chevron is the header's last item (after the view and add buttons), so every
+   section's chevron shares one right edge. Its box is always rendered, so toggles that
+   reveal on hover never move it. */
 .group-chevron {
   display: inline-flex;
-  margin-left: auto;
-  margin-right: 2px;
+  flex-shrink: 0;
   color: var(--muted);
   transition: transform var(--duration-fast) var(--ease-out);
 }
@@ -2195,6 +2188,17 @@ button[aria-pressed="true"],
 .sidebar-bottom-groups .sidebar-group + .sidebar-group {
   border-top: 1px solid var(--line);
 }
+/* Bottom rows: every heading is one control tall with its label centred, the same as the
+   Settings row below, so the gap above a divider equals the gap below it at every line.
+   On the heading, not the group: a group's own list (comments, snapshots) stacks below it. */
+.sidebar-bottom-groups .sidebar-group {
+  margin-bottom: 0;
+}
+.sidebar-bottom-groups .group-heading {
+  box-sizing: border-box;
+  min-height: var(--control-height);
+  margin-bottom: 0;
+}
 /* The last row (Settings) is the sidebar half of the bottom band: it runs to the
    window edge and matches .pane-footer (1px rule on top, --control-height in all),
    so its separator is level with the footer's rule (and runs edge to edge, so
@@ -2209,6 +2213,7 @@ button[aria-pressed="true"],
 }
 .sidebar-bottom-groups .sidebar-group:last-child > .group-heading {
   flex: 1;
+  min-height: 0;
   margin: 0;
 }
 
@@ -2242,7 +2247,8 @@ button[aria-pressed="true"],
 :root[data-palette="color"] .sidebar-group[data-group="research"] {
   --tint: var(--tint-research);
 }
-:root[data-palette="color"] .sidebar-group[data-group] .group-title.selected {
+/* Bottom rows keep their own look (accent in Color); the three sections' headings stay text colour. */
+:root[data-palette="color"] .sidebar-bottom-groups .sidebar-group[data-group] .group-title.selected {
   color: var(--tint);
 }
 :root[data-palette="color"] .sidebar-group:is([data-group="manuscript"], [data-group="fragments"], [data-group="research"]) :is(.group-title svg, .entry-main svg) {

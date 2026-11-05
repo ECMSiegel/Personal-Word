@@ -1,0 +1,86 @@
+{
+  "id": "T240",
+  "title": "W7 V -- Final check: Chromium + native, docs merge, app build",
+  "description": "Read AGENTS.md, team/PROTOCOL.md, docs/agent-work/2026-11-04-ui-wave-7/REQUEST.md. Brief: node_modules/.cache/personal-word-beta/ui6-brief.md. Never commit. One pass, serial lock: tsc, npm test, npm run build, full Playwright on a private config (port 1939, scratch ui7-v), cargo test, then native smoke/reliability/gates/screens plain and color. Native screens force their window to the front on the active monitor and expect 13 states now, so run them with the Mac unattended and unlocked, and tell the owner first; touch src-tauri/src/lib.rs before smoke and release builds. Native WebKit must check the row-hover rail growth, unboxed dropdowns, floating alignment and hug, hierarchy colours, ruler at zoom, Cite here focus. Merge docs/agent-work/2026-11-04-ui-wave-7/notes/*.md into docs/*.md. Build with npm run tauri build, record sha256. Write docs/agent-work/2026-11-04-ui-wave-7/VALIDATION.md with a hand-check line per request item. Read every new PNG. Do not bump the version or publish: the owner decides.",
+  "status": "done",
+  "owner": null,
+  "priority": 2,
+  "depends_on": [
+    "T236",
+    "T237",
+    "T238"
+  ],
+  "files": [],
+  "review_required": true,
+  "created_by": "agent-81bd",
+  "created_at": "2026-11-04T05:01:09+00:00",
+  "claimed_at": "2026-11-04T13:07:28+00:00",
+  "updated_at": "2026-11-04T13:08:47+00:00",
+  "handoff": {
+    "by": "agent-499c",
+    "at": "2026-11-04T13:06:54+00:00",
+    "text": "Small: VALIDATION.md edits only, no rerun needed. Results table matches the logs and native is honestly not run; docs/*.md wording already fixed by the reviewer. Fix: (1) Hand-check 12 is wrong: 'open a source' opens the ordinary Research panel, whose Cite here focuses the footnote field by design, so the owner would see a false failure. Replace with: 'Cite here: with floating on, in a window wide enough that the card shows, click the Research heading, choose Enter manually, press Cite here. The cursor should be in the card's Page field, not in the footnote.' (2) Line 39 'expect 13 states' becomes 26. (3) Release section: folio sha is now cdb427169c13736a5bb5dc116003a6421a3d0b5fcaabfcc48b8bdca326b6df72 (coordinator rebuild, 07:58 local, release2.log), not 0a43b22b. (4) Line 22 harness coverage is stale (T242 wrote it, never run). (5) Line 78 'before T241': the full run had T241's first rule, not the fix; only tests/editor-toolbar.spec.ts ran on the fix (ui7-rv-final/run.log). (6) Hand-check 7: 'should still have boxes'. Exact wording: docs/agent-work/2026-11-04-ui-wave-7/REVIEW-r3.md, Final. Nothing else in T240 is wrong."
+  },
+  "review": {
+    "by": "agent-81bd",
+    "at": "2026-11-04T13:08:47+00:00",
+    "verdict": "approved",
+    "note": ""
+  },
+  "log": [
+    {
+      "at": "2026-11-04T05:01:09+00:00",
+      "agent": "agent-81bd",
+      "event": "created",
+      "note": ""
+    },
+    {
+      "at": "2026-11-04T12:19:14+00:00",
+      "agent": "agent-3100",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-11-04T12:19:14+00:00",
+      "agent": "agent-3100",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-11-04T12:47:52+00:00",
+      "agent": "agent-3100",
+      "event": "review requested",
+      "note": "Chromium all green: tsc, 1137 unit, full Playwright 478 pass/16 skip/0 fail, cargo 63 pass. Native NOT run: screen locked; native.sh ready, task T242 opened. Docs merged into 6 docs. Release build ok, folio sha256 0a43b22b...eceaf (T241 not included). Record: docs/agent-work/2026-11-04-ui-wave-7/VALIDATION.md"
+    },
+    {
+      "at": "2026-11-04T13:06:54+00:00",
+      "agent": "agent-499c",
+      "event": "rejected",
+      "note": "Small: VALIDATION.md edits only, no rerun needed. Results table matches the logs and native is honestly not run; docs/*.md wording already fixed by the reviewer. Fix: (1) Hand-check 12 is wrong: 'open a source' opens the ordinary Research panel, whose Cite here focuses the footnote field by design, so the owner would see a false failure. Replace with: 'Cite here: with floating on, in a window wide enough that the card shows, click the Research heading, choose Enter manually, press Cite here. The cursor should be in the card's Page field, not in the footnote.' (2) Line 39 'expect 13 states' becomes 26. (3) Release section: folio sha is now cdb427169c13736a5bb5dc116003a6421a3d0b5fcaabfcc48b8bdca326b6df72 (coordinator rebuild, 07:58 local, release2.log), not 0a43b22b. (4) Line 22 harness coverage is stale (T242 wrote it, never run). (5) Line 78 'before T241': the full run had T241's first rule, not the fix; only tests/editor-toolbar.spec.ts ran on the fix (ui7-rv-final/run.log). (6) Hand-check 7: 'should still have boxes'. Exact wording: docs/agent-work/2026-11-04-ui-wave-7/REVIEW-r3.md, Final. Nothing else in T240 is wrong."
+    },
+    {
+      "at": "2026-11-04T13:07:28+00:00",
+      "agent": "agent-0f15",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-11-04T13:07:28+00:00",
+      "agent": "agent-0f15",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-11-04T13:08:31+00:00",
+      "agent": "agent-0f15",
+      "event": "review requested",
+      "note": "Fixed VALIDATION.md per REVIEW-r3 Final and the reject note (hand-check 12, 26 states, folio sha cdb427169c13736a5bb5dc116003a6421a3d0b5fcaabfcc48b8bdca326b6df72 verified by shasum, lines 22 and 78, hand-check 7, owner call 6 added); T242 harness: 100 ms wait before reading the gap and margin sliders (node --check OK, not run); smoke binary is rebuilt by native.sh (touch lib.rs + debug native-smoke build), so no manual rebuild; T242 left available."
+    },
+    {
+      "at": "2026-11-04T13:08:47+00:00",
+      "agent": "agent-81bd",
+      "event": "approved",
+      "note": ""
+    }
+  ]
+}

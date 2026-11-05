@@ -36,19 +36,20 @@
 .revision-columns {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 20px;
+  gap: var(--space-5);
 }
 .revision-columns section {
   min-width: 0;
 }
 .revision-block {
   border-bottom: 1px solid var(--line);
-  padding: 6px 0 12px;
-  scroll-margin: 24px;
+  padding: 0 0 var(--space-3);
+  scroll-margin: var(--space-5);
 }
+/* Text sits on the column's left edge, the same as its heading: only vertical padding. */
 .revision-block p {
   white-space: pre-wrap;
-  padding: 8px;
+  padding: var(--space-2) 0;
 }
 .revision-columns del {
   text-decoration: line-through;
@@ -71,8 +72,11 @@
 .revision-change-controls {
   display: flex;
   align-items: center;
-  gap: 12px;
-  margin: 12px 0;
+  gap: var(--space-3);
+  margin: var(--space-3) 0;
+}
+.revision-change-controls button {
+  padding: 0;
 }
 .revision-change-controls span {
   min-width: 100px;
@@ -80,21 +84,21 @@
   color: var(--muted);
 }
 .revision-selected-passage {
-  margin: 12px 0 20px;
-  padding: 12px;
+  margin: var(--space-3) 0 var(--space-5);
+  padding: var(--space-3);
   border: 1px solid var(--line);
 }
 .revision-selection-locations,
 .revision-selection-previews {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 8px 16px;
+  gap: var(--space-2) var(--space-4);
 }
 .revision-selection-locations label,
 .revision-selected-passage label {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: var(--space-1);
   font-size: 12px;
 }
 .revision-selection-locations input {
@@ -106,7 +110,7 @@
   white-space: pre-wrap;
   user-select: text;
   border: 1px solid var(--line);
-  padding: 8px;
+  padding: var(--space-2);
 }
 .revision-selected-passage textarea {
   width: 100%;
@@ -116,6 +120,16 @@
 .revision-block button {
   font-size: var(--type-small);
   color: var(--accent);
+  padding: 0;
+}
+/* Restore this section: the default button padding indented it from the help text
+   below, so it has none and sits on the same left edge. Space comes from the scale. */
+.revision-comparison > button {
+  padding: 0;
+  margin-top: var(--space-4);
+}
+.revision-comparison > .panel-help {
+  margin-top: var(--space-2);
 }
 .revision-comparison .sr-only {
   position: absolute;

@@ -166,12 +166,61 @@ test("imports sources from a Zotero CSL JSON file", async ({ page }) => {
   const importButton = page.getByRole("button", { name: "Import from Zotero…" });
   await expect(importButton).toBeVisible({ timeout: 5000 });
   await importButton.click();
-  await page.locator('input[type="file"]').setInputFiles("tests/fixtures/zotero-sample.json");
+  await page.locator('input[aria-label^="Zotero"]').setInputFiles("tests/fixtures/zotero-sample.json");
   await expect(page.getByText("3 sources to add")).toBeVisible();
   await expect(page.getByLabel("Add Unsupported thesis", { exact: true })).toBeChecked();
   await page.getByRole("button", { name: "Add sources" }).click();
   await expect(page.locator(".source-list")).toContainText("A Lantern for the Coast");
   await expect(page.locator(".source-list")).toContainText("Keeping the Harbor Lights");
+});
+
+test("Sources tab: rules split Zotero, sources and text-only notes; helper texts are gone", async ({ page }) => {
+  await page.goto("/");
+  await create(page, "Sources rules");
+  await openResearch(page);
+  await expect(page.getByText("No sources yet. Look one up or enter it manually.")).toHaveCount(0);
+  await expect(page.getByText("Footnotes that cite no source.", { exact: false })).toHaveCount(0);
+
+  const rules = page.locator(".research-panel hr.research-rule");
+  await expect(rules).toHaveCount(1);
+  const geometry = () =>
+    page.evaluate(() => {
+      const box = (el: Element | null) => {
+        const r = el?.getBoundingClientRect();
+        return r ? { top: r.top, bottom: r.bottom, height: r.height } : null;
+      };
+      const rules = [...document.querySelectorAll(".research-panel hr.research-rule")];
+      return {
+        zotero: box(document.querySelector(".zotero-refresh-section")),
+        ruleA: box(rules[0] ?? null),
+        list: box(document.querySelector(".source-list")),
+        ruleB: box(rules[1] ?? null),
+        subhead: box(document.querySelector(".research-subhead")),
+        ruleAStyle: rules[0] ? getComputedStyle(rules[0]).borderTopStyle : "",
+        ruleABackground: rules[0] ? getComputedStyle(rules[0]).backgroundImage : "",
+      };
+    });
+
+  // Zero sources: the Zotero area, one rule, then Text-only notes, with no empty band.
+  let g = await geometry();
+  expect(g.ruleAStyle).toBe("solid");
+  expect(g.ruleABackground).toBe("none");
+  expect(g.ruleA!.height).toBeLessThanOrEqual(1);
+  expect(g.ruleA!.top).toBeGreaterThan(g.zotero!.bottom);
+  expect(g.ruleA!.top).toBeLessThan(g.subhead!.top);
+
+  // Several sources: each rule stays between its own neighbours.
+  await page.getByRole("button", { name: "Import from Zotero…" }).click();
+  await page.locator('input[aria-label^="Zotero"]').setInputFiles("tests/fixtures/zotero-sample.json");
+  await expect(page.getByText("3 sources to add")).toBeVisible();
+  await page.getByRole("button", { name: "Add sources" }).click();
+  await expect(page.locator(".source-list li")).toHaveCount(3);
+  await expect(rules).toHaveCount(2);
+  g = await geometry();
+  expect(g.ruleA!.top).toBeGreaterThan(g.zotero!.bottom);
+  expect(g.ruleA!.top).toBeLessThan(g.list!.top);
+  expect(g.ruleB!.top).toBeGreaterThan(g.list!.bottom);
+  expect(g.ruleB!.top).toBeLessThan(g.subhead!.top);
 });
 
 test("Cite here shows the citation at once, not an empty note field", async ({ page }) => {
@@ -716,4 +765,51 @@ test("Notes tab: exactly one rendered line between two notes, no two lines withi
     if (d > 0.5 && d < 8) close.push([rest[i - 1], rest[i]]);
   }
   expect(close, "line pairs under 8 px apart: " + dump).toEqual([]);
+});
+
+test("Upload PDF stores a standalone PDF with no source, opens beside, survives reload, and removes", async ({ page }) => {
+  const pdfBytes = Buffer.from("%PDF-1.4\n1 0 obj << /Type /Catalog >> endobj\n%%EOF\n", "ascii");
+  await page.goto("/");
+  await create(page, "Loose PDF");
+  await openResearch(page);
+  const input = page.locator('input[type="file"][aria-label="PDF file"]');
+  // With no PDFs: the button sits in the normal action row, and there is no PDFs section at all.
+  await expect(page.locator(".research-actions").getByRole("button", { name: "Upload PDF" })).toBeVisible();
+  await expect(page.locator(".research-actions").getByRole("button", { name: "Enter manually" })).toBeVisible();
+  await expect(page.locator(".research-pdfs")).toHaveCount(0);
+  await expect(page.locator(".research-subhead").filter({ hasText: /^PDFs$/ })).toHaveCount(0);
+  // With nothing listed there is one rule, not two around an empty band.
+  await expect(page.locator(".research-panel hr.research-rule")).toHaveCount(1);
+  // Cancelled picker (no file chosen) creates nothing.
+  await input.setInputFiles([]);
+  await expect(page.locator(".source-item")).toHaveCount(0);
+  await expect(page.locator(".pdf-item")).toHaveCount(0);
+  await input.setInputFiles({ name: "Loose Paper.pdf", mimeType: "application/pdf", buffer: pdfBytes });
+  await expect(page.locator(".pdf-item").filter({ hasText: "Loose Paper.pdf" })).toBeVisible();
+  await expect(page.locator(".research-subhead").filter({ hasText: /^PDFs$/ })).toBeVisible();
+  // No doubled rule: the section sits under the one divider above it.
+  expect(await page.locator(".research-pdfs").evaluate((el) => getComputedStyle(el).borderTopWidth)).toBe("0px");
+  await expect(page.locator(".source-item")).toHaveCount(0);
+  const row = page.locator('.sidebar [data-group="research"] .entry-main').filter({ hasText: /^Loose Paper\.pdf$/ });
+  await expect(row).toBeVisible();
+  // A non-PDF is refused and adds nothing.
+  await input.setInputFiles({ name: "notes.txt", mimeType: "text/plain", buffer: Buffer.from("x") });
+  await expect(page.locator(".research-status.is-error")).toContainText("Only PDF");
+  await expect(page.locator(".pdf-item")).toHaveCount(1);
+  // Enter manually still adds an empty source and opens its details.
+  await page.getByRole("button", { name: "Enter manually" }).click();
+  await expect(page.locator(".source-item")).toHaveCount(1);
+  await expect(page.getByLabel("Title", { exact: true })).toBeVisible();
+  await page.locator(".pdf-item").getByRole("button", { name: "Open beside" }).click();
+  const frame = page.locator('iframe[title="PDF: Loose Paper.pdf"]');
+  await expect(frame).toBeVisible();
+  const blobUrl = await frame.getAttribute("src");
+  expect(await page.evaluate(async (u) => (await (await fetch(u!)).arrayBuffer()).byteLength, blobUrl)).toBe(pdfBytes.length);
+  await page.reload();
+  await page.getByRole("button", { name: /Loose PDF/ }).first().click().catch(() => {});
+  await openResearch(page);
+  await expect(page.locator(".pdf-item").filter({ hasText: "Loose Paper.pdf" })).toBeVisible();
+  await page.locator(".pdf-item").getByRole("button", { name: "Remove PDF" }).click();
+  await expect(page.locator(".pdf-item")).toHaveCount(0);
+  await expect(page.locator(".research-pdfs")).toHaveCount(0);
 });

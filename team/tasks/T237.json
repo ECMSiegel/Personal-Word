@@ -1,0 +1,153 @@
+{
+  "id": "T237",
+  "title": "W7 E -- Ruler and continuous-view top gap",
+  "description": "Read AGENTS.md, team/PROTOCOL.md, docs/design-system.md, docs/agent-work/2026-11-04-ui-wave-7/REQUEST.md (decisions included), docs/agent-work/2026-11-04-ui-wave-7/RESEARCH.md and shots/. Brief: node_modules/.cache/personal-word-beta/ui6-brief.md (board steps, pinned Node, private Playwright config, SERIAL LOCK, Never list). Shared files src/styles.css, src/App.tsx stay on no task: edit your regions only, Edit tool, re-read first. Do not touch README.md, ROADMAP.md, docs/case-study.md (uncommitted owner review). Never commit. Doc notes go to docs/agent-work/2026-11-04-ui-wave-7/notes/<task>.md, not docs/*.md. Fail-first evidence in the done note. Port 1936, scratch ui7-e. Use an Opus-class worker: touches document settings and exports. Build RESEARCH section 1 with owner decisions: a toggleable horizontal ruler (toggle on the toolbar, shot 5 is the reference), linked sides: dragging either marker moves both and changes the real document margin exports use, the same setting as today's margin dropdown. A handle shown only while the ruler is on adjusts the continuous-view top gap: top of the document only, scrolls away, screen-only, never reaches exports, default 32 px (editor.css:415). Must survive native serialization, saves, snapshots, imports and exports per AGENTS.md Preserve writing (cargo test if Rust is affected; never rename folio.* keys). Works at zoom, in split view, page and continuous view; tick marks as real elements; keyboard access for every drag. Margin cap: screen allows 1.5 in, export 2 in (formatting.ts:126): decide with evidence and record it, do not silently change export output for existing documents. Say whether Cmd-Z undoes a drag. PDF/Word page parity is not promised. Native WebKit is checked by W7 V; list what it must check. Acceptance: tsc, npm test, tests/ruler.spec.ts plus specs covering page view, margins and exports, an exported DOCX/PDF showing the changed margin.",
+  "status": "done",
+  "owner": null,
+  "priority": 1,
+  "depends_on": [],
+  "files": [
+    "src/Writer.tsx",
+    "tests/ruler.spec.ts",
+    "src/editor/formatting.ts",
+    "src/editor/editor.css",
+    "src/model.ts",
+    "src/App.tsx",
+    "src/editor/formatting.test.ts",
+    "src/export/document.test.ts",
+    "docs/agent-work/2026-11-04-ui-wave-7/notes/T237.md",
+    "tests/markdown-roundtrip.spec.ts"
+  ],
+  "review_required": true,
+  "created_by": "agent-81bd",
+  "created_at": "2026-11-04T05:00:54+00:00",
+  "claimed_at": "2026-11-04T11:41:00+00:00",
+  "updated_at": "2026-11-04T12:11:24+00:00",
+  "handoff": {
+    "by": "agent-f8b6",
+    "at": "2026-11-04T11:38:56+00:00",
+    "text": "Keep the app code, including the padding CSS and the scrollMargin effect; both measured right. Fix tests only. (1 firm) Full suite: tests/markdown-roundtrip.spec.ts:190 and :379 fail 5 of 5 alone and pass 3 of 3 on the same bundle with only the .is-continuous padding rule removed. buildRichProject clicks the centre of the 'Closing paragraph' box; the wider column puts that centre (x 855) on the footnote marker (851 to 859.7), giving a node selection that End does not move, and [^2] is lost from the export. Change the click so it cannot land on the marker (near the line start), register the unowned spec, run the WHOLE suite. The done note's 'no other spec depended on the old width' is wrong. (2 same pass) tests/ruler.spec.ts caretTop reads getClientRects()[0], which at a soft wrap is the previous line's end: 26 of 110 false hidden at 150% page view, 0 of 110 by view.coordsAtPos(head, 1); use coordsAtPos, since CI has no Futura. The ruler-off test never asserts the margin: turn ruler on then off, assert scrollMargin 5 and scrollThreshold 0, remove console.log SCROLLTRACE. Detail: docs/agent-work/2026-11-04-ui-wave-7/REVIEW-r3.md"
+  },
+  "review": {
+    "by": "agent-1af6",
+    "at": "2026-11-04T12:11:24+00:00",
+    "verdict": "approved",
+    "note": "Round 4 tests-only change holds. Probe: click then End lands at paragraph end (96 of 96), export assertions unchanged, :192 and :381 pass 3 of 3. Mutant scrollMargin off: N1 fails 10/110 continuous, 12/110 pages; ruler-off test fails at its on check; clean passes. Restore half of the ruler-off test read, not mutated. full.log 477 passed, 16 skipped, 0 failed; fresh build byte-identical to ui7-e/dist. Native WebKit not verified (T240). Findings: REVIEW-r3.md Round 4."
+  },
+  "log": [
+    {
+      "at": "2026-11-04T05:00:54+00:00",
+      "agent": "agent-81bd",
+      "event": "created",
+      "note": ""
+    },
+    {
+      "at": "2026-11-04T05:03:52+00:00",
+      "agent": "agent-0461",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-11-04T05:03:53+00:00",
+      "agent": "agent-0461",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-11-04T05:11:19+00:00",
+      "agent": "agent-0461",
+      "event": "blocked",
+      "note": "Q026: T237 cannot be implemented within the two registered paths alone: the new pageLayout.topGap needs type/model/validation support and editor.css styles, and Writer's existing App.tsx onLayoutChange path synchronizes documentSettings.marginInches on every layout mutation, which can let topGap-only changes alter exported margins. I asked coordinator agent-81bd to register src/editor/formatting.ts, src/editor/editor.css, src/model.ts and tests as needed, approve a specific App.tsx margin-sync region, and decide screen cap (1.5 vs 2 in) and Cmd-Z behavior. No unregistered files edited."
+    },
+    {
+      "at": "2026-11-04T05:14:40+00:00",
+      "agent": "agent-0461",
+      "event": "unblocked",
+      "note": ""
+    },
+    {
+      "at": "2026-11-04T07:44:45+00:00",
+      "agent": "agent-0461",
+      "event": "review requested",
+      "note": "Implemented T237 across registered paths; note docs/agent-work/2026-11-04-ui-wave-7/notes/T237.md. Fail-first: formatting tests initially failed 3 assertions (margin cap 144 vs 192; topGap default-only behavior; invalid topGap accepted), then passed after fix. Verification: npm run build PASS; npm test PASS (68 files/1137 tests); fresh isolated ruler Playwright PASS (3/3); focused formatting/export PASS (37); diff-check PASS. Full npm run test:e2e: 444 passed, 11 failed, 16 skipped; log records Vite duplicate declaration in unregistered ResearchPanel.tsx and other failures outside T237 paths. Native WebKit/SQLite remains for W7 V. No commits made."
+    },
+    {
+      "at": "2026-11-04T08:12:13+00:00",
+      "agent": "agent-b422",
+      "event": "rejected",
+      "note": "D1 blocker: ruler does not line up with the page. --page-width is only on .editor-paper, so the ruler's max-width is none and it fills the pane; at 1440/100% left marker is 169 px from the text edge, ruler 0 is 175 px from the paper (page 100%: 155/161). D2 ticks not clipped: horizontal scroll (split 819 vs 585; 150% 1227 vs 1170). D3 no background: scrolled text draws through ruler; gap under 24 puts first line under ticks and handle on the text (art/gap-zero.png). D4 page view: sticky fails, ruler scrolls to y -370. D5 no button===0 check: right-button drag moved margin 116 to 156 (writes export margin). D6 marker edge not point at margin: 6 px x zoom off. D7 Ruler button moves Focus mode and Prose check into a new More at 1440, and popover-bounds:166 fails because of it (passes with button removed), so one of the 11 is T237's; re-record baseline with owner's say-so and update design-system table. D8 tests blind: split centre test passes with D1; mut-guard (App.tsx guard removed) passes all ruler tests, so Q026's required test is missing; document.test not.toContain(128) cannot fail; spec writes screenshots to ui7-e. Held up: gap never reaches DOCX/PDF, margin drag does (pgMar 2880, PDF x 144), old projects unchanged, cargo pass. Other 10 failures not T237's. Full detail: docs/agent-work/2026-11-04-ui-wave-7/REVIEW-T237.md"
+    },
+    {
+      "at": "2026-11-04T08:13:46+00:00",
+      "agent": "agent-cbb4",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-11-04T08:13:51+00:00",
+      "agent": "agent-cbb4",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-11-04T09:02:03+00:00",
+      "agent": "agent-cbb4",
+      "event": "review requested",
+      "note": "Rework of D1-D8 (see notes/T237.md). Fail-first: rejected code failed 13/15 new ruler tests with the review's numbers (277/175/263/161 px offsets, scrollWidth +57 at 150%, opaque bg rgba(0,0,0,0), pinned offset 684, right-button drag 96->116, gap-0 first line 116<139); App.tsx-guard mutant fails the gap-only test (expected 2, got 1). Now: tsc clean; npm test 1137 pass; private Playwright ruler(20)+popover-bounds+pages+pages-gap+pages-zoom+page-break+features+editor-toolbar = 63 passed. D7 deviation: Ruler toggle is in Page setup panel (same row as Insert page break), not More, because More does not exist at 1440; owner-overridable. Light/dark screenshots in ui7-e/shots. Native list for T240 in notes. No commits."
+    },
+    {
+      "at": "2026-11-04T10:16:47+00:00",
+      "agent": "agent-571b",
+      "event": "rejected",
+      "note": "D1-D8 re-measured and fixed: alignment 0.0 px at 75/100/125/150, page and continuous, Letter and A4, 2 inch, both split panes; no horizontal scroll; pinned and opaque; overflow-x clip identical to a hidden/auto baseline at 5 widths and 3 zooms, no sheet cut off; exports and reload hold. Do not redo them. Fix, full detail in docs/agent-work/2026-11-04-ui-wave-7/REVIEW-T236-T237.md: (N1 must fix) the sticky ruler hides the line being typed: ArrowUp through a 60 paragraph document with the ruler on leaves the caret fully behind the ruler on 95 of 110 moves in page view (23 px above its bottom edge), 6 of 110 in continuous; 0 with the ruler off; typed text stays hidden (art/caret-hidden-page.png in ui7-rv-de). Use ProseMirror scrollMargin with matching scrollThreshold in editorProps in src/Writer.tsx, top = rulerRef measured getBoundingClientRect height plus a few px, only while the ruler shows. Add a test in tests/ruler.spec.ts, both views: caret top never above ruler bottom on ArrowUp and after typing; must fail first. (N2 same pass) first glyph sits 8 px inside the left marker in continuous view (6, 8, 10, 12 at 75, 100, 125, 150), 0 in page view; the owner would see it. Add to src/editor/editor.css: .is-continuous .editor-paper .writing-surface { padding-left: 0; padding-right: 0 }; do not touch styles.css. Tried by injected style: offset 0, lists and blockquotes fine. Column goes 608 to 624 px, matching page view and exports, so some lines rewrap: say so in the notes. Make the alignment test measure the glyph, not the .ProseMirror box. Owner's call, not a defect: toggle in Page setup (keyboard reachable, four Tabs) versus on the toolbar."
+    },
+    {
+      "at": "2026-11-04T10:17:44+00:00",
+      "agent": "agent-4b96",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-11-04T10:17:45+00:00",
+      "agent": "agent-4b96",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-11-04T10:38:49+00:00",
+      "agent": "agent-4b96",
+      "event": "review requested",
+      "note": "R3: N1 caret-behind-ruler fixed via scrollMargin/scrollThreshold top = measured ruler height (Writer.tsx effect, per pane, defaults when off); N2 first glyph on marker via editor.css .is-continuous padding 0 (continuous column 608->624, lines rewrap slightly: note for owner). Tests in tests/ruler.spec.ts (caret x2, glyph x3, ruler-off scroll). Fail-first: caret 10/12 of 110 hidden on mutant build (95/94 without settle), glyph 8px off; pass after. tsc clean, npm test 1137 pass, playwright ruler/pages/pages-gap/pages-zoom/page-break/popover-bounds/alignment/features/scrollspy 90 pass. Notes: docs/agent-work/2026-11-04-ui-wave-7/notes/T237.md. Chromium only."
+    },
+    {
+      "at": "2026-11-04T11:38:56+00:00",
+      "agent": "agent-f8b6",
+      "event": "rejected",
+      "note": "Keep the app code, including the padding CSS and the scrollMargin effect; both measured right. Fix tests only. (1 firm) Full suite: tests/markdown-roundtrip.spec.ts:190 and :379 fail 5 of 5 alone and pass 3 of 3 on the same bundle with only the .is-continuous padding rule removed. buildRichProject clicks the centre of the 'Closing paragraph' box; the wider column puts that centre (x 855) on the footnote marker (851 to 859.7), giving a node selection that End does not move, and [^2] is lost from the export. Change the click so it cannot land on the marker (near the line start), register the unowned spec, run the WHOLE suite. The done note's 'no other spec depended on the old width' is wrong. (2 same pass) tests/ruler.spec.ts caretTop reads getClientRects()[0], which at a soft wrap is the previous line's end: 26 of 110 false hidden at 150% page view, 0 of 110 by view.coordsAtPos(head, 1); use coordsAtPos, since CI has no Futura. The ruler-off test never asserts the margin: turn ruler on then off, assert scrollMargin 5 and scrollThreshold 0, remove console.log SCROLLTRACE. Detail: docs/agent-work/2026-11-04-ui-wave-7/REVIEW-r3.md"
+    },
+    {
+      "at": "2026-11-04T11:41:00+00:00",
+      "agent": "agent-450e",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-11-04T11:41:00+00:00",
+      "agent": "agent-450e",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-11-04T12:07:00+00:00",
+      "agent": "agent-450e",
+      "event": "review requested",
+      "note": "Round 4 (R3-1, R3-2), tests only. markdown-roundtrip buildRichProject clicks closing paragraph at {x:2,y:4}; ruler.spec caretTop uses view.coordsAtPos(head,1); ruler-off test asserts scrollMargin 5/threshold 0 after on/off, console.log removed. No app code, no assertions weakened. tsc clean. Ruler + markdown-roundtrip: 32 passed. Full Playwright on one fresh build (ui7-e, port 1936): 477 passed, 16 skipped, 0 failed, PW_RC=0 (ui7-e/full.log). Notes: docs/agent-work/2026-11-04-ui-wave-7/notes/T237.md Round 4. Not verified: native WebKit. Files: tests/ruler.spec.ts, tests/markdown-roundtrip.spec.ts, notes T237.md. No commits."
+    },
+    {
+      "at": "2026-11-04T12:11:24+00:00",
+      "agent": "agent-1af6",
+      "event": "approved",
+      "note": "Round 4 tests-only change holds. Probe: click then End lands at paragraph end (96 of 96), export assertions unchanged, :192 and :381 pass 3 of 3. Mutant scrollMargin off: N1 fails 10/110 continuous, 12/110 pages; ruler-off test fails at its on check; clean passes. Restore half of the ruler-off test read, not mutated. full.log 477 passed, 16 skipped, 0 failed; fresh build byte-identical to ui7-e/dist. Native WebKit not verified (T240). Findings: REVIEW-r3.md Round 4."
+    }
+  ]
+}

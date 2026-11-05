@@ -12,7 +12,7 @@ import {
   footnoteParts,
 } from "./citations";
 import type { BibliographyItem } from "./bibliography";
-import { SourceForm } from "./SourceForm";
+import { SourceForm, acceptPdf } from "./SourceForm";
 import { parseCslJson, type CslImportResult } from "./cslImport";
 import { parseBibtex } from "./bibtexImport";
 import { fetchAllZoteroItems, previewZoteroChanges } from "./zotero";
@@ -57,6 +57,7 @@ export function ResearchPanel({
   onCaptureQuote,
   bibliography: bibliographyProp,
   onAttachPdf,
+  onUploadPdf,
   onOpenPdf,
 }: {
   data?: ResearchData;
@@ -73,6 +74,8 @@ export function ResearchPanel({
   onCaptureQuote?: (note: ResearchNote, insert: boolean) => void;
   bibliography?: BibliographyItem[];
   onAttachPdf?: (sourceId: string, file: File) => Promise<void>;
+  /** Stores a PDF in Research without a source. */
+  onUploadPdf?: (file: File) => Promise<void>;
   onOpenPdf?: (sourceId: string) => void;
 }) {
   const [tab, setTab] = useState<ResearchTab>(
@@ -90,6 +93,7 @@ export function ResearchPanel({
   const [zoteroLoading, setZoteroLoading] = useState(false);
   const [zoteroMessage, setZoteroMessage] = useState<string>("");
   const importFile = useRef<HTMLInputElement>(null);
+  const pdfFile = useRef<HTMLInputElement>(null);
   const panel = useRef<HTMLElement>(null);
   // The panel scrolls inside its host `.research-aside` (App.tsx), so the fade goes on that.
   useEffect(() => {
@@ -512,10 +516,30 @@ export function ResearchPanel({
               <button type="button" onClick={addManual}>
                 Enter manually
               </button>
+              <button type="button" onClick={() => pdfFile.current?.click()}>
+                Upload PDF
+              </button>
               <button type="button" onClick={() => importFile.current?.click()}>
                 Import from Zotero…
               </button>
             </div>
+            <input
+              ref={pdfFile}
+              type="file"
+              accept=".pdf,application/pdf"
+              hidden
+              tabIndex={-1}
+              aria-label="PDF file"
+              onChange={(event) => {
+                const file = event.target.files?.[0];
+                event.target.value = "";
+                if (!file) return;
+                const reason = acceptPdf({ name: file.name, size: file.size, type: file.type });
+                if (reason) return notify(reason, true);
+                notify("");
+                void onUploadPdf?.(file);
+              }}
+            />
             <div className="zotero-refresh-section" style={{ marginTop: 8, position: "relative" }}>
               <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
                 {!zoteroConnected ? (
@@ -592,16 +616,34 @@ export function ResearchPanel({
               </span>
             </div>
           </div>
+          {(data.sources.length > 0 || (data.pdfs ?? []).length > 0) && <hr className="research-rule" />}
           <p
             role="status"
             className={"research-status" + (status.error ? " is-error" : "")}
           >
             {status.text}
           </p>
-          {data.sources.length === 0 && (
-            <p className="research-hint">
-              No sources yet. Look one up or enter it manually.
-            </p>
+          {(data.pdfs ?? []).length > 0 && (
+            <section className="research-pdfs">
+              <h3 className="research-subhead">PDFs</h3>
+              <ul className="pdf-list" aria-label="PDFs">
+                {(data.pdfs ?? []).map((pdf) => (
+                  <li className="pdf-item" key={pdf.id}>
+                    <span className="source-pdf-name">{pdf.name}</span>
+                    <span className="item-actions">
+                      <button type="button" onClick={() => onOpenPdf?.(pdf.id)}>Open beside</button>
+                      <button
+                        type="button"
+                        className="is-danger"
+                        onClick={() => onChange({ ...data, pdfs: (data.pdfs ?? []).filter((p) => p.id !== pdf.id) })}
+                      >
+                        Remove PDF
+                      </button>
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            </section>
           )}
           <ul className="source-list">
             {data.sources.map((source) => {
@@ -644,12 +686,9 @@ export function ResearchPanel({
               if (insert) onCaptureQuote?.(note, true);
             }}
           />}
+          <hr className="research-rule" />
           <section className="research-group">
             <h3 className="research-subhead">Text-only notes</h3>
-            <p className="research-hint">
-              Footnotes that cite no source. Place the cursor in your text
-              before inserting.
-            </p>
             <div className="research-actions">
               <button
                 type="button"

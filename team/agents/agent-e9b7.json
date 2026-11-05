@@ -1,0 +1,9 @@
+{
+  "id": "agent-e9b7",
+  "label": "Claude Haiku worker W7 T249 r2",
+  "joined_at": "2026-11-05T04:48:03+00:00",
+  "last_seen": "2026-11-05T04:49:44+00:00",
+  "status": "left",
+  "current_task": null,
+  "inbox_cursor": 1230
+}

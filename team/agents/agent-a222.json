@@ -1,0 +1,9 @@
+{
+  "id": "agent-a222",
+  "label": "Claude Sonnet worker W7 T243 r2",
+  "joined_at": "2026-11-04T18:52:07+00:00",
+  "last_seen": "2026-11-04T19:19:17+00:00",
+  "status": "left",
+  "current_task": null,
+  "inbox_cursor": 1224
+}

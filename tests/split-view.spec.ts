@@ -863,7 +863,7 @@ test("split view: each pane has its own footer with its own page status and word
   }
 });
 
-test("split view: the sidebar lights each pane's section header and bolds both open entries (B1)", async ({ page }) => {
+test("split view: the sidebar bolds each pane's section heading in the text colour and keeps both open rows regular (W7)", async ({ page }) => {
   await page.emulateMedia({ colorScheme: "light" });
   await page.goto("/");
   await createProject(page, "Split selection fixture");
@@ -875,19 +875,59 @@ test("split view: the sidebar lights each pane's section header and bolds both o
   await expect(page.locator(".split-pane")).toHaveCount(2);
   const title = (id: string) => page.locator(`.sidebar-group[data-group="${id}"] > .group-heading .group-title`);
   for (const id of ["manuscript", "fragments"]) {
-    await expect(title(id)).toHaveCSS("font-weight", "600");
-    await expect(title(id)).toHaveCSS("color", "rgb(0, 105, 217)");
+    await expect(title(id)).toHaveCSS("font-weight", "700");
+    await expect(title(id)).toHaveCSS("color", "rgb(36, 36, 40)");
   }
-  await expect(title("research")).not.toHaveCSS("font-weight", "600");
+  // The research heading is not on screen: resting weight 500, normal text colour.
+  await expect(title("research")).toHaveCSS("font-weight", "500");
+  await expect(title("research")).toHaveCSS("color", "rgb(36, 36, 40)");
   for (const name of ["Left one", "Lit fragment"]) {
-    await expect(row(page, name)).toHaveCSS("font-weight", "600");
+    await expect(row(page, name)).toHaveCSS("font-weight", "400");
     await expect(row(page, name)).toHaveCSS("color", "rgb(36, 36, 40)");
   }
-  await expect(row(page, "Unopened")).not.toHaveCSS("font-weight", "600");
+  await expect(row(page, "Unopened")).toHaveCSS("font-weight", "400");
   // Closing the right pane puts the fragment and its section header back to rest.
   await page.getByRole("button", { name: "Close right pane" }).click();
   await expect(page.locator('.split-pane[data-side="right"]')).toHaveCount(0);
-  await expect(row(page, "Lit fragment")).not.toHaveCSS("font-weight", "600");
-  await expect(title("fragments")).not.toHaveCSS("font-weight", "600");
-  await expect(row(page, "Left one")).toHaveCSS("font-weight", "600");
+  await expect(row(page, "Lit fragment")).toHaveCSS("font-weight", "400");
+  await expect(title("fragments")).toHaveCSS("font-weight", "500");
+  await expect(title("fragments")).toHaveCSS("color", "rgb(36, 36, 40)");
+  await expect(row(page, "Left one")).toHaveCSS("font-weight", "400");
+});
+
+test("select all still selects when a click lands before the previous select-all is read back", async ({
+  page,
+}) => {
+  // Real input, main thread busy so the click's selectionchange task runs after
+  // the second Cmd+A: state is still the first select-all while the DOM holds
+  // the click's caret. Without the keydown sync the second Cmd+A was a no-op
+  // and the queued selectionchange turned the selection into a caret.
+  await page.goto("/");
+  await createProject(page, "Select all fixture");
+  const editor = page.getByRole("textbox", { name: "Writing editor", exact: true });
+  await editor.click();
+  await page.keyboard.type("Left sample");
+  await page.keyboard.press("ControlOrMeta+a");
+  await page.waitForTimeout(150);
+  const box = (await editor.locator("p").first().boundingBox())!;
+  await page.evaluate(() => {
+    setTimeout(() => {
+      const t = performance.now();
+      while (performance.now() - t < 400);
+    }, 0);
+  });
+  await Promise.all([
+    page.mouse.move(box.x + 300, box.y + box.height / 2),
+    page.mouse.down(),
+    page.mouse.up(),
+    page.keyboard.press("ControlOrMeta+a"),
+  ]);
+  await page.waitForTimeout(600);
+  expect(await page.evaluate(() => document.getSelection()!.toString())).toBe("Left sample");
+  await page.getByRole("button", { name: "Font family", exact: true }).click();
+  await page
+    .getByRole("listbox", { name: "Font family" })
+    .getByRole("option", { name: "Georgia" })
+    .click();
+  await expect(editor.locator('span[style*="Georgia"]')).toHaveText("Left sample");
 });

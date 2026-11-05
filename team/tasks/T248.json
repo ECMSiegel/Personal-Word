@@ -1,0 +1,98 @@
+{
+  "id": "T248",
+  "title": "W7 S2 -- Research: dividers, remove two helper texts",
+  "description": "See REQUEST.md Owner follow-up. Shares ResearchPanel.tsx with S3 by region.",
+  "status": "done",
+  "owner": null,
+  "priority": 2,
+  "depends_on": [],
+  "files": [
+    "src/research/research.css",
+    "src/research/ResearchPanel.tsx",
+    "tests/research.spec.ts"
+  ],
+  "review_required": true,
+  "created_by": "agent-81bd",
+  "created_at": "2026-11-05T04:20:11+00:00",
+  "claimed_at": "2026-11-05T06:04:41+00:00",
+  "updated_at": "2026-11-05T08:22:01+00:00",
+  "handoff": {
+    "by": "agent-ba11",
+    "at": "2026-11-05T06:04:12+00:00",
+    "text": "REVIEW-small-fixes.md Defect 2. Zero sources, zero PDFs: two rules at 363 and 409 enclosing an empty 46 px band (hr, empty .research-status with min-height 1em, hidden .source-list, hr). Shot ui7-rv-s/probe-shots/panel-zero.png. Several sources: same empty band above the first source (panel-three-sources.png). Fix: render the second rule only when there are sources or PDFs; take the empty status out of flow but keep it in the accessibility tree, since it is role=status, so NOT display:none (for example .research-status:empty { position:absolute }). Add a fail-first spec for rule count with zero sources, one PDF, several sources. T248 and T249 share these three paths and this root cause: one worker should repair both together. Do not redo: helper texts removed and rule placement are right."
+  },
+  "review": {
+    "by": "agent-b7b4",
+    "at": "2026-11-05T08:22:01+00:00",
+    "verdict": "approved",
+    "note": "Zero sources one rule (363), no band; error text sits above the rule; several sources 2 rules, no double line at list end; empty status out of flow, role=status kept. Specs 49 passed. Headless Chromium only. Tidy: .source-list:empty is duplicated at research.css:200 and :213."
+  },
+  "log": [
+    {
+      "at": "2026-11-05T04:20:11+00:00",
+      "agent": "agent-81bd",
+      "event": "created",
+      "note": ""
+    },
+    {
+      "at": "2026-11-05T04:21:42+00:00",
+      "agent": "agent-16ba",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-11-05T04:21:44+00:00",
+      "agent": "agent-16ba",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-11-05T05:20:13+00:00",
+      "agent": "agent-81bd",
+      "event": "reclaimed from agent-16ba",
+      "note": ""
+    },
+    {
+      "at": "2026-11-05T05:20:15+00:00",
+      "agent": "agent-81bd",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-11-05T05:20:16+00:00",
+      "agent": "agent-81bd",
+      "event": "review requested",
+      "note": "Finished by agent-16ba, closed by coordinator after it went silent. Dividers added, two helper texts removed. ui7-s2/green2.log 73 passed, including research specs. Fail-first and screenshots in ui7-s2."
+    },
+    {
+      "at": "2026-11-05T06:04:12+00:00",
+      "agent": "agent-ba11",
+      "event": "rejected",
+      "note": "REVIEW-small-fixes.md Defect 2. Zero sources, zero PDFs: two rules at 363 and 409 enclosing an empty 46 px band (hr, empty .research-status with min-height 1em, hidden .source-list, hr). Shot ui7-rv-s/probe-shots/panel-zero.png. Several sources: same empty band above the first source (panel-three-sources.png). Fix: render the second rule only when there are sources or PDFs; take the empty status out of flow but keep it in the accessibility tree, since it is role=status, so NOT display:none (for example .research-status:empty { position:absolute }). Add a fail-first spec for rule count with zero sources, one PDF, several sources. T248 and T249 share these three paths and this root cause: one worker should repair both together. Do not redo: helper texts removed and rule placement are right."
+    },
+    {
+      "at": "2026-11-05T06:04:41+00:00",
+      "agent": "agent-81bd",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-11-05T06:04:41+00:00",
+      "agent": "agent-81bd",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-11-05T06:16:16+00:00",
+      "agent": "agent-81bd",
+      "event": "review requested",
+      "note": "Repair: empty live region out of flow, first rule only when something is listed; PDFs section has no own rule (this covers T249's doubled rule too). Spec updated."
+    },
+    {
+      "at": "2026-11-05T08:22:01+00:00",
+      "agent": "agent-b7b4",
+      "event": "approved",
+      "note": "Zero sources one rule (363), no band; error text sits above the rule; several sources 2 rules, no double line at list end; empty status out of flow, role=status kept. Specs 49 passed. Headless Chromium only. Tidy: .source-list:empty is duplicated at research.css:200 and :213."
+    }
+  ]
+}

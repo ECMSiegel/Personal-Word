@@ -58,10 +58,13 @@ export type CitationPolicy = {
   repeats: "short" | "ibid";
 };
 export type ResolvedNoteForm = "full" | "short" | "ibid";
+/** A PDF kept in Research without a source. Bytes live in the project's asset store under assetId. */
+export type ResearchPdf = { id: string; name: string; assetId: string; byteLength: number };
 export type ResearchData = {
   sources: Source[];
   notes: ResearchNote[];
   footnotes: Footnote[];
+  pdfs?: ResearchPdf[];
   autoShortNotes?: boolean;
   citationPolicy?: CitationPolicy;
 };

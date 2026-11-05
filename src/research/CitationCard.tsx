@@ -6,6 +6,7 @@ import { Field, Preview, Cite } from "./Cite";
 import { SourceForm } from "./SourceForm";
 import { useLookup } from "./useLookup";
 import { addCitation, addManualSource, patchFootnote, patchSource } from "./citationActions";
+import { prefersReducedMotion } from "../motion";
 import { citationParts, footnoteParts } from "./citations";
 import type { CitationContext } from "./noteForms";
 import type { NoteForm, ResearchData } from "./types";
@@ -41,7 +42,9 @@ export function CitationCard({
   const [sourceId, setSourceId] = useState<string | undefined>();
   const [citedId, setCitedId] = useState<string | undefined>(footnoteId);
   const [announce, setAnnounce] = useState("");
-  const [shown, setShown] = useState(!animateIn);
+  // Under Reduce Motion the card must be opaque in its very first frame (it
+  // "opens without a transition"), so do not wait the reveal rAF out there.
+  const [shown, setShown] = useState(!animateIn || prefersReducedMotion());
   const root = useRef<HTMLDivElement>(null);
   const body = useRef<HTMLDivElement>(null);
   useScrollFade(body);
@@ -71,7 +74,8 @@ export function CitationCard({
     const scope = root.current;
     if (!scope) return;
     if (target === "lookup") lookupInput.current?.focus();
-    else if (target === "page") scope.querySelector<HTMLElement>(`[id$="-locator"], textarea[aria-label="Footnote text"]`)?.focus();
+    // After Cite here the editor takes focus on the next frame (Tiptap); take it back after that.
+    else if (target === "page") requestAnimationFrame(() => scope.querySelector<HTMLElement>(`[id$="-locator"], textarea[aria-label="Footnote text"]`)?.focus());
     else scope.querySelector<HTMLElement>(`[id$="-authors"], [id$="-title"]`)?.focus();
   });
 

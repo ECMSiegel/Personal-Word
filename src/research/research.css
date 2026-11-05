@@ -171,10 +171,31 @@
   flex-wrap: wrap;
   gap: var(--space-1) var(--space-4);
 }
+.research-pdfs {
+  display: grid;
+  gap: var(--space-2);
+}
+.pdf-list {
+  display: grid;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.pdf-item {
+  display: grid;
+  gap: var(--space-1);
+}
 .research-status {
-  min-height: 1em;
   margin: 0;
   color: var(--muted);
+}
+/* Kept in the DOM while empty: it is a live region. Out of flow so it leaves no gap. */
+.research-status:empty {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
 }
 .research-status.is-error {
   color: var(--danger);
@@ -186,8 +207,21 @@
   padding: 0;
   display: grid;
 }
+.source-list:empty {
+  display: none;
+}
+.research-panel hr.research-rule {
+  margin: 0;
+  height: 0;
+  border: 0;
+  border-top: 1px solid var(--line);
+}
 .source-item {
   border-bottom: 1px solid var(--line);
+}
+/* The rule above Text-only notes closes the list: no second line just above it. */
+.source-item:last-child {
+  border-bottom: 0;
 }
 .research-panel button.source-toggle {
   display: flex;

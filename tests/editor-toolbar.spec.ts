@@ -362,3 +362,67 @@ test("comment on a collapsed cursor captures the whole paragraph", async ({ page
   await page.locator(".group-title").filter({ hasText: /^Comments$/ }).click();
   await expect(page.locator("article.feature-item").filter({ hasText: "Paragraph comment" })).toContainText(paragraph);
 });
+
+test("format bar zoom, paragraph style and font dropdowns draw no border or fill", async ({ page }) => {
+  await page.goto("/");
+  await create(page, "Plain dropdowns");
+  for (const name of ["Editor zoom", "Paragraph style", "Font family"]) {
+    const trigger = bar(page).getByRole("button", { name, exact: true });
+    await expect(trigger).toBeVisible();
+    const style = await trigger.evaluate((el) => {
+      const s = getComputedStyle(el);
+      return {
+        borders: [s.borderTopWidth, s.borderRightWidth, s.borderBottomWidth, s.borderLeftWidth],
+        background: s.backgroundColor,
+      };
+    });
+    expect(style, name).toEqual({ borders: ["0px", "0px", "0px", "0px"], background: "rgba(0, 0, 0, 0)" });
+    // Keyboard focus still shows a ring (outline), not a box.
+    // A key press makes the focus keyboard-driven, so :focus-visible applies.
+    await trigger.focus();
+    await page.keyboard.press("Shift+Tab");
+    await page.keyboard.press("Tab");
+    await expect(trigger).toBeFocused();
+    const ring = await trigger.evaluate((el) => ({
+      visible: el.matches(":focus-visible"),
+      outline: getComputedStyle(el).outlineStyle,
+    }));
+    expect(ring, name).toEqual({ visible: true, outline: "solid" });
+  }
+});
+
+test("Page setup Paper size and Page margins keep their 1 px box", async ({ page }) => {
+  await page.goto("/");
+  await create(page, "Page setup boxes");
+  await bar(page).getByRole("button", { name: "More formatting", exact: true }).click();
+  await moreRows(page).getByRole("button", { name: "Page setup", exact: true }).click();
+  const panel = page.getByRole("dialog", { name: "Page setup" });
+  await expect(panel).toBeVisible();
+  for (const name of ["Paper size", "Page margins"]) {
+    const control = panel.getByRole("button", { name, exact: true });
+    await expect(control).toBeVisible();
+    const borders = await control.evaluate((el) => {
+      const s = getComputedStyle(el);
+      return [s.borderTopWidth, s.borderRightWidth, s.borderBottomWidth, s.borderLeftWidth];
+    });
+    expect(borders, name).toEqual(["1px", "1px", "1px", "1px"]);
+  }
+});
+
+test("format bar dropdowns held in More draw no border at a narrow width", async ({ page }) => {
+  // At 460 px all three triggers have overflowed into More (measured: zoom from 520 px down).
+  await page.setViewportSize({ width: 460, height: 800 });
+  await page.goto("/");
+  await create(page, "Narrow More boxes");
+  await bar(page).getByRole("button", { name: "More formatting", exact: true }).click();
+  const menu = moreRows(page);
+  for (const name of ["Editor zoom", "Paragraph style", "Font family"]) {
+    const trigger = menu.getByRole("button", { name, exact: true });
+    await expect(trigger, name).toBeVisible();
+    const borders = await trigger.evaluate((el) => {
+      const s = getComputedStyle(el);
+      return [s.borderTopWidth, s.borderRightWidth, s.borderBottomWidth, s.borderLeftWidth];
+    });
+    expect(borders, name).toEqual(["0px", "0px", "0px", "0px"]);
+  }
+});

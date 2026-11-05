@@ -1,0 +1,45 @@
+{
+  "id": "T246",
+  "title": "W7 native -- rerun state-ruler-caret-cont-75 after the longer fixture",
+  "description": "Harness now uses 120 paragraphs and asserts start clearance, never run. Rerun native screens when the owner's Mac is free. Tell the owner first: windows take the front.",
+  "status": "review",
+  "owner": "agent-81bd",
+  "priority": 3,
+  "depends_on": [],
+  "files": [
+    "tests/native-screens.js"
+  ],
+  "review_required": true,
+  "created_by": "agent-81bd",
+  "created_at": "2026-11-04T22:07:14+00:00",
+  "claimed_at": "2026-11-05T09:34:56+00:00",
+  "updated_at": "2026-11-05T09:34:57+00:00",
+  "handoff": null,
+  "review": null,
+  "log": [
+    {
+      "at": "2026-11-04T22:07:14+00:00",
+      "agent": "agent-81bd",
+      "event": "created",
+      "note": ""
+    },
+    {
+      "at": "2026-11-05T09:34:56+00:00",
+      "agent": "agent-81bd",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-11-05T09:34:56+00:00",
+      "agent": "agent-81bd",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-11-05T09:34:57+00:00",
+      "agent": "agent-81bd",
+      "event": "review requested",
+      "note": "Covered by T252: state-ruler-caret-cont-75 ran with the 120-paragraph fixture and passed all four runs, clearance 4 then 5 px; checked in the independent T252 review (REVIEW-small-fixes-r2.md). No separate run."
+    }
+  ]
+}

@@ -220,7 +220,8 @@ function lineFor(container: HTMLElement, target: HTMLElement | null): HTMLElemen
 }
 
 /** Proximity magnify for the sidebar's rail lines: writes `--spy-mag` (0..1) on the lines of the
- *  rail under the pointer (spyMagnify, RAIL_RADIUS). Keyboard focus on a line or its row sets
+ *  rail under the pointer (spyMagnify, RAIL_RADIUS); a row under the pointer counts as its own
+ *  line, so hovering a row magnifies that row's line exactly as the pointer on the line would. Keyboard focus on a line or its row sets
  *  1 / 0.5 / 0.2 by distance in the rail at once (`data-spy-key` turns the transition off).
  *  Touch and Reduce Motion: nothing is written. */
 export function useSpyDock(container: RefObject<HTMLElement | null>): void {
@@ -228,7 +229,8 @@ export function useSpyDock(container: RefObject<HTMLElement | null>): void {
     const el = container.current;
     if (!el) return;
     let frame = 0;
-    let pointer: { y: number; rail: Element } | null = null;
+    // `line` is set when a row stands in for the pointer: its line's centre is the pointer's y.
+    let pointer: { y: number; rail: Element; line?: HTMLElement } | null = null;
     const lines = () => Array.from(el.querySelectorAll<HTMLElement>(LINES));
     const reset = () => {
       for (const line of lines()) line.style.removeProperty("--spy-mag");
@@ -236,6 +238,8 @@ export function useSpyDock(container: RefObject<HTMLElement | null>): void {
     const flush = () => {
       frame = 0;
       if (!pointer) return;
+      const anchor = pointer.line?.getBoundingClientRect();
+      const y = anchor ? anchor.top + anchor.height / 2 : pointer.y;
       for (const line of lines()) {
         if (line.parentElement !== pointer.rail) {
           line.style.removeProperty("--spy-mag");
@@ -244,7 +248,7 @@ export function useSpyDock(container: RefObject<HTMLElement | null>): void {
         const r = line.getBoundingClientRect();
         if (!r.height) continue;
         // The line's resting centre: a transform does not move its layout box's centre.
-        line.style.setProperty("--spy-mag", spyMagnify(pointer.y - (r.top + r.height / 2), RAIL_RADIUS).toFixed(3));
+        line.style.setProperty("--spy-mag", spyMagnify(y - (r.top + r.height / 2), RAIL_RADIUS).toFixed(3));
       }
     };
     const schedule = () => {
@@ -258,7 +262,19 @@ export function useSpyDock(container: RefObject<HTMLElement | null>): void {
     };
     const onMove = (e: PointerEvent) => {
       if (e.pointerType === "touch" || prefersReducedMotion()) return;
-      const rail = (e.target as Element | null)?.closest?.(".spy-rail") ?? null;
+      const target = e.target as Element | null;
+      const rail = target?.closest?.(".spy-rail") ?? null;
+      // Over a row (not the rail), its own line stands in for the pointer: the rail magnifies
+      // exactly as if the pointer were on that line, and the anchor keeps it there on scroll.
+      const row = rail ? null : (target?.closest?.(".entry-main[data-row-id]") as HTMLElement | null | undefined);
+      const rowLine = row ? lineFor(el, row) : null;
+      const rowRail = rowLine?.parentElement ?? null;
+      if (rowLine && rowRail && el.contains(rowRail)) {
+        el.removeAttribute("data-spy-key");
+        pointer = { y: e.clientY, rail: rowRail, line: rowLine };
+        schedule();
+        return;
+      }
       if (!rail || !el.contains(rail)) {
         if (pointer) clearPointer();
         return;

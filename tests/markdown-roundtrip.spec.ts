@@ -113,8 +113,10 @@ async function buildRichProject(page: Page) {
   await expect(table.locator("th").first()).toHaveText("Col A");
   await expect(table.locator("td").nth(2)).toHaveText("Data 3");
 
-  // Park the caret in the closing paragraph, then insert the image.
-  await editor.getByText("Closing paragraph with second note").click();
+  // Park the caret in the closing paragraph, then insert the image. Click near
+  // the line start: the centre can fall on the footnote marker at the end of
+  // the line, which turns the click into a node selection that End cannot move.
+  await editor.getByText("Closing paragraph with second note").click({ position: { x: 2, y: 4 } });
   await page.keyboard.press("End");
   const chooser = page.waitForEvent("filechooser");
   await (await toolbarButton(page, "Insert image")).click();

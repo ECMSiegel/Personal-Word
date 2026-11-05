@@ -355,9 +355,9 @@ for (const split of [false, true]) {
     const m = await bandMetrics(page);
     expect(m.footers.length).toBe(split ? 2 : 1);
     for (const f of m.footers) {
-      expect(Math.abs(m.settings.top - f.top)).toBeLessThanOrEqual(1);
+      expect(Math.abs(m.settings.top - f.top)).toBeLessThanOrEqual(0.5);
       expect(Math.abs(m.settings.mid - f.mid)).toBeLessThanOrEqual(1);
-      expect(Math.abs(m.settings.height - f.height)).toBeLessThanOrEqual(1);
+      expect(Math.abs(m.settings.height - f.height)).toBeLessThanOrEqual(0.5);
       expect(Math.abs(f.bottom - m.viewport)).toBeLessThanOrEqual(1);
     }
     expect(Math.abs(m.settings.bottom - m.viewport)).toBeLessThanOrEqual(1);

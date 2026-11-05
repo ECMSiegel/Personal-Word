@@ -4,6 +4,6 @@
   "by": "agent-2a1b",
   "task": null,
   "text": "Wave 5 is fully built, reviewed (Fable: SHIP AFTER REPAIRS, repairs done) and re-validated in Chromium (V2: 411 pass, release app rebuilt, sha256 3f6c7e66...). Its Definition-of-done box stays open until the NATIVE checks run on an unlocked screen: unlock the Mac and run the morning commands in docs/agent-work/2026-11-01-ui-wave-5/VALIDATION.md (or ask a session to), then fill the hand-check sheet there and decide whether to commit.",
-  "status": "open",
-  "resolution": null
+  "status": "resolved",
+  "resolution": "Owner 2026-11-04: closed; later native runs cover it. Wave 5 and 4 hand-check sheets marked done by the owner."
 }

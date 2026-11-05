@@ -2,6 +2,7 @@ import { describe, it, expect } from "vitest";
 import { getSchema } from "@tiptap/core";
 import { documentExtensions } from "./extensions";
 import { paperGeometry, defaultPageLayout } from "./formatting";
+import { newProject, validateProject } from "../model";
 describe("document formatting schema", () => {
   it("round trips typography, paragraph spacing, explicit page breaks and footnote ids", () => {
     const schema = getSchema(documentExtensions());
@@ -35,9 +36,35 @@ describe("document formatting schema", () => {
     expect(doc.lastChild?.type.name).toBe("pageBreak");
     expect(schema.nodeFromJSON(doc.toJSON()).eq(doc)).toBe(true);
   });
-  it("clamps unsafe margins", () => {
+  it("clamps unsafe margins to the 0.25in--2in export range", () => {
     expect(paperGeometry({ ...defaultPageLayout, margin: 500 }).margin).toBe(
-      144,
+      192,
     );
+    expect(paperGeometry({ ...defaultPageLayout, margin: 192 }).margin).toBe(
+      192,
+    );
+    expect(paperGeometry({ ...defaultPageLayout, margin: 1 }).margin).toBe(24);
+  });
+  it("keeps page separation fixed and defaults the continuous top gap to 32px", () => {
+    expect(paperGeometry(defaultPageLayout).gap).toBe(32);
+    expect(paperGeometry(defaultPageLayout).topGap).toBe(32);
+    expect(paperGeometry({ ...defaultPageLayout, topGap: 0 }).topGap).toBe(0);
+    expect(paperGeometry({ ...defaultPageLayout, topGap: 120 }).topGap).toBe(120);
+    expect(paperGeometry({ ...defaultPageLayout, topGap: 120 }).gap).toBe(32);
+  });
+  it("rejects invalid topGap values in project validation", () => {
+    const valid = newProject("Gap");
+    expect(() => validateProject(valid)).not.toThrow();
+    expect(() =>
+      validateProject({ ...valid, pageLayout: { ...defaultPageLayout } }),
+    ).not.toThrow();
+    for (const topGap of [0, 32, 200])
+      expect(() =>
+        validateProject({ ...valid, pageLayout: { ...defaultPageLayout, topGap } }),
+      ).not.toThrow();
+    for (const topGap of [-1, 201, Number.NaN, Infinity, "32"])
+      expect(() =>
+        validateProject({ ...valid, pageLayout: { ...defaultPageLayout, topGap } }),
+      ).toThrow("Invalid page settings.");
   });
 });

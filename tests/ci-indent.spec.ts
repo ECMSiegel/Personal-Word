@@ -104,7 +104,7 @@ test("Chicago inherited indent uses left indent and survives undo, redo, and rel
 }) => {
   await createProject(page, "Chicago indentation", "Chicago");
   const introduction = page.getByRole("button", {
-    name: /^Introduction \d+ words$/,
+    name: /^Introduction$/,
   });
   await introduction.click();
   const editor = page.getByRole("textbox", { name: "Writing editor" });
@@ -229,7 +229,7 @@ test("Keyboard focus: Chicago inherited indent uses left indent and survives und
 }) => {
   await createProject(page, "Chicago indentation", "Chicago");
   const introduction = page.getByRole("button", {
-    name: /^Introduction \d+ words$/,
+    name: /^Introduction$/,
   });
   await introduction.click();
   const editor = page.getByRole("textbox", { name: "Writing editor" });

@@ -1,0 +1,72 @@
+{
+  "id": "T253",
+  "title": "W7 N3 -- Real-app checks by computer use",
+  "description": "TELL THE OWNER FIRST and get their OK: this drives their Mac's screen, keyboard and mouse. Use the app built from the final code (npm run tauri build; report path and sha), and a throwaway test project only: never open, change or delete the owner's real projects. Checks no test can do because they need real input: (1) real Up and Down arrows in page and continuous view at 75, 100 and 150%, ruler on and off, one and two panes: the caret never hides behind the ruler or leaves the window; typing at the bottom edge. (2) Ruler drag with trackpad or mouse, right-click inert, release outside the window. (3) Upload PDF through the real Mac file picker using a test PDF from tests/fixtures: attachments/<id>.pdf appears, Open beside draws, quit and relaunch keeps it and the split, remove then relaunch stays removed, snapshot then remove then restore brings it back. (4) Margin and top gap survive a real quit and relaunch; PDF and Word export with a changed margin. (5) Sidebar bottom rows with comments and snapshots, docked and floating; resize edges show nothing on hover; A4. Screenshots and pass, fail or not checked per item in docs/agent-work/2026-11-04-ui-wave-7/VALIDATION.md. Owner already reports arrows seem to work (not all cases). Before commit and release.",
+  "status": "available",
+  "owner": null,
+  "priority": 1,
+  "depends_on": [
+    "T247",
+    "T248",
+    "T249"
+  ],
+  "files": [
+    "docs/agent-work/2026-11-04-ui-wave-7/VALIDATION.md",
+    "node_modules/.cache/personal-word-beta/ui7-t253"
+  ],
+  "review_required": true,
+  "created_by": "agent-81bd",
+  "created_at": "2026-11-05T06:30:42+00:00",
+  "claimed_at": null,
+  "updated_at": "2026-11-05T09:28:50+00:00",
+  "handoff": {
+    "by": "agent-e256",
+    "at": "2026-11-05T09:28:50+00:00",
+    "text": "Fresh normal app build completed exit 0; see VALIDATION.md T253 attempt and ui7-t253/build.log. Binary SHA d5f9edcab4567790f4447e114d7c59a6eaf6351142dee51b56af59dc9a915fba, identifier com.folio.writing. No real-app checks done. Auto-review rejected launch with isolated HOME as risky, explicitly forbidding bypass. Next: establish an approved non-HOME isolation approach or arrange a user-run isolated test environment before any interaction; do not open real projects. docs/agent-work/2026-11-04-ui-wave-7/VALIDATION.md: uncommitted edits\nnode_modules/.cache/personal-word-beta/ui7-t253: uncommitted edits"
+  },
+  "review": null,
+  "log": [
+    {
+      "at": "2026-11-05T06:30:42+00:00",
+      "agent": "agent-81bd",
+      "event": "created",
+      "note": ""
+    },
+    {
+      "at": "2026-11-05T08:57:59+00:00",
+      "agent": "agent-f01a",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-11-05T08:57:59+00:00",
+      "agent": "agent-f01a",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-11-05T08:58:31+00:00",
+      "agent": "agent-f01a",
+      "event": "handoff",
+      "note": "Owner requested stop; no real-app checks performed. Release build was started and interrupted; build.log is partial, do not treat the bundle as fresh. If resumed later, rebuild under serial lock and establish a throwaway library before opening the app. docs/agent-work/2026-11-04-ui-wave-7/VALIDATION.md: clean (untouched by T253; T252 edits remain uncommitted)\nnode_modules/.cache/personal-word-beta/ui7-t253: uncommitted edits"
+    },
+    {
+      "at": "2026-11-05T09:24:15+00:00",
+      "agent": "agent-e256",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-11-05T09:24:15+00:00",
+      "agent": "agent-e256",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-11-05T09:28:50+00:00",
+      "agent": "agent-e256",
+      "event": "handoff",
+      "note": "Fresh normal app build completed exit 0; see VALIDATION.md T253 attempt and ui7-t253/build.log. Binary SHA d5f9edcab4567790f4447e114d7c59a6eaf6351142dee51b56af59dc9a915fba, identifier com.folio.writing. No real-app checks done. Auto-review rejected launch with isolated HOME as risky, explicitly forbidding bypass. Next: establish an approved non-HOME isolation approach or arrange a user-run isolated test environment before any interaction; do not open real projects. docs/agent-work/2026-11-04-ui-wave-7/VALIDATION.md: uncommitted edits\nnode_modules/.cache/personal-word-beta/ui7-t253: uncommitted edits"
+    }
+  ]
+}

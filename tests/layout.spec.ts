@@ -24,7 +24,7 @@ test("the blue reading progress bar is gone", async ({ page }) => {
   await expect(page.getByRole("progressbar")).toHaveCount(0);
 });
 
-test("a selected entry is semibold and its section title is semibold and coloured (B1)", async ({
+test("a selected entry stays regular and its section title is bold in the normal text colour (W7)", async ({
   page,
 }) => {
   await create(page, "Weights");
@@ -41,10 +41,10 @@ test("a selected entry is semibold and its section title is semibold and coloure
     const s = getComputedStyle(el);
     return { weight: Number(s.fontWeight), color: s.color };
   });
-  expect(rowStyle.weight).toBeGreaterThanOrEqual(600);
-  // The header carries the colour; the entry stays in the text colour.
-  expect(style.weight).toBe(600);
-  expect(style.color).not.toBe(rowStyle.color);
+  expect(rowStyle.weight).toBeLessThan(600);
+  // The heading is bold in the same normal text colour as the open row; nothing is tinted.
+  expect(style.weight).toBeGreaterThanOrEqual(700);
+  expect(style.color).toBe(rowStyle.color);
 });
 
 test("an unpinned sidebar has an invisible edge strip that reveals it on hover", async ({

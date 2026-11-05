@@ -248,7 +248,7 @@ test("(h) cards view draws no lines and no gutter", async ({ page }) => {
   await expect(page.locator('.sidebar-group[data-group="manuscript"] .entry-list')).toHaveCSS("padding-right", "0px");
   await page.getByRole("button", { name: "Show Manuscript list" }).click();
   await expect(page.locator('[data-group="manuscript"] .spy-line')).toHaveCount(SECTIONS.length + 1);
-  await expect(page.locator('.sidebar-group[data-group="manuscript"] .entry-list')).toHaveCSS("padding-right", "14px");
+  await expect(page.locator('.sidebar-group[data-group="manuscript"] .entry-list')).toHaveCSS("padding-right", "24px");
 });
 
 for (const palette of ["plain", "color"] as const)
@@ -343,7 +343,7 @@ async function seedResearch(page: Page) {
   await expect(page.locator(".save-status")).toHaveText("Saved", { timeout: 10_000 });
 }
 
-test("(i) Fragments and Research rows have lines with idle/open/active states and a 14 px gutter", async ({ page }) => {
+test("(i) Fragments and Research rows have lines with idle/open/active states and a 24 px gutter", async ({ page }) => {
   await createProject(page, "Spy groups");
   await addFragment(page, "Frag one");
   await addFragment(page, "Frag two");
@@ -353,7 +353,7 @@ test("(i) Fragments and Research rows have lines with idle/open/active states an
     const n = await rows.count();
     expect(n, group + " rows").toBeGreaterThan(1);
     await expect(page.locator(`.sidebar-group[data-group="${group}"] .spy-rail > button.spy-line`), `${group} lines`).toHaveCount(n);
-    await expect(page.locator(`.sidebar-group[data-group="${group}"] .entry-list`)).toHaveCSS("padding-right", "14px");
+    await expect(page.locator(`.sidebar-group[data-group="${group}"] .entry-list`)).toHaveCSS("padding-right", "24px");
   }
   const fragLine = (t: string) => railLine(page, "fragments", t);
   const resLine = (t: string) => railLine(page, "research", t === "Alpha source" ? "Ames -- Alpha source (2020)" : t);
@@ -438,6 +438,43 @@ test("(j) lines grow toward the pointer with a cosine falloff; keyboard focus ma
   expect(await scaleY(line(page, "Gamma part"))).toBeCloseTo(1.5, 2);
   expect(await scaleY(line(page, "Delta part"))).toBeCloseTo(1.2, 2);
   expect(await scaleX(line(page, "Gamma part"))).toBeCloseTo(0.375 + 0.5 * 0.625, 2);
+});
+
+// UI wave 7 C: hovering a row magnifies its line exactly as the pointer on that line does.
+test("(p) hovering a row magnifies its line and neighbours as the pointer on the line does; leaving drops it", async ({ page }) => {
+  await seed(page, "Spy row hover");
+  await row(page, "Alpha part").locator(".entry-main").click();
+  await page.mouse.move(900, 500);
+  const x = ((await line(page, "Gamma part").boundingBox())!).x + 4;
+  const yG = await centreY(line(page, "Gamma part"));
+  await page.mouse.move(x, yG - 6);
+  await page.mouse.move(x, yG, { steps: 2 });
+  await expect.poll(() => scaleY(line(page, "Gamma part"))).toBeCloseTo(2, 2);
+  const onLine = Object.fromEntries(await Promise.all(SECTIONS.map(async (s) => [s, await scaleY(line(page, s))])));
+  await page.mouse.move(900, 500);
+  await expect.poll(() => scaleY(line(page, "Gamma part"))).toBeCloseTo(1, 2);
+
+  // The pointer on Gamma's row text (not on the rail): the same curve as the line.
+  await row(page, "Gamma part").locator(".entry-main span").hover();
+  await expect.poll(() => scaleY(line(page, "Gamma part"))).toBeCloseTo(2, 2);
+  await expect.poll(() => scaleX(line(page, "Gamma part"))).toBeCloseTo(1, 2);
+  for (const s of SECTIONS) expect(await scaleY(line(page, s)), s).toBeCloseTo(onLine[s], 2);
+
+  // The pointer leaves the row: every magnification drops, and the rail is at rest again.
+  await page.mouse.move(900, 500);
+  await expect.poll(() => scaleY(line(page, "Gamma part"))).toBeCloseTo(1, 2);
+  await expect.poll(() => scaleX(line(page, "Gamma part"))).toBeCloseTo(0.375, 2);
+  expect(await page.locator(".spy-line").evaluateAll((els) => els.filter((e) => (e as HTMLElement).style.getPropertyValue("--spy-mag")).length)).toBe(0);
+});
+
+test("(q) Reduce Motion: hovering a row does not magnify its line", async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  await seed(page, "Spy row reduced");
+  await row(page, "Alpha part").locator(".entry-main").click();
+  await row(page, "Gamma part").locator(".entry-main span").hover();
+  await page.waitForTimeout(100);
+  expect(await scaleY(line(page, "Gamma part"))).toBeCloseTo(1, 2);
+  expect(await page.locator(".spy-line").evaluateAll((els) => els.filter((e) => (e as HTMLElement).style.getPropertyValue("--spy-mag")).length)).toBe(0);
 });
 
 /** The editor's scroll container for the focused pane (measured: .writer-scroll in every mode). */
@@ -566,7 +603,7 @@ test("(o) at the 190 px sidebar idle lines are unchanged and Fragments/Research 
     await expect.poll(() => scaleX(l)).toBeCloseTo(0.375, 2);
     expect(await scaleY(l)).toBeCloseTo(1, 2);
   }
-  // A3 stop rule: a 20 px gutter clipped "alpha.pdf" by 0.2 px here; the gutter is 14 px.
+  // A3 stop rule: a 20 px gutter clipped "alpha.pdf" by 0.2 px here; the gutter is now 24 px.
   for (const t of ["Frag one", "Frag two", "Bibliography", "alpha.pdf", "Note one"]) {
     const r = groupRow(page, t.startsWith("Frag") ? "fragments" : "research", t);
     const ok: { fits: boolean; inside?: boolean } = await r.evaluate((el) => {

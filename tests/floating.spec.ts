@@ -80,7 +80,9 @@ async function expectClear(page: Page, column: string) {
   expect(side.right + GAP, `sidebar right ${side.right} vs ${column} left ${doc.left}`).toBeLessThanOrEqual(doc.left + 0.5);
   expect(intersects(side, await rect(page, ".format-bar"))).toBe(false);
   expect(intersects(side, await rect(page, ".topbar"))).toBe(false);
-  expect(side.left).toBeGreaterThanOrEqual(GAP - 0.5);
+  // Wave 7 C: the box starts at the window edge, like the docked sidebar; its padding keeps the
+  // contents in from the edge (the aligned-contents test checks their position).
+  expect(side.left).toBeLessThanOrEqual(0.5);
 }
 
 test.describe("floating sidebar", () => {
@@ -116,6 +118,53 @@ test.describe("floating sidebar", () => {
     // Settings row rule and the sidebar both stop at the footer.
     const footer = await rect(page, ".pane-footer");
     expect((await rect(page, "aside.sidebar")).bottom).toBeLessThanOrEqual(footer.top + 0.5);
+  });
+
+  test("UI wave 7 C: at one window size the floating contents line up with the docked ones", async ({ page }) => {
+    // The left edges (window px) of the search icon, first group icon, first entry icon
+    // and first bottom-row element. Same window, same page view; only floating differs.
+    const lefts = () =>
+      page.evaluate(() => {
+        const left = (sel: string) => {
+          const el = document.querySelector(sel);
+          if (!el) throw new Error("missing " + sel);
+          return el.getBoundingClientRect().left;
+        };
+        return {
+          search: left(".search svg"),
+          groupIcon: left(".sidebar-groups .group-title svg"),
+          entryIcon: left(".sidebar-groups .entry-main svg"),
+          bottomRow: left(".sidebar-bottom-groups .group-title"),
+        };
+      });
+    // Init scripts run on every load, so the floating switch is applied only once a session
+    // flag is set (before the reload below); the first load is the normal docked panel.
+    await page.addInitScript(() => {
+      localStorage.setItem("personal-word.restoreTabs", "true");
+      if (sessionStorage.getItem("ui7c-float") !== "1") return;
+      let saved: Record<string, unknown> = {};
+      try {
+        saved = JSON.parse(localStorage.getItem("folio.workspace.sidebar") ?? "{}") ?? {};
+      } catch {
+        saved = {};
+      }
+      localStorage.setItem("folio.workspace.sidebar", JSON.stringify({ ...saved, floating: true }));
+    });
+    await page.setViewportSize({ width: 1600, height: 900 });
+    await create(page, "Floating align");
+    await setPaged(page, true);
+    await expect(shell(page)).not.toHaveClass(/is-floating/);
+    const docked = await lefts();
+    await page.evaluate(() => sessionStorage.setItem("ui7c-float", "1"));
+    await page.reload();
+    // The fit re-measures on a page-view change, not on reload: flip the view off and back on.
+    await setPaged(page, false);
+    await setPaged(page, true);
+    await expect(shell(page)).toHaveClass(/is-floating/);
+    const floating = await lefts();
+    for (const key of Object.keys(docked) as (keyof typeof docked)[]) {
+      expect(Math.abs(floating[key] - docked[key]), `${key}: docked ${docked[key]} floating ${floating[key]}`).toBeLessThanOrEqual(1);
+    }
   });
 
   test("a tight margin narrows the sidebar and still keeps the gap", async ({ page }) => {
@@ -578,13 +627,12 @@ test.describe("citation card", () => {
   test("Add another gives an empty lookup with focus", async ({ page }) => {
     await writingProject(page, "Card add another", true);
     await citeDoiInCard(page);
-    // After Cite here focus follows the panel (decision "C5: focus after Cite
-    // here follows the panel"): the page's footnote text field takes it, the
-    // card stays open in "cited", and Tab reaches the card again.
+    // After Cite here focus moves to the card's Page field. A cited note no longer
+    // opens its empty text field, which hid the citation (v0.2.1; replaces decision C5).
     await settle(page);
-    await expect(page.locator(".footnote-input")).toBeFocused();
+    await expect(page.locator(".footnote-input")).toHaveCount(0);
+    await expect(page.getByLabel("Page", { exact: true })).toBeFocused();
     await expect(card(page)).toHaveAttribute("data-stage", "cited");
-    await tabIntoCard(page);
     expect(await writingEditor(page).evaluate((el) => el.textContent)).toMatch(/^Evidence here\.1/);
     await card(page).getByRole("button", { name: "Add another", exact: true }).click();
     await expect(card(page)).toHaveAttribute("data-stage", "new");
@@ -829,13 +877,9 @@ test.describe("citation card", () => {
     const marker = writingEditor(page).locator("[data-footnote-id]");
     await expect(marker).toHaveCount(1);
     expect(await writingEditor(page).evaluate((el) => el.textContent)).toMatch(/^Evidence here\.1/);
-    // Focus follows the panel: the page footnote's text field, then Tab back
-    // into the card and on to its Page field.
-    await expect(page.locator(".footnote-input")).toBeFocused();
+    // Focus moves to the card's Page field (v0.2.1; replaces decision C5).
+    await expect(page.locator(".footnote-input")).toHaveCount(0);
     await expect(card(page)).toHaveAttribute("data-stage", "cited");
-    await tabIntoCard(page);
-    for (let i = 0; i < 10 && !(await page.getByLabel("Page", { exact: true }).evaluate((el) => el === document.activeElement)); i++)
-      await page.keyboard.press("Tab");
     await expect(page.getByLabel("Page", { exact: true })).toBeFocused();
     await page.keyboard.type("9");
     await tabTo("Add another");

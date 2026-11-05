@@ -997,17 +997,24 @@ fn image_ids(node: &Value, out: &mut HashSet<String>) {
         image_ids(child, out);
     }
 }
-/// Asset ids of the PDFs attached to research sources (`research.sources[*].pdf.assetId`).
+/// Asset ids of the PDFs attached to research sources (`research.sources[*].pdf.assetId`)
+/// and of standalone research PDFs (`research.pdfs[*].assetId`).
 fn pdf_ids(extra: &serde_json::Map<String, Value>) -> HashSet<String> {
-    extra
-        .get("research")
-        .and_then(|r| r.get("sources"))
-        .and_then(Value::as_array)
+    let research = extra.get("research");
+    let listed = |key: &str, pointer: &'static str| {
+        research
+            .and_then(|r| r.get(key))
+            .and_then(Value::as_array)
+            .into_iter()
+            .flatten()
+            .filter_map(move |s| s.pointer(pointer).and_then(Value::as_str))
+            .filter(|id| assets::is_asset_id(id))
+            .map(str::to_string)
+            .collect::<Vec<_>>()
+    };
+    listed("sources", "/pdf/assetId")
         .into_iter()
-        .flatten()
-        .filter_map(|s| s.pointer("/pdf/assetId").and_then(Value::as_str))
-        .filter(|id| assets::is_asset_id(id))
-        .map(str::to_string)
+        .chain(listed("pdfs", "/assetId"))
         .collect()
 }
 /// The revision recorded in a project's portable project.json, if it is readable.
@@ -1684,6 +1691,29 @@ mod tests {
                 {"id":"s1","title":"Harbor","authors":[],"kind":"book","pdf":{"assetId":file.id,"name":"harbor.pdf","byteLength":bytes.len()}},
                 {"id":"s2","title":"Missing","authors":[],"kind":"book","pdf":{"assetId":"f".repeat(64),"name":"gone.pdf","byteLength":1}}],
                 "notes":[],"footnotes":[]}),
+        );
+        s.save(&edited).unwrap();
+        assert_eq!(s.read_asset(&p.id, &file.id).unwrap(), bytes);
+        let (_, mirrored) = mirror(s, &p.id);
+        mirrored.unwrap();
+        let mirrored = t.path().join(&p.id).join("attachments").join(format!("{}.pdf", file.id));
+        assert_eq!(fs::read(mirrored).unwrap(), bytes);
+    }
+    #[test]
+    fn standalone_pdfs_reach_the_attachments_mirror() {
+        let t = tempfile::tempdir().unwrap();
+        let mut s = Store::new(t.path().into()).unwrap();
+        let p = project();
+        s.save(&p).unwrap();
+        let bytes = crate::assets::tests::pdf("1 0 obj <<>> endobj");
+        let file = upload(&bytes);
+        s.stage_assets(&p.id, std::slice::from_ref(&file)).unwrap();
+        let mut edited = p.clone();
+        edited.revision += 1;
+        edited.extra.insert(
+            "research".into(),
+            serde_json::json!({"sources":[],"notes":[],"footnotes":[],
+                "pdfs":[{"id":"p1","name":"loose.pdf","assetId":file.id,"byteLength":bytes.len()}]}),
         );
         s.save(&edited).unwrap();
         assert_eq!(s.read_asset(&p.id, &file.id).unwrap(), bytes);

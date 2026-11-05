@@ -89,7 +89,7 @@ test("controls show hover, focus, pressed, disabled and selected states", async 
   await expect(page.locator('.sidebar button[aria-label^="Move "]')).toHaveCount(0);
   const selected = page.locator(".sidebar .entry-row.selected").first();
   await expect(selected).toHaveCSS("color", "rgb(36, 36, 40)");
-  await expect(selected).toHaveCSS("font-weight", "600");
+  await expect(selected).toHaveCSS("font-weight", "400");
   const selectedEntry = page.locator(".sidebar .entry-row.selected .entry-main").first();
   const selectedBox = await selectedEntry.boundingBox();
   expect(selectedBox).not.toBeNull();
@@ -278,22 +278,22 @@ test("Color palette tints the interface in light and keeps the document colours"
   await expect(group("manuscript").locator(".group-title svg").first()).toHaveCSS("color", "rgb(0, 98, 205)");
   await expect(group("fragments").locator(".group-title svg").first()).toHaveCSS("color", "rgb(30, 116, 52)");
   await expect(group("research").locator(".group-title svg").first()).toHaveCSS("color", "rgb(149, 86, 0)");
-  // Selected rows (B1): the Manuscript header takes the tint and is semibold, the entry is
-  // semibold in the text colour; Research title orange, Settings stays accent.
+  // Selected rows (W7): the Manuscript heading is bold in the text colour (icons keep the tint),
+  // the entry is regular in the text colour.
   await page.locator('.sidebar-group[data-group="manuscript"] .entry-row .entry-main').first().click();
   const selected = page.locator(".sidebar .entry-row.selected").first();
   await expect(selected).toHaveCSS("color", "rgb(36, 36, 40)");
   await expect(selected.locator(".entry-main")).toHaveCSS("color", "rgb(36, 36, 40)");
-  await expect(selected.locator(".entry-main")).toHaveCSS("font-weight", "600");
-  await expect(group("manuscript").locator(".group-title")).toHaveCSS("color", "rgb(0, 98, 205)");
-  await expect(group("manuscript").locator(".group-title")).toHaveCSS("font-weight", "600");
+  await expect(selected.locator(".entry-main")).toHaveCSS("font-weight", "400");
+  await expect(group("manuscript").locator(".group-title")).toHaveCSS("color", "rgb(36, 36, 40)");
+  await expect(group("manuscript").locator(".group-title")).toHaveCSS("font-weight", "700");
   await group("research").locator(".group-title").click();
-  await expect(group("research").locator(".group-title")).toHaveCSS("color", "rgb(149, 86, 0)");
-  await expect(group("research").locator(".group-title")).toHaveCSS("font-weight", "600");
+  await expect(group("research").locator(".group-title")).toHaveCSS("color", "rgb(36, 36, 40)");
+  await expect(group("research").locator(".group-title")).toHaveCSS("font-weight", "700");
   await page.locator(".group-title").filter({ hasText: /^Settings$/ }).click();
   await expect(group("settings").locator(".group-title")).toHaveCSS("color", "rgb(0, 98, 205)");
   await expect(group("settings").locator(".group-title")).toHaveCSS("font-weight", "600");
-  // Fragments: a selected fragment lights its header green; the entry stays text colour.
+  // Fragments: a selected fragment bolds its heading in the text colour (W7); its icon keeps the tint.
   await page.getByRole("button", { name: "New fragment", exact: true }).click();
   const title = page.getByLabel("Title", { exact: true });
   if (await title.count()) {
@@ -304,8 +304,8 @@ test("Color palette tints the interface in light and keeps the document colours"
     "color",
     "rgb(36, 36, 40)",
   );
-  await expect(group("fragments").locator(".group-title")).toHaveCSS("color", "rgb(30, 116, 52)");
-  await expect(group("fragments").locator(".group-title")).toHaveCSS("font-weight", "600");
+  await expect(group("fragments").locator(".group-title")).toHaveCSS("color", "rgb(36, 36, 40)");
+  await expect(group("fragments").locator(".group-title")).toHaveCSS("font-weight", "700");
   // The document area keeps today's accent and danger colours.
   await page.locator(".writer-scroll").first().waitFor();
   const docAccent = await page.locator(".writer-scroll").first().evaluate((el) =>
@@ -358,7 +358,7 @@ test("Color palette in dark uses the dark tints", async ({ page }) => {
   await expect(page.locator(".sidebar .entry-row.selected").first()).toHaveCSS("color", "rgb(237, 237, 240)");
   await expect(
     page.locator('.sidebar-group[data-group="manuscript"] > .group-heading .group-title'),
-  ).toHaveCSS("color", "rgb(65, 160, 255)");
+  ).toHaveCSS("color", "rgb(237, 237, 240)");
   await expect(page.locator(".save-status.saved svg")).toHaveCSS("color", "rgb(48, 209, 88)");
   await expect(
     page.locator('.sidebar-group[data-group="research"] .group-title svg').first(),
@@ -389,7 +389,7 @@ test("Choosing Plain again restores Plain selected text color", async ({ page })
   );
 });
 
-test("a selected entry is bold and its section title is bold and coloured; no highlight box shows (B1)", async ({ page }) => {
+test("a selected entry is regular and its section title is bold in the text colour; no highlight box shows (W7)", async ({ page }) => {
   await page.emulateMedia({ colorScheme: "light" });
   await page.goto("/");
   await page.getByRole("button", { name: "Start new project" }).click();
@@ -400,11 +400,11 @@ test("a selected entry is bold and its section title is bold and coloured; no hi
   const entry = page.locator('.sidebar-group[data-group="manuscript"] .entry-row .entry-main').first();
   await entry.click();
   const selectedRow = page.locator('.sidebar-group[data-group="manuscript"] .entry-row.selected');
-  await expect(selectedRow.locator(".entry-main")).toHaveCSS("font-weight", "600");
+  await expect(selectedRow.locator(".entry-main")).toHaveCSS("font-weight", "400");
   await expect(selectedRow.locator(".entry-main")).toHaveCSS("color", "rgb(36, 36, 40)");
   const title = page.locator('.sidebar-group[data-group="manuscript"] .group-title');
-  await expect(title).toHaveCSS("font-weight", "600");
-  await expect(title).toHaveCSS("color", "rgb(0, 105, 217)");
+  await expect(title).toHaveCSS("font-weight", "700");
+  await expect(title).toHaveCSS("color", "rgb(36, 36, 40)");
   for (const box of await page.locator(".sidebar-highlight, .segmented-highlight").all()) {
     await expect(box).toBeHidden();
   }

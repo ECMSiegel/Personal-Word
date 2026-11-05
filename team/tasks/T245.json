@@ -1,0 +1,56 @@
+{
+  "id": "T245",
+  "title": "W7 test -- projects-screen:587 fails intermittently at exactly 1.00364",
+  "description": "Failed 2 of 8 wave-7 full-suite logs, both exactly 1.00364 (wants > 1.005), passes 5 of 5 alone. Cause inferred (timing); identical value unexplained. See VALIDATION.md open items. Test-only unless a real label-easing bug is found; do not weaken it.",
+  "status": "done",
+  "owner": null,
+  "priority": 3,
+  "depends_on": [],
+  "files": [
+    "tests/projects-screen.spec.ts"
+  ],
+  "review_required": true,
+  "created_by": "agent-81bd",
+  "created_at": "2026-11-04T22:07:13+00:00",
+  "claimed_at": "2026-11-05T04:38:10+00:00",
+  "updated_at": "2026-11-05T06:04:11+00:00",
+  "handoff": null,
+  "review": {
+    "by": "agent-ba11",
+    "at": "2026-11-05T06:04:11+00:00",
+    "verdict": "approved",
+    "note": "Recorder sound: pre-move frames are all at or above peak, so only post-move frames can pass. Independently failed on a transition-stripped build (no ease frame between 1 and 1.04). repeat-each=5 passed; full suite passed. See REVIEW-small-fixes.md."
+  },
+  "log": [
+    {
+      "at": "2026-11-04T22:07:13+00:00",
+      "agent": "agent-81bd",
+      "event": "created",
+      "note": ""
+    },
+    {
+      "at": "2026-11-05T04:38:10+00:00",
+      "agent": "agent-3e76",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-11-05T04:38:15+00:00",
+      "agent": "agent-3e76",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-11-05T05:19:38+00:00",
+      "agent": "agent-3e76",
+      "event": "review requested",
+      "note": "tests/projects-screen.spec.ts only (src untouched, nothing committed). Cause of 1.00364: the ease is cubic-bezier(0.2,0,0,1) over 120ms from 1.04; 1.00365 is exactly the 4th 60Hz frame (66.7ms), so the old fixed 30ms sample landed ~67ms late under load. Not an app bug. Fix: record transform on every rAF frame (1.5s recorder installed before mouse.move) and require a frame with 1 < scale < peak. Evidence: repeat-each=10 on 'eases its grow back': 10 passed; full projects-screen.spec.ts: 43 passed; doctored build with transitions stripped from built CSS (scratch dist-nt, port 1954): fails with 'no ease frame between 1 and 1.04: 1.04, 1, 1, ...'. Earlier runs in this session failed on the sampler starting late (all-1 frames), which is why the recorder now starts before the move."
+    },
+    {
+      "at": "2026-11-05T06:04:11+00:00",
+      "agent": "agent-ba11",
+      "event": "approved",
+      "note": "Recorder sound: pre-move frames are all at or above peak, so only post-move frames can pass. Independently failed on a transition-stripped build (no ease frame between 1 and 1.04). repeat-each=5 passed; full suite passed. See REVIEW-small-fixes.md."
+    }
+  ]
+}

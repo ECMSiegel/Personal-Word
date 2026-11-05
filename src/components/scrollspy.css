@@ -12,12 +12,14 @@
    names .spy-line (src/hoverEmphasis.test.ts exempts only that). */
 
 /* The list/cards class sits on the group section (.list-view / .cards-view), not on
-   .entry-list; cards view draws no rail and keeps its full width. The gutter is 14 px (A3 stop
-   rule; ui5-a3/gutter-probe.log). The list is the rail's positioning box. */
+   .entry-list; cards view draws no rail and keeps its full width. The gutter is the longest
+   line plus one --space-2 gap (UI wave 7 T247), so a row's split icon, which sits on the row's
+   right edge, always keeps that gap from the rail. The list is the rail's positioning box. */
 .sidebar-group:is([data-group="manuscript"], [data-group="fragments"], [data-group="research"]).list-view
   .entry-list {
+  --rail-line: 16px;
   position: relative;
-  padding-right: 14px;
+  padding-right: calc(var(--rail-line) + var(--space-2));
 }
 
 /* One rail per group: lines stacked from the vertical centre of the list, equal pitch
@@ -42,7 +44,7 @@
   position: relative;
   flex: none;
   pointer-events: auto;
-  width: 16px;
+  width: var(--rail-line, 16px);
   height: 2px;
   margin: 0;
   padding: 0;

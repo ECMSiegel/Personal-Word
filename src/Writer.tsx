@@ -4,6 +4,8 @@ import {
   type Editor,
   type JSONContent,
 } from "@tiptap/react";
+import { handleCaretScroll, KeyCaretInView } from "./caretScroll";
+import { reportsUnzoomedRects, totalZoom } from "./components/floating";
 import { TextSelection, type Transaction } from "@tiptap/pm/state";
 import type { EditorProps } from "@tiptap/pm/view";
 import { cellAround } from "@tiptap/pm/tables";
@@ -44,6 +46,8 @@ import {
   useMemo,
   useCallback,
   type CSSProperties,
+  type KeyboardEvent as ReactKeyboardEvent,
+  type PointerEvent as ReactPointerEvent,
   type ReactNode,
 } from "react";
 import { createPortal } from "react-dom";
@@ -142,6 +146,15 @@ const OVERFLOW_ORDER: ToolbarGroup[] = [
 ];
 const ALWAYS_VISIBLE: ToolbarGroup[] = ["history", "right"];
 type GroupWidths = Partial<Record<ToolbarGroup, number>>;
+type RulerDrag = {
+  kind: "margin" | "topGap";
+  edge?: "left" | "right";
+  scale: number;
+  startX: number;
+  startY: number;
+  startValue: number;
+  nextValue: number;
+};
 const FONT_FACES = [
   "Futura, system-ui, sans-serif",
   "Arial, sans-serif",
@@ -157,6 +170,10 @@ const LINE_PRESETS = [
   { value: 1.5, label: "1.5" },
   { value: 2, label: "Double" },
 ];
+/** Half the ruler marker's width (editor.css .ruler-margin-marker), so its point sits on the margin. */
+const RULER_MARKER_HALF = 6;
+const RULER_PREFERENCE_KEY = "folio.workspace.ruler";
+const RULER_PREFERENCE_EVENT = "folio-ruler-preference-change";
 
 function withCurrent(
   options: DropdownOption<string>[],
@@ -303,6 +320,39 @@ export function Writer({
       ? documentSettings.marginInches * 96
       : defaultPageLayout.margin,
   });
+  const [rulerShown, setRulerShownState] = useState(() => {
+    try {
+      return typeof window !== "undefined" && localStorage.getItem(RULER_PREFERENCE_KEY) === "true";
+    } catch {
+      return false;
+    }
+  });
+  const [rulerPreview, setRulerPreview] = useState<RulerDrag | null>(null);
+  useEffect(() => {
+    const sync = () => {
+      try {
+        setRulerShownState(localStorage.getItem(RULER_PREFERENCE_KEY) === "true");
+      } catch {
+        setRulerShownState(false);
+      }
+    };
+    window.addEventListener("storage", sync);
+    window.addEventListener(RULER_PREFERENCE_EVENT, sync);
+    return () => {
+      window.removeEventListener("storage", sync);
+      window.removeEventListener(RULER_PREFERENCE_EVENT, sync);
+    };
+  }, []);
+  const toggleRuler = () => {
+    const next = !rulerShown;
+    setRulerShownState(next);
+    try {
+      localStorage.setItem(RULER_PREFERENCE_KEY, String(next));
+      window.dispatchEvent(new Event(RULER_PREFERENCE_EVENT));
+    } catch {
+      // The ruler remains available for this writer even when storage is unavailable.
+    }
+  };
   const layout = controlledLayout ?? localLayout;
   const setLayout = (patch: Partial<PageLayout>) => {
     const next = { ...layout, ...patch };
@@ -319,6 +369,8 @@ export function Writer({
   } | null>(null);
   const [overflowCount, setOverflowCount] = useState(0);
   const viewport = useRef<HTMLDivElement>(null);
+  const rulerRef = useRef<HTMLDivElement>(null);
+  const rulerDragRef = useRef<RulerDrag | null>(null);
   const barRef = useRef<HTMLDivElement | null>(null);
   // State, not just a ref, so the observer re-attaches when the bar remounts.
   const [barEl, setBarEl] = useState<HTMLDivElement | null>(null);
@@ -500,6 +552,69 @@ export function Writer({
     }
   };
   const geometry = paperGeometry(layout);
+  const shownMargin = rulerPreview?.kind === "margin" ? rulerPreview.nextValue : geometry.margin;
+  const shownTopGap = rulerPreview?.kind === "topGap" ? rulerPreview.nextValue : geometry.topGap;
+  const startRulerDrag = (
+    kind: RulerDrag["kind"],
+    edge: RulerDrag["edge"],
+    event: ReactPointerEvent<HTMLDivElement>,
+  ) => {
+    if (event.button !== 0) return;
+    const surface = kind === "margin" ? rulerRef.current : footnotePaper.current;
+    if (!surface) return;
+    const drag: RulerDrag = {
+      kind,
+      edge,
+      startX: event.clientX,
+      scale: (layout.zoom / 100) * (layout.mode === "pages" ? fitScale : 1),
+      startY: event.clientY,
+      startValue: kind === "margin" ? geometry.margin : geometry.topGap,
+      nextValue: kind === "margin" ? geometry.margin : geometry.topGap,
+    };
+    event.currentTarget.setPointerCapture(event.pointerId);
+    rulerDragRef.current = drag;
+    setRulerPreview(drag);
+  };
+  const updateRulerDrag = (event: ReactPointerEvent<HTMLDivElement>) => {
+    const drag = rulerDragRef.current;
+    if (!drag) return;
+    const nextValue = drag.kind === "margin"
+      ? Math.min(192, Math.max(24, drag.startValue + ((event.clientX - drag.startX) / drag.scale) * (drag.edge === "left" ? 1 : -1)))
+      : Math.min(200, Math.max(0, drag.startValue + (event.clientY - drag.startY) / drag.scale));
+    const updated = { ...drag, nextValue };
+    rulerDragRef.current = updated;
+    setRulerPreview(updated);
+  };
+  const finishRulerDrag = (event: ReactPointerEvent<HTMLDivElement>) => {
+    updateRulerDrag(event);
+    const drag = rulerDragRef.current;
+    if (drag && drag.nextValue !== drag.startValue) {
+      setLayout(drag.kind === "margin"
+        ? { margin: Math.round(drag.nextValue) }
+        : { topGap: Math.round(drag.nextValue) });
+    }
+    rulerDragRef.current = null;
+    setRulerPreview(null);
+  };
+  const cancelRulerDrag = () => {
+    rulerDragRef.current = null;
+    setRulerPreview(null);
+  };
+  const adjustMarginWithKey = (event: ReactKeyboardEvent<HTMLDivElement>, edge: "left" | "right") => {
+    if (event.key !== "ArrowLeft" && event.key !== "ArrowRight" && event.key !== "Home" && event.key !== "End") return;
+    event.preventDefault();
+    const step = event.shiftKey ? 24 : 6;
+    const direction = (event.key === "ArrowRight" ? 1 : -1) * (edge === "left" ? 1 : -1);
+    const next = event.key === "Home" ? 24 : event.key === "End" ? 192 : Math.min(192, Math.max(24, Math.round(layout.margin) + direction * step));
+    setLayout({ margin: next });
+  };
+  const adjustTopGapWithKey = (event: ReactKeyboardEvent<HTMLDivElement>) => {
+    if (event.key !== "ArrowUp" && event.key !== "ArrowDown" && event.key !== "Home" && event.key !== "End") return;
+    event.preventDefault();
+    const step = event.shiftKey ? 16 : 4;
+    const next = event.key === "Home" ? 0 : event.key === "End" ? 200 : Math.min(200, Math.max(0, Math.round(geometry.topGap) + (event.key === "ArrowDown" ? step : -step)));
+    setLayout({ topGap: next });
+  };
   const [, render] = useState(0);
   const initialContentRef = useRef(item.content);
   const editorRef = useRef<Editor | null>(null);
@@ -507,6 +622,7 @@ export function Writer({
   const editorExtensions = useMemo(
     () => [
       ...documentExtensions(),
+      KeyCaretInView,
       Pagination,
       FocusMode.configure({ enabled: () => focusModeRef.current }),
       ProseCheck.configure({
@@ -540,6 +656,8 @@ export function Writer({
         "aria-label": editorLabel,
         spellcheck: "true",
       },
+      // Caret scrolling in drawn px where WebKit's zoomed rects would misplace it.
+      handleScrollToSelection: handleCaretScroll,
       handleDOMEvents: {
         contextmenu: (view, event) => {
           const mouse = event as MouseEvent;
@@ -833,6 +951,30 @@ export function Writer({
     fit();
     return () => observer.disconnect();
   }, [editor, layout.mode, layout.zoom, geometry.width]);
+  // The sticky ruler covers the top of the scroller, so ProseMirror must keep
+  // the caret below it: scrollMargin/scrollThreshold top = the ruler's drawn
+  // height (measured, since CSS zoom scales it). Off: ProseMirror's defaults.
+  useEffect(() => {
+    if (!editor || editor.isDestroyed) return;
+    const ruler = rulerShown && !focusMode ? rulerRef.current : null;
+    const apply = () => {
+      if (editor.isDestroyed) return;
+      // WebKit reports the zoomed ruler's height in its own zoomed space (drawn / zoom).
+      const height = ruler
+        ? ruler.getBoundingClientRect().height *
+          (reportsUnzoomedRects() ? totalZoom(ruler) : 1)
+        : 0;
+      editor.view.setProps({
+        scrollMargin: height ? { top: height + 5, right: 5, bottom: 5, left: 5 } : 5,
+        scrollThreshold: height ? { top: height + 5, right: 0, bottom: 0, left: 0 } : 0,
+      });
+    };
+    apply();
+    if (!ruler) return;
+    const observer = new ResizeObserver(apply);
+    observer.observe(ruler);
+    return () => observer.disconnect();
+  }, [editor, rulerShown, focusMode, layout.mode, layout.zoom, fitScale]);
   useEffect(() => {
     // Pages stack vertically and an ancestor scrolls. Listen on the document
     // and use only scrollers that hold this Writer's pages (in split view the
@@ -954,7 +1096,9 @@ export function Writer({
       .updateAttributes("paragraph", { [name]: value })
       .updateAttributes("heading", { [name]: value })
       .run();
-  const pageStyle = {
+  // Page variables are set on the viewport as well as the paper, so the ruler
+  // (a sibling of the paper) resolves --page-width to the same box.
+  const pageVars = {
     "--document-font": defaultFont,
     "--document-size": `${defaultSize}pt`,
     "--document-line": defaultLine,
@@ -962,11 +1106,15 @@ export function Writer({
     "--page-width": `${geometry.width}px`,
     "--page-height": `${geometry.height}px`,
     "--page-margin": `${geometry.margin}px`,
+    "--page-top-gap": `${shownTopGap}px`,
     "--content-width": `${geometry.contentWidth}px`,
     "--content-height": `${geometry.contentHeight}px`,
     "--page-gap": `${geometry.gap}px`,
     "--page-count": pages,
     "--page-scale": fitScale,
+  } as CSSProperties;
+  const pageStyle = {
+    ...pageVars,
     zoom: (layout.zoom / 100) * (layout.mode === "pages" ? fitScale : 1),
   } as CSSProperties;
   const paragraphValue = editor.isActive("heading", { level: 1 })
@@ -1370,13 +1518,16 @@ export function Writer({
                 {...mp}
                 title="Insert table"
                 aria-label="Insert table"
-                onClick={() =>
+                onClick={() => {
                   editor
                     .chain()
                     .focus()
                     .insertTable({ rows: 3, cols: 3, withHeaderRow: true })
-                    .run()
-                }
+                    .run();
+                  // Tiptap's focus() defers view.focus() one frame; focus now so
+                  // keystrokes typed right after the click reach the first cell.
+                  editor.view.focus();
+                }}
               >
                 <TableIcon size={16} aria-hidden="true" />
                 {lab("Insert table")}
@@ -1563,26 +1714,28 @@ export function Writer({
         );
       case "view":
         return (
-          <button
-            type="button"
-            className="toolbar-icon"
-            {...mp}
-            title={layout.mode === "pages" ? "Page view" : "Continuous view"}
-            aria-label="Page view"
-            aria-pressed={layout.mode === "pages"}
-            onClick={() =>
-              setLayout({
-                mode: layout.mode === "pages" ? "continuous" : "pages",
-              })
-            }
-          >
-            {layout.mode === "pages" ? (
-              <FileText size={16} aria-hidden="true" />
-            ) : (
-              <AlignJustify size={16} aria-hidden="true" />
-            )}
-            {lab("Page view")}
-          </button>
+          <>
+            <button
+              type="button"
+              className="toolbar-icon"
+              {...mp}
+              title={layout.mode === "pages" ? "Page view" : "Continuous view"}
+              aria-label="Page view"
+              aria-pressed={layout.mode === "pages"}
+              onClick={() =>
+                setLayout({
+                  mode: layout.mode === "pages" ? "continuous" : "pages",
+                })
+              }
+            >
+              {layout.mode === "pages" ? (
+                <FileText size={16} aria-hidden="true" />
+              ) : (
+                <AlignJustify size={16} aria-hidden="true" />
+              )}
+              {lab("Page view")}
+            </button>
+          </>
         );
       case "aids": {
         return (
@@ -1697,6 +1850,10 @@ export function Writer({
                       { value: "48", label: "½ inch" },
                       { value: "72", label: "¾ inch" },
                       { value: "96", label: "1 inch" },
+                      { value: "120", label: "1¼ inches" },
+                      { value: "144", label: "1½ inches" },
+                      { value: "168", label: "1¾ inches" },
+                      { value: "192", label: "2 inches" },
                     ],
                     String(layout.margin),
                     `${+(layout.margin / 96).toFixed(2)} inch`,
@@ -1706,23 +1863,33 @@ export function Writer({
                   width={112}
                 />
               </div>
-              <button
-                type="button"
-                className="toolbar-text-button"
-                onClick={() => {
-                  setPanel(null);
-                  editor
-                    .chain()
-                    .focus()
-                    .insertContent([
-                      { type: "pageBreak" },
-                      { type: "paragraph" },
-                    ])
-                    .run();
-                }}
-              >
-                Insert page break
-              </button>
+              <div className="toolbar-button-row">
+                <button
+                  type="button"
+                  className="toolbar-text-button"
+                  onClick={() => {
+                    setPanel(null);
+                    editor
+                      .chain()
+                      .focus()
+                      .insertContent([
+                        { type: "pageBreak" },
+                        { type: "paragraph" },
+                      ])
+                      .run();
+                  }}
+                >
+                  Insert page break
+                </button>
+                <button
+                  type="button"
+                  className="toolbar-text-button"
+                  aria-pressed={rulerShown}
+                  onClick={toggleRuler}
+                >
+                  Ruler
+                </button>
+              </div>
             </div>
           </PanelButton>
         );
@@ -1881,8 +2048,81 @@ export function Writer({
           }}
           ref={viewport}
           className={`editor-viewport ${layout.mode === "pages" ? "is-paged" : "is-continuous"}`}
+          style={pageVars}
         >
+          {rulerShown && !focusMode && (
+            <div
+              ref={rulerRef}
+              className="document-ruler"
+              role="group"
+              aria-label="Page margin ruler"
+              style={{ zoom: pageStyle.zoom }}
+            >
+              <div className="ruler-ticks" aria-hidden="true">
+                {Array.from({ length: Math.floor(geometry.width / 12) + 1 }, (_, i) => (
+                  <span
+                    key={i}
+                    className={`ruler-tick${i % 8 === 0 ? " is-inch" : ""}`}
+                    style={{ left: i * 12 }}
+                  >
+                    {i % 8 === 0 ? i / 8 : null}
+                  </span>
+                ))}
+              </div>
+              <div
+                className="ruler-margin-marker ruler-margin-marker--left"
+                role="slider"
+                aria-label="Adjust left and right margins from the left"
+                aria-valuemin={24}
+                aria-valuemax={192}
+                aria-valuenow={Math.round(shownMargin)}
+                aria-valuetext={`${(shownMargin / 96).toFixed(2)} inches`}
+                tabIndex={0}
+                style={{ left: shownMargin - RULER_MARKER_HALF }}
+                onPointerDown={(event) => startRulerDrag("margin", "left", event)}
+                onPointerMove={updateRulerDrag}
+                onPointerUp={finishRulerDrag}
+                onPointerCancel={cancelRulerDrag}
+                onKeyDown={(event) => adjustMarginWithKey(event, "left")}
+              />
+              <div
+                className="ruler-margin-marker ruler-margin-marker--right"
+                role="slider"
+                aria-label="Adjust left and right margins from the right"
+                aria-valuemin={24}
+                aria-valuemax={192}
+                aria-valuenow={Math.round(shownMargin)}
+                aria-valuetext={`${(shownMargin / 96).toFixed(2)} inches`}
+                tabIndex={0}
+                style={{ right: shownMargin - RULER_MARKER_HALF }}
+                onPointerDown={(event) => startRulerDrag("margin", "right", event)}
+                onPointerMove={updateRulerDrag}
+                onPointerUp={finishRulerDrag}
+                onPointerCancel={cancelRulerDrag}
+                onKeyDown={(event) => adjustMarginWithKey(event, "right")}
+              />
+            </div>
+          )}
           <div className="editor-paper" style={pageStyle} ref={footnotePaper}>
+            {rulerShown && !focusMode && layout.mode === "continuous" && (
+              <div
+                className="continuous-top-gap-handle"
+                role="slider"
+                aria-label="Adjust continuous view top gap"
+                aria-valuemin={0}
+                aria-valuemax={200}
+                aria-valuenow={Math.round(shownTopGap)}
+                aria-valuetext={`${Math.round(shownTopGap)} pixels`}
+                tabIndex={0}
+                onPointerDown={(event) => startRulerDrag("topGap", undefined, event)}
+                onPointerMove={updateRulerDrag}
+                onPointerUp={finishRulerDrag}
+                onPointerCancel={cancelRulerDrag}
+                onKeyDown={adjustTopGapWithKey}
+              >
+                <span className="sr-only">Top of document spacing</span>
+              </div>
+            )}
             {/* One sheet per page, laid out inside the zoomed paper so it
                 scales with zoom in every engine (WebKit does not zoom a
                 gradient's px stops, which drew the gaps in the wrong place). */}

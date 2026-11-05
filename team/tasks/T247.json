@@ -1,0 +1,120 @@
+{
+  "id": "T247",
+  "title": "W7 S1 -- Sidebar: bottom row spacing, split icon gap, chevron rightmost",
+  "description": "See REQUEST.md Owner follow-up.",
+  "status": "done",
+  "owner": null,
+  "priority": 2,
+  "depends_on": [],
+  "files": [
+    "src/components/ProjectSidebar.tsx"
+  ],
+  "review_required": true,
+  "created_by": "agent-81bd",
+  "created_at": "2026-11-05T04:20:10+00:00",
+  "claimed_at": "2026-11-05T08:23:06+00:00",
+  "updated_at": "2026-11-05T08:29:33+00:00",
+  "handoff": {
+    "by": "agent-b7b4",
+    "at": "2026-11-05T08:22:01+00:00",
+    "text": "REVIEW-small-fixes-r2.md. Defect 1 (lists beside headings) and the long-title overlap are fixed, but the repair regressed the footer band: src/styles.css:2197 gives the Settings heading min-height 32, and with the group's 1 px top border the group grows to 33, so its rule is at y 767 against .pane-footer 768 at 1280x800 (shot ui7-rv-r2/shots/footer-step.png). Previous review measured 768. tests/alignment.spec.ts:358 allows 1 px so it passes. Fix: add min-height: 0 to '.sidebar-bottom-groups .sidebar-group:last-child > .group-heading' at src/styles.css:2214; tighten alignment.spec.ts:358 and :360 to 0.5, shown failing first. Do not redo the rest."
+  },
+  "review": {
+    "by": "agent-bfb7",
+    "at": "2026-11-05T08:29:33+00:00",
+    "verdict": "approved",
+    "note": "r3 in REVIEW-small-fixes-r2.md. Own probe on ui7-final, headless Chromium 1280x800: Settings top 768, height 32, text centre 784.5, all equal to .pane-footer, also with the Snapshots list open. List stacks below heading, inside the sidebar. Headings 32. Not native, not confirmed in real use."
+  },
+  "log": [
+    {
+      "at": "2026-11-05T04:20:10+00:00",
+      "agent": "agent-81bd",
+      "event": "created",
+      "note": ""
+    },
+    {
+      "at": "2026-11-05T04:21:32+00:00",
+      "agent": "agent-3828",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-11-05T04:21:33+00:00",
+      "agent": "agent-3828",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-11-05T05:09:06+00:00",
+      "agent": "agent-81bd",
+      "event": "reclaimed from agent-3828",
+      "note": ""
+    },
+    {
+      "at": "2026-11-05T05:26:08+00:00",
+      "agent": "agent-81bd",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-11-05T05:26:09+00:00",
+      "agent": "agent-81bd",
+      "event": "review requested",
+      "note": "Bottom rows each one control tall, centred; gutter 24 px so the split icon keeps one token gap; chevron rightmost in one column, tab order matches. Fail-first in ui7-s1/pw-fail.log (3 failed). After: sidebar-selection and scrollspy 51 passed (pw3.log); wider specs ran in pw-green.log before my test fixes. Overlap audit now clips ellipsized text to the label box. Screenshots read. Coordinator finished it after agent-3828."
+    },
+    {
+      "at": "2026-11-05T06:04:12+00:00",
+      "agent": "agent-ba11",
+      "event": "rejected",
+      "note": "REVIEW-small-fixes.md Defect 1. Regression: src/styles.css:2192 '.sidebar-bottom-groups .sidebar-group { display:flex; align-items:center }' applies to Comments and Snapshots, which also hold .entry-list, so the list sits beside the heading. Repro: any unresolved comment or any snapshot at 270 px sidebar. Measured: Comments heading right edge 98 (should be 257), list 98 to 280, past the 270 sidebar; Snapshots list 171 to 291, name cut off; Comments row 70 px tall. Shot ui7-rv-s/probe-shots/bottom-with-snapshots.png. Fix direction: put row height and centring on .group-heading, leave the group a block, keep the :last-child Settings rule so it still matches the footer rule. Add a fail-first spec: two comments and one snapshot, list below heading and inside the sidebar width. Do not redo: 8 px icon gap (measured at 190, 270, floating), chevron column, tab order, cards view, audit edit are all fine. Small: tests/scrollspy.spec.ts:606 comment and docs/limitations.md:37 still say 14 px. Separately, not caused by T247: split icon covers long section titles on hover (.reorder, no reserved room; title to 150, icon from 137 at 190 wide; probe-shots/long-hover-190-false.png); fix here or file it."
+    },
+    {
+      "at": "2026-11-05T06:04:40+00:00",
+      "agent": "agent-81bd",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-11-05T06:04:41+00:00",
+      "agent": "agent-81bd",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-11-05T06:16:15+00:00",
+      "agent": "agent-81bd",
+      "event": "review requested",
+      "note": "Repair: bottom row height on heading, so lists stack below; title stops before split icon on hover. Fail-first on reviewer's dist. See REVIEW-small-fixes."
+    },
+    {
+      "at": "2026-11-05T08:22:01+00:00",
+      "agent": "agent-b7b4",
+      "event": "rejected",
+      "note": "REVIEW-small-fixes-r2.md. Defect 1 (lists beside headings) and the long-title overlap are fixed, but the repair regressed the footer band: src/styles.css:2197 gives the Settings heading min-height 32, and with the group's 1 px top border the group grows to 33, so its rule is at y 767 against .pane-footer 768 at 1280x800 (shot ui7-rv-r2/shots/footer-step.png). Previous review measured 768. tests/alignment.spec.ts:358 allows 1 px so it passes. Fix: add min-height: 0 to '.sidebar-bottom-groups .sidebar-group:last-child > .group-heading' at src/styles.css:2214; tighten alignment.spec.ts:358 and :360 to 0.5, shown failing first. Do not redo the rest."
+    },
+    {
+      "at": "2026-11-05T08:23:06+00:00",
+      "agent": "agent-81bd",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-11-05T08:23:06+00:00",
+      "agent": "agent-81bd",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-11-05T08:28:14+00:00",
+      "agent": "agent-81bd",
+      "event": "review requested",
+      "note": "r3: Settings group back to 32 px level with the footer (min-height 0 on its heading). tests/alignment.spec.ts top and height tightened to 0.5 px, failed first on the old build (1 px). alignment, ruler, research, sidebar-selection: 100 passed."
+    },
+    {
+      "at": "2026-11-05T08:29:33+00:00",
+      "agent": "agent-bfb7",
+      "event": "approved",
+      "note": "r3 in REVIEW-small-fixes-r2.md. Own probe on ui7-final, headless Chromium 1280x800: Settings top 768, height 32, text centre 784.5, all equal to .pane-footer, also with the Snapshots list open. List stacks below heading, inside the sidebar. Headings 32. Not native, not confirmed in real use."
+    }
+  ]
+}

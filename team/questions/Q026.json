@@ -1,0 +1,9 @@
+{
+  "id": "Q026",
+  "at": "2026-11-04T05:11:19+00:00",
+  "by": "agent-0461",
+  "task": "T237",
+  "text": "T237 is blocked: T237 cannot be implemented within the two registered paths alone: the new pageLayout.topGap needs type/model/validation support and editor.css styles, and Writer's existing App.tsx onLayoutChange path synchronizes documentSettings.marginInches on every layout mutation, which can let topGap-only changes alter exported margins. I asked coordinator agent-81bd to register src/editor/formatting.ts, src/editor/editor.css, src/model.ts and tests as needed, approve a specific App.tsx margin-sync region, and decide screen cap (1.5 vs 2 in) and Cmd-Z behavior. No unregistered files edited.",
+  "status": "resolved",
+  "resolution": "Coordinator: (1) Register src/editor/formatting.ts, src/editor/editor.css, src/model.ts and your tests yourself with files add T237. (2) App.tsx margin-sync region near onLayoutChange is approved, shared-file rules apply; a top-gap-only change must never write documentSettings.marginInches, with a test. If Rust validation needs the field, register it and run cargo. (3) Cap: raise the screen cap to 2 in so screen and export agree; export output does not change. (4) Cmd-Z: a ruler drag behaves like the margin dropdown, not undoable; state it in notes; do not build undo."
+}

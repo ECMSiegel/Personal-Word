@@ -69,6 +69,35 @@ it("numbers references by encounter and includes only cited sources", () => {
   expect(d.blocks[3].kind).toBe("pageBreak");
   expect(d.bibliography.map((x) => x.id)).toEqual(["s"]);
 });
+it("exports the ruler's document margin to Word and excludes the screen-only top gap", async () => {
+  const p = fixture();
+  p.documentSettings = {
+    ...(p.documentSettings ?? {}),
+    marginInches: 1.25,
+  } as typeof p.documentSettings;
+  p.pageLayout = {
+    mode: "continuous",
+    paper: "letter",
+    margin: 120,
+    zoom: 100,
+    topGap: 128,
+  };
+  const documentXml = async (project: typeof p) => {
+    const zip = await JSZip.loadAsync(await (await exportDocx(project)).arrayBuffer());
+    return zip.file("word/document.xml")!.async("text");
+  };
+  const xml = await documentXml(p);
+  const margins = xml.match(/<w:pgMar\b[^>]*\/>/)?.[0];
+  expect(margins).toMatch(/w:top="1800"/);
+  expect(margins).toMatch(/w:right="1800"/);
+  expect(margins).toMatch(/w:bottom="1800"/);
+  expect(margins).toMatch(/w:left="1800"/);
+  // The gap is screen-only: any other gap exports the identical document.
+  for (const topGap of [0, 200]) {
+    const other = { ...p, pageLayout: { ...p.pageLayout!, topGap } };
+    expect(await documentXml(other)).toBe(xml);
+  }
+});
 it("uses automatic short notes in export notes", () => {
   const p = fixture();
   p.research!.autoShortNotes = true;

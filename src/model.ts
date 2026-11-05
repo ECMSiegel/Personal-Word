@@ -1,6 +1,6 @@
 import { getSchema, type JSONContent } from "@tiptap/react";
 import { documentExtensions } from "./editor/extensions";
-import type { PageLayout } from "./editor/formatting";
+import { MAX_PAGE_GAP, type PageLayout } from "./editor/formatting";
 import type { ResearchData, DocumentSettings } from "./research/types";
 import { sourceKinds, emptyResearch } from "./research/types";
 const documentSchema = getSchema(documentExtensions());
@@ -199,6 +199,12 @@ export function validateProject(value: unknown): asserts value is Project {
       )
     )
       throw new Error("Invalid research source.");
+    if (
+      r.pdfs !== undefined &&
+      (!Array.isArray(r.pdfs) ||
+        r.pdfs.some((pdf) => typeof pdf?.id !== "string" || !isSourcePdf(pdf)))
+    )
+      throw new Error("Invalid research PDF.");
     if (r.autoShortNotes !== undefined && typeof r.autoShortNotes !== "boolean")
       throw new Error("Invalid research data.");
     const policy = r.citationPolicy as { scope?: unknown; repeats?: unknown } | undefined;
@@ -232,7 +238,12 @@ export function validateProject(value: unknown): asserts value is Project {
       !Number.isFinite(p.pageLayout.margin) ||
       !Number.isFinite(p.pageLayout.zoom) ||
       p.pageLayout.zoom < 25 ||
-      p.pageLayout.zoom > 200)
+      p.pageLayout.zoom > 200 ||
+      (p.pageLayout.topGap !== undefined &&
+        (typeof p.pageLayout.topGap !== "number" ||
+          !Number.isFinite(p.pageLayout.topGap) ||
+          p.pageLayout.topGap < 0 ||
+          p.pageLayout.topGap > MAX_PAGE_GAP)))
   )
     throw new Error("Invalid page settings.");
   const ids = new Set<string>();

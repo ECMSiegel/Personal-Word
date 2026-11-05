@@ -6,7 +6,7 @@ import { kindLabels } from "./citationActions";
 import type { Source } from "./types";
 
 const MAX_PDF_BYTES = 25 * 1024 * 1024;
-const acceptPdf = (file: DropItem) => {
+export const acceptPdf = (file: DropItem) => {
   if (!file.name) return !file.type || file.type === "application/pdf" ? null : "Only PDF files can be attached.";
   if (!/\.pdf$/i.test(file.name)) return "Only PDF files can be attached.";
   return file.size > MAX_PDF_BYTES ? "PDFs must be 25 MB or smaller." : null;

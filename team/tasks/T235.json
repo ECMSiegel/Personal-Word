@@ -2,8 +2,8 @@
   "id": "T235",
   "title": "W6 R -- Repairs from the Fable review",
   "description": "Do PLAN.md task R: fix only FABLE-REVIEW.md findings (split into more W6 R tasks by file group if needed), targeted re-runs per the plan (full Playwright once if styles.css emphasis block, App.tsx or floating.ts changed), native screens, app build; disposition line per finding in VALIDATION.md. Scratch node_modules/.cache/personal-word-beta/ui6-r.",
-  "status": "review",
-  "owner": "agent-81bd",
+  "status": "done",
+  "owner": null,
   "priority": 1,
   "depends_on": [
     "T234"
@@ -25,13 +25,18 @@
   "created_by": "agent-81bd",
   "created_at": "2026-11-03T03:40:47+00:00",
   "claimed_at": "2026-11-03T22:26:59+00:00",
-  "updated_at": "2026-11-03T22:27:04+00:00",
+  "updated_at": "2026-11-05T04:36:28+00:00",
   "handoff": {
     "by": "agent-30f0",
     "at": "2026-11-03T18:30:11+00:00",
     "text": "R repairs 1-6 from FABLE-REVIEW.md applied (App.tsx preview text + toast band, SpyRail.tsx dedupe, styles.css tab + header ellipsis, docs). Chromium reruns all pass (full suite once: 444/2 -> the scrollspy:623 regression fixed; affected 180/0; motion 3/3; every-state 16/16); release rebuilt sha e93d7a05. NOT DONE: native smoke build + native screens plain/color + native smoke, because the screen locked at 18:27 UTC. node_modules/.cache/personal-word-beta/ui6-r/phaseR3.sh is waiting for an unlock and writes results to ui6-r/summary3.txt. Next agent: read summary3.txt; if screens-plain/color and native-smoke EXIT=0 and the state-preview-*/state-projects-long/state-notes-two captures show the fixes, add the result row to VALIDATION.md 'R reruns' and run done T235. If it says SCREEN STILL LOCKED, run phaseR3.sh again with the screen unlocked.\nsrc/App.tsx: uncommitted edits\nsrc/styles.css: uncommitted edits\nsrc/components/SpyRail.tsx: uncommitted edits\ntests/floating.spec.ts: uncommitted edits\ntests/scrollspy.spec.ts: uncommitted edits\ndocs/changelog.md: uncommitted edits\ndocs/design-system.md: uncommitted edits\ndocs/limitations.md: uncommitted edits\ndocs/architecture.md: uncommitted edits\ndocs/agent-work/2026-11-02-ui-wave-6/VALIDATION.md: uncommitted edits\nnode_modules/.cache/personal-word-beta/ui6-r: clean"
   },
-  "review": null,
+  "review": {
+    "by": "user",
+    "at": "2026-11-05T04:36:28+00:00",
+    "verdict": "approved",
+    "note": "Owner approved in chat 2026-11-04 (accepted coordinator's board recommendations)."
+  },
   "log": [
     {
       "at": "2026-11-03T03:40:47+00:00",
@@ -74,6 +79,12 @@
       "agent": "agent-81bd",
       "event": "review requested",
       "note": "Native recheck after R passed idle: screens Plain and Color 17/17 light+dark, smoke pass (ui6-r/rerun5). Earlier failures were test-window focus (proven for previews) and an inferred dialog-closing race on the palette step. Harness-only edits: tests/native-screens.js, src-tauri/src/smoke.rs (smoke feature). Release sha ef6a58fc unchanged. Recorded in VALIDATION.md."
+    },
+    {
+      "at": "2026-11-05T04:36:28+00:00",
+      "agent": "user",
+      "event": "approved",
+      "note": "Owner approved in chat 2026-11-04 (accepted coordinator's board recommendations)."
     }
   ]
 }

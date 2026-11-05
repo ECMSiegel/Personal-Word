@@ -32,7 +32,7 @@ export function marginFit(side: "left" | "right", marginPx: number, wanted: numb
  * (the page sheet, Writer.tsx) in that element's own zoomed space: drawn size / zoom.
  * Probed once with a zoomed element. */
 let unzoomedRects: boolean | undefined;
-function reportsUnzoomedRects() {
+export function reportsUnzoomedRects() {
   if (unzoomedRects === undefined) {
     const probe = document.createElement("div");
     probe.style.cssText = "position:absolute;visibility:hidden;width:100px;height:1px;zoom:0.5";
@@ -44,7 +44,7 @@ function reportsUnzoomedRects() {
 }
 
 /** The element's zoom times every ancestor's. */
-function totalZoom(el: Element | null) {
+export function totalZoom(el: Element | null) {
   let zoom = 1;
   if (typeof window === "undefined") return zoom;
   for (let n = el; n; n = n.parentElement) zoom *= parseFloat(getComputedStyle(n).zoom) || 1;

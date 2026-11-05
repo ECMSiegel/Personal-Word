@@ -2,6 +2,25 @@
 
 Dated history, newest first, built from `git log --date=short` and [app history](app-history.md). [app-history.md](app-history.md) already gives a fuller narrative for 2026-10-14 to 2026-10-18 (including what each pass did and did not verify), so this file links to it rather than repeating it. Fixed issues are listed with dates in [limitations](limitations.md). Verification details are in the [validation record](validation.md).
 
+## 2026-11-04
+
+UI wave 7 (lanes A, B, C and tasks T236-T244; CLAIMED; T240 ran Chromium, unit and cargo; two native WebKit harness runs followed (T242), by command only: real keys, drags and resize edges are not checked; the final Chromium run on this tree had one failure, a probable timing flake, and Rust was unchanged so cargo was not rerun). Record: [wave-7 validation](agent-work/2026-11-04-ui-wave-7/VALIDATION.md).
+
+- Sidebar: the word count and the Cmd-K hint in Find in project are gone (the count stays in the pane footer). Hovering a row grows its rail line like pointing at the line does.
+- Hierarchy: the section heading you are in is bold in the normal text colour (its icon keeps the tint in Color); rows are dim until hovered, focused or open, then go to full text colour.
+- Resize edges (sidebar, research panel, split divider) show no coloured line on hover or drag; the cursor changes, and keyboard focus still shows a ring. The split divider keeps its resting line.
+- Format bar: the zoom, text style and font dropdowns have no box, on the bar and in More; Page setup's Paper and Margins dropdowns keep theirs.
+- Snapshots page: the title, buttons and text share one left edge, with token spacing.
+- Floating sidebar: starts at the same left edge as the docked one and its list hugs its content, with no painted resize edge.
+- Ruler (Page setup, off by default): drag to set the real document margin (up to 2 inches), with new 1 1/4 to 2 inch presets; continuous view has an adjustable, screen-only top gap (default 32 px). The continuous column is now the page's text width (608 to 624 px), so some lines rewrap.
+- Cite here moves focus to the card's Page field.
+- Native WebKit: the caret stays below the ruler when page view is zoomed (T243). With only a fragment on screen, only Fragments is bold; Manuscript and Research can both be bold when both hold something on screen (T244).
+- Sidebar spacing: bottom rows are equal height with a centred label, the split icon keeps a gap from the rail, and the chevron sits rightmost in one column.
+- Research panel: divider lines only where there is something to divide, two helper texts removed, and **Upload PDF** adds a PDF with no source; the PDFs list and its sidebar rows appear only once one exists.
+- A busy moment after an arrow key no longer leaves the caret behind the ruler until the next press.
+- CI fixes: select-all after a click, focus after Insert table, the reduce-motion card opacity, and the motion test's wait.
+- Docs: design system, architecture, limitations, user guide, validation.
+
 ## 2026-11-03
 
 UI wave 6 (tasks T225-T232, each independently reviewed; CLAIMED; final check, Fable review and repairs done 2026-11-03 with Chromium, unit and native WebKit captures at the fixed 1240 px window, light and dark, Plain and Color (palette, settings, Notes tab, 190 px sidebar, rail and preview cards, split view, toast beside the card, toolbar at rest and magnified, floating sidebar and card at page 50 %); hover, window resizing (1100/1600 px) and continuous 125/150 % stay Chromium-only or owner hand checks; see the [wave-6 validation record](agent-work/2026-11-02-ui-wave-6/VALIDATION.md)). Plan: [the wave-6 plan](agent-work/2026-11-02-ui-wave-6/PLAN.md).

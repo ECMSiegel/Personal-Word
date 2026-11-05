@@ -1,12 +1,12 @@
 import { test, expect, type Locator, type Page } from "@playwright/test";
 
-async function createProject(page: Page, title: string) {
+async function createProject(page: Page, title: string, template = "Blank") {
   await page.addInitScript(() =>
     localStorage.setItem("personal-word.restoreTabs", "true"),
   );
   await page.goto("/");
   await page.getByRole("button", { name: "Start new project" }).click();
-  await page.getByRole("button", { name: "Blank", exact: true }).click();
+  await page.getByRole("button", { name: template, exact: true }).click();
   await page.getByLabel("Project title").fill(title);
   await page.getByRole("button", { name: "Save", exact: true }).click();
   await expect(
@@ -331,7 +331,8 @@ test("at the 190 px minimum sidebar width every row stays on one line", async ({
       await page.evaluate(() => document.activeElement?.getAttribute("aria-label") ?? ""),
     );
   }
-  expect(reached).toEqual(["Hide Manuscript", "Show Manuscript cards", "New section"]);
+  // Tab order follows the visual order: view toggle, add, then the rightmost chevron.
+  expect(reached).toEqual(["Show Manuscript cards", "New section", "Hide Manuscript"]);
   const actions = heading.locator(".group-actions");
   expect(await actions.evaluate((el) => getComputedStyle(el).opacity)).toBe("1");
 });
@@ -411,10 +412,8 @@ test("a hidden feature row leaves the sidebar, survives reload, and stays per pr
   ).toHaveCount(1);
 });
 
-// UI wave 4 B1 (REQUEST.md item 7): the section that holds an open entry -- in the main
-// pane or either split pane -- shows a semibold header in its colour (accent blue in
-// Plain, the section tint in Color); each open entry is semibold in the text colour.
-// The wave-3 rule (entry tinted, header stepped back) is gone.
+// UI wave 7: the section holding an open entry has a bold, normal-colour heading;
+// rows are never bold and stay dim until hovered, focused, or open.
 const PDF_BYTES = Buffer.from("%PDF-1.4\n1 0 obj << /Type /Catalog >> endobj\n%%EOF\n", "ascii");
 const groupTitle = (page: Page, id: string) =>
   page.locator(`.sidebar-group[data-group="${id}"] > .group-heading .group-title`);
@@ -428,24 +427,21 @@ async function looks(locator: Locator) {
     return { weight: Number(s.fontWeight), color: s.color, background: s.backgroundColor };
   });
 }
-// The colour a section header should take: the section tint in Color, the accent in
-// Plain, resolved by the browser in the group's own context.
-async function headerColour(page: Page, id: string) {
-  return page.locator(`.sidebar-group[data-group="${id}"]`).evaluate((group) => {
-    const probe = document.createElement("span");
-    const palette = document.documentElement.getAttribute("data-palette");
-    probe.style.color = palette === "color" ? "var(--tint)" : "var(--accent)";
-    group.appendChild(probe);
-    const colour = getComputedStyle(probe).color;
-    probe.remove();
-    return colour;
-  });
-}
 async function textColour(page: Page) {
   return page.locator(".sidebar").evaluate((el) => {
     const probe = document.createElement("span");
     probe.style.color = "var(--text)";
     el.appendChild(probe);
+    const colour = getComputedStyle(probe).color;
+    probe.remove();
+    return colour;
+  });
+}
+async function tintColour(page: Page, id: string) {
+  return page.locator(`.sidebar-group[data-group="${id}"]`).evaluate((group) => {
+    const probe = document.createElement("span");
+    probe.style.color = "var(--tint)";
+    group.appendChild(probe);
     const colour = getComputedStyle(probe).color;
     probe.remove();
     return colour;
@@ -466,9 +462,10 @@ async function addSection(page: Page, title: string) {
 async function expectHeader(page: Page, id: string, open: boolean) {
   const look = await looks(groupTitle(page, id));
   expect(look.background, id + " header has no fill").toBe("rgba(0, 0, 0, 0)");
+  expect(await groupTitle(page, id).evaluate((el) => getComputedStyle(el).fontSize), "heading is 13px").toBe("13px");
   if (open) {
-    expect(look.weight, id + " header weight").toBe(600);
-    expect(look.color, id + " header colour").toBe(await headerColour(page, id));
+    expect(look.weight, id + " header weight").toBeGreaterThanOrEqual(700);
+    expect(look.color, id + " header colour").toBe(await textColour(page));
   } else {
     expect(look.weight, id + " header weight").toBeLessThan(600);
     expect(look.color, id + " header colour").toBe(await textColour(page));
@@ -479,34 +476,49 @@ async function expectEntry(page: Page, title: string, open: boolean) {
   const look = await looks(row.locator(".entry-main"));
   expect((await looks(row)).background, title + " row has no fill").toBe("rgba(0, 0, 0, 0)");
   expect(look.background, title + " entry has no fill").toBe("rgba(0, 0, 0, 0)");
-  expect(look.color, title + " entry colour").toBe(await textColour(page));
-  if (open) expect(look.weight, title + " entry weight").toBe(600);
-  else expect(look.weight, title + " entry weight").toBeLessThan(600);
+  expect(await row.locator(".entry-main").evaluate((el) => getComputedStyle(el).fontSize), "row is 13px").toBe("13px");
+  expect(look.weight, title + " row is never bold").toBeLessThan(600);
+  if (open) expect(look.color, title + " open row colour").toBe(await textColour(page));
+  else expect(look.color, title + " resting row is dim").not.toBe(await textColour(page));
 }
 
-test("B1 Plain: a clicked section bolds and colours its header; the entry is bold in the text colour", async ({ page }) => {
+test("W7 Plain: active heading is bold normal text; rows stay regular and reveal full colour", async ({ page }) => {
   await page.emulateMedia({ colorScheme: "light" });
   await createProject(page, "Selection rule");
   await addSection(page, "Second section");
   await page.locator('.sidebar-group[data-group="manuscript"] .entry-main').first().click();
-  // Plain light: accent blue header, near-black entry.
-  await expect(groupTitle(page, "manuscript")).toHaveCSS("color", "rgb(0, 105, 217)");
-  await expect(groupTitle(page, "manuscript")).toHaveCSS("font-weight", "600");
+  await expect(groupTitle(page, "manuscript")).toHaveCSS("color", "rgb(36, 36, 40)");
+  await expect(groupTitle(page, "manuscript")).toHaveCSS("font-weight", "700");
   const first = page.locator('.sidebar-group[data-group="manuscript"] .entry-row').first();
-  await expect(first.locator(".entry-main")).toHaveCSS("font-weight", "600");
+  await expect(first.locator(".entry-main")).toHaveCSS("font-weight", "400");
   await expect(first.locator(".entry-main")).toHaveCSS("color", "rgb(36, 36, 40)");
   await expectHeader(page, "manuscript", true);
   await expectHeader(page, "fragments", false);
   await expectHeader(page, "research", false);
   await expectEntry(page, "Second section", false);
+  const dimRow = entryRow(page, "Second section").locator(".entry-main");
+  await expect(dimRow).toHaveCSS("color", await page.locator(".sidebar").evaluate((el) => {
+    const probe = document.createElement("span"); probe.style.color = "var(--muted)"; el.append(probe);
+    const value = getComputedStyle(probe).color; probe.remove(); return value;
+  }));
+  await dimRow.hover();
+  await expect(dimRow).toHaveCSS("color", "rgb(36, 36, 40)");
+  await expect(dimRow).toHaveCSS("font-weight", "400");
+  await page.mouse.move(900, 450);
+  await dimRow.focus();
+  await page.keyboard.press("Tab");
+  await page.keyboard.press("Shift+Tab");
+  await expect(dimRow).toHaveCSS("color", "rgb(36, 36, 40)");
+  await expect(dimRow).toHaveCSS("font-weight", "400");
 
-  // A selected row still hovers like every other text control (faux-bold stroke + grow),
-  // and keeps its real weight; pressing it does not flash the accent.
+  // Hover reveals color without a real font-weight change; the shared width-neutral emphasis remains.
+  // The open row still hovers like every other text control (faux-bold stroke + grow) at its real weight.
   const main = first.locator(".entry-main");
   await main.hover();
   await expect(main).toHaveCSS("transform", /matrix\(1\.04, 0, 0, 1\.04/);
   expect(await main.evaluate((el) => parseFloat(getComputedStyle(el).webkitTextStrokeWidth))).toBeGreaterThan(0);
-  await expect(main).toHaveCSS("font-weight", "600");
+  await expect(main).toHaveCSS("color", "rgb(36, 36, 40)");
+  await expect(main).toHaveCSS("font-weight", "400");
   await page.mouse.down();
   await expect(main).toHaveCSS("color", "rgb(36, 36, 40)");
   await page.mouse.up();
@@ -517,19 +529,92 @@ test("B1 Plain: a clicked section bolds and colours its header; the entry is bol
   await page.keyboard.press("Shift+Tab");
   await expect(main).toBeFocused();
   await expect(main).toHaveCSS("transform", /matrix\(1\.04, 0, 0, 1\.04/);
-  await expect(main).toHaveCSS("font-weight", "600");
+  expect(await main.evaluate((el) => parseFloat(getComputedStyle(el).webkitTextStrokeWidth))).toBeGreaterThan(0);
+  await expect(main).toHaveCSS("color", "rgb(36, 36, 40)");
+  await expect(main).toHaveCSS("font-weight", "400");
   // Keyboard selection: Enter on the other row moves the open state.
   const second = entryRow(page, "Second section").locator(".entry-main");
   await second.focus();
   await page.keyboard.press("Enter");
   await expectEntry(page, "Second section", true);
-  await expect(first.locator(".entry-main")).not.toHaveCSS("font-weight", "600");
+  await expect(first.locator(".entry-main")).toHaveCSS("font-weight", "400");
   await expectHeader(page, "manuscript", true);
 
   // A destination page (Settings) shows no entry, so no section header is lit.
   await page.locator(".group-title").filter({ hasText: /^Settings$/ }).click();
   await expectHeader(page, "manuscript", false);
   await expectEntry(page, "Second section", false);
+});
+
+for (const [label, heading] of [
+  ["Comments", /^Comments/],
+  ["Read manuscript", /^Read manuscript/],
+] as const)
+  test(`W7 Plain: nothing in the three sections is lit while ${label} is on screen`, async ({ page }) => {
+    await page.emulateMedia({ colorScheme: "light" });
+    await createProject(page, "Nothing lit " + label, "Chicago");
+    await addSection(page, "Second section");
+    await page.locator('.sidebar-group[data-group="manuscript"] .entry-main').first().click();
+    await expectHeader(page, "manuscript", true);
+    await page.locator(".group-title").filter({ hasText: heading }).click();
+    await expectHeader(page, "manuscript", false);
+    await expectHeader(page, "fragments", false);
+    await expectHeader(page, "research", false);
+    await expectEntry(page, "Second section", false);
+  });
+
+test("W7 Plain: a clicked Bibliography row goes dim once the pointer leaves, and nothing in the three sections is lit", async ({ page }) => {
+  await page.emulateMedia({ colorScheme: "light" });
+  await createProject(page, "Nothing lit Bibliography", "Chicago");
+  await addSection(page, "Second section");
+  await page.locator('.sidebar-group[data-group="manuscript"] .entry-main').first().click();
+  await expectHeader(page, "manuscript", true);
+  await entryRow(page, "Bibliography").locator(".entry-main").click();
+  await page.mouse.move(900, 450);
+  await expectHeader(page, "manuscript", false);
+  await expectHeader(page, "fragments", false);
+  await expectHeader(page, "research", false);
+  await expectEntry(page, "Second section", false);
+  await expectEntry(page, "Bibliography", false);
+});
+
+test("W7 resize handles stay unpainted on hover and retain keyboard focus cues", async ({ page }) => {
+  await createProject(page, "Resize edge appearance");
+  const sidebarHandle = page.locator(".sidebar-resize");
+  await expect(sidebarHandle).toHaveCount(1);
+  await sidebarHandle.hover();
+  await expect(sidebarHandle).toHaveCSS("background-color", "rgba(0, 0, 0, 0)");
+  await sidebarHandle.focus();
+  await page.keyboard.press("Tab");
+  await page.keyboard.press("Shift+Tab");
+  await expect(sidebarHandle).toHaveCSS("outline-style", "solid");
+  await page.locator(".group-title").filter({ hasText: /^Research$/ }).click();
+  const panelHandle = page.locator(".aside-resizer");
+  await expect(panelHandle).toHaveCount(1);
+  await panelHandle.hover();
+  await expect(panelHandle).toHaveCSS("background-color", "rgba(0, 0, 0, 0)");
+  await panelHandle.focus();
+  await page.keyboard.press("Tab");
+  await page.keyboard.press("Shift+Tab");
+  await expect(panelHandle).toHaveCSS("outline-style", "solid");
+  await page.locator(".group-title").filter({ hasText: /^Manuscript$/ }).click();
+  await keepFragment(page, "Resize fragment");
+  await entryRow(page, "Resize fragment").locator(".entry-main").click({ modifiers: ["ControlOrMeta"] });
+  const splitHandle = page.locator(".split-divider");
+  await expect(splitHandle).toHaveCount(1);
+  // The divider keeps its resting 1 px line on hover and drag: only the cursor changes.
+  const restingLine = await splitHandle.evaluate((el) => getComputedStyle(el).backgroundImage);
+  expect(restingLine).toContain("linear-gradient");
+  await splitHandle.hover();
+  await expect(splitHandle).toHaveCSS("background-image", restingLine);
+  await expect(splitHandle).toHaveCSS("background-color", "rgba(0, 0, 0, 0)");
+  await page.mouse.down();
+  await expect(splitHandle).toHaveCSS("background-image", restingLine);
+  await page.mouse.up();
+  await splitHandle.focus();
+  await page.keyboard.press("Tab");
+  await page.keyboard.press("Shift+Tab");
+  await expect(splitHandle).toHaveCSS("outline-style", "solid");
 });
 
 for (const palette of ["plain", "color"] as const)
@@ -555,14 +640,15 @@ for (const palette of ["plain", "color"] as const)
       await expectEntry(page, "Chapter two", true);
       await expectEntry(page, "Chapter three", false);
       if (palette === "color") {
-        // Icons keep the section tint; the header text takes it too, entries do not.
-        const tint = await headerColour(page, "manuscript");
+        // Icons keep the section tint; the heading text remains normal-colour.
+        const tint = await tintColour(page, "manuscript");
         await expect(entryRow(page, "Chapter two").locator(".entry-main svg")).toHaveCSS("color", tint);
         await expect(groupTitle(page, "manuscript").locator("svg")).toHaveCSS("color", tint);
+        await expect(groupTitle(page, "manuscript")).toHaveCSS("color", await textColour(page));
       }
       await page.locator(".sidebar").screenshot({ path: testInfo.outputPath(`sidebar-${palette}-${scheme}-single.png`) });
 
-      // Fragment beside: both sections lit, both open entries bold, nothing else.
+      // Fragment beside: both active headings bold, both open rows regular, nothing else.
       await entryRow(page, "Beside words").locator(".entry-main").click({ modifiers: ["ControlOrMeta"] });
       await expect(page.locator(".split-pane")).toHaveCount(2);
       await expectHeader(page, "manuscript", true);
@@ -580,7 +666,7 @@ for (const palette of ["plain", "color"] as const)
       await expectEntry(page, "Chapter two", true);
       await expectEntry(page, "Beside words", true);
 
-      // A source PDF beside: Research lit, its PDF row bold; Fragments goes dark again.
+      // A source PDF beside: Research heading lit, its PDF row regular; Fragments goes dim again.
       await page.locator('.split-pane[data-side="left"] .ProseMirror').click();
       await page.locator(".group-title").filter({ hasText: /^Research$/ }).click();
       await page.getByRole("button", { name: "Enter manually" }).click();
@@ -599,6 +685,23 @@ for (const palette of ["plain", "color"] as const)
       await expectEntry(page, "lit.pdf", true);
       await expectEntry(page, "Beside words", false);
     });
+
+// UI wave 7 T244: a heading is bold only when its section holds what is on screen.
+// A heading click only changes the destination; the fragment stays on screen.
+// With a fragment open, clicking the Manuscript heading must not light Manuscript.
+test("W7 T244: after the Manuscript heading, a fragment on screen leaves only Fragments bold", async ({ page }) => {
+  await page.emulateMedia({ colorScheme: "light" });
+  await createProject(page, "Heading lit fixture");
+  await keepFragment(page, "Fragment heading words");
+  await addSection(page, "Chapter two");
+  await entryRow(page, "Fragment heading words").locator(".entry-main").click();
+  await groupTitle(page, "manuscript").click();
+  await expectHeader(page, "fragments", true);
+  await expectHeader(page, "manuscript", false);
+  await expectHeader(page, "research", false);
+  await expectEntry(page, "Fragment heading words", true);
+  await expectEntry(page, "Chapter two", false);
+});
 
 // UI wave 6 T6 (REQUEST 9.1, rough edges s, t): at every width the heading's
 // action buttons stay in the heading's flow -- never an absolute overlay, never
@@ -635,7 +738,11 @@ function t6SidebarAudit() {
         fillVerdicts.push(name + ": fill " + bg + " on '" + (el.classList[0] || el.tagName) + "'");
       if (el === heading) break;
     }
-    const rects = label ? textRects(label) : [];
+    // The label truncates with overflow hidden, so only the part inside its box is drawn.
+    const box = label?.getBoundingClientRect();
+    const rects = label && box
+      ? textRects(label).map((t) => ({ ...t, left: Math.max(t.left, box.left), right: Math.min(t.right, box.right) }))
+      : [];
     for (const b of actions.querySelectorAll("button")) {
       const r = b.getBoundingClientRect();
       if (r.width <= 0) continue;
@@ -683,11 +790,164 @@ for (const palette of ["plain", "color"] as const)
         .hover();
       const verdicts = await page.evaluate(t6SidebarAudit);
       expect(verdicts, "every heading audit passes").toEqual([]);
-      // s/t + 9.1: the word count stays visible at the narrow widths; a count the
-      // row swaps for the open-beside button only moves on hover, by design.
-      const count = page.locator(".sidebar .entry-main small").first();
+      // UI wave 7 A1: rows carry no word count at any width (the footer keeps it).
       expect(
-        await count.evaluate((el) => getComputedStyle(el).display),
-        "word count is rendered",
-      ).not.toBe("none");
+        await page.locator(".sidebar .entry-main small").count(),
+        "no row shows a word count",
+      ).toBe(0);
     });
+
+// UI wave 7 follow-up T247: bottom-row spacing, the split icon's gap from the rail, and the
+// chevron column. Geometry is measured in the browser, not read from CSS.
+test.describe("sidebar row and header geometry (W7 T247)", () => {
+  const RAIL_LINE = 16; // .spy-line width: its longest length (magnified), set by scrollspy.css
+  const TOKEN_GAP = 8; // --space-2, the gap token between a split icon and the rail
+
+  test("bottom rows sit evenly between their dividers and share one icon and label column", async ({ page }, testInfo) => {
+    await createProject(page, "Bottom rows fixture");
+    const rows = await page.evaluate(() =>
+      Array.from(document.querySelectorAll(".sidebar-bottom-groups .sidebar-group")).map((group) => {
+        const label = group.querySelector(".group-label")!.getBoundingClientRect();
+        const icon = group.querySelector(".group-title svg")?.getBoundingClientRect() ?? null;
+        const box = group.getBoundingClientRect();
+        return {
+          id: group.getAttribute("data-group"),
+          top: box.top,
+          labelTop: label.top,
+          labelBottom: label.bottom,
+          labelLeft: label.left,
+          iconLeft: icon ? icon.left : null,
+        };
+      }),
+    );
+    expect(rows.length, "four bottom rows").toBe(4);
+    // Each divider is the top border (1 px) of rows 2 to 4. Gap above = previous text to line;
+    // gap below = line to this row's text. Both must be equal, at every divider.
+    const gaps: number[] = [];
+    for (let i = 1; i < rows.length; i++) {
+      const above = rows[i].top - rows[i - 1].labelBottom;
+      const below = rows[i].labelTop - (rows[i].top + 1);
+      expect(Math.abs(above - below), `${rows[i].id}: gap above (${above}) equals gap below (${below})`).toBeLessThanOrEqual(0.5);
+      gaps.push(above, below);
+    }
+    expect(Math.max(...gaps) - Math.min(...gaps), "all divider gaps match").toBeLessThanOrEqual(0.5);
+    // Settings has no icon and is left out of the shared icon and label columns (owner scope:
+    // no new icons). Its divider spacing above is still checked.
+    const columned = rows.filter((r) => r.id !== "settings");
+    for (const row of columned) expect(row.iconLeft, `${row.id} has an icon`).not.toBeNull();
+    const icons = columned.map((r) => r.iconLeft as number);
+    const labels = columned.map((r) => r.labelLeft);
+    expect(Math.max(...icons) - Math.min(...icons), "icons share one column").toBeLessThanOrEqual(0.5);
+    expect(Math.max(...labels) - Math.min(...labels), "labels share one column").toBeLessThanOrEqual(0.5);
+    await page.locator(".sidebar-bottom-groups").screenshot({ path: testInfo.outputPath("bottom-rows-light.png") });
+    await page.emulateMedia({ colorScheme: "dark" });
+    await page.locator(".sidebar-bottom-groups").screenshot({ path: testInfo.outputPath("bottom-rows-dark.png") });
+  });
+
+  test("a bottom group's own list stacks below its heading, inside the sidebar", async ({ page }) => {
+    await createProject(page, "Bottom lists fixture");
+    await page.getByRole("button", { name: "Snapshot", exact: true }).click();
+    await page.getByLabel("Snapshot name").fill("A named snapshot");
+    await page.getByRole("button", { name: "Save", exact: true }).click();
+    await expect(page.getByRole("dialog")).toHaveCount(0);
+    const history = page.locator('.sidebar-bottom-groups [data-group="history"]');
+    await history.locator(".group-title").click();
+    await expect(history.locator(".entry-list .entry-row").first()).toBeVisible();
+    const box = await history.evaluate((group) => {
+      const heading = group.querySelector(".group-heading")!.getBoundingClientRect();
+      const list = group.querySelector(".entry-list")!.getBoundingClientRect();
+      return {
+        headingBottom: heading.bottom,
+        listTop: list.top,
+        listRight: list.right,
+        sidebarRight: document.querySelector("aside.sidebar")!.getBoundingClientRect().right,
+      };
+    });
+    expect(box.listTop, "list is below its heading").toBeGreaterThanOrEqual(box.headingBottom - 0.5);
+    expect(box.listRight, "list stays inside the sidebar").toBeLessThanOrEqual(box.sidebarRight + 0.5);
+  });
+
+  test("the split icon keeps one token gap from the rail in every list row", async ({ page }, testInfo) => {
+    await createProject(page, "Rail gap fixture");
+    await page.getByRole("button", { name: "New section" }).click();
+    await page.getByLabel("Title", { exact: true }).fill("A second section with a very long title about the river commissioners");
+    await page.getByRole("button", { name: "Save", exact: true }).click();
+    await expect(page.getByRole("dialog")).toHaveCount(0);
+    const measure = () =>
+      page.evaluate(
+        ([line]) => {
+          const out: { row: string; gap: number }[] = [];
+          document.querySelectorAll(".sidebar-groups .spy-rail").forEach((rail) => {
+            const railLeft = rail.getBoundingClientRect().right - line;
+            rail.closest(".entry-list")!.querySelectorAll(".entry-row").forEach((row) => {
+              const glyph = row.querySelector("button.open-beside svg, button.collection-open-beside svg");
+              if (!glyph) return;
+              out.push({ row: row.textContent ?? "", gap: railLeft - glyph.getBoundingClientRect().right });
+            });
+          });
+          return out;
+        },
+        [RAIL_LINE],
+      );
+    const gaps = await measure();
+    expect(gaps.length, "at least one list row has a split icon and a rail").toBeGreaterThan(0);
+    for (const g of gaps) expect(g.gap, `${g.row}: icon-to-rail gap`).toBeGreaterThanOrEqual(TOKEN_GAP - 0.5);
+    const values = gaps.map((g) => g.gap);
+    expect(Math.max(...values) - Math.min(...values), "every row has the same gap").toBeLessThanOrEqual(0.5);
+    // Hovering a row keeps its split icon visible.
+    const firstRow = page.locator(".sidebar-groups .entry-row").filter({ has: page.locator("button.open-beside, button.collection-open-beside") }).first();
+    await firstRow.hover();
+    const opacity = await firstRow.locator("button.open-beside, button.collection-open-beside").first().evaluate((el) => getComputedStyle(el).opacity);
+    expect(opacity, "split icon visible on row hover").toBe("1");
+    // A long title ends before the icon instead of running under it.
+    const longRow = page.locator(".sidebar-groups .entry-row").filter({ hasText: "river commissioners" });
+    await longRow.hover();
+    const clear = await longRow.evaluate((row) => {
+      const main = row.querySelector(".entry-main")!;
+      const pad = parseFloat(getComputedStyle(main).paddingRight);
+      return { textEnd: main.getBoundingClientRect().right - pad, icon: row.querySelector("button.open-beside svg")!.getBoundingClientRect().left };
+    });
+    expect(clear.textEnd, "title stops before the split icon").toBeLessThanOrEqual(clear.icon + 0.5);
+    await page.locator(".sidebar-groups").screenshot({ path: testInfo.outputPath("rail-gap-light.png") });
+    await page.emulateMedia({ colorScheme: "dark" });
+    await page.locator(".sidebar-groups").screenshot({ path: testInfo.outputPath("rail-gap-dark.png") });
+  });
+
+  test("section chevrons share one right-hand column, stay rightmost, and ignore the revealed view and add buttons", async ({ page }, testInfo) => {
+    await createProject(page, "Chevron column fixture");
+    const headers = () =>
+      page.evaluate(() =>
+        Array.from(document.querySelectorAll(".sidebar-groups .sidebar-group")).map((group) => {
+          const heading = group.querySelector(".group-heading")!;
+          const chevron = group.querySelector(".group-chevron")?.getBoundingClientRect() ?? null;
+          const toggles = Array.from(group.querySelectorAll(".group-actions button")).map((b) => b.getBoundingClientRect());
+          return {
+            id: group.getAttribute("data-group"),
+            lastChild: heading.lastElementChild?.className ?? "",
+            chevronRight: chevron ? chevron.right : null,
+            chevronLeft: chevron ? chevron.left : null,
+            toggleRights: toggles.map((t) => t.right),
+            toggleLefts: toggles.map((t) => t.left),
+          };
+        }),
+      );
+    const before = await headers();
+    expect(before.length, "three list sections").toBe(3);
+    for (const h of before) {
+      expect(h.lastChild, `${h.id}: chevron is the last item in its header`).toContain("group-chevron");
+      expect(h.chevronRight, `${h.id}: has a chevron`).not.toBeNull();
+    }
+    const rights = before.map((h) => h.chevronRight as number);
+    expect(Math.max(...rights) - Math.min(...rights), "chevrons share one right edge").toBeLessThanOrEqual(0.5);
+    // Hover the Manuscript header: its view and add buttons appear, and no chevron moves.
+    await page.locator('.sidebar-group[data-group="manuscript"] .group-heading').hover();
+    const after = await headers();
+    expect(after.map((h) => h.chevronRight), "chevrons do not move when toggles show").toEqual(rights);
+    const manuscript = after.find((h) => h.id === "manuscript")!;
+    for (const left of manuscript.toggleLefts) expect(left, "toggles sit left of the chevron").toBeLessThan(manuscript.chevronLeft!);
+    await page.locator(".sidebar-groups").screenshot({ path: testInfo.outputPath("chevrons-light.png") });
+    await page.emulateMedia({ colorScheme: "dark" });
+    await page.locator('.sidebar-group[data-group="manuscript"] .group-heading').hover();
+    await page.locator(".sidebar-groups").screenshot({ path: testInfo.outputPath("chevrons-dark.png") });
+  });
+});

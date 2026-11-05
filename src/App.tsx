@@ -38,6 +38,7 @@ import {
   type SaveStatus,
 } from "./save-queue";
 import { Writer } from "./Writer";
+import { defaultPageLayout } from "./editor/formatting";
 import { SplitDivider } from "./components/SplitDivider";
 import "./components/split.css";
 import "./components/pane-footer.css";
@@ -91,7 +92,7 @@ import { PdfPane } from "./research/PdfPane";
 import { createPendingPdf } from "./assets/pdf";
 import { BibliographyPage } from "./research/BibliographyPage";
 import { bibliographyItems } from "./research/bibliography";
-import { defaultDocumentSettings } from "./research/types";
+import { defaultDocumentSettings, type ResearchPdf, type Source } from "./research/types";
 import { writingTemplates, type WritingTemplate } from "./templates";
 import { ExportPanel } from "./export/ExportPanel";
 import { TemplatePicker } from "./research/TemplatePicker";
@@ -124,6 +125,14 @@ const asideMin = 260;
 const asideMax = 720;
 /** The sidebar's resize clamp (ProjectSidebar.tsx): C3 renders min(prefs.width, floatFit.width). */
 const SIDEBAR_MAX = 520;
+/** Ids a split PDF pane can point at: sources (their own PDF) and standalone Research PDFs. */
+function researchPdfHolderIds(p: Project): string[] {
+  return [...(p.research?.sources ?? []).map((s) => s.id), ...(p.research?.pdfs ?? []).map((pdf) => pdf.id)];
+}
+/** PdfPane reads a source's pdf; a standalone PDF is shown through a bare stand-in. */
+function standalonePdfSource(pdf: ResearchPdf | undefined): Source | undefined {
+  return pdf ? { id: pdf.id, kind: "book", title: "", authors: [], pdf: { assetId: pdf.assetId, name: pdf.name, byteLength: pdf.byteLength } } : undefined;
+}
 function showBibliography(project: Project): boolean {
   return (
     project.templateId === "chicago" ||
@@ -548,6 +557,20 @@ export default function App() {
       },
     }));
   });
+  const uploadPdf = (file: File) => run(async () => {
+    const target = current.current;
+    if (!target) return;
+    const pdf = await createPendingPdf(new Uint8Array(await file.arrayBuffer()));
+    await storage.stagePdf(target.id, pdf);
+    if (current.current?.id !== target.id) return;
+    mutate((p) => ({
+      ...p,
+      research: {
+        ...(p.research ?? { sources: [], notes: [], footnotes: [] }),
+        pdfs: [...(p.research?.pdfs ?? []), { id: crypto.randomUUID(), name: file.name, assetId: pdf.id, byteLength: pdf.meta.byteLength }],
+      },
+    }));
+  });
   const openPdfBeside = (sourceId: string) => {
     const opened = openBeside(splitRef.current, active, { kind: "pdf", sourceId });
     if (opened) changeSplit(opened);
@@ -586,7 +609,7 @@ export default function App() {
         localStorage,
         p.id,
         p.entries.map((e) => e.id),
-        (p.research?.sources ?? []).map((s) => s.id),
+        researchPdfHolderIds(p),
       );
       setSplit(restoredSplit);
       setActive(
@@ -1009,7 +1032,7 @@ export default function App() {
             const pruned = prune(
               open,
               p.entries.map((x) => x.id),
-              (p.research?.sources ?? []).map((s) => s.id),
+              researchPdfHolderIds(p),
             );
             const survivor =
               open && !pruned
@@ -1772,14 +1795,22 @@ export default function App() {
         }}
         layout={project.pageLayout}
         onLayoutChange={(pageLayout) =>
-          mutate((p) => ({
-            ...p,
-            pageLayout,
-            documentSettings: {
-              ...(p.documentSettings ?? defaultDocumentSettings),
-              marginInches: pageLayout.margin / 96,
-            },
-          }))
+          mutate((p) =>
+            pageLayout.margin ===
+            (p.pageLayout?.margin ??
+              (p.documentSettings
+                ? p.documentSettings.marginInches * 96
+                : defaultPageLayout.margin))
+              ? { ...p, pageLayout }
+              : {
+                  ...p,
+                  pageLayout,
+                  documentSettings: {
+                    ...(p.documentSettings ?? defaultDocumentSettings),
+                    marginInches: pageLayout.margin / 96,
+                  },
+                },
+          )
         }
         onEditorReady={side === "left" ? registerLeft : registerRight}
         onSelectionChange={reattachment ? (editor) => {
@@ -1838,7 +1869,8 @@ export default function App() {
   const splitRight = splitRightId ? project?.entries.find((e) => e.id === splitRightId) : undefined;
   const splitPdfSourceId = split?.right.kind === "pdf" ? split.right.sourceId : undefined;
   const splitPdfSource = splitPdfSourceId
-    ? project?.research?.sources.find((source) => source.id === splitPdfSourceId)
+    ? project?.research?.sources.find((source) => source.id === splitPdfSourceId) ??
+      standalonePdfSource(project?.research?.pdfs?.find((pdf) => pdf.id === splitPdfSourceId))
     : undefined;
   const splitPanes =
     split && splitLeft && splitRight
@@ -2195,6 +2227,7 @@ export default function App() {
                     { id: s.id, title: sourceSummary(s) },
                     ...(s.pdf ? [{ id: `pdf:${s.id}`, title: s.pdf.name, depth: 1 as const, beside: { kind: "pdf" as const, sourceId: s.id } }] : []),
                   ]),
+                  ...(project.research?.pdfs ?? []).map((pdf) => ({ id: `pdf:${pdf.id}`, title: pdf.name, beside: { kind: "pdf" as const, sourceId: pdf.id } })),
                   ...(project.research?.notes ?? []).map((n) => ({
                     id: n.id,
                     title: previewText(n.text, 70) || "Research note",
@@ -2890,6 +2923,7 @@ export default function App() {
                 </header>
                 <ResearchPanel
                   key={researchEpoch}
+                  onUploadPdf={uploadPdf}
                   initialTab={researchTab}
                   focusFootnoteId={focusFootnote}
                   focusSourceId={focusSource}

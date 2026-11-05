@@ -178,13 +178,23 @@
 .writer .format-bar .toolbar-icon[aria-pressed="true"] {
   color: var(--accent);
 }
+/* Zoom, paragraph style and font read as plain text with a chevron (no box). The
+   wrapper keeps its fixed width, so the bar does not move. Keyboard focus is the
+   outline from dropdown.css; hover is the shared text emphasis in styles.css. */
 .writer .format-bar .dropdown-button {
   height: var(--control-height);
   box-sizing: border-box;
   padding: 0 6px;
-  border: 1px solid var(--line);
+  border: 0;
   border-radius: 0;
   font-size: var(--type-small);
+}
+/* Page setup's popover sits inside the format bar, so the rule above would also
+   strip its Paper size and Page margins boxes. Put the box back only in the Page
+   setup body: the More menu has no body wrapper, so its zoom, paragraph style and
+   font dropdowns stay borderless. */
+.writer .format-bar .toolbar-popover-body .dropdown-button {
+  border: 1px solid var(--line);
 }
 .writer .format-bar .extract {
   display: inline-flex;
@@ -318,6 +328,14 @@
   align-items: center;
   gap: 6px;
 }
+.writer .toolbar-button-row {
+  display: flex;
+  gap: 4px;
+}
+.writer .toolbar-button-row .toolbar-text-button {
+  flex: 1 1 auto;
+  white-space: nowrap;
+}
 .writer .toolbar-presets {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
@@ -408,11 +426,109 @@
 .editor-paper {
   position: relative;
 }
+/* The ruler takes its own 24 px above the page (never over the text) and is
+   the page's own colour, so scrolled text cannot run through it. It resolves
+   --page-width from the viewport, which makes its box the paper's box. */
+.document-ruler {
+  position: sticky;
+  top: 0;
+  z-index: 3;
+  display: block;
+  max-width: var(--page-width);
+  height: 24px;
+  margin: 0 auto;
+  box-sizing: border-box;
+  border-bottom: 1px solid var(--line);
+  background: var(--paper);
+  color: var(--muted);
+}
+.ruler-ticks {
+  position: relative;
+  height: 100%;
+  overflow: hidden;
+}
+.ruler-tick {
+  position: absolute;
+  bottom: 0;
+  height: 5px;
+  border-left: 1px solid var(--muted);
+  font-size: var(--type-small);
+  line-height: 1;
+}
+.ruler-tick.is-inch {
+  height: 12px;
+  padding-left: 2px;
+}
+.ruler-margin-marker {
+  position: absolute;
+  top: 0;
+  z-index: 1;
+  width: 12px;
+  height: 24px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: col-resize;
+  pointer-events: auto;
+  touch-action: none;
+}
+.ruler-margin-marker::after {
+  /* Centred in the 12 px marker: the point sits on the margin. */
+  position: absolute;
+  top: 3px;
+  left: 1px;
+  width: 0;
+  height: 0;
+  border-top: 9px solid var(--accent);
+  border-right: 5px solid transparent;
+  border-left: 5px solid transparent;
+  content: "";
+}
+.ruler-margin-marker:focus-visible,
+.continuous-top-gap-handle:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+.continuous-top-gap-handle {
+  /* Its bottom edge is the first line's top, so it never covers text. */
+  position: absolute;
+  z-index: 4;
+  top: var(--page-top-gap);
+  left: 50%;
+  width: 36px;
+  height: 12px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: row-resize;
+  transform: translate(-50%, -100%);
+  touch-action: none;
+}
+.continuous-top-gap-handle::after {
+  display: block;
+  width: 20px;
+  height: 2px;
+  margin: 5px auto;
+  background: var(--accent);
+  content: "";
+}
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
 .is-continuous .editor-paper {
   box-sizing: border-box;
   margin: 0 auto;
   max-width: var(--page-width);
-  padding: 32px var(--page-margin);
+  padding: var(--page-top-gap) var(--page-margin) 32px;
 }
 .editor-paper .writing-surface {
   font-family: Futura, system-ui, sans-serif;
@@ -441,8 +557,10 @@
 .is-paged {
   background: var(--surface, var(--line));
   padding: 16px;
-  overflow-x: hidden;
-  overflow-y: auto;
+  /* clip, not hidden: hidden makes this box the scroller, and the sticky ruler
+     would then have nothing to stick to (.writer-scroll is the real scroller). */
+  overflow-x: clip;
+  overflow-y: visible;
 }
 .is-paged .editor-paper {
   margin: 0 auto;
@@ -452,6 +570,17 @@
     var(--page-count) * (var(--page-height) + var(--page-gap)) - var(--page-gap)
   );
   box-sizing: border-box;
+}
+/* Continuous view: the column runs from margin to margin like page view and
+   the exports, so the first glyph sits on the ruler's marker (styles.css gives
+   .writing-surface 8px sides). */
+.is-continuous .editor-paper .writing-surface {
+  padding-left: 0;
+  padding-right: 0;
+}
+.is-paged .document-ruler {
+  width: var(--page-width);
+  max-width: none;
 }
 /* Page sheets (Writer.tsx): real boxes at p * (page height + gap), drawn
    behind the text (earlier in the paper, positioned). A background gradient
@@ -494,11 +623,18 @@
   .format-bar {
     display: none;
   }
+  .document-ruler,
+  .continuous-top-gap-handle {
+    display: none;
+  }
   .editor-viewport,
   .is-paged {
     overflow: visible;
     padding: 0;
     background: none;
+  }
+  .is-continuous .editor-paper {
+    padding: 32px var(--page-margin);
   }
   .is-paged .editor-paper {
     width: auto;

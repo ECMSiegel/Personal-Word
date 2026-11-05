@@ -32,18 +32,28 @@ test("clear button is absent when empty and clears while the field keeps focus",
   await page.setViewportSize({ width: 1300, height: 850 });
   await openProject(page);
   await expect(clear(page)).toBeHidden();
-  await expect(hint(page)).toBeVisible();
+  await expect(hint(page)).toHaveCount(0);
   await field(page).fill("intro");
   await expect(clear(page)).toBeVisible();
-  await expect(hint(page)).toBeHidden();
+  await expect(hint(page)).toHaveCount(0);
   await clear(page).click();
   await expect(field(page)).toHaveValue("");
   await expect(field(page)).toBeFocused();
   await expect(clear(page)).toBeHidden();
-  await expect(hint(page)).toBeVisible();
+  await expect(hint(page)).toHaveCount(0);
 });
 
-test("clear button and hint never overlap; icon-only, flat, square, colour hover", async ({ page }) => {
+// UI wave 7 A: the Cmd-K hint is gone from the field, but the shortcut still focuses it.
+test("Cmd-K still focuses Find in project with no hint shown", async ({ page }) => {
+  await page.setViewportSize({ width: 1300, height: 850 });
+  await openProject(page);
+  await expect(hint(page)).toHaveCount(0);
+  await page.getByRole("textbox", { name: "Writing editor" }).first().click();
+  await page.keyboard.press("ControlOrMeta+k");
+  await expect(field(page)).toBeFocused();
+});
+
+test("clear button is icon-only, flat, square, colour hover at the search end", async ({ page }) => {
   await page.setViewportSize({ width: 1300, height: 850 });
   await openProject(page);
   await field(page).fill("x");

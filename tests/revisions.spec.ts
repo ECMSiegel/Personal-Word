@@ -116,3 +116,33 @@ test("refuses a corrupted safety snapshot and keeps current prose unchanged", as
   await expect(page.getByRole("alert")).toContainText(/safety snapshot/i);
   await expect(editor).toContainText("Current prose must stay");
 });
+
+test("snapshot page: the restore-section button, its help text and the compare control share one left text edge", async ({ page }) => {
+  await createProject(page, "Snapshot page spacing");
+  const editor = page.getByRole("textbox", { name: "Writing editor" });
+  await editor.fill("Opening\nOld passage\nClosing");
+  await expect(page.locator(".save-status")).toHaveText("Saved", { timeout: 10_000 });
+  await makeSnapshot(page, "Before spacing check");
+  await editor.fill("Opening\nNew passage\nClosing");
+  await expect(page.locator(".save-status")).toHaveText("Saved", { timeout: 10_000 });
+  await previewSnapshot(page, "Before spacing check");
+
+  const dialog = page.locator(".preview-dialog");
+  const textLeft = (selector: string) => dialog.locator(selector).first().evaluate((el) => {
+    const range = document.createRange();
+    range.selectNodeContents(el);
+    return range.getBoundingClientRect().left;
+  });
+  const help = await textLeft(".revision-comparison > .panel-help");
+  const edges = {
+    "compare label": await textLeft(".revision-comparison > label"),
+    "change control button": await textLeft(".revision-change-controls > button"),
+    "column heading": await textLeft(".revision-columns section h3"),
+    "column paragraph": await textLeft(".revision-columns .revision-block p"),
+    "paragraph restore button": await textLeft(".revision-columns .revision-block button"),
+    "restore section button": await textLeft(".revision-comparison > button:last-of-type"),
+  };
+  for (const [name, left] of Object.entries(edges)) {
+    expect(Math.abs(left - help), `${name} text vs help text`).toBeLessThan(0.5);
+  }
+});

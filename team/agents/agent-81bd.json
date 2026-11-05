@@ -2,8 +2,8 @@
   "id": "agent-81bd",
   "label": "Claude Opus coordinator W6",
   "joined_at": "2026-11-03T03:36:14+00:00",
-  "last_seen": "2026-11-03T22:27:28+00:00",
+  "last_seen": "2026-11-05T19:08:36+00:00",
   "status": "active",
-  "current_task": "T235",
-  "inbox_cursor": 1182
+  "current_task": "T246",
+  "inbox_cursor": 1211
 }

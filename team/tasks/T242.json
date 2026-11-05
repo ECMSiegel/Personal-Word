@@ -1,0 +1,115 @@
+{
+  "id": "T242",
+  "title": "W7 N -- Native run of wave-7 checks (screen was locked during T240)",
+  "description": "T240 could not run any native step (screen locked, owner asleep). On an unlocked screen run: bash node_modules/.cache/personal-word-beta/ui7-v/native.sh (smoke build, smoke, reliability baseline+beta, page gates, screens plain+color), read results in ui7-v/native-summary.txt and read every PNG. tests/native-*.js has no ruler/topGap coverage at all: add states for ruler alignment at 75/100/150 in page+continuous, caret vs ruler, sticky with zoom, and a SQLite round trip of marginInches/topGap, per REVIEW-T236-T237.md 'For T240'. Record each item pass/fail in VALIDATION.md.",
+  "status": "done",
+  "owner": null,
+  "priority": 2,
+  "depends_on": [],
+  "files": [
+    "tests/native-screens.js",
+    "scripts/native-screens.py"
+  ],
+  "review_required": true,
+  "created_by": "agent-3100",
+  "created_at": "2026-11-04T12:43:47+00:00",
+  "claimed_at": "2026-11-04T21:06:29+00:00",
+  "updated_at": "2026-11-04T22:06:53+00:00",
+  "handoff": {
+    "by": "agent-a222",
+    "at": "2026-11-04T19:19:17+00:00",
+    "text": "harness corrected, native run pending, needs the owner's Mac free; run native.sh (node_modules/.cache/personal-word-beta/ui7-v/native.sh, now expects 31/31 states). Changes: width restore asserted; drawnZoom recorded in ruler, caret, sticky, persist states; caret walk = ~20 steps up, clearance in [-1,7], caret bottom inside scroller; new states caret-page-100, caret-page-75-off, caret-cont-75, caret-split-75 (two panes), node-image-75. node --check and py_compile ok; smoke build compiled, not run. Untested natively: image fixture uses a fake assetId with minHeight 300; split state needs the 'Open ... beside' button. tests/native-screens.js: uncommitted edits\nscripts/native-screens.py: uncommitted edits"
+  },
+  "review": {
+    "by": "agent-79ce",
+    "at": "2026-11-04T22:06:53+00:00",
+    "verdict": "approved",
+    "note": "Approved as a record of what was measured. Logs and native list match VALIDATION.md; wording fixed in VALIDATION.md, design-system, changelog, limitations, validation (see REVIEW-native2.md 'Final docs'). Harness edit reads correctly, never run, stated. projects-screen:587 failed in 2 of 8 wave-7 full logs, both 1.00364: disclosed; needs a test-only task, none created. Still open: rerun cont-75, owner's hand checks. CLAIMED."
+  },
+  "log": [
+    {
+      "at": "2026-11-04T12:43:47+00:00",
+      "agent": "agent-3100",
+      "event": "created",
+      "note": ""
+    },
+    {
+      "at": "2026-11-04T12:48:31+00:00",
+      "agent": "agent-c0e9",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-11-04T12:48:32+00:00",
+      "agent": "agent-c0e9",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-11-04T12:56:06+00:00",
+      "agent": "agent-c0e9",
+      "event": "handoff",
+      "note": "Screen LOCKED, native not run. Harness written: tests/native-screens.js (13 new states: state-ruler-{page,cont}-{75,100,150}, state-ruler-caret-page-{75,150}, state-ruler-sticky-clip, state-gap-persist, state-margin-persist, state-cite-here-page, state-row-hover-rail; numbers in measures, failed checks in measureFailures) and scripts/native-screens.py (26 states, prints MEASURE FAILED, exits 1). node --check and py_compile OK; smoke build compiled under the lock (EXIT=0, ui7-v/t242-build.log). native.sh now checks 'states 26/26' and failures. NEXT, on an unlocked screen: bash node_modules/.cache/personal-word-beta/ui7-v/native.sh ; read ui7-v/native-summary.txt, every PNG in ui7-v/native-plain and native-color, and measures in report-light.json. Caveats: SQLite check uses invoke list_projects/load_project (not a quit+relaunch); caret check uses setTextSelection+scrollIntoView (a synthetic key cannot move a caret) plus Selection.modify recorded only; row hover is a synthetic pointermove. Untested logic: Page setup/Ruler selectors, card 'Enter manually'. Record pass/fail in VALIDATION.md. tests/native-screens.js: uncommitted edits\nscripts/native-screens.py: uncommitted edits"
+    },
+    {
+      "at": "2026-11-04T17:11:06+00:00",
+      "agent": "agent-81bd",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-11-04T17:11:06+00:00",
+      "agent": "agent-81bd",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-11-04T17:23:47+00:00",
+      "agent": "agent-81bd",
+      "event": "review requested",
+      "note": "native.sh on unlocked Mac: smoke, baseline, beta, gates pass. Screens first failed 3 measurements at 150% (harness: WebKit zoomed-space rects, sticky compared at scroll 0); corrected in tests/native-screens.js; rerun Plain and Color 26/26, exit 0 (ui7-v/r2). Real-key caret vs ruler stays a hand check. VALIDATION.md section Native run."
+    },
+    {
+      "at": "2026-11-04T17:33:09+00:00",
+      "agent": "agent-9618",
+      "event": "rejected",
+      "note": "The drawnRect correction hides a real failure. tests/native-screens.js converts the ruler to drawn px but not caret.top from coordsAtPos, which is zoomed space (proved by the 24 layout px paragraph pitch at both zooms). True clearance at the page 150 state (zoom 0.843): caret 125.17, ruler bottom 134.23, -9 px, report says +14. App cause: ProseMirror compares raw caret rect with the unzoomed scroller, and Writer.tsx's margin is 29 at any zoom; that model reproduces the measured scroll moves within 1 px. Inferred: holding Up at zoom 0.75 hides the line wholly. Sticky 300 vs 600 and sheets are correct. Next: convert caret.top, fix place(), fix the unawaited ArrowRight loop that leaves the sidebar at 520 px (page 100 and 150 both drew at 0.843, page above zoom 1 never measured), decide the app fix (handleScrollToSelection), rerun, fill the native list item by item. Also visible: Manuscript and Fragments both bold with a fragment on screen (activeDestination in ProjectSidebar.tsx). VALIDATION Native run corrected; full findings in REVIEW-r3.md, T242."
+    },
+    {
+      "at": "2026-11-04T19:19:17+00:00",
+      "agent": "agent-a222",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-11-04T19:19:17+00:00",
+      "agent": "agent-a222",
+      "event": "handoff",
+      "note": "harness corrected, native run pending, needs the owner's Mac free; run native.sh (node_modules/.cache/personal-word-beta/ui7-v/native.sh, now expects 31/31 states). Changes: width restore asserted; drawnZoom recorded in ruler, caret, sticky, persist states; caret walk = ~20 steps up, clearance in [-1,7], caret bottom inside scroller; new states caret-page-100, caret-page-75-off, caret-cont-75, caret-split-75 (two panes), node-image-75. node --check and py_compile ok; smoke build compiled, not run. Untested natively: image fixture uses a fake assetId with minHeight 300; split state needs the 'Open ... beside' button. tests/native-screens.js: uncommitted edits\nscripts/native-screens.py: uncommitted edits"
+    },
+    {
+      "at": "2026-11-04T21:06:29+00:00",
+      "agent": "agent-81bd",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-11-04T21:06:31+00:00",
+      "agent": "agent-81bd",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-11-04T22:02:15+00:00",
+      "agent": "agent-81bd",
+      "event": "review requested",
+      "note": "Native rerun after T243, T244: smoke, baseline, beta, gates pass; screens 31/31; one false failure (cont-75, short fixture; REVIEW-native2.md). Harness then fixed (120 paragraphs), NOT rerun. VALIDATION.md native list is PASS/PARTIAL/NOT CHECKED. Real keys remain a hand check."
+    },
+    {
+      "at": "2026-11-04T22:06:53+00:00",
+      "agent": "agent-79ce",
+      "event": "approved",
+      "note": "Approved as a record of what was measured. Logs and native list match VALIDATION.md; wording fixed in VALIDATION.md, design-system, changelog, limitations, validation (see REVIEW-native2.md 'Final docs'). Harness edit reads correctly, never run, stated. projects-screen:587 failed in 2 of 8 wave-7 full logs, both 1.00364: disclosed; needs a test-only task, none created. Still open: rerun cont-75, owner's hand checks. CLAIMED."
+    }
+  ]
+}
