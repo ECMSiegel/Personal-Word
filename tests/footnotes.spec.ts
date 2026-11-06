@@ -151,6 +151,60 @@ test("Backspace in a text-only footnote with text deletes one character", async 
   await expect(editor.locator("[data-footnote-id]")).toHaveCount(1);
 });
 
+test("a slow frame after inserting a footnote does not pull typing back to the document", async ({
+  page,
+}) => {
+  await page.goto("/");
+  await create(page, "Slow frame footnote");
+  const editor = page.getByRole("textbox", { name: "Writing editor" });
+  await editor.fill("Evidence here.");
+  await openResearch(page);
+  // Hold every animation frame back, as a busy machine does.
+  await page.evaluate(() => {
+    const frame = window.requestAnimationFrame.bind(window);
+    window.requestAnimationFrame = (callback) => window.setTimeout(() => frame(callback), 300) as unknown as number;
+  });
+  await page.getByRole("button", { name: "Insert footnote at cursor" }).click();
+
+  const textarea = page.getByLabel("Footnote 1 text");
+  await expect(textarea).toBeFocused();
+  await page.keyboard.type("abc", { delay: 200 });
+  await expect(textarea).toHaveValue("abc");
+  await expect(editor).toHaveText(/^Evidence here\.\s*1?$/);
+});
+
+test("Cite here scrolls back to a caret that was out of view", async ({ page }) => {
+  await page.setViewportSize({ width: 1500, height: 1400 });
+  await page.goto("/");
+  await create(page, "Footnote caret scroll");
+  const editor = page.getByRole("textbox", { name: "Writing editor" });
+  await editor.evaluate((el: any) => {
+    const words = "Plenty of words to fill the page with enough lines. ".repeat(6);
+    el.editor.commands.setContent(
+      Array.from({ length: 60 }, () => ({ type: "paragraph", content: [{ type: "text", text: words }] })),
+    );
+    el.editor.commands.focus("end");
+  });
+  await openResearch(page);
+  await page.getByRole("button", { name: "Enter manually" }).click();
+  await page.getByLabel("Title", { exact: true }).fill("Interior Chinatown");
+  const scroller = page.locator(".writer-scroll").first();
+  await expect.poll(() => scroller.evaluate((el) => el.scrollTop)).toBeGreaterThan(500);
+  await scroller.evaluate((el) => { el.scrollTop = 0; });
+  await page.getByRole("button", { name: "Cite here", exact: true }).click();
+  await expect(editor.locator("[data-footnote-id]")).toHaveCount(1);
+  // The marker sits at the old caret, at the end of the text.
+  await expect
+    .poll(() =>
+      page.evaluate(() => {
+        const marker = document.querySelector("[data-footnote-id]")!.getBoundingClientRect();
+        const box = document.querySelector(".writer-scroll")!.getBoundingClientRect();
+        return marker.top >= box.top && marker.bottom <= box.bottom;
+      }),
+    )
+    .toBe(true);
+});
+
 test("footnote text appears at the bottom of the page and is editable there", async ({
   page,
 }) => {

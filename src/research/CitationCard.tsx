@@ -74,7 +74,7 @@ export function CitationCard({
     const scope = root.current;
     if (!scope) return;
     if (target === "lookup") lookupInput.current?.focus();
-    // After Cite here the editor takes focus on the next frame (Tiptap); take it back after that.
+    // After Cite here, the Page field takes focus on the next frame.
     else if (target === "page") requestAnimationFrame(() => scope.querySelector<HTMLElement>(`[id$="-locator"], textarea[aria-label="Footnote text"]`)?.focus());
     else scope.querySelector<HTMLElement>(`[id$="-authors"], [id$="-title"]`)?.focus();
   });

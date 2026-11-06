@@ -300,12 +300,11 @@ test.describe("targeted gap cases at 100 %", () => {
     await target.scrollIntoViewIfNeeded();
     const box = (await target.boundingBox())!;
     await target.click({ position: { x: 20, y: box.height / 2 }, modifiers: ["Shift"] });
-    const sel = await editor.evaluate((el: any) => {
-      const { anchor, head } = el.editor.state.selection;
-      return { anchor, head };
-    });
-    expect(sel.anchor).toBe(prevEnd - 30);
-    expect(sel.head).toBeGreaterThanOrEqual(nextStart);
+    // The editor reads the new selection a moment after the click.
+    await expect
+      .poll(() => editor.evaluate((el: any) => el.editor.state.selection.head))
+      .toBeGreaterThanOrEqual(nextStart);
+    expect(await editor.evaluate((el: any) => el.editor.state.selection.anchor)).toBe(prevEnd - 30);
   });
 
   test("Backspace after a page break and Delete before one remove the break with a visible caret; undo restores", async ({ page }) => {

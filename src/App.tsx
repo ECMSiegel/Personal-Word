@@ -1590,12 +1590,11 @@ export default function App() {
   };
   const insertFootnote = (id: string) => {
     const editor = editorRef.current;
-    if (editor)
-      editor
-        .chain()
-        .focus()
-        .insertContent({ type: "footnoteReference", attrs: { id } })
-        .run();
+    if (!editor) return;
+    // Focus now, not through chain().focus(): that waits a frame, and on a slow frame it would
+    // pull focus out of the note field the writer is already typing in.
+    editor.view.focus();
+    editor.chain().insertContent({ type: "footnoteReference", attrs: { id } }).scrollIntoView().run();
   };
   const saveTemplate = () =>
     setNameDialog({

@@ -192,6 +192,8 @@ test("Keyboard focus: Blank start indent survives undo, redo, save, and reload",
   await enterEditorByKeyboard(page, editor);
   await savedEdit(page, async () => {
     await editor.pressSequentially("A blank-template paragraph.");
+    // ProseMirror puts the caret back if it lands on the doc start within 200 ms of focus.
+    await page.waitForTimeout(250);
     await editor.press("Home");
     // Browser Home updates the DOM selection before ProseMirror consumes it.
     // Wait for the command's actual selection, not a transient DOM offset.
@@ -237,6 +239,8 @@ test("Keyboard focus: Chicago inherited indent uses left indent and survives und
   await enterEditorByKeyboard(page, editor);
   await savedEdit(page, async () => {
     await editor.pressSequentially("An inherited Chicago paragraph.");
+    // ProseMirror puts the caret back if it lands on the doc start within 200 ms of focus.
+    await page.waitForTimeout(250);
     await editor.press("Home");
     // Browser Home updates the DOM selection before ProseMirror consumes it.
     // Wait for the command's actual selection, not a transient DOM offset.

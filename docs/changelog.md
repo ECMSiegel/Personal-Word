@@ -18,6 +18,7 @@ UI wave 7 (lanes A, B, C and tasks T236-T244; CLAIMED; T240 ran Chromium, unit a
 - Sidebar spacing: bottom rows are equal height with a centred label, the split icon keeps a gap from the rail, and the chevron sits rightmost in one column.
 - Research panel: divider lines only where there is something to divide, two helper texts removed, and **Upload PDF** adds a PDF with no source; the PDFs list and its sidebar rows appear only once one exists.
 - A busy moment after an arrow key no longer leaves the caret behind the ruler until the next press.
+- Inserting a footnote no longer risks sending your typing into the document if a slow frame arrives just after the note opens.
 - CI fixes: select-all after a click, focus after Insert table, the reduce-motion card opacity, and the motion test's wait.
 - Docs: design system, architecture, limitations, user guide, validation.
 
