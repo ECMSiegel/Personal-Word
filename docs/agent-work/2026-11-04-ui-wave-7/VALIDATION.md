@@ -132,3 +132,7 @@ The owner chose to skip T253 for this wave and commit and push without it. None 
 
 Final full check on this code: tsc clean; unit 1157 passed; cargo 64 passed, 1 ignored; Playwright 503 passed, 16 skipped, 0 failed (24.6 min).
 
+## Owner hand check before 0.3.0 (2026-11-06)
+
+The owner tried the app built from f556a80 (binary sha `392acf9e...`) against a short list and reported "All good": Upload PDF through the Mac file picker, Open beside, quit and reopen, snapshot and restore, removal; ruler drag and the margin across a relaunch; arrows at 75% and 150%; footnote typing (optional item). The report did not itemize results. Still not checked by anyone: PDF and Word export with a changed margin, sidebar bottom rows with content in the real app, A4, two-pane caret cases, and release outside the window.
+
