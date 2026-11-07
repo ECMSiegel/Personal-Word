@@ -1,14 +1,12 @@
 # Personal Word
 
-**A free, open-source writing app for the Mac, built for long writing.** I write in sections, keep my sources beside the draft, drop in Chicago-style footnotes, and export to Word or PDF when I'm done. Everything stays on my own Mac.
+**Free, open-source writing software for writers.** Organize a book, build a paper around your sources, and take your draft all the way to Word or PDF — on your own Mac.
 
-![Personal Word's writing screen: a manuscript section open, the sidebar on the left](docs/evidence/readme/writing-light.png)
+I wanted writing software built for writers, and the prominent options all had a cost barrier. I built Personal Word to make a focused writing workspace freely available. No subscription or account: the source is here to inspect, change, and share under the GPL.
 
-## Why I made it
+[Download for Mac](https://github.com/ECMSiegel/Personal-Word/releases/latest) · [Getting started](#quick-start) · [User guide](docs/user-guide.md) · [Contribute](CONTRIBUTING.md)
 
-Word and Google Docs are not built for long writing. Once a paper runs to dozens of pages with sources, notes and drafts, they turn into one endless scroll and a pile of separate files. The apps that do handle long writing well are not open source, and most of them cost money.
-
-I wanted something that worked well and was free, so I built it. Personal Word is for the people: anyone writing something long, whether a paper, a thesis chapter, an essay or a book, who wants a good tool without paying for one or handing their writing to someone else's server.
+![Personal Word's writing workspace, with manuscript sections beside the draft](docs/evidence/readme/writing-light.png)
 
 ## Features
 
@@ -16,13 +14,13 @@ I wanted something that worked well and was free, so I built it. Personal Word i
 - **Write in sections.** My manuscript is a list of sections in the sidebar. I open one at a time, reorder them by dragging, and never scroll through 80 pages to find a paragraph.
 - **Fragments.** When I cut a passage I am not sure about, it goes to Fragments instead of disappearing. I can put it back into a section later.
 - **Two things side by side.** I can open two sections, a fragment, or a source's PDF next to the draft, each in its own pane with its own page count and word count.
-- **Real pages when I want them.** Page view stacks the section as actual pages at any zoom. Paragraphs split across a page break the way Word does them, and footnotes sit at the bottom of their page.
+- **Real pages when I want them.** Switch between continuous writing and page view, adjust indents with the ruler, and set paper size and margins. Footnotes appear below the page text. Editor pages and exported pagination use different layout engines, so page breaks can differ.
 
 **Research lives next to the writing**
 - **Sources in the same window.** I paste a DOI, ISBN or web address and Personal Word looks the source up. I can also enter it by hand or import from Zotero (CSL JSON or BibTeX).
 - **Chicago footnotes without the fuss.** "Cite here" drops a numbered footnote in the right Chicago 18 format. Later citations of the same source shorten automatically, and the bibliography builds itself.
 - **Quotes with their page numbers.** "Capture quote" saves a passage with its page and inserts the quotation and the citation together.
-- **PDFs beside the draft.** I attach a source's PDF and read it in the second pane while I write.
+- **PDFs beside the draft.** Upload a standalone PDF or attach one to a source, then read it in the second pane while you write.
 
 **Safe with my work**
 - **Saves as I type**, with crash recovery.
@@ -32,12 +30,19 @@ I wanted something that worked well and was free, so I built it. Personal Word i
 
 **Calm to write in**
 - A quiet, flat design that follows macOS light and dark mode, with a Plain or Color palette.
+- A command palette for finding actions, a resizable sidebar, and optional floating sidebar and citation card when the margins have room.
 - Focus mode dims everything but the paragraph I'm writing and hides the toolbar until I reach for it.
 - Word and daily goals with a deadline, an optional on-device prose check, and keyboard shortcuts I can change.
 
 | My sources beside the draft | Page view in dark mode |
 | --- | --- |
 | ![Research panel open beside the draft](docs/evidence/readme/research-light.png) | ![Page view in dark mode, two pages stacked](docs/evidence/readme/writing-dark.png) |
+
+### Project library
+
+![Personal Word project library](docs/evidence/readme/projects-light.png)
+
+Keep separate writing projects together, then open the manuscript you want to work on.
 
 ## Quick start
 
@@ -85,6 +90,10 @@ The [user guide](docs/user-guide.md) walks through a whole paper: projects, sect
 ## For developers
 
 Tauri 2, React, TypeScript, the Tiptap editor, and Rust with SQLite. How to run the tests, the architecture and how saving works are in [Developing Personal Word](docs/development.md). See also [Contributing](CONTRIBUTING.md), the [changelog](docs/changelog.md) and the [validation record](docs/validation.md).
+
+## Open source, and open to contributions
+
+Personal Word is free software under **GPL-3.0-only**. You can study the code, adapt it, and redistribute it under that license. Bug reports, writing-workflow feedback, documentation, and code contributions all help; start with [Contributing](CONTRIBUTING.md).
 
 ## License
 
