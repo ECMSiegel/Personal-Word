@@ -1,0 +1,8 @@
+
+Running 4 tests using 1 worker
+
+[1/4] tests/w9-side-ruler.spec.ts:53:1 › side ruler: one per page, shaded margins, drag and keys change the margin
+[2/4] tests/w9-side-ruler.spec.ts:119:1 › side ruler: absent with Ruler off, in continuous view and in focus mode
+[3/4] tests/w9-side-ruler.spec.ts:140:1 › side ruler: ticks line up with the page at 150 percent
+[4/4] tests/w9-side-ruler.spec.ts:159:1 › side ruler: hidden while the sidebar floats
+  4 passed (1.0m)

@@ -1,0 +1,1086 @@
+data dir: /Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/node_modules/.cache/personal-word-beta/w9-n/runs/blank-ofB-voy3gyfi
+
+== w9-blank-click ok=True error=None
+steps: [
+ "seeded five short paragraphs",
+ "A4, 2-inch margins",
+ "blank click sidebar 100% left margin beside line 2: ok caret p2:0",
+ "blank click sidebar 100% right margin beside line 2: ok caret p2:25",
+ "blank click sidebar 100% below the last line: ok caret p5:20",
+ "blank click sidebar 100% left margin beside the empty line 4: ok caret p4:0",
+ "blank click sidebar 125% left margin beside line 2: ok caret p2:0",
+ "blank click sidebar 125% right margin beside line 2: ok caret p2:25",
+ "blank click sidebar 125% below the last line: ok caret p5:20",
+ "blank click sidebar 125% left margin beside the empty line 4: ok caret p4:0",
+ "blank click sidebar 150% left margin beside line 2: ok caret p2:0",
+ "blank click sidebar 150% right margin beside line 2: ok caret p2:25",
+ "blank click sidebar 150% below the last line: ok caret p5:20",
+ "blank click sidebar 150% left margin beside the empty line 4: ok caret p4:0",
+ "blank click no-sidebar 100% left margin beside line 2: ok caret p2:0",
+ "blank click no-sidebar 100% right margin beside line 2: ok caret p2:25",
+ "blank click no-sidebar 100% below the last line: ok caret p5:20",
+ "blank click no-sidebar 100% left margin beside the empty line 4: ok caret p4:0",
+ "blank click no-sidebar 125% left margin beside line 2: ok caret p2:0",
+ "blank click no-sidebar 125% right margin beside line 2: ok caret p2:25",
+ "blank click no-sidebar 125% below the last line: ok caret p5:20",
+ "blank click no-sidebar 125% left margin beside the empty line 4: ok caret p4:0",
+ "blank click no-sidebar 150% left margin beside line 2: ok caret p2:0",
+ "blank click no-sidebar 150% right margin beside line 2: ok caret p2:25",
+ "blank click no-sidebar 150% below the last line: ok caret p5:20",
+ "blank click no-sidebar 150% left margin beside the empty line 4: ok caret p4:0"
+]
+probe: {
+ "blankClick": {
+  "no-sidebar-100": {
+   "calibration": {
+    "hit": "p",
+    "ok": true
+   },
+   "cases": [
+    {
+     "caret": {
+      "empty": true,
+      "offset": 0,
+      "paragraph": 2,
+      "paragraphLength": 25,
+      "pos": 27
+     },
+     "diagnostics": {
+      "caretRange": {
+       "node": "#text",
+       "offset": 0,
+       "pos": 27
+      },
+      "clamped": [
+       416.2,
+       382
+      ],
+      "posAtCoords": 27
+     },
+     "expected": {
+      "offset": 0,
+      "paragraph": 2,
+      "paragraphLength": 25,
+      "pos": 27
+     },
+     "handled": true,
+     "hit": "div.editor-paper",
+     "inViewport": true,
+     "name": "left margin beside line 2",
+     "ok": true,
+     "point": [
+      385.2,
+      382
+     ]
+    },
+    {
+     "caret": {
+      "empty": true,
+      "offset": 25,
+      "paragraph": 2,
+      "paragraphLength": 25,
+      "pos": 52
+     },
+     "diagnostics": {
+      "caretRange": {
+       "node": "#text",
+       "offset": 25,
+       "pos": 52
+      },
+      "clamped": [
+       823.8,
+       382
+      ],
+      "posAtCoords": 52
+     },
+     "expected": {
+      "offset": 25,
+      "paragraph": 2,
+      "paragraphLength": 25,
+      "pos": 52
+     },
+     "handled": true,
+     "hit": "div.editor-paper",
+     "inViewport": true,
+     "name": "right margin beside line 2",
+     "ok": true,
+     "point": [
+      854.8,
+      382
+     ]
+    },
+    {
+     "caret": {
+      "empty": true,
+      "offset": 20,
+      "paragraph": 5,
+      "paragraphLength": 20,
+      "pos": 94
+     },
+     "diagnostics": {
+      "caretRange": {
+       "node": "#text",
+       "offset": 20,
+       "pos": 94
+      },
+      "clamped": [
+       620,
+       465
+      ],
+      "posAtCoords": 94
+     },
+     "expected": {
+      "offset": 20,
+      "paragraph": 5,
+      "paragraphLength": 20,
+      "pos": 94
+     },
+     "handled": true,
+     "hit": "div.editor-paper",
+     "inViewport": true,
+     "name": "below the last line",
+     "ok": true,
+     "point": [
+      620,
+      496
+     ]
+    },
+    {
+     "caret": {
+      "empty": true,
+      "offset": 0,
+      "paragraph": 4,
+      "paragraphLength": 0,
+      "pos": 72
+     },
+     "diagnostics": {
+      "caretRange": {
+       "node": "p",
+       "offset": 0,
+       "pos": 72
+      },
+      "clamped": [
+       416.2,
+       430
+      ],
+      "posAtCoords": 72
+     },
+     "expected": {
+      "offset": 0,
+      "paragraph": 4,
+      "paragraphLength": 0,
+      "pos": 72
+     },
+     "handled": true,
+     "hit": "div.editor-paper",
+     "inViewport": true,
+     "name": "left margin beside the empty line 4",
+     "ok": true,
+     "point": [
+      385.2,
+      430
+     ]
+    }
+   ],
+   "computedZoom": 1,
+   "geometry": {
+    "domBottom": 466,
+    "domLeft": 415.2,
+    "domRight": 824.8,
+    "domTop": 346,
+    "lastBottom": 466,
+    "lastBottomRaw": 466,
+    "line2Left": 415.2,
+    "line2Mid": 382,
+    "line4Mid": 430,
+    "marginCss": "192px",
+    "pageWidth": "793.7px"
+   },
+   "layout": "no-sidebar",
+   "toolbarZoom": 100,
+   "unzoomedRects": true,
+   "viewportWidth": 1240,
+   "window": [
+    1240,
+    812
+   ]
+  },
+  "no-sidebar-125": {
+   "calibration": {
+    "hit": "p",
+    "ok": true
+   },
+   "cases": [
+    {
+     "caret": {
+      "empty": true,
+      "offset": 0,
+      "paragraph": 2,
+      "paragraphLength": 25,
+      "pos": 27
+     },
+     "diagnostics": {
+      "caretRange": {
+       "node": "#text",
+       "offset": 0,
+       "pos": 27
+      },
+      "clamped": [
+       364.9,
+       445
+      ],
+      "posAtCoords": 53
+     },
+     "expected": {
+      "offset": 0,
+      "paragraph": 2,
+      "paragraphLength": 25,
+      "pos": 27
+     },
+     "handled": true,
+     "hit": "div.editor-paper",
+     "inViewport": true,
+     "name": "left margin beside line 2",
+     "ok": true,
+     "point": [
+      333.9,
+      445
+     ]
+    },
+    {
+     "caret": {
+      "empty": true,
+      "offset": 25,
+      "paragraph": 2,
+      "paragraphLength": 25,
+      "pos": 52
+     },
+     "diagnostics": {
+      "caretRange": {
+       "node": "#text",
+       "offset": 25,
+       "pos": 52
+      },
+      "clamped": [
+       875.1,
+       445
+      ],
+      "posAtCoords": 53
+     },
+     "expected": {
+      "offset": 25,
+      "paragraph": 2,
+      "paragraphLength": 25,
+      "pos": 52
+     },
+     "handled": true,
+     "hit": "div.editor-paper",
+     "inViewport": true,
+     "name": "right margin beside line 2",
+     "ok": true,
+     "point": [
+      906.1,
+      445
+     ]
+    },
+    {
+     "caret": {
+      "empty": true,
+      "offset": 20,
+      "paragraph": 5,
+      "paragraphLength": 20,
+      "pos": 94
+     },
+     "diagnostics": {
+      "caretRange": {
+       "node": "#text",
+       "offset": 20,
+       "pos": 94
+      },
+      "clamped": [
+       620,
+       549
+      ],
+      "posAtCoords": 95
+     },
+     "expected": {
+      "offset": 20,
+      "paragraph": 5,
+      "paragraphLength": 20,
+      "pos": 94
+     },
+     "handled": true,
+     "hit": "div.editor-paper",
+     "inViewport": true,
+     "name": "below the last line",
+     "ok": true,
+     "point": [
+      620,
+      580
+     ]
+    },
+    {
+     "caret": {
+      "empty": true,
+      "offset": 0,
+      "paragraph": 4,
+      "paragraphLength": 0,
+      "pos": 72
+     },
+     "diagnostics": {
+      "caretRange": {
+       "node": "p",
+       "offset": 0,
+       "pos": 72
+      },
+      "clamped": [
+       364.9,
+       505
+      ],
+      "posAtCoords": 73
+     },
+     "expected": {
+      "offset": 0,
+      "paragraph": 4,
+      "paragraphLength": 0,
+      "pos": 72
+     },
+     "handled": true,
+     "hit": "div.editor-paper",
+     "inViewport": true,
+     "name": "left margin beside the empty line 4",
+     "ok": true,
+     "point": [
+      333.9,
+      505
+     ]
+    }
+   ],
+   "computedZoom": 1.25,
+   "geometry": {
+    "domBottom": 550,
+    "domLeft": 363.9,
+    "domRight": 876.1,
+    "domTop": 400,
+    "lastBottom": 550,
+    "lastBottomRaw": 440,
+    "line2Left": 363.9,
+    "line2Mid": 445,
+    "line4Mid": 505,
+    "marginCss": "192px",
+    "pageWidth": "793.7px"
+   },
+   "layout": "no-sidebar",
+   "toolbarZoom": 125,
+   "unzoomedRects": true,
+   "viewportWidth": 1240,
+   "window": [
+    1240,
+    812
+   ]
+  },
+  "no-sidebar-150": {
+   "calibration": {
+    "hit": "p",
+    "ok": true
+   },
+   "cases": [
+    {
+     "caret": {
+      "empty": true,
+      "offset": 0,
+      "paragraph": 2,
+      "paragraphLength": 25,
+      "pos": 27
+     },
+     "diagnostics": {
+      "caretRange": {
+       "node": "#text",
+       "offset": 0,
+       "pos": 27
+      },
+      "clamped": [
+       313.7,
+       508
+      ],
+      "posAtCoords": 53
+     },
+     "expected": {
+      "offset": 0,
+      "paragraph": 2,
+      "paragraphLength": 25,
+      "pos": 27
+     },
+     "handled": true,
+     "hit": "div.editor-paper",
+     "inViewport": true,
+     "name": "left margin beside line 2",
+     "ok": true,
+     "point": [
+      282.7,
+      508
+     ]
+    },
+    {
+     "caret": {
+      "empty": true,
+      "offset": 25,
+      "paragraph": 2,
+      "paragraphLength": 25,
+      "pos": 52
+     },
+     "diagnostics": {
+      "caretRange": {
+       "node": "#text",
+       "offset": 25,
+       "pos": 52
+      },
+      "clamped": [
+       926.3,
+       508
+      ],
+      "posAtCoords": 53
+     },
+     "expected": {
+      "offset": 25,
+      "paragraph": 2,
+      "paragraphLength": 25,
+      "pos": 52
+     },
+     "handled": true,
+     "hit": "div.editor-paper",
+     "inViewport": true,
+     "name": "right margin beside line 2",
+     "ok": true,
+     "point": [
+      957.3,
+      508
+     ]
+    },
+    {
+     "caret": {
+      "empty": true,
+      "offset": 20,
+      "paragraph": 5,
+      "paragraphLength": 20,
+      "pos": 94
+     },
+     "diagnostics": {
+      "caretRange": {
+       "node": "#text",
+       "offset": 20,
+       "pos": 94
+      },
+      "clamped": [
+       620,
+       633
+      ],
+      "posAtCoords": 95
+     },
+     "expected": {
+      "offset": 20,
+      "paragraph": 5,
+      "paragraphLength": 20,
+      "pos": 94
+     },
+     "handled": true,
+     "hit": "div.editor-paper",
+     "inViewport": true,
+     "name": "below the last line",
+     "ok": true,
+     "point": [
+      620,
+      664
+     ]
+    },
+    {
+     "caret": {
+      "empty": true,
+      "offset": 0,
+      "paragraph": 4,
+      "paragraphLength": 0,
+      "pos": 72
+     },
+     "diagnostics": {
+      "caretRange": {
+       "node": "p",
+       "offset": 0,
+       "pos": 72
+      },
+      "clamped": [
+       313.7,
+       580
+      ],
+      "posAtCoords": 73
+     },
+     "expected": {
+      "offset": 0,
+      "paragraph": 4,
+      "paragraphLength": 0,
+      "pos": 72
+     },
+     "handled": true,
+     "hit": "div.editor-paper",
+     "inViewport": true,
+     "name": "left margin beside the empty line 4",
+     "ok": true,
+     "point": [
+      282.7,
+      580
+     ]
+    }
+   ],
+   "computedZoom": 1.5,
+   "geometry": {
+    "domBottom": 634,
+    "domLeft": 312.7,
+    "domRight": 927.3,
+    "domTop": 454,
+    "lastBottom": 634,
+    "lastBottomRaw": 422.7,
+    "line2Left": 312.7,
+    "line2Mid": 508,
+    "line4Mid": 580,
+    "marginCss": "192px",
+    "pageWidth": "793.7px"
+   },
+   "layout": "no-sidebar",
+   "toolbarZoom": 150,
+   "unzoomedRects": true,
+   "viewportWidth": 1240,
+   "window": [
+    1240,
+    812
+   ]
+  },
+  "sidebar-100": {
+   "calibration": {
+    "hit": "p",
+    "ok": true
+   },
+   "cases": [
+    {
+     "caret": {
+      "empty": true,
+      "offset": 0,
+      "paragraph": 2,
+      "paragraphLength": 25,
+      "pos": 27
+     },
+     "diagnostics": {
+      "caretRange": {
+       "node": "#text",
+       "offset": 0,
+       "pos": 27
+      },
+      "clamped": [
+       551.2,
+       382
+      ],
+      "posAtCoords": 27
+     },
+     "expected": {
+      "offset": 0,
+      "paragraph": 2,
+      "paragraphLength": 25,
+      "pos": 27
+     },
+     "handled": true,
+     "hit": "div.editor-paper",
+     "inViewport": true,
+     "name": "left margin beside line 2",
+     "ok": true,
+     "point": [
+      520.2,
+      382
+     ]
+    },
+    {
+     "caret": {
+      "empty": true,
+      "offset": 25,
+      "paragraph": 2,
+      "paragraphLength": 25,
+      "pos": 52
+     },
+     "diagnostics": {
+      "caretRange": {
+       "node": "#text",
+       "offset": 25,
+       "pos": 52
+      },
+      "clamped": [
+       958.8,
+       382
+      ],
+      "posAtCoords": 52
+     },
+     "expected": {
+      "offset": 25,
+      "paragraph": 2,
+      "paragraphLength": 25,
+      "pos": 52
+     },
+     "handled": true,
+     "hit": "div.editor-paper",
+     "inViewport": true,
+     "name": "right margin beside line 2",
+     "ok": true,
+     "point": [
+      989.8,
+      382
+     ]
+    },
+    {
+     "caret": {
+      "empty": true,
+      "offset": 20,
+      "paragraph": 5,
+      "paragraphLength": 20,
+      "pos": 94
+     },
+     "diagnostics": {
+      "caretRange": {
+       "node": "#text",
+       "offset": 20,
+       "pos": 94
+      },
+      "clamped": [
+       755,
+       465
+      ],
+      "posAtCoords": 94
+     },
+     "expected": {
+      "offset": 20,
+      "paragraph": 5,
+      "paragraphLength": 20,
+      "pos": 94
+     },
+     "handled": true,
+     "hit": "div.editor-paper",
+     "inViewport": true,
+     "name": "below the last line",
+     "ok": true,
+     "point": [
+      755,
+      496
+     ]
+    },
+    {
+     "caret": {
+      "empty": true,
+      "offset": 0,
+      "paragraph": 4,
+      "paragraphLength": 0,
+      "pos": 72
+     },
+     "diagnostics": {
+      "caretRange": {
+       "node": "p",
+       "offset": 0,
+       "pos": 72
+      },
+      "clamped": [
+       551.2,
+       430
+      ],
+      "posAtCoords": 72
+     },
+     "expected": {
+      "offset": 0,
+      "paragraph": 4,
+      "paragraphLength": 0,
+      "pos": 72
+     },
+     "handled": true,
+     "hit": "div.editor-paper",
+     "inViewport": true,
+     "name": "left margin beside the empty line 4",
+     "ok": true,
+     "point": [
+      520.2,
+      430
+     ]
+    }
+   ],
+   "computedZoom": 1,
+   "geometry": {
+    "domBottom": 466,
+    "domLeft": 550.2,
+    "domRight": 959.8,
+    "domTop": 346,
+    "lastBottom": 466,
+    "lastBottomRaw": 466,
+    "line2Left": 550.2,
+    "line2Mid": 382,
+    "line4Mid": 430,
+    "marginCss": "192px",
+    "pageWidth": "793.7px"
+   },
+   "layout": "sidebar",
+   "toolbarZoom": 100,
+   "unzoomedRects": true,
+   "viewportWidth": 970,
+   "window": [
+    1240,
+    812
+   ]
+  },
+  "sidebar-125": {
+   "calibration": {
+    "hit": "p",
+    "ok": true
+   },
+   "cases": [
+    {
+     "caret": {
+      "empty": true,
+      "offset": 0,
+      "paragraph": 2,
+      "paragraphLength": 25,
+      "pos": 27
+     },
+     "diagnostics": {
+      "caretRange": {
+       "node": "#text",
+       "offset": 0,
+       "pos": 27
+      },
+      "clamped": [
+       513.9,
+       427.3
+      ],
+      "posAtCoords": 53
+     },
+     "expected": {
+      "offset": 0,
+      "paragraph": 2,
+      "paragraphLength": 25,
+      "pos": 27
+     },
+     "handled": true,
+     "hit": "div.editor-paper",
+     "inViewport": true,
+     "name": "left margin beside line 2",
+     "ok": true,
+     "point": [
+      482.9,
+      427.3
+     ]
+    },
+    {
+     "caret": {
+      "empty": true,
+      "offset": 25,
+      "paragraph": 2,
+      "paragraphLength": 25,
+      "pos": 52
+     },
+     "diagnostics": {
+      "caretRange": {
+       "node": "#text",
+       "offset": 25,
+       "pos": 52
+      },
+      "clamped": [
+       996.1,
+       427.3
+      ],
+      "posAtCoords": 53
+     },
+     "expected": {
+      "offset": 25,
+      "paragraph": 2,
+      "paragraphLength": 25,
+      "pos": 52
+     },
+     "handled": true,
+     "hit": "div.editor-paper",
+     "inViewport": true,
+     "name": "right margin beside line 2",
+     "ok": true,
+     "point": [
+      1027.1,
+      427.3
+     ]
+    },
+    {
+     "caret": {
+      "empty": true,
+      "offset": 20,
+      "paragraph": 5,
+      "paragraphLength": 20,
+      "pos": 94
+     },
+     "diagnostics": {
+      "caretRange": {
+       "node": "#text",
+       "offset": 20,
+       "pos": 94
+      },
+      "clamped": [
+       755,
+       524.3
+      ],
+      "posAtCoords": 95
+     },
+     "expected": {
+      "offset": 20,
+      "paragraph": 5,
+      "paragraphLength": 20,
+      "pos": 94
+     },
+     "handled": true,
+     "hit": "div.editor-paper",
+     "inViewport": true,
+     "name": "below the last line",
+     "ok": true,
+     "point": [
+      755,
+      555.3
+     ]
+    },
+    {
+     "caret": {
+      "empty": true,
+      "offset": 0,
+      "paragraph": 4,
+      "paragraphLength": 0,
+      "pos": 72
+     },
+     "diagnostics": {
+      "caretRange": {
+       "node": "p",
+       "offset": 0,
+       "pos": 72
+      },
+      "clamped": [
+       513.9,
+       483.3
+      ],
+      "posAtCoords": 73
+     },
+     "expected": {
+      "offset": 0,
+      "paragraph": 4,
+      "paragraphLength": 0,
+      "pos": 72
+     },
+     "handled": true,
+     "hit": "div.editor-paper",
+     "inViewport": true,
+     "name": "left margin beside the empty line 4",
+     "ok": true,
+     "point": [
+      482.9,
+      483.3
+     ]
+    }
+   ],
+   "computedZoom": 1.1818,
+   "geometry": {
+    "domBottom": 525.3,
+    "domLeft": 512.9,
+    "domRight": 997.1,
+    "domTop": 385.3,
+    "lastBottom": 525.3,
+    "lastBottomRaw": 444.5,
+    "line2Left": 512.9,
+    "line2Mid": 427.3,
+    "line4Mid": 483.3,
+    "marginCss": "192px",
+    "pageWidth": "793.7px"
+   },
+   "layout": "sidebar",
+   "toolbarZoom": 125,
+   "unzoomedRects": true,
+   "viewportWidth": 970,
+   "window": [
+    1240,
+    812
+   ]
+  },
+  "sidebar-150": {
+   "calibration": {
+    "hit": "p",
+    "ok": true
+   },
+   "cases": [
+    {
+     "caret": {
+      "empty": true,
+      "offset": 0,
+      "paragraph": 2,
+      "paragraphLength": 25,
+      "pos": 27
+     },
+     "diagnostics": {
+      "caretRange": {
+       "node": "#text",
+       "offset": 0,
+       "pos": 27
+      },
+      "clamped": [
+       513.9,
+       427.3
+      ],
+      "posAtCoords": 53
+     },
+     "expected": {
+      "offset": 0,
+      "paragraph": 2,
+      "paragraphLength": 25,
+      "pos": 27
+     },
+     "handled": true,
+     "hit": "div.editor-paper",
+     "inViewport": true,
+     "name": "left margin beside line 2",
+     "ok": true,
+     "point": [
+      482.9,
+      427.3
+     ]
+    },
+    {
+     "caret": {
+      "empty": true,
+      "offset": 25,
+      "paragraph": 2,
+      "paragraphLength": 25,
+      "pos": 52
+     },
+     "diagnostics": {
+      "caretRange": {
+       "node": "#text",
+       "offset": 25,
+       "pos": 52
+      },
+      "clamped": [
+       996.1,
+       427.3
+      ],
+      "posAtCoords": 53
+     },
+     "expected": {
+      "offset": 25,
+      "paragraph": 2,
+      "paragraphLength": 25,
+      "pos": 52
+     },
+     "handled": true,
+     "hit": "div.editor-paper",
+     "inViewport": true,
+     "name": "right margin beside line 2",
+     "ok": true,
+     "point": [
+      1027.1,
+      427.3
+     ]
+    },
+    {
+     "caret": {
+      "empty": true,
+      "offset": 20,
+      "paragraph": 5,
+      "paragraphLength": 20,
+      "pos": 94
+     },
+     "diagnostics": {
+      "caretRange": {
+       "node": "#text",
+       "offset": 20,
+       "pos": 94
+      },
+      "clamped": [
+       755,
+       524.3
+      ],
+      "posAtCoords": 95
+     },
+     "expected": {
+      "offset": 20,
+      "paragraph": 5,
+      "paragraphLength": 20,
+      "pos": 94
+     },
+     "handled": true,
+     "hit": "div.editor-paper",
+     "inViewport": true,
+     "name": "below the last line",
+     "ok": true,
+     "point": [
+      755,
+      555.3
+     ]
+    },
+    {
+     "caret": {
+      "empty": true,
+      "offset": 0,
+      "paragraph": 4,
+      "paragraphLength": 0,
+      "pos": 72
+     },
+     "diagnostics": {
+      "caretRange": {
+       "node": "p",
+       "offset": 0,
+       "pos": 72
+      },
+      "clamped": [
+       513.9,
+       483.3
+      ],
+      "posAtCoords": 73
+     },
+     "expected": {
+      "offset": 0,
+      "paragraph": 4,
+      "paragraphLength": 0,
+      "pos": 72
+     },
+     "handled": true,
+     "hit": "div.editor-paper",
+     "inViewport": true,
+     "name": "left margin beside the empty line 4",
+     "ok": true,
+     "point": [
+      482.9,
+      483.3
+     ]
+    }
+   ],
+   "computedZoom": 1.1818,
+   "geometry": {
+    "domBottom": 525.3,
+    "domLeft": 512.9,
+    "domRight": 997.1,
+    "domTop": 385.3,
+    "lastBottom": 525.3,
+    "lastBottomRaw": 444.5,
+    "line2Left": 512.9,
+    "line2Mid": 427.3,
+    "line4Mid": 483.3,
+    "marginCss": "192px",
+    "pageWidth": "793.7px"
+   },
+   "layout": "sidebar",
+   "toolbarZoom": 150,
+   "unzoomedRects": true,
+   "viewportWidth": 970,
+   "window": [
+    1240,
+    812
+   ]
+  },
+  "sidebarHidden": {
+   "viewportWidth": 1240
+  }
+ },
+ "failures": 0,
+ "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko)"
+}
+
+RESULT blank scenario=normal ok=True

@@ -68,6 +68,21 @@ export type ResearchData = {
   autoShortNotes?: boolean;
   citationPolicy?: CitationPolicy;
 };
+export type PageNumberPosition =
+  | "top-left"
+  | "top-center"
+  | "top-right"
+  | "bottom-left"
+  | "bottom-center"
+  | "bottom-right";
+export const pageNumberPositionOptions: { value: PageNumberPosition; label: string }[] = [
+  { value: "top-left", label: "Top left" },
+  { value: "top-center", label: "Top center" },
+  { value: "top-right", label: "Top right" },
+  { value: "bottom-left", label: "Bottom left" },
+  { value: "bottom-center", label: "Bottom center" },
+  { value: "bottom-right", label: "Bottom right" },
+];
 export type DocumentSettings = {
   font: "serif" | "sans" | "mono";
   fontSize: number;
@@ -76,6 +91,7 @@ export type DocumentSettings = {
   firstLineIndent: boolean;
   bibliography: boolean;
   pageNumbers: boolean;
+  pageNumberPosition?: PageNumberPosition;
   bibliographyOrder?: "author" | "cited" | "type";
   bibliographyScope?: "cited" | "all";
 };

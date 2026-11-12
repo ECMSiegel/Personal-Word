@@ -1,0 +1,112 @@
+{
+  "id": "T276",
+  "title": "W9 D1 -- Update docs and AGENTS.md from the task notes",
+  "description": "Follow section '### D1 --' of docs/agent-work/2026-11-10-ui-wave-9/PLAN.md exactly, plus its 'Rules for every worker'. Verify: grep ui-font in docs/design-system.md finds a match; grep '4 percent grow' in AGENTS.md finds none. No browser tests. No commits, no new packages, never run npm run build or a native screen script. Write the note docs/agent-work/2026-11-10-ui-wave-9/notes/D1.md.",
+  "status": "done",
+  "owner": null,
+  "priority": 3,
+  "depends_on": [
+    "T255",
+    "T256",
+    "T257",
+    "T258",
+    "T259",
+    "T260",
+    "T261",
+    "T262",
+    "T263",
+    "T264",
+    "T265",
+    "T266",
+    "T267",
+    "T268",
+    "T269",
+    "T270",
+    "T271",
+    "T272",
+    "T273",
+    "T274",
+    "T275"
+  ],
+  "files": [
+    "docs/design-system.md",
+    "docs/user-guide.md",
+    "docs/limitations.md",
+    "docs/changelog.md",
+    "docs/architecture.md",
+    "AGENTS.md",
+    "docs/agent-work/2026-11-10-ui-wave-9/notes/D1.md"
+  ],
+  "review_required": true,
+  "created_by": "agent-b307",
+  "created_at": "2026-11-10T22:24:40+00:00",
+  "claimed_at": "2026-11-11T05:15:42+00:00",
+  "updated_at": "2026-11-11T05:16:04+00:00",
+  "handoff": {
+    "by": "agent-e0a3",
+    "at": "2026-11-11T05:15:22+00:00",
+    "text": "Rejected (agent-e0a3, W9 reviewer r3) for one untrue sentence; everything else is right and stays. Checked: only the six doc files changed (plus notes/D1.md); no en or em dashes added; AGENTS.md hover sentence matches the code (faux bold only, press scale kept, icon-magnify.css scale(1.25) on the icon child with a prefers-reduced-motion block, 'Do not add another hover weight or scale rule'); logo Futura (styles.css:1496-1497 after T266 r3); --ui-font on :root (styles.css:223); Cmd+Shift+E = src/shortcuts/registry.ts:35 exportDocument; docx.ts:378-380 retries once without fonts; attached PDF inside details.source-more; '1 issue'/'N issues'; folio.workspace.library; CLAIMED wording everywhere, nothing says the Mac app was checked. Rulings: the dated 2026-10-29 changelog line (docs/changelog.md:85) mentioning the 4 percent grow is history and STAYS. The Page break limitation is TRUE (src/editor/editor.css:542-548, .manual-page-break::after uses '10px Futura') and STAYS.\nWHAT IS WRONG: docs/design-system.md line 14 says 'Four places keep their own face on purpose: ... and a menu that is fading out.' A fading menu does not keep its own face in the app; that is only a skip in the test helper (tests/w9-fonts.spec.ts:55-56). The same line also says every interface font stack reads var(--ui-font), which the Page break label contradicts.\nWORK ORDER (edit only docs/design-system.md line 14 and notes/D1.md): replace the sentence 'Four places keep their own face on purpose: the Font family button's value label (it shows the document typeface), the footnotes printed under the page, the rows of an open font menu (each previews its own font), and a menu that is fading out.' with: 'Three places keep their own face on purpose: the Font family button's value label (it shows the document typeface), the footnotes printed under the page (document text), and the rows of an open font menu (each previews its own font). One label still names Futura directly: the Page break label (.manual-page-break::after in src/editor/editor.css; see Limitations).' (wrap the selector and path in backticks as the file does). Proof: grep -n 'fading out' docs/design-system.md -> no match; grep -n 'Three places keep' docs/design-system.md -> 1 match; git diff --stat -- AGENTS.md docs/*.md still lists only the six files. Mention the fix in notes/D1.md."
+  },
+  "review": {
+    "by": "agent-e0a3",
+    "at": "2026-11-11T05:16:04+00:00",
+    "verdict": "approved",
+    "note": "Approved (agent-e0a3, W9 reviewer r3). Rework matches the work order: docs/design-system.md:14 now says 'Three places keep their own face' (value label, footnotes under the page, open font-menu rows) and names the Page break label as the one Futura holdout; grep 'fading out' docs/design-system.md -> no match; diff stat unchanged at the same six files (same line counts). Earlier checks and rulings stand."
+  },
+  "log": [
+    {
+      "at": "2026-11-10T22:24:40+00:00",
+      "agent": "agent-b307",
+      "event": "created",
+      "note": ""
+    },
+    {
+      "at": "2026-11-11T05:11:32+00:00",
+      "agent": "agent-cb88",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-11-11T05:11:32+00:00",
+      "agent": "agent-cb88",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-11-11T05:14:08+00:00",
+      "agent": "agent-cb88",
+      "event": "review requested",
+      "note": "Docs updated: AGENTS.md, design-system, user-guide, limitations, architecture, changelog; notes/D1.md. Greps clean (only dated changelog history keeps the old grow). No tests run (docs only)."
+    },
+    {
+      "at": "2026-11-11T05:15:22+00:00",
+      "agent": "agent-e0a3",
+      "event": "rejected",
+      "note": "Rejected (agent-e0a3, W9 reviewer r3) for one untrue sentence; everything else is right and stays. Checked: only the six doc files changed (plus notes/D1.md); no en or em dashes added; AGENTS.md hover sentence matches the code (faux bold only, press scale kept, icon-magnify.css scale(1.25) on the icon child with a prefers-reduced-motion block, 'Do not add another hover weight or scale rule'); logo Futura (styles.css:1496-1497 after T266 r3); --ui-font on :root (styles.css:223); Cmd+Shift+E = src/shortcuts/registry.ts:35 exportDocument; docx.ts:378-380 retries once without fonts; attached PDF inside details.source-more; '1 issue'/'N issues'; folio.workspace.library; CLAIMED wording everywhere, nothing says the Mac app was checked. Rulings: the dated 2026-10-29 changelog line (docs/changelog.md:85) mentioning the 4 percent grow is history and STAYS. The Page break limitation is TRUE (src/editor/editor.css:542-548, .manual-page-break::after uses '10px Futura') and STAYS.\nWHAT IS WRONG: docs/design-system.md line 14 says 'Four places keep their own face on purpose: ... and a menu that is fading out.' A fading menu does not keep its own face in the app; that is only a skip in the test helper (tests/w9-fonts.spec.ts:55-56). The same line also says every interface font stack reads var(--ui-font), which the Page break label contradicts.\nWORK ORDER (edit only docs/design-system.md line 14 and notes/D1.md): replace the sentence 'Four places keep their own face on purpose: the Font family button's value label (it shows the document typeface), the footnotes printed under the page, the rows of an open font menu (each previews its own font), and a menu that is fading out.' with: 'Three places keep their own face on purpose: the Font family button's value label (it shows the document typeface), the footnotes printed under the page (document text), and the rows of an open font menu (each previews its own font). One label still names Futura directly: the Page break label (.manual-page-break::after in src/editor/editor.css; see Limitations).' (wrap the selector and path in backticks as the file does). Proof: grep -n 'fading out' docs/design-system.md -> no match; grep -n 'Three places keep' docs/design-system.md -> 1 match; git diff --stat -- AGENTS.md docs/*.md still lists only the six files. Mention the fix in notes/D1.md."
+    },
+    {
+      "at": "2026-11-11T05:15:42+00:00",
+      "agent": "agent-83ec",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-11-11T05:15:42+00:00",
+      "agent": "agent-83ec",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-11-11T05:15:51+00:00",
+      "agent": "agent-83ec",
+      "event": "review requested",
+      "note": "Rework per agent-e0a3 note: docs/design-system.md line 14 now says 'Three places keep their own face', drops the fading-out menu, and names the Page break label (.manual-page-break::after in src/editor/editor.css) as the one label still Futura. Proof: grep -n 'fading out' docs/design-system.md -> no match (exit 1); grep -n 'Three places keep' -> line 14 (1 match); git diff --stat -- docs AGENTS.md -> the same 6 doc files. Appended one line to notes/D1.md."
+    },
+    {
+      "at": "2026-11-11T05:16:04+00:00",
+      "agent": "agent-e0a3",
+      "event": "approved",
+      "note": "Approved (agent-e0a3, W9 reviewer r3). Rework matches the work order: docs/design-system.md:14 now says 'Three places keep their own face' (value label, footnotes under the page, open font-menu rows) and names the Page break label as the one Futura holdout; grep 'fading out' docs/design-system.md -> no match; diff stat unchanged at the same six files (same line counts). Earlier checks and rulings stand."
+    }
+  ]
+}

@@ -1,0 +1,785 @@
+data dir: /Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/node_modules/.cache/personal-word-beta/w9-n/runs/zoom-ofB-ijfsxl49
+
+== w9-zoom-probes ok=True error=None
+steps: [
+ "seeded intro, 3x3 table, 70 body lines",
+ "A4, sidebar hidden, two pages",
+ "zoom 100: S4 table menu opened",
+ "zoom 100 gap center: S5 down -> block 35 (want 35), up -> block 34 (want 34)",
+ "zoom 100 gap center: S6 gap click -> block 34 (want 34)",
+ "zoom 100 gap end: S5 down -> block 35 (want 35), up -> block 34 (want 34)",
+ "zoom 100 gap end: S6 gap click -> block 34 (want 34)",
+ "zoom 125: S4 table menu opened",
+ "zoom 125 gap center: S5 down -> block 35 (want 35), up -> block 34 (want 34)",
+ "zoom 125 gap center: S6 gap click -> block 34 (want 34)",
+ "zoom 125 gap end: S5 down -> block 35 (want 35), up -> block 34 (want 34)",
+ "zoom 125 gap end: S6 gap click -> block 34 (want 34)",
+ "zoom 150: S4 table menu opened",
+ "zoom 150 gap center: S5 down -> block 35 (want 35), up -> block 34 (want 34)",
+ "zoom 150 gap center: S6 gap click -> block 34 (want 34)",
+ "zoom 150 gap end: S5 down -> block 35 (want 35), up -> block 34 (want 34)",
+ "zoom 150 gap end: S6 gap click -> block 34 (want 34)"
+]
+probe: {
+ "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko)",
+ "zoomProbes": {
+  "100": {
+   "computedZoom": 1,
+   "s4": {
+    "handled": true,
+    "hit": "p",
+    "hitInsideCell": true,
+    "point": [
+     619.5,
+     445.9
+    ],
+    "posAtCoords": {
+     "block": 7,
+     "cell": "tableCell",
+     "depth": 4,
+     "parent": "paragraph",
+     "pos": 112,
+     "text": "",
+     "type": "table"
+    },
+    "tableMenuOpened": true
+   },
+   "s5-center": {
+    "down": {
+     "asExpected": true,
+     "caret": {
+      "block": 35,
+      "cell": null,
+      "depth": 1,
+      "parent": "paragraph",
+      "pos": 1017,
+      "text": "Body line 28 of the zoom probe",
+      "type": "paragraph"
+     },
+     "caretTopRaw": 306.8,
+     "from": {
+      "block": 34,
+      "cell": null,
+      "depth": 1,
+      "parent": "paragraph",
+      "pos": 984,
+      "text": "Body line 27 of the zoom probe",
+      "type": "paragraph"
+     },
+     "handled": true
+    },
+    "firstLineOfPage2": {
+     "block": 35,
+     "cell": null,
+     "depth": 1,
+     "parent": "paragraph",
+     "pos": 1017,
+     "text": "Body line 28 of the zoom probe",
+     "type": "paragraph"
+    },
+    "handlerLookupDown": {
+     "block": 35,
+     "cell": null,
+     "depth": 1,
+     "parent": "paragraph",
+     "pos": 1017,
+     "text": "Body line 28 of the zoom probe",
+     "type": "paragraph"
+    },
+    "handlerLookupUp": {
+     "block": 34,
+     "cell": null,
+     "depth": 1,
+     "parent": "paragraph",
+     "pos": 984,
+     "text": "Body line 27 of the zoom probe",
+     "type": "paragraph"
+    },
+    "lastLineOfPage1": {
+     "block": 34,
+     "cell": null,
+     "depth": 1,
+     "parent": "paragraph",
+     "pos": 984,
+     "text": "Body line 27 of the zoom probe",
+     "type": "paragraph"
+    },
+    "spacerRaw": [
+     329.8,
+     563.5
+    ],
+    "up": {
+     "asExpected": true,
+     "caret": {
+      "block": 34,
+      "cell": null,
+      "depth": 1,
+      "parent": "paragraph",
+      "pos": 984,
+      "text": "Body line 27 of the zoom probe",
+      "type": "paragraph"
+     },
+     "caretTopRaw": 564.5,
+     "from": {
+      "block": 35,
+      "cell": null,
+      "depth": 1,
+      "parent": "paragraph",
+      "pos": 1017,
+      "text": "Body line 28 of the zoom probe",
+      "type": "paragraph"
+     },
+     "handled": true
+    }
+   },
+   "s5-end": {
+    "down": {
+     "asExpected": true,
+     "caret": {
+      "block": 35,
+      "cell": null,
+      "depth": 1,
+      "parent": "paragraph",
+      "pos": 1017,
+      "text": "Body line 28 of the zoom probe",
+      "type": "paragraph"
+     },
+     "caretTopRaw": 523.8,
+     "from": {
+      "block": 34,
+      "cell": null,
+      "depth": 1,
+      "parent": "paragraph",
+      "pos": 984,
+      "text": "Body line 27 of the zoom probe",
+      "type": "paragraph"
+     },
+     "handled": true
+    },
+    "firstLineOfPage2": {
+     "block": 35,
+     "cell": null,
+     "depth": 1,
+     "parent": "paragraph",
+     "pos": 1017,
+     "text": "Body line 28 of the zoom probe",
+     "type": "paragraph"
+    },
+    "handlerLookupDown": {
+     "block": 35,
+     "cell": null,
+     "depth": 1,
+     "parent": "paragraph",
+     "pos": 1017,
+     "text": "Body line 28 of the zoom probe",
+     "type": "paragraph"
+    },
+    "handlerLookupUp": {
+     "block": 34,
+     "cell": null,
+     "depth": 1,
+     "parent": "paragraph",
+     "pos": 984,
+     "text": "Body line 27 of the zoom probe",
+     "type": "paragraph"
+    },
+    "lastLineOfPage1": {
+     "block": 34,
+     "cell": null,
+     "depth": 1,
+     "parent": "paragraph",
+     "pos": 984,
+     "text": "Body line 27 of the zoom probe",
+     "type": "paragraph"
+    },
+    "spacerRaw": [
+     546.8,
+     780.5
+    ],
+    "up": {
+     "asExpected": true,
+     "caret": {
+      "block": 34,
+      "cell": null,
+      "depth": 1,
+      "parent": "paragraph",
+      "pos": 984,
+      "text": "Body line 27 of the zoom probe",
+      "type": "paragraph"
+     },
+     "caretTopRaw": 754.5,
+     "from": {
+      "block": 35,
+      "cell": null,
+      "depth": 1,
+      "parent": "paragraph",
+      "pos": 1017,
+      "text": "Body line 28 of the zoom probe",
+      "type": "paragraph"
+     },
+     "handled": true
+    }
+   },
+   "s6-center": {
+    "asExpected": true,
+    "caret": {
+     "block": 34,
+     "cell": null,
+     "depth": 1,
+     "parent": "paragraph",
+     "pos": 1015,
+     "text": "Body line 27 of the zoom probe",
+     "type": "paragraph"
+    },
+    "expected": {
+     "atEnd": true,
+     "block": 34
+    },
+    "handled": true,
+    "hit": "div.page-spacer.ProseMirror-widget",
+    "hitIsSpacer": true,
+    "localAsHandlerComputes": 8,
+    "localDrawnConsistent": 8,
+    "point": [
+     620,
+     337.8
+    ],
+    "split": 105.71875
+   },
+   "s6-end": {
+    "asExpected": true,
+    "caret": {
+     "block": 34,
+     "cell": null,
+     "depth": 1,
+     "parent": "paragraph",
+     "pos": 1015,
+     "text": "Body line 27 of the zoom probe",
+     "type": "paragraph"
+    },
+    "expected": {
+     "atEnd": true,
+     "block": 34
+    },
+    "handled": true,
+    "hit": "div.page-spacer.ProseMirror-widget",
+    "hitIsSpacer": true,
+    "localAsHandlerComputes": 8,
+    "localDrawnConsistent": 8,
+    "point": [
+     620,
+     554.8
+    ],
+    "split": 105.71875
+   },
+   "toolbarZoom": 100,
+   "unzoomedRects": true
+  },
+  "125": {
+   "computedZoom": 1.25,
+   "s4": {
+    "handled": true,
+    "hit": "p",
+    "hitInsideCell": true,
+    "point": [
+     619.5,
+     446.5
+    ],
+    "posAtCoords": {
+     "block": 8,
+     "cell": null,
+     "depth": 0,
+     "parent": "doc",
+     "pos": 134,
+     "text": "Body line 1 of the zoom probe.",
+     "type": "paragraph"
+    },
+    "tableMenuOpened": true
+   },
+   "s5-center": {
+    "down": {
+     "asExpected": true,
+     "caret": {
+      "block": 35,
+      "cell": null,
+      "depth": 1,
+      "parent": "paragraph",
+      "pos": 1017,
+      "text": "Body line 28 of the zoom probe",
+      "type": "paragraph"
+     },
+     "caretTopRaw": 217.6,
+     "from": {
+      "block": 34,
+      "cell": null,
+      "depth": 1,
+      "parent": "paragraph",
+      "pos": 984,
+      "text": "Body line 27 of the zoom probe",
+      "type": "paragraph"
+     },
+     "handled": true
+    },
+    "firstLineOfPage2": {
+     "block": 35,
+     "cell": null,
+     "depth": 1,
+     "parent": "paragraph",
+     "pos": 1017,
+     "text": "Body line 28 of the zoom probe",
+     "type": "paragraph"
+    },
+    "handlerLookupDown": {
+     "block": 35,
+     "cell": null,
+     "depth": 1,
+     "parent": "paragraph",
+     "pos": 1017,
+     "text": "Body line 28 of the zoom probe",
+     "type": "paragraph"
+    },
+    "handlerLookupUp": {
+     "block": 34,
+     "cell": null,
+     "depth": 1,
+     "parent": "paragraph",
+     "pos": 984,
+     "text": "Body line 27 of the zoom probe",
+     "type": "paragraph"
+    },
+    "lastLineOfPage1": {
+     "block": 34,
+     "cell": null,
+     "depth": 1,
+     "parent": "paragraph",
+     "pos": 984,
+     "text": "Body line 27 of the zoom probe",
+     "type": "paragraph"
+    },
+    "spacerRaw": [
+     240,
+     474.5
+    ],
+    "up": {
+     "asExpected": true,
+     "caret": {
+      "block": 34,
+      "cell": null,
+      "depth": 1,
+      "parent": "paragraph",
+      "pos": 984,
+      "text": "Body line 27 of the zoom probe",
+      "type": "paragraph"
+     },
+     "caretTopRaw": 476.1,
+     "from": {
+      "block": 35,
+      "cell": null,
+      "depth": 1,
+      "parent": "paragraph",
+      "pos": 1017,
+      "text": "Body line 28 of the zoom probe",
+      "type": "paragraph"
+     },
+     "handled": true
+    }
+   },
+   "s5-end": {
+    "down": {
+     "asExpected": true,
+     "caret": {
+      "block": 35,
+      "cell": null,
+      "depth": 1,
+      "parent": "paragraph",
+      "pos": 1017,
+      "text": "Body line 28 of the zoom probe",
+      "type": "paragraph"
+     },
+     "caretTopRaw": 367.2,
+     "from": {
+      "block": 34,
+      "cell": null,
+      "depth": 1,
+      "parent": "paragraph",
+      "pos": 984,
+      "text": "Body line 27 of the zoom probe",
+      "type": "paragraph"
+     },
+     "handled": true
+    },
+    "firstLineOfPage2": {
+     "block": 35,
+     "cell": null,
+     "depth": 1,
+     "parent": "paragraph",
+     "pos": 1017,
+     "text": "Body line 28 of the zoom probe",
+     "type": "paragraph"
+    },
+    "handlerLookupDown": {
+     "block": 35,
+     "cell": null,
+     "depth": 1,
+     "parent": "paragraph",
+     "pos": 1017,
+     "text": "Body line 28 of the zoom probe",
+     "type": "paragraph"
+    },
+    "handlerLookupUp": {
+     "block": 34,
+     "cell": null,
+     "depth": 1,
+     "parent": "paragraph",
+     "pos": 984,
+     "text": "Body line 27 of the zoom probe",
+     "type": "paragraph"
+    },
+    "lastLineOfPage1": {
+     "block": 34,
+     "cell": null,
+     "depth": 1,
+     "parent": "paragraph",
+     "pos": 984,
+     "text": "Body line 27 of the zoom probe",
+     "type": "paragraph"
+    },
+    "spacerRaw": [
+     389.6,
+     624.1
+    ],
+    "up": {
+     "asExpected": true,
+     "caret": {
+      "block": 34,
+      "cell": null,
+      "depth": 1,
+      "parent": "paragraph",
+      "pos": 984,
+      "text": "Body line 27 of the zoom probe",
+      "type": "paragraph"
+     },
+     "caretTopRaw": 599.3,
+     "from": {
+      "block": 35,
+      "cell": null,
+      "depth": 1,
+      "parent": "paragraph",
+      "pos": 1017,
+      "text": "Body line 28 of the zoom probe",
+      "type": "paragraph"
+     },
+     "handled": true
+    }
+   },
+   "s6-center": {
+    "asExpected": true,
+    "caret": {
+     "block": 34,
+     "cell": null,
+     "depth": 1,
+     "parent": "paragraph",
+     "pos": 1015,
+     "text": "Body line 27 of the zoom probe",
+     "type": "paragraph"
+    },
+    "expected": {
+     "atEnd": true,
+     "block": 34
+    },
+    "handled": true,
+    "hit": "div.page-spacer.ProseMirror-widget",
+    "hitIsSpacer": true,
+    "localAsHandlerComputes": 68,
+    "localDrawnConsistent": 6.4,
+    "point": [
+     620,
+     308
+    ],
+    "split": 106.5
+   },
+   "s6-end": {
+    "asExpected": true,
+    "caret": {
+     "block": 34,
+     "cell": null,
+     "depth": 1,
+     "parent": "paragraph",
+     "pos": 1015,
+     "text": "Body line 27 of the zoom probe",
+     "type": "paragraph"
+    },
+    "expected": {
+     "atEnd": true,
+     "block": 34
+    },
+    "handled": true,
+    "hit": "div.page-spacer.ProseMirror-widget",
+    "hitIsSpacer": true,
+    "localAsHandlerComputes": 105.4,
+    "localDrawnConsistent": 6.4,
+    "point": [
+     620,
+     495
+    ],
+    "split": 106.5
+   },
+   "toolbarZoom": 125,
+   "unzoomedRects": true
+  },
+  "150": {
+   "computedZoom": 1.5,
+   "s4": {
+    "handled": true,
+    "hit": "p",
+    "hitInsideCell": true,
+    "point": [
+     619.5,
+     446.1
+    ],
+    "posAtCoords": {
+     "block": 8,
+     "cell": null,
+     "depth": 0,
+     "parent": "doc",
+     "pos": 134,
+     "text": "Body line 1 of the zoom probe.",
+     "type": "paragraph"
+    },
+    "tableMenuOpened": true
+   },
+   "s5-center": {
+    "down": {
+     "asExpected": true,
+     "caret": {
+      "block": 35,
+      "cell": null,
+      "depth": 1,
+      "parent": "paragraph",
+      "pos": 1017,
+      "text": "Body line 28 of the zoom probe",
+      "type": "paragraph"
+     },
+     "caretTopRaw": 157.4,
+     "from": {
+      "block": 34,
+      "cell": null,
+      "depth": 1,
+      "parent": "paragraph",
+      "pos": 984,
+      "text": "Body line 27 of the zoom probe",
+      "type": "paragraph"
+     },
+     "handled": true
+    },
+    "firstLineOfPage2": {
+     "block": 35,
+     "cell": null,
+     "depth": 1,
+     "parent": "paragraph",
+     "pos": 1017,
+     "text": "Body line 28 of the zoom probe",
+     "type": "paragraph"
+    },
+    "handlerLookupDown": {
+     "block": 35,
+     "cell": null,
+     "depth": 1,
+     "parent": "paragraph",
+     "pos": 1017,
+     "text": "Body line 28 of the zoom probe",
+     "type": "paragraph"
+    },
+    "handlerLookupUp": {
+     "block": 34,
+     "cell": null,
+     "depth": 1,
+     "parent": "paragraph",
+     "pos": 1015,
+     "text": "Body line 27 of the zoom probe",
+     "type": "paragraph"
+    },
+    "lastLineOfPage1": {
+     "block": 34,
+     "cell": null,
+     "depth": 1,
+     "parent": "paragraph",
+     "pos": 984,
+     "text": "Body line 27 of the zoom probe",
+     "type": "paragraph"
+    },
+    "spacerRaw": [
+     180.1,
+     415.2
+    ],
+    "up": {
+     "asExpected": true,
+     "caret": {
+      "block": 34,
+      "cell": null,
+      "depth": 1,
+      "parent": "paragraph",
+      "pos": 1015,
+      "text": "Body line 27 of the zoom probe",
+      "type": "paragraph"
+     },
+     "caretTopRaw": 416.5,
+     "from": {
+      "block": 35,
+      "cell": null,
+      "depth": 1,
+      "parent": "paragraph",
+      "pos": 1017,
+      "text": "Body line 28 of the zoom probe",
+      "type": "paragraph"
+     },
+     "handled": true
+    }
+   },
+   "s5-end": {
+    "down": {
+     "asExpected": true,
+     "caret": {
+      "block": 35,
+      "cell": null,
+      "depth": 1,
+      "parent": "paragraph",
+      "pos": 1017,
+      "text": "Body line 28 of the zoom probe",
+      "type": "paragraph"
+     },
+     "caretTopRaw": 262.1,
+     "from": {
+      "block": 34,
+      "cell": null,
+      "depth": 1,
+      "parent": "paragraph",
+      "pos": 984,
+      "text": "Body line 27 of the zoom probe",
+      "type": "paragraph"
+     },
+     "handled": true
+    },
+    "firstLineOfPage2": {
+     "block": 35,
+     "cell": null,
+     "depth": 1,
+     "parent": "paragraph",
+     "pos": 1017,
+     "text": "Body line 28 of the zoom probe",
+     "type": "paragraph"
+    },
+    "handlerLookupDown": {
+     "block": 35,
+     "cell": null,
+     "depth": 1,
+     "parent": "paragraph",
+     "pos": 1017,
+     "text": "Body line 28 of the zoom probe",
+     "type": "paragraph"
+    },
+    "handlerLookupUp": {
+     "block": 34,
+     "cell": null,
+     "depth": 1,
+     "parent": "paragraph",
+     "pos": 984,
+     "text": "Body line 27 of the zoom probe",
+     "type": "paragraph"
+    },
+    "lastLineOfPage1": {
+     "block": 34,
+     "cell": null,
+     "depth": 1,
+     "parent": "paragraph",
+     "pos": 984,
+     "text": "Body line 27 of the zoom probe",
+     "type": "paragraph"
+    },
+    "spacerRaw": [
+     284.8,
+     519.8
+    ],
+    "up": {
+     "asExpected": true,
+     "caret": {
+      "block": 34,
+      "cell": null,
+      "depth": 1,
+      "parent": "paragraph",
+      "pos": 1015,
+      "text": "Body line 27 of the zoom probe",
+      "type": "paragraph"
+     },
+     "caretTopRaw": 496.5,
+     "from": {
+      "block": 35,
+      "cell": null,
+      "depth": 1,
+      "parent": "paragraph",
+      "pos": 1017,
+      "text": "Body line 28 of the zoom probe",
+      "type": "paragraph"
+     },
+     "handled": true
+    }
+   },
+   "s6-center": {
+    "asExpected": true,
+    "caret": {
+     "block": 34,
+     "cell": null,
+     "depth": 1,
+     "parent": "paragraph",
+     "pos": 1015,
+     "text": "Body line 27 of the zoom probe",
+     "type": "paragraph"
+    },
+    "expected": {
+     "atEnd": true,
+     "block": 34
+    },
+    "handled": true,
+    "hit": "div.page-spacer.ProseMirror-widget",
+    "hitIsSpacer": true,
+    "localAsHandlerComputes": 98,
+    "localDrawnConsistent": 5.3,
+    "point": [
+     620,
+     278.1
+    ],
+    "split": 107.08331298828124
+   },
+   "s6-end": {
+    "asExpected": true,
+    "caret": {
+     "block": 34,
+     "cell": null,
+     "depth": 1,
+     "parent": "paragraph",
+     "pos": 1015,
+     "text": "Body line 27 of the zoom probe",
+     "type": "paragraph"
+    },
+    "expected": {
+     "atEnd": true,
+     "block": 34
+    },
+    "handled": true,
+    "hit": "div.page-spacer.ProseMirror-widget",
+    "hitIsSpacer": true,
+    "localAsHandlerComputes": 150.4,
+    "localDrawnConsistent": 5.3,
+    "point": [
+     620,
+     435.1
+    ],
+    "split": 107.08331298828124
+   },
+   "toolbarZoom": 150,
+   "unzoomedRects": true
+  }
+ }
+}
+
+RESULT zoom scenario=normal ok=True

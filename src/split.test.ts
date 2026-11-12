@@ -49,21 +49,49 @@ describe("openBeside", () => {
   });
   it("does nothing for the entry already on the left", () => {
     expect(openBeside(null, "a", { kind: "entry", id: "a" })).toBeNull();
-    expect(openBeside(pair, "b", { kind: "entry", id: "a" })).toBe(pair);
+  });
+  it("focuses the pane already showing the target instead of doing nothing (B4)", () => {
+    expect(openBeside(pair, "b", { kind: "entry", id: "a" })).toEqual({
+      left: "a",
+      right: { kind: "entry", id: "b" },
+      focused: "left",
+    });
   });
   it("does nothing without an active entry", () => {
     expect(openBeside(null, "", { kind: "entry", id: "a" })).toBeNull();
   });
-  it("replaces the right pane of an open split", () => {
+  it("replaces the right pane of an open split (old rule, now only for pdf targets)", () => {
+    expect(openBeside(pair, "b", { kind: "pdf", sourceId: "s1" })).toEqual({
+      left: "a",
+      right: { kind: "pdf", sourceId: "s1" },
+      focused: "left",
+    });
+  });
+  it("replaces the left pane when it is focused (B4: pane last used)", () => {
     const left = { ...pair, focused: "left" as const };
     expect(openBeside(left, "a", { kind: "entry", id: "c" })).toEqual({
+      left: "c",
+      right: { kind: "entry", id: "b" },
+      focused: "left",
+    });
+  });
+  it("replaces the right pane when it is focused", () => {
+    expect(openBeside(pair, "b", { kind: "entry", id: "c" })).toEqual({
       left: "a",
       right: { kind: "entry", id: "c" },
       focused: "right",
     });
-    expect(openBeside(pair, "b", { kind: "pdf", sourceId: "s1" })).toEqual({
+  });
+  it("moves focus when the target is already shown in the other pane", () => {
+    const left = { ...pair, focused: "left" as const };
+    expect(openBeside(left, "a", { kind: "entry", id: "b" })).toEqual({
       left: "a",
-      right: { kind: "pdf", sourceId: "s1" },
+      right: { kind: "entry", id: "b" },
+      focused: "right",
+    });
+    expect(openBeside(pair, "b", { kind: "entry", id: "a" })).toEqual({
+      left: "a",
+      right: { kind: "entry", id: "b" },
       focused: "left",
     });
   });

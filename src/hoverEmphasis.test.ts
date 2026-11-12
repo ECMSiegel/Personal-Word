@@ -29,8 +29,8 @@ const INTERACTIVE = /:hover|:focus-visible|\[data-highlighted\]|\.is-highlighted
 const WEIGHT_ALLOWLIST: string[] = [];
 
 describe("hover emphasis consistency", () => {
-  it("(a) exactly one rule sets the stroke and --emph-s together, and it is in styles.css", () => {
-    const hits = ALL.filter((r) => /--emph-s\s*:/.test(r.body) && /-webkit-text-stroke\s*:\s*var\(--emph-stroke\)/.test(r.body));
+  it("(a) exactly one rule sets the faux bold and --emph-s together, and it is in styles.css", () => {
+    const hits = ALL.filter((r) => /--emph-s\s*:/.test(r.body) && /text-shadow\s*:\s*var\(--emph-bold\)\s+0\s+0\s+currentColor/.test(r.body));
     expect(hits.map((r) => r.file)).toEqual(["src/styles.css"]);
     expect(hits).toHaveLength(1);
     expect(hits[0].selector).toMatch(/:hover/);
@@ -50,16 +50,26 @@ describe("hover emphasis consistency", () => {
     const scale = ALL.filter(
       (r) => INTERACTIVE.test(r.selector) && /transform\s*:[^;]*scale[XYZ3d]*\(/.test(r.body) && !r.selector.includes(".spy-line") && !sharedTransform.includes(r),
     );
-    expect(scale.map((r) => `${r.file}: ${r.selector}`)).toEqual([]);
+    // Narrow exception (owner-requested 25 percent icon grow, PLAN B3): only the icon-magnify.css rule that
+    // scales the direct svg/span child of a standalone icon button. Never the button itself, never another file.
+    const iconGrow = scale.filter(
+      (r) => r.file === "src/components/icon-magnify.css" && /\)\s*>\s*:is\(svg, span\)$/.test(r.selector) && /^\s*transform\s*:\s*scale\(1\.25\)\s*;?\s*$/.test(r.body),
+    );
+    expect(iconGrow).toHaveLength(1);
+    expect(scale.filter((r) => !iconGrow.includes(r)).map((r) => `${r.file}: ${r.selector}`)).toEqual([]);
     // --emph-s and its non-zero stroke belong to the same single shared rule.
     const emphS = ALL.filter((r) => /(^|[;\s])--emph-s\s*:/.test(r.body));
     expect(emphS).toHaveLength(1);
     expect(emphS[0].file).toBe("src/styles.css");
-    const emphStroke = ALL.filter((r) => /-webkit-text-stroke\s*:\s*var\(--emph-stroke\)/.test(r.body));
-    expect(emphStroke).toHaveLength(1);
-    expect(emphStroke[0]).toBe(emphS[0]);
-    const stroke = ALL.filter((r) => has(r.body, "-webkit-text-stroke") && !/^\s*-webkit-text-stroke\s*:\s*0\s*;?\s*$/m.test(r.body) && !/var\(--emph-stroke\)/.test(r.body));
+    const emphBold = ALL.filter((r) => /text-shadow\s*:\s*var\(--emph-bold\)/.test(r.body));
+    expect(emphBold).toHaveLength(1);
+    expect(emphBold[0]).toBe(emphS[0]);
+    // -webkit-text-stroke is banned outright (macOS WebKit paints it without font smoothing: blurry on 1x screens).
+    const stroke = ALL.filter((r) => has(r.body, "-webkit-text-stroke") && !/-webkit-text-stroke\s*:\s*0\s*[;}]?\s*$/m.test(r.body));
     expect(stroke.map((r) => `${r.file}: ${r.selector}`)).toEqual([]);
+    // No other rule sets a text-shadow except the reset to none.
+    const shadow = ALL.filter((r) => has(r.body, "text-shadow") && r !== emphBold[0] && !/text-shadow\s*:\s*none\s*;?\s*$/m.test(r.body));
+    expect(shadow.map((r) => `${r.file}: ${r.selector}`)).toEqual([]);
   });
 
   it("(c2) the document is excluded: links inside the editor, Read view and preview are never emphasised", () => {
@@ -76,19 +86,20 @@ describe("hover emphasis consistency", () => {
     expect(css).toContain("label:has(> input:focus-visible)");
   });
 
-  it("(d) the tokens are 0.04em and 1.04, and no weight token is left", () => {
+  it("(d) the faux bold is a 0.3px text-shadow, the scale token is 1, no stroke token and no weight token is left", () => {
     const root = ALL.find((r) => r.file === "src/styles.css" && r.selector === ":root")!;
-    expect(root.body).toMatch(/--emph-stroke:\s*0\.04em/);
-    expect(root.body).toMatch(/--emph-scale:\s*1\.04/);
+    expect(root.body).toMatch(/--emph-bold:\s*0\.3px/);
+    expect(ALL.some((r) => /--emph-stroke/.test(r.body))).toBe(false);
+    expect(root.body).toMatch(/--emph-scale:\s*1\s*;/);
     expect(ALL.some((r) => /--emph-weight/.test(r.body))).toBe(false);
   });
 
-  it("(e) Reduce Motion drops the scale only: it never unsets the stroke", () => {
+  it("(e) Reduce Motion drops the scale only: it never unsets the faux bold", () => {
     const css = readFileSync(join(process.cwd(), "src/styles.css"), "utf8");
     const block = /@media \(prefers-reduced-motion: reduce\) \{\s*:root \{([^}]*)\}/.exec(css);
     expect(block?.[1]).toMatch(/--emph-scale:\s*1\s*;/);
-    expect(block?.[1]).not.toMatch(/stroke/);
+    expect(block?.[1]).not.toMatch(/text-shadow|--emph-bold/);
     const reduced = css.match(/@media \(prefers-reduced-motion: reduce\) \{[\s\S]*?\n\}\n/g) ?? [];
-    for (const b of reduced) expect(b).not.toMatch(/-webkit-text-stroke|--emph-stroke/);
+    for (const b of reduced) expect(b).not.toMatch(/text-shadow|--emph-bold/);
   });
 });

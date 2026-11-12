@@ -582,9 +582,9 @@ test("the Projects-screen Settings dialog shows the floating row and it toggles 
     .toBe(true);
 });
 
-// Wave 6 T1: the label's grow eases back when the row stops being hovered (the transition stays on the label at rest).
+// Wave 9 A1: text emphasis keeps faux-bold but no longer grows the project-row label.
 for (const reduced of [false, true]) {
-  test(`a project row label ${reduced ? "drops its grow instantly under Reduce Motion" : "eases its grow back after unhover"}`, async ({ page }) => {
+  test(`a project row label ${reduced ? "does not grow under Reduce Motion" : "does not grow on hover"}`, async ({ page }) => {
     if (reduced) await page.emulateMedia({ reducedMotion: "reduce" });
     await seed(page);
     const row = page.locator(".project-row").first();
@@ -594,44 +594,8 @@ for (const reduced of [false, true]) {
       return t === "none" ? 1 : Number(t.slice(7).split(",")[0]);
     });
     await row.hover();
-    let peak = 1;
-    if (!reduced) {
-      await expect.poll(scaleNow).toBeGreaterThan(1.039);
-      peak = await scaleNow();
-    }
-    // A single fixed-delay sample can land late in the 120ms ease (1.00364 is one frame deep
-    // into the curve), so record the scale on every animation frame and require that some frame
-    // sits between rest (1) and the peak. An instant snap-back never does. Sampling starts before
-    // the mouse move: under load the move itself can outlast the ease.
-    // The recorder is installed (and running) before the move: a locator-based evaluate that starts
-    // after the move would only see the finished ease.
-    if (!reduced) {
-      await label.evaluate((el) => {
-        const w = window as unknown as { __emphFrames: number[]; __emphDone: boolean };
-        w.__emphFrames = [];
-        w.__emphDone = false;
-        const start = performance.now();
-        const tick = () => {
-          const t = getComputedStyle(el).transform;
-          w.__emphFrames.push(t === "none" ? 1 : Number(t.slice(7).split(",")[0]));
-          if (performance.now() - start < 1500) requestAnimationFrame(tick);
-          else w.__emphDone = true;
-        };
-        requestAnimationFrame(tick);
-      });
-    }
+    await expect.poll(scaleNow).toBeCloseTo(1, 3);
     await page.mouse.move(2, 2);
-    if (reduced) {
-      await page.waitForTimeout(30);
-      expect(await scaleNow()).toBeCloseTo(1, 3);
-    } else {
-      await expect.poll(() => page.evaluate(() => (window as unknown as { __emphDone: boolean }).__emphDone)).toBe(true);
-      const frames = await page.evaluate(() => (window as unknown as { __emphFrames: number[] }).__emphFrames);
-      expect(
-        frames.filter((v) => v > 1 && v < peak).length,
-        `no ease frame between 1 and ${peak}: ${frames.join(", ")}`,
-      ).toBeGreaterThan(0);
-    }
     await expect.poll(scaleNow).toBeCloseTo(1, 3);
   });
 }

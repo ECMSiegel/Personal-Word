@@ -1,0 +1,328 @@
+
+Running 9 tests using 1 worker
+
+[1/9] tests/of6-recent-fonts.spec.ts:45:1 › no Recent section or divider before any font is applied
+  1) tests/of6-recent-fonts.spec.ts:45:1 › no Recent section or divider before any font is applied ─
+
+    Error: expect(locator).toHaveCount(expected) failed
+
+    Locator:  getByRole('separator')
+    Expected: 0
+    Received: 1
+    Timeout:  5000ms
+
+    Call log:
+      - Expect "toHaveCount" getByRole('separator') with timeout 5000ms
+      - waiting for getByRole('separator')
+        14 × locator resolved to 1 element
+           - unexpected value "1"
+
+
+      49 |   expect(list).not.toContain("--");
+      50 |   expect(list.some((r) => r.startsWith("#"))).toBe(false);
+    > 51 |   await expect(page.getByRole("separator")).toHaveCount(0);
+         |                                             ^
+      52 | });
+      53 |
+      54 | test("applying fonts fills Recent: newest first, once each, at most five", async ({ page }) => {
+        at /Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/tests/of6-recent-fonts.spec.ts:51:45
+
+    Error Context: test-results/T289/of6-recent-fonts-no-Recent-4118a--before-any-font-is-applied/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/T289/of6-recent-fonts-no-Recent-4118a--before-any-font-is-applied/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/T289/of6-recent-fonts-no-Recent-4118a--before-any-font-is-applied/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+[2/9] tests/of6-recent-fonts.spec.ts:54:1 › applying fonts fills Recent: newest first, once each, at most five
+  2) tests/of6-recent-fonts.spec.ts:54:1 › applying fonts fills Recent: newest first, once each, at most five 
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: "#Recent"
+    Received: "Futura"
+
+      59 |   const list = await rows(page);
+      60 |   const divider = list.indexOf("--");
+    > 61 |   expect(list[0]).toBe("#Recent");
+         |                   ^
+      62 |   expect(list.slice(1, divider)).toEqual([
+      63 |     "Times New Roman",
+      64 |     "Helvetica",
+        at /Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/tests/of6-recent-fonts.spec.ts:61:19
+
+    Error Context: test-results/T289/of6-recent-fonts-applying--6699f-irst-once-each-at-most-five/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/T289/of6-recent-fonts-applying--6699f-irst-once-each-at-most-five/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/T289/of6-recent-fonts-applying--6699f-irst-once-each-at-most-five/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+[3/9] tests/of6-recent-fonts.spec.ts:83:1 › Recent rows preview in their own face like the main list
+  3) tests/of6-recent-fonts.spec.ts:83:1 › Recent rows preview in their own face like the main list 
+
+    Error: expect(locator).toHaveCount(expected) failed
+
+    Locator:  getByRole('option', { name: 'Georgia', exact: true })
+    Expected: 2
+    Received: 1
+    Timeout:  5000ms
+
+    Call log:
+      - Expect "toHaveCount" getByRole('option', { name: 'Georgia', exact: true }) with timeout 5000ms
+      - waiting for getByRole('option', { name: 'Georgia', exact: true })
+        14 × locator resolved to 1 element
+           - unexpected value "1"
+
+
+      86 |   await fontButton(page).click();
+      87 |   const options = page.getByRole("option", { name: "Georgia", exact: true });
+    > 88 |   await expect(options).toHaveCount(2);
+         |                         ^
+      89 |   const faces = await options.evaluateAll((els) => els.map((el) => getComputedStyle(el).fontFamily));
+      90 |   expect(faces[0]).toContain("Georgia");
+      91 |   expect(faces[1]).toBe(faces[0]);
+        at /Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/tests/of6-recent-fonts.spec.ts:88:25
+
+    Error Context: test-results/T289/of6-recent-fonts-Recent-ro-0c041-own-face-like-the-main-list/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/T289/of6-recent-fonts-Recent-ro-0c041-own-face-like-the-main-list/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/T289/of6-recent-fonts-Recent-ro-0c041-own-face-like-the-main-list/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+[4/9] tests/of6-recent-fonts.spec.ts:94:1 › opening the menu or moving the caret does not change Recent
+  4) tests/of6-recent-fonts.spec.ts:94:1 › opening the menu or moving the caret does not change Recent 
+
+    Error: expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 1
+    + Received  + 4
+
+      Array [
+    -   "#Recent",
+    +   "Futura",
+    +   "Arial",
+    +   "Helvetica",
+        "Verdana",
+        "Georgia",
+    +   "Times New Roman",
+      ]
+
+      106 |   await fontButton(page).click();
+      107 |   const list = await rows(page);
+    > 108 |   expect(list.slice(0, list.indexOf("--"))).toEqual(["#Recent", "Verdana", "Georgia"]);
+          |                                             ^
+      109 | });
+      110 |
+      111 | test("Recent is remembered under folio.recentFonts", async ({ page }) => {
+        at /Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/tests/of6-recent-fonts.spec.ts:108:45
+
+    Error Context: test-results/T289/of6-recent-fonts-opening-t-fabed-aret-does-not-change-Recent/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/T289/of6-recent-fonts-opening-t-fabed-aret-does-not-change-Recent/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/T289/of6-recent-fonts-opening-t-fabed-aret-does-not-change-Recent/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+[5/9] tests/of6-recent-fonts.spec.ts:111:1 › Recent is remembered under folio.recentFonts
+  5) tests/of6-recent-fonts.spec.ts:111:1 › Recent is remembered under folio.recentFonts ───────────
+
+    Error: expect(received).toEqual(expected) // deep equality
+
+    Expected: ["Arial, sans-serif", "Georgia, serif"]
+    Received: null
+
+      114 |   await apply(page, "Arial");
+      115 |   const stored = await page.evaluate(() => localStorage.getItem("folio.recentFonts"));
+    > 116 |   expect(JSON.parse(stored!)).toEqual(["Arial, sans-serif", "Georgia, serif"]);
+          |                               ^
+      117 | });
+      118 |
+      119 | test("stored junk and fonts that are gone are not shown", async ({ page }) => {
+        at /Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/tests/of6-recent-fonts.spec.ts:116:31
+
+    Error Context: test-results/T289/of6-recent-fonts-Recent-is-5593d-red-under-folio-recentFonts/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/T289/of6-recent-fonts-Recent-is-5593d-red-under-folio-recentFonts/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/T289/of6-recent-fonts-Recent-is-5593d-red-under-folio-recentFonts/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+[6/9] tests/of6-recent-fonts.spec.ts:119:1 › stored junk and fonts that are gone are not shown
+  6) tests/of6-recent-fonts.spec.ts:119:1 › stored junk and fonts that are gone are not shown ──────
+
+    Error: expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 1
+    + Received  + 5
+
+      Array [
+    -   "#Recent",
+    +   "Futura",
+    +   "Arial",
+    +   "Helvetica",
+        "Verdana",
+    +   "Georgia",
+    +   "Times New Roman",
+      ]
+
+      121 |   await fontButton(page).click();
+      122 |   const list = await rows(page);
+    > 123 |   expect(list.slice(0, list.indexOf("--"))).toEqual(["#Recent", "Verdana"]);
+          |                                             ^
+      124 | });
+      125 |
+      126 | test("unparseable stored data shows no Recent section", async ({ page }) => {
+        at /Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/tests/of6-recent-fonts.spec.ts:123:45
+
+    Error Context: test-results/T289/of6-recent-fonts-stored-ju-e7f8f-that-are-gone-are-not-shown/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/T289/of6-recent-fonts-stored-ju-e7f8f-that-are-gone-are-not-shown/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/T289/of6-recent-fonts-stored-ju-e7f8f-that-are-gone-are-not-shown/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+[7/9] tests/of6-recent-fonts.spec.ts:126:1 › unparseable stored data shows no Recent section
+  7) tests/of6-recent-fonts.spec.ts:126:1 › unparseable stored data shows no Recent section ────────
+
+    Error: expect(locator).toHaveCount(expected) failed
+
+    Locator:  getByRole('separator')
+    Expected: 0
+    Received: 1
+    Timeout:  5000ms
+
+    Call log:
+      - Expect "toHaveCount" getByRole('separator') with timeout 5000ms
+      - waiting for getByRole('separator')
+        14 × locator resolved to 1 element
+           - unexpected value "1"
+
+
+      127 |   await start(page, "{not json");
+      128 |   await fontButton(page).click();
+    > 129 |   await expect(page.getByRole("separator")).toHaveCount(0);
+          |                                             ^
+      130 |   expect((await rows(page)).some((r) => r.startsWith("#"))).toBe(false);
+      131 | });
+      132 |
+        at /Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/tests/of6-recent-fonts.spec.ts:129:45
+
+    Error Context: test-results/T289/of6-recent-fonts-unparseab-05197-ata-shows-no-Recent-section/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/T289/of6-recent-fonts-unparseab-05197-ata-shows-no-Recent-section/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/T289/of6-recent-fonts-unparseab-05197-ata-shows-no-Recent-section/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+[8/9] tests/of6-recent-fonts.spec.ts:133:1 › keyboard and type-ahead skip the heading and divider
+  8) tests/of6-recent-fonts.spec.ts:133:1 › keyboard and type-ahead skip the heading and divider ───
+
+    Error: expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 1
+    + Received  + 1
+
+      Object {
+        "role": "option",
+    -   "text": "Verdana",
+    +   "text": "Futura",
+      }
+
+      143 |   await page.keyboard.press("End");
+      144 |   await page.keyboard.press("Home");
+    > 145 |   expect(await active()).toEqual({ text: "Verdana", role: "option" });
+          |                          ^
+      146 |   // One step down passes the divider straight into the full list.
+      147 |   await page.keyboard.press("ArrowDown");
+      148 |   const second = await active();
+        at /Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/tests/of6-recent-fonts.spec.ts:145:26
+
+    Error Context: test-results/T289/of6-recent-fonts-keyboard--633d2-kip-the-heading-and-divider/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/T289/of6-recent-fonts-keyboard--633d2-kip-the-heading-and-divider/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/T289/of6-recent-fonts-keyboard--633d2-kip-the-heading-and-divider/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+[9/9] tests/of6-recent-fonts.spec.ts:167:1 › an ordinary dropdown is unchanged: no heading, no separator, same keys
+  9) tests/of6-recent-fonts.spec.ts:167:1 › an ordinary dropdown is unchanged: no heading, no separator, same keys 
+
+    Error: expect(locator).toHaveCount(expected) failed
+
+    Locator:  getByRole('separator')
+    Expected: 0
+    Received: 1
+    Timeout:  5000ms
+
+    Call log:
+      - Expect "toHaveCount" getByRole('separator') with timeout 5000ms
+      - waiting for getByRole('separator')
+        14 × locator resolved to 1 element
+           - unexpected value "1"
+
+
+      173 |     "option", "option", "option", "option", "option",
+      174 |   ]);
+    > 175 |   await expect(page.getByRole("separator")).toHaveCount(0);
+          |                                             ^
+      176 |   await page.keyboard.press("Home");
+      177 |   await expect(menu.locator("[data-highlighted]")).toHaveText("50%");
+      178 |   await page.keyboard.press("End");
+        at /Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/tests/of6-recent-fonts.spec.ts:175:45
+
+    Error Context: test-results/T289/of6-recent-fonts-an-ordina-1c29c-ding-no-separator-same-keys/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/T289/of6-recent-fonts-an-ordina-1c29c-ding-no-separator-same-keys/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/T289/of6-recent-fonts-an-ordina-1c29c-ding-no-separator-same-keys/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+  9 failed
+    tests/of6-recent-fonts.spec.ts:45:1 › no Recent section or divider before any font is applied ──
+    tests/of6-recent-fonts.spec.ts:54:1 › applying fonts fills Recent: newest first, once each, at most five 
+    tests/of6-recent-fonts.spec.ts:83:1 › Recent rows preview in their own face like the main list ─
+    tests/of6-recent-fonts.spec.ts:94:1 › opening the menu or moving the caret does not change Recent 
+    tests/of6-recent-fonts.spec.ts:111:1 › Recent is remembered under folio.recentFonts ────────────
+    tests/of6-recent-fonts.spec.ts:119:1 › stored junk and fonts that are gone are not shown ───────
+    tests/of6-recent-fonts.spec.ts:126:1 › unparseable stored data shows no Recent section ─────────
+    tests/of6-recent-fonts.spec.ts:133:1 › keyboard and type-ahead skip the heading and divider ────
+    tests/of6-recent-fonts.spec.ts:167:1 › an ordinary dropdown is unchanged: no heading, no separator, same keys 
+EXIT 1

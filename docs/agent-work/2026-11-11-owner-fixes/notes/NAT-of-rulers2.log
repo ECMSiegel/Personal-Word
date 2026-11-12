@@ -1,0 +1,678 @@
+data dir: /Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/node_modules/.cache/personal-word-beta/of-n/runs/rulers-cm3891ir
+identity: {"info": "identity", "phase": "of/rulers", "appIdentifier": "com.folio.smoke", "dataStoreIdentifier": "e21481c880294a0aa04446c2206c0500", "expectedStore": "e21481c880294a0aa04446c2206c0500", "protocol": "d1-profile-isolation-v1", "unzoomed": true}
+start {
+ "info": "start",
+ "window": [
+  1240,
+  812
+ ],
+ "dpr": 1,
+ "unzoomed": true,
+ "stripFound": true
+}
+
+PASS toggles independent
+{
+ "check": "toggles independent",
+ "pass": true,
+ "seen": {
+  "topOff_sideOn": {
+   "strip": false,
+   "top": false,
+   "side": 4
+  },
+  "bothOff": {
+   "strip": false,
+   "top": false,
+   "side": 0
+  },
+  "topOn_sideOff": {
+   "strip": true,
+   "top": true,
+   "side": 0
+  },
+  "bothOn": {
+   "strip": true,
+   "top": true,
+   "side": 4
+  }
+ },
+ "keys": {
+  "top": "true",
+  "side": "true"
+ }
+}
+
+PASS rest: rulers off the sheet 100%
+{
+ "check": "rest: rulers off the sheet 100%",
+ "pass": true,
+ "zoom": 100,
+ "paperZoom": 1,
+ "rulerZoom": 1,
+ "strip": {
+  "left": 0,
+  "right": 1240,
+  "top": 130,
+  "bottom": 154,
+  "width": 1240,
+  "height": 24,
+  "s": 1
+ },
+ "firstSheet": {
+  "left": 223.2,
+  "right": 1016.8,
+  "top": 154,
+  "bottom": 1276.5,
+  "width": 793.7,
+  "height": 1122.5,
+  "s": 1
+ },
+ "ruler": {
+  "left": 223.2,
+  "right": 1016.8,
+  "top": 130,
+  "bottom": 154,
+  "width": 793.7,
+  "height": 24,
+  "s": 1
+ },
+ "stripBottomMinusSheetTop": 0,
+ "rulerHits": 0,
+ "stripOverSheet": false,
+ "sideRulers": 4,
+ "calibration": {
+  "ruler": "div.ruler-ticks",
+  "rulerOk": true,
+  "sheet": "div.editor-paper",
+  "sheetOk": true
+ }
+}
+
+PASS ticks, markers, bands align 100%
+{
+ "check": "ticks, markers, bands align 100%",
+ "pass": true,
+ "zoom": 100,
+ "inchTicks": 9,
+ "rulerLeftMinusSheetLeft": 0,
+ "rulerRightMinusSheetRight": 0,
+ "tickErrors": [
+  0,
+  0,
+  0,
+  0,
+  0,
+  0,
+  0,
+  0,
+  0
+ ],
+ "leftMarkerCentreErr": 0,
+ "rightMarkerCentreErr": 0,
+ "leftBand": {
+  "leftErr": 0,
+  "widthErr": 0
+ },
+ "rightBand": {
+  "rightErr": 0,
+  "widthErr": 0
+ },
+ "bandColour": "rgb(64, 64, 70)",
+ "bandOpacity": "0.5",
+ "marginCss": 96
+}
+
+PASS pinned while scrolled 100%
+{
+ "check": "pinned while scrolled 100%",
+ "pass": true,
+ "zoom": 100,
+ "scrollTop": 1500,
+ "stripTopMinusScrollerTop": 0,
+ "stripHeight": 24,
+ "topmostAtRulerCentre": "div.ruler-ticks"
+}
+
+PASS strip click leaves caret and scroll (scrolled) 100%
+{
+ "check": "strip click leaves caret and scroll (scrolled) 100%",
+ "pass": true,
+ "zoom": 100,
+ "point": [
+  111.6,
+  126
+ ],
+ "hit": "div.ruler-strip",
+ "before": {
+  "head": 30,
+  "top": 1500
+ },
+ "after": {
+  "head": 30,
+  "top": 1500
+ },
+ "mousedownPrevented": true,
+ "domSelectionInRuler": false
+}
+
+PASS strip click leaves caret and scroll (rest) 100%
+{
+ "check": "strip click leaves caret and scroll (rest) 100%",
+ "pass": true,
+ "zoom": 100,
+ "point": [
+  111.6,
+  142
+ ],
+ "hit": "div.ruler-strip",
+ "before": {
+  "head": 30,
+  "top": 0
+ },
+ "after": {
+  "head": 30,
+  "top": 0
+ },
+ "mousedownPrevented": true,
+ "domSelectionInRuler": false
+}
+
+PASS caret clears strip after ArrowUp (key-then-late-selection) 100%
+{
+ "check": "caret clears strip after ArrowUp (key-then-late-selection) 100%",
+ "pass": true,
+ "zoom": 100,
+ "focusOk": true,
+ "hiddenBefore": true,
+ "headOnFirstLine": true,
+ "lineTop": 142.5,
+ "caretTop": 143.5,
+ "stripBottom": 138,
+ "clearance": 4.5
+}
+
+PASS caret clears strip after ArrowUp (selection-with-scrollIntoView) 100%
+{
+ "check": "caret clears strip after ArrowUp (selection-with-scrollIntoView) 100%",
+ "pass": true,
+ "zoom": 100,
+ "focusOk": true,
+ "hiddenBefore": true,
+ "headOnFirstLine": true,
+ "lineTop": 142.5,
+ "caretTop": 143.5,
+ "stripBottom": 138,
+ "clearance": 4.5
+}
+
+PASS rest: rulers off the sheet 125%
+{
+ "check": "rest: rulers off the sheet 125%",
+ "pass": true,
+ "zoom": 125,
+ "paperZoom": 1.25,
+ "rulerZoom": 1.25,
+ "strip": {
+  "left": 0,
+  "right": 1240,
+  "top": 130,
+  "bottom": 160,
+  "width": 1240,
+  "height": 30,
+  "s": 1
+ },
+ "firstSheet": {
+  "left": 123.9,
+  "right": 1116.1,
+  "top": 160,
+  "bottom": 1563.1,
+  "width": 992.1,
+  "height": 1403.1,
+  "s": 1.3
+ },
+ "ruler": {
+  "left": 123.9,
+  "right": 1116.1,
+  "top": 130,
+  "bottom": 160,
+  "width": 992.1,
+  "height": 30,
+  "s": 1.3
+ },
+ "stripBottomMinusSheetTop": 0,
+ "rulerHits": 0,
+ "stripOverSheet": false,
+ "sideRulers": 4,
+ "calibration": {
+  "ruler": "div.ruler-ticks",
+  "rulerOk": true,
+  "sheet": "div.editor-paper",
+  "sheetOk": true
+ }
+}
+
+PASS ticks, markers, bands align 125%
+{
+ "check": "ticks, markers, bands align 125%",
+ "pass": true,
+ "zoom": 125,
+ "inchTicks": 9,
+ "rulerLeftMinusSheetLeft": 0,
+ "rulerRightMinusSheetRight": 0,
+ "tickErrors": [
+  0,
+  0,
+  0,
+  0,
+  0,
+  0,
+  0,
+  0,
+  0
+ ],
+ "leftMarkerCentreErr": 0,
+ "rightMarkerCentreErr": 0,
+ "leftBand": {
+  "leftErr": 0,
+  "widthErr": 0
+ },
+ "rightBand": {
+  "rightErr": 0,
+  "widthErr": 0
+ },
+ "bandColour": "rgb(64, 64, 70)",
+ "bandOpacity": "0.5",
+ "marginCss": 96
+}
+
+PASS pinned while scrolled 125%
+{
+ "check": "pinned while scrolled 125%",
+ "pass": true,
+ "zoom": 125,
+ "scrollTop": 1500,
+ "stripTopMinusScrollerTop": 0,
+ "stripHeight": 30,
+ "topmostAtRulerCentre": "div.ruler-ticks"
+}
+
+PASS strip click leaves caret and scroll (scrolled) 125%
+{
+ "check": "strip click leaves caret and scroll (scrolled) 125%",
+ "pass": true,
+ "zoom": 125,
+ "point": [
+  62,
+  129
+ ],
+ "hit": "div.ruler-strip",
+ "before": {
+  "head": 30,
+  "top": 1500
+ },
+ "after": {
+  "head": 30,
+  "top": 1500
+ },
+ "mousedownPrevented": true,
+ "domSelectionInRuler": false
+}
+
+PASS strip click leaves caret and scroll (rest) 125%
+{
+ "check": "strip click leaves caret and scroll (rest) 125%",
+ "pass": true,
+ "zoom": 125,
+ "point": [
+  62,
+  145
+ ],
+ "hit": "div.ruler-strip",
+ "before": {
+  "head": 30,
+  "top": 0
+ },
+ "after": {
+  "head": 30,
+  "top": 0
+ },
+ "mousedownPrevented": true,
+ "domSelectionInRuler": false
+}
+
+PASS caret clears strip after ArrowUp (key-then-late-selection) 125%
+{
+ "check": "caret clears strip after ArrowUp (key-then-late-selection) 125%",
+ "pass": true,
+ "zoom": 125,
+ "focusOk": true,
+ "hiddenBefore": true,
+ "headOnFirstLine": true,
+ "lineTop": 147.1,
+ "caretTop": 149.1,
+ "stripBottom": 144,
+ "clearance": 3.1
+}
+
+PASS caret clears strip after ArrowUp (selection-with-scrollIntoView) 125%
+{
+ "check": "caret clears strip after ArrowUp (selection-with-scrollIntoView) 125%",
+ "pass": true,
+ "zoom": 125,
+ "focusOk": true,
+ "hiddenBefore": true,
+ "headOnFirstLine": true,
+ "lineTop": 147.1,
+ "caretTop": 149.1,
+ "stripBottom": 144,
+ "clearance": 3.1
+}
+
+PASS rest: rulers off the sheet 150%
+{
+ "check": "rest: rulers off the sheet 150%",
+ "pass": true,
+ "zoom": 150,
+ "paperZoom": 1.5,
+ "rulerZoom": 1.5,
+ "strip": {
+  "left": 0,
+  "right": 1240,
+  "top": 130,
+  "bottom": 166,
+  "width": 1240,
+  "height": 36,
+  "s": 1
+ },
+ "firstSheet": {
+  "left": 24.7,
+  "right": 1215.3,
+  "top": 166,
+  "bottom": 1849.8,
+  "width": 1190.5,
+  "height": 1683.8,
+  "s": 1.5
+ },
+ "ruler": {
+  "left": 24.7,
+  "right": 1215.3,
+  "top": 130,
+  "bottom": 166,
+  "width": 1190.5,
+  "height": 36,
+  "s": 1.5
+ },
+ "stripBottomMinusSheetTop": 0,
+ "rulerHits": 0,
+ "stripOverSheet": false,
+ "sideRulers": 4,
+ "calibration": {
+  "ruler": "div.ruler-ticks",
+  "rulerOk": true,
+  "sheet": "div.editor-paper",
+  "sheetOk": true
+ }
+}
+
+PASS ticks, markers, bands align 150%
+{
+ "check": "ticks, markers, bands align 150%",
+ "pass": true,
+ "zoom": 150,
+ "inchTicks": 9,
+ "rulerLeftMinusSheetLeft": 0,
+ "rulerRightMinusSheetRight": 0,
+ "tickErrors": [
+  0,
+  0,
+  0,
+  0,
+  0,
+  0,
+  0,
+  0,
+  0
+ ],
+ "leftMarkerCentreErr": 0,
+ "rightMarkerCentreErr": 0,
+ "leftBand": {
+  "leftErr": 0,
+  "widthErr": 0
+ },
+ "rightBand": {
+  "rightErr": 0,
+  "widthErr": 0
+ },
+ "bandColour": "rgb(64, 64, 70)",
+ "bandOpacity": "0.5",
+ "marginCss": 96
+}
+
+PASS pinned while scrolled 150%
+{
+ "check": "pinned while scrolled 150%",
+ "pass": true,
+ "zoom": 150,
+ "scrollTop": 1500,
+ "stripTopMinusScrollerTop": 0,
+ "stripHeight": 36,
+ "topmostAtRulerCentre": "div.ruler-ticks"
+}
+
+PASS strip click leaves caret and scroll (scrolled) 150%
+{
+ "check": "strip click leaves caret and scroll (scrolled) 150%",
+ "pass": true,
+ "zoom": 150,
+ "point": [
+  12.4,
+  132
+ ],
+ "hit": "div.ruler-strip",
+ "before": {
+  "head": 30,
+  "top": 1500
+ },
+ "after": {
+  "head": 30,
+  "top": 1500
+ },
+ "mousedownPrevented": true,
+ "domSelectionInRuler": false
+}
+
+PASS strip click leaves caret and scroll (rest) 150%
+{
+ "check": "strip click leaves caret and scroll (rest) 150%",
+ "pass": true,
+ "zoom": 150,
+ "point": [
+  12.4,
+  148
+ ],
+ "hit": "div.ruler-strip",
+ "before": {
+  "head": 30,
+  "top": 0
+ },
+ "after": {
+  "head": 30,
+  "top": 0
+ },
+ "mousedownPrevented": true,
+ "domSelectionInRuler": false
+}
+
+PASS caret clears strip after ArrowUp (key-then-late-selection) 150%
+{
+ "check": "caret clears strip after ArrowUp (key-then-late-selection) 150%",
+ "pass": true,
+ "zoom": 150,
+ "focusOk": true,
+ "hiddenBefore": true,
+ "headOnFirstLine": true,
+ "lineTop": 153.8,
+ "caretTop": 155.8,
+ "stripBottom": 150,
+ "clearance": 3.8
+}
+
+PASS caret clears strip after ArrowUp (selection-with-scrollIntoView) 150%
+{
+ "check": "caret clears strip after ArrowUp (selection-with-scrollIntoView) 150%",
+ "pass": true,
+ "zoom": 150,
+ "focusOk": true,
+ "hiddenBefore": true,
+ "headOnFirstLine": true,
+ "lineTop": 153.8,
+ "caretTop": 155.8,
+ "stripBottom": 150,
+ "clearance": 3.8
+}
+
+PASS floating sidebar not covered by strip
+{
+ "check": "floating sidebar not covered by strip",
+ "pass": true,
+ "zoom": 100,
+ "checked": [
+  ".project-switch@0",
+  ".sidebar-pin@0",
+  ".project-switch@1500",
+  ".sidebar-pin@1500"
+ ],
+ "covered": []
+}
+
+PASS fragment title band grey under floating sidebar
+{
+ "check": "fragment title band grey under floating sidebar",
+ "pass": true,
+ "zoom": 100,
+ "section": {
+  "x": 207.2,
+  "asideRight": 191.2,
+  "sheetLeft": 223.2,
+  "titleX": 12,
+  "titleY": 130,
+  "bgBehindTitle": "rgb(40, 40, 44) (div.ruler-strip)",
+  "bgLower": "rgb(40, 40, 44) (div.editor-viewport.is-paged)",
+  "origin": false
+ },
+ "fragment": {
+  "x": 207.2,
+  "asideRight": 191.2,
+  "sheetLeft": 223.2,
+  "titleX": 12,
+  "titleY": 130,
+  "bgBehindTitle": "rgb(40, 40, 44) (div.writer-scroll)",
+  "bgLower": "rgb(40, 40, 44) (div.editor-viewport.is-paged)",
+  "origin": true
+ },
+ "sectionName": "Opening"
+}
+summary {
+ "info": "summary",
+ "results": [
+  {
+   "check": "toggles independent",
+   "pass": true
+  },
+  {
+   "check": "rest: rulers off the sheet 100%",
+   "pass": true
+  },
+  {
+   "check": "ticks, markers, bands align 100%",
+   "pass": true
+  },
+  {
+   "check": "pinned while scrolled 100%",
+   "pass": true
+  },
+  {
+   "check": "strip click leaves caret and scroll (scrolled) 100%",
+   "pass": true
+  },
+  {
+   "check": "strip click leaves caret and scroll (rest) 100%",
+   "pass": true
+  },
+  {
+   "check": "caret clears strip after ArrowUp (key-then-late-selection) 100%",
+   "pass": true
+  },
+  {
+   "check": "caret clears strip after ArrowUp (selection-with-scrollIntoView) 100%",
+   "pass": true
+  },
+  {
+   "check": "rest: rulers off the sheet 125%",
+   "pass": true
+  },
+  {
+   "check": "ticks, markers, bands align 125%",
+   "pass": true
+  },
+  {
+   "check": "pinned while scrolled 125%",
+   "pass": true
+  },
+  {
+   "check": "strip click leaves caret and scroll (scrolled) 125%",
+   "pass": true
+  },
+  {
+   "check": "strip click leaves caret and scroll (rest) 125%",
+   "pass": true
+  },
+  {
+   "check": "caret clears strip after ArrowUp (key-then-late-selection) 125%",
+   "pass": true
+  },
+  {
+   "check": "caret clears strip after ArrowUp (selection-with-scrollIntoView) 125%",
+   "pass": true
+  },
+  {
+   "check": "rest: rulers off the sheet 150%",
+   "pass": true
+  },
+  {
+   "check": "ticks, markers, bands align 150%",
+   "pass": true
+  },
+  {
+   "check": "pinned while scrolled 150%",
+   "pass": true
+  },
+  {
+   "check": "strip click leaves caret and scroll (scrolled) 150%",
+   "pass": true
+  },
+  {
+   "check": "strip click leaves caret and scroll (rest) 150%",
+   "pass": true
+  },
+  {
+   "check": "caret clears strip after ArrowUp (key-then-late-selection) 150%",
+   "pass": true
+  },
+  {
+   "check": "caret clears strip after ArrowUp (selection-with-scrollIntoView) 150%",
+   "pass": true
+  },
+  {
+   "check": "floating sidebar not covered by strip",
+   "pass": true
+  },
+  {
+   "check": "fragment title band grey under floating sidebar",
+   "pass": true
+  }
+ ]
+}
+
+RESULT of/rulers done=True ok=True

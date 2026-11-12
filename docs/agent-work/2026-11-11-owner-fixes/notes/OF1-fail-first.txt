@@ -1,0 +1,44 @@
+
+Running 1 test using 1 worker
+
+  ✘  1 tests/of1-text-notes.spec.ts:14:1 › Text-only notes live on the Notes tab, not the Sources tab (11.9s)
+
+
+  1) tests/of1-text-notes.spec.ts:14:1 › Text-only notes live on the Notes tab, not the Sources tab 
+
+    Error: expect(locator).toHaveCount(expected) failed
+
+    Locator:  getByRole('heading', { name: 'Text-only notes' })
+    Expected: 0
+    Received: 1
+    Timeout:  5000ms
+
+    Call log:
+      - Expect "toHaveCount" getByRole('heading', { name: 'Text-only notes' }) with timeout 5000ms
+      - waiting for getByRole('heading', { name: 'Text-only notes' })
+        14 × locator resolved to 1 element
+           - unexpected value "1"
+
+
+      22 |   // Sources tab: nothing about text-only notes.
+      23 |   await expect(tab(page, "Sources")).toHaveAttribute("aria-pressed", "true");
+    > 24 |   await expect(page.getByRole("heading", { name: "Text-only notes" })).toHaveCount(0);
+         |                                                                        ^
+      25 |   await expect(page.getByRole("button", { name: "Insert footnote at cursor" })).toHaveCount(0);
+      26 |
+      27 |   // Notes tab: the whole block.
+        at /Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/tests/of1-text-notes.spec.ts:24:72
+
+    Error Context: test-results/T284/of1-text-notes-Text-only-n-4929f-tes-tab-not-the-Sources-tab/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/T284/of1-text-notes-Text-only-n-4929f-tes-tab-not-the-Sources-tab/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/T284/of1-text-notes-Text-only-n-4929f-tes-tab-not-the-Sources-tab/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/of1-text-notes.spec.ts:14:1 › Text-only notes live on the Notes tab, not the Sources tab ─
+EXIT 1

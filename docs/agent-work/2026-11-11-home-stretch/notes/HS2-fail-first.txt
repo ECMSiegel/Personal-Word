@@ -1,0 +1,41 @@
+
+Running 1 test using 1 worker
+
+  ✘  1 tests/hs2-spacing.spec.ts:5:1 › line spacing popover: three equal right-aligned boxes and no pt text (15.3s)
+
+
+  1) tests/hs2-spacing.spec.ts:5:1 › line spacing popover: three equal right-aligned boxes and no pt text 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('dialog', { name: 'Line and paragraph spacing' }).getByLabel('Space before, points')
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('dialog', { name: 'Line and paragraph spacing' }).getByLabel('Space before, points') with timeout 5000ms
+      - waiting for getByRole('dialog', { name: 'Line and paragraph spacing' }).getByLabel('Space before, points')
+
+
+      27 |   const rects = [];
+      28 |   for (const b of boxes) {
+    > 29 |     await expect(b).toBeVisible();
+         |                     ^
+      30 |     rects.push((await b.boundingBox())!);
+      31 |   }
+      32 |   for (const r of rects.slice(1)) {
+        at /Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/tests/hs2-spacing.spec.ts:29:21
+
+    Error Context: test-results/HS2/hs2-spacing-line-spacing-p-c63c3-ligned-boxes-and-no-pt-text/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/HS2/hs2-spacing-line-spacing-p-c63c3-ligned-boxes-and-no-pt-text/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/HS2/hs2-spacing-line-spacing-p-c63c3-ligned-boxes-and-no-pt-text/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/hs2-spacing.spec.ts:5:1 › line spacing popover: three equal right-aligned boxes and no pt text 

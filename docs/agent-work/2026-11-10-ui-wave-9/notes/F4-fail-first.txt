@@ -1,0 +1,185 @@
+
+Running 150 tests using 1 worker
+
+  ✓    1 tests/sidebar-context-menu.spec.ts:98:1 › right-click on a section opens the menu at the pointer; Escape returns focus to the row (3.9s)
+  ✓    2 tests/sidebar-context-menu.spec.ts:135:1 › Shift+F10 and the ContextMenu key open it on the focused row; arrows, Home/End and Enter work (3.4s)
+  ✓    3 tests/sidebar-context-menu.spec.ts:179:1 › Open, Open beside, Rename and Delete from a section and a fragment (4.2s)
+  ✓    4 tests/sidebar-context-menu.spec.ts:224:1 › group heading: Collapse/Expand, Move up, Move down (2.4s)
+  ✓    5 tests/sidebar-context-menu.spec.ts:252:1 › research rows: source, PDF, note and Bibliography items; moves are announced (4.3s)
+  ✓    6 tests/sidebar-context-menu.spec.ts:289:1 › the menu stays inside the window near its edges (1.9s)
+  ✓    7 tests/sidebar-context-menu.spec.ts:310:1 › a right-click in the editor gets no sidebar menu (1.6s)
+  ✓    8 tests/sidebar-context-menu.spec.ts:319:1 › Reduce Motion: a pointer-opened menu is instant (1.2s)
+  ✓    9 tests/sidebar-context-menu.spec.ts:355:3 › floating sidebar › floating: no separators above the bottom rows; the menu still opens at the pointer (1.6s)
+  ✓   10 tests/sidebar-context-menu.spec.ts:369:3 › floating sidebar › normal: the separators stay above Comments, History and Settings (1.3s)
+  ✓   11 tests/sidebar-context-menu.spec.ts:384:3 › floating sidebar, short window › the scrolling group list ends above the bottom rows; no row overlaps them (2.4s)
+  -   12 tests/sidebar-context-menu.spec.ts:419:5 › screenshots light plain: menu on a section and a group heading; floating without dividers
+  -   13 tests/sidebar-context-menu.spec.ts:419:5 › screenshots light color: menu on a section and a group heading; floating without dividers
+  -   14 tests/sidebar-context-menu.spec.ts:419:5 › screenshots dark plain: menu on a section and a group heading; floating without dividers
+  -   15 tests/sidebar-context-menu.spec.ts:419:5 › screenshots dark color: menu on a section and a group heading; floating without dividers
+  ✓   16 tests/sidebar-context-menu.spec.ts:98:1 › right-click on a section opens the menu at the pointer; Escape returns focus to the row (2.0s)
+  ✓   17 tests/sidebar-context-menu.spec.ts:135:1 › Shift+F10 and the ContextMenu key open it on the focused row; arrows, Home/End and Enter work (1.9s)
+  ✓   18 tests/sidebar-context-menu.spec.ts:179:1 › Open, Open beside, Rename and Delete from a section and a fragment (3.6s)
+  ✓   19 tests/sidebar-context-menu.spec.ts:224:1 › group heading: Collapse/Expand, Move up, Move down (2.4s)
+  ✓   20 tests/sidebar-context-menu.spec.ts:252:1 › research rows: source, PDF, note and Bibliography items; moves are announced (4.3s)
+  ✓   21 tests/sidebar-context-menu.spec.ts:289:1 › the menu stays inside the window near its edges (1.5s)
+  ✓   22 tests/sidebar-context-menu.spec.ts:310:1 › a right-click in the editor gets no sidebar menu (1.4s)
+  ✓   23 tests/sidebar-context-menu.spec.ts:319:1 › Reduce Motion: a pointer-opened menu is instant (1.2s)
+  ✓   24 tests/sidebar-context-menu.spec.ts:355:3 › floating sidebar › floating: no separators above the bottom rows; the menu still opens at the pointer (1.5s)
+  ✓   25 tests/sidebar-context-menu.spec.ts:369:3 › floating sidebar › normal: the separators stay above Comments, History and Settings (1.4s)
+  ✘   26 tests/sidebar-context-menu.spec.ts:384:3 › floating sidebar, short window › the scrolling group list ends above the bottom rows; no row overlaps them (1.5m)
+  -   27 tests/sidebar-context-menu.spec.ts:419:5 › screenshots light plain: menu on a section and a group heading; floating without dividers
+  -   28 tests/sidebar-context-menu.spec.ts:419:5 › screenshots light color: menu on a section and a group heading; floating without dividers
+  -   29 tests/sidebar-context-menu.spec.ts:419:5 › screenshots dark plain: menu on a section and a group heading; floating without dividers
+  -   30 tests/sidebar-context-menu.spec.ts:419:5 › screenshots dark color: menu on a section and a group heading; floating without dividers
+  ✓   31 tests/sidebar-context-menu.spec.ts:98:1 › right-click on a section opens the menu at the pointer; Escape returns focus to the row (2.0s)
+  ✓   32 tests/sidebar-context-menu.spec.ts:135:1 › Shift+F10 and the ContextMenu key open it on the focused row; arrows, Home/End and Enter work (1.9s)
+  ✓   33 tests/sidebar-context-menu.spec.ts:179:1 › Open, Open beside, Rename and Delete from a section and a fragment (3.9s)
+  ✓   34 tests/sidebar-context-menu.spec.ts:224:1 › group heading: Collapse/Expand, Move up, Move down (2.4s)
+  ✓   35 tests/sidebar-context-menu.spec.ts:252:1 › research rows: source, PDF, note and Bibliography items; moves are announced (4.0s)
+  ✓   36 tests/sidebar-context-menu.spec.ts:289:1 › the menu stays inside the window near its edges (1.5s)
+  ✓   37 tests/sidebar-context-menu.spec.ts:310:1 › a right-click in the editor gets no sidebar menu (1.4s)
+  ✓   38 tests/sidebar-context-menu.spec.ts:319:1 › Reduce Motion: a pointer-opened menu is instant (1.1s)
+  ✓   39 tests/sidebar-context-menu.spec.ts:355:3 › floating sidebar › floating: no separators above the bottom rows; the menu still opens at the pointer (1.5s)
+  ✓   40 tests/sidebar-context-menu.spec.ts:369:3 › floating sidebar › normal: the separators stay above Comments, History and Settings (1.3s)
+  ✓   41 tests/sidebar-context-menu.spec.ts:384:3 › floating sidebar, short window › the scrolling group list ends above the bottom rows; no row overlaps them (2.5s)
+  -   42 tests/sidebar-context-menu.spec.ts:419:5 › screenshots light plain: menu on a section and a group heading; floating without dividers
+  -   43 tests/sidebar-context-menu.spec.ts:419:5 › screenshots light color: menu on a section and a group heading; floating without dividers
+  -   44 tests/sidebar-context-menu.spec.ts:419:5 › screenshots dark plain: menu on a section and a group heading; floating without dividers
+  -   45 tests/sidebar-context-menu.spec.ts:419:5 › screenshots dark color: menu on a section and a group heading; floating without dividers
+  ✓   46 tests/sidebar-context-menu.spec.ts:98:1 › right-click on a section opens the menu at the pointer; Escape returns focus to the row (1.9s)
+  ✓   47 tests/sidebar-context-menu.spec.ts:135:1 › Shift+F10 and the ContextMenu key open it on the focused row; arrows, Home/End and Enter work (1.8s)
+  ✓   48 tests/sidebar-context-menu.spec.ts:179:1 › Open, Open beside, Rename and Delete from a section and a fragment (4.1s)
+  ✓   49 tests/sidebar-context-menu.spec.ts:224:1 › group heading: Collapse/Expand, Move up, Move down (2.4s)
+  ✓   50 tests/sidebar-context-menu.spec.ts:252:1 › research rows: source, PDF, note and Bibliography items; moves are announced (4.2s)
+  ✓   51 tests/sidebar-context-menu.spec.ts:289:1 › the menu stays inside the window near its edges (1.5s)
+  ✓   52 tests/sidebar-context-menu.spec.ts:310:1 › a right-click in the editor gets no sidebar menu (1.4s)
+  ✓   53 tests/sidebar-context-menu.spec.ts:319:1 › Reduce Motion: a pointer-opened menu is instant (1.1s)
+  ✓   54 tests/sidebar-context-menu.spec.ts:355:3 › floating sidebar › floating: no separators above the bottom rows; the menu still opens at the pointer (1.5s)
+  ✓   55 tests/sidebar-context-menu.spec.ts:369:3 › floating sidebar › normal: the separators stay above Comments, History and Settings (1.3s)
+  ✓   56 tests/sidebar-context-menu.spec.ts:384:3 › floating sidebar, short window › the scrolling group list ends above the bottom rows; no row overlaps them (2.4s)
+  -   57 tests/sidebar-context-menu.spec.ts:419:5 › screenshots light plain: menu on a section and a group heading; floating without dividers
+  -   58 tests/sidebar-context-menu.spec.ts:419:5 › screenshots light color: menu on a section and a group heading; floating without dividers
+  -   59 tests/sidebar-context-menu.spec.ts:419:5 › screenshots dark plain: menu on a section and a group heading; floating without dividers
+  -   60 tests/sidebar-context-menu.spec.ts:419:5 › screenshots dark color: menu on a section and a group heading; floating without dividers
+  ✓   61 tests/sidebar-context-menu.spec.ts:98:1 › right-click on a section opens the menu at the pointer; Escape returns focus to the row (1.9s)
+  ✓   62 tests/sidebar-context-menu.spec.ts:135:1 › Shift+F10 and the ContextMenu key open it on the focused row; arrows, Home/End and Enter work (1.8s)
+  ✓   63 tests/sidebar-context-menu.spec.ts:179:1 › Open, Open beside, Rename and Delete from a section and a fragment (4.3s)
+  ✓   64 tests/sidebar-context-menu.spec.ts:224:1 › group heading: Collapse/Expand, Move up, Move down (2.3s)
+  ✓   65 tests/sidebar-context-menu.spec.ts:252:1 › research rows: source, PDF, note and Bibliography items; moves are announced (4.2s)
+  ✓   66 tests/sidebar-context-menu.spec.ts:289:1 › the menu stays inside the window near its edges (1.5s)
+  ✓   67 tests/sidebar-context-menu.spec.ts:310:1 › a right-click in the editor gets no sidebar menu (1.4s)
+  ✓   68 tests/sidebar-context-menu.spec.ts:319:1 › Reduce Motion: a pointer-opened menu is instant (1.1s)
+  ✓   69 tests/sidebar-context-menu.spec.ts:355:3 › floating sidebar › floating: no separators above the bottom rows; the menu still opens at the pointer (1.6s)
+  ✓   70 tests/sidebar-context-menu.spec.ts:369:3 › floating sidebar › normal: the separators stay above Comments, History and Settings (1.4s)
+  ✓   71 tests/sidebar-context-menu.spec.ts:384:3 › floating sidebar, short window › the scrolling group list ends above the bottom rows; no row overlaps them (2.9s)
+  -   72 tests/sidebar-context-menu.spec.ts:419:5 › screenshots light plain: menu on a section and a group heading; floating without dividers
+  -   73 tests/sidebar-context-menu.spec.ts:419:5 › screenshots light color: menu on a section and a group heading; floating without dividers
+  -   74 tests/sidebar-context-menu.spec.ts:419:5 › screenshots dark plain: menu on a section and a group heading; floating without dividers
+  -   75 tests/sidebar-context-menu.spec.ts:419:5 › screenshots dark color: menu on a section and a group heading; floating without dividers
+  ✓   76 tests/sidebar-context-menu.spec.ts:98:1 › right-click on a section opens the menu at the pointer; Escape returns focus to the row (1.9s)
+  ✓   77 tests/sidebar-context-menu.spec.ts:135:1 › Shift+F10 and the ContextMenu key open it on the focused row; arrows, Home/End and Enter work (1.8s)
+  ✓   78 tests/sidebar-context-menu.spec.ts:179:1 › Open, Open beside, Rename and Delete from a section and a fragment (4.4s)
+  ✓   79 tests/sidebar-context-menu.spec.ts:224:1 › group heading: Collapse/Expand, Move up, Move down (2.3s)
+  ✓   80 tests/sidebar-context-menu.spec.ts:252:1 › research rows: source, PDF, note and Bibliography items; moves are announced (4.3s)
+  ✓   81 tests/sidebar-context-menu.spec.ts:289:1 › the menu stays inside the window near its edges (1.5s)
+  ✓   82 tests/sidebar-context-menu.spec.ts:310:1 › a right-click in the editor gets no sidebar menu (1.4s)
+  ✓   83 tests/sidebar-context-menu.spec.ts:319:1 › Reduce Motion: a pointer-opened menu is instant (1.2s)
+  ✓   84 tests/sidebar-context-menu.spec.ts:355:3 › floating sidebar › floating: no separators above the bottom rows; the menu still opens at the pointer (1.5s)
+  ✓   85 tests/sidebar-context-menu.spec.ts:369:3 › floating sidebar › normal: the separators stay above Comments, History and Settings (1.3s)
+  ✓   86 tests/sidebar-context-menu.spec.ts:384:3 › floating sidebar, short window › the scrolling group list ends above the bottom rows; no row overlaps them (2.5s)
+  -   87 tests/sidebar-context-menu.spec.ts:419:5 › screenshots light plain: menu on a section and a group heading; floating without dividers
+  -   88 tests/sidebar-context-menu.spec.ts:419:5 › screenshots light color: menu on a section and a group heading; floating without dividers
+  -   89 tests/sidebar-context-menu.spec.ts:419:5 › screenshots dark plain: menu on a section and a group heading; floating without dividers
+  -   90 tests/sidebar-context-menu.spec.ts:419:5 › screenshots dark color: menu on a section and a group heading; floating without dividers
+  ✓   91 tests/sidebar-context-menu.spec.ts:98:1 › right-click on a section opens the menu at the pointer; Escape returns focus to the row (1.9s)
+  ✓   92 tests/sidebar-context-menu.spec.ts:135:1 › Shift+F10 and the ContextMenu key open it on the focused row; arrows, Home/End and Enter work (1.9s)
+  ✓   93 tests/sidebar-context-menu.spec.ts:179:1 › Open, Open beside, Rename and Delete from a section and a fragment (4.1s)
+  ✓   94 tests/sidebar-context-menu.spec.ts:224:1 › group heading: Collapse/Expand, Move up, Move down (2.3s)
+  ✓   95 tests/sidebar-context-menu.spec.ts:252:1 › research rows: source, PDF, note and Bibliography items; moves are announced (4.3s)
+  ✓   96 tests/sidebar-context-menu.spec.ts:289:1 › the menu stays inside the window near its edges (1.5s)
+  ✓   97 tests/sidebar-context-menu.spec.ts:310:1 › a right-click in the editor gets no sidebar menu (1.4s)
+  ✓   98 tests/sidebar-context-menu.spec.ts:319:1 › Reduce Motion: a pointer-opened menu is instant (1.2s)
+  ✓   99 tests/sidebar-context-menu.spec.ts:355:3 › floating sidebar › floating: no separators above the bottom rows; the menu still opens at the pointer (1.5s)
+  ✓  100 tests/sidebar-context-menu.spec.ts:369:3 › floating sidebar › normal: the separators stay above Comments, History and Settings (1.3s)
+  ✓  101 tests/sidebar-context-menu.spec.ts:384:3 › floating sidebar, short window › the scrolling group list ends above the bottom rows; no row overlaps them (2.4s)
+  -  102 tests/sidebar-context-menu.spec.ts:419:5 › screenshots light plain: menu on a section and a group heading; floating without dividers
+  -  103 tests/sidebar-context-menu.spec.ts:419:5 › screenshots light color: menu on a section and a group heading; floating without dividers
+  -  104 tests/sidebar-context-menu.spec.ts:419:5 › screenshots dark plain: menu on a section and a group heading; floating without dividers
+  -  105 tests/sidebar-context-menu.spec.ts:419:5 › screenshots dark color: menu on a section and a group heading; floating without dividers
+  ✓  106 tests/sidebar-context-menu.spec.ts:98:1 › right-click on a section opens the menu at the pointer; Escape returns focus to the row (1.9s)
+  ✓  107 tests/sidebar-context-menu.spec.ts:135:1 › Shift+F10 and the ContextMenu key open it on the focused row; arrows, Home/End and Enter work (1.8s)
+  ✓  108 tests/sidebar-context-menu.spec.ts:179:1 › Open, Open beside, Rename and Delete from a section and a fragment (4.3s)
+  ✓  109 tests/sidebar-context-menu.spec.ts:224:1 › group heading: Collapse/Expand, Move up, Move down (2.4s)
+  ✓  110 tests/sidebar-context-menu.spec.ts:252:1 › research rows: source, PDF, note and Bibliography items; moves are announced (4.3s)
+  ✓  111 tests/sidebar-context-menu.spec.ts:289:1 › the menu stays inside the window near its edges (1.5s)
+  ✓  112 tests/sidebar-context-menu.spec.ts:310:1 › a right-click in the editor gets no sidebar menu (1.4s)
+  ✓  113 tests/sidebar-context-menu.spec.ts:319:1 › Reduce Motion: a pointer-opened menu is instant (1.1s)
+  ✓  114 tests/sidebar-context-menu.spec.ts:355:3 › floating sidebar › floating: no separators above the bottom rows; the menu still opens at the pointer (1.5s)
+  ✓  115 tests/sidebar-context-menu.spec.ts:369:3 › floating sidebar › normal: the separators stay above Comments, History and Settings (1.3s)
+  ✓  116 tests/sidebar-context-menu.spec.ts:384:3 › floating sidebar, short window › the scrolling group list ends above the bottom rows; no row overlaps them (2.5s)
+  -  117 tests/sidebar-context-menu.spec.ts:419:5 › screenshots light plain: menu on a section and a group heading; floating without dividers
+  -  118 tests/sidebar-context-menu.spec.ts:419:5 › screenshots light color: menu on a section and a group heading; floating without dividers
+  -  119 tests/sidebar-context-menu.spec.ts:419:5 › screenshots dark plain: menu on a section and a group heading; floating without dividers
+  -  120 tests/sidebar-context-menu.spec.ts:419:5 › screenshots dark color: menu on a section and a group heading; floating without dividers
+  ✓  121 tests/sidebar-context-menu.spec.ts:98:1 › right-click on a section opens the menu at the pointer; Escape returns focus to the row (1.9s)
+  ✓  122 tests/sidebar-context-menu.spec.ts:135:1 › Shift+F10 and the ContextMenu key open it on the focused row; arrows, Home/End and Enter work (1.8s)
+  ✓  123 tests/sidebar-context-menu.spec.ts:179:1 › Open, Open beside, Rename and Delete from a section and a fragment (3.5s)
+  ✓  124 tests/sidebar-context-menu.spec.ts:224:1 › group heading: Collapse/Expand, Move up, Move down (2.3s)
+  ✓  125 tests/sidebar-context-menu.spec.ts:252:1 › research rows: source, PDF, note and Bibliography items; moves are announced (4.2s)
+  ✓  126 tests/sidebar-context-menu.spec.ts:289:1 › the menu stays inside the window near its edges (1.5s)
+  ✓  127 tests/sidebar-context-menu.spec.ts:310:1 › a right-click in the editor gets no sidebar menu (1.4s)
+  ✓  128 tests/sidebar-context-menu.spec.ts:319:1 › Reduce Motion: a pointer-opened menu is instant (1.2s)
+  ✓  129 tests/sidebar-context-menu.spec.ts:355:3 › floating sidebar › floating: no separators above the bottom rows; the menu still opens at the pointer (1.5s)
+  ✓  130 tests/sidebar-context-menu.spec.ts:369:3 › floating sidebar › normal: the separators stay above Comments, History and Settings (1.3s)
+  ✓  131 tests/sidebar-context-menu.spec.ts:384:3 › floating sidebar, short window › the scrolling group list ends above the bottom rows; no row overlaps them (2.4s)
+  -  132 tests/sidebar-context-menu.spec.ts:419:5 › screenshots light plain: menu on a section and a group heading; floating without dividers
+  -  133 tests/sidebar-context-menu.spec.ts:419:5 › screenshots light color: menu on a section and a group heading; floating without dividers
+  -  134 tests/sidebar-context-menu.spec.ts:419:5 › screenshots dark plain: menu on a section and a group heading; floating without dividers
+  -  135 tests/sidebar-context-menu.spec.ts:419:5 › screenshots dark color: menu on a section and a group heading; floating without dividers
+  ✓  136 tests/sidebar-context-menu.spec.ts:98:1 › right-click on a section opens the menu at the pointer; Escape returns focus to the row (1.9s)
+  ✓  137 tests/sidebar-context-menu.spec.ts:135:1 › Shift+F10 and the ContextMenu key open it on the focused row; arrows, Home/End and Enter work (1.8s)
+  ✓  138 tests/sidebar-context-menu.spec.ts:179:1 › Open, Open beside, Rename and Delete from a section and a fragment (4.2s)
+  ✓  139 tests/sidebar-context-menu.spec.ts:224:1 › group heading: Collapse/Expand, Move up, Move down (2.3s)
+  ✓  140 tests/sidebar-context-menu.spec.ts:252:1 › research rows: source, PDF, note and Bibliography items; moves are announced (4.2s)
+  ✓  141 tests/sidebar-context-menu.spec.ts:289:1 › the menu stays inside the window near its edges (1.5s)
+  ✓  142 tests/sidebar-context-menu.spec.ts:310:1 › a right-click in the editor gets no sidebar menu (1.4s)
+  ✓  143 tests/sidebar-context-menu.spec.ts:319:1 › Reduce Motion: a pointer-opened menu is instant (1.1s)
+  ✓  144 tests/sidebar-context-menu.spec.ts:355:3 › floating sidebar › floating: no separators above the bottom rows; the menu still opens at the pointer (1.5s)
+  ✓  145 tests/sidebar-context-menu.spec.ts:369:3 › floating sidebar › normal: the separators stay above Comments, History and Settings (1.3s)
+  ✓  146 tests/sidebar-context-menu.spec.ts:384:3 › floating sidebar, short window › the scrolling group list ends above the bottom rows; no row overlaps them (2.4s)
+  -  147 tests/sidebar-context-menu.spec.ts:419:5 › screenshots light plain: menu on a section and a group heading; floating without dividers
+  -  148 tests/sidebar-context-menu.spec.ts:419:5 › screenshots light color: menu on a section and a group heading; floating without dividers
+  -  149 tests/sidebar-context-menu.spec.ts:419:5 › screenshots dark plain: menu on a section and a group heading; floating without dividers
+  -  150 tests/sidebar-context-menu.spec.ts:419:5 › screenshots dark color: menu on a section and a group heading; floating without dividers
+
+
+  1) tests/sidebar-context-menu.spec.ts:384:3 › floating sidebar, short window › the scrolling group list ends above the bottom rows; no row overlaps them 
+
+    Test timeout of 90000ms exceeded.
+
+    Error: locator.click: Test timeout of 90000ms exceeded.
+    Call log:
+      - waiting for getByRole('button', { name: 'Save', exact: true })
+        - locator resolved to <button type="submit" class="primary">Save</button>
+      - attempting click action
+        - waiting for element to be visible, enabled and stable
+      - element was detached from the DOM, retrying
+
+
+      23 |   await page.getByRole("button", { name: "New section", exact: true }).click();
+      24 |   await page.getByLabel("Title", { exact: true }).fill(title);
+    > 25 |   await page.getByRole("button", { name: "Save", exact: true }).click();
+         |                                                                 ^
+      26 |   await expect(mainRow(page, "manuscript", title)).toBeVisible();
+      27 | }
+      28 |
+        at addSection (/Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/tests/sidebar-context-menu.spec.ts:25:65)
+        at /Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/tests/sidebar-context-menu.spec.ts:388:59
+
+    Error Context: test-results/F4-before/sidebar-context-menu-float-8e737-m-rows-no-row-overlaps-them-repeat1/error-context.md
+
+  1 failed
+    tests/sidebar-context-menu.spec.ts:384:3 › floating sidebar, short window › the scrolling group list ends above the bottom rows; no row overlaps them 
+  40 skipped
+  109 passed (5.8m)
+EXIT 1

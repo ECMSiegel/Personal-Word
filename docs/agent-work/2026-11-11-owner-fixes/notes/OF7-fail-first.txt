@@ -1,0 +1,56 @@
+
+ RUN  v4.1.11 /Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor
+
+ ❯ src/editor/pagination.test.ts (28 tests | 2 failed) 1356ms
+     × WebKit 150%: a click above the page's lower edge stays on that page 53ms
+     × WebKit zoomed: when posAtCoords lands outside a cell, the clicked cell's own position is used 14ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/editor/pagination.test.ts > page-gap click and table right-click under WebKit's unzoomed rects > WebKit 150%: a click above the page's lower edge stays on that page
+AssertionError: expected { handled: true, head: 6 } to deeply equal { handled: true, head: 4 }
+
+- Expected
++ Received
+
+  {
+    "handled": true,
+-   "head": 4,
++   "head": 6,
+  }
+
+ ❯ src/editor/pagination.test.ts:265:15
+    263|     // Drawn gap top 300 (reported 200), css height 150, split 100: th…
+    264|     const r = await spacerClick(true, 1.5, { top: 200, height: 150 }, …
+    265|     expect(r).toEqual({ handled: true, head: 4 });
+       |               ^
+    266|   });
+    267|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  src/editor/pagination.test.ts > page-gap click and table right-click under WebKit's unzoomed rects > WebKit zoomed: when posAtCoords lands outside a cell, the clicked cell's own position is used
+AssertionError: expected 134 to be 12 // Object.is equality
+
+- Expected
++ Received
+
+- 12
++ 134
+
+ ❯ src/editor/pagination.test.ts:298:19
+    296|   it("WebKit zoomed: when posAtCoords lands outside a cell, the clicke…
+    297|     const r = await menuPos(true, 1.5, 134, 12);
+    298|     expect(r.pos).toBe(12);
+       |                   ^
+    299|     expect(r.posAtDOM).toHaveBeenCalled();
+    300|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 26 passed (28)
+   Start at  15:01:52
+   Duration  15.23s (transform 3.30s, setup 0ms, import 7.40s, tests 1.36s, environment 0ms)
+

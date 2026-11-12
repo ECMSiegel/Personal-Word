@@ -137,3 +137,29 @@
 .library .drop-target .library-empty {
   padding-left: var(--space-3);
 }
+
+/* Rows: the title reads first; Edited leads the dates in the normal colour, Added follows muted. */
+.library .project-list .project-name {
+  font-size: var(--type-large);
+}
+.library .project-dates .project-edited {
+  color: var(--text);
+}
+/* Empty state: one sentence and text controls, no illustration. */
+.library .library-empty-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-4);
+}
+.library .library-empty-actions button {
+  padding: var(--space-1) 0;
+  font-size: var(--type-small);
+  color: var(--muted);
+}
+.library .library-empty-actions button:hover:not(:disabled),
+.library .library-empty-actions button:focus-visible {
+  color: var(--text);
+}
+.library .library-empty > p {
+  font-size: var(--type-body);
+}

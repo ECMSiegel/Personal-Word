@@ -151,7 +151,7 @@ test("(g) the highlighted item is the active descendant and emphasised with a te
       border: getComputedStyle(el).borderTopWidth,
       marked: active.hasAttribute("data-highlighted"),
       count: el.querySelectorAll("[data-highlighted]").length,
-      stroke: getComputedStyle(active).webkitTextStrokeWidth,
+      stroke: String((getComputedStyle(active).textShadow === "none" ? 0 : parseFloat(/(-?[\d.]+)px/.exec(getComputedStyle(active).textShadow)?.[1] ?? "0"))),
       background: getComputedStyle(active).backgroundColor,
     };
   });

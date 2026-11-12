@@ -1,0 +1,63 @@
+{
+  "id": "T299",
+  "title": "HS8 -- Page number position option",
+  "description": "Full brief: docs/agent-work/2026-11-11-home-stretch/BRIEF.md then section HS8 of docs/agent-work/2026-11-11-home-stretch/TASKS.md. Shared files (styles.css, App.tsx, Writer.tsx, editor/editor.css) are edited by region only and registered on no task.",
+  "status": "done",
+  "owner": null,
+  "priority": 2,
+  "depends_on": [],
+  "files": [
+    "docs/agent-work/2026-11-11-home-stretch/notes/HS8.md",
+    "docs/agent-work/2026-11-11-home-stretch/notes/HS8-fail-first.txt",
+    "src/research/types.ts",
+    "src/export/ExportPanel.tsx",
+    "src/export/pdf.ts",
+    "src/export/docx.ts",
+    "tests/hs8-page-numbers.spec.ts",
+    "src/export/pageNumbers.test.ts"
+  ],
+  "review_required": true,
+  "created_by": "agent-b823",
+  "created_at": "2026-11-12T03:58:47+00:00",
+  "claimed_at": "2026-11-12T04:00:04+00:00",
+  "updated_at": "2026-11-12T05:27:07+00:00",
+  "handoff": null,
+  "review": {
+    "by": "agent-1324",
+    "at": "2026-11-12T05:27:07+00:00",
+    "verdict": "approved",
+    "note": "Approve. Default PDF/Word number path identical by reading; Chicago titlePg/start 0 position-independent; top number clear of body at 0.5in min margin; prop goes through mutate; Rust extra map preserves field. Low notes: App.tsx:1929 first toggle on a settings-less project writes defaults (serif 12/double) like the existing margin path; right positions keep -10 offset. See REVIEW-1.md."
+  },
+  "log": [
+    {
+      "at": "2026-11-12T03:58:47+00:00",
+      "agent": "agent-b823",
+      "event": "created",
+      "note": ""
+    },
+    {
+      "at": "2026-11-12T04:00:04+00:00",
+      "agent": "agent-5ac8",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-11-12T04:00:10+00:00",
+      "agent": "agent-5ac8",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-11-12T05:04:21+00:00",
+      "agent": "agent-5ac8",
+      "event": "review requested",
+      "note": "HS8: optional pageNumberPosition (types.ts), pdf.ts/docx.ts position (header vs footer), ExportPanel select, Page setup checkbox+Position (Writer.tsx, App.tsx prop), tests src/export/pageNumbers.test.ts + tests/hs8-page-numbers.spec.ts. Fail-first: 4 of 8 unit tests failed before the fix (notes/HS8-fail-first.txt). vitest src/export src/research all pass (multiparagraphNote timed out once under load, passes alone 7/7); tsc -b clean; playwright hs8 1/1 pass. No Rust change; cargo not needed."
+    },
+    {
+      "at": "2026-11-12T05:27:07+00:00",
+      "agent": "agent-1324",
+      "event": "approved",
+      "note": "Approve. Default PDF/Word number path identical by reading; Chicago titlePg/start 0 position-independent; top number clear of body at 0.5in min margin; prop goes through mutate; Rust extra map preserves field. Low notes: App.tsx:1929 first toggle on a settings-less project writes defaults (serif 12/double) like the existing margin path; right positions keep -10 offset. See REVIEW-1.md."
+    }
+  ]
+}

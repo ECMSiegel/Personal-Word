@@ -1,33 +1,19 @@
 import { useState, useEffect } from "react";
 import {
   defaultDocumentSettings,
+  pageNumberPositionOptions,
   type DocumentSettings,
 } from "../research/types";
-import { saveExport, safeFilename, type ExportProject } from "./document";
-import { projectMarkdown, projectPlainText } from "./textExport";
+import type { ExportProject } from "./document";
+import {
+  collectAndResolveAssets,
+  exportProject,
+  exportFormatLabel,
+  type ExportFormat,
+} from "./exportActions";
 import { Dropdown } from "../components/Dropdown";
-import { storage } from "../storage";
-import { collectAssetIds } from "../assets/assets";
-import type { AssetId, PendingAsset } from "../assets/types";
 import "../research/research.css";
 
-async function collectAndResolveAssets(
-  project: ExportProject,
-): Promise<Map<AssetId, PendingAsset>> {
-  const ids = collectAssetIds(project);
-  const assets = new Map<AssetId, PendingAsset>();
-  for (const id of ids) {
-    try {
-      const asset = await storage.readAsset(project.id, id);
-      assets.set(id, asset);
-    } catch {
-      throw new Error(
-        `An image is missing from this export (asset ${id.slice(0, 12) || "unknown"}). Restore the image or remove it from the document before exporting.`,
-      );
-    }
-  }
-  return assets;
-}
 export function ExportPanel({
   project,
   onSettingsChange,
@@ -45,73 +31,14 @@ export function ExportPanel({
     [preview],
   );
   const s = { ...defaultDocumentSettings, ...project.documentSettings };
-  async function save(format: "docx" | "pdf") {
+  async function save(format: ExportFormat) {
     setBusy(true);
     setMessage("");
     try {
-      const assets = await collectAndResolveAssets(project);
-      const blob =
-        format === "docx"
-          ? await (await import("./docx")).exportDocx(project, assets)
-          : await (await import("./pdf")).exportPdf(project, undefined, assets);
-      const saved = await saveExport(
-        blob,
-        `${safeFilename(project.title)}.${format}`,
-      );
-      if (!saved) {
-        setMessage("Export canceled.");
-        return;
-      }
-      setMessage(`${format.toUpperCase()} exported.`);
-    } catch (e) {
-      setMessage(e instanceof Error ? e.message : String(e));
-    } finally {
-      setBusy(false);
-    }
-  }
-  async function saveText(format: "markdown" | "plain") {
-    setBusy(true);
-    setMessage("");
-    try {
-      const assets = await collectAndResolveAssets(project);
-      const markdown = format === "markdown";
-      const blob = new Blob(
-        [markdown ? projectMarkdown(project, assets) : projectPlainText(project, assets)],
-        {
-          type: markdown
-            ? "text/markdown;charset=utf-8"
-            : "text/plain;charset=utf-8",
-        },
-      );
-      const saved = await saveExport(
-        blob,
-        `${safeFilename(project.title)}.${markdown ? "md" : "txt"}`,
-      );
+      const result = await exportProject(project, format);
       setMessage(
-        saved
-          ? `${markdown ? "Markdown" : "Plain text"} exported.`
-          : "Export canceled.",
-      );
-    } catch (e) {
-      setMessage(e instanceof Error ? e.message : String(e));
-    } finally {
-      setBusy(false);
-    }
-  }
-  async function saveMarkdownBundle() {
-    setBusy(true);
-    setMessage("");
-    try {
-      const assets = await collectAndResolveAssets(project);
-      const { exportMarkdownBundle } = await import("./markdownBundle");
-      const blob = await exportMarkdownBundle(project, assets);
-      const saved = await saveExport(
-        blob,
-        `${safeFilename(project.title || "Untitled")}-markdown.zip`,
-      );
-      setMessage(
-        saved
-          ? "Markdown bundle exported."
+        result === "saved"
+          ? `${exportFormatLabel[format]} exported.`
           : "Export canceled.",
       );
     } catch (e) {
@@ -133,8 +60,10 @@ export function ExportPanel({
       <p className="settings-help">
         DOCX preserves editable Word footnotes. PDF uses its own pagination with
         notes at the bottom of each page. Export pagination is independent of
-        editor page view, so page breaks and line wraps can differ. PDF draws
-        with bundled Noto font subsets instead of the selected document font and
+        editor page view, so page breaks and line wraps can differ. PDF embeds
+        the document font when it is a single font file that allows embedding;
+        collection, restricted or missing fonts (Futura is a collection), and
+        all notes and the bibliography, use bundled Noto font subsets. PDF
         covers Latin, Latin Extended, Greek, and Cyrillic; other scripts are
         rejected and DOCX is the alternative. A footnote that cannot fit on one
         page is reported instead of truncated.
@@ -150,7 +79,7 @@ export function ExportPanel({
                 onChange={(font) => onSettingsChange({ ...s, font })}
                 options={[
                   { value: "serif", label: "Times New Roman" },
-                  { value: "sans", label: "Arial" },
+                  { value: "sans", label: "Sans (Arial in Word, Noto Sans in PDF)" },
                   { value: "mono", label: "Courier New" },
                 ]}
               />
@@ -228,6 +157,21 @@ export function ExportPanel({
               ),
             )}
           </div>
+          {s.pageNumbers && (
+            <div className="settings-form">
+              <label className="settings-field">
+                <span className="settings-label">Page number position</span>
+                <Dropdown
+                  label="Page number position"
+                  value={s.pageNumberPosition ?? "bottom-right"}
+                  onChange={(pageNumberPosition) =>
+                    onSettingsChange({ ...s, pageNumberPosition })
+                  }
+                  options={pageNumberPositionOptions}
+                />
+              </label>
+            </div>
+          )}
         </>
       )}
       <div className="settings-actions">
@@ -264,21 +208,21 @@ export function ExportPanel({
         <button
           className="settings-button"
           disabled={busy}
-          onClick={() => saveText("markdown")}
+          onClick={() => save("markdown")}
         >
           Export Markdown
         </button>
         <button
           className="settings-button"
           disabled={busy}
-          onClick={() => saveMarkdownBundle()}
+          onClick={() => save("markdown-bundle")}
         >
           Markdown with images (.zip)
         </button>
         <button
           className="settings-button"
           disabled={busy}
-          onClick={() => saveText("plain")}
+          onClick={() => save("plain")}
         >
           Export plain text
         </button>

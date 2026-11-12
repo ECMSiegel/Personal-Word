@@ -1,7 +1,7 @@
 .fragment-library {
   display: flex;
   flex-direction: column;
-  font-family: Futura, "Avenir Next", system-ui, sans-serif;
+  font-family: var(--ui-font);
   font-size: 13px;
   color: var(--text);
 }
@@ -96,7 +96,7 @@
   pointer-events: none;
 }
 .fragment-text {
-  font-family: var(--document-font, Futura, system-ui, sans-serif);
+  font-family: var(--document-font, var(--ui-font, Futura, system-ui, sans-serif));
   font-size: 14px;
   line-height: 1.55;
   color: var(--text);

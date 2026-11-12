@@ -1,0 +1,38 @@
+
+Running 1 test using 1 worker
+
+  ✘  1 tests/of5-settings.spec.ts:102:1 › Remove font button is the danger colour in both Settings places (3.3s)
+
+
+  1) tests/of5-settings.spec.ts:102:1 › Remove font button is the danger colour in both Settings places 
+
+    Error: Projects dialog: Remove at rest
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: "rgb(180, 35, 24)"
+    Received: "rgb(36, 36, 40)"
+
+      93 |   });
+      94 |   const colour = () => remove.evaluate((element) => getComputedStyle(element).color);
+    > 95 |   expect(await colour(), `${where}: Remove at rest`).toBe(danger);
+         |                                                      ^
+      96 |   await remove.hover();
+      97 |   expect(await colour(), `${where}: Remove on hover`).toBe(danger);
+      98 |   await remove.focus();
+        at expectRemoveIsDanger (/Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/tests/of5-settings.spec.ts:95:54)
+        at /Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/tests/of5-settings.spec.ts:104:3
+
+    Error Context: test-results/T288r/of5-settings-Remove-font-b-14c57-our-in-both-Settings-places/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/T288r/of5-settings-Remove-font-b-14c57-our-in-both-Settings-places/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/T288r/of5-settings-Remove-font-b-14c57-our-in-both-Settings-places/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/of5-settings.spec.ts:102:1 › Remove font button is the danger colour in both Settings places 
+EXIT 1

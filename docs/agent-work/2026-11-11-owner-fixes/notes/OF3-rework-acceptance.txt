@@ -1,0 +1,88 @@
+
+Running 68 tests using 1 worker
+
+  ✓   1 tests/of3-rulers.spec.ts:51:1 › page view: neither ruler touches any sheet at rest; the top ruler stays pinned and the caret clears it (19.9s)
+  ✓   2 tests/of3-rulers.spec.ts:108:5 › top ruler greys outside the margins: pages at 75% (9.7s)
+  ✓   3 tests/of3-rulers.spec.ts:108:5 › top ruler greys outside the margins: pages at 100% (4.9s)
+  ✓   4 tests/of3-rulers.spec.ts:108:5 › top ruler greys outside the margins: pages at 150% (4.5s)
+  ✓   5 tests/of3-rulers.spec.ts:108:5 › top ruler greys outside the margins: continuous at 75% (3.8s)
+  ✓   6 tests/of3-rulers.spec.ts:108:5 › top ruler greys outside the margins: continuous at 100% (5.8s)
+  ✓   7 tests/of3-rulers.spec.ts:108:5 › top ruler greys outside the margins: continuous at 150% (4.2s)
+  ✓   8 tests/of3-rulers.spec.ts:142:1 › each ruler toggles alone and each choice survives a reload (10.7s)
+  ✓   9 tests/of3-rulers.spec.ts:174:1 › the old single preference turns both rulers on, and they then split (8.3s)
+  ✓  10 tests/pages-gap.spec.ts:119:3 › fuzz at 100 %: caret and empty lines never in a gap (seed 4101) (1.9m)
+  ✓  11 tests/pages-gap.spec.ts:119:3 › fuzz at 75 %: caret and empty lines never in a gap (seed 4175) (1.9m)
+  ✓  12 tests/pages-gap.spec.ts:119:3 › fuzz at 125 %: caret and empty lines never in a gap (seed 4125) (1.8m)
+  ✓  13 tests/pages-gap.spec.ts:230:3 › targeted gap cases at 100 % › Enter at the last line of page 1 puts the caret at the top of page 2 (5.2s)
+  ✓  14 tests/pages-gap.spec.ts:243:3 › targeted gap cases at 100 % › Enter after Enter from a half-full page: the caret is always on a page (14.9s)
+  ✓  15 tests/pages-gap.spec.ts:259:3 › targeted gap cases at 100 % › Backspace at the first paragraph of page 2 merges up; the caret is on page 1 (4.1s)
+  ✓  16 tests/pages-gap.spec.ts:270:3 › targeted gap cases at 100 % › a click in the bottom margin goes to page 1's end, in the gap to page 2's start (3.8s)
+  ✓  17 tests/pages-gap.spec.ts:295:3 › targeted gap cases at 100 % › Shift+click across a gap selects across both pages (3.8s)
+  ✓  18 tests/pages-gap.spec.ts:310:3 › targeted gap cases at 100 % › Backspace after a page break and Delete before one remove the break with a visible caret; undo restores (7.7s)
+  ✓  19 tests/pages-gap.spec.ts:362:3 › targeted gap cases at 100 % › undo and redo of a page-filling paste keep every line on a page (6.0s)
+  ✓  20 tests/popover-bounds.spec.ts:57:1 › research menus stay inside the research aside scroll container (2.7s)
+  ✓  21 tests/popover-bounds.spec.ts:100:1 › a menu in the 390 px research aside keeps the Dropdown's 320 px max-width (2.1s)
+  ✓  22 tests/popover-bounds.spec.ts:131:1 › repeat-rule menus stay inside a narrow research aside (2.1s)
+  ✓  23 tests/popover-bounds.spec.ts:164:1 › cards-view status dropdown stays inside the sidebar scroll container (1.9s)
+  ✓  24 tests/popover-bounds.spec.ts:178:1 › toolbar popovers keep their recorded untouched-tree placement (6.9s)
+  ✓  25 tests/ruler.spec.ts:103:1 › ruler toggles on and exposes keyboard-accessible linked margin markers (4.5s)
+  ✓  26 tests/ruler.spec.ts:146:5 › ruler box and markers match the page: continuous view at 75% (3.8s)
+  ✓  27 tests/ruler.spec.ts:146:5 › ruler box and markers match the page: continuous view at 100% (3.0s)
+  ✓  28 tests/ruler.spec.ts:146:5 › ruler box and markers match the page: continuous view at 150% (2.8s)
+  ✓  29 tests/ruler.spec.ts:146:5 › ruler box and markers match the page: pages view at 75% (3.3s)
+  ✓  30 tests/ruler.spec.ts:146:5 › ruler box and markers match the page: pages view at 100% (3.6s)
+  ✓  31 tests/ruler.spec.ts:146:5 › ruler box and markers match the page: pages view at 150% (3.8s)
+  ✓  32 tests/ruler.spec.ts:165:1 › ruler matches the page in a narrow window without horizontal scroll (2.2s)
+  ✓  33 tests/ruler.spec.ts:174:1 › each split pane's ruler matches its own paper, text and markers (2.9s)
+  ✓  34 tests/ruler.spec.ts:196:1 › continuous view: the ruler stays pinned, opaque and on top of scrolled text (2.7s)
+  ✓  35 tests/ruler.spec.ts:221:1 › page view (OF3 rework): the ruler is pinned in a full-width opaque desk strip and is not on the sheet at rest (3.3s)
+  ✓  36 tests/ruler.spec.ts:261:1 › a top gap below the ruler height keeps the first line and the gap handle off the ticks (2.7s)
+  ✓  37 tests/ruler.spec.ts:279:1 › only the primary button drags a marker (3.2s)
+  ✓  38 tests/ruler.spec.ts:299:1 › continuous top gap is ruler-only, screen-only and does not change page-view padding (3.5s)
+  ✓  39 tests/ruler.spec.ts:329:1 › a gap-only change leaves a different stored export margin alone (3.7s)
+  ✓  40 tests/ruler.spec.ts:378:3 › first glyph sits on the left marker in continuous view at 75% (3.0s)
+  ✓  41 tests/ruler.spec.ts:378:3 › first glyph sits on the left marker in continuous view at 100% (4.8s)
+  ✓  42 tests/ruler.spec.ts:378:3 › first glyph sits on the left marker in continuous view at 150% (4.4s)
+  ✓  43 tests/ruler.spec.ts:410:3 › caret never goes behind the ruler: ArrowUp and typing, continuous view (22.7s)
+  ✓  44 tests/ruler.spec.ts:410:3 › caret never goes behind the ruler: ArrowUp and typing, pages view (18.1s)
+  ✓  45 tests/ruler.spec.ts:441:5 › caret stays clear at 75% zoom: continuous view, ruler on (11.0s)
+  ✓  46 tests/ruler.spec.ts:441:5 › caret stays clear at 75% zoom: continuous view, ruler off (10.2s)
+  ✓  47 tests/ruler.spec.ts:441:5 › caret stays clear at 75% zoom: pages view, ruler on (11.8s)
+  ✓  48 tests/ruler.spec.ts:441:5 › caret stays clear at 75% zoom: pages view, ruler off (10.1s)
+  ✓  49 tests/ruler.spec.ts:474:1 › caret scrolling with the ruler off keeps the default margin (9.7s)
+  ✓  50 tests/ruler.spec.ts:541:7 › emulated WebKit rects: ArrowUp/Down keep the caret in view at 75%: pages view, ruler on (14.6s)
+  ✓  51 tests/ruler.spec.ts:541:7 › emulated WebKit rects: ArrowUp/Down keep the caret in view at 75%: pages view, ruler off (11.3s)
+  ✓  52 tests/ruler.spec.ts:541:7 › emulated WebKit rects: ArrowUp/Down keep the caret in view at 150%: pages view, ruler on (11.8s)
+  ✓  53 tests/ruler.spec.ts:541:7 › emulated WebKit rects: ArrowUp/Down keep the caret in view at 150%: pages view, ruler off (11.1s)
+  ✓  54 tests/ruler.spec.ts:541:7 › emulated WebKit rects: ArrowUp/Down keep the caret in view at 75%: continuous view, ruler on (11.8s)
+  ✓  55 tests/ruler.spec.ts:541:7 › emulated WebKit rects: ArrowUp/Down keep the caret in view at 75%: continuous view, ruler off (11.8s)
+  ✓  56 tests/ruler.spec.ts:541:7 › emulated WebKit rects: ArrowUp/Down keep the caret in view at 150%: continuous view, ruler on (12.5s)
+  ✓  57 tests/ruler.spec.ts:541:7 › emulated WebKit rects: ArrowUp/Down keep the caret in view at 150%: continuous view, ruler off (11.3s)
+  ✓  58 tests/ruler.spec.ts:574:3 › a slow moment after ArrowUp still keeps the caret clear of the ruler at 75% (15.0s)
+  ✓  59 tests/ruler.spec.ts:574:3 › a slow moment after ArrowUp still keeps the caret clear of the ruler at 150% (16.7s)
+  ✓  60 tests/ruler.spec.ts:600:1 › a movement key that moves nothing does not make select-all jump to the end (3.3s)
+  ✓  61 tests/ruler.spec.ts:614:3 › emulated WebKit rects: a selected tall image clears the ruler at 100% (5.2s)
+  ✓  62 tests/ruler.spec.ts:614:3 › emulated WebKit rects: a selected tall image clears the ruler at 75% (5.8s)
+blank-click below last paragraph: elementFromPoint(463, 260) = div.tiptap.ProseMirror.writing-surface
+blank-click left margin at paragraph two: elementFromPoint(379, 184) = div.editor-paper
+blank-click right margin at paragraph two: elementFromPoint(1171, 184) = div.editor-paper
+blank-click shift setup: {"anchor":4,"head":4}
+blank-click shift-click left margin: elementFromPoint(379, 184) = div.editor-paper
+blank-click inside text: elementFromPoint(492.765625, 159.5) = p
+  ✓  63 tests/w9-blank-click.spec.ts:43:3 › blank-page clicks place and extend the caret in continuous view (5.8s)
+blank-click below last paragraph: elementFromPoint(463, 338) = div.editor-paper
+blank-click left margin at paragraph two: elementFromPoint(379, 262) = div.editor-paper
+blank-click right margin at paragraph two: elementFromPoint(1171, 262) = div.editor-paper
+blank-click shift setup: {"anchor":4,"head":4}
+blank-click shift-click left margin: elementFromPoint(379, 262) = div.editor-paper
+blank-click inside text: elementFromPoint(492.765625, 237.5) = p
+  ✓  64 tests/w9-blank-click.spec.ts:43:3 › blank-page clicks place and extend the caret in page view (5.1s)
+  ✓  65 tests/w9-side-ruler.spec.ts:57:1 › side ruler: one per page, shaded margins, drag and keys change the margin (6.1s)
+  ✓  66 tests/w9-side-ruler.spec.ts:133:1 › side ruler: absent with Ruler off, in continuous view and in focus mode (4.1s)
+  ✓  67 tests/w9-side-ruler.spec.ts:154:1 › side ruler: ticks line up with the page at 150 percent (2.8s)
+  ✓  68 tests/w9-side-ruler.spec.ts:173:1 › side ruler: hidden while the sidebar floats (2.6s)
+
+  Slow test file: tests/pages-gap.spec.ts (6.3m)
+  Consider running tests from slow files in parallel. See: https://playwright.dev/docs/test-parallel
+  68 passed (13.3m)
+DONE

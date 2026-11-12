@@ -1,0 +1,21 @@
+
+Running 14 tests using 1 worker
+
+PROBE {"x":1079.5625,"y":115.5,"width":265.4375,"height":136}
+  ✓   1 tests/of3-rect-probe.spec.ts:3:1 › probe (7.4s)
+  ✓   2 tests/of3-rulers.spec.ts:51:1 › page view: neither ruler touches any sheet, at rest or scrolled (15.5s)
+  ✓   3 tests/of3-rulers.spec.ts:85:5 › top ruler greys outside the margins: pages at 75% (4.7s)
+  ✓   4 tests/of3-rulers.spec.ts:85:5 › top ruler greys outside the margins: pages at 100% (7.8s)
+  ✓   5 tests/of3-rulers.spec.ts:85:5 › top ruler greys outside the margins: pages at 150% (4.5s)
+  ✓   6 tests/of3-rulers.spec.ts:85:5 › top ruler greys outside the margins: continuous at 75% (4.0s)
+  ✓   7 tests/of3-rulers.spec.ts:85:5 › top ruler greys outside the margins: continuous at 100% (5.0s)
+  ✓   8 tests/of3-rulers.spec.ts:85:5 › top ruler greys outside the margins: continuous at 150% (6.0s)
+  ✓   9 tests/of3-rulers.spec.ts:119:1 › each ruler toggles alone and each choice survives a reload (19.2s)
+  ✓  10 tests/of3-rulers.spec.ts:151:1 › the old single preference turns both rulers on, and they then split (10.9s)
+  ✓  11 tests/w9-side-ruler.spec.ts:57:1 › side ruler: one per page, shaded margins, drag and keys change the margin (33.2s)
+  ✓  12 tests/w9-side-ruler.spec.ts:133:1 › side ruler: absent with Ruler off, in continuous view and in focus mode (8.3s)
+  ✓  13 tests/w9-side-ruler.spec.ts:154:1 › side ruler: ticks line up with the page at 150 percent (4.7s)
+  ✓  14 tests/w9-side-ruler.spec.ts:173:1 › side ruler: hidden while the sidebar floats (5.0s)
+
+  14 passed (2.4m)
+DONE

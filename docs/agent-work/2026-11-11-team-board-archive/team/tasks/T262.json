@@ -1,0 +1,84 @@
+{
+  "id": "T262",
+  "title": "W9 B5 -- Place the caret on a blank-page click",
+  "description": "Follow section '### B5 --' of docs/agent-work/2026-11-10-ui-wave-9/PLAN.md exactly, plus its 'Rules for every worker'. Verify: blankClick.test.ts, tests/w9-blank-click.spec.ts, pages-gap, ruler and footnotes specs pass. Browser test port: PLAYWRIGHT_PORT=1438. No commits, no new packages, never run npm run build or a native screen script. Write the note docs/agent-work/2026-11-10-ui-wave-9/notes/B5.md.",
+  "status": "done",
+  "owner": null,
+  "priority": 2,
+  "depends_on": [
+    "T254"
+  ],
+  "files": [
+    "src/editor/blankClick.ts",
+    "src/editor/blankClick.test.ts",
+    "tests/w9-blank-click.spec.ts",
+    "docs/agent-work/2026-11-10-ui-wave-9/notes/B5.md",
+    "docs/agent-work/2026-11-10-ui-wave-9/notes/B5-fail-first.txt",
+    "docs/agent-work/2026-11-10-ui-wave-9/notes/B5-fail-first-r2.txt",
+    "docs/agent-work/2026-11-10-ui-wave-9/notes/B5-acceptance.txt",
+    "docs/agent-work/2026-11-10-ui-wave-9/notes/B5-acceptance-r2.txt",
+    "docs/agent-work/2026-11-10-ui-wave-9/notes/B5-acceptance-r3.txt",
+    "docs/agent-work/2026-11-10-ui-wave-9/notes/B5-acceptance-r4.txt",
+    "docs/agent-work/2026-11-10-ui-wave-9/notes/B5-acceptance-r5.txt",
+    "docs/agent-work/2026-11-10-ui-wave-9/notes/B5-acceptance-full.txt",
+    "docs/agent-work/2026-11-10-ui-wave-9/notes/B5-acceptance-r6.txt",
+    "docs/agent-work/2026-11-10-ui-wave-9/notes/B5-acceptance-full-r2.txt",
+    "docs/agent-work/2026-11-10-ui-wave-9/notes/B5-acceptance-full-r3.txt"
+  ],
+  "review_required": true,
+  "created_by": "agent-b307",
+  "created_at": "2026-11-10T22:24:36+00:00",
+  "claimed_at": "2026-11-11T02:43:47+00:00",
+  "updated_at": "2026-11-11T03:42:03+00:00",
+  "handoff": null,
+  "review": {
+    "by": "agent-2ff3",
+    "at": "2026-11-11T03:42:03+00:00",
+    "verdict": "approved",
+    "note": "Approved (agent-2ff3, W9 reviewer r2). src/editor/blankClick.ts follows PLAN B5 steps 2-4 exactly (guards: button, ctrl/meta/alt, any descendant of view.dom other than view.dom, ruler/side-ruler/page-spacer/footnote marker/controls; below last child -> doc end; else clamped posAtCoords; shift extends from anchor; scrollIntoView, preventDefault, focus). Wired at Writer.tsx:2081 (T0). Fail-first B5-fail-first.txt: both modes failed on the stub. Step (e) change checked as asked: plan (e) only requires that a click inside text behaves as before; it does not ask for a click that replaces an existing selection. The old version happened to click inside the (d) shift selection, which is the browser drag-start path that settles on mouse-up, hence the race. The new version collapses to first.start+1, clicks mid-text and polls for the caret to move inside paragraph one, empty selection, focus kept: the inside-text case is still tested, nothing the plan asks for was removed. blankPageClick returns false for any click whose target is inside view.dom (e.g. the <p>), so selection-replacing clicks never reach it. Fresh runs: npx vitest run src/editor/blankClick.test.ts -> 15/15; npx tsc -b -> exit 0; PLAYWRIGHT_PORT=1438 npx playwright test tests/w9-blank-click.spec.ts tests/pages-gap.spec.ts tests/ruler.spec.ts tests/footnotes.spec.ts --output test-results/T262-review -> 56 passed, 0 failed. Gaps for T277/T278 (not blocking): plan (e) ruler/footnote-marker/page-gap clicks are covered only by the existing specs, not in the new spec; the plan's stop rule 'in a split, a blank click in the unfocused pane does not move the toolbar to that pane' was not checked (App.tsx not owned): check it in the owner hand check, and the 150% zoom and WebKit cases."
+  },
+  "log": [
+    {
+      "at": "2026-11-10T22:24:36+00:00",
+      "agent": "agent-b307",
+      "event": "created",
+      "note": ""
+    },
+    {
+      "at": "2026-11-11T00:19:34+00:00",
+      "agent": "agent-3552",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-11-11T00:19:35+00:00",
+      "agent": "agent-3552",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-11-11T02:43:47+00:00",
+      "agent": "agent-0f62",
+      "event": "reclaimed from agent-3552",
+      "note": ""
+    },
+    {
+      "at": "2026-11-11T02:43:50+00:00",
+      "agent": "agent-0f62",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-11-11T03:30:14+00:00",
+      "agent": "agent-0f62",
+      "event": "review requested",
+      "note": "B5 blank-page click. Files: src/editor/blankClick.ts, blankClick.test.ts (15 unit tests pass), tests/w9-blank-click.spec.ts, notes/B5.md. Fail-first: notes/B5-fail-first.txt (spec failed at left-margin focus on untouched stub). r2 full run had 1 flaky fail (:43 continuous, step e): test pressed inside the still-active shift selection (drag-start path), read old head 13 before settling. Fixed in the TEST (collapse selection first, expect.poll for caret move; no weakening, no sleeps); product code unchanged. Evidence: focused spec --repeat-each 12 = 24 passed; earlier it failed ~1 in 3-5. Full set (w9-blank-click, pages-gap, ruler, footnotes) = 56 passed, 0 failed (notes/B5-acceptance-full-r3.txt). npx tsc -b clean. Chromium only, not native WebKit; split-pane toolbar routing not covered (App.tsx not owned)."
+    },
+    {
+      "at": "2026-11-11T03:42:03+00:00",
+      "agent": "agent-2ff3",
+      "event": "approved",
+      "note": "Approved (agent-2ff3, W9 reviewer r2). src/editor/blankClick.ts follows PLAN B5 steps 2-4 exactly (guards: button, ctrl/meta/alt, any descendant of view.dom other than view.dom, ruler/side-ruler/page-spacer/footnote marker/controls; below last child -> doc end; else clamped posAtCoords; shift extends from anchor; scrollIntoView, preventDefault, focus). Wired at Writer.tsx:2081 (T0). Fail-first B5-fail-first.txt: both modes failed on the stub. Step (e) change checked as asked: plan (e) only requires that a click inside text behaves as before; it does not ask for a click that replaces an existing selection. The old version happened to click inside the (d) shift selection, which is the browser drag-start path that settles on mouse-up, hence the race. The new version collapses to first.start+1, clicks mid-text and polls for the caret to move inside paragraph one, empty selection, focus kept: the inside-text case is still tested, nothing the plan asks for was removed. blankPageClick returns false for any click whose target is inside view.dom (e.g. the <p>), so selection-replacing clicks never reach it. Fresh runs: npx vitest run src/editor/blankClick.test.ts -> 15/15; npx tsc -b -> exit 0; PLAYWRIGHT_PORT=1438 npx playwright test tests/w9-blank-click.spec.ts tests/pages-gap.spec.ts tests/ruler.spec.ts tests/footnotes.spec.ts --output test-results/T262-review -> 56 passed, 0 failed. Gaps for T277/T278 (not blocking): plan (e) ruler/footnote-marker/page-gap clicks are covered only by the existing specs, not in the new spec; the plan's stop rule 'in a split, a blank click in the unfocused pane does not move the toolbar to that pane' was not checked (App.tsx not owned): check it in the owner hand check, and the 150% zoom and WebKit cases."
+    }
+  ]
+}

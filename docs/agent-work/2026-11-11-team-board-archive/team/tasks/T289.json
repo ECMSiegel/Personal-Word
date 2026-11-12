@@ -1,0 +1,67 @@
+{
+  "id": "T289",
+  "title": "OF6 -- Font menu: a Recent section above a grey divider",
+  "description": "Screenshot 8.png (Google Docs' font menu: RECENT, then a grey line, then all fonts). Owner: 'Within the font selector, there should be a grey line with the recently used fonts'. In the document Font family dropdown show the most recently applied fonts first (most recent first, at most 5, each once, remembered under a folio.* localStorage key), then a grey divider line (var(--line)), then the full list as today. A font may therefore appear twice (once in Recent, once in the list): tests/w9-font-menu.spec.ts asserts one entry per font, so update it to mean 'once in the full list'. No Recent section and no divider when nothing has been used yet. Build the list logic in src/fonts/recent.ts with unit tests; add divider/section support to src/components/Dropdown.tsx in the smallest way (other dropdowns must look and behave exactly as before, including keyboard navigation and type-ahead skipping the divider); wire into src/Writer.tsx ONLY in the Font family dropdown region (about lines 1350-1385): Writer.tsx is owned by task OF3 for the rulers, so use the Edit tool on that small region only, re-read right before editing, and do not register the file. The wave 9 interface-font scan in tests/w9-fonts.spec.ts exempts open font-menu rows: keep it passing. New spec tests/of6-recent-fonts.spec.ts, shown failing first. Port 1456. Owner hand-test report 2026-11-11 (he tried the real app; his report outranks any passing test). Rules: node_modules/.cache/personal-word-beta/w9-brief.md, with notes in docs/agent-work/2026-11-11-owner-fixes/notes/<task>.md instead of the wave 9 notes folder. Before your first browser run, grep tests/ for every selector, label and class you change and update the specs that pin them (register each first). Run unit tests and tsc before any trip through the serial lock. Do not edit docs/*.md or AGENTS.md. No commits.",
+  "status": "done",
+  "owner": null,
+  "priority": 2,
+  "depends_on": [],
+  "files": [
+    "src/fonts/recent.ts",
+    "src/fonts/recent.test.ts",
+    "src/components/Dropdown.tsx",
+    "src/components/dropdown.css",
+    "tests/w9-font-menu.spec.ts",
+    "tests/of6-recent-fonts.spec.ts",
+    "docs/agent-work/2026-11-11-owner-fixes/notes/OF6.md",
+    "docs/agent-work/2026-11-11-owner-fixes/notes/T289-fail-first.txt",
+    "docs/agent-work/2026-11-11-owner-fixes/notes/T289-tsc.txt",
+    "docs/agent-work/2026-11-11-owner-fixes/notes/T289-accept.txt",
+    "docs/agent-work/2026-11-11-owner-fixes/notes/T289-accept-split.txt",
+    "docs/agent-work/2026-11-11-owner-fixes/notes/T289-accept-popover-rerun.txt"
+  ],
+  "review_required": true,
+  "created_by": "agent-a63f",
+  "created_at": "2026-11-11T19:54:44+00:00",
+  "claimed_at": "2026-11-11T19:56:59+00:00",
+  "updated_at": "2026-11-11T21:48:59+00:00",
+  "handoff": null,
+  "review": {
+    "by": "agent-17f6",
+    "at": "2026-11-11T21:48:59+00:00",
+    "verdict": "approved",
+    "note": "Recent section correct; other dropdowns unchanged (kind rows skipped, highlight mapped to item rank). Writer edit limited to font case+import. of6 9/9. popover-bounds Page setup x-33px is caused by T286 widening the Page setup popover (232->265px); the Page setup fixture entry needs re-record after T286 lands. See docs/agent-work/2026-11-11-owner-fixes/REVIEW-r1.md"
+  },
+  "log": [
+    {
+      "at": "2026-11-11T19:54:44+00:00",
+      "agent": "agent-a63f",
+      "event": "created",
+      "note": ""
+    },
+    {
+      "at": "2026-11-11T19:56:59+00:00",
+      "agent": "agent-9baf",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-11-11T19:57:02+00:00",
+      "agent": "agent-9baf",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-11-11T21:02:08+00:00",
+      "agent": "agent-9baf",
+      "event": "review requested",
+      "note": "Recent fonts section in Font family menu. Files: src/fonts/recent.ts(+test, 11 unit tests pass), Dropdown.tsx (kind heading/separator rows, rank-mapped highlight), dropdown.css, tests/w9-font-menu.spec.ts (once in full list), tests/of6-recent-fonts.spec.ts (9 tests), Writer.tsx font case + 1 import line (97). Fail-first: browser spec all 9 failed before wiring (notes/T289-fail-first.txt; 3 were regression guards that failed from a spec bug, fixed); unit fail-first NOT captured. tsc: only unowned App.tsx onDeleteTextOnlyFootnote error. Acceptance (one lock job): 40 passed incl. of6, w9-font-menu, w9-fonts, hover-emphasis, accessibility, editor-toolbar; split-view font tests 2 passed; popover-bounds 'toolbar popovers keep recorded placement' FAILS (Page setup x moved 33px; Font family x unchanged; reproduced on rerun; not caused by this task - closed toolbar unchanged by it; likely another task's toolbar change). Notes: notes/OF6.md"
+    },
+    {
+      "at": "2026-11-11T21:48:59+00:00",
+      "agent": "agent-17f6",
+      "event": "approved",
+      "note": "Recent section correct; other dropdowns unchanged (kind rows skipped, highlight mapped to item rank). Writer edit limited to font case+import. of6 9/9. popover-bounds Page setup x-33px is caused by T286 widening the Page setup popover (232->265px); the Page setup fixture entry needs re-record after T286 lands. See docs/agent-work/2026-11-11-owner-fixes/REVIEW-r1.md"
+    }
+  ]
+}

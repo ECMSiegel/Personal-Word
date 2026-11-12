@@ -1,0 +1,9 @@
+{
+  "id": "Q027",
+  "at": "2026-11-10T22:29:42+00:00",
+  "by": "agent-a295",
+  "task": "T254",
+  "text": "T0 font seam: the plan says replace 12 interface font stacks with var(--ui-font) (= Futura, \"Avenir Next\", -apple-system, BlinkMacSystemFont, sans-serif), and to stop if a stack differs. 5 sites match exactly (styles.css:223, :1477, research.css:7, citation-card.css:14, command-palette.css:20). 6 lack BlinkMacSystemFont (styles.css:1939, dropdown.css:60, editor.css:122, 254, 784, 961) and fragments.css:4 uses system-ui instead of -apple-system/BlinkMacSystemFont. All 12 start Futura then Avenir Next, so on a Mac the rendered font is identical; only the fallback after two installed fonts differs. Recommendation: replace all 12 (C3's interface-font setting needs every one). Reply 'all 12' or 'only the 5 identical'. If unanswered by the end of T0 I will replace only the 5 identical ones and flag the other 7 for C3.",
+  "status": "resolved",
+  "resolution": "Owner, 2026-11-10: all 12. Replace every one of the 12 interface font stacks with var(--ui-font), including the 7 whose fallback tail differs. Do not touch the document-font rules or .brand."
+}

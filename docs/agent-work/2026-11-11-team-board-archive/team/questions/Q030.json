@@ -1,0 +1,9 @@
+{
+  "id": "Q030",
+  "at": "2026-11-11T20:11:05+00:00",
+  "by": "agent-b5d1",
+  "task": "T287",
+  "text": "T287 is blocked: My mistake: my runner script expanded its spec argument to empty (unquoted heredoc), so 'playwright test' started the whole 593-test suite on port 1454 and holds the serial lock (owner.txt: agent-b5d1 T287). I was not allowed to kill it. Needs the owner or user to stop the process ('playwright test  --output test-results/T287'); the lock dir is then removed by my script only if it finishes. Fail-first assertion added to tests/w9-projects-page.spec.ts (Sort on same row as Start new project); no src edits yet. tsc -b exit 0; vitest libraryPreferences 6/6 pass.",
+  "status": "resolved",
+  "resolution": "Owner said 'kill it' (2026-11-11 15:26 EST); the coordinator stopped the stray full-suite run; the serial lock was released by the worker's own script and passed to the next waiter. T287 may be unblocked."
+}

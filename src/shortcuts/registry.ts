@@ -9,6 +9,7 @@ export type ActionId =
   | "insertPageBreak"
   | "save"
   | "snapshot"
+  | "exportDocument"
   | "newSection"
   | "findInProject"
   | "toggleSidebar"
@@ -31,6 +32,7 @@ export const ACTIONS: ActionDef[] = [
   { id: "insertPageBreak", label: "Insert page break", scope: "editor", default: { key: "Enter", shift: true }, readOnly: true },
   { id: "save", label: "Save", scope: "app", default: { key: "s", meta: true } },
   { id: "snapshot", label: "Take snapshot", scope: "app", default: { key: "s", meta: true, shift: true } },
+  { id: "exportDocument", label: "Export", scope: "app", default: { key: "e", meta: true, shift: true } },
   { id: "newSection", label: "New section", scope: "app", default: { key: "n", meta: true, shift: true } },
   { id: "findInProject", label: "Find in project", scope: "app", default: { key: "k", meta: true } },
   { id: "toggleSidebar", label: "Toggle sidebar", scope: "app", default: { key: "\\", meta: true } },

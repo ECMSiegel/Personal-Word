@@ -1,0 +1,23 @@
+== repair 1 vitest, before fix ==
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+ FAIL  src/editor/pageBreakKeys.test.ts > insertPageBreak > does not carry a link past the break, but keeps the font
+AssertionError: expected true to be false // Object.is equality
+      Tests  1 failed | 3 passed (4)
+== repairs 2+3 playwright, before fix ==
+  ✘  1 tests/hs10-repairs.spec.ts:7:1 › Page setup page numbers on a project without document settings keep the editor look (13.8s)
+  ✘  2 tests/hs10-repairs.spec.ts:60:1 › Export typeface option says what sans really is (7.4s)
+    Error: expect(locator).toBeVisible() failed
+    Expected: visible
+    Error: element(s) not found
+    Error: expect(locator).toBeVisible() failed
+    Expected: visible
+    Error: element(s) not found
+  2 failed
+== repair 2 (before fix): computed font Futura->Times, size 18.67->16px, line 28->32px, indent 0->48px after toggling page numbers ==
+== repair 3 (before fix): option 'Sans (Arial in Word, Noto Sans in PDF)' not found ==
+== repair 4 (Writer label temporarily reverted) ==
+  ✘  1 tests/hs10-repairs.spec.ts:78:1 › Font box shows System, not -apple-system, when the interface font is System (8.3s)
+    Error: expect(locator).not.toContainText(expected) failed
+    Received string: "-apple-system"
+  1 failed
+== round 2, repair 2 rework (before): after toggle the stored settings were the full object (bibliography, firstLineIndent false, font sans, fontSize 14, lineSpacing 1.5, marginInches 1) instead of {pageNumbers:true}; export typeface would flip serif->sans ==

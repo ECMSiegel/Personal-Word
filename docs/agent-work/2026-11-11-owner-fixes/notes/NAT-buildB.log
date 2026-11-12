@@ -1,0 +1,8 @@
+
+> personal-word@0.3.0 tauri
+> tauri build --debug --features native-smoke --no-bundle --config {"identifier":"com.folio.smoke","build":{"beforeBuildCommand":"","frontendDist":"/Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/node_modules/.cache/personal-word-beta/of-n/dist-B"}}
+
+        Info Looking up installed tauri packages to check mismatched versions...
+   Compiling folio v0.3.0 (/Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/src-tauri)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 15.96s
+       Built application at: /Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/src-tauri/target/debug/folio

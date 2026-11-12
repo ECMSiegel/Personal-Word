@@ -1,0 +1,64 @@
+{
+  "id": "T302",
+  "title": "HS11 -- Four failures from the full built-app e2e run",
+  "description": "Full brief: docs/agent-work/2026-11-11-home-stretch/BRIEF.md then section HS11 of docs/agent-work/2026-11-11-home-stretch/TASKS.md.",
+  "status": "done",
+  "owner": null,
+  "priority": 1,
+  "depends_on": [],
+  "files": [
+    "docs/agent-work/2026-11-11-home-stretch/notes/HS11.md",
+    "tests/hs1-export-menu.spec.ts",
+    "tests/hs7-document-font.spec.ts",
+    "tests/popover-bounds.spec.ts",
+    "tests/w9-fonts.spec.ts",
+    "tests/hs11-diag.spec.ts",
+    "tests/fixtures/popover-baseline-rects.json",
+    "docs/agent-work/2026-11-11-home-stretch/notes/HS11-fail-first.txt",
+    "tests/hs11-font-focus.spec.ts"
+  ],
+  "review_required": true,
+  "created_by": "agent-b823",
+  "created_at": "2026-11-12T06:36:32+00:00",
+  "claimed_at": "2026-11-12T06:36:49+00:00",
+  "updated_at": "2026-11-12T06:59:01+00:00",
+  "handoff": null,
+  "review": {
+    "by": "agent-73e0",
+    "at": "2026-11-12T06:59:01+00:00",
+    "verdict": "approved",
+    "note": "REVIEW-5.md. view.focus() fix correct (keyboard Enter/Space preventDefault'd, toolbar editor = focused pane). Baseline: Page setup x/y/w match OF3, only heights changed; 228px fits 1440x900. Low: 1) hs7 test proves remount read, not live update (Settings unmounts Writer, App.tsx:2571); 2) icon buttons Bold/Italic/lists/undo etc (Writer.tsx:1173-1280) keep the same one-frame focus gap -> add view.focus() in iconButton run; 3) font size +/- (Writer.tsx:1406-1440) never refocus editor. hs1 teeth not independently rerun."
+  },
+  "log": [
+    {
+      "at": "2026-11-12T06:36:32+00:00",
+      "agent": "agent-b823",
+      "event": "created",
+      "note": ""
+    },
+    {
+      "at": "2026-11-12T06:36:49+00:00",
+      "agent": "agent-c31c",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-11-12T06:36:49+00:00",
+      "agent": "agent-c31c",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-11-12T06:49:03+00:00",
+      "agent": "agent-c31c",
+      "event": "review requested",
+      "note": "Item4 APP BUG: Tiptap focus() defers view.focus() one rAF; keys typed in that frame hit the Font family dropdown button (diag: lost T keydown targeted it 6/8). Fix: editor.view.focus() after chain in Paragraph style, Screenplay style, Font family onChange (src/Writer.tsx ~1326-1400). Pin tests/hs11-font-focus.spec.ts (fail-first notes/HS11-fail-first.txt). Item1 TEST: clip-path reveal mid-animation; spec waits for animations (teeth: z40 injected still fails). Item2 TEST: hs7 uses Settings UI. Item3: re-recorded Prose check h146->141 (HS3), Page setup h136->228 (HS8) only. tsc clean; dev 12/0; build ok; preview w9 x5 15/0; preview editor-toolbar+w9+popover-bounds+hs* 45/0. Notes notes/HS11.md."
+    },
+    {
+      "at": "2026-11-12T06:59:01+00:00",
+      "agent": "agent-73e0",
+      "event": "approved",
+      "note": "REVIEW-5.md. view.focus() fix correct (keyboard Enter/Space preventDefault'd, toolbar editor = focused pane). Baseline: Page setup x/y/w match OF3, only heights changed; 228px fits 1440x900. Low: 1) hs7 test proves remount read, not live update (Settings unmounts Writer, App.tsx:2571); 2) icon buttons Bold/Italic/lists/undo etc (Writer.tsx:1173-1280) keep the same one-frame focus gap -> add view.focus() in iconButton run; 3) font size +/- (Writer.tsx:1406-1440) never refocus editor. hs1 teeth not independently rerun."
+    }
+  ]
+}

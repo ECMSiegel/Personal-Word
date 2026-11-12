@@ -21,7 +21,7 @@ import {
 } from "../research/types";
 export type ExportProject = Project & {
   research?: ResearchData;
-  documentSettings?: DocumentSettings;
+  documentSettings?: Partial<DocumentSettings>;
 };
 export type Inline = {
   text: string;

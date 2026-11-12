@@ -1,0 +1,57 @@
+{
+  "id": "T291",
+  "title": "OF8 hover blur: replace text-stroke faux bold with text-shadow emphasis",
+  "description": "Per docs/agent-work/2026-11-11-owner-fixes/BLUR-DIAGNOSIS.md section 9",
+  "status": "done",
+  "owner": null,
+  "priority": 2,
+  "depends_on": [],
+  "files": [
+    "src/hoverEmphasis.test.ts",
+    "tests/hover-emphasis.spec.ts",
+    "tests/hover-helpers.ts",
+    "tests/editor-toolbar.spec.ts",
+    "tests/motion.spec.ts",
+    "tests/sidebar-selection.spec.ts",
+    "tests/scrollspy.spec.ts",
+    "tests/sidebar-search.spec.ts",
+    "tests/w9-projects-page.spec.ts",
+    "AGENTS.md",
+    "docs/design-system.md",
+    "docs/agent-work/2026-11-11-owner-fixes/notes/BLUR-fail-first.txt",
+    "docs/agent-work/2026-11-11-owner-fixes/notes/BLUR.md"
+  ],
+  "review_required": false,
+  "created_by": "agent-3250",
+  "created_at": "2026-11-11T21:48:12+00:00",
+  "claimed_at": "2026-11-11T21:48:17+00:00",
+  "updated_at": "2026-11-11T22:20:16+00:00",
+  "handoff": null,
+  "review": null,
+  "log": [
+    {
+      "at": "2026-11-11T21:48:12+00:00",
+      "agent": "agent-3250",
+      "event": "created",
+      "note": ""
+    },
+    {
+      "at": "2026-11-11T21:48:17+00:00",
+      "agent": "agent-3250",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-11-11T21:48:17+00:00",
+      "agent": "agent-3250",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-11-11T22:20:16+00:00",
+      "agent": "agent-3250",
+      "event": "done",
+      "note": "text-shadow faux bold (--emph-bold 0.3px) replaces text-stroke in styles.css; unit+7 specs+AGENTS.md/design-system switched. Fail-first 3/7 unit failed pre-fix. tsc clean, vitest 1277/1277, Playwright 96 passed 8 skipped 0 failed. Native blur probe and 2x step left for close-out (see notes/BLUR.md)."
+    }
+  ]
+}

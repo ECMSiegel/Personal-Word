@@ -1,5 +1,7 @@
 import { expect, it } from "vitest";
 import { textOf, words, newProject, validateProject, isValidGoalDeadline } from "./model";
+import { createProjectArchive, readProjectArchive } from "./projectArchive";
+import { headerOf } from "./save-queue";
 it("preserves paragraph boundaries in quoted and list fragment exports", () => {
   const paragraph = (text: string) => ({
     type: "paragraph",
@@ -323,4 +325,30 @@ it("keeps sidebarHidden through a structuredClone and JSON round trip", () => {
   const round = JSON.parse(JSON.stringify(structuredClone(project)));
   expect(round.sidebarHidden).toEqual(["comments", "history"]);
   expect(() => validateProject(round)).not.toThrow();
+});
+
+// HS9: top-level sections are additive metadata (Project.groups, Project.groupTitles, Entry.group).
+it("validates top-level section fields and keeps them through the archive and save-queue header", async () => {
+  const base = newProject("Sections");
+  const grouped = {
+    ...base,
+    groups: [{ id: "g1", title: "Part two" }],
+    groupTitles: { manuscript: "Chapters" },
+    entries: [{ ...base.entries[0], group: "g1" }],
+  };
+  expect(() => validateProject(structuredClone(grouped))).not.toThrow();
+  // An unknown group id on an entry is tolerated (the sidebar shows it under Manuscript).
+  expect(() => validateProject({ ...grouped, entries: [{ ...base.entries[0], group: "gone" }] })).not.toThrow();
+  for (const groups of [{}, [{ id: "", title: "x" }], [{ id: "g", title: " " }], [{ id: "g", title: "a" }, { id: "g", title: "b" }], [{ id: "manuscript", title: "x" }]])
+    expect(() => validateProject({ ...grouped, groups })).toThrow();
+  expect(() => validateProject({ ...grouped, groupTitles: { manuscript: 3 } })).toThrow();
+  expect(() => validateProject({ ...grouped, groupTitles: { read: "x" } })).toThrow();
+  expect(() => validateProject({ ...grouped, entries: [{ ...base.entries[0], group: 5 }] })).toThrow();
+  const { project } = await readProjectArchive(await createProjectArchive(grouped as never, async () => { throw new Error("no assets"); }));
+  expect(project.groups).toEqual(grouped.groups);
+  expect(project.groupTitles).toEqual(grouped.groupTitles);
+  expect(project.entries[0].group).toBe("g1");
+  const header = JSON.parse(JSON.stringify(headerOf(grouped as never)));
+  expect(header.groups).toEqual(grouped.groups);
+  expect(header.groupTitles).toEqual(grouped.groupTitles);
 });

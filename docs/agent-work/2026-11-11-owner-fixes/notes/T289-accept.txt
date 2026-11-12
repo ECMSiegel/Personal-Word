@@ -1,0 +1,139 @@
+
+Running 41 tests using 1 worker
+
+[1/41] tests/accessibility.spec.ts:21:1 › dropdown listbox owns keyboard focus and returns it on Escape or selection
+[2/41] tests/accessibility.spec.ts:64:1 › dropdown closes on Tab and its menu stays inside a compact viewport
+[3/41] tests/accessibility.spec.ts:93:1 › page layout measurement preserves the editor element and undo history
+[4/41] tests/accessibility.spec.ts:117:1 › an overlong page footnote offers a keyboard-operated continuous view
+[5/41] tests/editor-toolbar.spec.ts:12:1 › formatting toolbar stays on one row
+[6/41] tests/editor-toolbar.spec.ts:21:1 › Tab indents the paragraph and keeps focus in the editor
+[7/41] tests/editor-toolbar.spec.ts:59:1 › Tab nests a bullet list item
+[8/41] tests/editor-toolbar.spec.ts:73:1 › Font family dropdown opens from the keyboard and changes the font
+[9/41] tests/editor-toolbar.spec.ts:111:1 › icons only at every width
+[10/41] tests/editor-toolbar.spec.ts:126:1 › a narrower format bar shows icons only
+[11/41] tests/editor-toolbar.spec.ts:141:1 › the default window keeps Insert on the bar
+[12/41] tests/editor-toolbar.spec.ts:199:1 › More lists labelled rows with shortcut hints and emphasizes the hovered row
+[13/41] tests/editor-toolbar.spec.ts:229:1 › a Bold row in More toggles bold
+[14/41] tests/editor-toolbar.spec.ts:254:1 › dock magnifies the hovered icon with neighbour falloff and no layout shift
+[15/41] tests/editor-toolbar.spec.ts:284:1 › dock: Reduce Motion means no magnification
+[16/41] tests/editor-toolbar.spec.ts:295:1 › dock: keyboard focus peaks instantly
+[17/41] tests/editor-toolbar.spec.ts:307:1 › scissor uses the cursor paragraph and keeps dock geometry fixed
+[18/41] tests/editor-toolbar.spec.ts:349:1 › comment on a collapsed cursor captures the whole paragraph
+[19/41] tests/editor-toolbar.spec.ts:366:1 › format bar zoom, paragraph style and font dropdowns draw no border or fill
+[20/41] tests/editor-toolbar.spec.ts:394:1 › Page setup Paper size and Page margins keep their 1 px box
+[21/41] tests/editor-toolbar.spec.ts:412:1 › format bar dropdowns held in More draw no border at a narrow width
+[22/41] tests/hover-emphasis.spec.ts:160:1 › hover inventory: crawl controls across screens
+tests/hover-emphasis.spec.ts:160:1 › hover inventory: crawl controls across screens
+H1 inventory: 1170 controls (569 text) over 20 screens
+
+Projects (empty)
+Projects
+Writing
+Writing (sections in sidebar)
+Writing (page view)
+Dialog: Page setup
+Dialog: Snapshot name
+Fragments panel
+Research (empty)
+Research (source with PDF)
+Research
+Research (Notes)
+Comments
+History
+Read manuscript
+Settings
+Settings: Shortcuts region
+Split view
+Projects (with a project)
+Projects(lib)
+
+not crawled / skipped:
+
+
+H3 un-hoverable controls: 10
+Research (empty) | aside.research-aside > section.research-panel > details.citation-rules > label.check | Shorten repeat citations automatically
+Research (empty) | aside.research-aside > section.research-panel > details.citation-rules > label.check | Use repeat citation rules
+Research (source with PDF) | div.research-fields > div.field.source-pdf-field > div.item-actions > button | Open beside
+Research (source with PDF) | div.research-fields > div.field.source-pdf-field > div.item-actions > button.is-danger | Remove PDF
+Research (source with PDF) | aside.research-aside > section.research-panel > details.citation-rules > label.check | Shorten repeat citations automatically
+Research (source with PDF) | aside.research-aside > section.research-panel > details.citation-rules > label.check | Use repeat citation rules
+Research (popup 0) | div.research-fields > div.field.source-pdf-field > div.item-actions > button | Open beside
+Research (popup 0) | div.research-fields > div.field.source-pdf-field > div.item-actions > button.is-danger | Remove PDF
+Research (popup 0) | aside.research-aside > section.research-panel > details.citation-rules > label.check | Shorten repeat citations automatically
+Research (popup 0) | aside.research-aside > section.research-panel > details.citation-rules > label.check | Use repeat citation rules
+
+H3 exceptions: 0
+
+
+[23/41] tests/hover-emphasis.spec.ts:412:1 › H2 emphasis: no-shift faux bold and no grow on hover
+tests/hover-emphasis.spec.ts:412:1 › H2 emphasis: no-shift faux bold and no grow on hover
+H2 create menu row: stroke 0.48px scale 1 width 218->218 neighbour shifts 0,0,0,0,0
+
+H2 Snapshot: stroke 0.48px scale 1 width 90->90 neighbour shifts 0,0
+
+H2 Projects tab: stroke 0.48px scale 1 width 67->67 neighbour shifts 0
+
+H2 sidebar entry: stroke 0.52px scale 1 width 221->221 neighbour shifts 0
+
+H2 Delete note: stroke 0.52px scale 1 width 68->68 neighbour shifts 
+
+H2 settings button: stroke 0.52px scale 1 width 90->90 neighbour shifts 0,0
+
+H2 settings checkbox label: stroke 0.52px scale 1 width 624->624 neighbour shifts 0,0,0
+
+[24/41] tests/hover-emphasis.spec.ts:464:1 › H5 emphasis never touches links inside the document (editor and Read view)
+[25/41] tests/hover-emphasis.spec.ts:506:1 › H4 emphasis: Reduce Motion, danger colour and the drift probe
+tests/hover-emphasis.spec.ts:506:1 › H4 emphasis: Reduce Motion, danger colour and the drift probe
+H2 dialog Cancel: stroke 0.52px scale 1 width 73->73 neighbour shifts 0
+
+H2 dialog Save: stroke 0.48px scale 1 width 59->59 neighbour shifts 0
+
+[26/41] tests/of6-recent-fonts.spec.ts:45:1 › no Recent section or divider before any font is applied
+[27/41] tests/of6-recent-fonts.spec.ts:54:1 › applying fonts fills Recent: newest first, once each, at most five
+[28/41] tests/of6-recent-fonts.spec.ts:83:1 › Recent rows preview in their own face like the main list
+[29/41] tests/of6-recent-fonts.spec.ts:94:1 › opening the menu or moving the caret does not change Recent
+[30/41] tests/of6-recent-fonts.spec.ts:111:1 › Recent is remembered under folio.recentFonts
+[31/41] tests/of6-recent-fonts.spec.ts:119:1 › stored junk and fonts that are gone are not shown
+[32/41] tests/of6-recent-fonts.spec.ts:126:1 › unparseable stored data shows no Recent section
+[33/41] tests/of6-recent-fonts.spec.ts:133:1 › keyboard and type-ahead skip the heading and divider
+[34/41] tests/of6-recent-fonts.spec.ts:167:1 › an ordinary dropdown is unchanged: no heading, no separator, same keys
+[35/41] tests/popover-bounds.spec.ts:57:1 › research menus stay inside the research aside scroll container
+[36/41] tests/popover-bounds.spec.ts:100:1 › a menu in the 390 px research aside keeps the Dropdown's 320 px max-width
+[37/41] tests/popover-bounds.spec.ts:131:1 › repeat-rule menus stay inside a narrow research aside
+[38/41] tests/popover-bounds.spec.ts:164:1 › cards-view status dropdown stays inside the sidebar scroll container
+[39/41] tests/popover-bounds.spec.ts:178:1 › toolbar popovers keep their recorded untouched-tree placement
+  1) tests/popover-bounds.spec.ts:178:1 › toolbar popovers keep their recorded untouched-tree placement 
+
+    Error: Page setup x moved
+
+    expect(received).toBeLessThanOrEqual(expected)
+
+    Expected: <= 1
+    Received:    33.4375
+
+      210 |       Math.abs(b!.x - want.x),
+      211 |       `${name} x moved`,
+    > 212 |     ).toBeLessThanOrEqual(1);
+          |       ^
+      213 |     expect(
+      214 |       Math.abs(b!.y - want.y),
+      215 |       `${name} y moved`,
+        at /Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/tests/popover-bounds.spec.ts:212:7
+
+    Error Context: test-results/T289/popover-bounds-toolbar-pop-f859e-ed-untouched-tree-placement/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/T289/popover-bounds-toolbar-pop-f859e-ed-untouched-tree-placement/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/T289/popover-bounds-toolbar-pop-f859e-ed-untouched-tree-placement/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+[40/41] tests/w9-font-menu.spec.ts:12:1 › font menu keeps one unquoted full-name option and has its own icon
+[41/41] tests/w9-fonts.spec.ts:72:1 › interface and document font choices persist and added styles are shared
+  1 failed
+    tests/popover-bounds.spec.ts:178:1 › toolbar popovers keep their recorded untouched-tree placement 
+  40 passed (3.8m)
+EXIT 1

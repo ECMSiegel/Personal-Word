@@ -193,32 +193,70 @@ test("each split pane's ruler matches its own paper, text and markers", async ({
   expect(a.rulerLeft).not.toBe(b.rulerLeft);
 });
 
-for (const mode of ["continuous", "pages"] as const) {
-  test(`ruler stays pinned, opaque and on top of scrolled text: ${mode} view`, async ({ page }) => {
-    await createProject(page, `Ruler scroll ${mode}`);
-    await setMode(page, mode);
-    await seedBlocks(page, dense(60));
-    await setMode(page, mode);
-    await setRuler(page, true);
-    const scroller = page.locator(".writer-scroll").first();
-    await scroller.evaluate((el) => (el.scrollTop = 700));
-    await expect.poll(() => scroller.evaluate((el) => el.scrollTop)).toBeGreaterThan(300);
-    const result = await page.evaluate(() => {
+test("continuous view: the ruler stays pinned, opaque and on top of scrolled text", async ({ page }) => {
+  await createProject(page, "Ruler scroll continuous");
+  await setMode(page, "continuous");
+  await seedBlocks(page, dense(60));
+  await setMode(page, "continuous");
+  await setRuler(page, true);
+  const scroller = page.locator(".writer-scroll").first();
+  await scroller.evaluate((el) => (el.scrollTop = 700));
+  await expect.poll(() => scroller.evaluate((el) => el.scrollTop)).toBeGreaterThan(300);
+  const result = await page.evaluate(() => {
+    const scroll = document.querySelector(".writer-scroll")!.getBoundingClientRect();
+    const ruler = document.querySelector(".document-ruler")!;
+    const box = ruler.getBoundingClientRect();
+    const probe = document.elementFromPoint(box.left + box.width / 2, box.top + box.height / 2);
+    return {
+      offset: box.top - scroll.top,
+      alpha: getComputedStyle(ruler).backgroundColor,
+      covered: !!probe && ruler.contains(probe),
+    };
+  });
+  expect(Math.abs(result.offset), "ruler pinned to the top of the scroller").toBeLessThanOrEqual(2);
+  expect(result.alpha, "ruler background is opaque").toMatch(/^rgb\(/);
+  expect(result.covered, "nothing but the ruler is drawn at its centre").toBe(true);
+});
+
+test("page view (OF3 rework): the ruler is pinned in a full-width opaque desk strip and is not on the sheet at rest", async ({ page }) => {
+  await createProject(page, "Ruler scroll pages");
+  await setMode(page, "pages");
+  await seedBlocks(page, dense(60));
+  await setMode(page, "pages");
+  await setRuler(page, true);
+  const scroller = page.locator(".writer-scroll").first();
+  const probe = () =>
+    page.evaluate(() => {
       const scroll = document.querySelector(".writer-scroll")!.getBoundingClientRect();
       const ruler = document.querySelector(".document-ruler")!;
       const box = ruler.getBoundingClientRect();
-      const probe = document.elementFromPoint(box.left + box.width / 2, box.top + box.height / 2);
+      const sheet = document.querySelector(".page-sheet")!.getBoundingClientRect();
+      const strip = ruler.parentElement!;
+      const sbox = strip.getBoundingClientRect();
+      const under = document.elementFromPoint(scroll.left + 20, sbox.top + sbox.height / 2);
+      const mid = document.elementFromPoint(box.left + box.width / 2, box.top + box.height / 2);
       return {
         offset: box.top - scroll.top,
-        alpha: getComputedStyle(ruler).backgroundColor,
-        covered: !!probe && ruler.contains(probe),
+        rulerBottom: box.bottom,
+        sheetTop: sheet.top,
+        stripWidth: sbox.width,
+        scrollWidth: scroll.width,
+        stripBg: getComputedStyle(strip).backgroundColor,
+        stripCoversGutter: !!under && strip.contains(under),
+        rulerCovered: !!mid && ruler.contains(mid),
       };
     });
-    expect(Math.abs(result.offset), "ruler pinned to the top of the scroller").toBeLessThanOrEqual(2);
-    expect(result.alpha, "ruler background is opaque").toMatch(/^rgb\(/);
-    expect(result.covered, "nothing but the ruler is drawn at its centre").toBe(true);
-  });
-}
+  const rest = await probe();
+  expect(rest.rulerBottom, "at rest the ruler is above the sheet").toBeLessThanOrEqual(rest.sheetTop + 1);
+  await scroller.evaluate((el) => (el.scrollTop = 700));
+  await expect.poll(() => scroller.evaluate((el) => el.scrollTop)).toBeGreaterThan(300);
+  const r = await probe();
+  expect(Math.abs(r.offset), "ruler pinned to the top of the scroller").toBeLessThanOrEqual(2);
+  expect(r.stripBg, "strip is opaque").toMatch(/^rgb\(/);
+  expect(r.stripWidth, "strip spans the whole scroller").toBeGreaterThanOrEqual(r.scrollWidth - 20);
+  expect(r.stripCoversGutter, "nothing but the strip is drawn at its left end").toBe(true);
+  expect(r.rulerCovered, "nothing but the ruler is drawn at its centre").toBe(true);
+});
 
 test("a top gap below the ruler height keeps the first line and the gap handle off the ticks", async ({ page }) => {
   await createProject(page, "Ruler gap zero");

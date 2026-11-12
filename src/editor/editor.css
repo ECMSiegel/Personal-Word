@@ -36,9 +36,8 @@
   max-width: min(420px, 80vw);
 }
 .prose-check-panel input[type="checkbox"] {
-  width: 16px;
-  height: 16px;
-  accent-color: var(--accent);
+  width: 14px;
+  height: 14px;
 }
 .prose-issues {
   display: flex;
@@ -119,11 +118,7 @@
   background: var(--paper);
   container-type: inline-size;
   color: var(--text);
-  font-family:
-    Futura,
-    "Avenir Next",
-    -apple-system,
-    sans-serif;
+  font-family: var(--ui-font);
   font-size: var(--type-small);
 }
 .writer .format-bar .toolbar-group {
@@ -189,6 +184,10 @@
   border-radius: 0;
   font-size: var(--type-small);
 }
+.writer .format-bar .font-family-dropdown {
+  min-width: 124px;
+  max-width: 220px;
+}
 /* Page setup's popover sits inside the format bar, so the rule above would also
    strip its Paper size and Page margins boxes. Put the box back only in the Page
    setup body: the More menu has no body wrapper, so its zoom, paragraph style and
@@ -251,11 +250,7 @@
   /* Popover paints the surface; nested menus may spill out of a panel. */
   overflow: visible;
   color: var(--text);
-  font-family:
-    Futura,
-    "Avenir Next",
-    -apple-system,
-    sans-serif;
+  font-family: var(--ui-font);
   font-size: 12px;
   text-align: left;
   white-space: nowrap;
@@ -322,11 +317,6 @@
 .writer .toolbar-field-title {
   color: var(--muted);
   font-size: var(--type-small);
-}
-.writer .toolbar-field-unit {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
 }
 .writer .toolbar-button-row {
   display: flex;
@@ -442,6 +432,21 @@
   background: var(--paper);
   color: var(--muted);
 }
+/* The stretch outside the margins is shaded like the side ruler's top and bottom bands. */
+.ruler-band {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  background: var(--line);
+  opacity: 0.5;
+  pointer-events: none;
+}
+.ruler-band--left {
+  left: 0;
+}
+.ruler-band--right {
+  right: 0;
+}
 .ruler-ticks {
   position: relative;
   height: 100%;
@@ -531,7 +536,7 @@
   padding: var(--page-top-gap) var(--page-margin) 32px;
 }
 .editor-paper .writing-surface {
-  font-family: Futura, system-ui, sans-serif;
+  font-family: var(--ui-font, Futura, system-ui, sans-serif);
   font-size: 14pt;
   line-height: 1.5;
 }
@@ -581,6 +586,29 @@
 .is-paged .document-ruler {
   width: var(--page-width);
   max-width: none;
+  position: relative;
+  box-shadow: 0 0 0 1px var(--line);
+}
+/* OF3: the strip holds the ruler. Continuous view: it vanishes (the ruler itself is sticky).
+   Page view: a full-width, opaque desk-grey band pinned to the top of the scroller, the pages
+   scroll beneath it, and the ruler sits centred in it over the paper's own columns. At rest the
+   ruler is directly above the first sheet, never on it. */
+.ruler-strip {
+  display: contents;
+}
+/* The floating sidebar is z-index 4: the strip drops below it (the side ruler, also 3, is hidden
+   while the sidebar floats, so nothing ties). The citation card is 39 and already above. */
+.app:has(.sidebar-shell.is-floating) .is-paged .ruler-strip {
+  z-index: 3;
+}
+.is-paged .ruler-strip {
+  display: block;
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  margin: 0 -16px;
+  padding: 0 16px;
+  background: var(--surface, var(--line));
 }
 /* Page sheets (Writer.tsx): real boxes at p * (page height + gap), drawn
    behind the text (earlier in the paper, positioned). A background gradient
@@ -673,7 +701,7 @@
   vertical-align: super;
 }
 .editor-paper .writing-surface {
-  font-family: var(--document-font, Futura, system-ui, sans-serif);
+  font-family: var(--document-font, var(--ui-font, Futura, system-ui, sans-serif));
   font-size: var(--document-size, 14pt);
   line-height: var(--document-line, 1.5);
 }
@@ -713,7 +741,7 @@
 .footnote-area,
 .page-footnotes,
 .footnote-measure {
-  font-family: var(--document-font, Futura, system-ui, sans-serif);
+  font-family: var(--document-font, var(--ui-font, Futura, system-ui, sans-serif));
 }
 .footnote-rule {
   width: 1.5in;
@@ -781,11 +809,7 @@
   border-radius: 0;
   background: transparent;
   color: var(--muted);
-  font-family:
-    Futura,
-    "Avenir Next",
-    -apple-system,
-    sans-serif;
+  font-family: var(--ui-font);
   font-size: 11px;
   line-height: inherit;
   cursor: pointer;
@@ -958,10 +982,6 @@
   padding: 1em 1.5em;
   border: 1px dashed var(--line);
   color: var(--muted);
-  font-family:
-    Futura,
-    "Avenir Next",
-    -apple-system,
-    sans-serif;
+  font-family: var(--ui-font);
   font-size: 13px;
 }

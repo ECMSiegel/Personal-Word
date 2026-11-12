@@ -1,0 +1,46 @@
+
+Running 2 tests using 1 worker
+
+  ✘  1 tests/hs11-font-focus.spec.ts:11:3 › choosing "Georgia" from Font family focuses the editor immediately (2.5s)
+  ✘  2 tests/hs11-font-focus.spec.ts:11:3 › choosing "Heading 1" from Paragraph style focuses the editor immediately (2.9s)
+
+
+  1) tests/hs11-font-focus.spec.ts:11:3 › choosing "Georgia" from Font family focuses the editor immediately 
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: "Writing editor"
+    Received: "Font family"
+
+      21 |       return document.activeElement?.getAttribute("aria-label") ?? document.activeElement?.tagName;
+      22 |     });
+    > 23 |     expect(focused).toBe("Writing editor");
+         |                     ^
+      24 |     await page.keyboard.type("Typed after choosing");
+      25 |     await expect(page.getByRole("textbox", { name: "Writing editor" })).toContainText("Typed after choosing");
+      26 |   });
+        at /Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/tests/hs11-font-focus.spec.ts:23:21
+
+    Error Context: test-results/HS11/hs11-font-focus-choosing-G-2b7e7-uses-the-editor-immediately/error-context.md
+
+  2) tests/hs11-font-focus.spec.ts:11:3 › choosing "Heading 1" from Paragraph style focuses the editor immediately 
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: "Writing editor"
+    Received: "Paragraph style"
+
+      21 |       return document.activeElement?.getAttribute("aria-label") ?? document.activeElement?.tagName;
+      22 |     });
+    > 23 |     expect(focused).toBe("Writing editor");
+         |                     ^
+      24 |     await page.keyboard.type("Typed after choosing");
+      25 |     await expect(page.getByRole("textbox", { name: "Writing editor" })).toContainText("Typed after choosing");
+      26 |   });
+        at /Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/tests/hs11-font-focus.spec.ts:23:21
+
+    Error Context: test-results/HS11/hs11-font-focus-choosing-H-49313-uses-the-editor-immediately/error-context.md
+
+  2 failed
+    tests/hs11-font-focus.spec.ts:11:3 › choosing "Georgia" from Font family focuses the editor immediately 
+    tests/hs11-font-focus.spec.ts:11:3 › choosing "Heading 1" from Paragraph style focuses the editor immediately 

@@ -1,0 +1,6 @@
+pass writing/sidebar-row: fringe per run rest 188.0 v1-current 188.0 (+0.0)
+pass writing/project-title: fringe per run rest 21.3 v1-current 21.3 (+0.0)
+pass writing/tab: fringe per run rest 2.02 v1-current 1.76 (-0.26)
+pass writing/toolbar-menu: fringe per run rest 81.0 v1-current 81.0 (+0.0)
+pass projects/projects-row: fringe per run rest 376.0 v1-current 376.0 (+0.0)
+RESULT FAIL devicePixelRatio 2 (needs a 1x screen)

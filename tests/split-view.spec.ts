@@ -406,6 +406,8 @@ test("open beside: the row button shows on hover and keyboard focus and opens th
   await page.mouse.move(900, 450);
   await expect(actions(page, "Beside fragment")).toHaveCSS("opacity", "0");
   await row(page, "Beside fragment").focus();
+  // HS9: the row's More button comes first (drawn left of the split icon), then open-beside.
+  await page.keyboard.press("Tab");
   await page.keyboard.press("Tab");
   const fragmentButton = page.getByRole("button", { name: "Open Beside fragment beside" });
   await expect(fragmentButton).toBeFocused();
@@ -415,13 +417,18 @@ test("open beside: the row button shows on hover and keyboard focus and opens th
   await expect(page.locator('.split-pane[data-side="right"] .split-pane-title')).toHaveText("Beside fragment");
   await expect(rightEditor(page)).toContainText("Beside fragment");
 
-  // The entry already on the left never opens in both panes.
+  // The entry already on the left never opens in both panes; B4 moves focus to
+  // the pane that already shows it.
   await row(page, "One").hover();
   await page.getByRole("button", { name: "Open One beside" }).click();
   await expect(page.locator('.split-pane[data-side="right"] .split-pane-title')).toHaveText("Beside fragment");
   await expect(page.locator(".ProseMirror")).toHaveCount(2);
 
-  // Deleting the right pane's entry closes the split.
+  // Deleting the right pane's entry closes the split. B4: focus moved to the
+  // left pane in the step above, so focus the right pane first to make it the
+  // pane last used. Old expectation (pre-B4): "Open Two beside" replaced the
+  // right pane regardless of focus, so this click was done without focusing.
+  await rightEditor(page).click();
   await row(page, "Two").hover();
   await page.getByRole("button", { name: "Open Two beside" }).click();
   await expect(page.locator('.split-pane[data-side="right"] .split-pane-title')).toHaveText("Two");

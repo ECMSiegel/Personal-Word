@@ -73,8 +73,8 @@ test("clear button is icon-only, flat, square, colour hover at the search end", 
   await page.waitForTimeout(300);
   expect(await style("color")).not.toBe(rest);
   expect(await style("backgroundColor")).toBe("rgba(0, 0, 0, 0)");
-  expect(await b.evaluate((el) => getComputedStyle(el).fontWeight + getComputedStyle(el).webkitTextStrokeWidth)).toBe(
-    await b.evaluate((el) => getComputedStyle(el).fontWeight + "0px"),
+  expect(await b.evaluate((el) => getComputedStyle(el).fontWeight + getComputedStyle(el).textShadow)).toBe(
+    await b.evaluate((el) => getComputedStyle(el).fontWeight + "none"),
   );
 });
 

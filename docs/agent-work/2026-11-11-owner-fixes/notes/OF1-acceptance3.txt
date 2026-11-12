@@ -1,0 +1,9 @@
+
+Running 3 tests using 1 worker
+
+  ✓  1 tests/of1-text-notes.spec.ts:14:1 › Text-only notes live on the Notes tab, not the Sources tab (3.5s)
+  ✓  2 tests/of1-text-notes.spec.ts:91:1 › Delete in a section that is not open: confirm, cancel, snapshot, renumber, reload (23.7s)
+  ✓  3 tests/of1-text-notes.spec.ts:133:1 › Delete while the section is open in the editor removes the marker and survives the next save (13.5s)
+
+  3 passed (43.6s)
+EXIT 0

@@ -1,0 +1,43 @@
+
+Running 1 test using 1 worker
+
+  ✘  1 tests/w9-side-ruler.spec.ts:169:1 › side ruler: hidden while the sidebar floats (10.0s)
+
+
+  1) tests/w9-side-ruler.spec.ts:169:1 › side ruler: hidden while the sidebar floats ───────────────
+
+    Error: expect(locator).toBeHidden() failed
+
+    Locator:  locator('.side-ruler').first()
+    Expected: hidden
+    Received: visible
+    Timeout:  5000ms
+
+    Call log:
+      - Expect "toBeHidden" locator('.side-ruler').first() with timeout 5000ms
+      - waiting for locator('.side-ruler').first()
+        14 × locator resolved to <div role="group" class="side-ruler" aria-label="Page 1 margin ruler">…</div>
+           - unexpected value "visible"
+
+
+      177 |   await expect(page.locator(".sidebar-shell.is-floating")).toBeVisible();
+      178 |   await expect(page.locator(".side-ruler")).not.toHaveCount(0);
+    > 179 |   await expect(page.locator(".side-ruler").first()).toBeHidden();
+          |                                                     ^
+      180 | });
+      181 |
+        at /Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/tests/w9-side-ruler.spec.ts:179:53
+
+    Error Context: test-results/T268-ff/w9-side-ruler-side-ruler-hidden-while-the-sidebar-floats/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/T268-ff/w9-side-ruler-side-ruler-hidden-while-the-sidebar-floats/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/T268-ff/w9-side-ruler-side-ruler-hidden-while-the-sidebar-floats/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/w9-side-ruler.spec.ts:169:1 › side ruler: hidden while the sidebar floats ────────────────
+EXIT 1

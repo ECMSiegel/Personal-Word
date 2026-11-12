@@ -1,0 +1,747 @@
+
+Running 4 tests using 1 worker
+
+H1 inventory: 1146 controls (534 text) over 20 screens
+Projects (empty)
+Projects
+Writing
+Writing (sections in sidebar)
+Writing (page view)
+Dialog: Page setup
+Dialog: Snapshot name
+Fragments panel
+Research (empty)
+Research (source with PDF)
+Research
+Research (Notes)
+Comments
+History
+Read manuscript
+Settings
+Settings: Shortcuts region
+Split view
+Projects (with a project)
+Projects(lib)
+not crawled / skipped:
+
+H3 un-hoverable controls: 11
+Fragments panel | div.app-shell > div.app > div.notice[role=status] > button | Dismiss notification
+Research (empty) | aside.research-aside > section.research-panel > details.citation-rules > label.check | Shorten repeat citations automatically
+Research (empty) | aside.research-aside > section.research-panel > details.citation-rules > label.check | Use repeat citation rules
+Research (source with PDF) | div.research-fields > div.field.source-pdf-field > div.item-actions > button | Open beside
+Research (source with PDF) | div.research-fields > div.field.source-pdf-field > div.item-actions > button.is-danger | Remove PDF
+Research (source with PDF) | aside.research-aside > section.research-panel > details.citation-rules > label.check | Shorten repeat citations automatically
+Research (source with PDF) | aside.research-aside > section.research-panel > details.citation-rules > label.check | Use repeat citation rules
+Research (popup 0) | div.research-fields > div.field.source-pdf-field > div.item-actions > button | Open beside
+Research (popup 0) | div.research-fields > div.field.source-pdf-field > div.item-actions > button.is-danger | Remove PDF
+Research (popup 0) | aside.research-aside > section.research-panel > details.citation-rules > label.check | Shorten repeat citations automatically
+Research (popup 0) | aside.research-aside > section.research-panel > details.citation-rules > label.check | Use repeat citation rules
+H3 exceptions: 569
+text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Projects (empty) | div > div.app-shell > nav.project-tabs > button.tabs-library | Projects
+text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Projects (empty) | main.library > div.library-toolbar > div.create-project > button.primary | Start new project
+text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Projects (empty) | div.app > main.library > div.library-toolbar > button.library-import | Import writing
+text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Projects (empty) | div.library-display > label > div.dropdown > button.dropdown-button | Last edited
+text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Projects (popup 0) | div > div.app-shell > nav.project-tabs > button.tabs-library | Projects
+text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Projects (popup 0) | main.library > div.library-toolbar > div.create-project > button.primary | Start new project
+text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Projects (popup 0) | div.library-toolbar > div.create-project > div.popover.popover-anchor[role=group] > button.popover-item | Blank
+text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Projects (popup 0) | div.library-toolbar > div.create-project > div.popover.popover-anchor[role=group] > button.popover-item | Chicago
+text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Projects (popup 0) | div.library-toolbar > div.create-project > div.popover.popover-anchor[role=group] > button.popover-item | Screenplay
+text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Projects (popup 0) | div.library-toolbar > div.create-project > div.popover.popover-anchor[role=group] > button.popover-item | Import a file…
+text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Projects (popup 0) | div.library-toolbar > div.create-project > div.popover.popover-anchor[role=group] > button.popover-item | Recover from a project.json file…
+text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Projects (popup 0) | div.app > main.library > div.library-toolbar > button.library-import | Import writing
+text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Projects (popup 0) | div.library-display > label > div.dropdown > button.dropdown-button | Last edited
+text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Projects (popup 2) | label > div.dropdown > div.popover.dropdown-menu[role=listbox] > div.dropdown-option[role=option] | Name
+text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Projects (popup 2) | label > div.dropdown > div.popover.dropdown-menu[role=listbox] > div.dropdown-option[role=option] | Added
+text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Projects (popup 2) | label > div.dropdown > div.popover.dropdown-menu[role=listbox] > div.dropdown-option.is-highlighted[role=option] | Last edited
+text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Writing | div > div.app-shell > nav.project-tabs > button.tabs-library | Projects
+text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Writing | div.app-shell > nav.project-tabs > div.project-tab.active > button | Hover inventory
+text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Writing | div.sidebar-shell.is-pinned > aside.sidebar > div.sidebar-title-row > button.project-switch | Hover inventory
+text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Writing | div.sidebar-groups > section.sidebar-group.list-view > div.group-heading > button.group-title | Manuscript
+text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Writing | section.sidebar-group.list-view > div.entry-list > div.entry-row.selected > button.entry-main | Opening
+text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Writing | div.sidebar-groups > section.sidebar-group.list-view > div.group-heading > button.group-title | Fragments
+text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Writing | div.sidebar-groups > section.sidebar-group.list-view > div.group-heading > button.group-title | Research
+text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Writing | nav.sidebar-bottom-groups > section.sidebar-group.list-view > div.group-heading > button.group-title | Read manuscript
+text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Writing | nav.sidebar-bottom-groups > section.sidebar-group.list-view > div.group-heading > button.group-title | Comments
+text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Writing | nav.sidebar-bottom-groups > section.sidebar-group.list-view > div.group-heading > button.group-title | Snapshots & history
+text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Writing | nav.sidebar-bottom-groups > section.sidebar-group.list-view > div.group-heading > button.group-title | Settings
+text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Writing | nav.breadcrumb > ol > li > button.breadcrumb-title | Opening
+text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Writing | main.workspace > header.topbar > div > button.snapshot-button | Snapshot
+text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Writing | div.format-bar[role=toolbar] > span.toolbar-group > div.dropdown > button.dropdown-button | 100%
+text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Writing | div.format-bar[role=toolbar] > span.toolbar-group > div.dropdown > button.dropdown-button | Normal text
+text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Writing | div.format-bar[role=toolbar] > span.toolbar-group > div.dropdown > button.dropdown-button | Futura
+text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Writing (sections in sidebar) | div > div.app-shell > nav.project-tabs > button.tabs-library | Projects
+text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Writing (sections in sidebar) | div.app-shell > nav.project-tabs > div.project-tab.active > button | Hover inventory
+text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Writing (sections in sidebar) | div.sidebar-shell.is-pinned > aside.sidebar > div.sidebar-title-row > button.project-switch | Hover inventory
+text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Writing (sections in sidebar) | div.sidebar-groups > section.sidebar-group.list-view > div.group-heading > button.group-title | Manuscript
+text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Writing (sections in sidebar) | section.sidebar-group.list-view > div.entry-list > div.entry-row > button.entry-main | Opening
+text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Writing (sections in sidebar) | section.sidebar-group.list-view > div.entry-list > div.entry-row > button.entry-main | One
+text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Writing (sections in sidebar) | section.sidebar-group.list-view > div.entry-list > div.entry-row.selected > button.entry-main | Two
+text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Writing (sections in sidebar) | div.sidebar-groups > section.sidebar-group.list-view > div.group-heading > button.group-title | Fragments
+  ✘  1 tests/hover-emphasis.spec.ts:160:1 › hover inventory: crawl controls across screens (3.7m)
+H2 create menu row: stroke 0.48px scale 1.04 width 218->218 neighbour shifts 0,0,0,0,0
+  ✘  2 tests/hover-emphasis.spec.ts:412:1 › H2 emphasis: no-shift faux bold and no grow on hover (18.4s)
+  ✓  3 tests/hover-emphasis.spec.ts:464:1 › H5 emphasis never touches links inside the document (editor and Read view) (17.8s)
+H2 dialog Cancel: stroke 0.52px scale 1.04 width 73->73 neighbour shifts 0
+  ✘  4 tests/hover-emphasis.spec.ts:506:1 › H4 emphasis: Reduce Motion, danger colour and the drift probe (12.9s)
+
+
+  1) tests/hover-emphasis.spec.ts:160:1 › hover inventory: crawl controls across screens ───────────
+
+    Error: emphasis exceptions
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  -   1
+    + Received  + 571
+
+    - Array []
+    + Array [
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Projects (empty) | div > div.app-shell > nav.project-tabs > button.tabs-library | Projects",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Projects (empty) | main.library > div.library-toolbar > div.create-project > button.primary | Start new project",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Projects (empty) | div.app > main.library > div.library-toolbar > button.library-import | Import writing",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Projects (empty) | div.library-display > label > div.dropdown > button.dropdown-button | Last edited",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Projects (popup 0) | div > div.app-shell > nav.project-tabs > button.tabs-library | Projects",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Projects (popup 0) | main.library > div.library-toolbar > div.create-project > button.primary | Start new project",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Projects (popup 0) | div.library-toolbar > div.create-project > div.popover.popover-anchor[role=group] > button.popover-item | Blank",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Projects (popup 0) | div.library-toolbar > div.create-project > div.popover.popover-anchor[role=group] > button.popover-item | Chicago",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Projects (popup 0) | div.library-toolbar > div.create-project > div.popover.popover-anchor[role=group] > button.popover-item | Screenplay",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Projects (popup 0) | div.library-toolbar > div.create-project > div.popover.popover-anchor[role=group] > button.popover-item | Import a file…",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Projects (popup 0) | div.library-toolbar > div.create-project > div.popover.popover-anchor[role=group] > button.popover-item | Recover from a project.json file…",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Projects (popup 0) | div.app > main.library > div.library-toolbar > button.library-import | Import writing",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Projects (popup 0) | div.library-display > label > div.dropdown > button.dropdown-button | Last edited",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Projects (popup 2) | label > div.dropdown > div.popover.dropdown-menu[role=listbox] > div.dropdown-option[role=option] | Name",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Projects (popup 2) | label > div.dropdown > div.popover.dropdown-menu[role=listbox] > div.dropdown-option[role=option] | Added",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Projects (popup 2) | label > div.dropdown > div.popover.dropdown-menu[role=listbox] > div.dropdown-option.is-highlighted[role=option] | Last edited",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Writing | div > div.app-shell > nav.project-tabs > button.tabs-library | Projects",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Writing | div.app-shell > nav.project-tabs > div.project-tab.active > button | Hover inventory",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Writing | div.sidebar-shell.is-pinned > aside.sidebar > div.sidebar-title-row > button.project-switch | Hover inventory",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Writing | div.sidebar-groups > section.sidebar-group.list-view > div.group-heading > button.group-title | Manuscript",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Writing | section.sidebar-group.list-view > div.entry-list > div.entry-row.selected > button.entry-main | Opening",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Writing | div.sidebar-groups > section.sidebar-group.list-view > div.group-heading > button.group-title | Fragments",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Writing | div.sidebar-groups > section.sidebar-group.list-view > div.group-heading > button.group-title | Research",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Writing | nav.sidebar-bottom-groups > section.sidebar-group.list-view > div.group-heading > button.group-title | Read manuscript",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Writing | nav.sidebar-bottom-groups > section.sidebar-group.list-view > div.group-heading > button.group-title | Comments",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Writing | nav.sidebar-bottom-groups > section.sidebar-group.list-view > div.group-heading > button.group-title | Snapshots & history",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Writing | nav.sidebar-bottom-groups > section.sidebar-group.list-view > div.group-heading > button.group-title | Settings",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Writing | nav.breadcrumb > ol > li > button.breadcrumb-title | Opening",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Writing | main.workspace > header.topbar > div > button.snapshot-button | Snapshot",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Writing | div.format-bar[role=toolbar] > span.toolbar-group > div.dropdown > button.dropdown-button | 100%",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Writing | div.format-bar[role=toolbar] > span.toolbar-group > div.dropdown > button.dropdown-button | Normal text",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Writing | div.format-bar[role=toolbar] > span.toolbar-group > div.dropdown > button.dropdown-button | Futura",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Writing (sections in sidebar) | div > div.app-shell > nav.project-tabs > button.tabs-library | Projects",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Writing (sections in sidebar) | div.app-shell > nav.project-tabs > div.project-tab.active > button | Hover inventory",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Writing (sections in sidebar) | div.sidebar-shell.is-pinned > aside.sidebar > div.sidebar-title-row > button.project-switch | Hover inventory",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Writing (sections in sidebar) | div.sidebar-groups > section.sidebar-group.list-view > div.group-heading > button.group-title | Manuscript",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Writing (sections in sidebar) | section.sidebar-group.list-view > div.entry-list > div.entry-row > button.entry-main | Opening",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Writing (sections in sidebar) | section.sidebar-group.list-view > div.entry-list > div.entry-row > button.entry-main | One",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Writing (sections in sidebar) | section.sidebar-group.list-view > div.entry-list > div.entry-row.selected > button.entry-main | Two",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Writing (sections in sidebar) | div.sidebar-groups > section.sidebar-group.list-view > div.group-heading > button.group-title | Fragments",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Writing (sections in sidebar) | div.sidebar-groups > section.sidebar-group.list-view > div.group-heading > button.group-title | Research",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Writing (sections in sidebar) | nav.sidebar-bottom-groups > section.sidebar-group.list-view > div.group-heading > button.group-title | Read manuscript",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Writing (sections in sidebar) | nav.sidebar-bottom-groups > section.sidebar-group.list-view > div.group-heading > button.group-title | Comments",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Writing (sections in sidebar) | nav.sidebar-bottom-groups > section.sidebar-group.list-view > div.group-heading > button.group-title | Snapshots & history",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Writing (sections in sidebar) | nav.sidebar-bottom-groups > section.sidebar-group.list-view > div.group-heading > button.group-title | Settings",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Writing (sections in sidebar) | nav.breadcrumb > ol > li > button.breadcrumb-title | Two",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Writing (sections in sidebar) | main.workspace > header.topbar > div > button.snapshot-button | Snapshot",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Writing (sections in sidebar) | div.format-bar[role=toolbar] > span.toolbar-group > div.dropdown > button.dropdown-button | 100%",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Writing (sections in sidebar) | div.format-bar[role=toolbar] > span.toolbar-group > div.dropdown > button.dropdown-button | Normal text",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Writing (sections in sidebar) | div.format-bar[role=toolbar] > span.toolbar-group > div.dropdown > button.dropdown-button | Futura",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Writing (page view) | div > div.app-shell > nav.project-tabs > button.tabs-library | Projects",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Writing (page view) | div.app-shell > nav.project-tabs > div.project-tab.active > button | Hover inventory",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Writing (page view) | div.sidebar-shell.is-pinned > aside.sidebar > div.sidebar-title-row > button.project-switch | Hover inventory",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Writing (page view) | div.sidebar-groups > section.sidebar-group.list-view > div.group-heading > button.group-title | Manuscript",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Writing (page view) | section.sidebar-group.list-view > div.entry-list > div.entry-row > button.entry-main | Opening",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Writing (page view) | section.sidebar-group.list-view > div.entry-list > div.entry-row > button.entry-main | One",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Writing (page view) | section.sidebar-group.list-view > div.entry-list > div.entry-row.selected > button.entry-main | Two",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Writing (page view) | div.sidebar-groups > section.sidebar-group.list-view > div.group-heading > button.group-title | Fragments",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Writing (page view) | div.sidebar-groups > section.sidebar-group.list-view > div.group-heading > button.group-title | Research",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Writing (page view) | nav.sidebar-bottom-groups > section.sidebar-group.list-view > div.group-heading > button.group-title | Read manuscript",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Writing (page view) | nav.sidebar-bottom-groups > section.sidebar-group.list-view > div.group-heading > button.group-title | Comments",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Writing (page view) | nav.sidebar-bottom-groups > section.sidebar-group.list-view > div.group-heading > button.group-title | Snapshots & history",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Writing (page view) | nav.sidebar-bottom-groups > section.sidebar-group.list-view > div.group-heading > button.group-title | Settings",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Writing (page view) | nav.breadcrumb > ol > li > button.breadcrumb-title | Two",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Writing (page view) | main.workspace > header.topbar > div > button.snapshot-button | Snapshot",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Writing (page view) | div.format-bar[role=toolbar] > span.toolbar-group > div.dropdown > button.dropdown-button | 100%",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Writing (page view) | div.format-bar[role=toolbar] > span.toolbar-group > div.dropdown > button.dropdown-button | Normal text",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Writing (page view) | div.format-bar[role=toolbar] > span.toolbar-group > div.dropdown > button.dropdown-button | Futura",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Dialog: Page setup | div > div.app-shell > nav.project-tabs > button.tabs-library | Projects",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Dialog: Page setup | div.app-shell > nav.project-tabs > div.project-tab.active > button | Hover inventory",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Dialog: Page setup | div.sidebar-shell.is-pinned > aside.sidebar > div.sidebar-title-row > button.project-switch | Hover inventory",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Dialog: Page setup | div.sidebar-groups > section.sidebar-group.list-view > div.group-heading > button.group-title | Manuscript",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Dialog: Page setup | section.sidebar-group.list-view > div.entry-list > div.entry-row > button.entry-main | Opening",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Dialog: Page setup | section.sidebar-group.list-view > div.entry-list > div.entry-row > button.entry-main | One",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Dialog: Page setup | section.sidebar-group.list-view > div.entry-list > div.entry-row.selected > button.entry-main | Two",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Dialog: Page setup | div.sidebar-groups > section.sidebar-group.list-view > div.group-heading > button.group-title | Fragments",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Dialog: Page setup | div.sidebar-groups > section.sidebar-group.list-view > div.group-heading > button.group-title | Research",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Dialog: Page setup | nav.sidebar-bottom-groups > section.sidebar-group.list-view > div.group-heading > button.group-title | Read manuscript",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Dialog: Page setup | nav.sidebar-bottom-groups > section.sidebar-group.list-view > div.group-heading > button.group-title | Comments",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Dialog: Page setup | nav.sidebar-bottom-groups > section.sidebar-group.list-view > div.group-heading > button.group-title | Snapshots & history",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Dialog: Page setup | nav.sidebar-bottom-groups > section.sidebar-group.list-view > div.group-heading > button.group-title | Settings",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Dialog: Page setup | nav.breadcrumb > ol > li > button.breadcrumb-title | Two",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Dialog: Page setup | main.workspace > header.topbar > div > button.snapshot-button | Snapshot",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Dialog: Page setup | div.format-bar[role=toolbar] > span.toolbar-group > div.dropdown > button.dropdown-button | 100%",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Dialog: Page setup | div.format-bar[role=toolbar] > span.toolbar-group > div.dropdown > button.dropdown-button | Normal text",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Dialog: Page setup | div.format-bar[role=toolbar] > span.toolbar-group > div.dropdown > button.dropdown-button | Futura",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Dialog: Page setup | div.toolbar-popover-body > div.toolbar-field > div.dropdown > button.dropdown-button | Letter",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Dialog: Page setup | div.toolbar-popover-body > div.toolbar-field > div.dropdown > button.dropdown-button | 1 inch",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Dialog: Page setup | div.popover.popover-end[role=dialog] > div.toolbar-popover-body > div.toolbar-button-row > button.toolbar-text-button | Insert page break",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Dialog: Page setup | div.popover.popover-end[role=dialog] > div.toolbar-popover-body > div.toolbar-button-row > button.toolbar-text-button | Ruler",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Dialog: Snapshot name | div > div.app-shell > nav.project-tabs > button.tabs-library | Projects",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Dialog: Snapshot name | div.app-shell > nav.project-tabs > div.project-tab.active > button | Hover inventory",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Dialog: Snapshot name | div.sidebar-shell.is-pinned > aside.sidebar > div.sidebar-title-row > button.project-switch | Hover inventory",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Dialog: Snapshot name | div.sidebar-groups > section.sidebar-group.list-view > div.group-heading > button.group-title | Manuscript",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Dialog: Snapshot name | section.sidebar-group.list-view > div.entry-list > div.entry-row > button.entry-main | Opening",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Dialog: Snapshot name | section.sidebar-group.list-view > div.entry-list > div.entry-row > button.entry-main | One",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Dialog: Snapshot name | section.sidebar-group.list-view > div.entry-list > div.entry-row.selected > button.entry-main | Two",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Dialog: Snapshot name | div.sidebar-groups > section.sidebar-group.list-view > div.group-heading > button.group-title | Fragments",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Dialog: Snapshot name | div.sidebar-groups > section.sidebar-group.list-view > div.group-heading > button.group-title | Research",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Dialog: Snapshot name | nav.sidebar-bottom-groups > section.sidebar-group.list-view > div.group-heading > button.group-title | Read manuscript",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Dialog: Snapshot name | nav.sidebar-bottom-groups > section.sidebar-group.list-view > div.group-heading > button.group-title | Comments",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Dialog: Snapshot name | nav.sidebar-bottom-groups > section.sidebar-group.list-view > div.group-heading > button.group-title | Snapshots & history",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Dialog: Snapshot name | nav.sidebar-bottom-groups > section.sidebar-group.list-view > div.group-heading > button.group-title | Settings",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Dialog: Snapshot name | nav.breadcrumb > ol > li > button.breadcrumb-title | Two",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Dialog: Snapshot name | main.workspace > header.topbar > div > button.snapshot-button | Snapshot",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Dialog: Snapshot name | div.format-bar[role=toolbar] > span.toolbar-group > div.dropdown > button.dropdown-button | 100%",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Dialog: Snapshot name | div.format-bar[role=toolbar] > span.toolbar-group > div.dropdown > button.dropdown-button | Normal text",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Dialog: Snapshot name | div.format-bar[role=toolbar] > span.toolbar-group > div.dropdown > button.dropdown-button | Futura",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Dialog: Snapshot name | div.dialog[role=dialog] > form > div.dialog-actions > button | Cancel",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Fragments panel | div > div.app-shell > nav.project-tabs > button.tabs-library | Projects",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Fragments panel | div.app-shell > nav.project-tabs > div.project-tab.active > button | Hover inventory",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Fragments panel | div.sidebar-shell.is-pinned > aside.sidebar > div.sidebar-title-row > button.project-switch | Hover inventory",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Fragments panel | div.sidebar-groups > section.sidebar-group.list-view > div.group-heading > button.group-title | Manuscript",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Fragments panel | section.sidebar-group.list-view > div.entry-list > div.entry-row > button.entry-main | Opening",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Fragments panel | section.sidebar-group.list-view > div.entry-list > div.entry-row > button.entry-main | One",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Fragments panel | section.sidebar-group.list-view > div.entry-list > div.entry-row.selected > button.entry-main | Two",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Fragments panel | div.sidebar-groups > section.sidebar-group.list-view > div.group-heading > button.group-title.selected | Fragments",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Fragments panel | section.sidebar-group.list-view > div.entry-list > div.entry-row > button.entry-main | Some words to keep",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Fragments panel | div.sidebar-groups > section.sidebar-group.list-view > div.group-heading > button.group-title | Research",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Fragments panel | nav.sidebar-bottom-groups > section.sidebar-group.list-view > div.group-heading > button.group-title | Read manuscript",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Fragments panel | nav.sidebar-bottom-groups > section.sidebar-group.list-view > div.group-heading > button.group-title | Comments",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Fragments panel | nav.sidebar-bottom-groups > section.sidebar-group.list-view > div.group-heading > button.group-title | Snapshots & history",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Fragments panel | nav.sidebar-bottom-groups > section.sidebar-group.list-view > div.group-heading > button.group-title | Settings",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Fragments panel | nav.breadcrumb > ol > li > button.breadcrumb-title | Two",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Fragments panel | main.workspace > header.topbar > div > button.snapshot-button | Snapshot",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Fragments panel | div.format-bar[role=toolbar] > span.toolbar-group > div.dropdown > button.dropdown-button | 100%",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Fragments panel | div.format-bar[role=toolbar] > span.toolbar-group > div.dropdown > button.dropdown-button | Normal text",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Fragments panel | div.format-bar[role=toolbar] > span.toolbar-group > div.dropdown > button.dropdown-button | Futura",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Fragments panel | aside.research-aside.fragment-aside > section.fragment-library > div.fragment-controls > label.fragment-across | All projects",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Fragments panel | section.fragment-library > article.fragment-item > div.fragment-actions > button.fragment-link | Insert at cursor",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Fragments panel | article.fragment-item > div.fragment-actions > div.dropdown.fragment-section > button.dropdown-button | Opening",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Fragments panel | section.fragment-library > article.fragment-item > div.fragment-actions > button.fragment-link | Append",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Fragments panel | section.fragment-library > article.fragment-item > div.fragment-actions > button.fragment-link | Open in editor",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Research (empty) | div > div.app-shell > nav.project-tabs > button.tabs-library | Projects",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Research (empty) | div.app-shell > nav.project-tabs > div.project-tab.active > button | Hover inventory",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Research (empty) | div.sidebar-shell.is-pinned > aside.sidebar > div.sidebar-title-row > button.project-switch | Hover inventory",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Research (empty) | div.sidebar-groups > section.sidebar-group.list-view > div.group-heading > button.group-title | Manuscript",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Research (empty) | section.sidebar-group.list-view > div.entry-list > div.entry-row > button.entry-main | Opening",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Research (empty) | section.sidebar-group.list-view > div.entry-list > div.entry-row > button.entry-main | One",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Research (empty) | section.sidebar-group.list-view > div.entry-list > div.entry-row.selected > button.entry-main | Two",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Research (empty) | div.sidebar-groups > section.sidebar-group.list-view > div.group-heading > button.group-title | Fragments",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Research (empty) | section.sidebar-group.list-view > div.entry-list > div.entry-row > button.entry-main | Some words to keep",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Research (empty) | div.sidebar-groups > section.sidebar-group.list-view > div.group-heading > button.group-title.selected | Research",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Research (empty) | nav.sidebar-bottom-groups > section.sidebar-group.list-view > div.group-heading > button.group-title | Read manuscript",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Research (empty) | nav.sidebar-bottom-groups > section.sidebar-group.list-view > div.group-heading > button.group-title | Comments",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Research (empty) | nav.sidebar-bottom-groups > section.sidebar-group.list-view > div.group-heading > button.group-title | Snapshots & history",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Research (empty) | nav.sidebar-bottom-groups > section.sidebar-group.list-view > div.group-heading > button.group-title | Settings",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Research (empty) | nav.breadcrumb > ol > li > button.breadcrumb-title | Two",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Research (empty) | main.workspace > header.topbar > div > button.snapshot-button | Snapshot",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Research (empty) | div.format-bar[role=toolbar] > span.toolbar-group > div.dropdown > button.dropdown-button | 100%",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Research (empty) | div.format-bar[role=toolbar] > span.toolbar-group > div.dropdown > button.dropdown-button | Normal text",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Research (empty) | div.format-bar[role=toolbar] > span.toolbar-group > div.dropdown > button.dropdown-button | Futura",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Research (empty) | aside.research-aside > section.research-panel > nav.research-tabs > button | Sources",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Research (empty) | aside.research-aside > section.research-panel > nav.research-tabs > button | Notes",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Research (empty) | section.research-panel > div.research-add > div.research-actions > button | Capture quote",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Research (empty) | section.research-panel > div.research-add > div.research-actions > button | Enter manually",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Research (empty) | section.research-panel > div.research-add > div.research-actions > button | Upload PDF",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Research (empty) | section.research-panel > div.research-add > div.research-actions > button | Import from Zotero…",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Research (empty) | div.research-add > div.zotero-refresh-section > div > button | Connect local Zotero",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Research (empty) | aside.research-aside > section.research-panel > details.citation-rules > summary | Citation rules",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Research (empty) | section.research-panel > section.research-group > div.research-actions > button | Insert footnote at cursor",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Research (empty) | aside.research-aside > section.research-panel > details.research-bibliography > summary | Bibliography",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Research (empty) | aside.research-aside > section.research-panel > p.research-help > a | citation guide",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Research (empty) | aside.research-aside > section.research-panel > p.research-help > a | Student paper layout",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Research (source with PDF) | div > div.app-shell > nav.project-tabs > button.tabs-library | Projects",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Research (source with PDF) | div.app-shell > nav.project-tabs > div.project-tab.active > button | Hover inventory",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Research (source with PDF) | div.sidebar-shell.is-pinned > aside.sidebar > div.sidebar-title-row > button.project-switch | Hover inventory",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Research (source with PDF) | div.sidebar-groups > section.sidebar-group.list-view > div.group-heading > button.group-title | Manuscript",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Research (source with PDF) | section.sidebar-group.list-view > div.entry-list > div.entry-row > button.entry-main | Opening",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Research (source with PDF) | section.sidebar-group.list-view > div.entry-list > div.entry-row > button.entry-main | One",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Research (source with PDF) | section.sidebar-group.list-view > div.entry-list > div.entry-row.selected > button.entry-main | Two",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Research (source with PDF) | div.sidebar-groups > section.sidebar-group.list-view > div.group-heading > button.group-title | Fragments",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Research (source with PDF) | section.sidebar-group.list-view > div.entry-list > div.entry-row > button.entry-main | Some words to keep",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Research (source with PDF) | div.sidebar-groups > section.sidebar-group.list-view > div.group-heading > button.group-title.selected | Research",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Research (source with PDF) | section.sidebar-group.list-view > div.entry-list > div.entry-row > button.entry-main | Bibliography",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Research (source with PDF) | div.entry-sublist > div.entry-unit > div.entry-row > button.entry-main | Example -- Hover source (2026)",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Research (source with PDF) | div.entry-sublist > div.entry-unit > div.entry-row.has-beside > button.entry-main | s.pdf",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Research (source with PDF) | nav.sidebar-bottom-groups > section.sidebar-group.list-view > div.group-heading > button.group-title | Read manuscript",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Research (source with PDF) | nav.sidebar-bottom-groups > section.sidebar-group.list-view > div.group-heading > button.group-title | Comments",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Research (source with PDF) | nav.sidebar-bottom-groups > section.sidebar-group.list-view > div.group-heading > button.group-title | Snapshots & history",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Research (source with PDF) | nav.sidebar-bottom-groups > section.sidebar-group.list-view > div.group-heading > button.group-title | Settings",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Research (source with PDF) | nav.breadcrumb > ol > li > button.breadcrumb-title | Two",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Research (source with PDF) | main.workspace > header.topbar > div > button.snapshot-button | Snapshot",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Research (source with PDF) | div.format-bar[role=toolbar] > span.toolbar-group > div.dropdown > button.dropdown-button | 100%",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Research (source with PDF) | div.format-bar[role=toolbar] > span.toolbar-group > div.dropdown > button.dropdown-button | Normal text",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Research (source with PDF) | div.format-bar[role=toolbar] > span.toolbar-group > div.dropdown > button.dropdown-button | Futura",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Research (source with PDF) | aside.research-aside > section.research-panel > nav.research-tabs > button | Sources",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Research (source with PDF) | aside.research-aside > section.research-panel > nav.research-tabs > button | Notes",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Research (source with PDF) | section.research-panel > div.research-add > div.research-actions > button | Capture quote",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Research (source with PDF) | section.research-panel > div.research-add > div.research-actions > button | Enter manually",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Research (source with PDF) | section.research-panel > div.research-add > div.research-actions > button | Upload PDF",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Research (source with PDF) | section.research-panel > div.research-add > div.research-actions > button | Import from Zotero…",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Research (source with PDF) | div.research-add > div.zotero-refresh-section > div > button | Connect local Zotero",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Research (source with PDF) | section.research-panel > ul.source-list > li.source-item > button.source-toggle | Example -- Hover source (2026)Book -- 0 ",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Research (source with PDF) | div.source-body > div.field > div.dropdown > button.dropdown-button | Book",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Research (source with PDF) | div.source-body > section.citation-zone > div.source-actions > button | Cite here",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Research (source with PDF) | div.source-body > section.citation-zone > div.source-actions > button | Add quote",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Research (source with PDF) | div.source-body > section.citation-zone > div.source-actions > button.is-danger | Delete source",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Research (source with PDF) | li.source-item > div.source-body > details.source-more > summary | More details",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Research (source with PDF) | aside.research-aside > section.research-panel > details.citation-rules > summary | Citation rules",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Research (source with PDF) | section.research-panel > section.research-group > div.research-actions > button | Insert footnote at cursor",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Research (source with PDF) | aside.research-aside > section.research-panel > details.research-bibliography > summary | Bibliography",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Research (source with PDF) | aside.research-aside > section.research-panel > p.research-help > a | citation guide",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Research (source with PDF) | aside.research-aside > section.research-panel > p.research-help > a | Student paper layout",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Research (popup 0) | div > div.app-shell > nav.project-tabs > button.tabs-library | Projects",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Research (popup 0) | div.app-shell > nav.project-tabs > div.project-tab.active > button | Hover inventory",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Research (popup 0) | div.sidebar-shell.is-pinned > aside.sidebar > div.sidebar-title-row > button.project-switch | Hover inventory",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Research (popup 0) | div.sidebar-groups > section.sidebar-group.list-view > div.group-heading > button.group-title | Manuscript",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Research (popup 0) | section.sidebar-group.list-view > div.entry-list > div.entry-row > button.entry-main | Opening",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Research (popup 0) | section.sidebar-group.list-view > div.entry-list > div.entry-row > button.entry-main | One",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Research (popup 0) | section.sidebar-group.list-view > div.entry-list > div.entry-row.selected > button.entry-main | Two",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Research (popup 0) | div.sidebar-groups > section.sidebar-group.list-view > div.group-heading > button.group-title | Fragments",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Research (popup 0) | section.sidebar-group.list-view > div.entry-list > div.entry-row > button.entry-main | Some words to keep",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Research (popup 0) | div.sidebar-groups > section.sidebar-group.list-view > div.group-heading > button.group-title.selected | Research",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Research (popup 0) | section.sidebar-group.list-view > div.entry-list > div.entry-row > button.entry-main | Bibliography",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Research (popup 0) | div.entry-sublist > div.entry-unit > div.entry-row > button.entry-main | Example -- Hover source (2026)",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Research (popup 0) | div.entry-sublist > div.entry-unit > div.entry-row.has-beside > button.entry-main | s.pdf",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Research (popup 0) | nav.sidebar-bottom-groups > section.sidebar-group.list-view > div.group-heading > button.group-title | Read manuscript",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Research (popup 0) | nav.sidebar-bottom-groups > section.sidebar-group.list-view > div.group-heading > button.group-title | Comments",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Research (popup 0) | nav.sidebar-bottom-groups > section.sidebar-group.list-view > div.group-heading > button.group-title | Snapshots & history",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Research (popup 0) | nav.sidebar-bottom-groups > section.sidebar-group.list-view > div.group-heading > button.group-title | Settings",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Research (popup 0) | nav.breadcrumb > ol > li > button.breadcrumb-title | Two",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Research (popup 0) | main.workspace > header.topbar > div > button.snapshot-button | Snapshot",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Research (popup 0) | div.format-bar[role=toolbar] > span.toolbar-group > div.dropdown > button.dropdown-button | 100%",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Research (popup 0) | div.format-bar[role=toolbar] > span.toolbar-group > div.dropdown > button.dropdown-button | Normal text",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Research (popup 0) | div.format-bar[role=toolbar] > span.toolbar-group > div.dropdown > button.dropdown-button | Futura",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Research (popup 0) | aside.research-aside > section.research-panel > nav.research-tabs > button | Sources",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Research (popup 0) | aside.research-aside > section.research-panel > nav.research-tabs > button | Notes",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Research (popup 0) | section.research-panel > div.research-add > div.research-actions > button | Capture quote",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Research (popup 0) | section.research-panel > div.research-add > div.research-actions > button | Enter manually",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Research (popup 0) | section.research-panel > div.research-add > div.research-actions > button | Upload PDF",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Research (popup 0) | section.research-panel > div.research-add > div.research-actions > button | Import from Zotero…",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Research (popup 0) | div.research-add > div.zotero-refresh-section > div > button | Connect local Zotero",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Research (popup 0) | section.research-panel > ul.source-list > li.source-item > button.source-toggle | Example -- Hover source (2026)Book -- 0 ",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Research (popup 0) | div.source-body > div.field > div.dropdown > button.dropdown-button | Book",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Research (popup 0) | div.field > div.dropdown > div.popover.dropdown-menu[role=listbox] > div.dropdown-option.is-highlighted[role=option] | Book",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Research (popup 0) | div.field > div.dropdown > div.popover.dropdown-menu[role=listbox] > div.dropdown-option[role=option] | Journal article",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Research (popup 0) | div.field > div.dropdown > div.popover.dropdown-menu[role=listbox] > div.dropdown-option[role=option] | Website",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Research (popup 0) | div.field > div.dropdown > div.popover.dropdown-menu[role=listbox] > div.dropdown-option[role=option] | Book chapter",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Research (popup 0) | div.field > div.dropdown > div.popover.dropdown-menu[role=listbox] > div.dropdown-option[role=option] | Thesis or dissertation",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Research (popup 0) | div.field > div.dropdown > div.popover.dropdown-menu[role=listbox] > div.dropdown-option[role=option] | Report",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Research (popup 0) | div.field > div.dropdown > div.popover.dropdown-menu[role=listbox] > div.dropdown-option[role=option] | Conference work",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Research (popup 0) | div.field > div.dropdown > div.popover.dropdown-menu[role=listbox] > div.dropdown-option[role=option] | Newspaper article",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Research (popup 0) | div.field > div.dropdown > div.popover.dropdown-menu[role=listbox] > div.dropdown-option[role=option] | Interview",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Research (popup 0) | div.field > div.dropdown > div.popover.dropdown-menu[role=listbox] > div.dropdown-option[role=option] | Media",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Research (popup 0) | div.field > div.dropdown > div.popover.dropdown-menu[role=listbox] > div.dropdown-option[role=option] | Other",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Research (popup 0) | div.source-body > section.citation-zone > div.source-actions > button | Cite here",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Research (popup 0) | div.source-body > section.citation-zone > div.source-actions > button | Add quote",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Research (popup 0) | div.source-body > section.citation-zone > div.source-actions > button.is-danger | Delete source",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Research (popup 0) | li.source-item > div.source-body > details.source-more > summary | More details",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Research (popup 0) | aside.research-aside > section.research-panel > details.citation-rules > summary | Citation rules",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Research (popup 0) | section.research-panel > section.research-group > div.research-actions > button | Insert footnote at cursor",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Research (popup 0) | aside.research-aside > section.research-panel > details.research-bibliography > summary | Bibliography",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Research (popup 0) | aside.research-aside > section.research-panel > p.research-help > a | citation guide",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Research (popup 0) | aside.research-aside > section.research-panel > p.research-help > a | Student paper layout",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Research (Notes) | div > div.app-shell > nav.project-tabs > button.tabs-library | Projects",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Research (Notes) | div.app-shell > nav.project-tabs > div.project-tab.active > button | Hover inventory",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Research (Notes) | div.sidebar-shell.is-pinned > aside.sidebar > div.sidebar-title-row > button.project-switch | Hover inventory",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Research (Notes) | div.sidebar-groups > section.sidebar-group.list-view > div.group-heading > button.group-title | Manuscript",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Research (Notes) | section.sidebar-group.list-view > div.entry-list > div.entry-row > button.entry-main | Opening",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Research (Notes) | section.sidebar-group.list-view > div.entry-list > div.entry-row > button.entry-main | One",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Research (Notes) | section.sidebar-group.list-view > div.entry-list > div.entry-row.selected > button.entry-main | Two",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Research (Notes) | div.sidebar-groups > section.sidebar-group.list-view > div.group-heading > button.group-title | Fragments",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Research (Notes) | section.sidebar-group.list-view > div.entry-list > div.entry-row > button.entry-main | Some words to keep",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Research (Notes) | div.sidebar-groups > section.sidebar-group.list-view > div.group-heading > button.group-title.selected | Research",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Research (Notes) | section.sidebar-group.list-view > div.entry-list > div.entry-row > button.entry-main | Bibliography",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Research (Notes) | div.entry-sublist > div.entry-unit > div.entry-row > button.entry-main | Example -- Hover source (2026)",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Research (Notes) | div.entry-sublist > div.entry-unit > div.entry-row.has-beside > button.entry-main | s.pdf",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Research (Notes) | div.entry-list > div.entry-sublist > div.entry-row > button.entry-main | Research note",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Research (Notes) | nav.sidebar-bottom-groups > section.sidebar-group.list-view > div.group-heading > button.group-title | Read manuscript",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Research (Notes) | nav.sidebar-bottom-groups > section.sidebar-group.list-view > div.group-heading > button.group-title | Comments",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Research (Notes) | nav.sidebar-bottom-groups > section.sidebar-group.list-view > div.group-heading > button.group-title | Snapshots & history",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Research (Notes) | nav.sidebar-bottom-groups > section.sidebar-group.list-view > div.group-heading > button.group-title | Settings",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Research (Notes) | nav.breadcrumb > ol > li > button.breadcrumb-title | Two",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Research (Notes) | main.workspace > header.topbar > div > button.snapshot-button | Snapshot",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Research (Notes) | div.format-bar[role=toolbar] > span.toolbar-group > div.dropdown > button.dropdown-button | 100%",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Research (Notes) | div.format-bar[role=toolbar] > span.toolbar-group > div.dropdown > button.dropdown-button | Normal text",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Research (Notes) | div.format-bar[role=toolbar] > span.toolbar-group > div.dropdown > button.dropdown-button | Futura",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Research (Notes) | aside.research-aside > section.research-panel > nav.research-tabs > button | Sources",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Research (Notes) | aside.research-aside > section.research-panel > nav.research-tabs > button | Notes",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Research (Notes) | aside.research-aside > section.research-panel > div.research-actions.note-actions > button | Add note",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Research (Notes) | div.note-row > div.field.note-source-field > div.dropdown > button.dropdown-button | No source",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Research (Notes) | div.note-item > div.note-row > div.item-actions > button.is-danger | Delete note",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Research (Notes) | aside.research-aside > section.research-panel > p.research-help > a | citation guide",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Research (Notes) | aside.research-aside > section.research-panel > p.research-help > a | Student paper layout",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Comments | div > div.app-shell > nav.project-tabs > button.tabs-library | Projects",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Comments | div.app-shell > nav.project-tabs > div.project-tab.active > button | Hover inventory",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Comments | div.sidebar-shell.is-pinned > aside.sidebar > div.sidebar-title-row > button.project-switch | Hover inventory",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Comments | div.sidebar-groups > section.sidebar-group.list-view > div.group-heading > button.group-title | Manuscript",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Comments | section.sidebar-group.list-view > div.entry-list > div.entry-row > button.entry-main | Opening",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Comments | section.sidebar-group.list-view > div.entry-list > div.entry-row > button.entry-main | One",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Comments | section.sidebar-group.list-view > div.entry-list > div.entry-row > button.entry-main | Two",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Comments | div.sidebar-groups > section.sidebar-group.list-view > div.group-heading > button.group-title | Fragments",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Comments | section.sidebar-group.list-view > div.entry-list > div.entry-row > button.entry-main | Some words to keep",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Comments | div.sidebar-groups > section.sidebar-group.list-view > div.group-heading > button.group-title | Research",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Comments | section.sidebar-group.list-view > div.entry-list > div.entry-row > button.entry-main | Bibliography",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Comments | div.entry-sublist > div.entry-unit > div.entry-row > button.entry-main | Example -- Hover source (2026)",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Comments | div.entry-sublist > div.entry-unit > div.entry-row.has-beside > button.entry-main | s.pdf",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Comments | div.entry-list > div.entry-sublist > div.entry-row > button.entry-main | Research note",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Comments | nav.sidebar-bottom-groups > section.sidebar-group.list-view > div.group-heading > button.group-title | Read manuscript",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Comments | nav.sidebar-bottom-groups > section.sidebar-group.list-view > div.group-heading > button.group-title.selected | Comments",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Comments | nav.sidebar-bottom-groups > section.sidebar-group.list-view > div.group-heading > button.group-title | Snapshots & history",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Comments | nav.sidebar-bottom-groups > section.sidebar-group.list-view > div.group-heading > button.group-title | Settings",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Comments | main.workspace > header.topbar > div > button.snapshot-button | Snapshot",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Comments | main.workspace > section.feature-panel > header > button | Add task",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Comments | div.app > main.workspace > section.feature-panel > label | Show resolved",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): History | div > div.app-shell > nav.project-tabs > button.tabs-library | Projects",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): History | div.app-shell > nav.project-tabs > div.project-tab.active > button | Hover inventory",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): History | div.sidebar-shell.is-pinned > aside.sidebar > div.sidebar-title-row > button.project-switch | Hover inventory",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): History | div.sidebar-groups > section.sidebar-group.list-view > div.group-heading > button.group-title | Manuscript",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): History | section.sidebar-group.list-view > div.entry-list > div.entry-row > button.entry-main | Opening",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): History | section.sidebar-group.list-view > div.entry-list > div.entry-row > button.entry-main | One",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): History | section.sidebar-group.list-view > div.entry-list > div.entry-row.selected > button.entry-main | Two",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): History | div.sidebar-groups > section.sidebar-group.list-view > div.group-heading > button.group-title | Fragments",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): History | section.sidebar-group.list-view > div.entry-list > div.entry-row > button.entry-main | Some words to keep",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): History | div.sidebar-groups > section.sidebar-group.list-view > div.group-heading > button.group-title | Research",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): History | section.sidebar-group.list-view > div.entry-list > div.entry-row > button.entry-main | Bibliography",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): History | div.entry-sublist > div.entry-unit > div.entry-row > button.entry-main | Example -- Hover source (2026)",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): History | div.entry-sublist > div.entry-unit > div.entry-row.has-beside > button.entry-main | s.pdf",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): History | div.entry-list > div.entry-sublist > div.entry-row > button.entry-main | Research note",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): History | nav.sidebar-bottom-groups > section.sidebar-group.list-view > div.group-heading > button.group-title | Read manuscript",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): History | nav.sidebar-bottom-groups > section.sidebar-group.list-view > div.group-heading > button.group-title | Comments",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): History | nav.sidebar-bottom-groups > section.sidebar-group.list-view > div.group-heading > button.group-title.selected | Snapshots & history",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): History | nav.sidebar-bottom-groups > section.sidebar-group.list-view > div.group-heading > button.group-title | Settings",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): History | nav.breadcrumb > ol > li > button.breadcrumb-title | Two",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): History | main.workspace > header.topbar > div > button.snapshot-button | Snapshot",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): History | div.format-bar[role=toolbar] > span.toolbar-group > div.dropdown > button.dropdown-button | 100%",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): History | div.format-bar[role=toolbar] > span.toolbar-group > div.dropdown > button.dropdown-button | Normal text",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): History | div.format-bar[role=toolbar] > span.toolbar-group > div.dropdown > button.dropdown-button | Futura",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): History | div.app > aside.versions > div.version-tabs > button.selected | Snapshots",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): History | div.app > aside.versions > div.version-tabs > button | Recovery history",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): History | div.app-shell > div.app > aside.versions > button.primary | Create snapshot",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Read manuscript | div > div.app-shell > nav.project-tabs > button.tabs-library | Projects",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Read manuscript | div.app-shell > nav.project-tabs > div.project-tab.active > button | Hover inventory",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Read manuscript | div.sidebar-shell.is-pinned > aside.sidebar > div.sidebar-title-row > button.project-switch | Hover inventory",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Read manuscript | div.sidebar-groups > section.sidebar-group.list-view > div.group-heading > button.group-title | Manuscript",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Read manuscript | section.sidebar-group.list-view > div.entry-list > div.entry-row > button.entry-main | Opening",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Read manuscript | section.sidebar-group.list-view > div.entry-list > div.entry-row > button.entry-main | One",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Read manuscript | section.sidebar-group.list-view > div.entry-list > div.entry-row > button.entry-main | Two",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Read manuscript | div.sidebar-groups > section.sidebar-group.list-view > div.group-heading > button.group-title | Fragments",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Read manuscript | section.sidebar-group.list-view > div.entry-list > div.entry-row > button.entry-main | Some words to keep",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Read manuscript | div.sidebar-groups > section.sidebar-group.list-view > div.group-heading > button.group-title | Research",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Read manuscript | section.sidebar-group.list-view > div.entry-list > div.entry-row > button.entry-main | Bibliography",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Read manuscript | div.entry-sublist > div.entry-unit > div.entry-row > button.entry-main | Example -- Hover source (2026)",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Read manuscript | div.entry-sublist > div.entry-unit > div.entry-row.has-beside > button.entry-main | s.pdf",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Read manuscript | div.entry-list > div.entry-sublist > div.entry-row > button.entry-main | Research note",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Read manuscript | nav.sidebar-bottom-groups > section.sidebar-group.list-view > div.group-heading > button.group-title.selected | Read manuscript",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Read manuscript | nav.sidebar-bottom-groups > section.sidebar-group.list-view > div.group-heading > button.group-title | Comments",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Read manuscript | nav.sidebar-bottom-groups > section.sidebar-group.list-view > div.group-heading > button.group-title | Snapshots & history",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Read manuscript | nav.sidebar-bottom-groups > section.sidebar-group.list-view > div.group-heading > button.group-title | Settings",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Read manuscript | main.workspace > header.topbar > div > button.snapshot-button | Snapshot",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Read manuscript | div.app > main.workspace > nav.proximity-nav > button | Opening",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Read manuscript | div.app > main.workspace > nav.proximity-nav > button | One",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Read manuscript | div.app > main.workspace > nav.proximity-nav > button | Two",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Read manuscript | div.reader-options[role=toolbar] > label > div.dropdown > button.dropdown-button | Futura / Avenir",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Read manuscript | div.app > main.workspace > div.manuscript-read > button.text-button | Export plain text",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Read manuscript | main.workspace > div.manuscript-read > section > button.read-title | Opening ↗",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Read manuscript | main.workspace > div.manuscript-read > section > button.read-title | One ↗",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Read manuscript | main.workspace > div.manuscript-read > section > button.read-title | Two ↗",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Read manuscript | div.app > aside.versions > div.version-tabs > button.selected | Snapshots",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Read manuscript | div.app > aside.versions > div.version-tabs > button | Recovery history",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Read manuscript | div.app-shell > div.app > aside.versions > button.primary | Create snapshot",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Settings | div > div.app-shell > nav.project-tabs > button.tabs-library | Projects",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Settings | div.app-shell > nav.project-tabs > div.project-tab.active > button | Hover inventory",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Settings | div.sidebar-shell.is-pinned > aside.sidebar > div.sidebar-title-row > button.project-switch | Hover inventory",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Settings | div.sidebar-groups > section.sidebar-group.list-view > div.group-heading > button.group-title | Manuscript",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Settings | section.sidebar-group.list-view > div.entry-list > div.entry-row > button.entry-main | Opening",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Settings | section.sidebar-group.list-view > div.entry-list > div.entry-row > button.entry-main | One",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Settings | section.sidebar-group.list-view > div.entry-list > div.entry-row > button.entry-main | Two",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Settings | div.sidebar-groups > section.sidebar-group.list-view > div.group-heading > button.group-title | Fragments",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Settings | section.sidebar-group.list-view > div.entry-list > div.entry-row > button.entry-main | Some words to keep",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Settings | div.sidebar-groups > section.sidebar-group.list-view > div.group-heading > button.group-title | Research",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Settings | section.sidebar-group.list-view > div.entry-list > div.entry-row > button.entry-main | Bibliography",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Settings | div.entry-sublist > div.entry-unit > div.entry-row > button.entry-main | Example -- Hover source (2026)",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Settings | div.entry-sublist > div.entry-unit > div.entry-row.has-beside > button.entry-main | s.pdf",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Settings | div.entry-list > div.entry-sublist > div.entry-row > button.entry-main | Research note",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Settings | nav.sidebar-bottom-groups > section.sidebar-group.list-view > div.group-heading > button.group-title | Read manuscript",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Settings | nav.sidebar-bottom-groups > section.sidebar-group.list-view > div.group-heading > button.group-title | Comments",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Settings | nav.sidebar-bottom-groups > section.sidebar-group.list-view > div.group-heading > button.group-title | Snapshots & history",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Settings | nav.sidebar-bottom-groups > section.sidebar-group.list-view > div.group-heading > button.group-title.selected | Settings",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Settings | main.workspace > header.topbar > div > button.snapshot-button | Snapshot",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Settings | main.workspace > div.project-settings > section.settings-section > label.settings-check | Restore open project tabs at launch",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Settings | div.settings-form > div.settings-field > div.segmented[role=group] > button | System",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Settings | div.settings-form > div.settings-field > div.segmented[role=group] > button | Light",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Settings | div.settings-form > div.settings-field > div.segmented[role=group] > button | Dark",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Settings | div.settings-form > div.settings-field > div.segmented[role=group] > button | Plain",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Settings | div.settings-form > div.settings-field > div.segmented[role=group] > button | Color",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Settings | section.settings-section > div.settings-form > div.settings-field > button.settings-button | Show path",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Settings | main.workspace > div.project-settings > section.settings-section > label.settings-check | Reveal sidebar on hover",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Settings | main.workspace > div.project-settings > section.settings-section > label.settings-check | Floating sidebar and research",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Settings | main.workspace > div.project-settings > section.settings-section > label.settings-check | Show Read manuscript",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Settings | main.workspace > div.project-settings > section.settings-section > label.settings-check | Show Comments",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Settings | main.workspace > div.project-settings > section.settings-section > label.settings-check | Show Snapshots & history",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Settings | section.shortcuts-settings > ul > li > button | Change",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Settings | div.settings-form > div.settings-field > div.dropdown > button.dropdown-button | Manuscript",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Settings | div.settings-form > div.settings-field > div.dropdown > button.dropdown-button | Local day",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Settings | div.settings-form > label.settings-field > div.dropdown > button.dropdown-button | Arial",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Settings | div.settings-form > label.settings-field > div.dropdown > button.dropdown-button | 1.5",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Settings | div.project-settings > section.research-panel.settings-section > div.settings-checks > label.settings-check | Half-inch paragraph indent",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Settings | div.project-settings > section.research-panel.settings-section > div.settings-checks > label.settings-check | Include bibliography",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Settings | div.project-settings > section.research-panel.settings-section > div.settings-checks > label.settings-check | Page numbers",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Settings | div.project-settings > section.research-panel.settings-section > div.settings-actions > button.settings-button | Preview PDF",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Settings | div.project-settings > section.research-panel.settings-section > div.settings-actions > button.settings-button.button-primary | Export DOCX",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Settings | div.project-settings > section.research-panel.settings-section > div.settings-actions > button.settings-button | Export Markdown",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Settings | div.project-settings > section.research-panel.settings-section > div.settings-actions > button.settings-button | Markdown with images (.zip)",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Settings | div.project-settings > section.research-panel.settings-section > div.settings-actions > button.settings-button | Export plain text",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Settings | div.project-settings > section.research-panel.settings-section > div.settings-actions > button.settings-button | Export PDF",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Settings | section.template-picker.settings-section > div.template-list > div.template-row > button.template-choice | BlankOne clean writing section.",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Settings | section.template-picker.settings-section > div.template-list > div.template-row > button.template-choice | Chicago12 pt serif, double spacing, one-",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Settings | section.template-picker.settings-section > div.template-list > div.template-row > button.template-choice | Screenplay12 pt monospace, single spacin",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Settings | main.workspace > div.project-settings > section.template-picker.settings-section > button.settings-text-action | Save current project as reusable templat",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Settings | div.app > aside.versions > div.version-tabs > button.selected | Snapshots",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Settings | div.app > aside.versions > div.version-tabs > button | Recovery history",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Settings | div.app-shell > div.app > aside.versions > button.primary | Create snapshot",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Settings: Shortcuts region | div > div.app-shell > nav.project-tabs > button.tabs-library | Projects",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Settings: Shortcuts region | div.app-shell > nav.project-tabs > div.project-tab.active > button | Hover inventory",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Settings: Shortcuts region | div.sidebar-shell.is-pinned > aside.sidebar > div.sidebar-title-row > button.project-switch | Hover inventory",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Settings: Shortcuts region | div.sidebar-groups > section.sidebar-group.list-view > div.group-heading > button.group-title | Manuscript",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Settings: Shortcuts region | section.sidebar-group.list-view > div.entry-list > div.entry-row > button.entry-main | Opening",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Settings: Shortcuts region | section.sidebar-group.list-view > div.entry-list > div.entry-row > button.entry-main | One",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Settings: Shortcuts region | section.sidebar-group.list-view > div.entry-list > div.entry-row > button.entry-main | Two",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Settings: Shortcuts region | div.sidebar-groups > section.sidebar-group.list-view > div.group-heading > button.group-title | Fragments",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Settings: Shortcuts region | section.sidebar-group.list-view > div.entry-list > div.entry-row > button.entry-main | Some words to keep",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Settings: Shortcuts region | div.sidebar-groups > section.sidebar-group.list-view > div.group-heading > button.group-title | Research",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Settings: Shortcuts region | section.sidebar-group.list-view > div.entry-list > div.entry-row > button.entry-main | Bibliography",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Settings: Shortcuts region | div.entry-sublist > div.entry-unit > div.entry-row > button.entry-main | Example -- Hover source (2026)",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Settings: Shortcuts region | div.entry-sublist > div.entry-unit > div.entry-row.has-beside > button.entry-main | s.pdf",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Settings: Shortcuts region | div.entry-list > div.entry-sublist > div.entry-row > button.entry-main | Research note",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Settings: Shortcuts region | nav.sidebar-bottom-groups > section.sidebar-group.list-view > div.group-heading > button.group-title | Read manuscript",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Settings: Shortcuts region | nav.sidebar-bottom-groups > section.sidebar-group.list-view > div.group-heading > button.group-title | Comments",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Settings: Shortcuts region | nav.sidebar-bottom-groups > section.sidebar-group.list-view > div.group-heading > button.group-title | Snapshots & history",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Settings: Shortcuts region | nav.sidebar-bottom-groups > section.sidebar-group.list-view > div.group-heading > button.group-title.selected | Settings",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Settings: Shortcuts region | main.workspace > header.topbar > div > button.snapshot-button | Snapshot",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Settings: Shortcuts region | main.workspace > div.project-settings > section.settings-section > label.settings-check | Restore open project tabs at launch",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Settings: Shortcuts region | div.settings-form > div.settings-field > div.segmented[role=group] > button | System",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Settings: Shortcuts region | div.settings-form > div.settings-field > div.segmented[role=group] > button | Light",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Settings: Shortcuts region | div.settings-form > div.settings-field > div.segmented[role=group] > button | Dark",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Settings: Shortcuts region | div.settings-form > div.settings-field > div.segmented[role=group] > button | Plain",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Settings: Shortcuts region | div.settings-form > div.settings-field > div.segmented[role=group] > button | Color",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Settings: Shortcuts region | section.settings-section > div.settings-form > div.settings-field > button.settings-button | Show path",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Settings: Shortcuts region | main.workspace > div.project-settings > section.settings-section > label.settings-check | Reveal sidebar on hover",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Settings: Shortcuts region | main.workspace > div.project-settings > section.settings-section > label.settings-check | Floating sidebar and research",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Settings: Shortcuts region | main.workspace > div.project-settings > section.settings-section > label.settings-check | Show Read manuscript",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Settings: Shortcuts region | main.workspace > div.project-settings > section.settings-section > label.settings-check | Show Comments",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Settings: Shortcuts region | main.workspace > div.project-settings > section.settings-section > label.settings-check | Show Snapshots & history",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Settings: Shortcuts region | section.shortcuts-settings > ul > li > button | Change",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Settings: Shortcuts region | div.settings-form > div.settings-field > div.dropdown > button.dropdown-button | Manuscript",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Settings: Shortcuts region | div.settings-form > div.settings-field > div.dropdown > button.dropdown-button | Local day",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Settings: Shortcuts region | div.settings-form > label.settings-field > div.dropdown > button.dropdown-button | Arial",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Settings: Shortcuts region | div.settings-form > label.settings-field > div.dropdown > button.dropdown-button | 1.5",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Settings: Shortcuts region | div.project-settings > section.research-panel.settings-section > div.settings-checks > label.settings-check | Half-inch paragraph indent",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Settings: Shortcuts region | div.project-settings > section.research-panel.settings-section > div.settings-checks > label.settings-check | Include bibliography",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Settings: Shortcuts region | div.project-settings > section.research-panel.settings-section > div.settings-checks > label.settings-check | Page numbers",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Settings: Shortcuts region | div.project-settings > section.research-panel.settings-section > div.settings-actions > button.settings-button | Preview PDF",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Settings: Shortcuts region | div.project-settings > section.research-panel.settings-section > div.settings-actions > button.settings-button.button-primary | Export DOCX",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Settings: Shortcuts region | div.project-settings > section.research-panel.settings-section > div.settings-actions > button.settings-button | Export Markdown",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Settings: Shortcuts region | div.project-settings > section.research-panel.settings-section > div.settings-actions > button.settings-button | Markdown with images (.zip)",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Settings: Shortcuts region | div.project-settings > section.research-panel.settings-section > div.settings-actions > button.settings-button | Export plain text",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Settings: Shortcuts region | div.project-settings > section.research-panel.settings-section > div.settings-actions > button.settings-button | Export PDF",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Settings: Shortcuts region | section.template-picker.settings-section > div.template-list > div.template-row > button.template-choice | BlankOne clean writing section.",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Settings: Shortcuts region | section.template-picker.settings-section > div.template-list > div.template-row > button.template-choice | Chicago12 pt serif, double spacing, one-",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Settings: Shortcuts region | section.template-picker.settings-section > div.template-list > div.template-row > button.template-choice | Screenplay12 pt monospace, single spacin",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Settings: Shortcuts region | main.workspace > div.project-settings > section.template-picker.settings-section > button.settings-text-action | Save current project as reusable templat",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Settings: Shortcuts region | div.app > aside.versions > div.version-tabs > button.selected | Snapshots",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Settings: Shortcuts region | div.app > aside.versions > div.version-tabs > button | Recovery history",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Settings: Shortcuts region | div.app-shell > div.app > aside.versions > button.primary | Create snapshot",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Split view | div > div.app-shell > nav.project-tabs > button.tabs-library | Projects",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Split view | div.app-shell > nav.project-tabs > div.project-tab.active > button | Hover inventory",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Split view | div.sidebar-shell.is-pinned > aside.sidebar > div.sidebar-title-row > button.project-switch | Hover inventory",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Split view | div.sidebar-groups > section.sidebar-group.list-view > div.group-heading > button.group-title | Manuscript",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Split view | section.sidebar-group.list-view > div.entry-list > div.entry-row > button.entry-main | Opening",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Split view | section.sidebar-group.list-view > div.entry-list > div.entry-row.selected > button.entry-main | One",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Split view | section.sidebar-group.list-view > div.entry-list > div.entry-row > button.entry-main | Two",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Split view | div.sidebar-groups > section.sidebar-group.list-view > div.group-heading > button.group-title | Fragments",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Split view | section.sidebar-group.list-view > div.entry-list > div.entry-row > button.entry-main | Some words to keep",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Split view | div.sidebar-groups > section.sidebar-group.list-view > div.group-heading > button.group-title | Research",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Split view | section.sidebar-group.list-view > div.entry-list > div.entry-row > button.entry-main | Bibliography",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Split view | div.entry-sublist > div.entry-unit > div.entry-row > button.entry-main | Example -- Hover source (2026)",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Split view | div.entry-sublist > div.entry-unit > div.entry-row.has-beside > button.entry-main | s.pdf",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Split view | div.entry-list > div.entry-sublist > div.entry-row > button.entry-main | Research note",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Split view | nav.sidebar-bottom-groups > section.sidebar-group.list-view > div.group-heading > button.group-title | Read manuscript",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Split view | nav.sidebar-bottom-groups > section.sidebar-group.list-view > div.group-heading > button.group-title | Comments",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Split view | nav.sidebar-bottom-groups > section.sidebar-group.list-view > div.group-heading > button.group-title | Snapshots & history",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Split view | nav.sidebar-bottom-groups > section.sidebar-group.list-view > div.group-heading > button.group-title | Settings",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Split view | nav.breadcrumb > ol > li > button.breadcrumb-title | One",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Split view | main.workspace > header.topbar > div > button.snapshot-button | Snapshot",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Split view | div.format-bar[role=toolbar] > span.toolbar-group > div.dropdown > button.dropdown-button | 100%",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Split view | div.format-bar[role=toolbar] > span.toolbar-group > div.dropdown > button.dropdown-button | Normal text",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Split view | div.format-bar[role=toolbar] > span.toolbar-group > div.dropdown > button.dropdown-button | Futura",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Split view | div.app > aside.versions > div.version-tabs > button.selected | Snapshots",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Split view | div.app > aside.versions > div.version-tabs > button | Recovery history",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Split view | div.app-shell > div.app > aside.versions > button.primary | Create snapshot",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Projects (with a project) | div > div.app-shell > nav.project-tabs > button.tabs-library | Projects",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Projects (with a project) | div.app-shell > nav.project-tabs > div.project-tab > button | Hover inventory",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Projects (with a project) | main.library > div.library-toolbar > div.create-project > button.primary | Start new project",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Projects (with a project) | div.app > main.library > div.library-toolbar > button.library-import | Import writing",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Projects (with a project) | div.library-display > label > div.dropdown > button.dropdown-button | Last edited",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Projects (with a project) | div.drop-target > div.project-list.project-list--list > div.project-row > button.emph-row | Hover inventoryAdded Nov 10, 2026--Last ",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Projects(lib) (popup 0) | div > div.app-shell > nav.project-tabs > button.tabs-library | Projects",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Projects(lib) (popup 0) | div.app-shell > nav.project-tabs > div.project-tab > button | Hover inventory",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Projects(lib) (popup 0) | main.library > div.library-toolbar > div.create-project > button.primary | Start new project",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Projects(lib) (popup 0) | div.library-toolbar > div.create-project > div.popover.popover-anchor[role=group] > button.popover-item | Blank",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Projects(lib) (popup 0) | div.library-toolbar > div.create-project > div.popover.popover-anchor[role=group] > button.popover-item | Chicago",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Projects(lib) (popup 0) | div.library-toolbar > div.create-project > div.popover.popover-anchor[role=group] > button.popover-item | Screenplay",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Projects(lib) (popup 0) | div.library-toolbar > div.create-project > div.popover.popover-anchor[role=group] > button.popover-item | Import a file…",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Projects(lib) (popup 0) | div.library-toolbar > div.create-project > div.popover.popover-anchor[role=group] > button.popover-item | Recover from a project.json file…",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Projects(lib) (popup 0) | div.app > main.library > div.library-toolbar > button.library-import | Import writing",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Projects(lib) (popup 0) | div.library-display > label > div.dropdown > button.dropdown-button | Last edited",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Projects(lib) (popup 0) | div.drop-target > div.project-list.project-list--list > div.project-row > button.emph-row | Hover inventoryAdded Nov 10, 2026--Last ",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Projects(lib) (popup 2) | label > div.dropdown > div.popover.dropdown-menu[role=listbox] > div.dropdown-option[role=option] | Name",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Projects(lib) (popup 2) | label > div.dropdown > div.popover.dropdown-menu[role=listbox] > div.dropdown-option[role=option] | Added",
+    +   "text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Projects(lib) (popup 2) | label > div.dropdown > div.popover.dropdown-menu[role=listbox] > div.dropdown-option.is-highlighted[role=option] | Last edited",
+    +   "focus: text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Projects (empty) | div > div.app-shell > nav.project-tabs > button.tabs-library | Projects",
+    +   "focus: text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Projects (empty) | main.library > div.library-toolbar > div.create-project > button.primary | Start new project",
+    +   "focus: text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Projects (empty) | div.app > main.library > div.library-toolbar > button.library-import | Import writing",
+    +   "focus: text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Projects (empty) | div.library-display > label > div.dropdown > button.dropdown-button | Last edited",
+    +   "focus: text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Projects (popup 0) | div.library-toolbar > div.create-project > div.popover.popover-anchor[role=group] > button.popover-item | Blank",
+    +   "focus: text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Writing | div.app-shell > nav.project-tabs > div.project-tab.active > button | Hover inventory",
+    +   "focus: text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Writing | div.sidebar-shell.is-pinned > aside.sidebar > div.sidebar-title-row > button.project-switch | Hover inventory",
+    +   "focus: text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Writing | div.sidebar-groups > section.sidebar-group.list-view > div.group-heading > button.group-title | Manuscript",
+    +   "focus: text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Writing | section.sidebar-group.list-view > div.entry-list > div.entry-row.selected > button.entry-main | Opening",
+    +   "focus: text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Writing | nav.sidebar-bottom-groups > section.sidebar-group.list-view > div.group-heading > button.group-title | Read manuscript",
+    +   "focus: text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Writing | nav.breadcrumb > ol > li > button.breadcrumb-title | Opening",
+    +   "focus: text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Writing | main.workspace > header.topbar > div > button.snapshot-button | Snapshot",
+    +   "focus: text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Writing | div.format-bar[role=toolbar] > span.toolbar-group > div.dropdown > button.dropdown-button | 100%",
+    +   "focus: text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Writing (sections in sidebar) | section.sidebar-group.list-view > div.entry-list > div.entry-row > button.entry-main | Opening",
+    +   "focus: text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Dialog: Page setup | div.toolbar-popover-body > div.toolbar-field > div.dropdown > button.dropdown-button | Letter",
+    +   "focus: text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Dialog: Page setup | div.popover.popover-end[role=dialog] > div.toolbar-popover-body > div.toolbar-button-row > button.toolbar-text-button | Insert page break",
+    +   "focus: text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Fragments panel | div.sidebar-groups > section.sidebar-group.list-view > div.group-heading > button.group-title.selected | Fragments",
+    +   "focus: text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Fragments panel | section.fragment-library > article.fragment-item > div.fragment-actions > button.fragment-link | Insert at cursor",
+    +   "focus: text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Fragments panel | article.fragment-item > div.fragment-actions > div.dropdown.fragment-section > button.dropdown-button | Opening",
+    +   "focus: text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Research (empty) | aside.research-aside > section.research-panel > nav.research-tabs > button | Sources",
+    +   "focus: text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Research (empty) | section.research-panel > div.research-add > div.research-actions > button | Capture quote",
+    +   "focus: text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Research (empty) | div.research-add > div.zotero-refresh-section > div > button | Connect local Zotero",
+    +   "focus: text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Research (empty) | aside.research-aside > section.research-panel > details.citation-rules > summary | Citation rules",
+    +   "focus: text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Research (empty) | section.research-panel > section.research-group > div.research-actions > button | Insert footnote at cursor",
+    +   "focus: text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Research (empty) | aside.research-aside > section.research-panel > details.research-bibliography > summary | Bibliography",
+    +   "focus: text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Research (empty) | aside.research-aside > section.research-panel > p.research-help > a | citation guide",
+    +   "focus: text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Research (source with PDF) | div.entry-sublist > div.entry-unit > div.entry-row > button.entry-main | Example -- Hover source (2026)",
+    +   "focus: text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Research (source with PDF) | div.entry-sublist > div.entry-unit > div.entry-row.has-beside > button.entry-main | s.pdf",
+    +   "focus: text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Research (source with PDF) | section.research-panel > ul.source-list > li.source-item > button.source-toggle | Example -- Hover source (2026)Book -- 0 ",
+    +   "focus: text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Research (source with PDF) | div.source-body > div.field > div.dropdown > button.dropdown-button | Book",
+    +   "focus: text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Research (source with PDF) | div.source-body > section.citation-zone > div.source-actions > button | Cite here",
+    +   "focus: text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Research (source with PDF) | div.source-body > section.citation-zone > div.source-actions > button.is-danger | Delete source",
+    +   "focus: text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Research (source with PDF) | li.source-item > div.source-body > details.source-more > summary | More details",
+    +   "focus: text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Research (Notes) | div.entry-list > div.entry-sublist > div.entry-row > button.entry-main | Research note",
+    +   "focus: text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Research (Notes) | aside.research-aside > section.research-panel > div.research-actions.note-actions > button | Add note",
+    +   "focus: text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Research (Notes) | div.note-row > div.field.note-source-field > div.dropdown > button.dropdown-button | No source",
+    +   "focus: text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Research (Notes) | div.note-item > div.note-row > div.item-actions > button.is-danger | Delete note",
+    +   "focus: text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Comments | nav.sidebar-bottom-groups > section.sidebar-group.list-view > div.group-heading > button.group-title.selected | Comments",
+    +   "focus: text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Comments | main.workspace > section.feature-panel > header > button | Add task",
+    +   "focus: text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): History | div.app > aside.versions > div.version-tabs > button.selected | Snapshots",
+    +   "focus: text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): History | div.app > aside.versions > div.version-tabs > button | Recovery history",
+    +   "focus: text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): History | div.app-shell > div.app > aside.versions > button.primary | Create snapshot",
+    +   "focus: text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Read manuscript | div.app > main.workspace > nav.proximity-nav > button | Opening",
+    +   "focus: text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Read manuscript | div.reader-options[role=toolbar] > label > div.dropdown > button.dropdown-button | Futura / Avenir",
+    +   "focus: text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Read manuscript | div.app > main.workspace > div.manuscript-read > button.text-button | Export plain text",
+    +   "focus: text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Read manuscript | main.workspace > div.manuscript-read > section > button.read-title | Opening ↗",
+    +   "focus: text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Settings | div.settings-form > div.settings-field > div.segmented[role=group] > button | System",
+    +   "focus: text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Settings | section.settings-section > div.settings-form > div.settings-field > button.settings-button | Show path",
+    +   "focus: text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Settings | section.shortcuts-settings > ul > li > button | Change",
+    +   "focus: text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Settings | div.settings-form > div.settings-field > div.dropdown > button.dropdown-button | Manuscript",
+    +   "focus: text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Settings | div.settings-form > label.settings-field > div.dropdown > button.dropdown-button | Arial",
+    +   "focus: text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Settings | div.project-settings > section.research-panel.settings-section > div.settings-actions > button.settings-button | Preview PDF",
+    +   "focus: text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Settings | div.project-settings > section.research-panel.settings-section > div.settings-actions > button.settings-button.button-primary | Export DOCX",
+    +   "focus: text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Settings | section.template-picker.settings-section > div.template-list > div.template-row > button.template-choice | BlankOne clean writing section.",
+    +   "focus: text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Settings | main.workspace > div.project-settings > section.template-picker.settings-section > button.settings-text-action | Save current project as reusable templat",
+    +   "focus: text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Projects (with a project) | div.app-shell > nav.project-tabs > div.project-tab > button | Hover inventory",
+    +   "focus: text control grows (matrix(1.04, 0, 0, 1.04, 0, 0)): Projects (with a project) | div.drop-target > div.project-list.project-list--list > div.project-row > button.emph-row | Hover inventoryAdded Nov 10, 2026--Last ",
+    + ]
+
+      343 |   }
+      344 |   console.log(`H3 exceptions: ${failures.length}\n${failures.slice(0, 40).join("\n")}`);
+    > 345 |   expect(failures, "emphasis exceptions").toEqual([]);
+          |                                           ^
+      346 |   expect(skipped, "crawl steps skipped").toEqual([]);
+      347 |   expect(unhoverable.length, `un-hoverable controls (cap ${MAX_UNHOVERABLE}):\n${unhoverable.join("\n")}`).toBeLessThanOrEqual(MAX_UNHOVERABLE);
+      348 |   expect(rows.length, "inventory printed").toBeGreaterThanOrEqual(60);
+        at /Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/tests/hover-emphasis.spec.ts:345:43
+
+    Error: apiRequestContext._wrapApiCall: ENOENT: no such file or directory, copyfile '/Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/test-results/.playwright-artifacts-0/traces/697bbd6935e78afea465-299cc3c3d518940c4a18-recording1.network' -> '/Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/test-results/.playwright-artifacts-0/traces/697bbd6935e78afea465-299cc3c3d518940c4a18-recording1-pwnetcopy-1.network'
+
+    Error: browserContext._wrapApiCall: ENOENT: no such file or directory, open '/Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/test-results/.playwright-artifacts-0/traces/697bbd6935e78afea465-299cc3c3d518940c4a18.trace'
+
+    Error: ENOENT: no such file or directory, open '/Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/test-results/.playwright-artifacts-0/0934617991e2de93b50c24d2a2ed721d.zip'
+
+  2) tests/hover-emphasis.spec.ts:412:1 › H2 emphasis: no-shift faux bold and no grow on hover ─────
+
+    Error: create menu row scale x 1.04
+
+    expect(received).toBeLessThan(expected)
+
+    Expected: < 0.002
+    Received:   0.040000000000000036
+
+      382 |   expect(got.stroke, `${label} stroke`).toBeGreaterThan(0.2);
+      383 |   expect(got.strokeColor, `${label} stroke colour is currentColor`).toBe(got.color);
+    > 384 |   expect(Math.abs(got.a - 1), `${label} scale x ${got.a}`).toBeLessThan(0.002);
+          |                                                            ^
+      385 |   expect(Math.abs(got.d - 1), `${label} scale y ${got.d}`).toBeLessThan(0.002);
+      386 |   expect(o1.w, `${label} layout width`).toBe(o0.w);
+      387 |   expect(o1.left, `${label} layout left`).toBe(o0.left);
+        at assertEmphasis (/Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/tests/hover-emphasis.spec.ts:384:60)
+        at /Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/tests/hover-emphasis.spec.ts:417:3
+
+    Error Context: test-results/hover-emphasis-H2-emphasis-0db3e-x-bold-and-no-grow-on-hover/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/hover-emphasis-H2-emphasis-0db3e-x-bold-and-no-grow-on-hover/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/hover-emphasis-H2-emphasis-0db3e-x-bold-and-no-grow-on-hover/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) tests/hover-emphasis.spec.ts:506:1 › H4 emphasis: Reduce Motion, danger colour and the drift probe 
+
+    Error: dialog Cancel scale x 1.04
+
+    expect(received).toBeLessThan(expected)
+
+    Expected: < 0.002
+    Received:   0.040000000000000036
+
+      382 |   expect(got.stroke, `${label} stroke`).toBeGreaterThan(0.2);
+      383 |   expect(got.strokeColor, `${label} stroke colour is currentColor`).toBe(got.color);
+    > 384 |   expect(Math.abs(got.a - 1), `${label} scale x ${got.a}`).toBeLessThan(0.002);
+          |                                                            ^
+      385 |   expect(Math.abs(got.d - 1), `${label} scale y ${got.d}`).toBeLessThan(0.002);
+      386 |   expect(o1.w, `${label} layout width`).toBe(o0.w);
+      387 |   expect(o1.left, `${label} layout left`).toBe(o0.left);
+        at assertEmphasis (/Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/tests/hover-emphasis.spec.ts:384:60)
+        at /Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/tests/hover-emphasis.spec.ts:520:3
+
+    Error Context: test-results/hover-emphasis-H4-emphasis-aecb9--colour-and-the-drift-probe/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/hover-emphasis-H4-emphasis-aecb9--colour-and-the-drift-probe/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/hover-emphasis-H4-emphasis-aecb9--colour-and-the-drift-probe/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3 failed
+    tests/hover-emphasis.spec.ts:160:1 › hover inventory: crawl controls across screens ────────────
+    tests/hover-emphasis.spec.ts:412:1 › H2 emphasis: no-shift faux bold and no grow on hover ──────
+    tests/hover-emphasis.spec.ts:506:1 › H4 emphasis: Reduce Motion, danger colour and the drift probe 
+  1 passed (6.3m)

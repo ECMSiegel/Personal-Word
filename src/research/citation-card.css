@@ -11,7 +11,7 @@
   border-radius: 0;
   box-shadow: var(--shadow-raised);
   color: var(--text);
-  font-family: Futura, "Avenir Next", -apple-system, BlinkMacSystemFont, sans-serif;
+  font-family: var(--ui-font);
   font-size: var(--type-body);
   line-height: 1.45;
 }

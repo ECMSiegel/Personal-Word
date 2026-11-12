@@ -1,0 +1,43 @@
+WAIT Wed Nov 11 16:43:24 EST 2026
+GOT LOCK Wed Nov 11 16:44:24 EST 2026
+
+Running 30 tests using 1 worker
+
+[1/30] tests/footnotes.spec.ts:49:1 › Backspace in an empty text-only footnote removes marker, row and record
+[2/30] tests/footnotes.spec.ts:96:1 › Backspace in an empty citation footnote keeps its marker
+[3/30] tests/footnotes.spec.ts:135:1 › Backspace in a text-only footnote with text deletes one character
+[4/30] tests/footnotes.spec.ts:155:1 › a slow frame after inserting a footnote does not pull typing back to the document
+[5/30] tests/footnotes.spec.ts:178:1 › Cite here scrolls back to a caret that was out of view
+[6/30] tests/footnotes.spec.ts:210:1 › footnote text appears at the bottom of the page and is editable there
+[7/30] tests/of1-text-notes.spec.ts:14:1 › Text-only notes live on the Notes tab, not the Sources tab
+[8/30] tests/of1-text-notes.spec.ts:91:1 › Delete in a section that is not open: confirm, cancel, snapshot, renumber, reload
+[9/30] tests/of1-text-notes.spec.ts:133:1 › Delete while the section is open in the editor removes the marker and survives the next save
+[10/30] tests/of2-fragment-title.spec.ts:58:3 › OF2 floating title › the title sits in the same place in a section and in a fragment
+tests/of2-fragment-title.spec.ts:58:3 › OF2 floating title › the title sits in the same place in a section and in a fragment
+OF2 section {"bgBehindTitle":"rgb(245, 245, 247)","bgBelowSearch":"rgb(245, 245, 247)","titleX":12,"titleY":130,"sidebarTop":114,"sidebarLeft":0,"originShown":false}
+
+OF2 fragment {"bgBehindTitle":"rgb(245, 245, 247)","bgBelowSearch":"rgb(245, 245, 247)","titleX":12,"titleY":130,"sidebarTop":114,"sidebarLeft":0,"originShown":true}
+
+[11/30] tests/of6-recent-fonts.spec.ts:45:1 › no Recent section or divider before any font is applied
+[12/30] tests/of6-recent-fonts.spec.ts:54:1 › applying fonts fills Recent: newest first, once each, at most five
+[13/30] tests/of6-recent-fonts.spec.ts:83:1 › Recent rows preview in their own face like the main list
+[14/30] tests/of6-recent-fonts.spec.ts:94:1 › opening the menu or moving the caret does not change Recent
+[15/30] tests/of6-recent-fonts.spec.ts:111:1 › Recent is remembered under folio.recentFonts
+[16/30] tests/of6-recent-fonts.spec.ts:119:1 › stored junk and fonts that are gone are not shown
+[17/30] tests/of6-recent-fonts.spec.ts:126:1 › unparseable stored data shows no Recent section
+[18/30] tests/of6-recent-fonts.spec.ts:133:1 › keyboard and type-ahead skip the heading and divider
+[19/30] tests/of6-recent-fonts.spec.ts:167:1 › an ordinary dropdown is unchanged: no heading, no separator, same keys
+[20/30] tests/t251-marker-image.spec.ts:42:1 › End leaves a node-selected footnote marker for a text caret and an image insert keeps the note
+[21/30] tests/w9-projects-page.spec.ts:33:1 › the toolbar holds Start, Import writing, the search, Sort, reverse, the view toggle and the gear
+[22/30] tests/w9-projects-page.spec.ts:50:1 › Sort sits on the same toolbar row as Start new project
+[23/30] tests/w9-projects-page.spec.ts:59:1 › Sort, reverse and the view toggle are icon-sized toolbar buttons with no text stroke on hover
+[24/30] tests/w9-projects-page.spec.ts:75:1 › row titles are 15 px and first; Edited is normal colour, Added is muted; cards keep the order
+[25/30] tests/w9-projects-page.spec.ts:99:1 › sort, direction and view survive a reload
+[26/30] tests/w9-projects-page.spec.ts:118:1 › bad saved library preferences fall back to the defaults
+[27/30] tests/w9-projects-page.spec.ts:125:1 › the page's icon buttons carry icon-grow and the arrow sits in a span
+[28/30] tests/w9-projects-page.spec.ts:136:1 › with no projects the list area offers one sentence and text controls, no illustration
+[29/30] tests/w9-projects-page.spec.ts:160:1 › an empty search keeps 'No matching projects.' and not the empty-state block
+[30/30] tests/w9-research-panel.spec.ts:15:1 › an open source reads Source, Citation, More details, Used in
+  30 passed (4.1m)
+PW_EXIT 0
+RELEASED Wed Nov 11 16:48:39 EST 2026

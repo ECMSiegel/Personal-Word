@@ -936,6 +936,646 @@
       step("fuzz at " + percent + ": " + violations.length + " violations");
     }
   };
+  // Wave 9 (T278), run with FOLIO_SMOKE_PHASE=w9-blank-click: a dispatched (synthetic, not
+  // physical) mousedown in the paper's blank margins and below the text, page view, A4,
+  // 2-inch margins, at toolbar zoom 100/125/150. Exercises src/editor/blankClick.ts with
+  // WebKit's own rects and posAtCoords. Click points are computed in drawn px: native WebKit
+  // reports rects inside the zoomed paper in drawn / zoom, so they are multiplied by the zoom,
+  // and each point is calibrated with elementFromPoint before it is used.
+  const w9BlankClickProbe = async () => {
+    const el = await wait(editor, "editor");
+    const tiptap = el.editor;
+    const view = tiptap.view;
+    // Line 4 is an empty paragraph (a shape that behaves differently from a text node).
+    const texts = ["First line of the probe.", "Second line of the probe.", "Third line here.", "", "Fifth and last line."];
+    tiptap.commands.setContent(
+      { type: "doc", content: texts.map((text) => (text ? { type: "paragraph", content: [{ type: "text", text }] } : { type: "paragraph" })) },
+      { emitUpdate: true },
+    );
+    await saved();
+    step("seeded five short paragraphs");
+    if (!document.querySelector('[aria-label="Page view"]'))
+      document.querySelector('[aria-label="More formatting"]')?.click();
+    (await wait(() => document.querySelector('[aria-label="Page view"]'), "page toggle")).click();
+    await wait(() => document.querySelector(".editor-viewport.is-paged"), "page view");
+    await closeMore();
+    await delay(800);
+    const paper = () => document.querySelector(".editor-paper");
+    const choose = async (label, optionText) => {
+      (await wait(() => document.querySelector(`button[aria-label="${label}"]`), label)).click();
+      const option = await wait(
+        () => [...document.querySelectorAll('[role="option"]')].find((o) => o.textContent.trim() === optionText),
+        label + " " + optionText,
+      );
+      option.click();
+      await delay(150);
+    };
+    // Page setup: A4 and 2-inch margins (the Codex case).
+    if (!document.querySelector('button[aria-label="Page setup"]'))
+      document.querySelector('[aria-label="More formatting"]')?.click();
+    (await wait(() => document.querySelector('button[aria-label="Page setup"]'), "page setup")).click();
+    await choose("Paper size", "A4");
+    await choose("Page margins", "2 inches");
+    document.activeElement?.dispatchEvent(
+      new KeyboardEvent("keydown", { key: "Escape", code: "Escape", bubbles: true, cancelable: true }),
+    );
+    await delay(150);
+    if (document.querySelector('[role="dialog"][aria-label="Page setup"]'))
+      document.querySelector('button[aria-label="Page setup"]')?.click();
+    await closeMore();
+    await wait(() => getComputedStyle(paper()).getPropertyValue("--page-margin").trim() === "192px", "2-inch margin");
+    await saved();
+    step("A4, 2-inch margins");
+    const setZoom = async (percent) => {
+      let trigger = document.querySelector('button[aria-label="Editor zoom"]');
+      if (!trigger) {
+        document.querySelector('[aria-label="More formatting"]')?.click();
+        trigger = await wait(() => document.querySelector('button[aria-label="Editor zoom"]'), "zoom trigger");
+      }
+      trigger.click();
+      const option = await wait(
+        () => [...document.querySelectorAll('[role="option"]')].find((o) => o.textContent.trim() === percent + "%"),
+        "zoom option " + percent,
+      );
+      option.click();
+      await delay(100);
+      await closeMore();
+      await wait(() => {
+        const style = getComputedStyle(paper());
+        const fit = parseFloat(style.getPropertyValue("--page-scale")) || 1;
+        return Math.abs((parseFloat(style.zoom) || 1) - (percent / 100) * fit) < 0.001 && (percent === 100 || style.zoom !== "1");
+      }, "zoom " + percent);
+      await delay(800);
+      await frames();
+    };
+    // Same probe as src/components/floating.ts reportsUnzoomedRects, done independently here.
+    const probeDiv = document.createElement("div");
+    probeDiv.style.cssText = "position:absolute;visibility:hidden;width:100px;height:1px;zoom:0.5";
+    document.body.appendChild(probeDiv);
+    const unzoomed = probeDiv.getBoundingClientRect().width > 75;
+    probeDiv.remove();
+    const zoomOf = (node) => {
+      let z = 1;
+      for (let n = node; n; n = n.parentElement) z *= parseFloat(getComputedStyle(n).zoom) || 1;
+      return z;
+    };
+    const r1 = (v) => Math.round(v * 10) / 10;
+    const describe = (node) =>
+      !node ? "null" : node.nodeType === 1 ? node.tagName.toLowerCase() + (node.className && typeof node.className === "string" ? "." + node.className.trim().split(/\s+/).join(".") : "") : "#text";
+    const where = (pos) => {
+      const $p = tiptap.state.doc.resolve(pos);
+      return { pos, paragraph: $p.index(0) + 1, offset: $p.parentOffset, paragraphLength: $p.parent.content.size };
+    };
+    const doc = () => tiptap.state.doc;
+    const line2Start = () => doc().child(0).nodeSize + 1;
+    const line2End = () => line2Start() + doc().child(1).content.size;
+    const docEnd = () => doc().content.size - 1;
+    const line4Start = () => doc().child(0).nodeSize + doc().child(1).nodeSize + doc().child(2).nodeSize + 1;
+    const parkPos = () => doc().child(0).nodeSize + doc().child(1).nodeSize + 4; // inside line 3, never an expected answer
+    const results = {};
+    let failures = 0;
+    // Sidebar shown: the 1240 px smoke window fits a 125 or 150 % A4 page to the pane, so both
+    // draw at the same zoom. Sidebar hidden: a wider pane, so 150 % draws closer to 1.5.
+    for (const [layoutName, percent] of [["sidebar", 100], ["sidebar", 125], ["sidebar", 150], ["no-sidebar", 100], ["no-sidebar", 125], ["no-sidebar", 150]]) {
+      if (layoutName === "no-sidebar" && !results.sidebarHidden) {
+        (await wait(() => document.querySelector('button[aria-label="Toggle sidebar"]'), "toggle sidebar")).click();
+        await delay(800);
+        results.sidebarHidden = { viewportWidth: Math.round(document.querySelector(".editor-viewport").getBoundingClientRect().width) };
+      }
+      await setZoom(percent);
+      const scroller = el.closest(".writer-scroll") || document.querySelector(".editor-viewport");
+      if (scroller) scroller.scrollTop = 0;
+      await frames();
+      const z = zoomOf(view.dom);
+      const s = unzoomed ? z : 1;
+      const geometry = () => {
+        const d = view.dom.getBoundingClientRect();
+        const p2 = view.dom.children[1].getBoundingClientRect();
+        const p4 = view.dom.children[3].getBoundingClientRect();
+        const last = view.dom.lastElementChild.getBoundingClientRect();
+        return {
+          domLeft: d.left * s,
+          domRight: d.right * s,
+          line2Mid: ((p2.top + p2.bottom) / 2) * s,
+          line2Left: p2.left * s,
+          line4Mid: ((p4.top + p4.bottom) / 2) * s,
+          domTop: d.top * s,
+          domBottom: d.bottom * s,
+          lastBottom: last.bottom * s,
+          lastBottomRaw: last.bottom,
+          marginCss: getComputedStyle(paper()).getPropertyValue("--page-margin").trim(),
+          pageWidth: getComputedStyle(paper()).getPropertyValue("--page-width").trim(),
+        };
+      };
+      const g0 = geometry();
+      // Calibration: the computed centre of line 2 must hit paragraph 2 (independent of the handler).
+      const calHit = document.elementFromPoint(g0.line2Left + 4, g0.line2Mid);
+      const calibrated = !!calHit && view.dom.children[1].contains(calHit);
+      const cases = [
+        ["left margin beside line 2", (g) => [g.domLeft - 30, g.line2Mid], line2Start],
+        ["right margin beside line 2", (g) => [g.domRight + 30, g.line2Mid], line2End],
+        ["below the last line", (g) => [(g.domLeft + g.domRight) / 2, g.lastBottom + 30], docEnd],
+        ["left margin beside the empty line 4", (g) => [g.domLeft - 30, g.line4Mid], line4Start],
+      ];
+      const out = {
+        layout: layoutName,
+        viewportWidth: Math.round(document.querySelector(".editor-viewport").getBoundingClientRect().width),
+        toolbarZoom: percent,
+        computedZoom: r1(z * 1000) / 1000,
+        unzoomedRects: unzoomed,
+        window: [window.innerWidth, window.innerHeight],
+        geometry: Object.fromEntries(Object.entries(g0).map(([k, v]) => [k, typeof v === "number" ? r1(v) : v])),
+        calibration: { hit: describe(calHit), ok: calibrated },
+        cases: [],
+      };
+      if (!calibrated) failures++;
+      for (const [name, point, expected] of cases) {
+        tiptap.commands.setTextSelection(parkPos());
+        if (scroller) scroller.scrollTop = 0;
+        await frames();
+        const g = geometry();
+        const [x, y] = point(g);
+        const hit = document.elementFromPoint(x, y);
+        // Diagnostics at the point the handler uses (clamped into the text column): what
+        // ProseMirror's posAtCoords and WebKit's caretRangeFromPoint answer there.
+        const cx = Math.max(g.domLeft + 1, Math.min(x, g.domRight - 1));
+        const cy = Math.max(g.domTop + 1, Math.min(y, g.domBottom - 1));
+        const rawPm = view.posAtCoords({ left: cx, top: cy });
+        const range = document.caretRangeFromPoint ? document.caretRangeFromPoint(cx, cy) : null;
+        let rangePos = null;
+        try {
+          rangePos = range && view.dom.contains(range.startContainer) ? view.posAtDOM(range.startContainer, range.startOffset) : null;
+        } catch (error) {
+          rangePos = "error " + String(error);
+        }
+        const diagnostics = {
+          clamped: [r1(cx), r1(cy)],
+          posAtCoords: rawPm ? rawPm.pos : null,
+          caretRange: range ? { node: describe(range.startContainer), offset: range.startOffset, pos: rangePos } : null,
+        };
+        const inViewport = !!hit && !!hit.closest(".editor-viewport");
+        const options = { bubbles: true, cancelable: true, composed: true, clientX: x, clientY: y, screenX: x, screenY: y, button: 0, buttons: 1, view: window, detail: 1 };
+        const down = new MouseEvent("mousedown", options);
+        if (hit) hit.dispatchEvent(down);
+        hit?.dispatchEvent(new MouseEvent("mouseup", { ...options, buttons: 0 }));
+        await frames();
+        const sel = tiptap.state.selection;
+        const want = expected();
+        const ok = inViewport && down.defaultPrevented && sel.empty && sel.from === want;
+        if (!ok) failures++;
+        out.cases.push({
+          name,
+          ok,
+          point: [r1(x), r1(y)],
+          hit: describe(hit),
+          inViewport,
+          handled: down.defaultPrevented,
+          expected: where(want),
+          caret: { ...where(sel.from), empty: sel.empty },
+          diagnostics,
+        });
+        step(`blank click ${layoutName} ${percent}% ${name}: ${ok ? "ok" : "FAIL"} caret p${where(sel.from).paragraph}:${where(sel.from).offset}`);
+      }
+      results[layoutName + "-" + percent] = out;
+    }
+    probe = { blankClick: results, failures, userAgent: navigator.userAgent };
+    if (failures) throw Error(`w9 blank click: ${failures} failed check(s)`);
+  };
+  // Owner fixes 2026-11-11 (blur diagnosis), FOLIO_SMOKE_PHASE=blur-probe. MEASURE ONLY. Forces the text-control
+  // emphasis on real controls (the rule's own .is-highlighted hook, never a fake :hover) and paints variants of it
+  // from an injected <style>; for each variant it takes a WebKit snapshot and holds the state 1.6 s after a
+  // "BP-HOLD" progress line so the harness (node_modules/.cache/personal-word-beta/blur/blur-run.py) can also take a
+  // real screen capture. Records computed styles of keyboard-focused controls and their ancestors.
+  const blurProbe = async () => {
+    const out = { dpr: devicePixelRatio, hasFocus: document.hasFocus(), screens: {} };
+    const sheet = document.createElement("style");
+    sheet.id = "blur-probe";
+    document.head.appendChild(sheet);
+    const STYLE_KEYS = ["transform", "will-change", "-webkit-font-smoothing", "text-rendering", "opacity", "filter",
+      "backface-visibility", "contain", "transition-property", "transition-duration", "-webkit-text-stroke-width",
+      "color", "font-family", "font-weight", "font-size", "zoom", "isolation", "position", "mix-blend-mode",
+      "text-shadow", "paint-order", "backdrop-filter", "perspective", "transform-style"];
+    const styleOf = (el) => {
+      const cs = getComputedStyle(el);
+      const r = el.getBoundingClientRect();
+      const o = { tag: el.tagName.toLowerCase() + (el.className && typeof el.className === "string" ? "." + el.className.trim().split(/\s+/).join(".") : ""), x: r.x, y: r.y, w: r.width, h: r.height };
+      for (const k of STYLE_KEYS) o[k] = cs.getPropertyValue(k);
+      return o;
+    };
+    // Base for every variant: hover colour forced (rows rest in --muted) so colour never confounds the numbers.
+    const BASE = '[data-bp="t"]{color:var(--text) !important}';
+    const ANC = '[data-bp="t"],[data-bp-anc]';
+    const V = [
+      ["v0-rest", false, ""],
+      ["v0-rest-notransform", false, `${ANC}{transform:none !important;transition:none !important;will-change:auto !important}`],
+      ["v1-current", true, ""],
+      ["v2-stroke-notransform", true, `${ANC}{transform:none !important;transition:none !important;will-change:auto !important}`],
+      ["v3-stroke-002em", true, '[data-bp="t"]{-webkit-text-stroke-width:0.02em !important}'],
+      ["v3-stroke-025px", true, '[data-bp="t"]{-webkit-text-stroke-width:0.25px !important}'],
+      ["v3-stroke-05px", true, '[data-bp="t"]{-webkit-text-stroke-width:0.5px !important}'],
+      ["v3-stroke-1px", true, '[data-bp="t"]{-webkit-text-stroke-width:1px !important}'],
+      ["v4-weight-700", false, '[data-bp="t"]{font-weight:700 !important}'],
+      ["v4-weight-600", false, '[data-bp="t"]{font-weight:600 !important}'],
+      ["v5-shadow-0", false, '[data-bp="t"]{text-shadow:0 0 0 currentColor !important}'],
+      ["v5-shadow-03px", false, '[data-bp="t"]{text-shadow:0.3px 0 0 currentColor !important}'],
+      ["v5-shadow-05px", false, '[data-bp="t"]{text-shadow:0.5px 0 0 currentColor !important}'],
+      ["v5-shadow-1px", false, '[data-bp="t"]{text-shadow:1px 0 0 currentColor !important}'],
+      ["v6-paintorder", true, '[data-bp="t"]{paint-order:stroke fill !important}'],
+      ["v6-paintorder-1px", true, '[data-bp="t"]{paint-order:stroke fill !important;-webkit-text-stroke-width:1px !important}'],
+      ["v7-aa-antialiased", true, '[data-bp="t"]{-webkit-font-smoothing:antialiased !important}'],
+      ["v7-aa-subpixel", true, '[data-bp="t"]{-webkit-font-smoothing:subpixel-antialiased !important}'],
+      ["v7-aa-none", true, '[data-bp="t"]{-webkit-font-smoothing:none !important}'],
+      ["v7-rest-antialiased", false, '[data-bp="t"]{-webkit-font-smoothing:antialiased !important}'],
+      ["v8-parent-willchange", true, "[data-bp-par]{will-change:transform !important}"],
+      ["v8-parent-translatez", true, "[data-bp-par]{transform:translateZ(0) !important}"],
+      ["v8-self-halfpx", true, '[data-bp="t"]{transform:translateX(0.5px) !important;transition:none !important}'],
+      ["v8-rest-halfpx", false, '[data-bp="t"]{transform:translateX(0.5px) !important;transition:none !important}'],
+    ];
+    const run = async (screen, controls) => {
+      // controls: [{name, control, text}] ; text = element that carries the stroke.
+      const facts = [];
+      for (const c of controls) {
+        c.text.setAttribute("data-bp", "t");
+        c.control.parentElement.setAttribute("data-bp-par", "");
+        for (let a = c.text.parentElement; a && a !== document.body; a = a.parentElement) {
+          a.setAttribute("data-bp-anc", "");
+          if (a === c.control.parentElement) break;
+        }
+        // Keyboard focus: computed styles of the genuinely focused control and its ancestors.
+        c.control.focus();
+        await frames();
+        await delay(200);
+        const chain = [];
+        for (let a = c.text; a && a !== document.documentElement; a = a.parentElement) chain.push(styleOf(a));
+        facts.push({ name: c.name, focusVisible: c.control.matches(":focus-visible"), focused: document.activeElement === c.control,
+          textContent: c.text.textContent.trim().slice(0, 40), chain });
+        c.control.blur();
+      }
+      out.screens[screen] = { facts, variants: {} };
+      for (const [name, hl, css] of V) {
+        sheet.textContent = BASE + css;
+        for (const c of controls) c.control.classList.toggle("is-highlighted", hl);
+        await frames();
+        await delay(350);
+        await frames();
+        const rects = {};
+        for (const c of controls) {
+          const r = c.text.getBoundingClientRect();
+          const cs = getComputedStyle(c.text);
+          rects[c.name] = { x: r.x, y: r.y, w: r.width, h: r.height, stroke: cs.webkitTextStrokeWidth,
+            transform: cs.transform, weight: cs.fontWeight, shadow: cs.textShadow, smoothing: cs.webkitFontSmoothing };
+        }
+        const file = await window.__TAURI_INTERNALS__.invoke("smoke_snapshot", { name: ("bp-" + screen + "-" + name).slice(0, 40) });
+        const top = outerHeight - innerHeight;
+        mark(`BP-HOLD ${screen} ${name} ${screenX} ${screenY + top} ${innerWidth} ${innerHeight}`);
+        await delay(1600);
+        out.screens[screen].variants[name] = { file, rects };
+      }
+      sheet.textContent = "";
+      for (const c of controls) c.control.classList.remove("is-highlighted");
+      for (const el of document.querySelectorAll("[data-bp],[data-bp-anc],[data-bp-par]")) {
+        el.removeAttribute("data-bp");
+        el.removeAttribute("data-bp-anc");
+        el.removeAttribute("data-bp-par");
+      }
+    };
+    out.window = { screenX, screenY, outerWidth, outerHeight, innerWidth, innerHeight };
+    step("blur probe dpr " + devicePixelRatio);
+    const entry = await wait(() => document.querySelector(".entry-main"), "sidebar entry row");
+    const writing = [
+      { name: "sidebar-row", control: entry, text: entry.querySelector(":scope > span") || entry },
+      { name: "project-title", control: document.querySelector(".project-switch"), text: document.querySelector(".project-switch") },
+      { name: "tab", control: document.querySelector(".project-tab > button:first-child"), text: document.querySelector(".project-tab > button:first-child") },
+      { name: "plain-button", control: document.querySelector(".tabs-library"), text: document.querySelector(".tabs-library") },
+      { name: "toolbar-menu", control: document.querySelector(".format-bar .dropdown-button"), text: document.querySelector(".format-bar .dropdown-button") },
+      { name: "toolbar-icon", control: document.querySelector('.format-bar .toolbar-icon:not([data-popover-item])'), text: document.querySelector('.format-bar .toolbar-icon:not([data-popover-item])') },
+    ].filter((c) => c.control && c.text);
+    out.writingControls = writing.map((c) => c.name);
+    await run("writing", writing.filter((c) => c.name !== "toolbar-icon"));
+    // The crisp toolbar icon the owner pointed at: rest and fully magnified (--dock-scale 1.5, the focus rule).
+    const icon = writing.find((c) => c.name === "toolbar-icon");
+    if (icon) {
+      out.icon = {};
+      for (const [name, scale] of [["rest", ""], ["magnified", "1.5"]]) {
+        icon.control.style.setProperty("--dock-scale", scale);
+        await frames();
+        await delay(400);
+        const svg = icon.control.querySelector("svg");
+        const r = svg.getBoundingClientRect();
+        const file = await window.__TAURI_INTERNALS__.invoke("smoke_snapshot", { name: "bp-icon-" + name });
+        mark(`BP-HOLD icon ${name} ${screenX} ${screenY + outerHeight - innerHeight} ${innerWidth} ${innerHeight}`);
+        await delay(1600);
+        out.icon[name] = { file, rect: { x: r.x, y: r.y, w: r.width, h: r.height }, transform: getComputedStyle(svg).transform };
+      }
+      icon.control.style.removeProperty("--dock-scale");
+    }
+    await click("Projects");
+    const row = await wait(() => document.querySelector(".project-row .emph-row"), "projects row");
+    const start = button("Start new project") || [...document.querySelectorAll("button")].find((b) => b.textContent.includes("Start new project"));
+    await run("projects", [
+      { name: "projects-row", control: row, text: row.querySelector(".emph-label") },
+      ...(start ? [{ name: "plain-button-2", control: start, text: start }] : []),
+    ]);
+    probe = { blur: out };
+  };
+  // Wave 9 (T278 r2), FOLIO_SMOKE_PHASE=w9-zoom-probes. MEASURE ONLY (review S4-S6): three other features that
+  // mix pointer or caret coordinates with WebKit's zoomed rects, at true drawn zoom 1, 1.25 and 1.5 (A4 page view,
+  // sidebar hidden). Synthetic events: contextmenu in a table cell (S4), keydown ArrowDown/ArrowUp across the first
+  // page gap (S5), mousedown in the gap just under page 1's last line (S6). Never throws on a wrong answer.
+  const w9ZoomProbes = async () => {
+    const el = await wait(editor, "editor");
+    const tiptap = el.editor;
+    const view = tiptap.view;
+    const blocks = [];
+    for (let i = 1; i <= 6; i++) blocks.push({ type: "paragraph", content: [{ type: "text", text: "Intro line " + i + "." }] });
+    for (let i = 1; i <= 70; i++) blocks.push({ type: "paragraph", content: [{ type: "text", text: "Body line " + i + " of the zoom probe." }] });
+    tiptap.commands.setContent({ type: "doc", content: blocks }, { emitUpdate: true });
+    // A 3x3 table after the intro lines.
+    let introEnd = 0;
+    for (let i = 0; i < 6; i++) introEnd += tiptap.state.doc.child(i).nodeSize;
+    tiptap.chain().setTextSelection(introEnd - 1).insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run();
+    await saved();
+    step("seeded intro, 3x3 table, 70 body lines");
+    if (!document.querySelector('[aria-label="Page view"]'))
+      document.querySelector('[aria-label="More formatting"]')?.click();
+    (await wait(() => document.querySelector('[aria-label="Page view"]'), "page toggle")).click();
+    await wait(() => document.querySelector(".editor-viewport.is-paged"), "page view");
+    await closeMore();
+    await delay(800);
+    const paper = () => document.querySelector(".editor-paper");
+    const choose = async (label, optionText) => {
+      (await wait(() => document.querySelector(`button[aria-label="${label}"]`), label)).click();
+      (await wait(
+        () => [...document.querySelectorAll('[role="option"]')].find((o) => o.textContent.trim() === optionText),
+        label + " " + optionText,
+      )).click();
+      await delay(150);
+    };
+    if (!document.querySelector('button[aria-label="Page setup"]'))
+      document.querySelector('[aria-label="More formatting"]')?.click();
+    (await wait(() => document.querySelector('button[aria-label="Page setup"]'), "page setup")).click();
+    await choose("Paper size", "A4");
+    document.body.dispatchEvent(new PointerEvent("pointerdown", { bubbles: true }));
+    await closeMore();
+    (await wait(() => document.querySelector('button[aria-label="Toggle sidebar"]'), "toggle sidebar")).click();
+    await delay(800);
+    await wait(() => view.dom.querySelector(".page-spacer"), "a page gap");
+    step("A4, sidebar hidden, two pages");
+    const setZoom = async (percent) => {
+      let trigger = document.querySelector('button[aria-label="Editor zoom"]');
+      if (!trigger) {
+        document.querySelector('[aria-label="More formatting"]')?.click();
+        trigger = await wait(() => document.querySelector('button[aria-label="Editor zoom"]'), "zoom trigger");
+      }
+      trigger.click();
+      (await wait(
+        () => [...document.querySelectorAll('[role="option"]')].find((o) => o.textContent.trim() === percent + "%"),
+        "zoom option " + percent,
+      )).click();
+      await delay(100);
+      await closeMore();
+      await wait(() => {
+        const style = getComputedStyle(paper());
+        const fit = parseFloat(style.getPropertyValue("--page-scale")) || 1;
+        return Math.abs((parseFloat(style.zoom) || 1) - (percent / 100) * fit) < 0.001 && (percent === 100 || style.zoom !== "1");
+      }, "zoom " + percent);
+      await delay(800);
+      await frames();
+    };
+    const probeDiv = document.createElement("div");
+    probeDiv.style.cssText = "position:absolute;visibility:hidden;width:100px;height:1px;zoom:0.5";
+    document.body.appendChild(probeDiv);
+    const unzoomed = probeDiv.getBoundingClientRect().width > 75;
+    probeDiv.remove();
+    const zoomOf = (node) => {
+      let z = 1;
+      for (let n = node; n; n = n.parentElement) z *= parseFloat(getComputedStyle(n).zoom) || 1;
+      return z;
+    };
+    const r1 = (v) => Math.round(v * 10) / 10;
+    const describe = (node) =>
+      !node ? "null" : node.nodeType === 1 ? node.tagName.toLowerCase() + (node.className && typeof node.className === "string" ? "." + node.className.trim().split(/\s+/).join(".") : "") : "#text";
+    const blockOf = (pos) => {
+      const $p = tiptap.state.doc.resolve(pos);
+      const top = tiptap.state.doc.child($p.index(0));
+      let cell = null;
+      for (let d = $p.depth; d > 0; d--) if (/^table(Cell|Header)$/.test($p.node(d).type.name)) cell = $p.node(d).type.name;
+      return { pos, block: $p.index(0) + 1, type: top.type.name, text: top.textContent.slice(0, 30), depth: $p.depth, parent: $p.parent.type.name, cell };
+    };
+    const closeMenus = async () => {
+      document.body.dispatchEvent(new PointerEvent("pointerdown", { bubbles: true }));
+      await delay(150);
+    };
+    const results = {};
+    for (const percent of [100, 125, 150]) {
+      await setZoom(percent);
+      const z = zoomOf(view.dom);
+      const s = unzoomed ? z : 1;
+      const out = { toolbarZoom: percent, computedZoom: Math.round(z * 1000) / 1000, unzoomedRects: unzoomed };
+      // S4: contextmenu in the middle cell (row 2, column 2).
+      await closeMenus();
+      const table = view.dom.querySelector("table");
+      table.scrollIntoView({ block: "center" });
+      await frames();
+      const cell = table.querySelectorAll("tr")[1].querySelectorAll("td, th")[1];
+      const c = cell.getBoundingClientRect();
+      const cx = ((c.left + c.right) / 2) * s;
+      const cy = ((c.top + c.bottom) / 2) * s;
+      const cellHit = document.elementFromPoint(cx, cy);
+      const rawCell = view.posAtCoords({ left: cx, top: cy });
+      const menu = new MouseEvent("contextmenu", { bubbles: true, cancelable: true, clientX: cx, clientY: cy, button: 2, view: window });
+      cellHit?.dispatchEvent(menu);
+      await delay(300);
+      const menuOpen = !!document.querySelector('.table-context-menu[role="menu"]');
+      out.s4 = {
+        point: [r1(cx), r1(cy)],
+        hit: describe(cellHit),
+        hitInsideCell: !!cellHit && cell.contains(cellHit),
+        posAtCoords: rawCell ? blockOf(rawCell.pos) : null,
+        handled: menu.defaultPrevented,
+        tableMenuOpened: menuOpen,
+      };
+      await closeMenus();
+      step(`zoom ${percent}: S4 table menu ${menuOpen ? "opened" : "NOT opened"}`);
+      // S5/S6 with the gap mid-window and near the window's bottom (the handlers' errors grow with screen position).
+      const spacer = [...view.dom.querySelectorAll(".page-spacer")].find((sp) => !sp.dataset.inline && sp.getBoundingClientRect().height);
+      for (const place of ["center", "end"]) {
+        // S5: Up/Down across the first page gap.
+        spacer.scrollIntoView({ block: place });
+        await frames();
+        const prev = spacer.previousElementSibling;
+        const next = spacer.nextElementSibling;
+        const prevPos = view.posAtDOM(prev, 0);
+        const nextPos = view.posAtDOM(next, 0);
+        const press = async (key, from) => {
+          tiptap.commands.setTextSelection(from);
+          tiptap.commands.focus();
+          await delay(80);
+          const caret = view.coordsAtPos(from);
+          const event = new KeyboardEvent("keydown", { key, bubbles: true, cancelable: true });
+          const handled = !view.dom.dispatchEvent(event);
+          await delay(120);
+          return { from: blockOf(from), handled, caret: blockOf(tiptap.state.selection.head), caretTopRaw: r1(caret.top) };
+        };
+        // The handler's own lookup point, as arrowAcrossGap computes it (unzoomed WebKit values).
+        const sp = spacer.getBoundingClientRect();
+        const above = prev.getBoundingClientRect().bottom;
+        const below = next.getBoundingClientRect().top;
+        const downCaret = view.coordsAtPos(prevPos);
+        const upCaret = view.coordsAtPos(nextPos);
+        const lookupDown = view.posAtCoords({ left: downCaret.left, top: below + 2 });
+        const lookupUp = view.posAtCoords({ left: upCaret.left, top: above - 2 });
+        const down = await press("ArrowDown", prevPos);
+        const up = await press("ArrowUp", nextPos);
+        out["s5-" + place] = {
+          lastLineOfPage1: blockOf(prevPos),
+          firstLineOfPage2: blockOf(nextPos),
+          spacerRaw: [r1(sp.top), r1(sp.bottom)],
+          down: { ...down, asExpected: down.caret.block === blockOf(nextPos).block },
+          up: { ...up, asExpected: up.caret.block === blockOf(prevPos).block },
+          handlerLookupDown: lookupDown ? blockOf(lookupDown.pos) : null,
+          handlerLookupUp: lookupUp ? blockOf(lookupUp.pos) : null,
+        };
+        step(`zoom ${percent} gap ${place}: S5 down -> block ${down.caret.block} (want ${blockOf(nextPos).block}), up -> block ${up.caret.block} (want ${blockOf(prevPos).block})`);
+        // S6: mousedown in the gap just under page 1's last line, inside the text column.
+        tiptap.commands.setTextSelection(5);
+        await frames();
+        spacer.scrollIntoView({ block: place });
+        await frames();
+        const pr = prev.getBoundingClientRect();
+        const sr = spacer.getBoundingClientRect();
+        const gx = ((pr.left + pr.right) / 2) * s;
+        const gy = pr.bottom * s + 8;
+        const gapHit = document.elementFromPoint(gx, gy);
+        const height = parseFloat(spacer.style.height) || sr.height || 1;
+        const down6 = new MouseEvent("mousedown", { bubbles: true, cancelable: true, clientX: gx, clientY: gy, button: 0, buttons: 1, view: window, detail: 1 });
+        gapHit?.dispatchEvent(down6);
+        gapHit?.dispatchEvent(new MouseEvent("mouseup", { bubbles: true, cancelable: true, clientX: gx, clientY: gy, button: 0, view: window }));
+        await frames();
+        const landed = blockOf(tiptap.state.selection.head);
+        out["s6-" + place] = {
+          point: [r1(gx), r1(gy)],
+          hit: describe(gapHit),
+          hitIsSpacer: !!gapHit && !!gapHit.closest?.(".page-spacer"),
+          handled: down6.defaultPrevented,
+          split: Number(spacer.dataset.split),
+          localAsHandlerComputes: r1((gy - sr.top) * (height / (sr.height || height))),
+          localDrawnConsistent: r1((gy - sr.top * s) * (height / (sr.height * s || height))),
+          caret: landed,
+          expected: { block: blockOf(prevPos).block, atEnd: true },
+          asExpected: landed.block === blockOf(prevPos).block,
+        };
+        step(`zoom ${percent} gap ${place}: S6 gap click -> block ${landed.block} (want ${blockOf(prevPos).block})`);
+      }
+      results[percent] = out;
+    }
+    probe = { zoomProbes: results, userAgent: navigator.userAgent };
+  };
+  // Wave 9 (T278) font checks across a real relaunch, FOLIO_SMOKE_PHASE=w9-fonts-1 then
+  // w9-fonts-2 against the same isolated data dir and WebKit data store. FOLIO_SMOKE_SCENARIO=
+  // control skips the settings in phase 1, so phase 2's persistence checks must fail.
+  const W9_FONT_KEY = "folio.workspace.interfaceFont";
+  const W9_CANDIDATES = ["Baskerville", "Palatino", "Didot", "Hoefler Text", "American Typewriter", "Cochin", "Big Caslon"];
+  const firstFamily = (stack) => (stack || "").split(",")[0].trim().replace(/^["']|["']$/g, "");
+  const openLibrarySettings = async () => {
+    if (!button("Start new project")) await click("Projects");
+    if (!document.querySelector('button[aria-label="Interface font"]'))
+      (await wait(() => document.querySelector('button[aria-label="Settings"]'), "settings button")).click();
+    return wait(() => document.querySelector('button[aria-label="Interface font"]'), "interface font menu");
+  };
+  const fontOptions = async () => {
+    const trigger = await openLibrarySettings();
+    if (trigger.getAttribute("aria-expanded") !== "true") trigger.click();
+    await wait(() => document.querySelector('[role="option"]'), "font options");
+    return [...document.querySelectorAll('[role="option"]')].map((o) => o.textContent.trim());
+  };
+  const closeOptions = async () => {
+    const trigger = document.querySelector('button[aria-label="Interface font"]');
+    if (trigger?.getAttribute("aria-expanded") === "true") trigger.click();
+    await delay(150);
+  };
+  const pickInterfaceFont = async (label) => {
+    await fontOptions();
+    const option = await wait(
+      () => [...document.querySelectorAll('[role="option"]')].find((o) => o.textContent.trim() === label),
+      "interface option " + label,
+    );
+    option.click();
+    await delay(200);
+  };
+  const w9Fonts1 = async () => {
+    const control = window.__SMOKE_SCENARIO__ === "control";
+    const families = await window.__TAURI_INTERNALS__.invoke("system_font_families");
+    const installed = families.filter((f) => W9_CANDIDATES.includes(f));
+    const checks = {
+      installedCount: families.length,
+      installedHasGeorgia: families.includes("Georgia"),
+      installedHasMadeUp: families.includes("W9 No Such Family"),
+      chosenInstalled: installed[0] || null,
+    };
+    if (!checks.installedCount || !checks.installedHasGeorgia || checks.installedHasMadeUp || !checks.chosenInstalled)
+      throw Error("installed font list check failed: " + JSON.stringify(checks));
+    await pickInterfaceFont("Georgia");
+    await wait(() => firstFamily(getComputedStyle(document.documentElement).getPropertyValue("--ui-font")) === "Georgia", "ui font Georgia");
+    const note = document.querySelector(".storage-note");
+    checks.georgia = {
+      uiText: getComputedStyle(note).fontFamily,
+      brand: getComputedStyle(document.querySelector(".brand")).fontFamily,
+    };
+    // Discrimination: the same reading on ordinary interface text says Georgia, so a logo that
+    // followed the interface font would be caught.
+    if (firstFamily(checks.georgia.uiText) !== "Georgia" || firstFamily(checks.georgia.brand) !== "Futura")
+      throw Error("logo/interface font check failed: " + JSON.stringify(checks.georgia));
+    step("Georgia interface, logo Futura");
+    if (!control) {
+      await pickInterfaceFont(checks.chosenInstalled);
+      await wait(() => firstFamily(localStorage.getItem(W9_FONT_KEY)) === checks.chosenInstalled, "installed interface font saved");
+      const file = await window.__TAURI_INTERNALS__.invoke("system_font_file", { family: "Georgia", bold: false, italic: false });
+      if (!file || file.collection) throw Error("no single-file Georgia to use as the fixture font");
+      const input = await wait(() => document.querySelector('input[type="file"][accept=".ttf,.otf"]'), "font file input");
+      const transfer = new DataTransfer();
+      transfer.items.add(new File([Uint8Array.from(file.data)], "W9 fixture Georgia.ttf", { type: "font/ttf" }));
+      input.files = transfer.files;
+      input.dispatchEvent(new Event("change", { bubbles: true }));
+      await wait(() => document.querySelector(".appearance-fonts__list")?.textContent.includes("Georgia"), "added font listed");
+      checks.added = (await window.__TAURI_INTERNALS__.invoke("font_list")).map((f) => `${f.family}/${f.style}`);
+      step("installed interface font chosen and fixture font added");
+    } else step("control: nothing chosen or added");
+    checks.savedKey = localStorage.getItem(W9_FONT_KEY);
+    probe = { fonts1: checks, control };
+  };
+  const w9Fonts2 = async () => {
+    const control = window.__SMOKE_SCENARIO__ === "control";
+    const atScriptStart = getComputedStyle(document.documentElement).getPropertyValue("--ui-font").trim();
+    const families = await window.__TAURI_INTERNALS__.invoke("system_font_families");
+    const expected = families.find((f) => W9_CANDIDATES.includes(f));
+    // initFonts has finished once the installed families are in the menu.
+    const options = await fontOptions();
+    await wait(() => [...document.querySelectorAll('[role="option"]')].some((o) => o.textContent.trim() === expected), "installed families loaded");
+    await closeOptions();
+    await delay(300);
+    const checks = {
+      expected,
+      atScriptStart,
+      savedKey: localStorage.getItem(W9_FONT_KEY),
+      uiFontVar: getComputedStyle(document.documentElement).getPropertyValue("--ui-font").trim(),
+      uiText: getComputedStyle(document.querySelector(".storage-note")).fontFamily,
+      brand: getComputedStyle(document.querySelector(".brand")).fontFamily,
+      added: (await window.__TAURI_INTERNALS__.invoke("font_list")).map((f) => `${f.family}/${f.style}`),
+      addedListedInSettings: !!document.querySelector(".appearance-fonts__list")?.textContent.includes("Georgia"),
+      optionCount: options.length,
+    };
+    const results = {
+      interfaceFontPersisted:
+        firstFamily(checks.savedKey) === expected && firstFamily(checks.uiFontVar) === expected && firstFamily(checks.uiText) === expected,
+      logoFutura: firstFamily(checks.brand) === "Futura",
+      addedFontPersisted: checks.added.includes("Georgia/regular") && checks.addedListedInSettings,
+    };
+    probe = { fonts2: checks, results, control };
+    const failed = Object.entries(results).filter(([, v]) => !v).map(([k]) => k);
+    step("fonts after relaunch: " + (failed.length ? "FAILED " + failed.join(",") : "all ok"));
+    if (failed.length) throw Error("w9 fonts after relaunch failed: " + failed.join(", "));
+  };
   try {
     await wait(() => document.querySelector(".app"), "application mounted");
     diagnosticProfile = await window.__TAURI_INTERNALS__.invoke(
@@ -960,6 +1600,34 @@
       await click("Save");
       await saved();
       await pagesZoomProbe();
+    } else if (window.__SMOKE_PHASE__ === "w9-blank-click") {
+      if (!button("Start new project")) await click("Projects");
+      await click("Start new project");
+      await click("Blank");
+      await input("Project title", "Native blank click probe");
+      await click("Save");
+      await saved();
+      await w9BlankClickProbe();
+    } else if (window.__SMOKE_PHASE__ === "w9-zoom-probes") {
+      if (!button("Start new project")) await click("Projects");
+      await click("Start new project");
+      await click("Blank");
+      await input("Project title", "Native zoom probes");
+      await click("Save");
+      await saved();
+      await w9ZoomProbes();
+    } else if (window.__SMOKE_PHASE__ === "blur-probe") {
+      if (!button("Start new project")) await click("Projects");
+      await click("Start new project");
+      await click("Blank");
+      await input("Project title", "Hello Angela");
+      await click("Save");
+      await saved();
+      await blurProbe();
+    } else if (window.__SMOKE_PHASE__ === "w9-fonts-1") {
+      await w9Fonts1();
+    } else if (window.__SMOKE_PHASE__ === "w9-fonts-2") {
+      await w9Fonts2();
     } else if (window.__SMOKE_PHASE__ === "pages-probe") {
       if (!button("Start new project")) await click("Projects");
       await click("Start new project");

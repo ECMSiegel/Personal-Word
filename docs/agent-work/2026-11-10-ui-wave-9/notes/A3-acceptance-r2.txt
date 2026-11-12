@@ -1,0 +1,111 @@
+
+Running 4 tests using 1 worker
+
+  ✘  1 tests/w9-cards.spec.ts:82:3 › cards fit the list, research cards are rows, and the open-beside icon is inset at 220 px (8.4s)
+  ✘  2 tests/w9-cards.spec.ts:82:3 › cards fit the list, research cards are rows, and the open-beside icon is inset at 254 px (5.0s)
+  ✘  3 tests/w9-cards.spec.ts:82:3 › cards fit the list, research cards are rows, and the open-beside icon is inset at 420 px (6.3s)
+  ✓  4 tests/w9-cards.spec.ts:173:1 › an empty card hides its boxes at rest and on hover, shows them when opened or focused, and a card with a synopsis always shows them (5.7s)
+
+
+  1) tests/w9-cards.spec.ts:82:3 › cards fit the list, research cards are rows, and the open-beside icon is inset at 220 px 
+
+    Error: expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 1
+    + Received  + 4
+
+    - Array []
+    + Array [
+    +   "research group scrolls sideways",
+    +   "research list scrolls sideways",
+    + ]
+
+      105 |       return problems;
+      106 |     });
+    > 107 |     expect(fit).toEqual([]);
+          |                 ^
+      108 |
+      109 |     // Synopsis input and status row sit inside their visible card.
+      110 |     const inside = await page.evaluate(() => {
+        at /Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/tests/w9-cards.spec.ts:107:17
+
+    Error Context: test-results/T257/w9-cards-cards-fit-the-lis-9ee95-ide-icon-is-inset-at-220-px/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/T257/w9-cards-cards-fit-the-lis-9ee95-ide-icon-is-inset-at-220-px/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/T257/w9-cards-cards-fit-the-lis-9ee95-ide-icon-is-inset-at-220-px/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/w9-cards.spec.ts:82:3 › cards fit the list, research cards are rows, and the open-beside icon is inset at 254 px 
+
+    Error: expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 1
+    + Received  + 4
+
+    - Array []
+    + Array [
+    +   "research group scrolls sideways",
+    +   "research list scrolls sideways",
+    + ]
+
+      105 |       return problems;
+      106 |     });
+    > 107 |     expect(fit).toEqual([]);
+          |                 ^
+      108 |
+      109 |     // Synopsis input and status row sit inside their visible card.
+      110 |     const inside = await page.evaluate(() => {
+        at /Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/tests/w9-cards.spec.ts:107:17
+
+    Error Context: test-results/T257/w9-cards-cards-fit-the-lis-98ecc-ide-icon-is-inset-at-254-px/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/T257/w9-cards-cards-fit-the-lis-98ecc-ide-icon-is-inset-at-254-px/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/T257/w9-cards-cards-fit-the-lis-98ecc-ide-icon-is-inset-at-254-px/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) tests/w9-cards.spec.ts:82:3 › cards fit the list, research cards are rows, and the open-beside icon is inset at 420 px 
+
+    Error: expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 1
+    + Received  + 4
+
+    - Array []
+    + Array [
+    +   "research group scrolls sideways",
+    +   "research list scrolls sideways",
+    + ]
+
+      105 |       return problems;
+      106 |     });
+    > 107 |     expect(fit).toEqual([]);
+          |                 ^
+      108 |
+      109 |     // Synopsis input and status row sit inside their visible card.
+      110 |     const inside = await page.evaluate(() => {
+        at /Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/tests/w9-cards.spec.ts:107:17
+
+    Error Context: test-results/T257/w9-cards-cards-fit-the-lis-6548b-ide-icon-is-inset-at-420-px/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/T257/w9-cards-cards-fit-the-lis-6548b-ide-icon-is-inset-at-420-px/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/T257/w9-cards-cards-fit-the-lis-6548b-ide-icon-is-inset-at-420-px/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3 failed
+    tests/w9-cards.spec.ts:82:3 › cards fit the list, research cards are rows, and the open-beside icon is inset at 220 px 
+    tests/w9-cards.spec.ts:82:3 › cards fit the list, research cards are rows, and the open-beside icon is inset at 254 px 
+    tests/w9-cards.spec.ts:82:3 › cards fit the list, research cards are rows, and the open-beside icon is inset at 420 px 
+  1 passed (30.7s)
+EXIT=1

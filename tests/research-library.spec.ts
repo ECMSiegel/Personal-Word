@@ -29,6 +29,7 @@ test("different works survive title/surname collisions and exact DOI copies are 
   await page.getByRole("button", { name: "Enter manually" }).click();
   await page.getByLabel("Title", { exact: true }).fill("Shared title");
   await page.getByLabel("Authors", { exact: true }).fill("Jane Smith");
+  await openMore(page);
   await page.getByLabel("DOI", { exact: true }).fill("10.1234/old");
   await page.getByRole("button", { name: "Cite here", exact: true }).click();
   const original = await savedResearch(page);
@@ -63,6 +64,7 @@ test("raw source fields, corporate creators and manual forms survive browser sav
   await page.getByRole("button", { name: "Add sources", exact: true }).click();
   await page.locator(".source-toggle").click();
   await expect(page.getByLabel("author 1 organization or literal name")).toHaveValue("Coastal Research Council");
+  await openMore(page);
   await page.getByLabel("Manual full note", { exact: true }).fill("Council, archival note -- preserve this text!");
   await page.getByLabel("Manual short note", { exact: true }).fill("Council, archive!");
   await page.getByLabel("Manual bibliography entry", { exact: true }).fill("Council. Archive -- exact text!");
@@ -79,6 +81,7 @@ test("raw source fields, corporate creators and manual forms survive browser sav
   await page.locator(".project-row").filter({ has: page.getByText("Raw sources", { exact: true }) }).locator("button").first().click();
   await page.locator(".group-title").filter({ hasText: /^Research$/ }).click();
   await page.locator(".source-toggle").click();
+  await openMore(page);
   await expect(page.getByLabel("Manual full note", { exact: true })).toHaveValue("Council, archival note -- preserve this text!");
   expect((await savedResearch(page)).sources[0]).toEqual(data.sources[0]);
 });
@@ -99,6 +102,11 @@ test("editing an editor keeps a chapter's legacy author and enables the bounded 
   await expect(page.locator(".citation-preview").first()).toHaveText("Mina Chen, “Mapping Estuaries,” in Coastal Methods, ed. Ravi Patel (Harbor Press, 2024).");
 });
 
+// Wave 9: DOI, URL and the manual overrides sit in the collapsed "More details".
+async function openMore(page: Page) {
+  await page.locator("details.source-more").evaluate((el) => { (el as HTMLDetailsElement).open = true; });
+}
+
 async function prepareFieldUpdate(page: Page, title: string) {
   await start(page, title);
   await page.getByRole("button", { name: "Enter manually" }).click();
@@ -106,6 +114,7 @@ async function prepareFieldUpdate(page: Page, title: string) {
   await page.getByLabel("Authors", { exact: true }).fill("Local Writer");
   await page.getByLabel("Publisher", { exact: true }).fill("Local Press");
   await page.getByLabel("Year", { exact: true }).fill("2020");
+  await openMore(page);
   await page.getByLabel("DOI", { exact: true }).fill("10.1234/update");
   await page.getByLabel("Manual full note", { exact: true }).fill("Keep locally reviewed note!");
   await page.getByRole("button", { name: "Cite here", exact: true }).click();
@@ -172,6 +181,7 @@ test("same-title update targets are distinguishable and update only the chosen s
     await page.getByLabel("Authors", { exact: true }).fill("Same Writer");
     await page.getByLabel("Year", { exact: true }).fill("2020");
     await page.getByLabel("Publisher", { exact: true }).fill(publisher);
+    await openMore(page);
     await page.getByLabel("DOI", { exact: true }).fill("10.1234/shared-target");
   }
   await page.getByRole("button", { name: "Cite here", exact: true }).click();
@@ -196,6 +206,7 @@ test("a recovered duplicate source identity cannot update multiple existing reco
   await page.getByRole("button", { name: "Enter manually" }).click();
   await page.getByLabel("Title", { exact: true }).fill("Duplicate IDs source");
   await page.getByLabel("Publisher", { exact: true }).fill("Local Press");
+  await openMore(page);
   await page.getByLabel("DOI", { exact: true }).fill("10.1234/duplicate-ids");
   await savedResearch(page);
   // A malformed legacy/recovered project remains readable, but must not let an
@@ -238,7 +249,7 @@ test("required-detail hints recognize structured corporate authors without legac
   await page.locator(".group-title").filter({ hasText: /^Research$/ }).click();
   await page.locator(".source-toggle").click();
   const hint = page.locator(".research-hint").filter({ hasText: "Review required details:" });
-  await expect(hint).toHaveText("Review required details: core fields present -- verify names, dates and publication details.");
+  await expect(hint).toHaveCount(0); // wave 9: the sentence only shows when a required field is missing
   await page.getByLabel("author 1 organization or literal name", { exact: true }).fill("");
   await expect(hint).toContainText("creator or intentional no-author entry");
 });

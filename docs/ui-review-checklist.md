@@ -32,7 +32,7 @@ Before = what the screen or code did before the change; After = what it does now
 
 ## Reflex -- defaults to override only with a reason
 
-- R1. Hover and pressed states do not use a grey box fill; use icon or label weight and colour, and keep selected state visible without relying on colour alone. Wave-3 owner target; see "Known conflicts".
+- R1. Hover, focus, pressed and selected states never paint a fill (wave 3 removed every grey box); use icon or label weight and colour, and keep selected state visible without relying on colour alone. The only fills are the primary and destructive buttons, which are an action's identity, not a state.
 - R2. Interactive hit areas are at least 24 x 24 CSS px (WCAG 2.5.8), enlarged with a pseudo-element if needed, and never overlap a neighbour's area.
 - R3. Numbers that change while visible (word count, page number, time) use `font-variant-numeric: tabular-nums`; confirm Futura supports it (`width("111") === width("888")`) or note the fallback.
 - R4. Flex and grid children that hold text have `min-width: 0` so long content truncates instead of pushing controls out; nothing is clipped silently.
@@ -63,8 +63,7 @@ Before = what the screen or code did before the change; After = what it does now
 
 Listed, not resolved here. The design doc is not edited by this checklist; D2 owns that update.
 
-- R1 versus `## States`: the design doc still says hover uses the surface background, pressed uses `--pressed` (`--line`), pressed segmented buttons add a surface background, and `## Popover` slides a `.popover-highlight` fill behind items. The owner's wave-2 hand check asked to remove the grey box highlight "across the board" and let icons and labels go bold instead (RESEARCH section 1). Until D2 reconciles the text, cite R1 as the wave-3 target and the design doc as the current contract; do not mark existing fills as regressions on their own.
-- R1 versus `## Colour tokens` (selected sidebar row): "semibold on the selected-row fill (6% text)" is a grey box fill. The same owner decision applies; same handling.
+- R1 versus `## States` and `## Colour tokens`: resolved. The design doc now matches R1: hover, focus, selection and pressed paint no fill, a selected sidebar row is shown by weight and colour, and the popover and Segmented sliding highlights are gone. Treat any new hover, pressed or selected fill as a regression.
 - R2 versus `## Split view`: the divider is a 6 px hit area. A thin separator may justify `OVERRIDE`; say so in the Why column.
 - R7 versus `## Popover` and `## Motion`: menus open by clip-path morph even when opened from the keyboard. Treat the documented morph as the exception to R7.
 - Sources versus project rules (the project rule wins): title case for buttons (Vercel), 1.5 px icon stroke and 800 ms blur enters (make-interfaces-feel-better), "never ease-in" (emil-design-eng; the repo's exits use `--ease-in`).

@@ -1,0 +1,64 @@
+C3 rework r2 -- fail-first evidence for tests/w9-fonts.spec.ts (agent-33f5). Each run below used a deliberately wrong condition on a temporary copy of the spec; the real spec was restored afterwards (and passes: 22/22 with tests/appearance.spec.ts). No app code was doctored.
+
+=== A. Helper doctored: expectUiFont compared against 'Verdana' instead of Georgia (page is in Georgia) ===
+2:  ✘  1 tests/w9-fonts.spec.ts:72:1 › interface and document font choices persist and added styles are shared (3.2s)
+4:    Error: Settings after choosing the interface font: elements not in Georgia
+6:    - Expected  -   1
+7:    + Received  + 117
+8:    - Array []
+9:    + Array [
+10:    +   "button.tabs-library \"Projects\" -> Georgia, serif",
+11:    +   "button. \"Font settings\" -> Georgia, serif",
+12:    +   "span. \"Font settings\" -> Georgia, serif",
+13:    +   "span.group-label \"Manuscript\" -> Georgia, serif",
+14:    +   "span. \"Opening\" -> Georgia, serif",
+15:    +   "span.group-label \"Fragments\" -> Georgia, serif",
+16:    +   "span.group-label \"Research\" -> Georgia, serif",
+17:    +   "span.group-label \"Read manuscript\" -> Georgia, serif",
+18:    +   "span.group-label \"Comments\" -> Georgia, serif",
+19:    +   "span.group-label \"Snapshots & history\" -> Georgia, serif",
+20:    +   "span.group-label \"Settings\" -> Georgia, serif",
+21:    +   "li. \"Manuscript\" -> Georgia, serif",
+22:    +   "span.save-status saved \"Saved\" -> Georgia, serif",
+23:    +   "button.snapshot-button \"Snapshot\" -> Georgia, serif",
+24:    +   "button.export-menu-button \"Export\" -> Georgia, serif",
+25:    +   "h1. \"Project settings\" -> Georgia, serif",
+
+=== B. faces toHaveLength(3) changed to 4 ===
+2:  ✘  1 tests/w9-fonts.spec.ts:72:1 › interface and document font choices persist and added styles are shared (7.0s)
+4:    Error: expect(received).toHaveLength(expected)
+5:    Expected length: 4
+6:    Received length: 3
+7:    Received array:  [{"status": "loaded", "style": "normal", "weight": "400"}, {"status": "loaded", "style": "normal", "weight": "700"}, {"status": "loaded", "style": "italic", "weight": "400"}]
+22:  1 failed
+24:EXIT 1
+
+=== C. After Remove, Interface font menu: Trebuchet MS option count 0 changed to 1 ===
+2:  ✘  1 tests/w9-fonts.spec.ts:72:1 › interface and document font choices persist and added styles are shared (15.1s)
+4:    Error: expect(locator).toHaveCount(expected) failed
+6:    Expected: 1
+7:    Received: 0
+10:      - Expect "toHaveCount" getByRole('option', { name: 'Trebuchet MS' }) with timeout 5000ms
+11:      - waiting for getByRole('option', { name: 'Trebuchet MS' })
+13:           - unexpected value "0"
+28:  1 failed
+30:EXIT 1
+
+=== D. After Remove, Font family menu: Trebuchet MS option count 0 changed to 1 ===
+2:  ✘  1 tests/w9-fonts.spec.ts:72:1 › interface and document font choices persist and added styles are shared (13.9s)
+4:    Error: expect(locator).toHaveCount(expected) failed
+6:    Expected: 1
+7:    Received: 0
+10:      - Expect "toHaveCount" getByRole('option', { name: 'Trebuchet MS' }) with timeout 5000ms
+11:      - waiting for getByRole('option', { name: 'Trebuchet MS' })
+13:           - unexpected value "0"
+28:  1 failed
+30:EXIT 1
+
+=== E. Brand-inherits assertion flipped to false ===
+2:  ✘  1 tests/w9-fonts.spec.ts:72:1 › interface and document font choices persist and added styles are shared (9.4s)
+4:    Error: expect(received).toBe(expected) // Object.is equality
+5:    Expected: false
+6:    Received: true
+20:  1 failed
+22:EXIT 1

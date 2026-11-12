@@ -1,0 +1,102 @@
+
+Running 72 tests using 1 worker
+
+[1/72] tests/pages-zoom.spec.ts:23:3 › page view at every toolbar zoom › page starts and drawn page gaps hold at 50, 75, 125 and 150 %
+[2/72] tests/pages.spec.ts:241:3 › vertical page view › stacks pages vertically with no sideways scroll; caret, clicks, footnotes and undo
+[3/72] tests/pages.spec.ts:386:3 › vertical page view › typing just above a split rewraps the paragraph across the page gap
+[4/72] tests/pages.spec.ts:446:3 › vertical page view › Shift+Enter starts a new page
+[5/72] tests/pages.spec.ts:463:3 › vertical page view › Reduce Motion leaves page view unchanged
+[6/72] tests/pages.spec.ts:476:3 › vertical page view › spacers wait for an input-method composition to end
+[7/72] tests/pages.spec.ts:505:3 › page view in a split pane › a 585 px pane scales the page, keeps every page start, and scrolls only its own page number
+[8/72] tests/ruler.spec.ts:103:1 › ruler toggles on and exposes keyboard-accessible linked margin markers
+[9/72] tests/ruler.spec.ts:146:5 › ruler box and markers match the page: continuous view at 75%
+[10/72] tests/ruler.spec.ts:146:5 › ruler box and markers match the page: continuous view at 100%
+[11/72] tests/ruler.spec.ts:146:5 › ruler box and markers match the page: continuous view at 150%
+[12/72] tests/ruler.spec.ts:146:5 › ruler box and markers match the page: pages view at 75%
+[13/72] tests/ruler.spec.ts:146:5 › ruler box and markers match the page: pages view at 100%
+[14/72] tests/ruler.spec.ts:146:5 › ruler box and markers match the page: pages view at 150%
+[15/72] tests/ruler.spec.ts:165:1 › ruler matches the page in a narrow window without horizontal scroll
+[16/72] tests/ruler.spec.ts:174:1 › each split pane's ruler matches its own paper, text and markers
+[17/72] tests/ruler.spec.ts:197:3 › ruler stays pinned, opaque and on top of scrolled text: continuous view
+[18/72] tests/ruler.spec.ts:197:3 › ruler stays pinned, opaque and on top of scrolled text: pages view
+[19/72] tests/ruler.spec.ts:223:1 › a top gap below the ruler height keeps the first line and the gap handle off the ticks
+[20/72] tests/ruler.spec.ts:241:1 › only the primary button drags a marker
+[21/72] tests/ruler.spec.ts:261:1 › continuous top gap is ruler-only, screen-only and does not change page-view padding
+[22/72] tests/ruler.spec.ts:291:1 › a gap-only change leaves a different stored export margin alone
+[23/72] tests/ruler.spec.ts:340:3 › first glyph sits on the left marker in continuous view at 75%
+[24/72] tests/ruler.spec.ts:340:3 › first glyph sits on the left marker in continuous view at 100%
+[25/72] tests/ruler.spec.ts:340:3 › first glyph sits on the left marker in continuous view at 150%
+[26/72] tests/ruler.spec.ts:372:3 › caret never goes behind the ruler: ArrowUp and typing, continuous view
+[27/72] tests/ruler.spec.ts:372:3 › caret never goes behind the ruler: ArrowUp and typing, pages view
+[28/72] tests/ruler.spec.ts:403:5 › caret stays clear at 75% zoom: continuous view, ruler on
+[29/72] tests/ruler.spec.ts:403:5 › caret stays clear at 75% zoom: continuous view, ruler off
+[30/72] tests/ruler.spec.ts:403:5 › caret stays clear at 75% zoom: pages view, ruler on
+[31/72] tests/ruler.spec.ts:403:5 › caret stays clear at 75% zoom: pages view, ruler off
+[32/72] tests/ruler.spec.ts:436:1 › caret scrolling with the ruler off keeps the default margin
+[33/72] tests/ruler.spec.ts:503:7 › emulated WebKit rects: ArrowUp/Down keep the caret in view at 75%: pages view, ruler on
+[34/72] tests/ruler.spec.ts:503:7 › emulated WebKit rects: ArrowUp/Down keep the caret in view at 75%: pages view, ruler off
+[35/72] tests/ruler.spec.ts:503:7 › emulated WebKit rects: ArrowUp/Down keep the caret in view at 150%: pages view, ruler on
+[36/72] tests/ruler.spec.ts:503:7 › emulated WebKit rects: ArrowUp/Down keep the caret in view at 150%: pages view, ruler off
+[37/72] tests/ruler.spec.ts:503:7 › emulated WebKit rects: ArrowUp/Down keep the caret in view at 75%: continuous view, ruler on
+[38/72] tests/ruler.spec.ts:503:7 › emulated WebKit rects: ArrowUp/Down keep the caret in view at 75%: continuous view, ruler off
+[39/72] tests/ruler.spec.ts:503:7 › emulated WebKit rects: ArrowUp/Down keep the caret in view at 150%: continuous view, ruler on
+[40/72] tests/ruler.spec.ts:503:7 › emulated WebKit rects: ArrowUp/Down keep the caret in view at 150%: continuous view, ruler off
+[41/72] tests/ruler.spec.ts:536:3 › a slow moment after ArrowUp still keeps the caret clear of the ruler at 75%
+[42/72] tests/ruler.spec.ts:536:3 › a slow moment after ArrowUp still keeps the caret clear of the ruler at 150%
+[43/72] tests/ruler.spec.ts:562:1 › a movement key that moves nothing does not make select-all jump to the end
+[44/72] tests/ruler.spec.ts:576:3 › emulated WebKit rects: a selected tall image clears the ruler at 100%
+[45/72] tests/ruler.spec.ts:576:3 › emulated WebKit rects: a selected tall image clears the ruler at 75%
+[46/72] tests/split-view.spec.ts:30:1 › split view: two panes, one format bar, focus routing, per-pane undo, persistence
+[47/72] tests/split-view.spec.ts:155:1 › split view: the shared bar's menus open in place and act on the focused pane
+[48/72] tests/split-view.spec.ts:243:1 › split safety: a fragment live in a pane is read-only in the Fragments panel
+[49/72] tests/split-view.spec.ts:274:1 › split safety: a fragment in a split pane has no restore strip (Fragments panel Append covers the rest)
+[50/72] tests/split-view.spec.ts:288:1 › split safety: Fragments panel Append into the unfocused pane's section is kept
+[51/72] tests/split-view.spec.ts:318:1 › split safety: deleting a pane's entry closes the split; Cmd+click still opens beside
+[52/72] tests/split-view.spec.ts:348:1 › split jumps: New section opens in the focused pane; the split stays and pane edits stay put
+[53/72] tests/split-view.spec.ts:385:1 › open beside: the row button shows on hover and keyboard focus and opens the right pane
+[54/72] tests/split-view.spec.ts:441:1 › split jumps: Go to passage focuses the pane that shows the commented section
+[55/72] tests/split-view.spec.ts:473:1 › split jumps: restoring a section from a snapshot keeps both panes and shows the restored text
+[56/72] tests/split-view.spec.ts:533:1 › split view: undo history survives opening a split
+[57/72] tests/split-view.spec.ts:548:1 › split view: the left pane keeps its scroll position across a split round trip
+[58/72] tests/split-view.spec.ts:572:1 › split view: both panes' first text lines start at the same y in continuous and page view
+[59/72] tests/split-view.spec.ts:601:1 › split view: the footer page status follows the focused pane at once
+[60/72] tests/split-view.spec.ts:637:1 › split view: undo still works after closing the split, and the left editor DOM node never changes
+[61/72] tests/split-view.spec.ts:683:1 › split view: the left scroll position holds on open and again on close
+[62/72] tests/split-view.spec.ts:716:7 › split divider junction at DPR 1, light, ratio 0.5 › the header rule and the divider line meet in one clean junction
+tests/split-view.spec.ts:716:7 › split divider junction at DPR 1, light, ratio 0.5 › the header rule and the divider line meet in one clean junction
+{"dpr":1,"scheme":"light","g":{"leftLeft":270,"leftRight":855,"rightLeft":855,"headerBottomL":146,"headerBottomR":146,"panesTop":114,"panesBottom":900,"barBottom":114},"col":855,"ruleY":145}
+
+[63/72] tests/split-view.spec.ts:716:7 › split divider junction at DPR 1, light, ratio 0.373 › the header rule and the divider line meet in one clean junction
+tests/split-view.spec.ts:716:7 › split divider junction at DPR 1, light, ratio 0.373 › the header rule and the divider line meet in one clean junction
+{"dpr":1,"scheme":"light","g":{"leftLeft":270,"leftRight":706.40625,"rightLeft":706.40625,"headerBottomL":146,"headerBottomR":146,"panesTop":114,"panesBottom":900,"barBottom":114},"col":706,"ruleY":145}
+
+[64/72] tests/split-view.spec.ts:716:7 › split divider junction at DPR 1, dark, ratio 0.5 › the header rule and the divider line meet in one clean junction
+tests/split-view.spec.ts:716:7 › split divider junction at DPR 1, dark, ratio 0.5 › the header rule and the divider line meet in one clean junction
+{"dpr":1,"scheme":"dark","g":{"leftLeft":270,"leftRight":855,"rightLeft":855,"headerBottomL":146,"headerBottomR":146,"panesTop":114,"panesBottom":900,"barBottom":114},"col":855,"ruleY":145}
+
+[65/72] tests/split-view.spec.ts:716:7 › split divider junction at DPR 1, dark, ratio 0.373 › the header rule and the divider line meet in one clean junction
+tests/split-view.spec.ts:716:7 › split divider junction at DPR 1, dark, ratio 0.373 › the header rule and the divider line meet in one clean junction
+{"dpr":1,"scheme":"dark","g":{"leftLeft":270,"leftRight":706.40625,"rightLeft":706.40625,"headerBottomL":146,"headerBottomR":146,"panesTop":114,"panesBottom":900,"barBottom":114},"col":706,"ruleY":145}
+
+[66/72] tests/split-view.spec.ts:716:7 › split divider junction at DPR 2, light, ratio 0.5 › the header rule and the divider line meet in one clean junction
+tests/split-view.spec.ts:716:7 › split divider junction at DPR 2, light, ratio 0.5 › the header rule and the divider line meet in one clean junction
+{"dpr":2,"scheme":"light","g":{"leftLeft":270,"leftRight":855,"rightLeft":855,"headerBottomL":146,"headerBottomR":146,"panesTop":114,"panesBottom":900,"barBottom":114},"col":1710,"ruleY":291}
+
+[67/72] tests/split-view.spec.ts:716:7 › split divider junction at DPR 2, light, ratio 0.373 › the header rule and the divider line meet in one clean junction
+tests/split-view.spec.ts:716:7 › split divider junction at DPR 2, light, ratio 0.373 › the header rule and the divider line meet in one clean junction
+{"dpr":2,"scheme":"light","g":{"leftLeft":270,"leftRight":706.40625,"rightLeft":706.40625,"headerBottomL":146,"headerBottomR":146,"panesTop":114,"panesBottom":900,"barBottom":114},"col":1413,"ruleY":291}
+
+[68/72] tests/split-view.spec.ts:716:7 › split divider junction at DPR 2, dark, ratio 0.5 › the header rule and the divider line meet in one clean junction
+tests/split-view.spec.ts:716:7 › split divider junction at DPR 2, dark, ratio 0.5 › the header rule and the divider line meet in one clean junction
+{"dpr":2,"scheme":"dark","g":{"leftLeft":270,"leftRight":855,"rightLeft":855,"headerBottomL":146,"headerBottomR":146,"panesTop":114,"panesBottom":900,"barBottom":114},"col":1710,"ruleY":291}
+
+[69/72] tests/split-view.spec.ts:716:7 › split divider junction at DPR 2, dark, ratio 0.373 › the header rule and the divider line meet in one clean junction
+tests/split-view.spec.ts:716:7 › split divider junction at DPR 2, dark, ratio 0.373 › the header rule and the divider line meet in one clean junction
+{"dpr":2,"scheme":"dark","g":{"leftLeft":270,"leftRight":706.40625,"rightLeft":706.40625,"headerBottomL":146,"headerBottomR":146,"panesTop":114,"panesBottom":900,"barBottom":114},"col":1413,"ruleY":291}
+
+[70/72] tests/split-view.spec.ts:803:1 › split view: each pane has its own footer with its own page status and word count
+[71/72] tests/split-view.spec.ts:871:1 › split view: the sidebar bolds each pane's section heading in the text colour and keeps both open rows regular (W7)
+[72/72] tests/split-view.spec.ts:903:1 › select all still selects when a click lands before the previous select-all is read back
+  Slow test file: tests/ruler.spec.ts (9.2m)
+  Consider running tests from slow files in parallel. See: https://playwright.dev/docs/test-parallel
+  72 passed (15.3m)

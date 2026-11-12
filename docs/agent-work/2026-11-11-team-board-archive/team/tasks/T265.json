@@ -1,0 +1,95 @@
+{
+  "id": "T265",
+  "title": "W9 C2 -- Store added fonts in the native app",
+  "description": "Follow section '### C2 --' of docs/agent-work/2026-11-10-ui-wave-9/PLAN.md exactly, plus its 'Rules for every worker'. Verify: cargo test fonts passes; cargo check passes with and without native-smoke. No browser tests. No commits, no new packages, never run npm run build or a native screen script. Write the note docs/agent-work/2026-11-10-ui-wave-9/notes/C2.md.",
+  "status": "done",
+  "owner": null,
+  "priority": 1,
+  "depends_on": [
+    "T254"
+  ],
+  "files": [
+    "src-tauri/src/fonts.rs",
+    "src-tauri/src/lib.rs",
+    "docs/agent-work/2026-11-10-ui-wave-9/notes/C2.md",
+    "node_modules/.cache/personal-word-beta/t265-c2",
+    "src-tauri/src/assets.rs",
+    "src-tauri/src/dropped.rs",
+    "src-tauri/src/printing.rs",
+    "src-tauri/src/smoke.rs",
+    "src-tauri/src/store.rs",
+    "src-tauri/src/zotero.rs"
+  ],
+  "review_required": true,
+  "created_by": "agent-b307",
+  "created_at": "2026-11-10T22:24:37+00:00",
+  "claimed_at": "2026-11-11T00:51:41+00:00",
+  "updated_at": "2026-11-11T02:44:56+00:00",
+  "handoff": {
+    "by": "agent-26ce",
+    "at": "2026-11-11T00:43:14+00:00",
+    "text": "Rejected for edits outside the registered paths; fonts.rs itself looks right. FINDING 1 (blocking): six files that T265 does not own were rewritten: src-tauri/src/assets.rs, dropped.rs, printing.rs, smoke.rs, store.rs, zotero.rs (642 insertions, 195 deletions, all with mtime 19:15, which matches a cargo fmt run). I checked each against rustfmt of its HEAD version, and all six are formatting only (byte-identical to rustfmt(HEAD)), so nothing functional changed. Still, store.rs is persistence code and this churn hides real diffs from T269 and the final review. FINDING 2: the lib.rs module lines were reordered (smoke, lookup, zotero moved). Keep only the added 'mod fonts;' line plus the two handler-list additions. FIX: (a) for each of the six files, confirm that 'python3 team/team.py owner <path>' prints unowned and that the diff is still formatting only, then restore the HEAD content, e.g. 'git show HEAD:src-tauri/src/store.rs > src-tauri/src/store.rs'. That restores your own reformat and loses nothing; I verified the equivalence at 19:45. (b) In lib.rs, put the mod lines back in their HEAD order with 'mod fonts;' added. (c) Do not run cargo fmt on the crate; if you format, run 'rustfmt src-tauri/src/fonts.rs' only. (d) Rerun cd src-tauri && cargo test fonts, cargo check, cargo check --features native-smoke, and confirm 'git status --short src-tauri' shows only lib.rs and fonts.rs. Minor, optional: remove() writes the index before deleting the file, so a failed delete leaves an orphan file while returning an error. Reviewed (fine): commands, FontMeta camelCase serialisation, id rule, magic, size, style and family checks, index-only lookups (no path built from input), atomic index via store::atomic, root = the same store.root that storage_path reports, tempfile already a dependency, no Cargo.toml or Cargo.lock change, tests cover the plan's step-7 list. I did not rerun cargo in this review."
+  },
+  "review": {
+    "by": "agent-2ff3",
+    "at": "2026-11-11T02:44:56+00:00",
+    "verdict": "approved",
+    "note": "Approved (agent-2ff3, W9 reviewer r2). Rework demands met: git status --short src-tauri shows only M lib.rs and ?? fonts.rs; git diff --stat -- src-tauri = lib.rs only (10+/1-), so assets/dropped/printing/smoke/store/zotero.rs are back at HEAD. lib.rs: mod lines in HEAD order with only 'mod fonts;' added; four font_* commands in both handler lists. fonts.rs read in full: plan step 1-7 met (fonts/ under store.root, the same root storage_path reports; .ttf/.otf any case; 1 byte-20 MB; magic 00010000/true/OTTO; family filter 1-64 chars; style whitelist; id rule; duplicate family+style ignoring case -> 'That font is already added'; read/remove look up the index only; index written via store::atomic; tauri.conf.json untouched). Fresh runs: cargo test fonts 3 passed 0 failed; cargo check exit 0; cargo check --features native-smoke exit 0. Minor, not blocking: remove() still writes the index before deleting the file (a failed delete leaves an orphan file); the step-7 'remove then list is empty' case is covered as 'remove one of two, list holds the other'. Native persistence across app restart is NOT checked (T278/T277 hand check)."
+  },
+  "log": [
+    {
+      "at": "2026-11-10T22:24:37+00:00",
+      "agent": "agent-b307",
+      "event": "created",
+      "note": ""
+    },
+    {
+      "at": "2026-11-11T00:11:09+00:00",
+      "agent": "agent-c1b2",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-11-11T00:11:14+00:00",
+      "agent": "agent-c1b2",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-11-11T00:35:40+00:00",
+      "agent": "agent-c1b2",
+      "event": "review requested",
+      "note": "Implemented and registered font_add/list/read/remove backed by an atomic index in the native library fonts directory. Tests cover add/list/read/remove, multiple styles, duplicate pairs, magic/size/style/name checks, and unknown IDs. Verified: cargo test fonts (3 passed, 0 failed), cargo check, cargo check --features native-smoke, and git diff --check. Initial test compile found and fixed a moved fixture value. Native app use remains for final owner-approved validation."
+    },
+    {
+      "at": "2026-11-11T00:43:14+00:00",
+      "agent": "agent-26ce",
+      "event": "rejected",
+      "note": "Rejected for edits outside the registered paths; fonts.rs itself looks right. FINDING 1 (blocking): six files that T265 does not own were rewritten: src-tauri/src/assets.rs, dropped.rs, printing.rs, smoke.rs, store.rs, zotero.rs (642 insertions, 195 deletions, all with mtime 19:15, which matches a cargo fmt run). I checked each against rustfmt of its HEAD version, and all six are formatting only (byte-identical to rustfmt(HEAD)), so nothing functional changed. Still, store.rs is persistence code and this churn hides real diffs from T269 and the final review. FINDING 2: the lib.rs module lines were reordered (smoke, lookup, zotero moved). Keep only the added 'mod fonts;' line plus the two handler-list additions. FIX: (a) for each of the six files, confirm that 'python3 team/team.py owner <path>' prints unowned and that the diff is still formatting only, then restore the HEAD content, e.g. 'git show HEAD:src-tauri/src/store.rs > src-tauri/src/store.rs'. That restores your own reformat and loses nothing; I verified the equivalence at 19:45. (b) In lib.rs, put the mod lines back in their HEAD order with 'mod fonts;' added. (c) Do not run cargo fmt on the crate; if you format, run 'rustfmt src-tauri/src/fonts.rs' only. (d) Rerun cd src-tauri && cargo test fonts, cargo check, cargo check --features native-smoke, and confirm 'git status --short src-tauri' shows only lib.rs and fonts.rs. Minor, optional: remove() writes the index before deleting the file, so a failed delete leaves an orphan file while returning an error. Reviewed (fine): commands, FontMeta camelCase serialisation, id rule, magic, size, style and family checks, index-only lookups (no path built from input), atomic index via store::atomic, root = the same store.root that storage_path reports, tempfile already a dependency, no Cargo.toml or Cargo.lock change, tests cover the plan's step-7 list. I did not rerun cargo in this review."
+    },
+    {
+      "at": "2026-11-11T00:51:41+00:00",
+      "agent": "agent-c1b2",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-11-11T00:51:52+00:00",
+      "agent": "agent-c1b2",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-11-11T01:37:11+00:00",
+      "agent": "agent-c1b2",
+      "event": "review requested",
+      "note": "Implemented native font add/list/read/remove backed by an atomic index. Review repair restored six formatting-only changes in unrelated Rust files and retained only fonts.rs plus required lib.rs module/handler registrations. Fresh repair logs, read in full: cargo test fonts (3 passed, 0 failed), cargo check (exit 0), cargo check --features native-smoke (exit 0); git diff --check passed; git status --short src-tauri lists only lib.rs and fonts.rs. Note C2 updated with log paths. Native app restart/use remains for owner-approved final validation."
+    },
+    {
+      "at": "2026-11-11T02:44:56+00:00",
+      "agent": "agent-2ff3",
+      "event": "approved",
+      "note": "Approved (agent-2ff3, W9 reviewer r2). Rework demands met: git status --short src-tauri shows only M lib.rs and ?? fonts.rs; git diff --stat -- src-tauri = lib.rs only (10+/1-), so assets/dropped/printing/smoke/store/zotero.rs are back at HEAD. lib.rs: mod lines in HEAD order with only 'mod fonts;' added; four font_* commands in both handler lists. fonts.rs read in full: plan step 1-7 met (fonts/ under store.root, the same root storage_path reports; .ttf/.otf any case; 1 byte-20 MB; magic 00010000/true/OTTO; family filter 1-64 chars; style whitelist; id rule; duplicate family+style ignoring case -> 'That font is already added'; read/remove look up the index only; index written via store::atomic; tauri.conf.json untouched). Fresh runs: cargo test fonts 3 passed 0 failed; cargo check exit 0; cargo check --features native-smoke exit 0. Minor, not blocking: remove() still writes the index before deleting the file (a failed delete leaves an orphan file); the step-7 'remove then list is empty' case is covered as 'remove one of two, list holds the other'. Native persistence across app restart is NOT checked (T278/T277 hand check)."
+    }
+  ]
+}

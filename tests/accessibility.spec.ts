@@ -125,6 +125,7 @@ test("an overlong page footnote offers a keyboard-operated continuous view", asy
     .locator(".group-title")
     .filter({ hasText: /^Research$/ })
     .click();
+  await page.locator(".research-tabs").getByRole("button", { name: "Notes", exact: true }).click();
   await page.getByRole("button", { name: "Insert footnote at cursor" }).click();
   await page.getByLabel("Footnote text", { exact: true }).fill(
     "A long note that cannot fit in the page footnote area. ".repeat(450),

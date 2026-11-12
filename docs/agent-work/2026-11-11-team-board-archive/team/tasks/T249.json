@@ -1,0 +1,128 @@
+{
+  "id": "T249",
+  "title": "W7 S3 -- Research: Upload PDF button in Sources",
+  "description": "See REQUEST.md Owner follow-up. Shares ResearchPanel.tsx with S2 by region.",
+  "status": "done",
+  "owner": null,
+  "priority": 2,
+  "depends_on": [],
+  "files": [
+    "src/research/ResearchPanel.tsx",
+    "src/research/research.css",
+    "tests/research.spec.ts"
+  ],
+  "review_required": true,
+  "created_by": "agent-81bd",
+  "created_at": "2026-11-05T04:20:11+00:00",
+  "claimed_at": "2026-11-05T08:13:48+00:00",
+  "updated_at": "2026-11-05T08:22:01+00:00",
+  "handoff": {
+    "by": "agent-ba11",
+    "at": "2026-11-05T06:04:12+00:00",
+    "text": "REVIEW-small-fixes.md Defect 3, layout only. One PDF: rules at 363, 409, 516; the first two have only the empty status between them, because .research-pdfs keeps border-top right after the new hr (the handoff said to delete it). Shot ui7-rv-s/probe-shots/panel-one-pdf.png. Fix: drop border-top and padding-top on .research-pdfs and take the empty status out of flow as in T248 (not display:none, it is role=status); check the PDFs subheading keeps its gap. Repair together with T248, one worker, same three paths. Do NOT redo the data work, reviewed with no defect: types, model validation, mergeMissingResearch, store.rs pdf_ids, journal/save, split resolve and restore, sidebar rows, rail, reorder, keyboard, removal. Removal while open beside shows the alert pane, same as a source's PDF, already in docs/limitations.md:71. docs/limitations.md:22 should also name standalone PDFs."
+  },
+  "review": {
+    "by": "agent-b7b4",
+    "at": "2026-11-05T08:22:01+00:00",
+    "verdict": "approved",
+    "note": "One PDF: rules 363 and 470, PDFs section between, no border on .research-pdfs. Upload PDF after Enter manually with no icon; PDFs section absent until a PDF exists. Data work not re-reviewed, per brief. Headless Chromium only; native list in REVIEW-small-fixes.md still open."
+  },
+  "log": [
+    {
+      "at": "2026-11-05T04:20:11+00:00",
+      "agent": "agent-81bd",
+      "event": "created",
+      "note": ""
+    },
+    {
+      "at": "2026-11-05T04:21:32+00:00",
+      "agent": "agent-85af",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-11-05T04:21:32+00:00",
+      "agent": "agent-85af",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-11-05T04:42:27+00:00",
+      "agent": "agent-85af",
+      "event": "review requested",
+      "note": "Standalone research PDFs (research.pdfs), not a source. Rust pdf_ids now includes them; test standalone_pdfs_reach_the_attachments_mirror failed first (mirror NotFound), cargo test 64 pass. UI: PDFs block + Upload PDF in Sources, sidebar rows, split resolves standalone ids, model validation, snapshot merge. Specs research (20, incl. new upload test), research-library, research-pdf pass; vitest 1157 pass; tsc clean. Playwright test written after impl (not shown failing). Edited existing research.spec Zotero input selectors (new file input made them ambiguous). Files: src/research/{types,ResearchPanel,SourceForm,research.css}, src/{App,model}, src/components/ProjectSidebar.tsx, src/organization/operations.ts, src-tauri/src/store.rs, tests/research.spec.ts. Note: docs/agent-work/2026-11-04-ui-wave-7/notes/T249.md"
+    },
+    {
+      "at": "2026-11-05T04:47:29+00:00",
+      "agent": "agent-81bd",
+      "event": "rejected",
+      "note": "Owner change, not a defect: no always-on block. Upload PDF joins the Sources action row, no standing rule; the PDFs list with a small subheading appears only once a PDF exists. Sidebar rows under Research only when PDFs exist."
+    },
+    {
+      "at": "2026-11-05T04:48:12+00:00",
+      "agent": "agent-e9b7",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-11-05T04:48:14+00:00",
+      "agent": "agent-e9b7",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-11-05T04:49:42+00:00",
+      "agent": "agent-e9b7",
+      "event": "handoff",
+      "note": "Stopped before any edit. Claimed and started T249, but src/research/ResearchPanel.tsx, src/research/research.css and tests/research.spec.ts are refused by overlap with T248 (agent-16ba). Retry loop was armed (Monitor b36twssl6, 3 min, 30 min cap) and may have registered them; check owner before editing. Next: register the three paths, then move the Upload PDF button into .research-actions (ResearchPanel.tsx ~line 512), wrap the PDF list in a PDFs subhead only when data.pdfs is non-empty (~line 606), delete .research-pdfs rule (research.css ~174), then fail-first test update in tests/research.spec.ts (~line 770). Nothing is changed yet.\nsrc/research/ResearchPanel.tsx: clean\nsrc/research/research.css: clean\ntests/research.spec.ts: clean"
+    },
+    {
+      "at": "2026-11-05T05:20:16+00:00",
+      "agent": "agent-81bd",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-11-05T05:20:17+00:00",
+      "agent": "agent-81bd",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-11-05T05:26:09+00:00",
+      "agent": "agent-81bd",
+      "event": "review requested",
+      "note": "Upload PDF moved into the Sources action row; PDFs section and subheading only render when a PDF exists. Coordinator edit, over agent-85af's standalone PDF work. Fail-first on old build; research specs after."
+    },
+    {
+      "at": "2026-11-05T06:04:12+00:00",
+      "agent": "agent-ba11",
+      "event": "rejected",
+      "note": "REVIEW-small-fixes.md Defect 3, layout only. One PDF: rules at 363, 409, 516; the first two have only the empty status between them, because .research-pdfs keeps border-top right after the new hr (the handoff said to delete it). Shot ui7-rv-s/probe-shots/panel-one-pdf.png. Fix: drop border-top and padding-top on .research-pdfs and take the empty status out of flow as in T248 (not display:none, it is role=status); check the PDFs subheading keeps its gap. Repair together with T248, one worker, same three paths. Do NOT redo the data work, reviewed with no defect: types, model validation, mergeMissingResearch, store.rs pdf_ids, journal/save, split resolve and restore, sidebar rows, rail, reorder, keyboard, removal. Removal while open beside shows the alert pane, same as a source's PDF, already in docs/limitations.md:71. docs/limitations.md:22 should also name standalone PDFs."
+    },
+    {
+      "at": "2026-11-05T08:13:48+00:00",
+      "agent": "agent-81bd",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-11-05T08:13:49+00:00",
+      "agent": "agent-81bd",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-11-05T08:13:49+00:00",
+      "agent": "agent-81bd",
+      "event": "review requested",
+      "note": "r2: PDFs block only when a PDF exists, Upload PDF in the action row, doubled rules gone (.research-pdfs no border, .research-status:empty out of flow, .source-item:last-child no border). research specs 28 passed on final CSS."
+    },
+    {
+      "at": "2026-11-05T08:22:01+00:00",
+      "agent": "agent-b7b4",
+      "event": "approved",
+      "note": "One PDF: rules 363 and 470, PDFs section between, no border on .research-pdfs. Upload PDF after Enter manually with no icon; PDFs section absent until a PDF exists. Data work not re-reviewed, per brief. Headless Chromium only; native list in REVIEW-small-fixes.md still open."
+    }
+  ]
+}

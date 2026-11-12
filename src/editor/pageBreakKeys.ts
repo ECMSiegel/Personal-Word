@@ -1,4 +1,33 @@
-import { Extension } from "@tiptap/core";
+import { Extension, type Editor } from "@tiptap/core";
+
+/**
+ * Inserts a page break plus an empty paragraph after it, and carries the
+ * formatting at the cursor into that paragraph the way Enter does: the active
+ * marks (font, size, bold, italic...) become stored marks so the next typed
+ * character matches, and a body paragraph's alignment, line spacing, indents
+ * and spacing are copied onto the new paragraph. Both the Shift+Enter binding
+ * and the Page setup "Insert page break" button use this. It does not focus
+ * the editor (focus needs a mounted view); the button focuses first.
+ */
+export function insertPageBreak(editor: Editor): boolean {
+  const { $from } = editor.state.selection;
+  // Carry only what Enter would carry: a link or comment anchor must not
+  // continue past the break.
+  const { splittableMarks } = editor.extensionManager;
+  const marks = (editor.state.storedMarks ?? $from.marks()).filter((m) =>
+    splittableMarks.includes(m.type.name),
+  );
+  const attrs =
+    $from.parent.type.name === "paragraph" ? { ...$from.parent.attrs } : {};
+  return editor
+    .chain()
+    .insertContent([{ type: "pageBreak" }, { type: "paragraph", attrs }])
+    .command(({ tr }) => {
+      tr.setStoredMarks(marks);
+      return true;
+    })
+    .run();
+}
 
 /**
  * Shift+Enter starts a new page; the soft line break stays on Mod-Enter.
@@ -24,11 +53,7 @@ export const PageBreakKeys: Extension = Extension.create({
         ) {
           return false;
         }
-        return this.editor
-          .chain()
-          .focus()
-          .insertContent([{ type: "pageBreak" }, { type: "paragraph" }])
-          .run();
+        return insertPageBreak(this.editor);
       },
     };
   },

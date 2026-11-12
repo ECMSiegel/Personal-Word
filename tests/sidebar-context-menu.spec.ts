@@ -103,7 +103,7 @@ test("right-click on a section opens the menu at the pointer; Escape returns foc
   const at = await rightClick(page, row, 30);
   await expect(menu(page)).toBeVisible();
   await expect(menu(page)).toHaveAccessibleName(`${first} actions`);
-  expect(await itemNames(page)).toEqual(["Open", "Open beside", "Rename", "Move up", "Move down", "Delete"]);
+  expect(await itemNames(page)).toEqual(["Open", "Open beside", "Rename", "Move up", "Move down", "New section below", "Delete"]);
   const box = await menuBox(page);
   expect(Math.abs(box.left - at.x)).toBeLessThanOrEqual(1.5);
   expect(Math.abs(box.top - at.y)).toBeLessThanOrEqual(1.5);
@@ -224,7 +224,7 @@ test("Open, Open beside, Rename and Delete from a section and a fragment", async
 test("group heading: Collapse/Expand, Move up, Move down", async ({ page }) => {
   await createProject(page, "Group menu");
   await rightClick(page, heading(page, "manuscript"));
-  expect(await itemNames(page)).toEqual(["Collapse", "Move up", "Move down"]);
+  expect(await itemNames(page)).toEqual(["Collapse", "Move up", "Move down", "New section", "New top-level section", "Rename"]);
   await expect(item(page, "Move up")).toHaveAttribute("aria-disabled", "true");
   await item(page, "Collapse").click();
   await expect(page.locator('[data-group="manuscript"]')).toHaveClass(/is-collapsed/);

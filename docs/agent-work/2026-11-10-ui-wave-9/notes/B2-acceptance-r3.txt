@@ -1,0 +1,25 @@
+
+Running 19 tests using 1 worker
+
+  ✓   1 tests/w9-prose-menu.spec.ts:34:1 › prose check rule checkboxes share one right edge with the On row (3.1s)
+  ✓   2 tests/w9-prose-menu.spec.ts:49:1 › each prose rule row shows its own count (3.1s)
+  ✓   3 tests/w9-prose-menu.spec.ts:59:1 › hovering a prose rule row does not move its checkbox (2.2s)
+  ✓   4 tests/w9-prose-menu.spec.ts:72:1 › the status line is one short line and pagination is hidden on one page (1.7s)
+  ✓   5 tests/writing-aids.spec.ts:21:1 › focus mode dims other paragraphs and the shortcut toggles it (2.4s)
+  ✓   6 tests/writing-aids.spec.ts:52:1 › prose check lists issues and Enter on an issue selects it (1.8s)
+  ✓   7 tests/writing-aids.spec.ts:67:1 › aids stay off for a new session by default (1.5s)
+  ✓   8 tests/writing-aids.spec.ts:76:1 › the issue index pages every result while decorations stay bounded (2.5s)
+  ✓   9 tests/writing-aids.spec.ts:99:1 › prose rules can be switched off and a one-time dismissal expires when text changes (2.1s)
+  ✓  10 tests/writing-aids.spec.ts:142:3 › focus mode hides the toolbar until needed (X1) › hidden in focus mode, revealed by pointer, hides again, editor does not move (3.4s)
+  ✓  11 tests/writing-aids.spec.ts:165:3 › focus mode hides the toolbar until needed (X1) › keyboard focus and the shortcut reveal it instantly; Escape hides it (2.4s)
+  ✓  12 tests/writing-aids.spec.ts:180:3 › focus mode hides the toolbar until needed (X1) › an open toolbar panel keeps it revealed; Reduce Motion is instant (3.0s)
+  ✓  13 tests/writing-aids.spec.ts:196:5 › revealed focus-mode toolbar never covers text (X1b) › first line stays below the revealed bar and does not jump: continuous (3.5s)
+  ✓  14 tests/writing-aids.spec.ts:196:5 › revealed focus-mode toolbar never covers text (X1b) › first line stays below the revealed bar and does not jump: page view (2.5s)
+  ✓  15 tests/writing-aids.spec.ts:237:7 › focus mode in page view: the reserved toolbar band is desk (X1c) › band pixel equals desk colour: light plain (2.5s)
+  ✓  16 tests/writing-aids.spec.ts:237:7 › focus mode in page view: the reserved toolbar band is desk (X1c) › band pixel equals desk colour: light color (2.3s)
+  ✓  17 tests/writing-aids.spec.ts:237:7 › focus mode in page view: the reserved toolbar band is desk (X1c) › band pixel equals desk colour: dark plain (2.1s)
+  ✓  18 tests/writing-aids.spec.ts:237:7 › focus mode in page view: the reserved toolbar band is desk (X1c) › band pixel equals desk colour: dark color (2.4s)
+  ✓  19 tests/writing-aids.spec.ts:282:1 › focus mode in split view: panes do not jump and headers are never covered (3.6s)
+
+  19 passed (50.4s)
+playwright exit 0

@@ -1,0 +1,26 @@
+Running 2 tests using 1 worker
+  ✘  1 tests/floating.spec.ts:425:3 › floating sidebar: Read manuscript › starts at the top of the reading area, shows the Manuscript heading, clear of the text, stays put on scroll (13.8s)
+  ✓  2 tests/floating.spec.ts:459:3 › floating sidebar: Read manuscript › a narrow window falls back to the normal panel (10.1s)
+  1) tests/floating.spec.ts:425:3 › floating sidebar: Read manuscript › starts at the top of the reading area, shows the Manuscript heading, clear of the text, stays put on scroll 
+    Error: title top 428.953125 vs reading area top 74
+    expect(received).toBeLessThan(expected)
+    Expected: < 60
+    Received:   354.953125
+      429 |     const reader = await rect(page, ".manuscript-read");
+      430 |     const title = await rect(page, "aside.sidebar .sidebar-title-row");
+    > 431 |     expect(title.top - reader.top, `title top ${title.top} vs reading area top ${reader.top}`).toBeLessThan(60);
+          |                                                                                                ^
+      432 |     const heading = page.locator("aside.sidebar .sidebar-groups .group-title", { hasText: "Manuscript" }).first();
+      433 |     await expect(heading).toBeVisible();
+      434 |     // The heading is not clipped by the scroll-fade mask or the box.
+        at /Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/tests/floating.spec.ts:431:96
+    Error Context: test-results/HS6/floating-floating-sidebar--39f11-he-text-stays-put-on-scroll/error-context.md
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/HS6/floating-floating-sidebar--39f11-he-text-stays-put-on-scroll/trace.zip
+    Usage:
+        npx playwright show-trace test-results/HS6/floating-floating-sidebar--39f11-he-text-stays-put-on-scroll/trace.zip
+    ──────────────────────────────────────────────────────────────────────────────────
+  1 failed
+    tests/floating.spec.ts:425:3 › floating sidebar: Read manuscript › starts at the top of the reading area, shows the Manuscript heading, clear of the text, stays put on scroll 
+  1 passed (34.5s)
+FINISHED

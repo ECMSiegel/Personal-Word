@@ -1,0 +1,84 @@
+
+Running 2 tests using 1 worker
+
+  ✘  1 tests/of3-rulers.spec.ts:194:1 › page view: a click on the strip's grey end leaves the caret and the scroll alone (9.8s)
+  ✘  2 tests/of3-rulers.spec.ts:224:1 › page view with a floating sidebar: the sidebar and the citation card paint above the pinned strip (4.1s)
+
+
+  1) tests/of3-rulers.spec.ts:194:1 › page view: a click on the strip's grey end leaves the caret and the scroll alone 
+
+    Error: strip click changed the caret or the scroll
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 3
+    + Received  + 3
+
+      Object {
+    -   "head": "P4 evidence ",
+    -   "offset": 186,
+    -   "top": 1500,
+    +   "head": "P11 evidence",
+    +   "offset": 223,
+    +   "top": 1484,
+      }
+
+      215 |   await page.mouse.click(spot.x, spot.y);
+      216 |   await page.waitForTimeout(300);
+    > 217 |   expect(await state(), "strip click changed the caret or the scroll").toEqual(before);
+          |                                                                        ^
+      218 |   // The ruler's own marker still works from the strip.
+      219 |   await page.getByRole("slider", { name: "Adjust left and right margins from the left" }).focus();
+      220 |   await page.keyboard.press("ArrowRight");
+        at /Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/tests/of3-rulers.spec.ts:217:72
+
+    Error Context: test-results/T286/of3-rulers-page-view-a-cli-6d61e--caret-and-the-scroll-alone/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/T286/of3-rulers-page-view-a-cli-6d61e--caret-and-the-scroll-alone/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/T286/of3-rulers-page-view-a-cli-6d61e--caret-and-the-scroll-alone/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/of3-rulers.spec.ts:224:1 › page view with a floating sidebar: the sidebar and the citation card paint above the pinned strip 
+
+    Error: scrollTop 0
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 1
+    + Received  + 6
+
+    - Array []
+    + Array [
+    +   ".project-switch covered by ruler-strip",
+    +   ".project-switch covered by ruler-strip",
+    +   ".sidebar-pin covered by ruler-strip",
+    +   ".sidebar-pin covered by ruler-strip",
+    + ]
+
+      261 |       return out;
+      262 |     });
+    > 263 |     expect(bad, `scrollTop ${top}`).toEqual([]);
+          |                                     ^
+      264 |   }
+      265 |   expect(await card.count(), "citation card was probed").toBeGreaterThan(0);
+      266 | });
+        at /Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/tests/of3-rulers.spec.ts:263:37
+
+    Error Context: test-results/T286/of3-rulers-page-view-with--7881d-aint-above-the-pinned-strip/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/T286/of3-rulers-page-view-with--7881d-aint-above-the-pinned-strip/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/T286/of3-rulers-page-view-with--7881d-aint-above-the-pinned-strip/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2 failed
+    tests/of3-rulers.spec.ts:194:1 › page view: a click on the strip's grey end leaves the caret and the scroll alone 
+    tests/of3-rulers.spec.ts:224:1 › page view with a floating sidebar: the sidebar and the citation card paint above the pinned strip 
+DONE

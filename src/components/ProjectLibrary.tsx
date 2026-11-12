@@ -9,6 +9,11 @@ import { Dropdown } from "./Dropdown";
 import { DropTarget, type DropItem } from "./DropTarget";
 import { Popover, PopoverItem } from "./Popover";
 import { play } from "../motion";
+import {
+  readLibraryPreferences,
+  writeLibraryPreferences,
+  type LibraryPreferences,
+} from "../libraryPreferences";
 import "./library.css";
 export function ProjectLibrary({
   projects,
@@ -45,9 +50,15 @@ export function ProjectLibrary({
   onDropError: (message: string) => void;
   settings?: ReactNode;
 }) {
-  const [view, setView] = useState<"list" | "cards">("list");
-  const [sort, setSort] = useState("edited");
-  const [reverse, setReverse] = useState(false);
+  const [prefs, setPrefs] = useState<LibraryPreferences>(() =>
+    readLibraryPreferences(window.localStorage),
+  );
+  const { view, sort, reverse } = prefs;
+  const changePrefs = (change: Partial<LibraryPreferences>) => {
+    const next = { ...prefs, ...change };
+    setPrefs(next);
+    writeLibraryPreferences(window.localStorage, next);
+  };
   const [creating, setCreating] = useState(false);
   const [searching, setSearching] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
@@ -60,6 +71,11 @@ export function ProjectLibrary({
   const createFade = useRef<Animation | null>(null);
   const searchButton = useRef<HTMLButtonElement>(null);
   const searchInput = useRef<HTMLInputElement>(null);
+  const templateChoices: [string, string][] = templates?.map((t) => [t.id, t.name]) ?? [
+    ["blank", "Blank"],
+    ["chicago", "Chicago"],
+    ["screenplay", "Screenplay"],
+  ];
   const added = (p: Summary) =>
     (p as Summary & { createdAt?: string }).createdAt;
   const needle = query.trim().toLocaleLowerCase();
@@ -214,13 +230,7 @@ export function ProjectLibrary({
             onKeyDown={onPanelKeyDown}
             ref={createPanel}
           >
-            {(
-              templates?.map((t) => [t.id, t.name]) ?? [
-                ["blank", "Blank"],
-                ["chicago", "Chicago"],
-                ["screenplay", "Screenplay"],
-              ]
-            ).map(([id, label]) => (
+            {templateChoices.map(([id, label]) => (
               <PopoverItem
                 key={id}
                 onClick={() => {
@@ -264,6 +274,7 @@ export function ProjectLibrary({
               <button
                 ref={searchButton}
                 type="button"
+                className="icon-grow"
                 aria-label="Search projects"
                 aria-expanded={searching}
                 aria-controls="library-search-input"
@@ -303,7 +314,7 @@ export function ProjectLibrary({
             <Dropdown
               label="Sort projects"
               value={sort}
-              onChange={setSort}
+              onChange={(value) => changePrefs({ sort: value })}
               options={[
                 { value: "name", label: "Name" },
                 { value: "added", label: "Added" },
@@ -312,23 +323,27 @@ export function ProjectLibrary({
             />
           </label>
           <button
+            type="button"
+            className="icon-button icon-grow"
             aria-label="Reverse project sort order"
-            onClick={() => setReverse((value) => !value)}
+            onClick={() => changePrefs({ reverse: !reverse })}
           >
-            {reverse ? "↑" : "↓"}
+            <span aria-hidden="true">{reverse ? "↑" : "↓"}</span>
           </button>
           <button
+            type="button"
+            className="icon-button icon-grow"
             aria-label={
               view === "list" ? "Show project cards" : "Show project list"
             }
-            onClick={() => setView(view === "list" ? "cards" : "list")}
+            onClick={() => changePrefs({ view: view === "list" ? "cards" : "list" })}
           >
             {view === "list" ? <Layers size={16} /> : <List size={16} />}
           </button>
           {settings && (
             <button
               type="button"
-              className="library-settings"
+              className="library-settings icon-grow"
               aria-label="Settings"
               title="Settings"
               onClick={() => setSettingsOpen(true)}
@@ -351,13 +366,12 @@ export function ProjectLibrary({
             <button className="emph-row" onClick={() => onOpen(p.id)}>
               <strong className="project-name emph-label">{p.title}</strong>
               <span className="project-dates">
+                <span className="project-edited">Edited {date(p.updatedAt)}</span>
                 <span>Added {date(added(p))}</span>
-                <span>--</span>
-                <span>Last Edited {date(p.updatedAt)}</span>
               </span>
             </button>
             <button
-              className="delete-entry"
+              className="delete-entry icon-grow"
               aria-label={"Delete project " + p.title}
               title="Delete project"
               onClick={() => onDelete(p)}
@@ -366,7 +380,35 @@ export function ProjectLibrary({
             </button>
           </div>
         ))}
-        {!projects.length && <p className="library-empty">No projects yet.</p>}
+        {!projects.length && (
+          <div className="library-empty">
+            <p>
+              Start with a blank page or a template, or bring in writing you
+              already have.
+            </p>
+            <div className="library-empty-actions">
+              {templateChoices.map(([id, label]) => (
+                <button
+                  key={id}
+                  type="button"
+                  className="text-action"
+                  aria-label={"Start a " + label + " project"}
+                  onClick={() => onCreate(id)}
+                >
+                  {label}
+                </button>
+              ))}
+              <button
+                type="button"
+                className="text-action"
+                aria-label="Import writing from a file"
+                onClick={() => writingInput.current?.click()}
+              >
+                Import writing
+              </button>
+            </div>
+          </div>
+        )}
         {projects.length > 0 && !sorted.length && (
           <p className="library-empty">No matching projects.</p>
         )}

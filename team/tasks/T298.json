@@ -1,0 +1,62 @@
+{
+  "id": "T298",
+  "title": "HS7 -- Sans document font follows the interface font",
+  "description": "Full brief: docs/agent-work/2026-11-11-home-stretch/BRIEF.md then section HS7 of docs/agent-work/2026-11-11-home-stretch/TASKS.md. Shared files (styles.css, App.tsx, Writer.tsx, editor/editor.css) are edited by region only and registered on no task.",
+  "status": "done",
+  "owner": null,
+  "priority": 2,
+  "depends_on": [],
+  "files": [
+    "docs/agent-work/2026-11-11-home-stretch/notes/HS7.md",
+    "docs/agent-work/2026-11-11-home-stretch/notes/HS7-fail-first.txt",
+    "src/organization/fragments.css",
+    "src/editor/documentFont.ts",
+    "src/editor/documentFont.test.ts",
+    "src/export/fontSource.ts",
+    "tests/hs7-document-font.spec.ts"
+  ],
+  "review_required": true,
+  "created_by": "agent-b823",
+  "created_at": "2026-11-12T03:58:46+00:00",
+  "claimed_at": "2026-11-12T04:01:07+00:00",
+  "updated_at": "2026-11-12T05:57:35+00:00",
+  "handoff": null,
+  "review": {
+    "by": "agent-9ee7",
+    "at": "2026-11-12T05:57:35+00:00",
+    "verdict": "approved",
+    "note": "Approved. documentFont.ts serif/mono byte-identical; sans follows interface font live in editor+Read; Chicago unchanged; reader-pref migration only exact old literal in personal-word.reader (not folio.*, export untouched); styles.css:2002-2006 rule present; exports unchanged; nativePdf.ts:204 unreachable from app. OPEN for coordinator: ExportPanel.tsx:82 still 'Arial' -> 'Sans (Arial in Word, Noto Sans in PDF)' (accurate). Low: Writer.tsx:1383 toolbar shows '-apple-system' when interface font is System. Details REVIEW-3.md."
+  },
+  "log": [
+    {
+      "at": "2026-11-12T03:58:46+00:00",
+      "agent": "agent-b823",
+      "event": "created",
+      "note": ""
+    },
+    {
+      "at": "2026-11-12T04:01:07+00:00",
+      "agent": "agent-02a7",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-11-12T04:01:14+00:00",
+      "agent": "agent-02a7",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-11-12T05:37:53+00:00",
+      "agent": "agent-02a7",
+      "event": "review requested",
+      "note": "Sans doc font now follows interface font. New src/editor/documentFont.ts+test; edited Writer.tsx defaultFont, editor.css, styles.css writing-surface/read-prose, fragments.css, App.tsx reader default (Interface font). Export unchanged (docx Arial, pdf Noto Sans); relabel for coordinator in notes/HS7.md. Fail-first: 2/3 spec failed before fix (HS7-fail-first.txt). After: hs7 spec 3/3, w9-fonts 1/1, vitest 13 files/195 pass, tsc clean."
+    },
+    {
+      "at": "2026-11-12T05:57:35+00:00",
+      "agent": "agent-9ee7",
+      "event": "approved",
+      "note": "Approved. documentFont.ts serif/mono byte-identical; sans follows interface font live in editor+Read; Chicago unchanged; reader-pref migration only exact old literal in personal-word.reader (not folio.*, export untouched); styles.css:2002-2006 rule present; exports unchanged; nativePdf.ts:204 unreachable from app. OPEN for coordinator: ExportPanel.tsx:82 still 'Arial' -> 'Sans (Arial in Word, Noto Sans in PDF)' (accurate). Low: Writer.tsx:1383 toolbar shows '-apple-system' when interface font is System. Details REVIEW-3.md."
+    }
+  ]
+}

@@ -1,0 +1,64 @@
+{
+  "id": "T257",
+  "title": "W9 A3 -- Polish card view (width, research cards, split icon inset, empty boxes)",
+  "description": "Follow section '### A3 --' of docs/agent-work/2026-11-10-ui-wave-9/PLAN.md exactly, plus its 'Rules for every worker'. Verify: tests/w9-cards.spec.ts, alignment and sidebar-selection specs pass. Browser test port: PLAYWRIGHT_PORT=1433. No commits, no new packages, never run npm run build or a native screen script. Write the note docs/agent-work/2026-11-10-ui-wave-9/notes/A3.md.",
+  "status": "done",
+  "owner": null,
+  "priority": 2,
+  "depends_on": [
+    "T256"
+  ],
+  "files": [
+    "src/styles.css",
+    "src/components/ProjectSidebar.tsx",
+    "tests/w9-cards.spec.ts",
+    "docs/agent-work/2026-11-10-ui-wave-9/notes/A3.md",
+    "docs/agent-work/2026-11-10-ui-wave-9/notes/A3-fail-first.txt",
+    "docs/agent-work/2026-11-10-ui-wave-9/notes/A3-acceptance-r4.txt",
+    "docs/agent-work/2026-11-10-ui-wave-9/notes/A3-acceptance-r5.txt"
+  ],
+  "review_required": true,
+  "created_by": "agent-b307",
+  "created_at": "2026-11-10T22:24:35+00:00",
+  "claimed_at": "2026-11-11T03:52:38+00:00",
+  "updated_at": "2026-11-11T04:56:29+00:00",
+  "handoff": null,
+  "review": {
+    "by": "agent-e0a3",
+    "at": "2026-11-11T04:56:29+00:00",
+    "verdict": "approved",
+    "note": "Approved (agent-e0a3, W9 reviewer r3). A3 diff: src/styles.css rules all under .cards-view (entry-row min-width 0/max-width 100%; depth-1 card margin; research one column via .cards-view:not([data-group=research]) in the 380 px two-column rule; research preview hidden and --space-2 padding; .entry-row[data-empty]:not([data-open]):not(:focus-within) .entry-details hidden; .cards-view .reorder inset and button padding 0; .cards-view .collection-open-beside right --space-2). .cards-view is set on the section only when card view is on (ProjectSidebar.tsx:673, else list-view), so nothing reaches list view. The open-beside button keeps its 24x24 target through the shared .open-beside::after rule (styles.css:343-364), and alignment.spec 24x24 passes. ProjectSidebar.tsx adds only data-empty on entry rows: an extra attribute, no structural change (the A2 scroll-fade hunk in that file belongs to T256). Ruling on 'Notes row': ACCEPTED. The model has no notes field; the draft-status dropdown shows 'Notes' by default (value draftStatus ?? 'notes'), so it is the plan's Notes row. Edge: a status explicitly set to 'notes' counts as not empty. Fresh run PLAYWRIGHT_PORT=1433 npx playwright test w9-cards alignment sidebar-selection --output test-results/T257-review -> 41 passed, 5 failed; w9-cards 4/4; tsc -b clean per worker (my tsc runs this session were clean). All 5 failures pass in notes/baseline-dev.txt and are NOT caused by A3: (1) sidebar-selection.spec.ts:485 (asserts at :518 and :531) expects the old matrix(1.04) hover grow on .entry-main, which A1/T255 removed; needs re-pin to scale 1, like T255 did in hover-emphasis.spec. (2-5) sidebar-selection.spec.ts:622 x4 (B1 palettes) time out at :680 clicking .source-item 'Open beside': C1/T264 moved the PDF field into the collapsed <details class='source-more'> (src/research/SourceForm.tsx:162-206, button at :183), so the button is hidden; the spec must open 'More details' first. tests/sidebar-selection.spec.ts is unowned; a fix task is needed before validation."
+  },
+  "log": [
+    {
+      "at": "2026-11-10T22:24:35+00:00",
+      "agent": "agent-b307",
+      "event": "created",
+      "note": ""
+    },
+    {
+      "at": "2026-11-11T03:52:38+00:00",
+      "agent": "agent-d310",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-11-11T03:52:39+00:00",
+      "agent": "agent-d310",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-11-11T04:46:54+00:00",
+      "agent": "agent-d310",
+      "event": "review requested",
+      "note": "W9 A3 card view polish. Changed: src/styles.css (card-view-only rules under .cards-view: min-width/max-width fit, ellipsis titles, depth-1 PDF card indent, research one column and no preview and --space-2 padding, research collection-open-beside inset, .cards-view .reorder inset, data-empty boxes hidden at rest); src/components/ProjectSidebar.tsx (data-empty attribute on manuscript and fragment entry rows only); tests/w9-cards.spec.ts (new, 4 tests). Fail-first: notes/A3-fail-first.txt, 4 of 4 failed on real assertions (after fixing a spec fixture order bug). Acceptance: w9-cards 4 passed (notes/A3-acceptance-r4.txt); alignment + sidebar-selection 37 passed, 5 failed (notes/A3-acceptance-r5.txt): hover grow (A1 task) and B1 open-beside list view, not card view, not fixed here. tsc -b exit 0. Note: notes/A3.md. Browser runs used: 5, over the 40-call cap; two after the coordinator cap were used for the final fixes."
+    },
+    {
+      "at": "2026-11-11T04:56:29+00:00",
+      "agent": "agent-e0a3",
+      "event": "approved",
+      "note": "Approved (agent-e0a3, W9 reviewer r3). A3 diff: src/styles.css rules all under .cards-view (entry-row min-width 0/max-width 100%; depth-1 card margin; research one column via .cards-view:not([data-group=research]) in the 380 px two-column rule; research preview hidden and --space-2 padding; .entry-row[data-empty]:not([data-open]):not(:focus-within) .entry-details hidden; .cards-view .reorder inset and button padding 0; .cards-view .collection-open-beside right --space-2). .cards-view is set on the section only when card view is on (ProjectSidebar.tsx:673, else list-view), so nothing reaches list view. The open-beside button keeps its 24x24 target through the shared .open-beside::after rule (styles.css:343-364), and alignment.spec 24x24 passes. ProjectSidebar.tsx adds only data-empty on entry rows: an extra attribute, no structural change (the A2 scroll-fade hunk in that file belongs to T256). Ruling on 'Notes row': ACCEPTED. The model has no notes field; the draft-status dropdown shows 'Notes' by default (value draftStatus ?? 'notes'), so it is the plan's Notes row. Edge: a status explicitly set to 'notes' counts as not empty. Fresh run PLAYWRIGHT_PORT=1433 npx playwright test w9-cards alignment sidebar-selection --output test-results/T257-review -> 41 passed, 5 failed; w9-cards 4/4; tsc -b clean per worker (my tsc runs this session were clean). All 5 failures pass in notes/baseline-dev.txt and are NOT caused by A3: (1) sidebar-selection.spec.ts:485 (asserts at :518 and :531) expects the old matrix(1.04) hover grow on .entry-main, which A1/T255 removed; needs re-pin to scale 1, like T255 did in hover-emphasis.spec. (2-5) sidebar-selection.spec.ts:622 x4 (B1 palettes) time out at :680 clicking .source-item 'Open beside': C1/T264 moved the PDF field into the collapsed <details class='source-more'> (src/research/SourceForm.tsx:162-206, button at :183), so the button is hidden; the spec must open 'More details' first. tests/sidebar-selection.spec.ts is unowned; a fix task is needed before validation."
+    }
+  ]
+}

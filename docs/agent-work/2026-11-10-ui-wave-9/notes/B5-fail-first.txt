@@ -1,0 +1,65 @@
+
+Running 2 tests using 1 worker
+
+blank-click below last paragraph: elementFromPoint(463, 260) = div.tiptap.ProseMirror.writing-surface
+blank-click left margin at paragraph two: elementFromPoint(379, 184) = div.editor-paper
+  ✘  1 tests/w9-blank-click.spec.ts:38:3 › blank-page clicks place and extend the caret in continuous view (28.0s)
+blank-click below last paragraph: elementFromPoint(463, 338) = div.editor-paper
+  ✘  2 tests/w9-blank-click.spec.ts:38:3 › blank-page clicks place and extend the caret in page view (12.3s)
+
+
+  1) tests/w9-blank-click.spec.ts:38:3 › blank-page clicks place and extend the caret in continuous view 
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+      102 |     // (b) and (c) The margins align the caret with paragraph two's start/end.
+      103 |     const left = await hit(page, editor, p2.paperLeft + 12, middleY, "left margin at paragraph two");
+    > 104 |     expect(left.focused).toBe(true);
+          |                          ^
+      105 |     expect(left.head).toBe(p2.start);
+      106 |     const right = await hit(page, editor, p2.paperRight - 12, middleY, "right margin at paragraph two");
+      107 |     expect(right.focused).toBe(true);
+        at /Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/tests/w9-blank-click.spec.ts:104:26
+
+    Error Context: test-results/w9-blank-click-blank-page--b9d4f-he-caret-in-continuous-view/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/w9-blank-click-blank-page--b9d4f-he-caret-in-continuous-view/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/w9-blank-click-blank-page--b9d4f-he-caret-in-continuous-view/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/w9-blank-click.spec.ts:38:3 › blank-page clicks place and extend the caret in page view ─
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+      79 |     expect(appendY).toBeGreaterThan(last.bottom);
+      80 |     const append = await hit(page, editor, last.left, appendY, "below last paragraph");
+    > 81 |     expect(append.focused).toBe(true);
+         |                            ^
+      82 |     expect(append.head).toBe(append.end);
+      83 |     await page.keyboard.type(" appended");
+      84 |     await expect(editor).toContainText("Third line appended");
+        at /Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/tests/w9-blank-click.spec.ts:81:28
+
+    Error Context: test-results/w9-blank-click-blank-page--707b9-tend-the-caret-in-page-view/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/w9-blank-click-blank-page--707b9-tend-the-caret-in-page-view/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/w9-blank-click-blank-page--707b9-tend-the-caret-in-page-view/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2 failed
+    tests/w9-blank-click.spec.ts:38:3 › blank-page clicks place and extend the caret in continuous view 
+    tests/w9-blank-click.spec.ts:38:3 › blank-page clicks place and extend the caret in page view ──

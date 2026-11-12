@@ -69,7 +69,7 @@ export function CslImportPreview({ result, busy = false, onCancel, onAdd }: {
       const update = updates[index];
       const target = result.existingSources.find((candidate) => candidate.id === update?.existingSourceId);
       return <li key={index}>
-        <label style={{ display: "inline-flex", alignItems: "center", gap: 8 }}><input style={{ display: "inline-block", width: "auto", margin: 0, padding: 0 }} type="checkbox" checked={selected[index]} disabled={busy} onChange={(event) => {
+        <label style={{ display: "inline-flex", alignItems: "center", gap: 8 }}><input type="checkbox" checked={selected[index]} disabled={busy} onChange={(event) => {
           setSelected((values) => values.map((value, i) => i === index ? event.target.checked : value));
           if (event.target.checked) setUpdates((values) => { const next = { ...values }; delete next[index]; return next; });
         }} />Add {source.title}</label>
@@ -90,7 +90,7 @@ export function CslImportPreview({ result, busy = false, onCancel, onAdd }: {
             {target && <fieldset disabled={busy}><legend>Choose fields to replace</legend>
               <p>No fields are selected automatically. {isBibtex ? "Original BibTeX fields" : "Original CSL fields"} is a whole-field replacement; its old raw fields are retained only in the safety snapshot.</p>
               {SOURCE_IMPORT_FIELDS.filter((field) => field === "authorsAndCreators" || source[field] !== undefined).map((field) => <div key={field}>
-                <label style={{ display: "inline-flex", alignItems: "center", gap: 8 }}><input style={{ display: "inline-block", width: "auto", margin: 0, padding: 0 }} type="checkbox" checked={update.fields.includes(field)}
+                <label style={{ display: "inline-flex", alignItems: "center", gap: 8 }}><input type="checkbox" checked={update.fields.includes(field)}
                   onChange={(event) => setUpdates((values) => ({ ...values, [index]: { ...values[index], fields: event.target.checked ? [...values[index].fields, field] : values[index].fields.filter((value) => value !== field) } }))} />Update {getFieldLabel(field)} for {source.title}</label>
                 <details><summary>Compare {getFieldLabel(field)}</summary><p style={{ overflowWrap: "anywhere" }}>Current: {display(fieldValue(target, field))}</p><p style={{ overflowWrap: "anywhere" }}>Imported: {display(fieldValue(source, field))}</p></details>
               </div>)}

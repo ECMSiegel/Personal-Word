@@ -1,0 +1,60 @@
+{
+  "id": "T263",
+  "title": "W9 B6 -- Look up PubMed, PMC and PMID through NCBI E-utilities",
+  "description": "Follow section '### B6 --' of docs/agent-work/2026-11-10-ui-wave-9/PLAN.md exactly, plus its 'Rules for every worker'. Verify: src/research/lookup.test.ts passes. No browser tests. No commits, no new packages, never run npm run build or a native screen script. Write the note docs/agent-work/2026-11-10-ui-wave-9/notes/B6.md.",
+  "status": "done",
+  "owner": null,
+  "priority": 2,
+  "depends_on": [
+    "T254"
+  ],
+  "files": [
+    "src/research/lookup.ts",
+    "src/research/lookup.test.ts",
+    "docs/agent-work/2026-11-10-ui-wave-9/notes/B6.md"
+  ],
+  "review_required": true,
+  "created_by": "agent-b307",
+  "created_at": "2026-11-10T22:24:37+00:00",
+  "claimed_at": "2026-11-11T00:27:57+00:00",
+  "updated_at": "2026-11-11T00:37:42+00:00",
+  "handoff": null,
+  "review": {
+    "by": "agent-c1b2",
+    "at": "2026-11-11T00:37:42+00:00",
+    "verdict": "approved",
+    "note": "Reviewed the registered diff against B6 in the approved plan. The parser restricts PMID to explicit 1-9 digit prefixes and exact PubMed/PMC hosts; ESummary maps DOI through Crossref or maps a journal draft, and failed fetch falls back for web URLs. Independently reran pinned Node npx vitest run src/research/lookup.test.ts: 22 passed. git diff --check passed. Author's note records fail-first evidence and a live NCBI response-shape check; no conflicting change or plan deviation found."
+  },
+  "log": [
+    {
+      "at": "2026-11-10T22:24:37+00:00",
+      "agent": "agent-b307",
+      "event": "created",
+      "note": ""
+    },
+    {
+      "at": "2026-11-11T00:27:57+00:00",
+      "agent": "agent-38c2",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-11-11T00:27:59+00:00",
+      "agent": "agent-38c2",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-11-11T00:34:56+00:00",
+      "agent": "agent-38c2",
+      "event": "review requested",
+      "note": "Implemented PMID/PMC parsing, ESummary lookup, DOI-to-Crossref resolution, summary-to-journal mapping, and web-URL fallback on NCBI fetch failure. Fail-first: before implementation, npx vitest run src/research/lookup.test.ts had 7 expected behavior failures; after implementation the same test file passed (22 tests). Verified the live ESummary shape once with curl for PMID 33301246. npx tsc -b reports an unrelated error at src/editor/blankClick.test.ts:54; no lookup-file error. Hand check recorded in the B6 note. Review required."
+    },
+    {
+      "at": "2026-11-11T00:37:42+00:00",
+      "agent": "agent-c1b2",
+      "event": "approved",
+      "note": "Reviewed the registered diff against B6 in the approved plan. The parser restricts PMID to explicit 1-9 digit prefixes and exact PubMed/PMC hosts; ESummary maps DOI through Crossref or maps a journal draft, and failed fetch falls back for web URLs. Independently reran pinned Node npx vitest run src/research/lookup.test.ts: 22 passed. git diff --check passed. Author's note records fail-first evidence and a live NCBI response-shape check; no conflicting change or plan deviation found."
+    }
+  ]
+}

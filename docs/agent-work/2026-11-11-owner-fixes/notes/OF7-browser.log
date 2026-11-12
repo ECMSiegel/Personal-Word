@@ -1,0 +1,32 @@
+
+Running 12 tests using 1 worker
+
+  ✓   1 tests/pages-gap.spec.ts:119:3 › fuzz at 100 %: caret and empty lines never in a gap (seed 4101) (2.0m)
+  ✓   2 tests/pages-gap.spec.ts:119:3 › fuzz at 75 %: caret and empty lines never in a gap (seed 4175) (1.8m)
+  ✓   3 tests/pages-gap.spec.ts:119:3 › fuzz at 125 %: caret and empty lines never in a gap (seed 4125) (1.7m)
+  ✓   4 tests/pages-gap.spec.ts:230:3 › targeted gap cases at 100 % › Enter at the last line of page 1 puts the caret at the top of page 2 (5.1s)
+  ✓   5 tests/pages-gap.spec.ts:243:3 › targeted gap cases at 100 % › Enter after Enter from a half-full page: the caret is always on a page (15.0s)
+  ✓   6 tests/pages-gap.spec.ts:259:3 › targeted gap cases at 100 % › Backspace at the first paragraph of page 2 merges up; the caret is on page 1 (4.0s)
+  ✓   7 tests/pages-gap.spec.ts:270:3 › targeted gap cases at 100 % › a click in the bottom margin goes to page 1's end, in the gap to page 2's start (3.8s)
+  ✓   8 tests/pages-gap.spec.ts:295:3 › targeted gap cases at 100 % › Shift+click across a gap selects across both pages (3.8s)
+  ✓   9 tests/pages-gap.spec.ts:310:3 › targeted gap cases at 100 % › Backspace after a page break and Delete before one remove the break with a visible caret; undo restores (7.5s)
+  ✓  10 tests/pages-gap.spec.ts:362:3 › targeted gap cases at 100 % › undo and redo of a page-filling paste keep every line on a page (5.9s)
+blank-click below last paragraph: elementFromPoint(463, 260) = div.tiptap.ProseMirror.writing-surface
+blank-click left margin at paragraph two: elementFromPoint(379, 184) = div.editor-paper
+blank-click right margin at paragraph two: elementFromPoint(1171, 184) = div.editor-paper
+blank-click shift setup: {"anchor":4,"head":4}
+blank-click shift-click left margin: elementFromPoint(379, 184) = div.editor-paper
+blank-click inside text: elementFromPoint(492.765625, 159.5) = p
+  ✓  11 tests/w9-blank-click.spec.ts:43:3 › blank-page clicks place and extend the caret in continuous view (2.9s)
+blank-click below last paragraph: elementFromPoint(463, 338) = div.editor-paper
+blank-click left margin at paragraph two: elementFromPoint(379, 262) = div.editor-paper
+blank-click right margin at paragraph two: elementFromPoint(1171, 262) = div.editor-paper
+blank-click shift setup: {"anchor":4,"head":4}
+blank-click shift-click left margin: elementFromPoint(379, 262) = div.editor-paper
+blank-click inside text: elementFromPoint(492.765625, 237.5) = p
+  ✓  12 tests/w9-blank-click.spec.ts:43:3 › blank-page clicks place and extend the caret in page view (3.3s)
+
+  Slow test file: tests/pages-gap.spec.ts (6.3m)
+  Consider running tests from slow files in parallel. See: https://playwright.dev/docs/test-parallel
+  12 passed (6.5m)
+EXIT 0

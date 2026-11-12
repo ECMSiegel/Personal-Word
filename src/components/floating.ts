@@ -102,7 +102,8 @@ function columnGrowth(doc: HTMLElement, host: Element, ctx: FloatContext, width:
 }
 
 /** Measured elements: .editor-paper (paged), .writing-surface (continuous),
- * .read-prose (ReadDocument text column, App.tsx:2424), .format-bar and .pane-footer. */
+ * .read-prose (ReadDocument text column, App.tsx:2424) inside .manuscript-read (the reading area,
+ * whose top is Read's top edge), .format-bar and .pane-footer. */
 export function documentEdges(root: ParentNode, ctx: FloatContext) {
   if (ctx.split || ctx.documentOnScreen === false) return null;
   const doc = ctx.mode === "read"
@@ -113,7 +114,10 @@ export function documentEdges(root: ParentNode, ctx: FloatContext) {
   const bar = root.querySelector<HTMLElement>(".format-bar");
   const footer = root.querySelector<HTMLElement>(".pane-footer");
   const focus = root.querySelector<HTMLElement>(".writer[data-focus-toolbar]");
-  const barBottom = bar?.getBoundingClientRect().bottom ?? r.top;
+  // Read has no format bar: the sidebar starts where the reading area starts (not at the first
+  // text block, which scrolls), as the editor one starts under its bar.
+  const reader = ctx.mode === "read" ? root.querySelector<HTMLElement>(".manuscript-read") : null;
+  const barBottom = bar?.getBoundingClientRect().bottom ?? reader?.getBoundingClientRect().top ?? r.top;
   const writer = focus?.getBoundingClientRect();
   const band = focus ? parseFloat(getComputedStyle(focus).getPropertyValue("--control-height")) +
     2 * parseFloat(getComputedStyle(focus).getPropertyValue("--space-1")) : 0;

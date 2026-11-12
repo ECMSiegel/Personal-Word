@@ -57,11 +57,7 @@
   border: 1px solid var(--line);
   border-radius: 0;
   box-shadow: var(--shadow-raised);
-  font-family:
-    Futura,
-    "Avenir Next",
-    -apple-system,
-    sans-serif;
+  font-family: var(--ui-font);
   font-size: var(--type-small);
   overscroll-behavior: contain;
 }
@@ -85,4 +81,17 @@
   width: 16px;
   display: inline-flex;
   color: var(--accent);
+}
+.dropdown-heading {
+  padding: var(--space-2) var(--space-2) var(--space-1);
+  color: var(--muted);
+  font-size: var(--type-small);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  cursor: default;
+}
+.dropdown-separator {
+  height: 1px;
+  margin: var(--space-1) 0;
+  background: var(--line);
 }

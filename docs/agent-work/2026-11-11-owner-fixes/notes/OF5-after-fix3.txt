@@ -1,0 +1,69 @@
+WAITING for lock Wed Nov 11 16:41:55 EST 2026
+LOCK ACQUIRED Wed Nov 11 16:49:16 EST 2026
+
+Running 30 tests using 1 worker
+
+  ✓   1 tests/appearance.spec.ts:3:1 › system appearance changes live and the writing area scrolls on its own (12.0s)
+  ✓   2 tests/appearance.spec.ts:62:1 › controls show hover, focus, pressed, disabled and selected states (23.1s)
+  ✓   3 tests/appearance.spec.ts:118:1 › choosing Dark under a light system sticks across a reload (10.3s)
+  ✓   4 tests/appearance.spec.ts:138:1 › choosing Light under a dark system overrides the system (5.8s)
+  ✓   5 tests/appearance.spec.ts:147:1 › choosing System again follows the operating system live (5.6s)
+  ✓   6 tests/appearance.spec.ts:161:1 › Cmd/Ctrl+Shift+L flips between Light and Dark on the Projects screen (6.4s)
+  ✓   7 tests/appearance.spec.ts:171:1 › the Appearance row has no caption and its buttons use arrow keys (15.4s)
+  ✓   8 tests/appearance.spec.ts:196:1 › a segmented choice is weight and colour, not a fill, and Home/End jump the ends (7.9s)
+  ✓   9 tests/appearance.spec.ts:239:1 › Plain palette keeps today's blue primary button (3.1s)
+  ✓  10 tests/appearance.spec.ts:250:1 › the Palette row sits under Appearance with no caption and Plain selected (4.5s)
+  ✓  11 tests/appearance.spec.ts:263:1 › Color palette tints the interface in light and keeps the document colours (9.7s)
+  ✓  12 tests/appearance.spec.ts:331:1 › Color palette fills primary buttons blue and destructive confirms red (5.0s)
+  ✓  13 tests/appearance.spec.ts:353:1 › Color palette in dark uses the dark tints (10.2s)
+  ✓  14 tests/appearance.spec.ts:377:1 › Choosing Plain again restores Plain selected text color (9.1s)
+  ✓  15 tests/appearance.spec.ts:392:1 › a selected entry is regular and its section title is bold in the text colour; no highlight box shows (W7) (9.5s)
+  ✓  16 tests/appearance.spec.ts:417:3 › section swatches persist and Plain hides them in light (14.0s)
+  ✓  17 tests/appearance.spec.ts:417:3 › section swatches persist and Plain hides them in dark (18.4s)
+  ✓  18 tests/appearance.spec.ts:463:3 › icon buttons recolour on hover, focus and press (light) (4.2s)
+  ✓  19 tests/appearance.spec.ts:463:3 › icon buttons recolour on hover, focus and press (dark) (3.8s)
+  ✓  20 tests/appearance.spec.ts:515:1 › floating sidebar and research: off by default, sits under the hover row, toggles and survives a reload (7.5s)
+  ✓  21 tests/appearance.spec.ts:549:1 › settings has a centered column and a dedicated Sidebar section (4.5s)
+  ✘  22 tests/of5-settings.spec.ts:34:1 › the hidden font file input stays hidden and Add font matches project Settings (6.6s)
+  ✓  23 tests/of5-settings.spec.ts:47:1 › Add font sits on the Interface font row, to its right, in the project Settings (6.3s)
+  ✓  24 tests/of5-settings.spec.ts:52:1 › Add font sits on the Interface font row, to its right, in the Projects dialog (3.4s)
+  ✓  25 tests/of5-settings.spec.ts:57:1 › project Settings shows exactly one rule between the section strip and General (5.1s)
+  ✓  26 tests/w9-fonts.spec.ts:72:1 › interface and document font choices persist and added styles are shared (26.6s)
+  ✓  27 tests/w9-settings-nav.spec.ts:23:1 › the strip lists every section in order and stays at the top while scrolling (4.4s)
+  ✓  28 tests/w9-settings-nav.spec.ts:42:1 › clicking a link brings that heading just under the strip and marks it (3.9s)
+  ✓  29 tests/w9-settings-nav.spec.ts:78:1 › links work from the keyboard and scroll instantly (2.7s)
+  ✓  30 tests/w9-settings-nav.spec.ts:100:1 › scrollToSettingsSection works in the same tick that opens Settings (3.2s)
+
+
+  1) tests/of5-settings.spec.ts:34:1 › the hidden font file input stays hidden and Add font matches project Settings 
+
+    Error: dialog 57px vs project 37.5px
+
+    expect(received).toBeLessThanOrEqual(expected)
+
+    Expected: <= 1
+    Received:    19.5
+
+      42 |   const projectButton = await box(page.getByRole("button", { name: "Add font..." }));
+      43 |   await expect(page.locator('input[type="file"][accept=".ttf,.otf"]')).toBeHidden();
+    > 44 |   expect(Math.abs(dialogButton.height - projectButton.height), `dialog ${dialogButton.height}px vs project ${projectButton.height}px`).toBeLessThanOrEqual(1);
+         |                                                                                                                                        ^
+      45 | });
+      46 |
+      47 | test("Add font sits on the Interface font row, to its right, in the project Settings", async ({ page }) => {
+        at /Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/tests/of5-settings.spec.ts:44:136
+
+    Error Context: test-results/T288/of5-settings-the-hidden-fo-821d1-nt-matches-project-Settings/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/T288/of5-settings-the-hidden-fo-821d1-nt-matches-project-Settings/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/T288/of5-settings-the-hidden-fo-821d1-nt-matches-project-Settings/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/of5-settings.spec.ts:34:1 › the hidden font file input stays hidden and Add font matches project Settings 
+  29 passed (4.4m)
+EXIT 1 Wed Nov 11 16:53:45 EST 2026

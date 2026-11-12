@@ -512,11 +512,11 @@ test("W7 Plain: active heading is bold normal text; rows stay regular and reveal
   await expect(dimRow).toHaveCSS("font-weight", "400");
 
   // Hover reveals color without a real font-weight change; the shared width-neutral emphasis remains.
-  // The open row still hovers like every other text control (faux-bold stroke + grow) at its real weight.
+  // The open row still hovers with the shared faux-bold stroke at its real weight; it does not grow (wave 9 A1).
   const main = first.locator(".entry-main");
   await main.hover();
-  await expect(main).toHaveCSS("transform", /matrix\(1\.04, 0, 0, 1\.04/);
-  expect(await main.evaluate((el) => parseFloat(getComputedStyle(el).webkitTextStrokeWidth))).toBeGreaterThan(0);
+  expect(await main.evaluate((el) => Number(/matrix\(([^,]+)/.exec(getComputedStyle(el).transform)?.[1] ?? 1))).toBeCloseTo(1, 3);
+  expect(await main.evaluate((el) => (getComputedStyle(el).textShadow === "none" ? 0 : parseFloat(/(-?[\d.]+)px/.exec(getComputedStyle(el).textShadow)?.[1] ?? "0")))).toBeGreaterThan(0);
   await expect(main).toHaveCSS("color", "rgb(36, 36, 40)");
   await expect(main).toHaveCSS("font-weight", "400");
   await page.mouse.down();
@@ -528,8 +528,8 @@ test("W7 Plain: active heading is bold normal text; rows stay regular and reveal
   await page.keyboard.press("Tab");
   await page.keyboard.press("Shift+Tab");
   await expect(main).toBeFocused();
-  await expect(main).toHaveCSS("transform", /matrix\(1\.04, 0, 0, 1\.04/);
-  expect(await main.evaluate((el) => parseFloat(getComputedStyle(el).webkitTextStrokeWidth))).toBeGreaterThan(0);
+  expect(await main.evaluate((el) => Number(/matrix\(([^,]+)/.exec(getComputedStyle(el).transform)?.[1] ?? 1))).toBeCloseTo(1, 3);
+  expect(await main.evaluate((el) => (getComputedStyle(el).textShadow === "none" ? 0 : parseFloat(/(-?[\d.]+)px/.exec(getComputedStyle(el).textShadow)?.[1] ?? "0")))).toBeGreaterThan(0);
   await expect(main).toHaveCSS("color", "rgb(36, 36, 40)");
   await expect(main).toHaveCSS("font-weight", "400");
   // Keyboard selection: Enter on the other row moves the open state.
@@ -677,6 +677,9 @@ for (const palette of ["plain", "color"] as const)
         mimeType: "application/pdf",
         buffer: PDF_BYTES,
       });
+      // The attached-PDF field sits inside the collapsed "More details" box (C1): open it first.
+      const moreDetails = source.locator("details.source-more");
+      if (!(await moreDetails.evaluate((el) => (el as HTMLDetailsElement).open))) await moreDetails.locator("summary").click();
       await source.getByRole("button", { name: "Open beside" }).click();
       await expect(page.locator('iframe[title="PDF: lit.pdf"]')).toBeVisible();
       await expectHeader(page, "research", true);

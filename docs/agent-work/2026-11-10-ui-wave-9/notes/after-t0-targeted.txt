@@ -1,0 +1,110 @@
+
+Running 69 tests using 1 worker
+
+  ✓   1 tests/alignment.spec.ts:41:1 › sidebar labels at one depth start at one x (2.2s)
+  ✓   2 tests/alignment.spec.ts:83:1 › every icon button reaches a 24 x 24 target (2.9s)
+  ✓   3 tests/alignment.spec.ts:121:1 › counters ask for tabular figures (1.6s)
+  ✓   4 tests/alignment.spec.ts:138:1 › toolbar icon ink sits at its button centre (1.6s)
+  ✓   5 tests/alignment.spec.ts:200:1 › a separator draws one pixel of the line colour (1.6s)
+  ✓   6 tests/alignment.spec.ts:254:1 › hit-area rule leaves absolutely placed buttons absolute (1.8s)
+  ✓   7 tests/alignment.spec.ts:334:3 › sidebar bottom row and pane footer form one band (single) (1.5s)
+  ✓   8 tests/alignment.spec.ts:334:3 › sidebar bottom row and pane footer form one band (split) (2.0s)
+  ✓   9 tests/alignment.spec.ts:452:3 › every list row starts with a 16 px icon and one label x at 190 px (3.2s)
+  ✓  10 tests/alignment.spec.ts:452:3 › every list row starts with a 16 px icon and one label x at 270 px (3.2s)
+  ✓  11 tests/alignment.spec.ts:452:3 › every list row starts with a 16 px icon and one label x at 390 px (3.1s)
+  ✓  12 tests/alignment.spec.ts:510:1 › floating sidebar: with 40 notes the list ends above the bottom rows (2.2s)
+  ✓  13 tests/alignment.spec.ts:570:1 › T6 record: split view sidebar placement, pinned and overlay, at 1280 and 1600 (3.9s)
+  ✓  14 tests/appearance.spec.ts:3:1 › system appearance changes live and the writing area scrolls on its own (2.2s)
+  ✓  15 tests/appearance.spec.ts:62:1 › controls show hover, focus, pressed, disabled and selected states (1.8s)
+  ✓  16 tests/appearance.spec.ts:118:1 › choosing Dark under a light system sticks across a reload (2.0s)
+  ✓  17 tests/appearance.spec.ts:138:1 › choosing Light under a dark system overrides the system (1.7s)
+  ✓  18 tests/appearance.spec.ts:147:1 › choosing System again follows the operating system live (1.8s)
+  ✓  19 tests/appearance.spec.ts:161:1 › Cmd/Ctrl+Shift+L flips between Light and Dark on the Projects screen (595ms)
+  ✓  20 tests/appearance.spec.ts:171:1 › the Appearance row has no caption and its buttons use arrow keys (1.9s)
+  ✓  21 tests/appearance.spec.ts:196:1 › a segmented choice is weight and colour, not a fill, and Home/End jump the ends (1.7s)
+  ✓  22 tests/appearance.spec.ts:239:1 › Plain palette keeps today's blue primary button (1.0s)
+  ✓  23 tests/appearance.spec.ts:250:1 › the Palette row sits under Appearance with no caption and Plain selected (1.6s)
+  ✓  24 tests/appearance.spec.ts:263:1 › Color palette tints the interface in light and keeps the document colours (3.1s)
+  ✓  25 tests/appearance.spec.ts:331:1 › Color palette fills primary buttons blue and destructive confirms red (2.3s)
+  ✓  26 tests/appearance.spec.ts:353:1 › Color palette in dark uses the dark tints (2.4s)
+  ✓  27 tests/appearance.spec.ts:377:1 › Choosing Plain again restores Plain selected text color (1.8s)
+  ✓  28 tests/appearance.spec.ts:392:1 › a selected entry is regular and its section title is bold in the text colour; no highlight box shows (W7) (1.5s)
+  ✓  29 tests/appearance.spec.ts:417:3 › section swatches persist and Plain hides them in light (3.5s)
+  ✓  30 tests/appearance.spec.ts:417:3 › section swatches persist and Plain hides them in dark (3.5s)
+  ✓  31 tests/appearance.spec.ts:460:3 › icon buttons recolour on hover, focus and press (light) (1.7s)
+  ✓  32 tests/appearance.spec.ts:460:3 › icon buttons recolour on hover, focus and press (dark) (1.7s)
+  ✓  33 tests/appearance.spec.ts:512:1 › floating sidebar and research: off by default, sits under the hover row, toggles and survives a reload (2.5s)
+  ✓  34 tests/appearance.spec.ts:546:1 › settings has a centered column and a dedicated Sidebar section (1.9s)
+  ✓  35 tests/editor-toolbar.spec.ts:12:1 › formatting toolbar stays on one row (1.4s)
+  ✓  36 tests/editor-toolbar.spec.ts:21:1 › Tab indents the paragraph and keeps focus in the editor (1.9s)
+  ✓  37 tests/editor-toolbar.spec.ts:59:1 › Tab nests a bullet list item (1.8s)
+  ✓  38 tests/editor-toolbar.spec.ts:73:1 › Font family dropdown opens from the keyboard and changes the font (1.7s)
+  ✓  39 tests/editor-toolbar.spec.ts:111:1 › icons only at every width (1.5s)
+  ✓  40 tests/editor-toolbar.spec.ts:126:1 › a narrower format bar shows icons only (1.4s)
+  ✓  41 tests/editor-toolbar.spec.ts:141:1 › the default window keeps Insert on the bar (1.7s)
+  ✓  42 tests/editor-toolbar.spec.ts:199:1 › More lists labelled rows with shortcut hints and emphasizes the hovered row (2.0s)
+  ✓  43 tests/editor-toolbar.spec.ts:229:1 › a Bold row in More toggles bold (1.9s)
+  ✓  44 tests/editor-toolbar.spec.ts:254:1 › dock magnifies the hovered icon with neighbour falloff and no layout shift (2.0s)
+  ✓  45 tests/editor-toolbar.spec.ts:284:1 › dock: Reduce Motion means no magnification (1.6s)
+  ✓  46 tests/editor-toolbar.spec.ts:295:1 › dock: keyboard focus peaks instantly (1.5s)
+  ✓  47 tests/editor-toolbar.spec.ts:307:1 › scissor uses the cursor paragraph and keeps dock geometry fixed (1.9s)
+  ✓  48 tests/editor-toolbar.spec.ts:349:1 › comment on a collapsed cursor captures the whole paragraph (1.9s)
+  ✓  49 tests/editor-toolbar.spec.ts:366:1 › format bar zoom, paragraph style and font dropdowns draw no border or fill (1.7s)
+  ✓  50 tests/editor-toolbar.spec.ts:394:1 › Page setup Paper size and Page margins keep their 1 px box (1.9s)
+  ✓  51 tests/editor-toolbar.spec.ts:412:1 › format bar dropdowns held in More draw no border at a narrow width (1.6s)
+  ✓  52 tests/fragments-panel.spec.ts:37:1 › fragments panel shows the whole fragment, a count, and search (2.0s)
+  ✓  53 tests/fragments-panel.spec.ts:68:1 › empty library explains how to make a fragment (1.6s)
+  ✓  54 tests/fragments-panel.spec.ts:77:1 › more than three fragments start collapsed and Show all expands one (2.3s)
+  ✓  55 tests/fragments-panel.spec.ts:106:1 › insert at cursor puts the whole fragment into the main editor (needs App wiring) (1.9s)
+  ✓  56 tests/fragments-panel.spec.ts:122:1 › inline edits in the panel are saved to the fragment (needs App wiring) (2.1s)
+  ✓  57 tests/fragments-panel.spec.ts:142:1 › an unsplit fragment opens in the editor without a restore strip (1.9s)
+H1 inventory: 1142 controls (529 text) over 20 screens
+Projects (empty)
+Projects
+Writing
+Writing (sections in sidebar)
+Writing (page view)
+Dialog: Page setup
+Dialog: Snapshot name
+Fragments panel
+Research (empty)
+Research (source with PDF)
+Research
+Research (Notes)
+Comments
+History
+Read manuscript
+Settings
+Settings: Shortcuts region
+Split view
+Projects (with a project)
+Projects(lib)
+not crawled / skipped:
+
+H3 un-hoverable controls: 0
+
+H3 exceptions: 0
+
+  ✓  58 tests/hover-emphasis.spec.ts:160:1 › hover inventory: crawl controls across screens (1.4m)
+H2 create menu row: stroke 0.48px scale 1.04 width 218->218 neighbour shifts 0,0,0,0,0
+H2 Snapshot: stroke 0.48px scale 1.04 width 90->90 neighbour shifts 0,0
+H2 Projects tab: stroke 0.48px scale 1.04 width 67->67 neighbour shifts 0
+H2 sidebar entry: stroke 0.52px scale 1.04 width 221->221 neighbour shifts 0
+H2 Delete note: stroke 0.52px scale 1.04 width 68->68 neighbour shifts 
+H2 settings button: stroke 0.52px scale 1.04 width 89->89 neighbour shifts 0
+H2 settings checkbox label: stroke 0.52px scale 1.04 width 624->624 neighbour shifts 0,0,0
+  ✓  59 tests/hover-emphasis.spec.ts:412:1 › H2 emphasis: no-shift faux bold and scale 1.04 on hover (7.3s)
+  ✓  60 tests/hover-emphasis.spec.ts:464:1 › H5 emphasis never touches links inside the document (editor and Read view) (2.9s)
+H2 dialog Cancel: stroke 0.52px scale 1.04 width 73->73 neighbour shifts 0
+H2 dialog Save: stroke 0.48px scale 1.04 width 59->59 neighbour shifts 0
+  ✓  61 tests/hover-emphasis.spec.ts:506:1 › H4 emphasis: Reduce Motion, danger colour and the drift probe (9.6s)
+  ✓  62 tests/popover-bounds.spec.ts:52:1 › research menus stay inside the research aside scroll container (7.4s)
+  ✓  63 tests/popover-bounds.spec.ts:93:1 › a menu in the 390 px research aside keeps the Dropdown's 320 px max-width (5.0s)
+  ✓  64 tests/popover-bounds.spec.ts:122:1 › repeat-rule menus stay inside a narrow research aside (4.1s)
+  ✓  65 tests/popover-bounds.spec.ts:152:1 › cards-view status dropdown stays inside the sidebar scroll container (2.3s)
+  ✓  66 tests/popover-bounds.spec.ts:166:1 › toolbar popovers keep their recorded untouched-tree placement (7.3s)
+  ✓  67 tests/writing.spec.ts:2:1 › writer journey: project, rapid edits, sections, fragments, snapshots, restore, reload (12.6s)
+  ✓  68 tests/writing.spec.ts:70:1 › recovers a newer journal after an interrupted save (2.2s)
+  ✓  69 tests/writing.spec.ts:103:1 › five thousand words survive rapid section changes and drag reordering (8.8s)
+
+  69 passed (4.6m)

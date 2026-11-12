@@ -1,0 +1,161 @@
+
+Running 7 tests using 1 worker
+
+[1/7] tests/hs9-top-level-sections.spec.ts:47:1 › add, fill, rename, reload, read, export, move into, delete a top-level section
+[2/7] tests/hs9-top-level-sections.spec.ts:122:1 › rename Manuscript and restore the default; empty sidebar space and palette add a section
+  1) tests/hs9-top-level-sections.spec.ts:122:1 › rename Manuscript and restore the default; empty sidebar space and palette add a section 
+
+    Error: expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 1
+    + Received  + 0
+
+    @@ -3,7 +3,6 @@
+        "Move up",
+        "Move down",
+        "New section",
+        "New top-level section",
+        "Rename",
+    -   "Reset name",
+      ]
+
+      139 |   await nameIt(page, "Chapters");
+      140 |   await title.click({ button: "right" });
+    > 141 |   expect(await menu(page).getByRole("menuitem").allTextContents()).toEqual([
+          |                                                                    ^
+      142 |     "Collapse", "Move up", "Move down", "New section", "New top-level section", "Rename", "Reset name",
+      143 |   ]);
+      144 |   await item(page, "Reset name").click();
+        at /Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/tests/hs9-top-level-sections.spec.ts:141:68
+
+    Error Context: test-results/HS9-ff/hs9-top-level-sections-ren-0fc46-e-and-palette-add-a-section/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/HS9-ff/hs9-top-level-sections-ren-0fc46-e-and-palette-add-a-section/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/HS9-ff/hs9-top-level-sections-ren-0fc46-e-and-palette-add-a-section/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+[3/7] tests/hs9-top-level-sections.spec.ts:166:1 › the row More button shifts nothing and overlaps neither the title nor the split icon
+[4/7] tests/hs9-top-level-sections.spec.ts:189:1 › restoring a snapshot taken before a heading move: sidebar order equals Read and export order
+  2) tests/hs9-top-level-sections.spec.ts:189:1 › restoring a snapshot taken before a heading move: sidebar order equals Read and export order 
+
+    Error: sidebar heading order vs plain-text export order
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 1
+    + Received  + 1
+
+      Array [
+    -   "Manuscript",
+        "Part two",
+    +   "Manuscript",
+      ]
+
+      216 |     exported.indexOf(a === "Manuscript" ? "Opening body" : "Alpha body") -
+      217 |     exported.indexOf(b === "Manuscript" ? "Opening body" : "Alpha body"));
+    > 218 |   expect(headings, "sidebar heading order vs plain-text export order").toEqual(byExport);
+          |                                                                        ^
+      219 |   await page.getByRole("button", { name: "Read manuscript", exact: true }).click();
+      220 |   const read = (await page.locator(".read-prose").allInnerTexts()).join("\n");
+      221 |   const byRead = [...headings].sort((a, b) =>
+        at /Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/tests/hs9-top-level-sections.spec.ts:218:72
+
+    Error Context: test-results/HS9-ff/hs9-top-level-sections-res-48499-quals-Read-and-export-order/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/HS9-ff/hs9-top-level-sections-res-48499-quals-Read-and-export-order/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/HS9-ff/hs9-top-level-sections-res-48499-quals-Read-and-export-order/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+[5/7] tests/hs9-top-level-sections.spec.ts:227:1 › hovering a card with body text moves no other card
+  3) tests/hs9-top-level-sections.spec.ts:227:1 › hovering a card with body text moves no other card 
+
+    Error: hovering card 4 moves the next card
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 1
+    + Received  + 1
+
+      Object {
+        "height": 87,
+        "width": 245,
+        "x": 12,
+    -   "y": 471,
+    +   "y": 489,
+      }
+
+      243 |     await cards.nth(i).locator(".entry-main").hover();
+      244 |     await expect(cards.nth(i).getByRole("button", { name: /^More actions for / })).toBeVisible();
+    > 245 |     expect(await cards.nth(i + 1).boundingBox(), `hovering card ${i + 1} moves the next card`).toEqual(before);
+          |                                                                                                ^
+      246 |   }
+      247 | });
+      248 |
+        at /Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/tests/hs9-top-level-sections.spec.ts:245:96
+
+    Error Context: test-results/HS9-ff/hs9-top-level-sections-hov-92ba4-dy-text-moves-no-other-card/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/HS9-ff/hs9-top-level-sections-hov-92ba4-dy-text-moves-no-other-card/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/HS9-ff/hs9-top-level-sections-hov-92ba4-dy-text-moves-no-other-card/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+[6/7] tests/split-view.spec.ts:385:1 › open beside: the row button shows on hover and keyboard focus and opens the right pane
+  4) tests/split-view.spec.ts:385:1 › open beside: the row button shows on hover and keyboard focus and opens the right pane 
+
+    Error: expect(locator).toBeFocused() failed
+
+    Locator:  getByRole('button', { name: 'Open Beside fragment beside' })
+    Expected: focused
+    Received: inactive
+    Timeout:  5000ms
+
+    Call log:
+      - Expect "toBeFocused" getByRole('button', { name: 'Open Beside fragment beside' }) with timeout 5000ms
+      - waiting for getByRole('button', { name: 'Open Beside fragment beside' })
+        14 × locator resolved to <button class="open-beside" title="Open beside" aria-label="Open Beside fragment beside">…</button>
+           - unexpected value "inactive"
+
+
+      411 |   await page.keyboard.press("Tab");
+      412 |   const fragmentButton = page.getByRole("button", { name: "Open Beside fragment beside" });
+    > 413 |   await expect(fragmentButton).toBeFocused();
+          |                                ^
+      414 |   await expect(actions(page, "Beside fragment")).toHaveCSS("opacity", "1");
+      415 |   await page.keyboard.press("Enter");
+      416 |   await expect(page.locator(".split-pane")).toHaveCount(2);
+        at /Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/tests/split-view.spec.ts:413:32
+
+    Error Context: test-results/HS9-ff/split-view-open-beside-the-41492-us-and-opens-the-right-pane/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/HS9-ff/split-view-open-beside-the-41492-us-and-opens-the-right-pane/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/HS9-ff/split-view-open-beside-the-41492-us-and-opens-the-right-pane/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+[7/7] tests/split-view.spec.ts:475:1 › split jumps: restoring a section from a snapshot keeps both panes and shows the restored text
+  4 failed
+    tests/hs9-top-level-sections.spec.ts:122:1 › rename Manuscript and restore the default; empty sidebar space and palette add a section 
+    tests/hs9-top-level-sections.spec.ts:189:1 › restoring a snapshot taken before a heading move: sidebar order equals Read and export order 
+    tests/hs9-top-level-sections.spec.ts:227:1 › hovering a card with body text moves no other card 
+    tests/split-view.spec.ts:385:1 › open beside: the row button shows on hover and keyboard focus and opens the right pane 
+  3 passed (57.7s)
+EXIT 1

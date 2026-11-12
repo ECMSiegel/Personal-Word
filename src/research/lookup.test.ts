@@ -280,3 +280,116 @@ describe("lookupIdentifier with injected fetch", () => {
     ).rejects.toThrow("This site can't be read from the browser preview");
   });
 });
+
+describe("PubMed and PMC lookup", () => {
+  const pmid = "33301246";
+  const summaryUrl =
+    `https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esummary.fcgi?db=pubmed&id=${pmid}&retmode=json`;
+  const pmcUrl =
+    "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esummary.fcgi?db=pmc&id=7745181&retmode=json";
+  const summary = (
+    id = pmid,
+    articleids: { idtype: string; value: string }[] = [],
+  ) =>
+    JSON.stringify({
+      result: {
+        uids: [id],
+        [id]: {
+          uid: id,
+          pubdate: "2021 Jan",
+          fulljournalname: "Journal of Examples",
+          title: "A PubMed example article",
+          authors: [{ name: "Jane Smith" }, { name: "Omar Reyes" }],
+          volume: "12",
+          issue: "3",
+          pages: "45-67",
+          articleids,
+        },
+      },
+    });
+
+  it("requires a PMID prefix for a one-to-nine-digit identifier", () => {
+    expect(parseIdentifier("PMID: 33301246")).toEqual({
+      kind: "pmid",
+      pmid,
+    });
+    expect(() => parseIdentifier(pmid)).toThrow(
+      "Enter a DOI, ISBN, or web address",
+    );
+    expect(() => parseIdentifier("PMID: 1234567890")).toThrow(
+      "Enter a DOI, ISBN, or web address",
+    );
+  });
+
+  it.each([
+    `https://pubmed.ncbi.nlm.nih.gov/${pmid}/`,
+    `https://pubmed.ncbi.nlm.nih.gov/${pmid}`,
+    `PMID: ${pmid}`,
+    `pmid ${pmid}`,
+    "https://pmc.ncbi.nlm.nih.gov/articles/PMC7745181/",
+  ])("resolves %s through NCBI before Crossref", async (input) => {
+    const seen: string[] = [];
+    const isPmc = input.includes("PMC7745181");
+    const result = await lookupIdentifier(input, {
+      fetchText: async (url) => {
+        seen.push(url);
+        if (url.startsWith("https://eutils.ncbi.nlm.nih.gov/"))
+          return summary(
+            isPmc ? "7745181" : pmid,
+            [{ idtype: "doi", value: "10.1234/example" }],
+          );
+        if (url.startsWith("https://api.crossref.org/"))
+          return JSON.stringify(crossrefFixture);
+        throw new Error(`Unexpected request: ${url}`);
+      },
+    });
+
+    expect(seen).toEqual([
+      isPmc ? pmcUrl : summaryUrl,
+      "https://api.crossref.org/works/10.1234/example",
+    ]);
+    expect(result.provider).toBe("Crossref");
+    expect(result.source.doi).toBe("10.1234/example");
+  });
+
+  it("maps a summary without a DOI to a journal draft", async () => {
+    const result = await lookupIdentifier(`PMID:${pmid}`, {
+      today: "2026-11-11",
+      fetchText: async () => summary(),
+    });
+
+    expect(result.provider).toBe("PubMed");
+    expect(result.source).toMatchObject({
+      kind: "journal",
+      title: "A PubMed example article",
+      authors: ["Jane Smith", "Omar Reyes"],
+      journal: "Journal of Examples",
+      volume: "12",
+      issue: "3",
+      pages: "45–67",
+      year: "2021",
+      lookupNote: "Found on PubMed",
+    });
+  });
+
+  it("falls back to the web page when a PubMed summary request fails", async () => {
+    const seen: string[] = [];
+    const input = `https://pubmed.ncbi.nlm.nih.gov/${pmid}/`;
+    const result = await lookupIdentifier(input, {
+      fetchText: async (url) => {
+        seen.push(url);
+        if (url.startsWith("https://eutils.ncbi.nlm.nih.gov/"))
+          throw new FetchFailure("NCBI unavailable", 503);
+        return "<html><head><title>Fallback article</title></head></html>";
+      },
+    });
+
+    expect(seen).toEqual([summaryUrl, input]);
+    expect(result.provider).toBe("pubmed.ncbi.nlm.nih.gov");
+    expect(result.source).toMatchObject({
+      kind: "website",
+      title: "Fallback article",
+      url: input,
+    });
+  });
+});

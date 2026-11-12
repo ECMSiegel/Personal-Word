@@ -1,0 +1,60 @@
+{
+  "id": "T277",
+  "title": "W9 V -- Run the wave 9 Validation list and independent review",
+  "description": "Follow section '### V --' of docs/agent-work/2026-11-10-ui-wave-9/PLAN.md exactly, plus its 'Rules for every worker'. Verify: Validation steps 1-6 of the plan recorded with real output; steps 7-8 need the owner (ask before any native or screen-taking run). Browser test port: PLAYWRIGHT_PORT=1420. No commits, no new packages, never run npm run build or a native screen script (V alone runs the build, single runner). Write the note docs/agent-work/2026-11-10-ui-wave-9/notes/V.md.",
+  "status": "done",
+  "owner": null,
+  "priority": 3,
+  "depends_on": [
+    "T276"
+  ],
+  "files": [
+    "docs/agent-work/2026-11-10-ui-wave-9/VALIDATION.md",
+    "docs/agent-work/2026-11-10-ui-wave-9/REVIEW.md",
+    "docs/agent-work/2026-11-10-ui-wave-9/notes/V.md"
+  ],
+  "review_required": true,
+  "created_by": "agent-b307",
+  "created_at": "2026-11-10T22:24:40+00:00",
+  "claimed_at": "2026-11-11T05:17:02+00:00",
+  "updated_at": "2026-11-11T07:03:26+00:00",
+  "handoff": null,
+  "review": {
+    "by": "agent-23c2",
+    "at": "2026-11-11T07:03:26+00:00",
+    "verdict": "approved",
+    "note": "Approved (agent-23c2): wave 9 is ready for the owner's native checks. Fix tasks T280-T283 approved; the rerun on a fresh build gave unit 1242 passed, cargo 70 passed/1 ignored, built-app e2e 551/1/16, all six first-run failures now passing, fixed specs x5 135/0. The one failure, command-palette.spec.ts:147 (caret one character right), is classed unknown, most likely a pre-existing timing race, not a proven wave 9 regression: 1 failure in 34 runs (1/1 in the full suite, 0/33 alone, including my x30 built-app run, 60/60, log r4-23c2/T277-cp.log). CommandPalette.tsx and the spec are unchanged since wave 6, and no wave 9 change acts on that caret path after typing. Add it to the HANDOFF intermittent list. Everything native or WebKit is still CLAIMED: the owner hand checks in VALIDATION.md plus REVIEW.md's two. Addendum appended to REVIEW.md."
+  },
+  "log": [
+    {
+      "at": "2026-11-10T22:24:40+00:00",
+      "agent": "agent-b307",
+      "event": "created",
+      "note": ""
+    },
+    {
+      "at": "2026-11-11T05:17:02+00:00",
+      "agent": "agent-575d",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-11-11T05:17:02+00:00",
+      "agent": "agent-575d",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-11-11T05:48:34+00:00",
+      "agent": "agent-575d",
+      "event": "review requested",
+      "note": "S1 git status: only T251 files outside plan; S2 build exit 0; S3 unit 1237 passed; S4 e2e 546 passed/6 failed/16 skipped, reruns pop:57 2/3, pop:174 0/3, sidebar-ctx:319 2/3, export-menu:55 1/3, research-panel:15 0/3, settings-nav:100 0/3, markdown 4 passed; S5 cargo 70 passed, Cargo.lock no new package"
+    },
+    {
+      "at": "2026-11-11T07:03:26+00:00",
+      "agent": "agent-23c2",
+      "event": "approved",
+      "note": "Approved (agent-23c2): wave 9 is ready for the owner's native checks. Fix tasks T280-T283 approved; the rerun on a fresh build gave unit 1242 passed, cargo 70 passed/1 ignored, built-app e2e 551/1/16, all six first-run failures now passing, fixed specs x5 135/0. The one failure, command-palette.spec.ts:147 (caret one character right), is classed unknown, most likely a pre-existing timing race, not a proven wave 9 regression: 1 failure in 34 runs (1/1 in the full suite, 0/33 alone, including my x30 built-app run, 60/60, log r4-23c2/T277-cp.log). CommandPalette.tsx and the spec are unchanged since wave 6, and no wave 9 change acts on that caret path after typing. Add it to the HANDOFF intermittent list. Everything native or WebKit is still CLAIMED: the owner hand checks in VALIDATION.md plus REVIEW.md's two. Addendum appended to REVIEW.md."
+    }
+  ]
+}

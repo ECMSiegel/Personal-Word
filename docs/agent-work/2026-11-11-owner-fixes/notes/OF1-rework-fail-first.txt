@@ -1,0 +1,43 @@
+
+Running 1 test using 1 worker
+
+  ✘  1 tests/of1-text-notes.spec.ts:152:1 › a cited footnote's action row says exactly Unlink source (no stray index) (13.1s)
+
+
+  1) tests/of1-text-notes.spec.ts:152:1 › a cited footnote's action row says exactly Unlink source (no stray index) 
+
+    Error: expect(locator).toHaveText(expected) failed
+
+    Locator:  locator('.source-body .footnote-item .item-actions')
+    Expected: "Unlink source"
+    Received: "Unlink source0"
+    Timeout:  5000ms
+
+    Call log:
+      - Expect "toHaveText" locator('.source-body .footnote-item .item-actions') with timeout 5000ms
+      - waiting for locator('.source-body .footnote-item .item-actions')
+        14 × locator resolved to <div class="item-actions">…</div>
+           - unexpected value "Unlink source0"
+
+
+      162 |   const actions = page.locator(".source-body .footnote-item .item-actions");
+      163 |   await expect(actions).toHaveCount(1);
+    > 164 |   await expect(actions).toHaveText("Unlink source");
+          |                         ^
+      165 | });
+      166 |
+        at /Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/tests/of1-text-notes.spec.ts:164:25
+
+    Error Context: test-results/T284/of1-text-notes-a-cited-foo-13462-link-source-no-stray-index-/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/T284/of1-text-notes-a-cited-foo-13462-link-source-no-stray-index-/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/T284/of1-text-notes-a-cited-foo-13462-link-source-no-stray-index-/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/of1-text-notes.spec.ts:152:1 › a cited footnote's action row says exactly Unlink source (no stray index) 
+EXIT 1

@@ -434,7 +434,8 @@ describe("Adversarial Verification — Styling & UI Principles Compliance", () =
   });
 
   it("prefers Futura typography on alt text placeholders and toolbar controls", () => {
-    expect(cssContent).toMatch(/\.read-document\s+figure\.doc-image\s+\.doc-image-alt[\s\S]*?font-family:\s*[\r\n\s]*Futura/);
+    // The interface stack (Futura first) now comes from the shared --ui-font token.
+    expect(cssContent).toMatch(/\.read-document\s+figure\.doc-image\s+\.doc-image-alt[\s\S]*?font-family:\s*[\r\n\s]*var\(--ui-font\)/);
   });
 
   it("defines danger styling for destructive delete table action", () => {

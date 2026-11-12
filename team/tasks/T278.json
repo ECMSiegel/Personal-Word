@@ -1,0 +1,74 @@
+{
+  "id": "T278",
+  "title": "W9 N -- Real-app and screen-taking checks, last, with the owner present",
+  "description": "LAST TASK OF THE WAVE. Do not start until T277 is done AND the owner has said go in this conversation: it builds the app and takes over the Mac's screen. Steps 7 and 8 of the Validation list in docs/agent-work/2026-11-10-ui-wave-9/PLAN.md: npm run tauri build, report the new Personal Word.app path, then the hand checks collected from the task notes (hover sharpness, blank-page click at 100% and 150%, PubMed link, add a font family and relaunch, installed fonts, PDF and Word export fonts, side ruler, short-window sidebar, card view, Export menu and Cmd+Shift+E, Go to from Used in, Research slide-in, Settings strip, Projects page). Also covers the held wave 7 real-app checks in T253. Verify: results recorded per check in docs/agent-work/2026-11-10-ui-wave-9/VALIDATION.md as CLAIMED; only the owner's own report makes anything VERIFIED.",
+  "status": "available",
+  "owner": null,
+  "priority": 3,
+  "depends_on": [
+    "T277"
+  ],
+  "files": [
+    "docs/agent-work/2026-11-10-ui-wave-9/NATIVE.md",
+    "tests/native-smoke.js",
+    "src/editor/blankClick.ts",
+    "src/editor/blankClick.test.ts",
+    "docs/agent-work/2026-11-10-ui-wave-9/VALIDATION.md",
+    "HANDOFF.md"
+  ],
+  "review_required": true,
+  "created_by": "agent-b307",
+  "created_at": "2026-11-11T00:12:07+00:00",
+  "claimed_at": null,
+  "updated_at": "2026-11-11T19:24:11+00:00",
+  "handoff": {
+    "by": "agent-e8b8",
+    "at": "2026-11-11T19:24:11+00:00",
+    "text": "DONE (agent-e8b8, r2, CLAIMED): review S1-S3 fixed in src/editor/blankClick.ts (import Selection line 3; ignore list line ~14; nearest-text move before TextSelection ~lines 37-44) + 5 new tests in src/editor/blankClick.test.ts, each shown failing first (S3 via scale!==1 -> true mutation, reverted). Unit 1250 passed; tsc clean; Chromium w9-blank-click+footnotes+pages-gap 18 passed (port 1438). New measure-only native phase w9-zoom-probes in tests/native-smoke.js (~lines 1110-1330, dispatch near the w9-blank-click branch): S4 REAL (table menu does not open at 1.25/1.5), S5 not reproduced, S6 REAL at 1.5 with the gap low in the window (caret to page 2). Native blank-click 24/24 and fonts pass on smoke binary 72c13ba4. Release app rebuilt: src-tauri/target/release/bundle/macos/Personal Word.app, folio sha256 2586aeee2b80906d90ef6d62ecf0bbab9632b329b2ede2f2e6c468e287c5a752 (14:23), not launched. Record: VALIDATION.md \"Native run r2 (2026-11-11)\", NATIVE.md r2, HANDOFF.md top.\nNEXT (first action): the coordinator/owner decides on S4 (src/Writer.tsx:687-691 posAtDOM(cell,0) fallback) and S6 (src/editor/pagination.ts:532-534 rects x totalZoom) fixes as proposed in VALIDATION.md r2; prove each with `python3 node_modules/.cache/personal-word-beta/w9-n/w9-native.py zoom` after a smoke build (touch src-tauri/src/lib.rs first). Then the human checks at the Mac (VALIDATION.md tables).\nDO NOT REDO: Part 1 fixes and tests; the r2 native probes and rechecks; the release build.\ndocs/agent-work/2026-11-10-ui-wave-9/NATIVE.md: uncommitted edits\ntests/native-smoke.js: uncommitted edits\nsrc/editor/blankClick.ts: uncommitted edits\nsrc/editor/blankClick.test.ts: uncommitted edits\ndocs/agent-work/2026-11-10-ui-wave-9/VALIDATION.md: uncommitted edits\nHANDOFF.md: uncommitted edits"
+  },
+  "review": null,
+  "log": [
+    {
+      "at": "2026-11-11T00:12:07+00:00",
+      "agent": "agent-b307",
+      "event": "created",
+      "note": ""
+    },
+    {
+      "at": "2026-11-11T18:22:45+00:00",
+      "agent": "agent-8928",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-11-11T18:22:45+00:00",
+      "agent": "agent-8928",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-11-11T18:55:25+00:00",
+      "agent": "agent-8928",
+      "event": "handoff",
+      "note": "DONE (agent-8928, scripted native run, CLAIMED): 150% blank-click fail-first and fix proven in native WebKit with synthetic mousedown (24/24 at zoom 1/1.18/1.25/1.5); SECOND FIX made in src/editor/blankClick.ts (caretRangeFromPoint under zoom, lines ~22-34) + one test in src/editor/blankClick.test.ts (failed first, 17/17); new native phases w9-blank-click, w9-fonts-1/2 in tests/native-smoke.js (~lines 939-1215, dispatch ~1239-1250); fonts checks pass, control fails; native-smoke, reliability baseline+beta, screens Plain+Color 31/31 all PASS; release app src-tauri/target/release/bundle/macos/Personal Word.app binary sha256 8587c0b246cfbc0213fb28eaaa87f36bd56da4a3db33a4c2a81c8aa9ded3ad71. Record: docs/agent-work/2026-11-10-ui-wave-9/VALIDATION.md \"Native run (2026-11-11, scripted, Opus)\" + NATIVE.md; HANDOFF.md top section.\nNEXT (first action): independent Opus review of the second blankClick.ts fix; then the owner at the Mac works the \"Still needs a human at the Mac\" table (17 rows) in VALIDATION.md, starting with a real 150% blank click + typing in the Codex test project.\nRERUN: touch src-tauri/src/lib.rs; npm run tauri build -- --debug --features native-smoke --no-bundle --config '{\"identifier\":\"com.folio.smoke\"}'; then python3 node_modules/.cache/personal-word-beta/w9-n/w9-native.py blank | fonts [--scenario control] (serial lock, caffeinate, unlocked screen).\nDO NOT REDO: the scripted suites and checks above; the fail-first logs (blank-doctored2.log, blank-fixed.log). Not run: pages-zoom/pages-probe gates. Possibly affected, not changed: src/Writer.tsx:687, src/editor/pagination.ts:615 (posAtCoords under zoom).\ndocs/agent-work/2026-11-10-ui-wave-9/NATIVE.md: uncommitted edits\ntests/native-smoke.js: uncommitted edits\nsrc/editor/blankClick.ts: uncommitted edits\nsrc/editor/blankClick.test.ts: uncommitted edits\ndocs/agent-work/2026-11-10-ui-wave-9/VALIDATION.md: uncommitted edits\nHANDOFF.md: uncommitted edits"
+    },
+    {
+      "at": "2026-11-11T19:11:29+00:00",
+      "agent": "agent-e8b8",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-11-11T19:11:29+00:00",
+      "agent": "agent-e8b8",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-11-11T19:24:11+00:00",
+      "agent": "agent-e8b8",
+      "event": "handoff",
+      "note": "DONE (agent-e8b8, r2, CLAIMED): review S1-S3 fixed in src/editor/blankClick.ts (import Selection line 3; ignore list line ~14; nearest-text move before TextSelection ~lines 37-44) + 5 new tests in src/editor/blankClick.test.ts, each shown failing first (S3 via scale!==1 -> true mutation, reverted). Unit 1250 passed; tsc clean; Chromium w9-blank-click+footnotes+pages-gap 18 passed (port 1438). New measure-only native phase w9-zoom-probes in tests/native-smoke.js (~lines 1110-1330, dispatch near the w9-blank-click branch): S4 REAL (table menu does not open at 1.25/1.5), S5 not reproduced, S6 REAL at 1.5 with the gap low in the window (caret to page 2). Native blank-click 24/24 and fonts pass on smoke binary 72c13ba4. Release app rebuilt: src-tauri/target/release/bundle/macos/Personal Word.app, folio sha256 2586aeee2b80906d90ef6d62ecf0bbab9632b329b2ede2f2e6c468e287c5a752 (14:23), not launched. Record: VALIDATION.md \"Native run r2 (2026-11-11)\", NATIVE.md r2, HANDOFF.md top.\nNEXT (first action): the coordinator/owner decides on S4 (src/Writer.tsx:687-691 posAtDOM(cell,0) fallback) and S6 (src/editor/pagination.ts:532-534 rects x totalZoom) fixes as proposed in VALIDATION.md r2; prove each with `python3 node_modules/.cache/personal-word-beta/w9-n/w9-native.py zoom` after a smoke build (touch src-tauri/src/lib.rs first). Then the human checks at the Mac (VALIDATION.md tables).\nDO NOT REDO: Part 1 fixes and tests; the r2 native probes and rechecks; the release build.\ndocs/agent-work/2026-11-10-ui-wave-9/NATIVE.md: uncommitted edits\ntests/native-smoke.js: uncommitted edits\nsrc/editor/blankClick.ts: uncommitted edits\nsrc/editor/blankClick.test.ts: uncommitted edits\ndocs/agent-work/2026-11-10-ui-wave-9/VALIDATION.md: uncommitted edits\nHANDOFF.md: uncommitted edits"
+    }
+  ]
+}

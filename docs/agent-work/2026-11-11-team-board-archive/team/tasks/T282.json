@@ -1,0 +1,59 @@
+{
+  "id": "T282",
+  "title": "W9 F4 -- Re-record the Prose check popover height and stop the one-frame invisible context menu (REVIEW.md A1, A5)",
+  "description": "Owner approved both on 2026-11-11 ('Yes re record and fix the menu'). Follow work orders A1 and A5 in docs/agent-work/2026-11-10-ui-wave-9/REVIEW.md exactly. A1: in tests/fixtures/popover-baseline-rects.json change ONLY the 'Prose check' height from 232 to 146; nothing else in the file. A5: in src/components/ContextMenu.tsx near line 145 change data-animate={viaKeyboard ? undefined : \"\"} to data-animate={viaKeyboard || window.matchMedia(\"(prefers-reduced-motion: reduce)\").matches ? undefined : \"\"}; nothing else. No full build by this task: verify on the dev server only: PLAYWRIGHT_PORT=1449 npx playwright test tests/sidebar-context-menu.spec.ts --repeat-each 10 --trace off --output test-results/F4 (all pass) and PLAYWRIGHT_PORT=1449 npx playwright test tests/popover-bounds.spec.ts tests/motion.spec.ts --trace off --output test-results/F4b (all pass); npx tsc -b. The built-app proof is done afterwards by the validation rerun. Write notes/F4.md. No commits.",
+  "status": "done",
+  "owner": null,
+  "priority": 1,
+  "depends_on": [],
+  "files": [
+    "tests/fixtures/popover-baseline-rects.json",
+    "src/components/ContextMenu.tsx",
+    "docs/agent-work/2026-11-10-ui-wave-9/notes/F4.md",
+    "docs/agent-work/2026-11-10-ui-wave-9/notes/F4-fail-first.txt"
+  ],
+  "review_required": true,
+  "created_by": "agent-a63f",
+  "created_at": "2026-11-11T06:16:36+00:00",
+  "claimed_at": "2026-11-11T06:16:45+00:00",
+  "updated_at": "2026-11-11T06:31:29+00:00",
+  "handoff": null,
+  "review": {
+    "by": "agent-23c2",
+    "at": "2026-11-11T06:31:29+00:00",
+    "verdict": "approved",
+    "note": "Approved on the diff only (agent-23c2; no Playwright run, as the coordinator ordered while the validation runner holds the suite). Fixture diff is exactly one line: Prose check height 232->146 (A1). ContextMenu.tsx diff is exactly the A5 one-liner at :145. Reasoning: Reduce Motion OFF -> matchMedia false -> pointer open still gets data-animate=\"\", so the opacity/transform transition runs as before; keyboard open -> viaKeyboard true -> unset, as before. Reduce Motion ON + pointer -> no data-animate, so context-menu.css:23-26 never applies opacity 0 and the menu is visible on its first frame; data-shown still arrives one rAF later, which is harmless. The system media query is the app's only Reduce Motion source (motion.ts prefersReducedMotion uses the same query), so this is consistent; it is read at render, which is fine for a short-lived menu. npx tsc -b exit 0. Fail-first is weak (race did not reproduce before; admitted). BUILT-APP RERUN MUST CONFIRM: popover-bounds 'toolbar popovers keep their recorded untouched-tree placement' passes on every repeat (it passed 1 of 3 against the OLD 232 baseline in my T280 run, so the Prose check height may vary; use --repeat-each 5 or more and watch for a 232-ish reading); sidebar-context-menu:319 'Reduce Motion: a pointer-opened menu is instant' passes under --repeat-each 10; and the pointer-animation tests in sidebar-context-menu and motion stay green."
+  },
+  "log": [
+    {
+      "at": "2026-11-11T06:16:36+00:00",
+      "agent": "agent-a63f",
+      "event": "created",
+      "note": ""
+    },
+    {
+      "at": "2026-11-11T06:16:45+00:00",
+      "agent": "agent-0db4",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-11-11T06:16:45+00:00",
+      "agent": "agent-0db4",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-11-11T06:30:32+00:00",
+      "agent": "agent-0db4",
+      "event": "review requested",
+      "note": "Edit 1: tests/fixtures/popover-baseline-rects.json Prose check height 232->146 (one line). Edit 2: src/components/ContextMenu.tsx:145 data-animate also unset under prefers-reduced-motion (one line). Fail-first (before edit 2, sidebar-context-menu --repeat-each 10): 109 passed, 40 skipped, 1 failed: floating sidebar short window 'scrolling group list' Save click detached (not the race; passes in baseline-dev); log notes/F4-fail-first.txt. After: sidebar-context-menu --repeat-each 10: 110 passed, 40 skipped, EXIT 0. popover-bounds+motion --repeat-each 5: 60 passed, EXIT 0 (toolbar popovers 5/5). npx tsc -b EXIT 0. Notes: notes/F4.md. Dev server only (port 1449)."
+    },
+    {
+      "at": "2026-11-11T06:31:29+00:00",
+      "agent": "agent-23c2",
+      "event": "approved",
+      "note": "Approved on the diff only (agent-23c2; no Playwright run, as the coordinator ordered while the validation runner holds the suite). Fixture diff is exactly one line: Prose check height 232->146 (A1). ContextMenu.tsx diff is exactly the A5 one-liner at :145. Reasoning: Reduce Motion OFF -> matchMedia false -> pointer open still gets data-animate=\"\", so the opacity/transform transition runs as before; keyboard open -> viaKeyboard true -> unset, as before. Reduce Motion ON + pointer -> no data-animate, so context-menu.css:23-26 never applies opacity 0 and the menu is visible on its first frame; data-shown still arrives one rAF later, which is harmless. The system media query is the app's only Reduce Motion source (motion.ts prefersReducedMotion uses the same query), so this is consistent; it is read at render, which is fine for a short-lived menu. npx tsc -b exit 0. Fail-first is weak (race did not reproduce before; admitted). BUILT-APP RERUN MUST CONFIRM: popover-bounds 'toolbar popovers keep their recorded untouched-tree placement' passes on every repeat (it passed 1 of 3 against the OLD 232 baseline in my T280 run, so the Prose check height may vary; use --repeat-each 5 or more and watch for a 232-ish reading); sidebar-context-menu:319 'Reduce Motion: a pointer-opened menu is instant' passes under --repeat-each 10; and the pointer-animation tests in sidebar-context-menu and motion stay green."
+    }
+  ]
+}

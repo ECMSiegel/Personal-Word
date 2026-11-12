@@ -1,0 +1,42 @@
+
+Running 1 test using 1 worker
+
+[1/1] tests/of2-fragment-title.spec.ts:58:3 › OF2 floating title › the title sits in the same place in a section and in a fragment
+tests/of2-fragment-title.spec.ts:58:3 › OF2 floating title › the title sits in the same place in a section and in a fragment
+OF2 section {"bgBehindTitle":"rgb(245, 245, 247)","bgBelowSearch":"rgb(245, 245, 247)","titleX":12,"titleY":130,"sidebarTop":114,"sidebarLeft":0,"originShown":false}
+
+OF2 fragment {"bgBehindTitle":"rgb(255, 255, 255)","bgBelowSearch":"rgb(245, 245, 247)","titleX":12,"titleY":130,"sidebarTop":114,"sidebarLeft":0,"originShown":true}
+
+  1) tests/of2-fragment-title.spec.ts:58:3 › OF2 floating title › the title sits in the same place in a section and in a fragment 
+
+    Error: painted background behind the title row
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: "rgb(245, 245, 247)"
+    Received: "rgb(255, 255, 255)"
+
+      79 |     console.log("OF2 fragment", JSON.stringify(fragment));
+      80 |     expect(fragment.originShown).toBe(true);
+    > 81 |     expect(fragment.bgBehindTitle, "painted background behind the title row").toBe(section.bgBehindTitle);
+         |                                                                               ^
+      82 |     expect(Math.abs(fragment.titleX - section.titleX), `title x: section ${section.titleX} fragment ${fragment.titleX}`).toBeLessThanOrEqual(0.5);
+      83 |     expect(Math.abs(fragment.titleY - section.titleY), `title y: section ${section.titleY} fragment ${fragment.titleY}`).toBeLessThanOrEqual(0.5);
+      84 |     expect(Math.abs(fragment.sidebarTop - section.sidebarTop), `sidebar top: section ${section.sidebarTop} fragment ${fragment.sidebarTop}`).toBeLessThanOrEqual(0.5);
+        at /Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/tests/of2-fragment-title.spec.ts:81:79
+
+    Error Context: test-results/T285/of2-fragment-title-OF2-flo-6ac87-a-section-and-in-a-fragment/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/T285/of2-fragment-title-OF2-flo-6ac87-a-section-and-in-a-fragment/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/T285/of2-fragment-title-OF2-flo-6ac87-a-section-and-in-a-fragment/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+  1 failed
+    tests/of2-fragment-title.spec.ts:58:3 › OF2 floating title › the title sits in the same place in a section and in a fragment 
+PW_EXIT 1
+EXIT

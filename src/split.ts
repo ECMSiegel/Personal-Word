@@ -86,12 +86,13 @@ export function writeSplitRatio(
   }
 }
 
-/** Opens `target` in the right pane; the left pane keeps its entry. */
+/** Opens `target` in the pane last used; with no split open, beside the active entry. */
 export function openBeside(
   split: Split | null,
   active: string,
   target: PaneContent,
 ): Split | null {
+  if (split && target.kind === "entry") return select(split, target.id);
   const left = split ? split.left : active;
   if (!left || (target.kind === "entry" && target.id === left)) return split;
   return {

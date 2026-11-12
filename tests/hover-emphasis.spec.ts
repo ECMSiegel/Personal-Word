@@ -9,7 +9,7 @@ const OUT = process.env.HOVER_OUT ?? "node_modules/.cache/personal-word-beta/ui4
 const pdfBytes = Buffer.from("%PDF-1.4\n1 0 obj << /Type /Catalog >> endobj\n%%EOF\n", "ascii");
 
 // Wave 6 T1: `.emph-row` is a control whose right-side content (a hint, dates) must not move, so
-// the row itself never scales. Its `.emph-label` child carries the shared stroke + 1.04 grow; the
+// the row itself never scales. Its `.emph-label` child carries the shared faux bold without a grow; the
 // crawler therefore samples the label for the emphasis and keeps the row's own sample to prove it
 // does not scale.
 type Row = Control & {
@@ -34,8 +34,8 @@ const readEmphasis = (el: Element): HoverSample => {
     transform: cs.transform,
     color: cs.color,
     duration: cs.transitionDuration,
-    stroke: parseFloat(cs.webkitTextStrokeWidth) || 0,
-    strokeColor: cs.webkitTextStrokeColor,
+    stroke: (cs.textShadow === "none" ? 0 : parseFloat(/(-?[\d.]+)px/.exec(cs.textShadow)?.[1] ?? "0")),
+    strokeColor: (cs.textShadow.match(/rgba?\([^)]*\)/)?.[0] ?? ""),
   };
 };
 
@@ -306,19 +306,19 @@ test("hover inventory: crawl controls across screens", async ({ page }) => {
       // Wave 6 T1: the grow lives on the label; the row holding right-side content must stay put.
       if (!r.rowHover) failures.push(`no row hover sample: ${id}`);
       else {
-        if (r.rowHover.stroke > 0) failures.push(`emph-row takes a stroke itself: ${id}`);
+        if (r.rowHover.stroke > 0) failures.push(`emph-row takes the faux bold itself: ${id}`);
         if (Math.abs(scaleOf(r.rowHover.transform) - 1) > 0.002) failures.push(`emph-row scales instead of its label (${r.rowHover.transform}): ${id}`);
       }
     }
     if (r.kind === "text" && !ICON_LIST.test(r.selector)) {
       const restWeight = r.emphRow ? r.labelRestWeight : r.rest.weight;
       if (r.sampled && r.hover.weight !== restWeight) failures.push(`hover changes weight ${restWeight}->${r.hover.weight}: ${id}`);
-      if (!(r.hover.stroke > 0.2)) failures.push(`no stroke: ${id}`);
-      else if (r.hover.strokeColor !== r.hover.color) failures.push(`stroke colour != text colour: ${id}`);
-      if (Math.abs(scaleOf(r.hover.transform) - 1.04) > 0.002) failures.push(`no 1.04 scale (${r.hover.transform}): ${id}`);
+      if (!(r.hover.stroke > 0.2)) failures.push(`no faux bold: ${id}`);
+      else if (r.hover.strokeColor !== r.hover.color) failures.push(`faux bold colour != text colour: ${id}`);
+      if (Math.abs(scaleOf(r.hover.transform) - 1) > 0.002) failures.push(`text control grows (${r.hover.transform}): ${id}`);
     } else if (r.kind === "icon") {
-      if (r.hover.stroke > 0) failures.push(`icon-only control has a stroke: ${id}`);
-      if (Math.abs(scaleOf(r.hover.transform) - 1.04) < 0.002) failures.push(`icon-only control scales: ${id}`);
+      if (r.hover.stroke > 0) failures.push(`icon-only control has a faux bold: ${id}`);
+      if (Math.abs(scaleOf(r.hover.transform) - 1) > 0.002) failures.push(`icon-only control scales: ${id}`);
     }
   }
   // UI wave 4 H4: keyboard focus gets exactly the hover treatment, with the same transition duration.
@@ -328,17 +328,17 @@ test("hover inventory: crawl controls across screens", async ({ page }) => {
     if (r.emphRow) {
       if (!r.rowFocus) failures.push(`focus: no row sample: ${id}`);
       else {
-        if (r.rowFocus.stroke > 0) failures.push(`focus: emph-row takes a stroke itself: ${id}`);
+        if (r.rowFocus.stroke > 0) failures.push(`focus: emph-row takes the faux bold itself: ${id}`);
         if (Math.abs(scaleOf(r.rowFocus.transform) - 1) > 0.002) failures.push(`focus: emph-row scales instead of its label (${r.rowFocus.transform}): ${id}`);
       }
     }
     if (r.kind === "text" && !ICON_LIST.test(r.selector)) {
-      if (!(r.focus.stroke > 0.2)) failures.push(`focus: no stroke: ${id}`);
-      if (Math.abs(r.focus.stroke - r.hover.stroke) > 0.01) failures.push(`focus stroke differs from hover: ${id}`);
-      if (Math.abs(scaleOf(r.focus.transform) - 1.04) > 0.002) failures.push(`focus: no 1.04 scale: ${id}`);
+      if (!(r.focus.stroke > 0.2)) failures.push(`focus: no faux bold: ${id}`);
+      if (Math.abs(r.focus.stroke - r.hover.stroke) > 0.01) failures.push(`focus faux bold differs from hover: ${id}`);
+      if (Math.abs(scaleOf(r.focus.transform) - 1) > 0.002) failures.push(`focus: text control grows (${r.focus.transform}): ${id}`);
       if (r.focus.duration !== r.hover.duration) failures.push(`focus duration ${r.focus.duration} != hover ${r.hover.duration}: ${id}`);
     } else if (r.kind === "icon") {
-      if (r.focus.stroke > 0 || Math.abs(scaleOf(r.focus.transform) - 1.04) < 0.002) failures.push(`focus: icon-only control got emphasis: ${id}`);
+      if (r.focus.stroke > 0 || Math.abs(scaleOf(r.focus.transform) - 1) > 0.002) failures.push(`focus: icon-only control got emphasis: ${id}`);
     }
   }
   console.log(`H3 exceptions: ${failures.length}\n${failures.slice(0, 40).join("\n")}`);
@@ -350,7 +350,7 @@ test("hover inventory: crawl controls across screens", async ({ page }) => {
 });
 
 // UI wave 4 H2: the one emphasis rule (owner: no-shift faux bold). Each named control must get a text
-// stroke and a 1.04 scale on hover (after 250 ms), keep its layout width, and move no neighbour.
+// stroke and no grow on hover (after 250 ms), keep its layout width, and move no neighbour.
 const CROPS = process.env.HOVER_CROPS ?? "node_modules/.cache/personal-word-beta/ui4-h2/crops";
 async function assertEmphasis(page: Page, loc: Locator, label: string, crop = false) {
   const el = loc.first();
@@ -374,15 +374,15 @@ async function assertEmphasis(page: Page, loc: Locator, label: string, crop = fa
     const cs = getComputedStyle(n);
     const m = /matrix\(([^)]+)\)/.exec(cs.transform);
     const v = m ? m[1].split(",").map(Number) : [1, 0, 0, 1, 0, 0];
-    return { weight: cs.fontWeight, stroke: parseFloat(cs.webkitTextStrokeWidth), strokeColor: cs.webkitTextStrokeColor, color: cs.color, a: v[0], d: v[3] };
+    return { weight: cs.fontWeight, stroke: (cs.textShadow === "none" ? 0 : parseFloat(/(-?[\d.]+)px/.exec(cs.textShadow)?.[1] ?? "0")), strokeColor: (cs.textShadow.match(/rgba?\([^)]*\)/)?.[0] ?? ""), color: cs.color, a: v[0], d: v[3] };
   });
   const after = await siblings();
   const o1 = await own();
   console.log(`H2 ${label}: stroke ${got.stroke}px scale ${got.a} width ${o0.w}->${o1.w} neighbour shifts ${before.map((x, i) => after[i] - x).join(",")}`);
   expect(got.stroke, `${label} stroke`).toBeGreaterThan(0.2);
   expect(got.strokeColor, `${label} stroke colour is currentColor`).toBe(got.color);
-  expect(Math.abs(got.a - 1.04), `${label} scale x ${got.a}`).toBeLessThan(0.002);
-  expect(Math.abs(got.d - 1.04), `${label} scale y ${got.d}`).toBeLessThan(0.002);
+  expect(Math.abs(got.a - 1), `${label} scale x ${got.a}`).toBeLessThan(0.002);
+  expect(Math.abs(got.d - 1), `${label} scale y ${got.d}`).toBeLessThan(0.002);
   expect(o1.w, `${label} layout width`).toBe(o0.w);
   expect(o1.left, `${label} layout left`).toBe(o0.left);
   before.forEach((x, i) => expect(Math.abs(after[i] - x), `${label} neighbour ${i} moved`).toBeLessThan(0.01));
@@ -395,13 +395,13 @@ async function assertEmphasis(page: Page, loc: Locator, label: string, crop = fa
     // reference: the same control at a true weight 600, no stroke, no scale
     const h = await el.elementHandle();
     await h!.evaluate((n) => {
-      (n as HTMLElement).style.setProperty("-webkit-text-stroke", "0", "important");
+      (n as HTMLElement).style.setProperty("text-shadow", "none", "important");
       (n as HTMLElement).style.setProperty("font-weight", "600", "important");
       (n as HTMLElement).style.setProperty("transition", "none", "important");
     });
     await page.screenshot({ path: `${CROPS}/${slug}-true600.png`, clip });
     await h!.evaluate((n) => {
-      (n as HTMLElement).style.removeProperty("-webkit-text-stroke");
+      (n as HTMLElement).style.removeProperty("text-shadow");
       (n as HTMLElement).style.removeProperty("font-weight");
       (n as HTMLElement).style.removeProperty("transition");
     });
@@ -409,7 +409,7 @@ async function assertEmphasis(page: Page, loc: Locator, label: string, crop = fa
   await page.mouse.move(720, 892);
 }
 
-test("H2 emphasis: no-shift faux bold and scale 1.04 on hover", async ({ page }) => {
+test("H2 emphasis: no-shift faux bold and no grow on hover", async ({ page }) => {
   test.setTimeout(300_000);
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.goto("/");
@@ -454,10 +454,10 @@ test("H2 emphasis: no-shift faux bold and scale 1.04 on hover", async ({ page })
   await page.waitForTimeout(250);
   const kb = await box.locator("xpath=..").evaluate((n) => {
     const cs = getComputedStyle(n);
-    return { stroke: parseFloat(cs.webkitTextStrokeWidth), a: new DOMMatrix(cs.transform).a };
+    return { stroke: (cs.textShadow === "none" ? 0 : parseFloat(/(-?[\d.]+)px/.exec(cs.textShadow)?.[1] ?? "0")), a: new DOMMatrix(cs.transform).a };
   });
   expect(kb.stroke, "checkbox label stroke on keyboard focus").toBeGreaterThan(0.2);
-  expect(kb.a, "checkbox label scale on keyboard focus").toBeCloseTo(1.04, 2);
+  expect(kb.a, "checkbox label scale on keyboard focus").toBeCloseTo(1, 3);
 });
 
 // UI wave 4 review finding 1: the interface emphasis must never reach the user's document.
@@ -485,7 +485,7 @@ test("H5 emphasis never touches links inside the document (editor and Read view)
     await page.waitForTimeout(250);
     return loc.evaluate((n) => {
       const cs = getComputedStyle(n);
-      return { stroke: parseFloat(cs.webkitTextStrokeWidth), a: new DOMMatrix(cs.transform).a, tp: cs.transitionProperty };
+      return { stroke: (cs.textShadow === "none" ? 0 : parseFloat(/(-?[\d.]+)px/.exec(cs.textShadow)?.[1] ?? "0")), a: new DOMMatrix(cs.transform).a, tp: cs.transitionProperty };
     });
   };
   const inEditor = page.locator(".ProseMirror a").first();
@@ -501,7 +501,7 @@ test("H5 emphasis never touches links inside the document (editor and Read view)
   expect(r.a, "Read link scale").toBe(1);
 });
 
-// UI wave 4 H4: Reduce Motion keeps the stroke but drops the scale and every transition; danger stays red;
+// UI wave 4 H4: Reduce Motion keeps the faux bold but drops the scale and every transition; danger stays red;
 // a brand-new text button gets the treatment with no new CSS (drift probe).
 test("H4 emphasis: Reduce Motion, danger colour and the drift probe", async ({ page }) => {
   test.setTimeout(300_000);
@@ -537,10 +537,10 @@ test("H4 emphasis: Reduce Motion, danger colour and the drift probe", async ({ p
   await page.waitForTimeout(250);
   const drift = await page.locator("#drift-probe").evaluate((n) => {
     const cs = getComputedStyle(n);
-    return { stroke: parseFloat(cs.webkitTextStrokeWidth), a: new DOMMatrix(cs.transform).a, weight: cs.fontWeight };
+    return { stroke: (cs.textShadow === "none" ? 0 : parseFloat(/(-?[\d.]+)px/.exec(cs.textShadow)?.[1] ?? "0")), a: new DOMMatrix(cs.transform).a, weight: cs.fontWeight };
   });
   expect(drift.stroke).toBeGreaterThan(0.2);
-  expect(drift.a).toBeCloseTo(1.04, 2);
+  expect(drift.a).toBeCloseTo(1, 3);
   // pressed text buttons use --duration-press, not the hover duration
   await page.mouse.down();
   await page.waitForTimeout(150);
@@ -572,7 +572,7 @@ test("H4 emphasis: Reduce Motion, danger colour and the drift probe", async ({ p
   await page.waitForTimeout(250);
   const rm = await del.evaluate((n) => {
     const cs = getComputedStyle(n);
-    return { stroke: parseFloat(cs.webkitTextStrokeWidth), a: new DOMMatrix(cs.transform).a, duration: cs.transitionDuration };
+    return { stroke: (cs.textShadow === "none" ? 0 : parseFloat(/(-?[\d.]+)px/.exec(cs.textShadow)?.[1] ?? "0")), a: new DOMMatrix(cs.transform).a, duration: cs.transitionDuration };
   });
   expect(rm.stroke, "stroke kept under Reduce Motion").toBeGreaterThan(0.2);
   expect(rm.a, "scale dropped under Reduce Motion").toBeCloseTo(1, 3);

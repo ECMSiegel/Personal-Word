@@ -218,8 +218,8 @@ test("More lists labelled rows with shortcut hints and emphasizes the hovered ro
   await expect(bold).toHaveAttribute("data-popover-item", "");
   await bold.hover();
   await expect(bold).toHaveAttribute("data-highlighted", "");
-  // wave 4: emphasis is a width-neutral text stroke (no font-weight change)
-  await expect(bold).not.toHaveCSS("-webkit-text-stroke-width", "0px");
+  // wave 4: emphasis is a width-neutral text-shadow faux bold (no font-weight change)
+  await expect(bold).not.toHaveCSS("text-shadow", "none");
   await bold.click();
   await expect(
     page.getByRole("textbox", { name: "Writing editor" }).locator("p").first(),

@@ -1,0 +1,38 @@
+import { describe, expect, it } from "vitest";
+import {
+  LIBRARY_KEY,
+  readLibraryPreferences,
+  writeLibraryPreferences,
+} from "./libraryPreferences";
+
+const store = (value: string | null) => ({ getItem: () => value });
+const defaults = { sort: "edited", reverse: false, view: "list" };
+
+describe("library preferences", () => {
+  it("uses the historical key", () => {
+    expect(LIBRARY_KEY).toBe("folio.workspace.library");
+  });
+  it("defaults to last edited / newest first / list", () => {
+    expect(readLibraryPreferences(store(null))).toEqual(defaults);
+  });
+  it("reads saved values", () => {
+    const raw = JSON.stringify({ sort: "name", reverse: true, view: "cards" });
+    expect(readLibraryPreferences(store(raw))).toEqual({ sort: "name", reverse: true, view: "cards" });
+  });
+  it("falls back per field for bad values", () => {
+    const raw = JSON.stringify({ sort: "size", reverse: "yes", view: "cards" });
+    expect(readLibraryPreferences(store(raw))).toEqual({ ...defaults, view: "cards" });
+  });
+  it("survives unparseable, non-object and throwing storage", () => {
+    expect(readLibraryPreferences(store("{nope"))).toEqual(defaults);
+    expect(readLibraryPreferences(store("5"))).toEqual(defaults);
+    expect(readLibraryPreferences(store("null"))).toEqual(defaults);
+    expect(readLibraryPreferences({ getItem: () => { throw new Error("blocked"); } })).toEqual(defaults);
+  });
+  it("writes JSON under the key and swallows storage errors", () => {
+    let wrote: [string, string] | null = null;
+    writeLibraryPreferences({ setItem: (k, v) => { wrote = [k, v]; } }, { sort: "added", reverse: true, view: "list" });
+    expect(wrote).toEqual([LIBRARY_KEY, JSON.stringify({ sort: "added", reverse: true, view: "list" })]);
+    expect(() => writeLibraryPreferences({ setItem: () => { throw new Error("full"); } }, { ...defaults } as never)).not.toThrow();
+  });
+});

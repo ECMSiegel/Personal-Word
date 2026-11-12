@@ -1,0 +1,10 @@
+
+Running 4 tests using 1 worker
+
+  ✓  1 tests/w9-cards.spec.ts:82:3 › cards fit the list, research cards are rows, and the open-beside icon is inset at 220 px (5.7s)
+  ✓  2 tests/w9-cards.spec.ts:82:3 › cards fit the list, research cards are rows, and the open-beside icon is inset at 254 px (4.7s)
+  ✓  3 tests/w9-cards.spec.ts:82:3 › cards fit the list, research cards are rows, and the open-beside icon is inset at 420 px (4.3s)
+  ✓  4 tests/w9-cards.spec.ts:173:1 › an empty card hides its boxes at rest and on hover, shows them when opened or focused, and a card with a synopsis always shows them (4.6s)
+
+  4 passed (21.3s)
+EXIT=0

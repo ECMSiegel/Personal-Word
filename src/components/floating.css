@@ -95,3 +95,9 @@
 .sidebar-shell.is-floating .sidebar-bottom-groups .sidebar-group + .sidebar-group {
   border-top: 0;
 }
+/* Page view: a header strip above the sheet (a fragment's "Kept from" line) sits on the
+   desk, like the rest of the area around the page, not on the white scroll area. The bare
+   floating sidebar text then has the same background behind it in a fragment as in a section. */
+.app:has(.sidebar-shell.is-floating) .writer-scroll:has(> .is-paged) {
+  background: var(--surface, var(--line));
+}

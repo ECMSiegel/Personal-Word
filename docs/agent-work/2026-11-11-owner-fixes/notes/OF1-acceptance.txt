@@ -1,0 +1,198 @@
+
+Running 35 tests using 1 worker
+
+  ✓   1 tests/footnotes.spec.ts:49:1 › Backspace in an empty text-only footnote removes marker, row and record (12.9s)
+  ✓   2 tests/footnotes.spec.ts:96:1 › Backspace in an empty citation footnote keeps its marker (4.4s)
+  ✓   3 tests/footnotes.spec.ts:135:1 › Backspace in a text-only footnote with text deletes one character (7.8s)
+  ✓   4 tests/footnotes.spec.ts:155:1 › a slow frame after inserting a footnote does not pull typing back to the document (17.9s)
+  ✓   5 tests/footnotes.spec.ts:178:1 › Cite here scrolls back to a caret that was out of view (20.5s)
+  ✓   6 tests/footnotes.spec.ts:210:1 › footnote text appears at the bottom of the page and is editable there (23.1s)
+  ✓   7 tests/of1-text-notes.spec.ts:14:1 › Text-only notes live on the Notes tab, not the Sources tab (16.3s)
+  ✘   8 tests/of1-text-notes.spec.ts:86:1 › Delete in a section that is not open: confirm, cancel, snapshot, renumber, reload (19.9s)
+  ✓   9 tests/of1-text-notes.spec.ts:128:1 › Delete while the section is open in the editor removes the marker and survives the next save (20.9s)
+  ✓  10 tests/research.spec.ts:41:1 › research panel has Sources and Notes tabs in the app font (11.5s)
+  ✓  11 tests/research.spec.ts:65:1 › manual source shows a Chicago bibliography preview and lookup fills a new source (9.9s)
+  ✓  12 tests/research.spec.ts:109:1 › a cited footnote appears under its source and in the manuscript (9.0s)
+  ✓  13 tests/research.spec.ts:131:1 › text-only footnotes keep the insert-at-cursor flow (6.7s)
+  ✓  14 tests/research.spec.ts:145:1 › second citation of a source shows a shortened note (9.5s)
+  ✓  15 tests/research.spec.ts:168:1 › imports sources from a Zotero CSL JSON file (6.1s)
+  ✓  16 tests/research.spec.ts:183:1 › Sources tab: rules split Zotero, sources and text-only notes; helper texts are gone (7.0s)
+  ✓  17 tests/research.spec.ts:232:1 › Cite here shows the citation at once, not an empty note field (10.6s)
+  ✓  18 tests/research.spec.ts:246:1 › captured quote inserts with its citation and one undo removes both (17.4s)
+  ✓  19 tests/research.spec.ts:278:1 › opt-in Ibid. rules reach the page notes and research preview, persist, and turn off cleanly (28.0s)
+  ✓  20 tests/research.spec.ts:328:1 › citation rules agree across page notes, preview and reader through section scope, reorder and reload (24.3s)
+  ✘  21 tests/research.spec.ts:393:1 › helper captions are gone; hints live in placeholder and a keyboard-reachable tooltip (1.6m)
+  ✓  22 tests/research.spec.ts:437:1 › Research sidebar lists Bibliography and sources; the Bibliography page orders, persists, matches Markdown and opens sources (23.2s)
+  ✓  23 tests/research.spec.ts:512:1 › Research sidebar group: no Bibliography without sources, Chicago always has it, notes sit under Research (46.5s)
+  ✓  24 tests/research.spec.ts:559:1 › research hints span the whole field row and the repeat-rule fields are spaced (19.6s)
+  ✓  25 tests/research.spec.ts:595:1 › a note has a visible Note label and room above its field (9.8s)
+  ✓  26 tests/research.spec.ts:625:1 › Notes tab rework: add-note spacing, divider line only between notes, dropdown and delete share a row (13.3s)
+  ✓  27 tests/research.spec.ts:705:1 › Notes tab: no 'Ideas and reminders' hint (11.8s)
+  ✓  28 tests/research.spec.ts:718:1 › Notes tab: exactly one rendered line between two notes, no two lines within 8 px (8.8s)
+  ✓  29 tests/research.spec.ts:782:1 › Upload PDF stores a standalone PDF with no source, opens beside, survives reload, and removes (12.1s)
+  ✓  30 tests/t251-marker-image.spec.ts:42:1 › End leaves a node-selected footnote marker for a text caret and an image insert keeps the note (22.8s)
+  ✓  31 tests/w9-research-panel.spec.ts:15:1 › an open source reads Source, Citation, More details, Used in (14.8s)
+  ✘  32 tests/w9-used-in.spec.ts:45:1 › Used in names the section that holds the footnote, and Go to selects its marker (20.1s)
+  ✘  33 tests/w9-used-in.spec.ts:64:1 › Go to in a split focuses the pane already showing the section and changes no entry (1.5m)
+  ✘  34 tests/w9-used-in.spec.ts:79:1 › Go to works from the keyboard (1.5m)
+  ✓  35 tests/w9-used-in.spec.ts:89:1 › a source's Used in row names the section and Go to works from it (22.3s)
+
+
+  1) tests/of1-text-notes.spec.ts:86:1 › Delete in a section that is not open: confirm, cancel, snapshot, renumber, reload 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: locator('.research-group .footnote-item').first().getByRole('button', { name: 'Delete footnote', exact: true })
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" locator('.research-group .footnote-item').first().getByRole('button', { name: 'Delete footnote', exact: true }) with timeout 5000ms
+      - waiting for locator('.research-group .footnote-item').first().getByRole('button', { name: 'Delete footnote', exact: true })
+
+
+      86 | test("Delete in a section that is not open: confirm, cancel, snapshot, renumber, reload", async ({ page }) => {
+      87 |   await twoNotes(page, "One");
+    > 88 |   await expect(del(page, 0)).toBeVisible();
+         |                              ^
+      89 |
+      90 |   // Cancel (button and Escape) changes nothing.
+      91 |   await del(page, 0).click();
+        at /Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/tests/of1-text-notes.spec.ts:88:30
+
+    Error Context: test-results/T284/of1-text-notes-Delete-in-a-985cd-el-snapshot-renumber-reload/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/T284/of1-text-notes-Delete-in-a-985cd-el-snapshot-renumber-reload/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/T284/of1-text-notes-Delete-in-a-985cd-el-snapshot-renumber-reload/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/research.spec.ts:393:1 › helper captions are gone; hints live in placeholder and a keyboard-reachable tooltip 
+
+    Test timeout of 90000ms exceeded.
+
+    Error: locator.click: Test timeout of 90000ms exceeded.
+    Call log:
+      - waiting for getByRole('button', { name: 'Enter manually' })
+
+
+      413 |
+      414 |   // Authors hint is a placeholder only.
+    > 415 |   await page.getByRole("button", { name: "Enter manually" }).click();
+          |                                                              ^
+      416 |   await expect(page.getByLabel("Authors", { exact: true })).toHaveAttribute(
+      417 |     "placeholder",
+      418 |     "One name per line, first name first",
+        at /Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/tests/research.spec.ts:415:62
+
+    Error Context: test-results/T284/research-helper-captions-a-6b219--keyboard-reachable-tooltip/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/T284/research-helper-captions-a-6b219--keyboard-reachable-tooltip/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/T284/research-helper-captions-a-6b219--keyboard-reachable-tooltip/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) tests/w9-used-in.spec.ts:45:1 › Used in names the section that holds the footnote, and Go to selects its marker 
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: locator('.footnote-where')
+    Expected substring: "in Two"
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toContainText" locator('.footnote-where') with timeout 5000ms
+      - waiting for locator('.footnote-where')
+
+
+      46 |   await fixture(page);
+      47 |   await openResearch(page);
+    > 48 |   await expect(page.locator(".footnote-where")).toContainText("in Two");
+         |                                                 ^
+      49 |
+      50 |   await page.getByRole("button", { name: "Go to", exact: true }).click();
+      51 |   await expect(page.locator('.split-pane[data-side="right"]')).toHaveCount(0);
+        at /Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/tests/w9-used-in.spec.ts:48:49
+
+    Error Context: test-results/T284/w9-used-in-Used-in-names-t-bb133-nd-Go-to-selects-its-marker/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/T284/w9-used-in-Used-in-names-t-bb133-nd-Go-to-selects-its-marker/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/T284/w9-used-in-Used-in-names-t-bb133-nd-Go-to-selects-its-marker/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) tests/w9-used-in.spec.ts:64:1 › Go to in a split focuses the pane already showing the section and changes no entry 
+
+    Test timeout of 90000ms exceeded.
+
+    Error: locator.click: Test timeout of 90000ms exceeded.
+    Call log:
+      - waiting for getByRole('button', { name: 'Go to', exact: true })
+
+
+      71 |
+      72 |   await openResearch(page);
+    > 73 |   await page.getByRole("button", { name: "Go to", exact: true }).click();
+         |                                                                  ^
+      74 |   await expect(page.locator('.split-pane[data-side="right"]')).toHaveAttribute("data-focused", "");
+      75 |   await expect(page.locator('.split-pane[data-side="left"] .split-pane-title')).toHaveText("One");
+      76 |   await expect(page.locator('.split-pane[data-side="right"] .split-pane-title')).toHaveText("Two");
+        at /Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/tests/w9-used-in.spec.ts:73:66
+
+    Error Context: test-results/T284/w9-used-in-Go-to-in-a-spli-b3e36-ection-and-changes-no-entry/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/T284/w9-used-in-Go-to-in-a-spli-b3e36-ection-and-changes-no-entry/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/T284/w9-used-in-Go-to-in-a-spli-b3e36-ection-and-changes-no-entry/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  5) tests/w9-used-in.spec.ts:79:1 › Go to works from the keyboard ─────────────────────────────────
+
+    Test timeout of 90000ms exceeded.
+
+    Error: locator.focus: Test timeout of 90000ms exceeded.
+    Call log:
+      - waiting for getByRole('button', { name: 'Go to', exact: true })
+
+
+      81 |   await openResearch(page);
+      82 |   const button = page.getByRole("button", { name: "Go to", exact: true });
+    > 83 |   await button.focus();
+         |                ^
+      84 |   await page.keyboard.press("Enter");
+      85 |   await expect(page.getByRole("button", { name: "Rename section" })).toHaveText("Two");
+      86 |   await expect(page.locator(".ProseMirror-selectednode")).toHaveCount(1);
+        at /Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/tests/w9-used-in.spec.ts:83:16
+
+    Error Context: test-results/T284/w9-used-in-Go-to-works-from-the-keyboard/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/T284/w9-used-in-Go-to-works-from-the-keyboard/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/T284/w9-used-in-Go-to-works-from-the-keyboard/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  5 failed
+    tests/of1-text-notes.spec.ts:86:1 › Delete in a section that is not open: confirm, cancel, snapshot, renumber, reload 
+    tests/research.spec.ts:393:1 › helper captions are gone; hints live in placeholder and a keyboard-reachable tooltip 
+    tests/w9-used-in.spec.ts:45:1 › Used in names the section that holds the footnote, and Go to selects its marker 
+    tests/w9-used-in.spec.ts:64:1 › Go to in a split focuses the pane already showing the section and changes no entry 
+    tests/w9-used-in.spec.ts:79:1 › Go to works from the keyboard ──────────────────────────────────
+  30 passed (13.8m)
+EXIT 1

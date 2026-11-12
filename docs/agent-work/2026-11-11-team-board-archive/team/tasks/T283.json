@@ -1,0 +1,59 @@
+{
+  "id": "T283",
+  "title": "W9 F5 -- Do not reset a saved added font when the added-font list failed to load",
+  "description": "Follow-up found by reviewer agent-23c2 while approving T281 (same kind of bug). src/fonts/registry.ts about line 73: a FAILED added-font (user font) list is treated as 'no added fonts'; if the installed list then loads, a saved ADDED font is reset to Futura for good. Fix: when the added-font list failed to load, skip the reset; reset only when both lists really loaded and the font is in neither. Keep the folio.* key and signatures. Smallest change. Fail-first: one new unit test in src/fonts/registry.test.ts (added-font list rejects, installed list loads without the font: saved choice kept), shown failing before the fix, output in notes/F5-fail-first.txt. Verify: npx vitest run src/fonts; npx tsc -b. No browser run needed (T281's ran on the same code path; the validation rerun covers it). Write notes/F5.md. No commits.",
+  "status": "done",
+  "owner": null,
+  "priority": 2,
+  "depends_on": [],
+  "files": [
+    "src/fonts/registry.ts",
+    "src/fonts/registry.test.ts",
+    "docs/agent-work/2026-11-10-ui-wave-9/notes/F5.md",
+    "docs/agent-work/2026-11-10-ui-wave-9/notes/F5-fail-first.txt"
+  ],
+  "review_required": true,
+  "created_by": "agent-a63f",
+  "created_at": "2026-11-11T06:18:12+00:00",
+  "claimed_at": "2026-11-11T06:18:22+00:00",
+  "updated_at": "2026-11-11T06:19:17+00:00",
+  "handoff": null,
+  "review": {
+    "by": "agent-23c2",
+    "at": "2026-11-11T06:19:17+00:00",
+    "verdict": "approved",
+    "note": "Approved (agent-23c2). registry.ts initFonts: addedFailed flag set only when listUserFonts rejects; reset = selected!==saved && installed.length>0 && !addedFailed, so the saved choice is reset only when both lists loaded and the font is in neither. The saved font is still applied before any await; the folio.workspace.interfaceFont key and the initFonts signature are unchanged; the T281 tests still pass. The new test (added list rejects, installed ['Georgia'], saved Menlo kept, key and --ui-font) failed before the fix (F5-fail-first.txt, 1 failed of 7). Rerun: npx vitest run src/fonts 29/29 passed; npx tsc -b exit 0 (log node_modules/.cache/personal-word-beta/r4-23c2/T283-unit.log). No browser run, as the work order says."
+  },
+  "log": [
+    {
+      "at": "2026-11-11T06:18:12+00:00",
+      "agent": "agent-a63f",
+      "event": "created",
+      "note": ""
+    },
+    {
+      "at": "2026-11-11T06:18:22+00:00",
+      "agent": "agent-95f1",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-11-11T06:18:22+00:00",
+      "agent": "agent-95f1",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-11-11T06:18:44+00:00",
+      "agent": "agent-95f1",
+      "event": "review requested",
+      "note": "registry.ts: added-list failure flag blocks reset. 1 new test, fail-first in notes/F5-fail-first.txt. vitest src/fonts and tsc -b pass. No browser run."
+    },
+    {
+      "at": "2026-11-11T06:19:17+00:00",
+      "agent": "agent-23c2",
+      "event": "approved",
+      "note": "Approved (agent-23c2). registry.ts initFonts: addedFailed flag set only when listUserFonts rejects; reset = selected!==saved && installed.length>0 && !addedFailed, so the saved choice is reset only when both lists loaded and the font is in neither. The saved font is still applied before any await; the folio.workspace.interfaceFont key and the initFonts signature are unchanged; the T281 tests still pass. The new test (added list rejects, installed ['Georgia'], saved Menlo kept, key and --ui-font) failed before the fix (F5-fail-first.txt, 1 failed of 7). Rerun: npx vitest run src/fonts 29/29 passed; npx tsc -b exit 0 (log node_modules/.cache/personal-word-beta/r4-23c2/T283-unit.log). No browser run, as the work order says."
+    }
+  ]
+}

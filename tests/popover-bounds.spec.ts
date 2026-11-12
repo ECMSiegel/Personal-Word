@@ -1,4 +1,4 @@
-import { test, expect } from "@playwright/test";
+import { test, expect, type Page } from "@playwright/test";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 
@@ -49,6 +49,11 @@ const within = (
   r.right <= box.x + box.width + tol &&
   r.bottom <= box.y + box.height + tol;
 
+// Wave 9: the repeat-citation checkboxes sit in the collapsed "Citation rules" row.
+async function openRules(page: Page) {
+  await page.locator("details.citation-rules").evaluate((el) => { (el as HTMLDetailsElement).open = true; });
+}
+
 test("research menus stay inside the research aside scroll container", async ({
   page,
 }) => {
@@ -57,6 +62,7 @@ test("research menus stay inside the research aside scroll container", async ({
   await page.locator(".group-title").filter({ hasText: /^Research$/ }).click();
   const aside = page.locator(".research-aside");
   await expect(aside).toBeVisible();
+  await page.waitForFunction(() => document.getAnimations().length === 0);
   const asideBox = (await aside.boundingBox())!;
 
   // A source must exist before Source type and Note form appear.
@@ -64,12 +70,13 @@ test("research menus stay inside the research aside scroll container", async ({
   await page.getByLabel("Title", { exact: true }).fill("Test source");
   await page.getByLabel("Authors", { exact: true }).fill("A. Writer");
   await page.getByLabel("Year", { exact: true }).fill("2020");
+  await openRules(page);
   await page.getByLabel("Use repeat citation rules", { exact: true }).check();
 
   for (const label of ["Full citation again", "Source type"]) {
     await page.getByRole("button", { name: label, exact: true }).click();
     await expect(page.locator(".popover:visible").last()).toBeVisible();
-    expect(within(asideBox, await menuRect(page))).toBe(true);
+    await expect.poll(async () => within(asideBox, await menuRect(page))).toBe(true);
     const cut = await lastItemBottom(page);
     expect(cut.lastBottom, `${label} last item is cut`).toBeLessThanOrEqual(
       cut.menuBottom + 1,
@@ -81,7 +88,7 @@ test("research menus stay inside the research aside scroll container", async ({
   await page.getByRole("button", { name: "Cite here" }).first().click();
   await page.getByRole("button", { name: "Note form", exact: true }).click();
   await expect(page.locator(".popover:visible").last()).toBeVisible();
-  expect(within(asideBox, await menuRect(page))).toBe(true);
+  await expect.poll(async () => within(asideBox, await menuRect(page))).toBe(true);
   const noteCut = await lastItemBottom(page);
   expect(noteCut.lastBottom).toBeLessThanOrEqual(noteCut.menuBottom + 1);
   await page.keyboard.press("Escape");
@@ -101,11 +108,13 @@ test("a menu in the 390 px research aside keeps the Dropdown's 320 px max-width"
   await page.locator(".group-title").filter({ hasText: /^Research$/ }).click();
   const aside = page.locator(".research-aside");
   await expect(aside).toBeVisible();
+  await page.waitForFunction(() => document.getAnimations().length === 0);
   expect((await aside.boundingBox())!.width).toBeGreaterThan(380);
   await page.getByRole("button", { name: "Enter manually" }).click();
   await page.getByLabel("Title", { exact: true }).fill("Test source");
   await page.getByLabel("Authors", { exact: true }).fill("A. Writer");
   await page.getByLabel("Year", { exact: true }).fill("2020");
+  await openRules(page);
   await page.getByLabel("Use repeat citation rules", { exact: true }).check();
   await page.getByRole("button", { name: "Full citation again", exact: true }).click();
   await expect(page.locator(".popover:visible").last()).toBeVisible();
@@ -130,13 +139,16 @@ test("repeat-rule menus stay inside a narrow research aside", async ({
   await page.locator(".group-title").filter({ hasText: /^Research$/ }).click();
   const aside = page.locator(".research-aside");
   await expect(aside).toBeVisible();
+  await page.waitForFunction(() => document.getAnimations().length === 0);
   const asideBox = (await aside.boundingBox())!;
   expect(asideBox.width).toBeLessThanOrEqual(262);
 
+  await openRules(page);
   await page.getByLabel("Use repeat citation rules", { exact: true }).check();
   for (const label of ["Full citation again", "Back-to-back repeat"]) {
     await page.getByRole("button", { name: label, exact: true }).click();
     await expect(page.locator(".popover:visible").last()).toBeVisible();
+    await expect.poll(async () => within(asideBox, await menuRect(page))).toBe(true);
     const menu = await menuRect(page);
     expect(within(asideBox, menu)).toBe(true);
     // The narrow case is where the clamp wraps labels: the wrapped menu must

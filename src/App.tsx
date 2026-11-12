@@ -38,7 +38,6 @@ import {
   type SaveStatus,
 } from "./save-queue";
 import { Writer } from "./Writer";
-import { defaultPageLayout } from "./editor/formatting";
 import { SplitDivider } from "./components/SplitDivider";
 import "./components/split.css";
 import "./components/pane-footer.css";
@@ -62,7 +61,10 @@ import {
 } from "./split";
 import { goalStatus, goalWords, goalDate, goalBaselineKey } from "./goals";
 import { createProjectIndex } from "./derived/projectIndex";
+import { footnoteLocations } from "./derived/footnoteLocations";
+import { removeFootnoteMarkers, removeTextOnlyFootnote } from "./research/removeFootnote";
 import { applyRestorePatch, type RestorePatch } from "./organization/revisionDiff";
+import { addGroup, addSectionEntry, deleteGroup, groupTitle, moveEntryToGroup, normalized, renameGroup, reorderInGroup } from "./organization/groups";
 import { ProjectLibrary } from "./components/ProjectLibrary";
 import { ProjectSidebar } from "./components/ProjectSidebar";
 import { moveWithin, reorderKind } from "./components/dragReorder";
@@ -92,9 +94,11 @@ import { PdfPane } from "./research/PdfPane";
 import { createPendingPdf } from "./assets/pdf";
 import { BibliographyPage } from "./research/BibliographyPage";
 import { bibliographyItems } from "./research/bibliography";
-import { defaultDocumentSettings, type ResearchPdf, type Source } from "./research/types";
+import { type ResearchPdf, type Source } from "./research/types";
+import { changedSettings, editorSettings, exportSettings } from "./research/documentSettingsDefaults";
 import { writingTemplates, type WritingTemplate } from "./templates";
 import { ExportPanel } from "./export/ExportPanel";
+import { ExportMenu } from "./export/ExportMenu";
 import { TemplatePicker } from "./research/TemplatePicker";
 import { CommentsPanel } from "./organization/CommentsPanel";
 import { FragmentLibrary } from "./organization/FragmentLibrary";
@@ -113,6 +117,8 @@ import { setImageSourceResolver } from "./editor/media";
 import { createPendingAsset } from "./assets/assets";
 import type { PendingAsset } from "./assets/types";
 import { createProjectArchive, readProjectArchive } from "./projectArchive";
+import { SettingsNav, scrollToSettingsSection } from "./settings/SettingsNav";
+import { useResearchAsideEntrance } from "./research/asideMotion";
 
 function readPreference<T>(key: string, fallback: T): T {
   try {
@@ -133,6 +139,16 @@ function researchPdfHolderIds(p: Project): string[] {
 function standalonePdfSource(pdf: ResearchPdf | undefined): Source | undefined {
   return pdf ? { id: pdf.id, kind: "book", title: "", authors: [], pdf: { assetId: pdf.assetId, name: pdf.name, byteLength: pdf.byteLength } } : undefined;
 }
+/** Selects the footnote marker with this id in the editor, scrolled into view. */
+function selectFootnoteMarker(editor: Editor, footnoteId: string) {
+  let at = -1;
+  editor.state.doc.descendants((node, pos) => {
+    if (at < 0 && node.type.name === "footnoteReference" && node.attrs.id === footnoteId) at = pos;
+    return at < 0;
+  });
+  if (at >= 0) editor.chain().focus().setNodeSelection(at).scrollIntoView().run();
+}
+
 function showBibliography(project: Project): boolean {
   return (
     project.templateId === "chicago" ||
@@ -206,6 +222,8 @@ export default function App() {
   const opening = useRef(false);
   const editorRef = useRef<Editor | null>(null);
   const pendingJump = useRef<string | null>(null);
+  // "Go to" from the Research panel: the marker to select once its entry's editor mounts.
+  const pendingFootnote = useRef<string | null>(null);
   const pendingContentChange = useRef<{
     projectId: string;
     entryId: string;
@@ -220,6 +238,11 @@ export default function App() {
   } | null>(null);
   const editorReady = useCallback((editor: Editor | null) => {
     editorRef.current = editor;
+    if (editor && pendingFootnote.current) {
+      const footnoteId = pendingFootnote.current;
+      pendingFootnote.current = null;
+      selectFootnoteMarker(editor, footnoteId);
+    }
     if (editor && pendingJump.current) {
       const annotation = current.current?.annotations?.find((a) => a.id === pendingJump.current);
       pendingJump.current = null;
@@ -286,13 +309,17 @@ export default function App() {
       { active: string; mode: "write" | "read"; destination: string }
     >
   >({});
-  const [reader, setReader] = useState(() =>
-    readPreference("personal-word.reader", {
-      font: "Futura, Avenir, sans-serif",
+  const [reader, setReader] = useState(() => {
+    const saved = readPreference("personal-word.reader", {
+      font: "var(--ui-font)",
       size: 18,
       spacing: 1.6,
-    }),
-  );
+    });
+    // The old "Futura / Avenir" default now means the interface font.
+    return saved.font === "Futura, Avenir, sans-serif"
+      ? { ...saved, font: "var(--ui-font)" }
+      : saved;
+  });
   useEffect(() => {
     localStorage.setItem("personal-word.tabs", JSON.stringify(tabs));
   }, [tabs]);
@@ -504,6 +531,7 @@ export default function App() {
   const [history, setHistory] = useState(false);
   const [preview, setPreview] = useState<Project | null>(null);
   const [paletteOpen, setPaletteOpen] = useState(false);
+  const [exportMenuOpen, setExportMenuOpen] = useState(false);
   const [paletteAnimate, setPaletteAnimate] = useState(false);
   const [previewName, setPreviewName] = useState("");
   const [path, setPath] = useState("");
@@ -529,7 +557,8 @@ export default function App() {
     (change: (p: Project) => Project, edit?: { entryId: string; transaction: Transaction }) => {
       const p = current.current;
       if (p)
-        apply({ ...withCommentRevisions(p, change(p), edit), revision: p.revision + 1, updatedAt: now() });
+        // HS9: every edit keeps project.order grouped by sidebar section order (no-op without custom sections).
+        apply({ ...withCommentRevisions(p, normalized(change(p)), edit), revision: p.revision + 1, updatedAt: now() });
     },
     [apply],
   );
@@ -831,18 +860,19 @@ export default function App() {
       off?.();
     };
   }, []);
-  const add = (kind: Entry["kind"]) =>
+  /** HS9: a section goes into top-level section `group` (default Manuscript), below `after` when given. */
+  const add = (kind: Entry["kind"], group?: string, after?: string) =>
     setNameDialog({
       title: kind === "section" ? "New section" : "New fragment",
       label: "Title",
       value: "",
       action: (title) => {
         const item = entry(kind, title);
-        mutate((p) => ({
-          ...p,
-          entries: [...p.entries, item],
-          order: kind === "section" ? [...p.order, item.id] : p.order,
-        }));
+        mutate((p) =>
+          kind === "section"
+            ? addSectionEntry(p, item, group, after)
+            : { ...p, entries: [...p.entries, item] },
+        );
         openEntry(item.id);
         setDestination(kind === "fragment" ? "fragment-editor" : "manuscript");
         setMode("write");
@@ -861,6 +891,14 @@ export default function App() {
           setVersions(await storage.versions(current.current!.id, history));
       },
     });
+  const exportCompleteProject = async () => {
+    const p = current.current ?? project;
+    if (!p) return;
+    const archive = await createProjectArchive(p, (id) =>
+      storage.readAsset(p.id, id),
+    );
+    download(p.title + ".json", archive, "application/json");
+  };
   // One place for every app-scope action: the keydown handler and the command
   // palette both call it. Returns true when the action is handled here (the
   // handler then swallows the key); editor-scope actions return false.
@@ -874,6 +912,7 @@ export default function App() {
         ?.focus();
     else if (id === "newSection" && current.current) add("section");
     else if (id === "snapshot" && current.current) snapshot();
+    else if (id === "exportDocument" && current.current) setExportMenuOpen(true);
     else if (id === "toggleAppearance")
       setAppearance((a) => ({
         ...a,
@@ -948,7 +987,8 @@ export default function App() {
     setSplit(null);
   };
   // Sidebar navigation: a plain click opens the entry in the focused pane;
-  // Cmd/Ctrl+click or the row's open-beside button opens it in the right pane.
+  // Cmd/Ctrl+click or the row's open-beside button opens it in the pane last
+  // used when a split is open, otherwise in a new right pane.
   const selectEntry = (id: string, beside?: boolean) => {
     let next = id;
     if (beside) {
@@ -980,6 +1020,64 @@ export default function App() {
         : null;
     const editor = side ? paneEditors.current[side] : null;
     return editor && !editor.isDestroyed ? editor : null;
+  };
+  // Research "Go to": show the footnote's section beside or in place of the
+  // focused pane (as a sidebar click does), then select its marker. Research stays open.
+  const goToFootnote = (footnoteId: string) => {
+    const where = current.current && footnoteLocations(current.current).get(footnoteId);
+    if (!where) return;
+    const shown = editorFor(where.entryId);
+    if (shown) {
+      openEntry(where.entryId);
+      selectFootnoteMarker(shown, footnoteId);
+      return;
+    }
+    pendingFootnote.current = footnoteId;
+    openEntry(where.entryId);
+    setMode("write");
+  };
+  // Research Notes tab "Delete" on a text-only footnote: confirm, keep a safety snapshot, then
+  // take the marker out of every entry (an open editor removes its own) and drop the record.
+  const deleteTextOnlyFootnote = (footnoteId: string) => {
+    const start = current.current;
+    const record = start?.research?.footnotes.find((n) => n.id === footnoteId);
+    if (!start || !record || record.sourceId) return;
+    const where = footnoteLocations(start).get(footnoteId);
+    setChoice({
+      title: "Delete this text-only footnote?",
+      body:
+        (where ? `It is in “${where.title}”. ` : "") +
+        "Its marker leaves the text and its note text is deleted. A safety snapshot is kept first, so you can bring it back from Snapshots & history.",
+      actions: [
+        {
+          label: "Delete footnote",
+          primary: true,
+          destructive: true,
+          run: async () => {
+            await queue.flush();
+            await storage.snapshot(current.current!.id, "Before deleting a footnote");
+            const now = current.current!;
+            const open = new Set<string>();
+            for (const e of now.entries) {
+              if (removeFootnoteMarkers(e.content, footnoteId) === e.content) continue;
+              const editor = editorFor(e.id);
+              if (!editor) continue;
+              const ranges: { from: number; to: number }[] = [];
+              editor.state.doc.descendants((node, pos) => {
+                if (node.type.name === "footnoteReference" && String(node.attrs.id) === footnoteId)
+                  ranges.push({ from: pos, to: pos + node.nodeSize });
+              });
+              const chain = editor.chain();
+              for (const r of ranges.reverse()) chain.deleteRange(r);
+              chain.run();
+              open.add(e.id);
+            }
+            mutate((p) => removeTextOnlyFootnote(p, footnoteId, open) ?? p);
+            setNotice("Footnote deleted. A safety snapshot keeps it.");
+          },
+        },
+      ],
+    });
   };
   const writing =
     !!item &&
@@ -1080,12 +1178,43 @@ export default function App() {
         },
       ],
     });
-  const reorder = (id: string, to: number) =>
-    mutate((p) => {
-      const order = p.order.filter((x) => x !== id);
-      order.splice(Math.max(0, Math.min(to, order.length)), 0, id);
-      return { ...p, order };
+  // HS9: `to` is the index among the entries of the section's own top-level section
+  // (the whole manuscript when there are no custom sections).
+  const reorder = (id: string, to: number) => mutate((p) => reorderInGroup(p, id, to));
+  const addTopSection = () =>
+    setNameDialog({
+      title: "New top-level section",
+      label: "Title",
+      value: "",
+      action: (title) => mutate((p) => addGroup(p, title)),
     });
+  const renameTopSection = (id: string) =>
+    setNameDialog({
+      title: "Rename section heading",
+      label: "Title",
+      value: groupTitle(current.current!, id),
+      action: (title) => mutate((p) => renameGroup(p, id, title)),
+    });
+  const deleteTopSection = (id: string) => {
+    const name = groupTitle(current.current!, id);
+    setChoice({
+      title: `Delete section “${name}”?`,
+      body: `Its entries move to ${groupTitle(current.current!, "manuscript")}; nothing in them is deleted. A safety snapshot is kept first, so you can bring it back from Snapshots & history.`,
+      actions: [
+        {
+          label: "Delete section",
+          primary: true,
+          destructive: true,
+          run: async () => {
+            await queue.flush();
+            await storage.snapshot(current.current!.id, `Before deleting section “${name}”`);
+            mutate((p) => deleteGroup(p, id));
+            setNotice(`“${name}” deleted. Its entries are in ${groupTitle(current.current!, "manuscript")}.`);
+          },
+        },
+      ],
+    });
+  };
   // Fragments have no order array: their order is their place in `entries` (saved as the header's entryIds).
   const reorderFragment = (id: string, to: number) =>
     mutate((p) => ({ ...p, entries: reorderKind(p.entries, "fragment", id, to) }));
@@ -1610,7 +1739,7 @@ export default function App() {
             name,
             description: "Your saved section structure and document settings.",
             custom: true,
-            settings: p.documentSettings ?? defaultDocumentSettings,
+            settings: exportSettings(p.documentSettings),
             sections: p.order.map((id) => ({
               title: p.entries.find((e) => e.id === id)!.title,
               content: { type: "doc", content: [{ type: "paragraph" }] },
@@ -1793,19 +1922,23 @@ export default function App() {
           setDestination("research");
         }}
         layout={project.pageLayout}
+        onDocumentSettingsChange={(patch) =>
+          mutate((p) => ({
+            ...p,
+            documentSettings: { ...p.documentSettings, ...patch },
+          }))
+        }
         onLayoutChange={(pageLayout) =>
           mutate((p) =>
             pageLayout.margin ===
             (p.pageLayout?.margin ??
-              (p.documentSettings
-                ? p.documentSettings.marginInches * 96
-                : defaultPageLayout.margin))
+              editorSettings(p.documentSettings).marginInches * 96)
               ? { ...p, pageLayout }
               : {
                   ...p,
                   pageLayout,
                   documentSettings: {
-                    ...(p.documentSettings ?? defaultDocumentSettings),
+                    ...p.documentSettings,
                     marginInches: pageLayout.margin / 96,
                   },
                 },
@@ -1992,6 +2125,8 @@ export default function App() {
       window.removeEventListener("keydown", key, true);
     };
   }, []);
+  const researchAside = useRef<HTMLElement>(null);
+  useResearchAsideEntrance(researchAside, destination === "research" && !showCard, () => pointerInput.current);
   const openCard = (footnoteId?: string) => {
     cardReturn.current = document.activeElement;
     setCardAnimate(pointerInput.current);
@@ -2016,12 +2151,13 @@ export default function App() {
   const paletteCommands: PaletteCommand[] = !project ? [] : [
     ...ACTIONS.filter((a) => a.scope === "app" && a.id !== "commandPalette").map((a) => ({
       id: "action:" + a.id,
-      label: a.label,
+      label: a.id === "exportDocument" ? "Export..." : a.label,
       group: "Actions",
       hint: hintFor(a.id, shortcuts),
       run: () => { runAppAction(a.id); },
     })),
     { id: "new-fragment", label: "New fragment", group: "Actions", run: () => add("fragment") },
+    { id: "new-top-section", label: "New top-level section", group: "Actions", run: addTopSection },
     ...project.order.flatMap((id) => {
       const e = project.entries.find((x) => x.id === id);
       return e ? [{ id: "entry:" + e.id, label: "Go to " + e.title, group: "Sections", run: () => selectEntry(e.id) }] : [];
@@ -2315,6 +2451,11 @@ export default function App() {
               onRename={rename}
               onDelete={remove}
               onReorder={reorder}
+              onAddGroup={addTopSection}
+              onRenameGroup={renameTopSection}
+              onResetGroupName={(id) => mutate((p) => renameGroup(p, id, ""))}
+              onDeleteGroup={deleteTopSection}
+              onMoveToGroup={(entryId, groupId) => mutate((p) => moveEntryToGroup(p, entryId, groupId))}
               onReorderFragment={reorderFragment}
               onReorderResearch={reorderResearch}
               onRead={() => {
@@ -2388,22 +2529,18 @@ export default function App() {
                   <button className="snapshot-button" onClick={snapshot}>
                     <History size={16} /> Snapshot
                   </button>
-                  <button
-                    aria-label="Export portable project"
-                    title="Export complete project JSON"
-                    onClick={() =>
-                      void run(async () => {
-                        const p = current.current ?? project;
-                        if (!p) return;
-                        const archive = await createProjectArchive(p, (id) =>
-                          storage.readAsset(p.id, id),
-                        );
-                        download(p.title + ".json", archive, "application/json");
-                      })
-                    }
-                  >
-                    <Download size={16} />
-                  </button>
+                  <ExportMenu
+                    project={current.current ?? project}
+                    open={exportMenuOpen}
+                    onOpenChange={setExportMenuOpen}
+                    onNotice={setNotice}
+                    onError={setError}
+                    onExportSettings={() => {
+                      goToDestination("settings");
+                      scrollToSettingsSection("Export document");
+                    }}
+                    onExportComplete={exportCompleteProject}
+                  />
                 </div>
               </header>
               {mode === "read" && sections.length > 1 && (
@@ -2434,6 +2571,7 @@ export default function App() {
               {destination === "settings" ? (
                 <div className="project-settings">
                   <h1>Project settings</h1>
+                  <SettingsNav />
                   {generalSettings(projectSidebarExtras)}
                   <section className="settings-section">
                     <h2>Goals</h2>
@@ -2482,7 +2620,13 @@ export default function App() {
                     onSettingsChange={(documentSettings) =>
                       mutate((p) => ({
                         ...p,
-                        documentSettings,
+                        documentSettings: {
+                          ...p.documentSettings,
+                          ...changedSettings(
+                            exportSettings(p.documentSettings),
+                            documentSettings,
+                          ),
+                        },
                         pageLayout: p.pageLayout
                           ? {
                               ...p.pageLayout,
@@ -2511,7 +2655,7 @@ export default function App() {
                     mutate((p) => ({
                       ...p,
                       documentSettings: {
-                        ...(p.documentSettings ?? defaultDocumentSettings),
+                        ...p.documentSettings,
                         ...patch,
                       },
                     }))
@@ -2548,8 +2692,8 @@ export default function App() {
                         onChange={(font) => setReader({ ...reader, font })}
                         options={[
                           {
-                            value: "Futura, Avenir, sans-serif",
-                            label: "Futura / Avenir",
+                            value: "var(--ui-font)",
+                            label: "Interface font",
                           },
                           {
                             value: "-apple-system, sans-serif",
@@ -2907,7 +3051,7 @@ export default function App() {
               </aside>
             )}
             {destination === "research" && !showCard && (
-              <aside className="research-aside" style={{ width: asideWidth }}>
+              <aside ref={researchAside} className="research-aside" style={{ width: asideWidth }}>
                 <header>
                   <strong>Research</strong>
                   <button
@@ -2926,6 +3070,9 @@ export default function App() {
                   initialTab={researchTab}
                   focusFootnoteId={focusFootnote}
                   focusSourceId={focusSource}
+                  footnoteLocations={footnoteLocations(project)}
+                  onGoToFootnote={goToFootnote}
+                  onDeleteTextOnlyFootnote={deleteTextOnlyFootnote}
                   bibliography={bibliography}
                   citationContext={citationContext}
                   onInsertNote={insertResearchNote}

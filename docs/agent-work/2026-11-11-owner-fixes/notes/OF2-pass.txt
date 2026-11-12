@@ -1,0 +1,53 @@
+
+Running 40 tests using 1 worker
+
+[1/40] tests/floating.spec.ts:91:3 › floating sidebar › off by default: the normal panel
+[2/40] tests/floating.spec.ts:98:3 › floating sidebar › page view at 100 %: bare text in the left margin, clear of the sheet
+[3/40] tests/floating.spec.ts:123:3 › floating sidebar › UI wave 7 C: at one window size the floating contents line up with the docked ones
+[4/40] tests/floating.spec.ts:170:3 › floating sidebar › a tight margin narrows the sidebar and still keeps the gap
+[5/40] tests/floating.spec.ts:187:3 › floating sidebar › continuous view: clear of the text column
+[6/40] tests/floating.spec.ts:196:3 › floating sidebar › a narrow window falls back to the normal panel
+[7/40] tests/floating.spec.ts:209:3 › floating sidebar › a 1100 px window: continuous view floats and stays clear, page view keeps the panel
+[8/40] tests/floating.spec.ts:223:3 › floating sidebar › page view at 150 % falls back, and floats again at 100 %
+[9/40] tests/floating.spec.ts:237:3 › floating sidebar › Toggle sidebar, pin, hover reveal and Escape keep working
+[10/40] tests/floating.spec.ts:286:3 › floating sidebar › unpinned: a slow 1 px pointer walk across the gap keeps the sidebar revealed
+[11/40] tests/floating.spec.ts:305:3 › floating sidebar › unpinned: z-index 4 and a format-bar menu paints above the sidebar
+[12/40] tests/floating.spec.ts:344:3 › floating sidebar › Reduce Motion: revealing has no transition
+[13/40] tests/floating.spec.ts:357:3 › floating sidebar › split view falls back to the panel
+[14/40] tests/floating.spec.ts:377:3 › floating sidebar › a destination page falls back to the panel
+[15/40] tests/floating.spec.ts:386:3 › floating sidebar › focus mode: the sidebar starts below the toolbar reveal band
+[16/40] tests/floating.spec.ts:411:3 › floating sidebar screenshots › light/dark, Plain/Color, page/continuous
+[17/40] tests/floating.spec.ts:550:3 › citation card › the Research heading opens the card at the top right, clear of the page and the bars
+[18/40] tests/floating.spec.ts:583:3 › citation card › no drift: DOI -> preview -> Cite here stores what the panel stores
+[19/40] tests/floating.spec.ts:627:3 › citation card › Add another gives an empty lookup with focus
+[20/40] tests/floating.spec.ts:644:3 › citation card › a footnote number opens its card; Page edits the locator; Escape returns to the editor
+[21/40] tests/floating.spec.ts:668:3 › citation card › the card's link opens the full panel with the source expanded; its X closes it
+[22/40] tests/floating.spec.ts:682:3 › citation card › source and note rows in the sidebar open the full panel
+[23/40] tests/floating.spec.ts:691:3 › citation card › a narrow window falls back to the research panel
+[24/40] tests/floating.spec.ts:699:3 › citation card › narrowing the window while the card is open swaps it for the panel
+[25/40] tests/floating.spec.ts:710:3 › citation card › T5: a 1240 window at 75 %: the docked sidebar's room counts, so the sidebar floats and Research opens the card
+[26/40] tests/floating.spec.ts:722:3 › citation card › T5: widening the window while the research panel is open hands it back to the card
+[27/40] tests/floating.spec.ts:733:3 › citation card › T5: a toast raised while the card is open never covers the card or the sheet
+[28/40] tests/floating.spec.ts:749:3 › citation card › T5: on a short window the card reaches the toast's corner, so the toast sits left of it
+[29/40] tests/floating.spec.ts:766:3 › citation card › T5: a toast raised while the research panel is open sits left of the panel
+[30/40] tests/floating.spec.ts:788:5 › citation card › T5: page view, Research open, widening: one steady state per width, never over the sheet
+[31/40] tests/floating.spec.ts:788:5 › citation card › T5: page view, Research open, narrowing: one steady state per width, never over the sheet
+[32/40] tests/floating.spec.ts:830:3 › citation card › floating off: the research panel as before
+[33/40] tests/floating.spec.ts:838:3 › citation card › Reduce Motion: the card opens without a transition
+[34/40] tests/floating.spec.ts:848:3 › citation card › keyboard only: manual entry, Cite here, Add another, Escape returns focus
+[35/40] tests/floating.spec.ts:897:3 › citation card › focus mode: the card sits below the reveal band and the revealed toolbar does not cover it
+[36/40] tests/floating.spec.ts:917:3 › citation card › split view: the heading and a footnote number open the panel
+[37/40] tests/floating.spec.ts:948:3 › citation card screenshots › card states in light/dark, Plain/Color
+[38/40] tests/floating.spec.ts:1015:5 › floating sidebar: zoomed continuous view › continuous view at 125 %: never over the text, same state resizing up and down
+[39/40] tests/floating.spec.ts:1015:5 › floating sidebar: zoomed continuous view › continuous view at 150 %: never over the text, same state resizing up and down
+[40/40] tests/of2-fragment-title.spec.ts:58:3 › OF2 floating title › the title sits in the same place in a section and in a fragment
+tests/of2-fragment-title.spec.ts:58:3 › OF2 floating title › the title sits in the same place in a section and in a fragment
+OF2 section {"bgBehindTitle":"rgb(245, 245, 247)","bgBelowSearch":"rgb(245, 245, 247)","titleX":12,"titleY":130,"sidebarTop":114,"sidebarLeft":0,"originShown":false}
+
+OF2 fragment {"bgBehindTitle":"rgb(245, 245, 247)","bgBelowSearch":"rgb(245, 245, 247)","titleX":12,"titleY":130,"sidebarTop":114,"sidebarLeft":0,"originShown":true}
+
+  Slow test file: tests/floating.spec.ts (5.1m)
+  Consider running tests from slow files in parallel. See: https://playwright.dev/docs/test-parallel
+  40 passed (5.3m)
+PW_EXIT 0
+EXIT

@@ -1,0 +1,96 @@
+{
+  "id": "T271",
+  "title": "W9 E1 -- Add the Export menu to the header with a shortcut",
+  "description": "Follow section '### E1 --' of docs/agent-work/2026-11-10-ui-wave-9/PLAN.md exactly, plus its 'Rules for every worker'. Verify: exportActions.test.ts passes; tests/w9-export-menu.spec.ts and the shortcuts, command-palette, markdown-roundtrip and features specs pass. Browser test port: PLAYWRIGHT_PORT=1442. No commits, no new packages, never run npm run build or a native screen script. Write the note docs/agent-work/2026-11-10-ui-wave-9/notes/E1.md.",
+  "status": "done",
+  "owner": null,
+  "priority": 1,
+  "depends_on": [
+    "T254"
+  ],
+  "files": [
+    "src/App.tsx",
+    "src/export/ExportMenu.tsx",
+    "src/export/exportActions.ts",
+    "src/export/exportActions.test.ts",
+    "src/export/ExportPanel.tsx",
+    "src/shortcuts/registry.ts",
+    "tests/w9-export-menu.spec.ts",
+    "docs/agent-work/2026-11-10-ui-wave-9/notes/E1.md",
+    "test-results/T271-review",
+    "node_modules/.cache/personal-word-beta/t271-review",
+    "src/export/export-menu.css"
+  ],
+  "review_required": true,
+  "created_by": "agent-b307",
+  "created_at": "2026-11-10T22:24:39+00:00",
+  "claimed_at": "2026-11-11T00:41:23+00:00",
+  "updated_at": "2026-11-11T02:49:28+00:00",
+  "handoff": {
+    "by": "agent-c1b2",
+    "at": "2026-11-11T00:40:28+00:00",
+    "text": "Not approved yet: the task's new browser spec has 1 failing case (Export settings section in viewport) because scrollToSettingsSection is still the T0 stub. Common rule 7 requires a new spec to fully pass; the note confirms this failure. The call site is wired to the intended S1 API, so no code defect is established, but after T275 fills the hook this spec must be rerun and pass before review approval. Other reported checks are CLAIMED in the owner note; I did not rerun them in this review."
+  },
+  "review": {
+    "by": "agent-2ff3",
+    "at": "2026-11-11T02:49:28+00:00",
+    "verdict": "approved",
+    "note": "Approved (agent-2ff3, W9 reviewer r2). Read in full: exportActions.ts (save/saveText/saveMarkdownBundle bodies moved unchanged: same file names, MIME types, missing-asset error, 'DOCX/PDF exported.' messages preserved), ExportMenu.tsx (Popover role=menu, 8 rows + separator in the planned order, arrows/Home/End/Enter/Escape-refocus/Tab), export-menu.css, ExportPanel.tsx diff (one save(format) -> exportProject, keeps busy/message/buttons), registry.ts (exportDocument Cmd+Shift+E, app scope), App.tsx export hunks only (ExportMenu replaces the portable-project icon; exportCompleteProject = old icon code; runAppAction opens the menu; palette label 'Export...'). Earlier rework demands met: Export settings case now passes with S1; inline styles moved to export-menu.css (one tiny wrapper span style position:relative/inline-flex remains, not blocking); failure-path unit test added. Fresh runs: npx vitest run src/export/exportActions.test.ts src/shortcuts -> 24/24 passed; npx tsc -b -> exit 0 (no errors at all now); PLAYWRIGHT_PORT=1442 npx playwright test tests/w9-export-menu.spec.ts tests/shortcuts.spec.ts tests/command-palette.spec.ts tests/markdown-roundtrip.spec.ts tests/features.spec.ts --output test-results/T271-review -> 36 passed, 4 skipped, 4 failed; w9-export-menu 6/6. The 4 failures are markdown-roundtrip :179 :192 :318 :357, identical lines and identical cause (dev server serves HTML / cannot fetch the production markdownBundle chunk) to notes/baseline-dev.txt lines 227-232, so baseline per common rule 7. For T277: those 4 cases exercise the moved Markdown-bundle export path and only run meaningfully against a production preview; they must pass there. Minor test gaps (not blocking): the 1100 px case checks the right-hand group and header height but not title-vs-buttons overlap; Cmd+Shift+E in native WebKit not checked (T278)."
+  },
+  "log": [
+    {
+      "at": "2026-11-10T22:24:39+00:00",
+      "agent": "agent-b307",
+      "event": "created",
+      "note": ""
+    },
+    {
+      "at": "2026-11-11T00:10:32+00:00",
+      "agent": "agent-5772",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-11-11T00:10:33+00:00",
+      "agent": "agent-5772",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-11-11T00:32:30+00:00",
+      "agent": "agent-5772",
+      "event": "review requested",
+      "note": "Export menu built; full detail in docs/agent-work/2026-11-10-ui-wave-9/notes/E1.md. w9-export-menu.spec 5/6 pass; the 'Export settings in view' test needs S1 (T275) to fill scrollToSettingsSection (still a stub). exportActions unit 2/2, tsc clean, existing specs only baseline failures (features:20 and shortcuts:25 were ENOENT test-results collisions, pass on rerun)."
+    },
+    {
+      "at": "2026-11-11T00:40:28+00:00",
+      "agent": "agent-c1b2",
+      "event": "rejected",
+      "note": "Not approved yet: the task's new browser spec has 1 failing case (Export settings section in viewport) because scrollToSettingsSection is still the T0 stub. Common rule 7 requires a new spec to fully pass; the note confirms this failure. The call site is wired to the intended S1 API, so no code defect is established, but after T275 fills the hook this spec must be rerun and pass before review approval. Other reported checks are CLAIMED in the owner note; I did not rerun them in this review."
+    },
+    {
+      "at": "2026-11-11T00:41:23+00:00",
+      "agent": "agent-c1b2",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-11-11T00:41:39+00:00",
+      "agent": "agent-c1b2",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-11-11T02:11:23+00:00",
+      "agent": "agent-c1b2",
+      "event": "review requested",
+      "note": "Export menu implementation complete. Fresh verification: npx vitest run src/export/exportActions.test.ts src/shortcuts -> 24 passed; E1 browser spec after T275: 6/6 passed (including settings viewport and shortcut focus/navigation/Escape); hover-emphasis: 4/4 passed; git diff --check passed. Existing required specs: shortcuts, command-palette and features passed all cases; 30/38 overall passed with 4 skipped and 4 known markdown-roundtrip failures (tests 179/192/318/357) because dev server returns the HTML shell instead of the production chunk; these are recorded as failures, not passes, in E1.md with full logs. No native or app build run. Please review, including whether the existing markdown-roundtrip baseline failures are acceptable for T271."
+    },
+    {
+      "at": "2026-11-11T02:49:28+00:00",
+      "agent": "agent-2ff3",
+      "event": "approved",
+      "note": "Approved (agent-2ff3, W9 reviewer r2). Read in full: exportActions.ts (save/saveText/saveMarkdownBundle bodies moved unchanged: same file names, MIME types, missing-asset error, 'DOCX/PDF exported.' messages preserved), ExportMenu.tsx (Popover role=menu, 8 rows + separator in the planned order, arrows/Home/End/Enter/Escape-refocus/Tab), export-menu.css, ExportPanel.tsx diff (one save(format) -> exportProject, keeps busy/message/buttons), registry.ts (exportDocument Cmd+Shift+E, app scope), App.tsx export hunks only (ExportMenu replaces the portable-project icon; exportCompleteProject = old icon code; runAppAction opens the menu; palette label 'Export...'). Earlier rework demands met: Export settings case now passes with S1; inline styles moved to export-menu.css (one tiny wrapper span style position:relative/inline-flex remains, not blocking); failure-path unit test added. Fresh runs: npx vitest run src/export/exportActions.test.ts src/shortcuts -> 24/24 passed; npx tsc -b -> exit 0 (no errors at all now); PLAYWRIGHT_PORT=1442 npx playwright test tests/w9-export-menu.spec.ts tests/shortcuts.spec.ts tests/command-palette.spec.ts tests/markdown-roundtrip.spec.ts tests/features.spec.ts --output test-results/T271-review -> 36 passed, 4 skipped, 4 failed; w9-export-menu 6/6. The 4 failures are markdown-roundtrip :179 :192 :318 :357, identical lines and identical cause (dev server serves HTML / cannot fetch the production markdownBundle chunk) to notes/baseline-dev.txt lines 227-232, so baseline per common rule 7. For T277: those 4 cases exercise the moved Markdown-bundle export path and only run meaningfully against a production preview; they must pass there. Minor test gaps (not blocking): the 1100 px case checks the right-hand group and header height but not title-vs-buttons overlap; Cmd+Shift+E in native WebKit not checked (T278)."
+    }
+  ]
+}

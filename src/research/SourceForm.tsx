@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import { Dropdown, type DropdownOption } from "../components/Dropdown";
 import { DropTarget, type DropItem } from "../components/DropTarget";
 import { readDroppedPdf } from "../import/dropImport";
@@ -12,44 +13,19 @@ export const acceptPdf = (file: DropItem) => {
   return file.size > MAX_PDF_BYTES ? "PDFs must be 25 MB or smaller." : null;
 };
 const kindOptions: DropdownOption<Source["kind"]>[] = Object.entries(kindLabels).map(([value,label])=>({value:value as Source["kind"],label}));
-export function SourceForm({ source, patch, idPrefix, onError, onAttachPdf, onOpenPdf, variant = "full" }: { source: Source; patch: (value: Partial<Source>) => void; idPrefix: string; onError: (text: string, error?: boolean) => void; onAttachPdf?: (id: string, file: File) => Promise<void>; onOpenPdf?: (id: string) => void; variant?: "full" | "card" }) {
+export function SourceForm({ source, patch, idPrefix, onError, onAttachPdf, onOpenPdf, variant = "full", children }: { source: Source; patch: (value: Partial<Source>) => void; idPrefix: string; onError: (text: string, error?: boolean) => void; onAttachPdf?: (id: string, file: File) => Promise<void>; onOpenPdf?: (id: string) => void; variant?: "full" | "card"; children?: ReactNode }) {
  const fieldId=(key:string)=>`${idPrefix}-${key}`;
+ const missing = [
+  !source.title.trim() && "title",
+  !source.authors.some((name) => name.trim()) && !source.creators?.some((creator) => creator.role === "author" && [creator.literal, creator.given, creator.family].some((value) => value?.trim())) && "creator or intentional no-author entry",
+  !source.year && !source.publishedDate && "publication date or intentional no-date entry",
+ ].filter(Boolean) as string[];
  const body = <>
       {variant === "full" && <>
-      <div className="field source-pdf-field">
-          <span className="field-label">PDF</span>
-          {source.pdf ? (
-            <>
-              <span className="source-pdf-name">{source.pdf.name}</span>
-              <span className="source-pdf-size">{source.pdf.byteLength < 1024
-                ? `${source.pdf.byteLength} B`
-                : `${(source.pdf.byteLength / 1024).toFixed(1)} KB`}</span>
-              <div className="item-actions">
-                <button type="button" onClick={() => onOpenPdf?.(source.id)}>Open beside</button>
-                <button type="button" className="is-danger" onClick={() => patch({ pdf: undefined })}>Remove PDF</button>
-              </div>
-            </>
-          ) : (
-            <DropTarget
-              accept={acceptPdf}
-              label="Drop to attach"
-              onReject={(reason) => onError(reason, true)}
-              onFiles={(files) => {
-                if (files.length !== 1) return onError("Attach one PDF at a time.", true);
-                onError("");
-                const [file] = files;
-                if (typeof file !== "string") return void onAttachPdf?.(source.id, file);
-                readDroppedPdf(file).then(
-                  (read) => onAttachPdf?.(source.id, read),
-                  (error) => onError(String(error), true),
-                );
-              }}
-            />
-          )}
-        </div>
         {source.lookupNote && (
           <p className="research-hint">{source.lookupNote} -- review the details</p>
         )}
+        <h4 className="research-subhead">Source</h4>
       </>}
         <div className="field">
           <span className="field-label">Source type</span>
@@ -87,14 +63,6 @@ export function SourceForm({ source, patch, idPrefix, onError, onAttachPdf, onOp
             value={source.title}
             onChange={(title) => patch({ title })}
           />
-          {variant === "full" && <Field
-            id={fieldId("shortTitle")}
-            label="Short title"
-            wide
-            value={source.shortTitle ?? ""}
-            placeholder="Used in shortened notes"
-            onChange={(shortTitle) => patch({ shortTitle: shortTitle || undefined })}
-          />}
           {source.kind === "book" && (
             <>
               <Field
@@ -182,38 +150,61 @@ export function SourceForm({ source, patch, idPrefix, onError, onAttachPdf, onOp
               <Field key={key} id={fieldId(key)} label={label} value={source[key] ?? ""} onChange={(value) => patch({ [key]: value })} />)}
           </>}
           {variant === "full" && source.kind === "chapter" && <button type="button" onClick={() => patch({ creators: [...(source.creators ?? []), { role: "editor", literal: "" }] })}>Add editor</button>}
-          {variant === "full" && <Field id={fieldId("edition")} label="Edition" value={source.edition ?? ""} onChange={(edition) => patch({ edition })} />}
-          {variant === "full" && ([ ["manualFull", "Manual full note"], ["manualShort", "Manual short note"], ["manualBibliography", "Manual bibliography entry"] ] as const).map(([key, label]) =>
-            <Field key={key} id={fieldId(key)} label={label} wide multiline help="When supplied, this exact text overrides automatic formatting." value={source[key] ?? ""} onChange={(value) => patch({ [key]: value })} />)}
-          {variant === "full" && <p className="research-hint">Review required details: {[
-            !source.title.trim() && "title",
-            !source.authors.some((name) => name.trim()) && !source.creators?.some((creator) => creator.role === "author" && [creator.literal, creator.given, creator.family].some((value) => value?.trim())) && "creator or intentional no-author entry",
-            !source.year && !source.publishedDate && "publication date or intentional no-date entry",
-          ].filter(Boolean).join("; ") || "core fields present -- verify names, dates and publication details"}.</p>}
-          {variant === "full" && source.cslData && <details><summary>Original imported CSL fields</summary><pre style={{ whiteSpace: "pre-wrap", overflowWrap: "anywhere" }}>{JSON.stringify(source.cslData, null, 2)}</pre></details>}
-        <Field
-            id={fieldId("doi")}
-            label="DOI"
-            wide
-            value={source.doi ?? ""}
-            onChange={(doi) => patch({ doi })}
-          />
-          {source.kind === "book" && (
-            <Field
-              id={fieldId("isbn")}
-              label="ISBN"
-              value={source.isbn ?? ""}
-              onChange={(isbn) => patch({ isbn })}
-            />
-          )}
-          <Field
-            id={fieldId("url")}
-            label="URL"
-            wide
-            value={source.url ?? ""}
-            onChange={(url) => patch({ url })}
-          />
+          {variant === "card" && <>
+            <Field id={fieldId("doi")} label="DOI" wide value={source.doi ?? ""} onChange={(doi) => patch({ doi })} />
+            {source.kind === "book" && <Field id={fieldId("isbn")} label="ISBN" value={source.isbn ?? ""} onChange={(isbn) => patch({ isbn })} />}
+            <Field id={fieldId("url")} label="URL" wide value={source.url ?? ""} onChange={(url) => patch({ url })} />
+          </>}
+          {variant === "full" && missing.length > 0 && <p className="research-hint">Review required details: {missing.join("; ")}.</p>}
         </div>
+        {variant === "full" && <>
+          {children}
+          <details className="source-more">
+            <summary>More details</summary>
+            <div className="research-fields">
+              <Field id={fieldId("shortTitle")} label="Short title" wide value={source.shortTitle ?? ""} placeholder="Used in shortened notes" onChange={(shortTitle) => patch({ shortTitle: shortTitle || undefined })} />
+              <Field id={fieldId("edition")} label="Edition" value={source.edition ?? ""} onChange={(edition) => patch({ edition })} />
+              <Field id={fieldId("doi")} label="DOI" wide value={source.doi ?? ""} onChange={(doi) => patch({ doi })} />
+              {source.kind === "book" && <Field id={fieldId("isbn")} label="ISBN" value={source.isbn ?? ""} onChange={(isbn) => patch({ isbn })} />}
+              <Field id={fieldId("url")} label="URL" wide value={source.url ?? ""} onChange={(url) => patch({ url })} />
+              <p className="research-hint">When supplied, this exact text overrides automatic formatting.</p>
+              {([ ["manualFull", "Manual full note"], ["manualShort", "Manual short note"], ["manualBibliography", "Manual bibliography entry"] ] as const).map(([key, label]) =>
+                <Field key={key} id={fieldId(key)} label={label} wide multiline value={source[key] ?? ""} onChange={(value) => patch({ [key]: value })} />)}
+              {source.cslData && <details><summary>Original imported CSL fields</summary><pre style={{ whiteSpace: "pre-wrap", overflowWrap: "anywhere" }}>{JSON.stringify(source.cslData, null, 2)}</pre></details>}
+              <div className="field source-pdf-field">
+                  <span className="field-label">PDF</span>
+                  {source.pdf ? (
+                    <>
+                      <span className="source-pdf-name">{source.pdf.name}</span>
+                      <span className="source-pdf-size">{source.pdf.byteLength < 1024
+                        ? `${source.pdf.byteLength} B`
+                        : `${(source.pdf.byteLength / 1024).toFixed(1)} KB`}</span>
+                      <div className="item-actions">
+                        <button type="button" onClick={() => onOpenPdf?.(source.id)}>Open beside</button>
+                        <button type="button" className="is-danger" onClick={() => patch({ pdf: undefined })}>Remove PDF</button>
+                      </div>
+                    </>
+                  ) : (
+                    <DropTarget
+                      accept={acceptPdf}
+                      label="Drop to attach"
+                      onReject={(reason) => onError(reason, true)}
+                      onFiles={(files) => {
+                        if (files.length !== 1) return onError("Attach one PDF at a time.", true);
+                        onError("");
+                        const [file] = files;
+                        if (typeof file !== "string") return void onAttachPdf?.(source.id, file);
+                        readDroppedPdf(file).then(
+                          (read) => onAttachPdf?.(source.id, read),
+                          (error) => onError(String(error), true),
+                        );
+                      }}
+                    />
+                  )}
+                </div>
+            </div>
+          </details>
+        </>}
       </>;
  return variant === "card" ? <div className="research-fields-source">{body}</div> : body;
 }

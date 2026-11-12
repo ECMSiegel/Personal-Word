@@ -1,0 +1,79 @@
+
+ RUN  v4.1.11 /Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor
+
+ ❯ src/export/pageNumbers.test.ts (8 tests | 4 failed) 7605ms
+   × top-center: PDF number sits in the top margin, centred 1782ms
+   × corner positions and Chicago skip/start-at-0 hold for PDF 737ms
+   × top-center: Word has a centred PAGE header and no page-number footer 1634ms
+   × bottom positions keep the footer; absent equals bottom-right 1457ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 4 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/export/pageNumbers.test.ts > top-center: PDF number sits in the top margin, centred
+AssertionError: expected 36 to be greater than 720
+ ❯ src/export/pageNumbers.test.ts:69:18
+     67|   );
+     68|   const last = draws[draws.length - 1];
+     69|   expect(last.y).toBeGreaterThan(height - 72); // inside the 1 inch to…
+       |                  ^
+     70|   expect(Math.abs(last.x - width / 2)).toBeLessThan(10); // centred (d…
+     71| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/4]⎯
+
+ FAIL  src/export/pageNumbers.test.ts > corner positions and Chicago skip/start-at-0 hold for PDF
+AssertionError: expected 530 to be 72 // Object.is equality
+
+- Expected
++ Received
+
+- 72
++ 530
+
+ ❯ src/export/pageNumbers.test.ts:84:43
+     82| it("corner positions and Chicago skip/start-at-0 hold for PDF", async …
+     83|   const tl = await pdfNumberDraw(project("top-left"), 0);
+     84|   expect(tl.draws[tl.draws.length - 1].x).toBe(72);
+       |                                           ^
+     85|   const tr = await pdfNumberDraw(project("top-right"), 0);
+     86|   const last = tr.draws[tr.draws.length - 1];
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/4]⎯
+
+ FAIL  src/export/pageNumbers.test.ts > top-center: Word has a centred PAGE header and no page-number footer
+AssertionError: expected 0 to be greater than 0
+ ❯ src/export/pageNumbers.test.ts:102:26
+    100| it("top-center: Word has a centred PAGE header and no page-number foot…
+    101|   const { headers, footers } = await docxParts(project("top-center"));
+    102|   expect(headers.length).toBeGreaterThan(0);
+       |                          ^
+    103|   expect(headers.join("")).toMatch(/w:jc w:val="center"/);
+    104|   expect(headers.join("")).toMatch(/PAGE/);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/4]⎯
+
+ FAIL  src/export/pageNumbers.test.ts > bottom positions keep the footer; absent equals bottom-right
+AssertionError: expected '<?xml version="1.0" encoding="UTF-8"?…' to match /w:jc w:val="left"/
+
+- Expected:
+/w:jc w:val="left"/
+
++ Received:
+"<?xml version=\"1.0\" encoding=\"UTF-8\"?><w:ftr xmlns:wpc=\"http://schemas.microsoft.com/office/word/2010/wordprocessingCanvas\" xmlns:mc=\"http://schemas.openxmlformats.org/markup-compatibility/2006\" xmlns:o=\"urn:schemas-microsoft-com:office:office\" xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\" xmlns:m=\"http://schemas.openxmlformats.org/officeDocument/2006/math\" xmlns:v=\"urn:schemas-microsoft-com:vml\" xmlns:wp14=\"http://schemas.microsoft.com/office/word/2010/wordprocessingDrawing\" xmlns:wp=\"http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing\" xmlns:w10=\"urn:schemas-microsoft-com:office:word\" xmlns:w=\"http://schemas.openxmlformats.org/wordprocessingml/2006/main\" xmlns:w14=\"http://schemas.microsoft.com/office/word/2010/wordml\" xmlns:w15=\"http://schemas.microsoft.com/office/word/2012/wordml\" xmlns:wpg=\"http://schemas.microsoft.com/office/word/2010/wordprocessingGroup\" xmlns:wpi=\"http://schemas.microsoft.com/office/word/2010/wordprocessingInk\" xmlns:wne=\"http://schemas.microsoft.com/office/word/2006/wordml\" xmlns:wps=\"http://schemas.microsoft.com/office/word/2010/wordprocessingShape\"><w:p><w:pPr><w:jc w:val=\"right\"/></w:pPr><w:r><w:fldChar w:fldCharType=\"begin\"/><w:instrText xml:space=\"preserve\">PAGE</w:instrText><w:fldChar w:fldCharType=\"separate\"/><w:fldChar w:fldCharType=\"end\"/></w:r></w:p></w:ftr>"
+
+ ❯ src/export/pageNumbers.test.ts:116:31
+    114|   expect(absent.headers.join("")).not.toMatch(/PAGE/);
+    115|   const bl = await docxParts(project("bottom-left"));
+    116|   expect(bl.footers.join("")).toMatch(/w:jc w:val="left"/);
+       |                               ^
+    117| });
+    118|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/4]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  4 failed | 4 passed (8)
+   Start at  23:07:54
+   Duration  19.63s (transform 3.34s, setup 0ms, import 9.64s, tests 7.61s, environment 0ms)
+

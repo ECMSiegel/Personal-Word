@@ -1,0 +1,59 @@
+{
+  "id": "T295",
+  "title": "HS4 -- Docked sidebar header lines up with the main pane",
+  "description": "Full brief: docs/agent-work/2026-11-11-home-stretch/BRIEF.md then section HS4 of docs/agent-work/2026-11-11-home-stretch/TASKS.md. Shared files (styles.css, App.tsx, Writer.tsx, editor/editor.css) are edited by region only and registered on no task.",
+  "status": "done",
+  "owner": null,
+  "priority": 2,
+  "depends_on": [],
+  "files": [
+    "docs/agent-work/2026-11-11-home-stretch/notes/HS4.md",
+    "docs/agent-work/2026-11-11-home-stretch/notes/HS4-fail-first.txt",
+    "tests/hs4-sidebar-align.spec.ts",
+    "tests/alignment.spec.ts"
+  ],
+  "review_required": true,
+  "created_by": "agent-b823",
+  "created_at": "2026-11-12T03:58:43+00:00",
+  "claimed_at": "2026-11-12T04:00:52+00:00",
+  "updated_at": "2026-11-12T05:27:05+00:00",
+  "handoff": null,
+  "review": {
+    "by": "agent-1324",
+    "at": "2026-11-12T05:27:05+00:00",
+    "verdict": "approved",
+    "note": "Approve. Measured: title centre 54 = topbar 54, search 94 = format bar 94, left 12 = heading 12; overlay unchanged (pad 16, title 36); floating pinned by spec. Light/dark/Comments/Read screenshots looked at. WebKit/native titlebar unverified. See REVIEW-1.md."
+  },
+  "log": [
+    {
+      "at": "2026-11-12T03:58:43+00:00",
+      "agent": "agent-b823",
+      "event": "created",
+      "note": ""
+    },
+    {
+      "at": "2026-11-12T04:00:52+00:00",
+      "agent": "agent-af61",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-11-12T04:00:58+00:00",
+      "agent": "agent-af61",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-11-12T04:56:19+00:00",
+      "agent": "agent-af61",
+      "event": "review requested",
+      "note": "HS4: styles.css docked-sidebar block; new tests/hs4-sidebar-align.spec.ts failed first (title 68 vs 54), after: hs4+alignment 16 passed; wide sidebar after-run skipped on coordinator instruction"
+    },
+    {
+      "at": "2026-11-12T05:27:05+00:00",
+      "agent": "agent-1324",
+      "event": "approved",
+      "note": "Approve. Measured: title centre 54 = topbar 54, search 94 = format bar 94, left 12 = heading 12; overlay unchanged (pad 16, title 36); floating pinned by spec. Light/dark/Comments/Read screenshots looked at. WebKit/native titlebar unverified. See REVIEW-1.md."
+    }
+  ]
+}

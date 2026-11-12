@@ -1,5 +1,5 @@
 import { test, expect, type Page } from "@playwright/test";
-import { create, setZoom, settle, togglePageView } from "./pages-helpers";
+import { create, dense, seedBlocks, setZoom, settle, togglePageView } from "./pages-helpers";
 
 // UI wave 5, C3 (docs/agent-work/2026-11-01-ui-wave-5/PLAN.md): with
 // "Floating sidebar and research" on and room in the left margin, the sidebar
@@ -405,6 +405,66 @@ test.describe("floating sidebar", () => {
 
 // Screenshots for the review (light/dark x Plain/Color x page/continuous, and
 // the narrow fallback). PW_SHOTS_DIR points them at the task's cache folder.
+/** Read manuscript: several sections with text, then the reader open. */
+async function openReader(page: Page, title: string) {
+  await create(page, title);
+  for (const name of ["Second part", "Third part", "Fourth part"]) {
+    await page.getByRole("button", { name: "New section", exact: true }).click();
+    await page.getByLabel("Title", { exact: true }).fill(name);
+    await page.getByRole("button", { name: "Save", exact: true }).click();
+  }
+  await seedBlocks(page, dense(8));
+  await page.getByRole("button", { name: "Read manuscript", exact: true }).click();
+  await expect(page.locator(".manuscript-read")).toBeVisible();
+  await settle(page);
+}
+
+test.describe("floating sidebar: Read manuscript", () => {
+  test.use({ viewport: { width: 1600, height: 900 } });
+
+  test("starts at the top of the reading area, shows the Manuscript heading, clear of the text, stays put on scroll", async ({ page }, testInfo) => {
+    await seedFloating(page, true);
+    await openReader(page, "Floating read");
+    await expect(shell(page)).toHaveClass(/is-floating/);
+    const reader = await rect(page, ".manuscript-read");
+    const title = await rect(page, "aside.sidebar .sidebar-title-row");
+    expect(title.top - reader.top, `title top ${title.top} vs reading area top ${reader.top}`).toBeLessThan(60);
+    const heading = page.locator("aside.sidebar .sidebar-groups .group-title", { hasText: "Manuscript" }).first();
+    await expect(heading).toBeVisible();
+    // The heading is not clipped by the scroll-fade mask or the box.
+    const side = await rect(page, "aside.sidebar");
+    const h = await heading.evaluate((el) => { const r = el.getBoundingClientRect(); return { top: r.top, bottom: r.bottom }; });
+    expect(h.top).toBeGreaterThanOrEqual(side.top);
+    expect(h.bottom).toBeLessThanOrEqual(side.bottom);
+    const groups = await rect(page, "aside.sidebar .sidebar-groups");
+    expect(h.top).toBeGreaterThanOrEqual(groups.top - 0.5);
+    expect(h.bottom).toBeLessThanOrEqual(groups.bottom + 0.5);
+    const boxes = await page.locator(".manuscript-read .read-prose").evaluateAll((els) =>
+      els.map((el) => { const r = el.getBoundingClientRect(); return { left: r.left, right: r.right, top: r.top, bottom: r.bottom }; }));
+    expect(boxes.length).toBeGreaterThan(1);
+    for (const b of boxes) expect(intersects(side, { ...b, top: -1e6, bottom: 1e6 })).toBe(false);
+    const footer = await rect(page, ".pane-footer");
+    expect(side.bottom).toBeLessThanOrEqual(footer.top + 0.5);
+    await page.screenshot({ path: testInfo.outputPath("read-before-scroll.png") });
+    // Scrolling the reader leaves the sidebar where it was.
+    await page.locator(".manuscript-read").evaluate((el) => { el.scrollTop = 600; });
+    await settle(page);
+    const after = await rect(page, "aside.sidebar");
+    expect(after.top).toBeCloseTo(side.top, 0);
+    expect(after.bottom).toBeCloseTo(side.bottom, 0);
+    await expect(heading).toBeVisible();
+    await page.screenshot({ path: testInfo.outputPath("read-after-scroll.png") });
+  });
+
+  test("a narrow window falls back to the normal panel", async ({ page }) => {
+    await seedFloating(page, true);
+    await page.setViewportSize({ width: 1040, height: 800 });
+    await openReader(page, "Floating read narrow");
+    await expect(shell(page)).not.toHaveClass(/is-floating/);
+    await expect(sidebar(page)).not.toHaveCSS("background-color", TRANSPARENT);
+  });
+});
+
 test.describe("floating sidebar screenshots", () => {
   test.use({ viewport: { width: 1600, height: 900 } });
 

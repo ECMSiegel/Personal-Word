@@ -11,6 +11,7 @@ import {
   Library,
   List,
   MessageSquare,
+  MoreHorizontal,
   Pin,
   PinOff,
   Plus,
@@ -26,6 +27,7 @@ import { Dropdown } from "./Dropdown";
 import { ContextMenu, type ContextMenuItem } from "./ContextMenu";
 import { keyboardMove } from "./dragReorder";
 import { useDragReorder } from "./useDragReorder";
+import { groupOf, groupTitle, isManuscriptGroup, manuscriptGroupOrder, topGroupOrder } from "../organization/groups";
 import { useSpyDock } from "./scrollspy";
 import { SpyRail, type RailItem } from "./SpyRail";
 import { watchScrollFade } from "./scrollFade";
@@ -55,7 +57,16 @@ type Props = {
   onQuery: (q: string) => void;
   onRenameProject: (title: string) => void;
   hoverReveal: boolean;
-  onAdd: (kind: Entry["kind"]) => void;
+  /** A section goes into top-level section `group` (HS9; default Manuscript), below `after` when given. */
+  onAdd: (kind: Entry["kind"], group?: string, after?: string) => void;
+  /** HS9 custom top-level sections: add (name dialog), rename any heading, delete a custom one. */
+  onAddGroup?: () => void;
+  onRenameGroup?: (id: string) => void;
+  /** Drops a built-in heading's custom name (shown only while it has one). */
+  onResetGroupName?: (id: string) => void;
+  onDeleteGroup?: (id: string) => void;
+  /** Moves a section entry into another manuscript-type top-level section. */
+  onMoveToGroup?: (entryId: string, groupId: string) => void;
   /** beside: Cmd/Ctrl+click opens the entry in the right split pane. */
   onSelect: (id: string, beside?: boolean) => void;
   /** The row's open-beside button: opens the entry in the right split pane. */
@@ -134,6 +145,21 @@ function CollectionRowIcon({
 }) {
   const Icon = collectionRowIcon(group, item);
   return <Icon size={16} />;
+}
+
+/** Owns one section's drag hook, so each top-level section (a variable number, HS9) gets its own
+ *  without calling a hook in a loop. Renders no element: rows stay children of the entry list. */
+function DragScope<T>({
+  items,
+  onReorder,
+  children,
+}: {
+  items: readonly T[];
+  onReorder: (from: number, to: number) => void;
+  children: (drag: ReturnType<typeof useDragReorder<T>>) => React.ReactNode;
+}) {
+  const drag = useDragReorder({ items, onReorder });
+  return <>{children(drag)}</>;
 }
 
 export function ProjectSidebar(props: Props) {
@@ -236,14 +262,16 @@ export function ProjectSidebar(props: Props) {
     setLocalOrder(workspaceGroups);
   }, [project.id]);
   const hiddenGroups = props.hiddenGroups ?? [];
-  const topOrder = [
-    ...(props.groupOrder ?? localOrder).filter((id) =>
-      collapsibleGroups.includes(id),
-    ),
-    ...collapsibleGroups.filter(
-      (id) => !(props.groupOrder ?? localOrder).includes(id),
-    ),
-  ];
+  // The three built-in sections plus any custom top-level sections (HS9), in sidebar order.
+  // When App owns the order (onGroupOrder given) only the project's saved order counts, so a
+  // restored version without one cannot keep a stale session order (HS9 review fix).
+  const topOrder = topGroupOrder({
+    ...project,
+    sidebarOrder: props.onGroupOrder ? props.groupOrder : localOrder,
+  });
+  const isTop = (id: string) => topOrder.includes(id);
+  const msGroups = manuscriptGroupOrder(project);
+  const labelOf = (id: string) => (isTop(id) ? groupTitle(project, id) : labels[id]);
   // The bottom rows keep a fixed order and only disappear when a feature is
   // switched off; Settings is never hidden.
   const order = [
@@ -253,10 +281,10 @@ export function ProjectSidebar(props: Props) {
     ),
   ];
   const moveGroup = (id: string, to: number) => {
-    // Only the collapsible top three reorder; the bottom rows are fixed.
-    if (!collapsibleGroups.includes(id)) return;
-    const top = order.filter((x) => collapsibleGroups.includes(x) && x !== id);
-    top.splice(Math.max(0, Math.min(collapsibleGroups.length - 1, to)), 0, id);
+    // Only the collapsible top sections reorder; the bottom rows are fixed.
+    if (!isTop(id)) return;
+    const top = topOrder.filter((x) => x !== id);
+    top.splice(Math.max(0, Math.min(topOrder.length - 1, to)), 0, id);
     const next = [...top, ...bottomGroups];
     setLocalOrder(next);
     props.onGroupOrder?.(next);
@@ -291,7 +319,9 @@ export function ProjectSidebar(props: Props) {
     .filter((e): e is Entry => !!e);
   const matches = (e: Entry) =>
     !query || (e.title + " " + e.text).toLowerCase().includes(query.toLowerCase());
-  const manuscriptEntries = sections.filter(matches);
+  /** The section entries listed under one manuscript-type top-level section (all, or shown). */
+  const allIn = (gid: string) => sections.filter((e) => groupOf(project, e) === gid);
+  const shownIn = (gid: string) => allIn(gid).filter(matches);
   const allFragments = project.entries.filter((e) => e.kind === "fragment");
   const fragmentEntries = allFragments.filter(matches);
   // Research rows: Bibliography is a fixed first row; each source is one
@@ -326,14 +356,6 @@ export function ProjectSidebar(props: Props) {
   const groupDrag = useDragReorder({
     items: topOrder,
     onReorder: (from, to) => moveGroup(topOrder[from], to),
-  });
-  const entryDrag = useDragReorder({
-    items: manuscriptEntries,
-    onReorder: (from, to) =>
-      onReorder(
-        manuscriptEntries[from].id,
-        project.order.indexOf(manuscriptEntries[to].id),
-      ),
   });
   const fragmentDrag = useDragReorder({
     items: fragmentEntries,
@@ -589,11 +611,10 @@ export function ProjectSidebar(props: Props) {
   // room; otherwise the normal pinned panel or overlay below.
   const isFloating = !!(props.floating && props.floatFit?.fits);
   const floatWidth = Math.min(prefs.width, props.floatFit?.width ?? prefs.width);
-  // Floating has no surface, so a list row cut off by the scrolling group list
-  // would sit as half a line against the bottom rows; the E2 scroll fade masks
-  // that edge instead (floating only: the normal panel is unchanged).
+  // A list row cut off by the scrolling group list sits as half a line; the E2
+  // scroll fade masks that edge in both the docked and floating sidebar.
   useEffect(
-    () => (isFloating && groupsContainer.current ? watchScrollFade(groupsContainer.current) : undefined),
+    () => (groupsContainer.current ? watchScrollFade(groupsContainer.current) : undefined),
     [isFloating],
   );
   const shell = useRef<HTMLDivElement>(null);
@@ -609,7 +630,9 @@ export function ProjectSidebar(props: Props) {
     el.style.setProperty("--float-bottom", Math.max(0, box.bottom - floatBottom) + "px");
   }, [isFloating, floatTop, floatBottom]);
   const group = (id: string, index: number) => {
-    const collection = [
+    const ms = isManuscriptGroup(project, id);
+    const custom = ms && id !== "manuscript";
+    const collection = ms || [
       "manuscript",
       "fragments",
       "research",
@@ -617,30 +640,33 @@ export function ProjectSidebar(props: Props) {
       "history",
     ].includes(id);
     const kind =
-      id === "manuscript"
+      ms
         ? "section"
         : id === "fragments"
           ? "fragment"
           : "research";
     const entries =
-      id === "manuscript"
-        ? manuscriptEntries
+      ms
+        ? shownIn(id)
         : id === "fragments"
           ? fragmentEntries
           : [];
-    const dragGroup = collapsibleGroups.includes(id) ? groupDrag.rowProps(index) : null;
+    const groupAll = ms ? allIn(id).map((x) => x.id) : [];
+    const dragGroup = isTop(id) ? groupDrag.rowProps(index) : null;
     // Manuscript has no page of its own: its heading lights only through an open section
     // (below), so a stale destination cannot light it over a fragment on screen (T244).
     const titleSelected =
-      (props.activeDestination === id && id !== "manuscript") || (id === "read" && mode === "read");
+      (props.activeDestination === id && !ms) || (id === "read" && mode === "read");
     // A section is lit when it is the open destination or holds an open entry
     // (search and collapse do not change that). Bottom groups keep their own look.
     const open =
-      collapsibleGroups.includes(id) &&
+      isTop(id) &&
       (titleSelected ||
         (id === "research"
           ? (props.collectionItems?.research ?? []).some((i) => props.openIds?.has(i.id))
-          : project.entries.some((e) => e.kind === kind && props.openIds?.has(e.id))));
+          : ms
+            ? allIn(id).some((e) => props.openIds?.has(e.id))
+            : project.entries.some((e) => e.kind === kind && props.openIds?.has(e.id))));
     const railItems: RailItem[] =
       id === "research"
         ? [
@@ -654,7 +680,7 @@ export function ProjectSidebar(props: Props) {
             title: e.title,
             state:
               (mode === "read"
-                ? id === "manuscript" && props.readActiveId === e.id
+                ? ms && props.readActiveId === e.id
                 : active === e.id && (!props.openIds || props.openIds.has(e.id)))
                 ? "active"
                 : props.openIds?.has(e.id)
@@ -662,20 +688,158 @@ export function ProjectSidebar(props: Props) {
                   : "idle",
             progress: props.spyProgress,
             onActivate: (event: React.MouseEvent) => {
-              if (mode === "read" && id === "manuscript") props.onScrollToSection?.(e.id, event.detail === 0);
+              if (mode === "read" && ms) props.onScrollToSection?.(e.id, event.detail === 0);
               else onSelect(e.id);
             },
           }));
+    /** One section or fragment row's menu (right-click, Shift+F10, and the row's More button). */
+    const rowItemsFor = (e: Entry) => (): ContextMenuItem[] => [
+      { label: "Open", run: () => onSelect(e.id) },
+      ...(props.onOpenBeside
+        ? [{ label: "Open beside", run: () => props.onOpenBeside?.({ kind: "entry", id: e.id }) }]
+        : []),
+      { label: "Rename", run: () => onRename(e) },
+      ...(ms
+        ? moveItems(e.id, e.title, entries.map((x) => x.id), groupAll, onReorder)
+        : moveItems(
+            e.id,
+            e.title,
+            fragmentEntries.map((x) => x.id),
+            allFragments.map((x) => x.id),
+            props.onReorderFragment,
+          )),
+      ...(ms ? [{ label: "New section below", run: () => onAdd("section", id, e.id) }] : []),
+      ...(ms && props.onMoveToGroup
+        ? msGroups
+            .filter((g) => g !== id)
+            .map((g) => ({ label: "Move to " + groupTitle(project, g), run: () => props.onMoveToGroup?.(e.id, g) }))
+        : []),
+      ...(props.onDelete
+        ? [{ label: "Delete", danger: true, run: () => props.onDelete?.(e) }]
+        : []),
+    ];
+    const entryRow = (e: Entry, i: number, drag: { rowProps: typeof fragmentDrag.rowProps }) => {
+      const rowItems = rowItemsFor(e);
+      return (
+              <div
+                key={e.id}
+                className={
+                  "entry-row " +
+                  (active === e.id &&
+                  mode === "write" &&
+                  (!props.openIds || props.openIds.has(e.id))
+                    ? "selected"
+                    : "")
+                }
+                data-open={props.openIds?.has(e.id) ? "" : undefined}
+                data-empty={!e.synopsis && !e.draftStatus ? "" : undefined}
+                {...drag.rowProps(i)}
+                onPointerDown={onRow(
+                  drag.rowProps(i).onPointerDown,
+                  "input, select, textarea, [role=combobox], .entry-preview, .entry-details, .reorder, .spy-line",
+                )}
+              >
+                <button
+                  className="entry-main"
+                  data-row-id={e.id}
+                  onClick={(event) =>
+                    onSelect(e.id, event.metaKey || event.ctrlKey)
+                  }
+                  onDoubleClick={() => onRename(e)}
+                  {...menuProps(
+                    e.id,
+                    e.title,
+                    rowItems,
+                    (event) =>
+                      ms
+                        ? chord(event, e.id, e.title, entries.map((x) => x.id), groupAll, onReorder)
+                        : chord(
+                            event,
+                            e.id,
+                            e.title,
+                            fragmentEntries.map((x) => x.id),
+                            allFragments.map((x) => x.id),
+                            props.onReorderFragment,
+                          ),
+                  )}
+                >
+                  <FileText size={16} />
+                  <span>{e.title}</span>
+                  {views[id] && (
+                    <p className="entry-preview">{e.text || "Empty"}</p>
+                  )}
+                </button>
+                {/* The row buttons' own wrapper (kept as .reorder: its hover reveal and specs
+                    predate the arrows' removal). HS9: "More" opens the row menu (Rename etc.); it is drawn
+                    left of the split icon and comes before it in Tab order. */}
+                <div className="reorder">
+                  <button
+                    className="icon-button icon-grow entry-more"
+                    aria-label={"More actions for " + e.title}
+                    title="More actions"
+                    onClick={(event) => {
+                      const r = event.currentTarget.getBoundingClientRect();
+                      setMenu({ x: r.left, y: r.bottom, rowId: e.id, label: `${e.title} actions`, items: rowItems(), viaKeyboard: event.detail === 0 });
+                    }}
+                  >
+                    <MoreHorizontal size={16} />
+                  </button>
+                  {props.onOpenBeside && (
+                    <button
+                      className="open-beside"
+                      aria-label={"Open " + e.title + " beside"}
+                      title="Open beside"
+                      onClick={() =>
+                        props.onOpenBeside?.({ kind: "entry", id: e.id })
+                      }
+                    >
+                      <Columns2 size={16} />
+                    </button>
+                  )}
+                </div>
+                {views[id] && props.onEntryDetails && (
+                  <div className="entry-details">
+                    <input
+                      aria-label={"Synopsis for " + e.title}
+                      placeholder="Synopsis"
+                      value={e.synopsis ?? ""}
+                      onChange={(event) =>
+                        props.onEntryDetails?.(e.id, {
+                          synopsis: event.target.value,
+                        })
+                      }
+                    />
+                    <Dropdown
+                      className="entry-status"
+                      label={"Draft status for " + e.title}
+                      value={e.draftStatus ?? "notes"}
+                      onChange={(value) =>
+                        props.onEntryDetails?.(e.id, {
+                          draftStatus: value as Entry["draftStatus"],
+                        })
+                      }
+                      options={[
+                        { value: "notes", label: "Notes" },
+                        { value: "draft", label: "Draft" },
+                        { value: "revised", label: "Revised" },
+                      ]}
+                    />
+                  </div>
+                )}
+              </div>
+    );
+    };
     return (
       <section
         className={
           "sidebar-group " +
-          (collapsibleGroups.includes(id) && views[id]
+          (isTop(id) && views[id]
             ? "cards-view"
             : "list-view") +
           (collapsed[id] ? " is-collapsed" : "")
         }
         data-group={id}
+        data-group-kind={ms ? "manuscript" : undefined}
         data-open={open ? "" : undefined}
         key={id}
         {...dragGroup}
@@ -699,48 +863,61 @@ export function ProjectSidebar(props: Props) {
               "group-title " + (titleSelected ? "selected" : "")
             }
             data-row-id={id}
-            onClick={() => selectDestination(id)}
-            {...(collapsibleGroups.includes(id)
+            onClick={() => selectDestination(ms ? "manuscript" : id)}
+            {...(isTop(id)
               ? menuProps(
                   id,
-                  labels[id],
+                  labelOf(id),
                   () => [
                     {
                       label: collapsed[id] ? "Expand" : "Collapse",
                       run: () => setCollapsed((c) => ({ ...c, [id]: !c[id] })),
                     },
-                    ...moveItems(id, labels[id], topOrder, topOrder, moveGroup),
+                    ...moveItems(id, labelOf(id), topOrder, topOrder, moveGroup),
+                    ...(ms ? [{ label: "New section", run: () => onAdd("section", id) }] : []),
+                    ...(props.onAddGroup ? [{ label: "New top-level section", run: props.onAddGroup }] : []),
+                    ...(props.onRenameGroup ? [{ label: "Rename", run: () => props.onRenameGroup?.(id) }] : []),
+                    ...(props.onResetGroupName && !custom && project.groupTitles?.[id] !== undefined
+                      ? [{ label: "Reset name", run: () => props.onResetGroupName?.(id) }]
+                      : []),
+                    ...(custom && props.onDeleteGroup
+                      ? [{ label: "Delete", danger: true, run: () => props.onDeleteGroup?.(id) }]
+                      : []),
                   ],
-                  (e) => chord(e, id, labels[id], topOrder, topOrder, moveGroup),
+                  (e) => chord(e, id, labelOf(id), topOrder, topOrder, moveGroup),
                 )
               : {})}
           >
-            {id === "manuscript" && <FileText size={16} />}
+            {ms && <FileText size={16} />}
             {id === "fragments" && <Layers size={16} />}
             {id === "research" && <BookMarked size={16} />}
             {id === "read" && <BookOpen size={16} />}
             {id === "comments" && <MessageSquare size={16} />}
             {id === "history" && <History size={16} />}
-            <span className="group-label">{labels[id]}</span>
+            <span className="group-label">{labelOf(id)}</span>
           </button>
-          {collapsibleGroups.includes(id) && (
+          {isTop(id) && (
             <div className="group-actions">
             {collection && (
               <>
                 <button
+                  className="group-view-toggle"
                   aria-label={
                     views[id]
-                      ? "Show " + labels[id] + " list"
-                      : "Show " + labels[id] + " cards"
+                      ? "Show " + labelOf(id) + " list"
+                      : "Show " + labelOf(id) + " cards"
                   }
                   onClick={() => setViews((v) => ({ ...v, [id]: !v[id] }))}
                 >
                   {views[id] ? <List size={16} /> : <Layers size={16} />}
                 </button>
                 <button
+                  className="group-add"
                   aria-label={
                     "New " +
-                    (id === "manuscript"
+                    (custom
+                      ? "section in " + labelOf(id)
+                      : id === "manuscript"
                       ? "section"
                       : id === "fragments"
                         ? "fragment"
@@ -751,8 +928,8 @@ export function ProjectSidebar(props: Props) {
                             : "research note")
                   }
                   onClick={() => {
-                    if (id === "manuscript" || id === "fragments")
-                      onAdd(kind as Entry["kind"]);
+                    if (ms) onAdd("section", id);
+                    else if (id === "fragments") onAdd("fragment");
                     else if (props.onCollectionAdd) props.onCollectionAdd(id);
                     else selectDestination(id);
                   }}
@@ -763,10 +940,10 @@ export function ProjectSidebar(props: Props) {
             )}
           </div>
           )}
-          {collapsibleGroups.includes(id) && (
+          {isTop(id) && (
             <button
               className="group-chevron"
-              aria-label={(collapsed[id] ? "Show " : "Hide ") + labels[id]}
+              aria-label={(collapsed[id] ? "Show " : "Hide ") + labelOf(id)}
               aria-expanded={!collapsed[id]}
               data-collapsed={collapsed[id] ? "true" : undefined}
               onClick={() => setCollapsed((c) => ({ ...c, [id]: !c[id] }))}
@@ -865,129 +1042,18 @@ export function ProjectSidebar(props: Props) {
                 .filter(shownItem)
                 .map((item) => collectionRow(id, item))
             )}
-            {entries.map((e) => (
-              <div
-                key={e.id}
-                className={
-                  "entry-row " +
-                  (active === e.id &&
-                  mode === "write" &&
-                  (!props.openIds || props.openIds.has(e.id))
-                    ? "selected"
-                    : "")
-                }
-                data-open={props.openIds?.has(e.id) ? "" : undefined}
-                {...(id === "manuscript" ? entryDrag : fragmentDrag).rowProps(entries.indexOf(e))}
-                onPointerDown={onRow(
-                  (id === "manuscript" ? entryDrag : fragmentDrag).rowProps(
-                    entries.indexOf(e),
-                  ).onPointerDown,
-                  "input, select, textarea, [role=combobox], .entry-preview, .entry-details, .reorder, .spy-line",
-                )}
+            {ms ? (
+              <DragScope
+                key={"drag:" + id}
+                items={entries}
+                onReorder={(from, to) => onReorder(entries[from].id, groupAll.indexOf(entries[to].id))}
               >
-                <button
-                  className="entry-main"
-                  data-row-id={e.id}
-                  onClick={(event) =>
-                    onSelect(e.id, event.metaKey || event.ctrlKey)
-                  }
-                  onDoubleClick={() => onRename(e)}
-                  {...menuProps(
-                    e.id,
-                    e.title,
-                    () => [
-                      { label: "Open", run: () => onSelect(e.id) },
-                      ...(props.onOpenBeside
-                        ? [{ label: "Open beside", run: () => props.onOpenBeside?.({ kind: "entry", id: e.id }) }]
-                        : []),
-                      { label: "Rename", run: () => onRename(e) },
-                      ...(id === "manuscript"
-                        ? moveItems(e.id, e.title, manuscriptEntries.map((x) => x.id), project.order, onReorder)
-                        : moveItems(
-                            e.id,
-                            e.title,
-                            fragmentEntries.map((x) => x.id),
-                            allFragments.map((x) => x.id),
-                            props.onReorderFragment,
-                          )),
-                      ...(props.onDelete
-                        ? [{ label: "Delete", danger: true, run: () => props.onDelete?.(e) }]
-                        : []),
-                    ],
-                    (event) =>
-                      id === "manuscript"
-                        ? chord(
-                            event,
-                            e.id,
-                            e.title,
-                            manuscriptEntries.map((x) => x.id),
-                            project.order,
-                            onReorder,
-                          )
-                        : chord(
-                            event,
-                            e.id,
-                            e.title,
-                            fragmentEntries.map((x) => x.id),
-                            allFragments.map((x) => x.id),
-                            props.onReorderFragment,
-                          ),
-                  )}
-                >
-                  <FileText size={16} />
-                  <span>{e.title}</span>
-                  {views[id] && (
-                    <p className="entry-preview">{e.text || "Empty"}</p>
-                  )}
-                </button>
-                {props.onOpenBeside && (
-                  // The open-beside button's own wrapper (kept as .reorder:
-                  // its hover reveal and specs predate the arrows' removal).
-                  <div className="reorder">
-                    <button
-                      className="open-beside"
-                      aria-label={"Open " + e.title + " beside"}
-                      title="Open beside"
-                      onClick={() =>
-                        props.onOpenBeside?.({ kind: "entry", id: e.id })
-                      }
-                    >
-                      <Columns2 size={16} />
-                    </button>
-                  </div>
-                )}
-                {views[id] && props.onEntryDetails && (
-                  <div className="entry-details">
-                    <input
-                      aria-label={"Synopsis for " + e.title}
-                      placeholder="Synopsis"
-                      value={e.synopsis ?? ""}
-                      onChange={(event) =>
-                        props.onEntryDetails?.(e.id, {
-                          synopsis: event.target.value,
-                        })
-                      }
-                    />
-                    <Dropdown
-                      className="entry-status"
-                      label={"Draft status for " + e.title}
-                      value={e.draftStatus ?? "notes"}
-                      onChange={(value) =>
-                        props.onEntryDetails?.(e.id, {
-                          draftStatus: value as Entry["draftStatus"],
-                        })
-                      }
-                      options={[
-                        { value: "notes", label: "Notes" },
-                        { value: "draft", label: "Draft" },
-                        { value: "revised", label: "Revised" },
-                      ]}
-                    />
-                  </div>
-                )}
-              </div>
-            ))}
-            {!views[id] && railItems.length > 0 && <SpyRail items={railItems} label={labels[id]} />}
+                {(drag) => entries.map((e, i) => entryRow(e, i, drag))}
+              </DragScope>
+            ) : (
+              entries.map((e, i) => entryRow(e, i, fragmentDrag))
+            )}
+            {!views[id] && railItems.length > 0 && <SpyRail items={railItems} label={labelOf(id)} />}
           </div>
         )}
       </section>
@@ -1124,10 +1190,33 @@ export function ProjectSidebar(props: Props) {
             </button>
           </span>
         </div>
-        <div className="sidebar-groups" ref={groupsContainer}>
+        <div
+          className="sidebar-groups"
+          ref={groupsContainer}
+          onContextMenu={(e) => {
+            // Empty space below and between the sections (HS9): New top-level section.
+            if (!props.onAddGroup || (e.target instanceof Element && e.target.closest(".sidebar-group, button")))
+              return;
+            e.preventDefault();
+            setMenu({
+              x: e.clientX,
+              y: e.clientY,
+              rowId: "",
+              label: "Sections actions",
+              items: [{ label: "New top-level section", run: props.onAddGroup }],
+              viaKeyboard: false,
+            });
+          }}
+        >
           {order
-            .filter((id) => collapsibleGroups.includes(id))
+            .filter(isTop)
             .map((id) => group(id, order.indexOf(id)))}
+          {props.onAddGroup && (
+            <button className="entry-main add-top-section" type="button" onClick={props.onAddGroup}>
+              <Plus size={16} />
+              <span>New top-level section</span>
+            </button>
+          )}
         </div>
         <nav
           className="sidebar-bottom-groups"
@@ -1135,7 +1224,7 @@ export function ProjectSidebar(props: Props) {
           aria-label="Project features"
         >
           {order
-            .filter((id) => !collapsibleGroups.includes(id))
+            .filter((id) => !isTop(id))
             .map((id) => group(id, order.indexOf(id)))}
         </nav>
         {menu && (

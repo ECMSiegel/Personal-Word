@@ -1,0 +1,89 @@
+{
+  "id": "T301",
+  "title": "HS10 -- Small repairs from review 1 (link at page break, page-number toggle on old projects, export label)",
+  "description": "Full brief: docs/agent-work/2026-11-11-home-stretch/BRIEF.md then section HS10 of docs/agent-work/2026-11-11-home-stretch/TASKS.md.",
+  "status": "done",
+  "owner": null,
+  "priority": 2,
+  "depends_on": [],
+  "files": [
+    "docs/agent-work/2026-11-11-home-stretch/notes/HS10.md",
+    "docs/agent-work/2026-11-11-home-stretch/notes/HS10-fail-first.txt",
+    "src/editor/pageBreakKeys.ts",
+    "src/editor/pageBreakKeys.test.ts",
+    "src/export/ExportPanel.tsx",
+    "tests/hs10-repairs.spec.ts"
+  ],
+  "review_required": true,
+  "created_by": "agent-b823",
+  "created_at": "2026-11-12T05:52:40+00:00",
+  "claimed_at": "2026-11-12T06:37:44+00:00",
+  "updated_at": "2026-11-12T06:59:01+00:00",
+  "handoff": {
+    "by": "agent-fd1b",
+    "at": "2026-11-12T06:36:28+00:00",
+    "text": "REVIEW-4.md. 1) should-fix: src/App.tsx:100-108 unsavedDocumentSettings restates Writer's fallbacks (src/Writer.tsx:339-346 size 14/line 1.5/margin, :1131 indent) as separate literals; values match today but can drift. Fix: export one constant (e.g. editorFallbackSettings in src/research/types.ts) and have Writer read documentSettings ?? it and App merge onto it. 2) medium, coordinator/owner decision, not a worker defect: on a no-settings project the Page setup toggle now flips the EXPORT (Times New Roman 12 double+indent -> Sans 14 1.5 no indent; probed), since export merges onto defaultDocumentSettings (src/export/document.ts:91); the Export panel checkbox (App.tsx:2635) and Bibliography (App.tsx:2667) still flip the editor. Rest fine: splittableMarks filter, label, System font box, Writer HS2/5/7/8 edits all present, with-settings toggle changes only pageNumbers, writes via mutate."
+  },
+  "review": {
+    "by": "agent-73e0",
+    "at": "2026-11-12T06:59:01+00:00",
+    "verdict": "approved",
+    "note": "REVIEW-5.md. Every documentSettings reader in src grepped and resolves via editorSettings/exportSettings or per-key fallback; probes: no-settings/{} export byte-identical (docx xml, pdf content streams, md, txt) to full defaults; partials never undefined/NaN; validate+archive round-trip ok; tsc clean; export tests untouched and green. Low: changedSettings stores keys vs current effective (not defaults) and keys are sticky (HS10.md wording wrong); no-settings editor/Export-panel look mismatch predates batch (owner decision); template from partial gets export defaults; hs10 spec covers only page-number toggle."
+  },
+  "log": [
+    {
+      "at": "2026-11-12T05:52:40+00:00",
+      "agent": "agent-b823",
+      "event": "created",
+      "note": ""
+    },
+    {
+      "at": "2026-11-12T05:53:10+00:00",
+      "agent": "agent-6c20",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-11-12T05:53:11+00:00",
+      "agent": "agent-6c20",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-11-12T06:06:18+00:00",
+      "agent": "agent-6c20",
+      "event": "review requested",
+      "note": "4 repairs: splittableMarks filter (pageBreakKeys), App.tsx unsavedDocumentSettings for page numbers+margin, ExportPanel sans label, Writer font box System label. Fail-first in notes/HS10-fail-first.txt. vitest src/editor src/export 331 pass; tsc -b clean; playwright hs10+hs8 4 pass."
+    },
+    {
+      "at": "2026-11-12T06:36:28+00:00",
+      "agent": "agent-fd1b",
+      "event": "rejected",
+      "note": "REVIEW-4.md. 1) should-fix: src/App.tsx:100-108 unsavedDocumentSettings restates Writer's fallbacks (src/Writer.tsx:339-346 size 14/line 1.5/margin, :1131 indent) as separate literals; values match today but can drift. Fix: export one constant (e.g. editorFallbackSettings in src/research/types.ts) and have Writer read documentSettings ?? it and App merge onto it. 2) medium, coordinator/owner decision, not a worker defect: on a no-settings project the Page setup toggle now flips the EXPORT (Times New Roman 12 double+indent -> Sans 14 1.5 no indent; probed), since export merges onto defaultDocumentSettings (src/export/document.ts:91); the Export panel checkbox (App.tsx:2635) and Bibliography (App.tsx:2667) still flip the editor. Rest fine: splittableMarks filter, label, System font box, Writer HS2/5/7/8 edits all present, with-settings toggle changes only pageNumbers, writes via mutate."
+    },
+    {
+      "at": "2026-11-12T06:37:44+00:00",
+      "agent": "agent-9963",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-11-12T06:37:45+00:00",
+      "agent": "agent-9963",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-11-12T06:41:08+00:00",
+      "agent": "agent-9963",
+      "event": "review requested",
+      "note": "Round 2: per-key partial documentSettings (documentSettingsDefaults.ts), editor+export look unchanged on toggle; fail-first in notes; vitest export/research/editor 557 pass, tsc clean, playwright hs10+hs8+w9 x2 14 pass"
+    },
+    {
+      "at": "2026-11-12T06:59:01+00:00",
+      "agent": "agent-73e0",
+      "event": "approved",
+      "note": "REVIEW-5.md. Every documentSettings reader in src grepped and resolves via editorSettings/exportSettings or per-key fallback; probes: no-settings/{} export byte-identical (docx xml, pdf content streams, md, txt) to full defaults; partials never undefined/NaN; validate+archive round-trip ok; tsc clean; export tests untouched and green. Low: changedSettings stores keys vs current effective (not defaults) and keys are sticky (HS10.md wording wrong); no-settings editor/Export-panel look mismatch predates batch (owner decision); template from partial gets export defaults; hs10 spec covers only page-number toggle."
+    }
+  ]
+}

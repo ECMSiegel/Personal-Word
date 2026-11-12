@@ -1,0 +1,223 @@
+
+Running 8 tests using 1 worker
+
+  ✘  1 tests/w9-projects-page.spec.ts:33:1 › the toolbar holds only Start, Import writing, the search and the gear (4.1s)
+  ✘  2 tests/w9-projects-page.spec.ts:49:1 › Sort, reverse and the view toggle form a quiet 12 px muted caption row above the list (8.1s)
+  ✘  3 tests/w9-projects-page.spec.ts:92:1 › row titles are 15 px and first; Edited is normal colour, Added is muted; cards keep the order (8.2s)
+  ✘  4 tests/w9-projects-page.spec.ts:116:1 › sort, direction and view survive a reload (8.4s)
+  ✓  5 tests/w9-projects-page.spec.ts:135:1 › bad saved library preferences fall back to the defaults (685ms)
+  ✘  6 tests/w9-projects-page.spec.ts:142:1 › the page's icon buttons carry icon-grow and the arrow sits in a span (8.0s)
+  ✘  7 tests/w9-projects-page.spec.ts:153:1 › with no projects the list area offers one sentence and text controls, no illustration (5.6s)
+  ✓  8 tests/w9-projects-page.spec.ts:177:1 › an empty search keeps 'No matching projects.' and not the empty-state block (3.2s)
+
+
+  1) tests/w9-projects-page.spec.ts:33:1 › the toolbar holds only Start, Import writing, the search and the gear 
+
+    Error: expect(received).toHaveLength(expected)
+
+    Expected length: 4
+    Received length: 7
+    Received array:  ["Start new project", "Import writing (text, Markdown, Word, HTML or a .zip bundle)", "Search projects", "Sort projects", "Reverse project sort order", "Show project cards", "Settings"]
+
+      37 |     .locator("button")
+      38 |     .evaluateAll((els) => els.map((el) => el.getAttribute("aria-label") ?? el.textContent!.trim()));
+    > 39 |   expect(names).toHaveLength(4);
+         |                 ^
+      40 |   expect(names[0]).toContain("Start new project");
+      41 |   expect(names[1]).toMatch(/^Import writing/);
+      42 |   expect(names[2]).toBe("Search projects");
+        at /Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/tests/w9-projects-page.spec.ts:39:17
+
+    Error Context: test-results/T274/w9-projects-page-the-toolb-a00d3-ing-the-search-and-the-gear/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/T274/w9-projects-page-the-toolb-a00d3-ing-the-search-and-the-gear/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/T274/w9-projects-page-the-toolb-a00d3-ing-the-search-and-the-gear/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/w9-projects-page.spec.ts:49:1 › Sort, reverse and the view toggle form a quiet 12 px muted caption row above the list 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: locator('.library-caption')
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" locator('.library-caption') with timeout 5000ms
+      - waiting for locator('.library-caption')
+
+
+      50 |   await seed(page);
+      51 |   const caption = page.locator(".library-caption");
+    > 52 |   await expect(caption).toBeVisible();
+         |                         ^
+      53 |   const sort = caption.getByRole("button", { name: "Sort projects" });
+      54 |   const reverse = caption.getByRole("button", { name: "Reverse project sort order" });
+      55 |   const view = caption.getByRole("button", { name: "Show project cards" });
+        at /Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/tests/w9-projects-page.spec.ts:52:25
+
+    Error Context: test-results/T274/w9-projects-page-Sort-reve-75452--caption-row-above-the-list/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/T274/w9-projects-page-Sort-reve-75452--caption-row-above-the-list/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/T274/w9-projects-page-Sort-reve-75452--caption-row-above-the-list/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) tests/w9-projects-page.spec.ts:92:1 › row titles are 15 px and first; Edited is normal colour, Added is muted; cards keep the order 
+
+    Error: expect(locator).toHaveText(expected) failed
+
+    Locator: locator('.project-row').first().locator('.project-dates > span').first()
+    Expected pattern: /^Edited \S/
+    Received string:  "Added Nov 10, 2026"
+    Timeout: 5000ms
+
+    Call log:
+      - Expect "toHaveText" locator('.project-row').first().locator('.project-dates > span').first() with timeout 5000ms
+      - waiting for locator('.project-row').first().locator('.project-dates > span').first()
+        14 × locator resolved to <span>Added Nov 10, 2026</span>
+           - unexpected value "Added Nov 10, 2026"
+
+
+       99 |     const edited = row.locator(".project-dates > span").nth(0);
+      100 |     const added = row.locator(".project-dates > span").nth(1);
+    > 101 |     await expect(edited).toHaveText(/^Edited \S/);
+          |                          ^
+      102 |     await expect(added).toHaveText(/^Added \S/);
+      103 |     expect(await name.evaluate((el) => getComputedStyle(el).fontSize)).toBe("15px");
+      104 |     expect(await edited.evaluate((el) => getComputedStyle(el).color)).toBe(text);
+        at /Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/tests/w9-projects-page.spec.ts:101:26
+
+    Error Context: test-results/T274/w9-projects-page-row-title-d1d09--muted-cards-keep-the-order/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/T274/w9-projects-page-row-title-d1d09--muted-cards-keep-the-order/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/T274/w9-projects-page-row-title-d1d09--muted-cards-keep-the-order/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) tests/w9-projects-page.spec.ts:116:1 › sort, direction and view survive a reload ──────────────
+
+    Error: expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 5
+    + Received  + 1
+
+    - Object {
+    -   "reverse": true,
+    -   "sort": "name",
+    -   "view": "cards",
+    - }
+    + Object {}
+
+    Call Log:
+    - Timeout 5000ms exceeded while waiting on the predicate
+
+      125 |   await expect
+      126 |     .poll(() => page.evaluate(() => JSON.parse(localStorage.getItem("folio.workspace.library") ?? "{}")))
+    > 127 |     .toEqual({ sort: "name", reverse: true, view: "cards" });
+          |      ^
+      128 |   await page.reload();
+      129 |   await expect(page.locator(".project-list--cards")).toBeVisible();
+      130 |   await expect(page.getByRole("button", { name: "Show project list" })).toBeVisible();
+        at /Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/tests/w9-projects-page.spec.ts:127:6
+
+    Error Context: test-results/T274/w9-projects-page-sort-direction-and-view-survive-a-reload/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/T274/w9-projects-page-sort-direction-and-view-survive-a-reload/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/T274/w9-projects-page-sort-direction-and-view-survive-a-reload/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  5) tests/w9-projects-page.spec.ts:142:1 › the page's icon buttons carry icon-grow and the arrow sits in a span 
+
+    Error: expect(locator).toHaveClass(expected) failed
+
+    Locator: getByRole('button', { name: 'Search projects', exact: true })
+    Expected pattern: /\bicon-grow\b/
+    Received string:  ""
+    Timeout: 5000ms
+
+    Call log:
+      - Expect "toHaveClass" getByRole('button', { name: 'Search projects', exact: true }) with timeout 5000ms
+      - waiting for getByRole('button', { name: 'Search projects', exact: true })
+        14 × locator resolved to <button type="button" aria-expanded="false" aria-label="Search projects" aria-controls="library-search-input">…</button>
+           - unexpected value ""
+
+
+      143 |   await seed(page);
+      144 |   for (const name of ["Search projects", "Reverse project sort order", "Show project cards", "Settings"]) {
+    > 145 |     await expect(page.getByRole("button", { name, exact: true })).toHaveClass(/\bicon-grow\b/);
+          |                                                                   ^
+      146 |   }
+      147 |   await expect(page.getByRole("button", { name: "Reverse project sort order" }).locator(":scope > span")).toHaveCount(1);
+      148 |   const trash = page.locator(".project-row .delete-entry").first();
+        at /Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/tests/w9-projects-page.spec.ts:145:67
+
+    Error Context: test-results/T274/w9-projects-page-the-page--c18a6-nd-the-arrow-sits-in-a-span/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/T274/w9-projects-page-the-page--c18a6-nd-the-arrow-sits-in-a-span/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/T274/w9-projects-page-the-page--c18a6-nd-the-arrow-sits-in-a-span/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  6) tests/w9-projects-page.spec.ts:153:1 › with no projects the list area offers one sentence and text controls, no illustration 
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: locator('.library .drop-target')
+    Expected substring: "Start with a blank page or a template, or bring in writing you already have."
+    Received string:    "No projects yet."
+    Timeout: 5000ms
+
+    Call log:
+      - Expect "toContainText" locator('.library .drop-target') with timeout 5000ms
+      - waiting for locator('.library .drop-target')
+        14 × locator resolved to <div class="drop-target">…</div>
+           - unexpected value "No projects yet."
+
+
+      154 |   await page.goto("/");
+      155 |   const area = page.locator(".library .drop-target");
+    > 156 |   await expect(area).toContainText("Start with a blank page or a template, or bring in writing you already have.");
+          |                      ^
+      157 |   await expect(area.getByText("No projects yet.")).toHaveCount(0);
+      158 |   await expect(area.locator("img, svg, canvas")).toHaveCount(0);
+      159 |   const labels = await area.locator(".library-empty-actions button").allTextContents();
+        at /Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/tests/w9-projects-page.spec.ts:156:22
+
+    Error Context: test-results/T274/w9-projects-page-with-no-p-d41e4-xt-controls-no-illustration/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/T274/w9-projects-page-with-no-p-d41e4-xt-controls-no-illustration/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/T274/w9-projects-page-with-no-p-d41e4-xt-controls-no-illustration/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  6 failed
+    tests/w9-projects-page.spec.ts:33:1 › the toolbar holds only Start, Import writing, the search and the gear 
+    tests/w9-projects-page.spec.ts:49:1 › Sort, reverse and the view toggle form a quiet 12 px muted caption row above the list 
+    tests/w9-projects-page.spec.ts:92:1 › row titles are 15 px and first; Edited is normal colour, Added is muted; cards keep the order 
+    tests/w9-projects-page.spec.ts:116:1 › sort, direction and view survive a reload ───────────────
+    tests/w9-projects-page.spec.ts:142:1 › the page's icon buttons carry icon-grow and the arrow sits in a span 
+    tests/w9-projects-page.spec.ts:153:1 › with no projects the list area offers one sentence and text controls, no illustration 
+  2 passed (53.5s)
+FINISHED

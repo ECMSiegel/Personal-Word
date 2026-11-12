@@ -1,0 +1,141 @@
+
+Running 90 tests using 1 worker
+
+  ✓   1 tests/accessibility.spec.ts:21:1 › dropdown listbox owns keyboard focus and returns it on Escape or selection (2.6s)
+  ✓   2 tests/accessibility.spec.ts:64:1 › dropdown closes on Tab and its menu stays inside a compact viewport (2.2s)
+  ✓   3 tests/accessibility.spec.ts:93:1 › page layout measurement preserves the editor element and undo history (3.0s)
+  ✓   4 tests/accessibility.spec.ts:117:1 › an overlong page footnote offers a keyboard-operated continuous view (2.9s)
+  ✓   5 tests/alignment.spec.ts:41:1 › sidebar labels at one depth start at one x (1.5s)
+  ✓   6 tests/alignment.spec.ts:83:1 › every icon button reaches a 24 x 24 target (1.6s)
+  ✓   7 tests/alignment.spec.ts:121:1 › counters ask for tabular figures (1.5s)
+  ✓   8 tests/alignment.spec.ts:138:1 › toolbar icon ink sits at its button centre (1.5s)
+  ✓   9 tests/alignment.spec.ts:200:1 › a separator draws one pixel of the line colour (1.6s)
+  ✓  10 tests/alignment.spec.ts:254:1 › hit-area rule leaves absolutely placed buttons absolute (1.8s)
+  ✓  11 tests/alignment.spec.ts:334:3 › sidebar bottom row and pane footer form one band (single) (1.4s)
+  ✓  12 tests/alignment.spec.ts:334:3 › sidebar bottom row and pane footer form one band (split) (2.0s)
+  ✓  13 tests/alignment.spec.ts:452:3 › every list row starts with a 16 px icon and one label x at 190 px (3.3s)
+  ✓  14 tests/alignment.spec.ts:452:3 › every list row starts with a 16 px icon and one label x at 270 px (3.3s)
+  ✓  15 tests/alignment.spec.ts:452:3 › every list row starts with a 16 px icon and one label x at 390 px (3.4s)
+  ✓  16 tests/alignment.spec.ts:510:1 › floating sidebar: with 40 notes the list ends above the bottom rows (2.2s)
+  ✓  17 tests/alignment.spec.ts:570:1 › T6 record: split view sidebar placement, pinned and overlay, at 1280 and 1600 (3.8s)
+  ✓  18 tests/drop-target.spec.ts:41:1 › the Projects list outlines for a .docx, rejects a .pdf with the reason, and the page body is untouched (650ms)
+  ✓  19 tests/drop-target.spec.ts:76:1 › a project.json is not taken by the writing importer (588ms)
+  ✓  20 tests/drop-target.spec.ts:86:1 › the Projects import control is a labelled toolbar button at control height that opens the picker and imports the chosen file (806ms)
+  ✓  21 tests/drop-target.spec.ts:123:1 › the Projects import control is reachable by keyboard (613ms)
+  ✓  22 tests/drop-target.spec.ts:133:1 › a source's PDF slot outlines for a PDF, rejects a .txt, and a drop attaches the PDF (2.3s)
+  ✓  23 tests/drop-target.spec.ts:164:1 › a PDF over 25 MB or a second file is refused on drop with a message (2.0s)
+  ✓  24 tests/drop-target.spec.ts:185:1 › Select files in the PDF slot opens the picker and attaches the chosen PDF (2.0s)
+H1 inventory: 1171 controls (570 text) over 20 screens
+Projects (empty)
+Projects
+Writing
+Writing (sections in sidebar)
+Writing (page view)
+Dialog: Page setup
+Dialog: Snapshot name
+Fragments panel
+Research (empty)
+Research (source with PDF)
+Research
+Research (Notes)
+Comments
+History
+Read manuscript
+Settings
+Settings: Shortcuts region
+Split view
+Projects (with a project)
+Projects(lib)
+not crawled / skipped:
+
+H3 un-hoverable controls: 10
+Research (empty) | aside.research-aside > section.research-panel > details.citation-rules > label.check | Shorten repeat citations automatically
+Research (empty) | aside.research-aside > section.research-panel > details.citation-rules > label.check | Use repeat citation rules
+Research (source with PDF) | div.research-fields > div.field.source-pdf-field > div.item-actions > button | Open beside
+Research (source with PDF) | div.research-fields > div.field.source-pdf-field > div.item-actions > button.is-danger | Remove PDF
+Research (source with PDF) | aside.research-aside > section.research-panel > details.citation-rules > label.check | Shorten repeat citations automatically
+Research (source with PDF) | aside.research-aside > section.research-panel > details.citation-rules > label.check | Use repeat citation rules
+Research (popup 0) | div.research-fields > div.field.source-pdf-field > div.item-actions > button | Open beside
+Research (popup 0) | div.research-fields > div.field.source-pdf-field > div.item-actions > button.is-danger | Remove PDF
+Research (popup 0) | aside.research-aside > section.research-panel > details.citation-rules > label.check | Shorten repeat citations automatically
+Research (popup 0) | aside.research-aside > section.research-panel > details.citation-rules > label.check | Use repeat citation rules
+H3 exceptions: 0
+
+  ✓  25 tests/hover-emphasis.spec.ts:160:1 › hover inventory: crawl controls across screens (1.3m)
+H2 create menu row: stroke 0.48px scale 1 width 218->218 neighbour shifts 0,0,0,0,0
+H2 Snapshot: stroke 0.48px scale 1 width 90->90 neighbour shifts 0,0
+H2 Projects tab: stroke 0.48px scale 1 width 67->67 neighbour shifts 0
+H2 sidebar entry: stroke 0.52px scale 1 width 221->221 neighbour shifts 0
+H2 Delete note: stroke 0.52px scale 1 width 68->68 neighbour shifts 
+H2 settings button: stroke 0.52px scale 1 width 90->90 neighbour shifts 0
+H2 settings checkbox label: stroke 0.52px scale 1 width 624->624 neighbour shifts 0,0,0
+  ✓  26 tests/hover-emphasis.spec.ts:412:1 › H2 emphasis: no-shift faux bold and no grow on hover (7.6s)
+  ✓  27 tests/hover-emphasis.spec.ts:464:1 › H5 emphasis never touches links inside the document (editor and Read view) (2.8s)
+H2 dialog Cancel: stroke 0.52px scale 1 width 73->73 neighbour shifts 0
+H2 dialog Save: stroke 0.48px scale 1 width 59->59 neighbour shifts 0
+  ✓  28 tests/hover-emphasis.spec.ts:506:1 › H4 emphasis: Reduce Motion, danger colour and the drift probe (5.6s)
+  ✓  29 tests/import.spec.ts:3:1 › Markdown import is previewed, cancel is safe, and accepted writing survives reload (1.7s)
+  ✓  30 tests/import.spec.ts:27:1 › import label states the real per-format size limits (550ms)
+  ✓  31 tests/import.spec.ts:34:1 › import dialog keeps focus inside, cancels on Escape, and never fetches source images (657ms)
+  ✓  32 tests/motion.spec.ts:36:1 › (a) opening the projects search animates only transform, opacity, clip-path or visibility (1.1s)
+  ✓  33 tests/motion.spec.ts:50:1 › (b) revealing the unpinned sidebar animates only allowed properties (2.0s)
+  ✓  34 tests/motion.spec.ts:58:1 › (c) with Reduce Motion there are no running animations and panels change at once (2.3s)
+  ✓  35 tests/motion.spec.ts:72:1 › (d) opening the Sort dropdown animates only allowed properties and marks one item highlighted without a box (1.1s)
+  ✓  36 tests/motion.spec.ts:91:1 › (e) a menu reopened mid-close reverses from its current frame without remounting (1.1s)
+  ✓  37 tests/motion.spec.ts:123:1 › (f) with Reduce Motion a dropdown opens and closes at once with no animations (1.1s)
+  ✓  38 tests/motion.spec.ts:137:1 › (g) the highlighted item is the active descendant and emphasised with a text stroke (never a heavier weight), inside a bordered, scrolled popover (909ms)
+  ✓  39 tests/projects-screen.spec.ts:20:1 › search expands from the magnifier, filters by title, and Escape collapses (3.5s)
+  ✓  40 tests/projects-screen.spec.ts:50:1 › open search field stays right of the create button at 850x600 (3.4s)
+  ✓  41 tests/projects-screen.spec.ts:61:1 › search works from the keyboard alone (3.0s)
+  ✓  42 tests/projects-screen.spec.ts:78:1 › search box is square and has no motion under reduced motion (2.7s)
+  ✓  43 tests/projects-screen.spec.ts:90:1 › search box reveals by clip-path by default (3.0s)
+  ✓  44 tests/projects-screen.spec.ts:102:1 › closed search slot shows no field border above the magnifier (3.1s)
+  ✓  45 tests/projects-screen.spec.ts:135:1 › open search input text clears the left border (3.0s)
+  ✓  46 tests/projects-screen.spec.ts:154:1 › create button opens a panel listing every template, then the two file actions (780ms)
+  ✓  47 tests/projects-screen.spec.ts:164:1 › the create menu covers the button and grows out of it (1.2s)
+  ✓  48 tests/projects-screen.spec.ts:192:1 › the create menu collapses with a morph on close, and instantly under reduced motion (1.3s)
+  ✓  49 tests/projects-screen.spec.ts:204:1 › Escape closes the panel and returns focus to the create button (1.2s)
+  ✓  50 tests/projects-screen.spec.ts:212:1 › tabbing out of the create panel dismisses it (872ms)
+  ✓  51 tests/projects-screen.spec.ts:219:1 › Escape on the focused create trigger closes the open panel (823ms)
+  ✓  52 tests/projects-screen.spec.ts:232:1 › clicking outside closes the panel (829ms)
+  ✓  53 tests/projects-screen.spec.ts:240:1 › the Projects screen has no heading: the button sits left, the controls right (627ms)
+  ✓  54 tests/projects-screen.spec.ts:256:1 › create panel works from the keyboard alone (689ms)
+  ✓  55 tests/projects-screen.spec.ts:280:1 › Import a file opens the writing picker and a chosen file reaches the import preview (1.2s)
+  ✓  56 tests/projects-screen.spec.ts:291:1 › Recover from a project.json file opens the project.json picker (1.2s)
+  ✓  57 tests/projects-screen.spec.ts:300:1 › the two old import links are gone but both pickers stay mounted (574ms)
+  ✓  58 tests/projects-screen.spec.ts:311:1 › create menu is square and opens with a morph by default (717ms)
+  ✓  59 tests/projects-screen.spec.ts:321:1 › create menu has no motion under reduced motion (745ms)
+  ✓  60 tests/projects-screen.spec.ts:336:5 › create panel items are full-contrast text at once (light/plain) (1.2s)
+  ✓  61 tests/projects-screen.spec.ts:336:5 › create panel items are full-contrast text at once (light/plain, reduced motion) (1.2s)
+  ✓  62 tests/projects-screen.spec.ts:336:5 › create panel items are full-contrast text at once (light/color) (1.2s)
+  ✓  63 tests/projects-screen.spec.ts:336:5 › create panel items are full-contrast text at once (light/color, reduced motion) (1.1s)
+  ✓  64 tests/projects-screen.spec.ts:336:5 › create panel items are full-contrast text at once (dark/plain) (1.2s)
+  ✓  65 tests/projects-screen.spec.ts:336:5 › create panel items are full-contrast text at once (dark/plain, reduced motion) (1.2s)
+  ✓  66 tests/projects-screen.spec.ts:336:5 › create panel items are full-contrast text at once (dark/color) (1.2s)
+  ✓  67 tests/projects-screen.spec.ts:336:5 › create panel items are full-contrast text at once (dark/color, reduced motion) (1.1s)
+  ✓  68 tests/projects-screen.spec.ts:389:1 › dropping a Markdown file outlines the project list only and opens the import preview; Cancel creates nothing (829ms)
+  ✓  69 tests/projects-screen.spec.ts:416:1 › the drop outline does not flicker over children and clears on dragleave (648ms)
+  ✓  70 tests/projects-screen.spec.ts:430:1 › a file dropped outside the Projects list does not make the browser open it (576ms)
+  ✓  71 tests/projects-screen.spec.ts:442:1 › a dropped PDF shows a clear error and opens nothing (654ms)
+  ✓  72 tests/projects-screen.spec.ts:451:1 › dropping two files asks for one at a time (631ms)
+  ✓  73 tests/projects-screen.spec.ts:458:1 › a dropped Markdown file over 5 MB is refused by the existing import limit (702ms)
+  ✓  74 tests/projects-screen.spec.ts:465:1 › a drop while the new-project name dialog is open opens nothing (1.6s)
+  ✓  75 tests/projects-screen.spec.ts:477:1 › the trash icon never overlaps the dates when a project row is hovered (3.2s)
+  ✓  76 tests/projects-screen.spec.ts:497:1 › the Projects toolbar stays put as projects are added (no vertical re-centring) (3.0s)
+  ✓  77 tests/projects-screen.spec.ts:511:1 › a project saved from the hidden Story template still opens (2.1s)
+  ✓  78 tests/projects-screen.spec.ts:533:1 › the gear opens Settings from the Projects screen; Dark applies at once and survives a reload (1.3s)
+  ✓  79 tests/projects-screen.spec.ts:564:1 › the Projects-screen Settings dialog shows the floating row and it toggles the preference (848ms)
+  ✓  80 tests/projects-screen.spec.ts:587:3 › a project row label does not grow on hover (3.0s)
+  ✓  81 tests/projects-screen.spec.ts:587:3 › a project row label does not grow under Reduce Motion (2.5s)
+  ✓  82 tests/w9-icon-magnify.spec.ts:18:1 › standalone icon children magnify on hover and keyboard focus without moving buttons (5.0s)
+  ✓  83 tests/w9-projects-page.spec.ts:33:1 › the toolbar holds only Start, Import writing, the search and the gear (3.0s)
+  ✓  84 tests/w9-projects-page.spec.ts:49:1 › Sort, reverse and the view toggle form a quiet 12 px muted caption row above the list (3.1s)
+  ✓  85 tests/w9-projects-page.spec.ts:92:1 › row titles are 15 px and first; Edited is normal colour, Added is muted; cards keep the order (3.1s)
+  ✓  86 tests/w9-projects-page.spec.ts:116:1 › sort, direction and view survive a reload (3.7s)
+  ✓  87 tests/w9-projects-page.spec.ts:135:1 › bad saved library preferences fall back to the defaults (586ms)
+  ✓  88 tests/w9-projects-page.spec.ts:142:1 › the page's icon buttons carry icon-grow and the arrow sits in a span (3.0s)
+  ✓  89 tests/w9-projects-page.spec.ts:153:1 › with no projects the list area offers one sentence and text controls, no illustration (837ms)
+  ✓  90 tests/w9-projects-page.spec.ts:177:1 › an empty search keeps 'No matching projects.' and not the empty-state block (2.9s)
+
+  90 passed (4.1m)
+FINISHED

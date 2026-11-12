@@ -21,6 +21,9 @@ export type DropdownOption<T extends string> = {
   disabled?: boolean;
   /** Keyboard shortcut hint, shown right-aligned and muted. */
   shortcut?: string;
+  /** Not a choice: a small section label or a divider line. Skipped by the
+   * keyboard, type-ahead and the pointer; `value` only has to be unique. */
+  kind?: "heading" | "separator";
 };
 
 /**
@@ -57,8 +60,13 @@ export function Dropdown<T extends string>({
   const id = useId();
   const current = options.find((o) => o.value === value);
   const enabled = options
-    .map((o, i) => (o.disabled ? -1 : i))
+    .map((o, i) => (o.disabled || o.kind ? -1 : i))
     .filter((i) => i >= 0);
+  // Popover finds the highlighted row among its [data-popover-item] rows only;
+  // headings and separators are not items, so count the items before it.
+  const itemRank = options
+    .slice(0, highlight)
+    .filter((o) => !o.kind).length;
 
   useLayoutEffect(() => {
     if (open) menu.current?.focus();
@@ -72,13 +80,13 @@ export function Dropdown<T extends string>({
 
   const openMenu = () => {
     if (disabled) return;
-    const index = options.findIndex((o) => o.value === value);
+    const index = options.findIndex((o) => !o.kind && o.value === value);
     setHighlight(index >= 0 ? index : (enabled[0] ?? 0));
     setOpen(true);
   };
   const choose = (index: number) => {
     const option = options[index];
-    if (!option || option.disabled) return;
+    if (!option || option.disabled || option.kind) return;
     setOpen(false);
     button.current?.focus();
     if (option.value !== value) onChange(option.value);
@@ -130,7 +138,7 @@ export function Dropdown<T extends string>({
       };
       const match = options.findIndex(
         (o) =>
-          !o.disabled && o.label.toLowerCase().startsWith(typed.current.text),
+          !o.disabled && !o.kind && o.label.toLowerCase().startsWith(typed.current.text),
       );
       if (match >= 0) setHighlight(match);
     } else return false;
@@ -174,12 +182,27 @@ export function Dropdown<T extends string>({
         label={label}
         tabIndex={-1}
         activeDescendant={`${id}-${highlight}`}
-        highlight={highlight}
+        highlight={itemRank}
         onKeyDown={onMenuKeyDown}
         ref={menu}
         className="dropdown-menu"
       >
-        {options.map((option, index) => (
+        {options.map((option, index) =>
+          option.kind === "separator" ? (
+            <div
+              key={option.value + index}
+              role="separator"
+              className="dropdown-separator"
+            />
+          ) : option.kind === "heading" ? (
+            <div
+              key={option.value + index}
+              role="presentation"
+              className="dropdown-heading"
+            >
+              {option.label}
+            </div>
+          ) : (
           <div
             key={option.value + index}
             id={`${id}-${index}`}
@@ -208,7 +231,8 @@ export function Dropdown<T extends string>({
               </span>
             )}
           </div>
-        ))}
+          ),
+        )}
       </Popover>
     </div>
   );

@@ -1,0 +1,84 @@
+{
+  "id": "T254",
+  "title": "W9 T0 -- Cut seams in the shared files and record the test baseline",
+  "description": "Follow section '### T0 --' of docs/agent-work/2026-11-10-ui-wave-9/PLAN.md exactly, plus its 'Rules for every worker'. Verify: names.test.ts passes; tsc -b clean; second full dev-server browser run has no failure outside notes/baseline-dev.txt. Browser test port: PLAYWRIGHT_PORT=1430. No commits, no new packages, never run npm run build or a native screen script. Write the note docs/agent-work/2026-11-10-ui-wave-9/notes/T0.md.",
+  "status": "done",
+  "owner": null,
+  "priority": 1,
+  "depends_on": [],
+  "files": [
+    "src/main.tsx",
+    "src/styles.css",
+    "src/Writer.tsx",
+    "src/App.tsx",
+    "src/settings/GeneralSettings.tsx",
+    "src/research/ResearchPanel.tsx",
+    "src/organization/fragments.css",
+    "src/research/citation-card.css",
+    "src/research/research.css",
+    "src/components/command-palette.css",
+    "src/components/dropdown.css",
+    "src/editor/editor.css",
+    "src/fonts",
+    "src/export/fontSource.ts",
+    "src/settings/AppearanceSettings.tsx",
+    "src/settings/SettingsNav.tsx",
+    "src/editor/blankClick.ts",
+    "src/research/asideMotion.ts",
+    "src/components/icon-magnify.css",
+    "src/components/prose-issues.css",
+    "src/settings/appearance-settings.css",
+    "src/settings/settings-nav.css",
+    "src/editor/side-ruler.css",
+    "docs/agent-work/2026-11-10-ui-wave-9/notes/baseline-dev.txt",
+    "docs/agent-work/2026-11-10-ui-wave-9/notes/T0.md",
+    "docs/agent-work/2026-11-10-ui-wave-9/notes/after-t0-dev.txt",
+    "docs/agent-work/2026-11-10-ui-wave-9/notes/after-t0-targeted.txt",
+    "src/adversarial-wp2.test.ts",
+    "src/adversarial-wp2-1.test.ts"
+  ],
+  "review_required": true,
+  "created_by": "agent-b307",
+  "created_at": "2026-11-10T22:24:34+00:00",
+  "claimed_at": "2026-11-10T22:26:38+00:00",
+  "updated_at": "2026-11-11T00:09:13+00:00",
+  "handoff": null,
+  "review": {
+    "by": "agent-b307",
+    "at": "2026-11-11T00:09:13+00:00",
+    "verdict": "approved",
+    "note": "Reviewed by the plan author (Fable): diff read against PLAN.md T0; exports and wiring match; tsc -b clean; vitest 1168/1168; baseline and after-T0 full dev runs both 500 passed / 5 failed (same five) / 16 skipped; targeted run 69/69 after the last 7 font replacements. Accepted judgement calls: the styles.css split keeping .writing-surface and .read-prose off --ui-font (matches the plan's intent), and the two re-pinned unit assertions. Leftovers passed to T266 by message #1249. Not checked: native WebKit."
+  },
+  "log": [
+    {
+      "at": "2026-11-10T22:24:34+00:00",
+      "agent": "agent-b307",
+      "event": "created",
+      "note": ""
+    },
+    {
+      "at": "2026-11-10T22:26:38+00:00",
+      "agent": "agent-a295",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-11-10T22:26:42+00:00",
+      "agent": "agent-a295",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-11-11T00:07:40+00:00",
+      "agent": "agent-a295",
+      "event": "review requested",
+      "note": "Seams cut per PLAN T0; full detail in docs/agent-work/2026-11-10-ui-wave-9/notes/T0.md. Created the src/fonts stubs (types, names [real code + names.test.ts, fail-first 10 failed then 11 passed], store, system, registry, fontInfo), src/export/fontSource.ts, AppearanceSettings/SettingsNav stubs, blankClick.ts, asideMotion.ts, five empty CSS files; wired main.tsx (CSS imports + void initFonts()), Writer.tsx viewport onMouseDown, GeneralSettings.tsx:81 (<AppearanceSettings /> after Palette, before Section colours), App.tsx (comment, researchAside ref + hook after pointerInput effect, <SettingsNav /> after h1), ResearchPanel props type (two optional members). --ui-font on :root; all 12 interface stacks read var(--ui-font) per owner answer Q027. PLAN MISMATCH, please confirm: the styles.css:1939 rule also listed .writing-surface and .read-prose; I split it in place so those two keep the old literal stack (styles.css:1921-1929) and only the seven headings use var(--ui-font). Behaviour change: editor.css:802 .doc-image-alt already read var(--ui-font, inherit), so editor missing-image alt text now uses the interface font instead of the document font. Two unowned unit tests (src/adversarial-wp2.test.ts:436, src/adversarial-wp2-1.test.ts:803) matched literal font text in editor.css; registered and updated only those assertions to accept var(--ui-font). Verified: tsc -b clean; vitest 1168/1168; baseline full browser run 500 passed / 5 failed / 16 skipped (import-cancel:75, markdown-roundtrip:179,192,318,357); second full run (seams + first 5 stacks) identical 500/5/16, same 5; final tree targeted specs (hover-emphasis, appearance, editor-toolbar, fragments-panel, popover-bounds, alignment, writing) 69/69 passed. Not verified: native WebKit/built app.\nsrc/main.tsx: uncommitted edits\nsrc/styles.css: uncommitted edits\nsrc/Writer.tsx: uncommitted edits\nsrc/App.tsx: uncommitted edits\nsrc/settings/GeneralSettings.tsx: uncommitted edits\nsrc/research/ResearchPanel.tsx: uncommitted edits\nsrc/organization/fragments.css: uncommitted edits\nsrc/research/citation-card.css: uncommitted edits\nsrc/research/research.css: uncommitted edits\nsrc/components/command-palette.css: uncommitted edits\nsrc/components/dropdown.css: uncommitted edits\nsrc/editor/editor.css: uncommitted edits\nsrc/fonts: uncommitted edits\nsrc/export/fontSource.ts: uncommitted edits\nsrc/settings/AppearanceSettings.tsx: uncommitted edits\nsrc/settings/SettingsNav.tsx: uncommitted edits\nsrc/editor/blankClick.ts: uncommitted edits\nsrc/research/asideMotion.ts: uncommitted edits\nsrc/components/icon-magnify.css: uncommitted edits\nsrc/components/prose-issues.css: uncommitted edits\nsrc/settings/appearance-settings.css: uncommitted edits\nsrc/settings/settings-nav.css: uncommitted edits\nsrc/editor/side-ruler.css: uncommitted edits\ndocs/agent-work/2026-11-10-ui-wave-9/notes/baseline-dev.txt: uncommitted edits\ndocs/agent-work/2026-11-10-ui-wave-9/notes/T0.md: uncommitted edits\ndocs/agent-work/2026-11-10-ui-wave-9/notes/after-t0-dev.txt: uncommitted edits\ndocs/agent-work/2026-11-10-ui-wave-9/notes/after-t0-targeted.txt: uncommitted edits\nsrc/adversarial-wp2.test.ts: uncommitted edits\nsrc/adversarial-wp2-1.test.ts: uncommitted edits"
+    },
+    {
+      "at": "2026-11-11T00:09:13+00:00",
+      "agent": "agent-b307",
+      "event": "approved",
+      "note": "Reviewed by the plan author (Fable): diff read against PLAN.md T0; exports and wiring match; tsc -b clean; vitest 1168/1168; baseline and after-T0 full dev runs both 500 passed / 5 failed (same five) / 16 skipped; targeted run 69/69 after the last 7 font replacements. Accepted judgement calls: the styles.css split keeping .writing-surface and .read-prose off --ui-font (matches the plan's intent), and the two re-pinned unit assertions. Leftovers passed to T266 by message #1249. Not checked: native WebKit."
+    }
+  ]
+}

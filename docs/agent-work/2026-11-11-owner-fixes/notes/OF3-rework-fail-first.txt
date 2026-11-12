@@ -1,0 +1,67 @@
+
+Running 2 tests using 1 worker
+
+  ✘  1 tests/of3-rulers.spec.ts:51:1 › page view: neither ruler touches any sheet at rest; the top ruler stays pinned and the caret clears it (8.9s)
+  ✘  2 tests/ruler.spec.ts:221:1 › page view (OF3 rework): the ruler is pinned in a full-width opaque desk strip and is not on the sheet at rest (9.0s)
+
+
+  1) tests/of3-rulers.spec.ts:51:1 › page view: neither ruler touches any sheet at rest; the top ruler stays pinned and the caret clears it 
+
+    Error: ruler pinned
+
+    expect(received).toBeLessThanOrEqual(expected)
+
+    Expected: <= 2
+    Received:    1484
+
+      81 |       document.querySelector(".writer-scroll")!.getBoundingClientRect().top,
+      82 |   }));
+    > 83 |   expect(Math.abs(pinned.offset), "ruler pinned").toBeLessThanOrEqual(2);
+         |                                                   ^
+      84 |
+      85 |   // The caret is never left under the pinned ruler: put it at the end, scroll so it sits
+      86 |   // right under the ruler, then step up a line; the editor must scroll it clear.
+        at /Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/tests/of3-rulers.spec.ts:83:51
+
+    Error Context: test-results/T286/of3-rulers-page-view-neith-6f6b4-ned-and-the-caret-clears-it/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/T286/of3-rulers-page-view-neith-6f6b4-ned-and-the-caret-clears-it/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/T286/of3-rulers-page-view-neith-6f6b4-ned-and-the-caret-clears-it/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/ruler.spec.ts:221:1 › page view (OF3 rework): the ruler is pinned in a full-width opaque desk strip and is not on the sheet at rest 
+
+    Error: ruler pinned to the top of the scroller
+
+    expect(received).toBeLessThanOrEqual(expected)
+
+    Expected: <= 2
+    Received:    684
+
+      252 |   await expect.poll(() => scroller.evaluate((el) => el.scrollTop)).toBeGreaterThan(300);
+      253 |   const r = await probe();
+    > 254 |   expect(Math.abs(r.offset), "ruler pinned to the top of the scroller").toBeLessThanOrEqual(2);
+          |                                                                         ^
+      255 |   expect(r.stripBg, "strip is opaque").toMatch(/^rgb\(/);
+      256 |   expect(r.stripWidth, "strip spans the whole scroller").toBeGreaterThanOrEqual(r.scrollWidth - 20);
+      257 |   expect(r.stripCoversGutter, "nothing but the strip is drawn at its left end").toBe(true);
+        at /Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/tests/ruler.spec.ts:254:73
+
+    Error Context: test-results/T286/ruler-page-view-OF3-rework-e3ec4-is-not-on-the-sheet-at-rest/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/T286/ruler-page-view-OF3-rework-e3ec4-is-not-on-the-sheet-at-rest/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/T286/ruler-page-view-OF3-rework-e3ec4-is-not-on-the-sheet-at-rest/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2 failed
+    tests/of3-rulers.spec.ts:51:1 › page view: neither ruler touches any sheet at rest; the top ruler stays pinned and the caret clears it 
+    tests/ruler.spec.ts:221:1 › page view (OF3 rework): the ruler is pinned in a full-width opaque desk strip and is not on the sheet at rest 
+DONE

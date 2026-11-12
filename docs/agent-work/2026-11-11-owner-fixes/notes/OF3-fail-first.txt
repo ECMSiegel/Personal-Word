@@ -1,0 +1,280 @@
+
+Running 9 tests using 1 worker
+
+  ✘  1 tests/of3-rulers.spec.ts:51:1 › page view: neither ruler touches any sheet, at rest or scrolled (1.6m)
+  ✘  2 tests/of3-rulers.spec.ts:85:5 › top ruler greys outside the margins: pages at 75% (33.8s)
+  ✘  3 tests/of3-rulers.spec.ts:85:5 › top ruler greys outside the margins: pages at 100% (26.2s)
+  ✘  4 tests/of3-rulers.spec.ts:85:5 › top ruler greys outside the margins: pages at 150% (32.1s)
+  ✘  5 tests/of3-rulers.spec.ts:85:5 › top ruler greys outside the margins: continuous at 75% (11.3s)
+  ✘  6 tests/of3-rulers.spec.ts:85:5 › top ruler greys outside the margins: continuous at 100% (14.6s)
+  ✘  7 tests/of3-rulers.spec.ts:85:5 › top ruler greys outside the margins: continuous at 150% (12.6s)
+  ✘  8 tests/of3-rulers.spec.ts:119:1 › each ruler toggles alone and each choice survives a reload (18.8s)
+  ✘  9 tests/of3-rulers.spec.ts:151:1 › the old single preference turns both rulers on, and they then split (1.5m)
+
+
+  1) tests/of3-rulers.spec.ts:51:1 › page view: neither ruler touches any sheet, at rest or scrolled 
+
+    Test timeout of 90000ms exceeded.
+
+    Error: locator.getAttribute: Test timeout of 90000ms exceeded.
+    Call log:
+      - waiting for getByRole('button', { name: 'Side ruler', exact: true })
+
+
+      14 |     opened = true;
+      15 |   }
+    > 16 |   if ((await toggle.getAttribute("aria-pressed")) !== String(on)) await toggle.click();
+         |                     ^
+      17 |   await expect(toggle).toHaveAttribute("aria-pressed", String(on));
+      18 |   if (opened) await page.keyboard.press("Escape");
+      19 | }
+        at setToggle (/Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/tests/of3-rulers.spec.ts:16:21)
+        at /Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/tests/of3-rulers.spec.ts:56:3
+
+    Error Context: test-results/T286/of3-rulers-page-view-neith-5047f-y-sheet-at-rest-or-scrolled/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/T286/of3-rulers-page-view-neith-5047f-y-sheet-at-rest-or-scrolled/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/T286/of3-rulers-page-view-neith-5047f-y-sheet-at-rest-or-scrolled/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/of3-rulers.spec.ts:85:5 › top ruler greys outside the margins: pages at 75% ─────────────
+
+    Error: left band exists
+
+    expect(received).not.toBeNull()
+
+    Received: null
+
+      102 |         };
+      103 |       });
+    > 104 |       expect(m.left, "left band exists").not.toBeNull();
+          |                                              ^
+      105 |       expect(m.right, "right band exists").not.toBeNull();
+      106 |       expect(Math.abs(m.left!.width - m.margin * m.scale)).toBeLessThanOrEqual(1);
+      107 |       expect(Math.abs(m.right!.width - m.margin * m.scale)).toBeLessThanOrEqual(1);
+        at /Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/tests/of3-rulers.spec.ts:104:46
+
+    Error Context: test-results/T286/of3-rulers-top-ruler-greys-outside-the-margins-pages-at-75-/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/T286/of3-rulers-top-ruler-greys-outside-the-margins-pages-at-75-/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/T286/of3-rulers-top-ruler-greys-outside-the-margins-pages-at-75-/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) tests/of3-rulers.spec.ts:85:5 › top ruler greys outside the margins: pages at 100% ────────────
+
+    Error: left band exists
+
+    expect(received).not.toBeNull()
+
+    Received: null
+
+      102 |         };
+      103 |       });
+    > 104 |       expect(m.left, "left band exists").not.toBeNull();
+          |                                              ^
+      105 |       expect(m.right, "right band exists").not.toBeNull();
+      106 |       expect(Math.abs(m.left!.width - m.margin * m.scale)).toBeLessThanOrEqual(1);
+      107 |       expect(Math.abs(m.right!.width - m.margin * m.scale)).toBeLessThanOrEqual(1);
+        at /Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/tests/of3-rulers.spec.ts:104:46
+
+    Error Context: test-results/T286/of3-rulers-top-ruler-greys-outside-the-margins-pages-at-100-/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/T286/of3-rulers-top-ruler-greys-outside-the-margins-pages-at-100-/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/T286/of3-rulers-top-ruler-greys-outside-the-margins-pages-at-100-/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) tests/of3-rulers.spec.ts:85:5 › top ruler greys outside the margins: pages at 150% ────────────
+
+    Error: left band exists
+
+    expect(received).not.toBeNull()
+
+    Received: null
+
+      102 |         };
+      103 |       });
+    > 104 |       expect(m.left, "left band exists").not.toBeNull();
+          |                                              ^
+      105 |       expect(m.right, "right band exists").not.toBeNull();
+      106 |       expect(Math.abs(m.left!.width - m.margin * m.scale)).toBeLessThanOrEqual(1);
+      107 |       expect(Math.abs(m.right!.width - m.margin * m.scale)).toBeLessThanOrEqual(1);
+        at /Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/tests/of3-rulers.spec.ts:104:46
+
+    Error Context: test-results/T286/of3-rulers-top-ruler-greys-outside-the-margins-pages-at-150-/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/T286/of3-rulers-top-ruler-greys-outside-the-margins-pages-at-150-/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/T286/of3-rulers-top-ruler-greys-outside-the-margins-pages-at-150-/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  5) tests/of3-rulers.spec.ts:85:5 › top ruler greys outside the margins: continuous at 75% ────────
+
+    Error: left band exists
+
+    expect(received).not.toBeNull()
+
+    Received: null
+
+      102 |         };
+      103 |       });
+    > 104 |       expect(m.left, "left band exists").not.toBeNull();
+          |                                              ^
+      105 |       expect(m.right, "right band exists").not.toBeNull();
+      106 |       expect(Math.abs(m.left!.width - m.margin * m.scale)).toBeLessThanOrEqual(1);
+      107 |       expect(Math.abs(m.right!.width - m.margin * m.scale)).toBeLessThanOrEqual(1);
+        at /Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/tests/of3-rulers.spec.ts:104:46
+
+    Error Context: test-results/T286/of3-rulers-top-ruler-greys-c38da-e-margins-continuous-at-75-/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/T286/of3-rulers-top-ruler-greys-c38da-e-margins-continuous-at-75-/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/T286/of3-rulers-top-ruler-greys-c38da-e-margins-continuous-at-75-/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  6) tests/of3-rulers.spec.ts:85:5 › top ruler greys outside the margins: continuous at 100% ───────
+
+    Error: left band exists
+
+    expect(received).not.toBeNull()
+
+    Received: null
+
+      102 |         };
+      103 |       });
+    > 104 |       expect(m.left, "left band exists").not.toBeNull();
+          |                                              ^
+      105 |       expect(m.right, "right band exists").not.toBeNull();
+      106 |       expect(Math.abs(m.left!.width - m.margin * m.scale)).toBeLessThanOrEqual(1);
+      107 |       expect(Math.abs(m.right!.width - m.margin * m.scale)).toBeLessThanOrEqual(1);
+        at /Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/tests/of3-rulers.spec.ts:104:46
+
+    Error Context: test-results/T286/of3-rulers-top-ruler-greys-e04dd--margins-continuous-at-100-/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/T286/of3-rulers-top-ruler-greys-e04dd--margins-continuous-at-100-/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/T286/of3-rulers-top-ruler-greys-e04dd--margins-continuous-at-100-/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  7) tests/of3-rulers.spec.ts:85:5 › top ruler greys outside the margins: continuous at 150% ───────
+
+    Error: left band exists
+
+    expect(received).not.toBeNull()
+
+    Received: null
+
+      102 |         };
+      103 |       });
+    > 104 |       expect(m.left, "left band exists").not.toBeNull();
+          |                                              ^
+      105 |       expect(m.right, "right band exists").not.toBeNull();
+      106 |       expect(Math.abs(m.left!.width - m.margin * m.scale)).toBeLessThanOrEqual(1);
+      107 |       expect(Math.abs(m.right!.width - m.margin * m.scale)).toBeLessThanOrEqual(1);
+        at /Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/tests/of3-rulers.spec.ts:104:46
+
+    Error Context: test-results/T286/of3-rulers-top-ruler-greys-fe3d5--margins-continuous-at-150-/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/T286/of3-rulers-top-ruler-greys-fe3d5--margins-continuous-at-150-/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/T286/of3-rulers-top-ruler-greys-fe3d5--margins-continuous-at-150-/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  8) tests/of3-rulers.spec.ts:119:1 › each ruler toggles alone and each choice survives a reload ───
+
+    Error: expect(locator).toHaveCount(expected) failed
+
+    Locator:  locator('.side-ruler')
+    Expected: 0
+    Received: 1
+    Timeout:  5000ms
+
+    Call log:
+      - Expect "toHaveCount" locator('.side-ruler') with timeout 5000ms
+      - waiting for locator('.side-ruler')
+        13 × locator resolved to 1 element
+           - unexpected value "1"
+
+
+      125 |   await setToggle(page, TOP, true);
+      126 |   await expect(top).toBeVisible();
+    > 127 |   await expect(side).toHaveCount(0);
+          |                      ^
+      128 |   expect(await readToggle(page, SIDE)).toBe("false");
+      129 |
+      130 |   await reloadKeepingProject(page);
+        at /Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/tests/of3-rulers.spec.ts:127:22
+
+    Error Context: test-results/T286/of3-rulers-each-ruler-togg-5b3bd-ch-choice-survives-a-reload/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/T286/of3-rulers-each-ruler-togg-5b3bd-ch-choice-survives-a-reload/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/T286/of3-rulers-each-ruler-togg-5b3bd-ch-choice-survives-a-reload/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  9) tests/of3-rulers.spec.ts:151:1 › the old single preference turns both rulers on, and they then split 
+
+    Test timeout of 90000ms exceeded.
+
+    Error: locator.getAttribute: Test timeout of 90000ms exceeded.
+    Call log:
+      - waiting for getByRole('button', { name: 'Side ruler', exact: true })
+
+
+      26 |     opened = true;
+      27 |   }
+    > 28 |   const value = await toggle.getAttribute("aria-pressed");
+         |                              ^
+      29 |   if (opened) await page.keyboard.press("Escape");
+      30 |   return value;
+      31 | }
+        at readToggle (/Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/tests/of3-rulers.spec.ts:28:30)
+        at /Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/tests/of3-rulers.spec.ts:162:10
+
+    Error Context: test-results/T286/of3-rulers-the-old-single--5a827-lers-on-and-they-then-split/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/T286/of3-rulers-the-old-single--5a827-lers-on-and-they-then-split/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/T286/of3-rulers-the-old-single--5a827-lers-on-and-they-then-split/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  9 failed
+    tests/of3-rulers.spec.ts:51:1 › page view: neither ruler touches any sheet, at rest or scrolled 
+    tests/of3-rulers.spec.ts:85:5 › top ruler greys outside the margins: pages at 75% ──────────────
+    tests/of3-rulers.spec.ts:85:5 › top ruler greys outside the margins: pages at 100% ─────────────
+    tests/of3-rulers.spec.ts:85:5 › top ruler greys outside the margins: pages at 150% ─────────────
+    tests/of3-rulers.spec.ts:85:5 › top ruler greys outside the margins: continuous at 75% ─────────
+    tests/of3-rulers.spec.ts:85:5 › top ruler greys outside the margins: continuous at 100% ────────
+    tests/of3-rulers.spec.ts:85:5 › top ruler greys outside the margins: continuous at 150% ────────
+    tests/of3-rulers.spec.ts:119:1 › each ruler toggles alone and each choice survives a reload ────
+    tests/of3-rulers.spec.ts:151:1 › the old single preference turns both rulers on, and they then split 
+DONE

@@ -1,0 +1,74 @@
+{
+  "id": "T287",
+  "title": "OF4 -- Projects page: put Sort back on the toolbar row where it was",
+  "description": "Owner: 'the sort/last edited stuff on the projects page got moved to the leftside on a different level than it was before'. Wave 9 (P1) moved Sort, the reverse button and the view toggle into a new .library-caption row on the left above the list. Put them back where the last commit has them: run 'git show HEAD:src/components/ProjectLibrary.tsx' and 'git show HEAD:src/components/library.css' and restore that placement (right side of the toolbar row, same level as before) and remove the caption row. KEEP everything else from wave 9: remembered sort/direction/view (src/libraryPreferences.ts), the icon-grow classes, the reverse button, row text order, the empty state. Update tests/w9-projects-page.spec.ts where it asserts the caption row; tests/motion.spec.ts opens Sort on an empty list and must still pass. Port 1454. Owner hand-test report 2026-11-11 (he tried the real app; his report outranks any passing test). Rules: node_modules/.cache/personal-word-beta/w9-brief.md, with notes in docs/agent-work/2026-11-11-owner-fixes/notes/<task>.md instead of the wave 9 notes folder. Before your first browser run, grep tests/ for every selector, label and class you change and update the specs that pin them (register each first). Run unit tests and tsc before any trip through the serial lock. Do not edit docs/*.md or AGENTS.md. No commits.",
+  "status": "done",
+  "owner": null,
+  "priority": 2,
+  "depends_on": [],
+  "files": [
+    "src/components/ProjectLibrary.tsx",
+    "src/components/library.css",
+    "tests/w9-projects-page.spec.ts",
+    "tests/projects-screen.spec.ts",
+    "tests/motion.spec.ts",
+    "docs/agent-work/2026-11-11-owner-fixes/notes/OF4.md",
+    "docs/agent-work/2026-11-11-owner-fixes/notes/OF4-fail-first.txt"
+  ],
+  "review_required": true,
+  "created_by": "agent-a63f",
+  "created_at": "2026-11-11T19:54:38+00:00",
+  "claimed_at": "2026-11-11T19:56:57+00:00",
+  "updated_at": "2026-11-11T21:48:57+00:00",
+  "handoff": null,
+  "review": {
+    "by": "agent-17f6",
+    "at": "2026-11-11T21:48:57+00:00",
+    "verdict": "approved",
+    "note": "Sort/reverse/view back in toolbar right group as at HEAD, caption row gone, prefs kept. tsc clean, vitest 1277 pass, w9-projects-page 9/9 in reviewer run. See docs/agent-work/2026-11-11-owner-fixes/REVIEW-r1.md"
+  },
+  "log": [
+    {
+      "at": "2026-11-11T19:54:38+00:00",
+      "agent": "agent-a63f",
+      "event": "created",
+      "note": ""
+    },
+    {
+      "at": "2026-11-11T19:56:57+00:00",
+      "agent": "agent-b5d1",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-11-11T19:57:00+00:00",
+      "agent": "agent-b5d1",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-11-11T20:11:05+00:00",
+      "agent": "agent-b5d1",
+      "event": "blocked",
+      "note": "Q030: My mistake: my runner script expanded its spec argument to empty (unquoted heredoc), so 'playwright test' started the whole 593-test suite on port 1454 and holds the serial lock (owner.txt: agent-b5d1 T287). I was not allowed to kill it. Needs the owner or user to stop the process ('playwright test  --output test-results/T287'); the lock dir is then removed by my script only if it finishes. Fail-first assertion added to tests/w9-projects-page.spec.ts (Sort on same row as Start new project); no src edits yet. tsc -b exit 0; vitest libraryPreferences 6/6 pass."
+    },
+    {
+      "at": "2026-11-11T20:27:41+00:00",
+      "agent": "agent-b5d1",
+      "event": "unblocked",
+      "note": ""
+    },
+    {
+      "at": "2026-11-11T20:59:29+00:00",
+      "agent": "agent-b5d1",
+      "event": "review requested",
+      "note": "OF4: Sort/reverse/view restored to the toolbar right side (.library-display) as at HEAD; .library-caption row and CSS removed; wave-9 prefs, icon-grow, row order and empty state kept. Tests: w9-projects-page toolbar test now 7 buttons, caption test replaced by toolbar icon test, new same-row test (fail-first 55.5 px > 4, saved in notes/OF4-fail-first.txt). Lock run: 5 specs 64/64 pass. vitest libraryPreferences 6/6. tsc: one error in src/App.tsx:3021 not owned by T287. Notes: notes/OF4.md."
+    },
+    {
+      "at": "2026-11-11T21:48:57+00:00",
+      "agent": "agent-17f6",
+      "event": "approved",
+      "note": "Sort/reverse/view back in toolbar right group as at HEAD, caption row gone, prefs kept. tsc clean, vitest 1277 pass, w9-projects-page 9/9 in reviewer run. See docs/agent-work/2026-11-11-owner-fixes/REVIEW-r1.md"
+    }
+  ]
+}

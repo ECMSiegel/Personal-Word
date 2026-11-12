@@ -15,6 +15,9 @@ export type Entry = {
   synopsis?: string;
   draftStatus?: "notes" | "draft" | "revised";
   tags?: string[];
+  /** Id of the custom top-level section (Project.groups) holding this section; absent or
+      unknown = Manuscript (HS9, src/organization/groups.ts). Additive metadata. */
+  group?: string;
   uses?: { projectId: string; sectionId: string; date: string }[];
   origin: {
     sectionId: string;
@@ -34,12 +37,16 @@ export type Project = {
   order: string[];
   entries: Entry[];
   research?: ResearchData;
-  documentSettings?: DocumentSettings;
+  documentSettings?: Partial<DocumentSettings>;
   templateId?: string;
   pageLayout?: PageLayout;
   sidebarOrder?: string[];
   /** Bottom sidebar features switched off for this project; additive metadata. */
   sidebarHidden?: string[];
+  /** Custom top-level sidebar sections beside Manuscript (HS9); additive metadata. */
+  groups?: { id: string; title: string }[];
+  /** Owner's names for the built-in headings ("manuscript" | "fragments" | "research"). */
+  groupTitles?: Record<string, string>;
   annotations?: Annotation[];
   goals?: { totalWords?: number; dailyWords?: number; deadline?: string; scope?: "manuscript" | "manuscript-and-fragments"; dayMode?: "local" | "utc" };
 };
@@ -246,6 +253,28 @@ export function validateProject(value: unknown): asserts value is Project {
           p.pageLayout.topGap > MAX_PAGE_GAP)))
   )
     throw new Error("Invalid page settings.");
+  if (p.groups !== undefined) {
+    const seen = new Set<string>();
+    if (
+      !Array.isArray(p.groups) ||
+      p.groups.some((g) => {
+        const bad =
+          !g || typeof g !== "object" || typeof g.id !== "string" || !g.id ||
+          ["manuscript", "fragments", "research"].includes(g.id) || seen.has(g.id) ||
+          typeof g.title !== "string" || !g.title.trim();
+        if (!bad) seen.add(g.id);
+        return bad;
+      })
+    )
+      throw new Error("Invalid top-level sections.");
+  }
+  if (
+    p.groupTitles !== undefined &&
+    (!p.groupTitles || typeof p.groupTitles !== "object" || Array.isArray(p.groupTitles) ||
+      Object.entries(p.groupTitles).some(([key, title]) =>
+        !["manuscript", "fragments", "research"].includes(key) || typeof title !== "string" || !title.trim()))
+  )
+    throw new Error("Invalid top-level section names.");
   const ids = new Set<string>();
   for (const e of p.entries) {
     if (
@@ -256,6 +285,7 @@ export function validateProject(value: unknown): asserts value is Project {
       !e.title.trim() ||
       typeof e.text !== "string" ||
       typeof e.updatedAt !== "string" ||
+      (e.group !== undefined && typeof e.group !== "string") ||
       (e.contentRevision !== undefined &&
         (!Number.isSafeInteger(e.contentRevision) || e.contentRevision < 0)) ||
       e.content?.type !== "doc" ||

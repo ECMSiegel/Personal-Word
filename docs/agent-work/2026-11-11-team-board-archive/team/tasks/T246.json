@@ -1,0 +1,56 @@
+{
+  "id": "T246",
+  "title": "W7 native -- rerun state-ruler-caret-cont-75 after the longer fixture",
+  "description": "Harness now uses 120 paragraphs and asserts start clearance, never run. Rerun native screens when the owner's Mac is free. Tell the owner first: windows take the front.",
+  "status": "done",
+  "owner": null,
+  "priority": 3,
+  "depends_on": [],
+  "files": [
+    "tests/native-screens.js"
+  ],
+  "review_required": true,
+  "created_by": "agent-81bd",
+  "created_at": "2026-11-04T22:07:14+00:00",
+  "claimed_at": "2026-11-05T09:34:56+00:00",
+  "updated_at": "2026-11-11T00:10:56+00:00",
+  "handoff": null,
+  "review": {
+    "by": "opencode-watch",
+    "at": "2026-11-11T00:10:56+00:00",
+    "verdict": "approved",
+    "note": "Evidence verified read-only: agent-81bd's review request cites T252's run, and REVIEW-small-fixes-r2.md (independent Opus review, APPROVE) records state-ruler-caret-cont-75 passing all four runs with the 120-paragraph fixture (start clearance 4 px, min/max 5 px, captures viewed in Plain/Color x light/dark). Confirmed the fixture and assertions are in tests/native-screens.js (lines 580-592, 672-712). No new run run here; owner real-key coverage stays with T253."
+  },
+  "log": [
+    {
+      "at": "2026-11-04T22:07:14+00:00",
+      "agent": "agent-81bd",
+      "event": "created",
+      "note": ""
+    },
+    {
+      "at": "2026-11-05T09:34:56+00:00",
+      "agent": "agent-81bd",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-11-05T09:34:56+00:00",
+      "agent": "agent-81bd",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-11-05T09:34:57+00:00",
+      "agent": "agent-81bd",
+      "event": "review requested",
+      "note": "Covered by T252: state-ruler-caret-cont-75 ran with the 120-paragraph fixture and passed all four runs, clearance 4 then 5 px; checked in the independent T252 review (REVIEW-small-fixes-r2.md). No separate run."
+    },
+    {
+      "at": "2026-11-11T00:10:56+00:00",
+      "agent": "opencode-watch",
+      "event": "approved",
+      "note": "Evidence verified read-only: agent-81bd's review request cites T252's run, and REVIEW-small-fixes-r2.md (independent Opus review, APPROVE) records state-ruler-caret-cont-75 passing all four runs with the 120-paragraph fixture (start clearance 4 px, min/max 5 px, captures viewed in Plain/Color x light/dark). Confirmed the fixture and assertions are in tests/native-screens.js (lines 580-592, 672-712). No new run run here; owner real-key coverage stays with T253."
+    }
+  ]
+}

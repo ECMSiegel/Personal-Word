@@ -1,0 +1,19 @@
+
+Running 2 tests using 1 worker
+
+blank-click below last paragraph: elementFromPoint(463, 260) = div.tiptap.ProseMirror.writing-surface
+blank-click left margin at paragraph two: elementFromPoint(379, 184) = div.editor-paper
+blank-click right margin at paragraph two: elementFromPoint(1171, 184) = div.editor-paper
+blank-click shift setup: {"anchor":4,"head":4}
+blank-click shift-click left margin: elementFromPoint(379, 184) = div.editor-paper
+blank-click inside text: elementFromPoint(492.765625, 159.5) = p
+  ✓  1 tests/w9-blank-click.spec.ts:43:3 › blank-page clicks place and extend the caret in continuous view (4.4s)
+blank-click below last paragraph: elementFromPoint(463, 338) = div.editor-paper
+blank-click left margin at paragraph two: elementFromPoint(379, 262) = div.editor-paper
+blank-click right margin at paragraph two: elementFromPoint(1171, 262) = div.editor-paper
+blank-click shift setup: {"anchor":4,"head":4}
+blank-click shift-click left margin: elementFromPoint(379, 262) = div.editor-paper
+blank-click inside text: elementFromPoint(492.765625, 237.5) = p
+  ✓  2 tests/w9-blank-click.spec.ts:43:3 › blank-page clicks place and extend the caret in page view (3.4s)
+
+  2 passed (10.4s)

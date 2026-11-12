@@ -1,0 +1,60 @@
+{
+  "id": "T290",
+  "title": "OF7 -- Fix two WebKit zoom bugs: table right-click menu, click under a page's last line",
+  "description": "Owner 2026-11-11: 'fix both'. Measured in the real app by the Opus native runner (docs/agent-work/2026-11-10-ui-wave-9/NATIVE.md and VALIDATION.md 'Native run r2', items S4 and S6; review in docs/agent-work/2026-11-10-ui-wave-9/REVIEW-blank-click.md). Cause for both: native WebKit reports rects inside the CSS-zoomed page in drawn / zoom while pointer coordinates are drawn px (helpers reportsUnzoomedRects and totalZoom in src/components/floating.ts; pattern in src/editor/blankClick.ts and src/caretScroll.ts). S4: src/Writer.tsx about lines 687-691, the table right-click menu: at 125 and 150 percent view.posAtCoords lands just after the table so the cell check fails and the menu never opens. Fix: when posAtCoords does not land in a cell, fall back to the clicked cell from the event target (closest td/th, then view.posAtDOM(cell, 0)). Writer.tsx is owned by task T286 (rulers): Edit tool on that small region only, re-read right before editing, do not register it. S6: src/editor/pagination.ts about lines 532-534 (clickSpacer): a click just under page 1's last line, with the page gap low in the window at 150 percent, goes to page 2 because clientY (drawn) is compared with an unzoomed rect.top. Fix: scale the spacer rect by totalZoom under reportsUnzoomedRects, as blankClick.ts does. Do NOT change the ArrowUp/ArrowDown code near pagination.ts:615 (S5 did not reproduce). Chromium cannot show either bug: write unit tests that mock ../components/floating (see src/editor/blankClick.test.ts for the pattern) and fail first; for S4, if the handler is not unit-testable where it sits, extract the smallest pure helper into pagination.ts or a new file you register. Verify: npx vitest run src/editor; npx tsc -b; PLAYWRIGHT_PORT=1457 npx playwright test tests/pages-gap.spec.ts tests/w9-blank-click.spec.ts plus any spec that right-clicks a table (grep tests/ for 'contextmenu' and 'table'). The native proof (the existing S4 and S6 probes in node_modules/.cache/personal-word-beta/w9-n/w9-native.py, which fail today) is run later by the native runner: say so in your note. Rules: node_modules/.cache/personal-word-beta/w9-brief.md with notes in docs/agent-work/2026-11-11-owner-fixes/notes/. No commits.",
+  "status": "done",
+  "owner": null,
+  "priority": 2,
+  "depends_on": [],
+  "files": [
+    "src/editor/pagination.ts",
+    "src/editor/pagination.test.ts",
+    "docs/agent-work/2026-11-11-owner-fixes/notes/OF7.md",
+    "docs/agent-work/2026-11-11-owner-fixes/notes/OF7-fail-first.txt",
+    "docs/agent-work/2026-11-11-owner-fixes/notes/OF7-browser.log"
+  ],
+  "review_required": true,
+  "created_by": "agent-a63f",
+  "created_at": "2026-11-11T19:58:13+00:00",
+  "claimed_at": "2026-11-11T19:59:01+00:00",
+  "updated_at": "2026-11-11T21:49:00+00:00",
+  "handoff": null,
+  "review": {
+    "by": "agent-17f6",
+    "at": "2026-11-11T21:49:00+00:00",
+    "verdict": "approved",
+    "note": "pagination.ts diff: imports, clickSpacer scale (1 off-WebKit/zoom 1), new menuPositionInCell; ArrowUp/Down untouched; Writer edit = contextmenu position block + import. Native S4/S6 probes still pending. See docs/agent-work/2026-11-11-owner-fixes/REVIEW-r1.md"
+  },
+  "log": [
+    {
+      "at": "2026-11-11T19:58:13+00:00",
+      "agent": "agent-a63f",
+      "event": "created",
+      "note": ""
+    },
+    {
+      "at": "2026-11-11T19:59:01+00:00",
+      "agent": "agent-594d",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-11-11T19:59:05+00:00",
+      "agent": "agent-594d",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-11-11T21:39:28+00:00",
+      "agent": "agent-594d",
+      "event": "review requested",
+      "note": "Fixed S6 (clickSpacer scales spacer rect by totalZoom under reportsUnzoomedRects) and S4 (new menuPositionInCell in pagination.ts, used by Writer.tsx table contextmenu, 5 lines + import only; falls back to clicked cell under WebKit zoom only). Fail-first: notes/OF7-fail-first.txt (2 failed, pins passed). vitest src/editor 139 passed; tsc -b clean; playwright pages-gap+w9-blank-click 12 passed (OF7-browser.log). No Playwright spec right-clicks a table. Native S4/S6 probes still to run. Note: OF7.md"
+    },
+    {
+      "at": "2026-11-11T21:49:00+00:00",
+      "agent": "agent-17f6",
+      "event": "approved",
+      "note": "pagination.ts diff: imports, clickSpacer scale (1 off-WebKit/zoom 1), new menuPositionInCell; ArrowUp/Down untouched; Writer edit = contextmenu position block + import. Native S4/S6 probes still pending. See docs/agent-work/2026-11-11-owner-fixes/REVIEW-r1.md"
+    }
+  ]
+}

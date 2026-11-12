@@ -1,0 +1,40 @@
+
+> personal-word@0.3.0 tauri
+> tauri build --debug --features native-smoke --no-bundle --config {"identifier":"com.folio.smoke","app":{"windows":[{"title":"Personal Word","width":1240,"height":840,"minWidth":850,"minHeight":600,"x":100,"y":40}]}}
+
+        Info Looking up installed tauri packages to check mismatched versions...
+     Running beforeBuildCommand `npm run build`
+
+> personal-word@0.3.0 build
+> tsc -b && vite build
+
+vite v7.3.7 building client environment for production...
+transforming...
+✓ 2059 modules transformed.
+rendering chunks...
+[plugin vite:reporter] 
+(!) /Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/node_modules/@tauri-apps/plugin-dialog/dist-js/index.js is dynamically imported by /Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/src/App.tsx but also statically imported by /Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/src/export/document.ts, dynamic import will not move module into another chunk.
+
+computing gzip size...
+dist/index.html                             0.46 kB │ gzip:     0.31 kB
+dist/assets/prose.worker-C-GvP1AP.js        3.86 kB
+dist/assets/index-CMbohcM3.css             99.11 kB │ gzip:    17.39 kB
+dist/assets/fontSource-_pE6Imjy.js          0.76 kB │ gzip:     0.37 kB
+dist/assets/event-rssLEjV5.js               1.42 kB │ gzip:     0.69 kB
+dist/assets/webview-DH67sStg.js             3.43 kB │ gzip:     1.17 kB
+dist/assets/markdownBundle-DlWR7lu5.js     10.26 kB │ gzip:     3.94 kB
+dist/assets/window-DCb1Ux9w.js             14.39 kB │ gzip:     3.59 kB
+dist/assets/docx-Sb-emq3F.js              419.76 kB │ gzip:   123.20 kB
+dist/assets/editor-DSbNAoa2.js            446.91 kB │ gzip:   142.28 kB
+dist/assets/fontkit.es-CZH78QoD.js        763.83 kB │ gzip:   344.31 kB
+dist/assets/index-bEi8EdHc.js             839.36 kB │ gzip:   278.57 kB
+dist/assets/pdf-DfTKRm7g.js             2,538.66 kB │ gzip: 1,762.30 kB
+
+(!) Some chunks are larger than 500 kB after minification. Consider:
+- Using dynamic import() to code-split the application
+- Use build.rollupOptions.output.manualChunks to improve chunking: https://rollupjs.org/configuration-options/#output-manualchunks
+- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+✓ built in 8.63s
+   Compiling folio v0.3.0 (/Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/src-tauri)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 15.14s
+       Built application at: /Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/src-tauri/target/debug/folio

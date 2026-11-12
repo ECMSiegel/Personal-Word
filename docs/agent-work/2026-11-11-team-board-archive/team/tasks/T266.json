@@ -1,0 +1,160 @@
+{
+  "id": "T266",
+  "title": "W9 C3 -- Build fonts in the app: interface font, Add font, installed fonts in menus",
+  "description": "Follow section '### C3 --' of docs/agent-work/2026-11-10-ui-wave-9/PLAN.md exactly, plus its 'Rules for every worker'. Verify: vitest src/fonts passes; tests/w9-fonts.spec.ts and appearance spec pass. Browser test port: PLAYWRIGHT_PORT=1440. No commits, no new packages, never run npm run build or a native screen script. Write the note docs/agent-work/2026-11-10-ui-wave-9/notes/C3.md.",
+  "status": "done",
+  "owner": null,
+  "priority": 2,
+  "depends_on": [
+    "T254"
+  ],
+  "files": [
+    "src/fonts/store.ts",
+    "src/fonts/registry.ts",
+    "src/fonts/fontInfo.ts",
+    "src/fonts/fontInfo.test.ts",
+    "src/fonts/registry.test.ts",
+    "src/fonts/store.test.ts",
+    "src/settings/AppearanceSettings.tsx",
+    "src/settings/appearance-settings.css",
+    "tests/w9-fonts.spec.ts",
+    "docs/agent-work/2026-11-10-ui-wave-9/notes/C3.md",
+    "tests/appearance.spec.ts",
+    "test-results/T266",
+    "docs/agent-work/2026-11-10-ui-wave-9/notes/C3-fail-first-r2.txt",
+    "src/styles.css",
+    "docs/agent-work/2026-11-10-ui-wave-9/notes/C3-fail-first-r3.txt"
+  ],
+  "review_required": true,
+  "created_by": "agent-b307",
+  "created_at": "2026-11-10T22:24:38+00:00",
+  "claimed_at": "2026-11-11T05:04:29+00:00",
+  "updated_at": "2026-11-11T05:10:41+00:00",
+  "handoff": {
+    "by": "agent-e0a3",
+    "at": "2026-11-11T05:03:55+00:00",
+    "text": "Rejected (agent-e0a3, W9 reviewer r3) on the logo only; everything else stays. RULING: the logo must keep its own face. PLAN '## Request' item 5: interface font for 'everything besides the logo'; PLAN C3 step 7: '.brand is unchanged'. Today .brand follows the chosen font: src/styles.css:1496-1497 is '.brand { font-family: inherit; ...}' (pre-existing; harmless before wave 9 because :root was the Futura stack, wrong now that --ui-font changes). The spec at tests/w9-fonts.spec.ts:189-196 pins that wrong behaviour (brand == parent font). Other points ACCEPTED: the four helper exceptions are narrow ([aria-label='Font family'] .dropdown-value shows the document font; .footnote-number/.footnote-body are only in src/editor/FootnoteArea.tsx, the notes printed under the page = document text, which the plan's 'document text' exception covers; .dropdown-option skipped only while the font menu is open, because each option previews its face; Popover data-state='closing' is a menu leaving the screen). Fresh runs: PLAYWRIGHT_PORT=1440 npx playwright test tests/w9-fonts.spec.ts tests/appearance.spec.ts --output test-results/T266-review -> 22/22; npx vitest run src/fonts -> 24/24; npx tsc -b exit 0.\nWORK ORDER:\n(1) python3 team/team.py files add T266 --agent <ID> src/styles.css (unowned now). If it exits 2, stop and say so in the done note.\n(2) src/styles.css line 1497, inside the '.brand {' rule that starts at line 1496 (the one with font-size: var(--type-title)): replace 'font-family: inherit;' with 'font-family: Futura, \"Avenir Next\", -apple-system, BlinkMacSystemFont, sans-serif;' (the old default stack, so the logo looks exactly as before). Use the Edit tool; change nothing else in that file.\n(3) tests/w9-fonts.spec.ts:189-196: replace the brandInherits block and its comment with an assertion that, with Georgia chosen, getComputedStyle(document.querySelector('.brand')).fontFamily (quotes stripped) starts with 'Futura', and keep the comment 'the brand keeps its own face (PLAN C3 step 7)'. Also assert the brand's parent computes to Georgia, so the check proves the brand differs from its surroundings.\n(4) Add one plain-dropdown scan: on the Projects page (after the existing expectUiFont at :188) click the 'Sort projects' button, wait for role option 'Name' visible, call expectUiFont(page, 'open Sort dropdown') with no font-menu flag, press Escape. (The plan's 'an open dropdown' is otherwise only checked with every option exempt.)\n(5) Fail-first: before step 2, run the spec once with steps 3-4 in place; the brand assertion must fail (it receives Georgia). Save that output to docs/agent-work/2026-11-10-ui-wave-9/notes/C3-fail-first-r3.txt.\nProof: PLAYWRIGHT_PORT=1440 npx playwright test tests/w9-fonts.spec.ts tests/appearance.spec.ts tests/projects-screen.spec.ts --output test-results/T266 (serial lock) -> all pass (projects-screen checks the brand's position); npx tsc -b clean. Update notes/C3.md: remove the brand deviation, add the r3 evidence."
+  },
+  "review": {
+    "by": "agent-e0a3",
+    "at": "2026-11-11T05:10:41+00:00",
+    "verdict": "approved",
+    "note": "Approved (agent-e0a3, W9 reviewer r3), rework 3 matches my work order. src/styles.css: the only C3 change is the later .brand rule (line 1496-1497, with font-size var(--type-title)) now font-family: Futura, \"Avenir Next\", -apple-system, BlinkMacSystemFont, sans-serif; the other hunks in the file are earlier approved tasks' edits (--ui-font refactor etc.). tests/w9-fonts.spec.ts: brand must start with Futura while its parent starts with Georgia; plain Sort dropdown scanned open with no exemptions. Fail-first notes/C3-fail-first-r3.txt: brand assertion at :203 failed before the CSS change. Fresh runs: PLAYWRIGHT_PORT=1440 npx playwright test w9-fonts appearance projects-screen --output test-results/T266r3-review -> 65/65; npx tsc -b exit 0; npx vitest run src/fonts -> 24/24 (earlier this session, no font code changed since). Hand check: choose Georgia, the Projects logo stays Futura."
+  },
+  "log": [
+    {
+      "at": "2026-11-10T22:24:38+00:00",
+      "agent": "agent-b307",
+      "event": "created",
+      "note": ""
+    },
+    {
+      "at": "2026-11-11T00:33:53+00:00",
+      "agent": "agent-ab75",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-11-11T00:34:04+00:00",
+      "agent": "agent-ab75",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-11-11T00:57:53+00:00",
+      "agent": "agent-ab75",
+      "event": "handoff",
+      "note": "Next: when serial-check.lock is free, run PLAYWRIGHT_PORT=1440 npx playwright test tests/w9-fonts.spec.ts tests/appearance.spec.ts --output test-results/T266; read full output, repair real failures, rerun, and update notes/C3.md. Do not rerun the initial unit fail-first. \n RUN  v4.1.11 /Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor\n\n\n Test Files  4 passed (4)\n      Tests  17 passed (17)\n   Start at  19:56:56\n   Duration  2.14s (transform 715ms, setup 0ms, import 1.01s, tests 1.35s, environment 1ms) passed 4 files/17 tests. Browser acceptance was not started because serial-check.lock remained occupied (last owner observed opencode-watch/T261). src/export/pdf-fonts.test.ts(59,19): error TS2532: Object is possibly 'undefined'.\nsrc/export/pdf.ts(440,29): error TS2345: Argument of type '(r: Inline, useCustomFont?: boolean) => Inline[]' is not assignable to parameter of type '(this: undefined, value: Inline, index: number, array: Inline[]) => Inline | readonly Inline[]'.\n  Types of parameters 'useCustomFont' and 'index' are incompatible.\n    Type 'number' is not assignable to type 'boolean | undefined'. had only concurrent T267 errors in src/export/pdf-fonts.test.ts and src/export/pdf.ts, none in T266 paths. Do not edit src/editor/editor.css until T258 releases it; T0 flags editor.css:541 Page break label. C6 system.ts remains a stub. Native/WebKit check is deferred to final validation and owner approval. Details in docs/agent-work/2026-11-10-ui-wave-9/notes/C3.md.\nsrc/fonts/store.ts: uncommitted edits\nsrc/fonts/registry.ts: uncommitted edits\nsrc/fonts/fontInfo.ts: uncommitted edits\nsrc/fonts/fontInfo.test.ts: uncommitted edits\nsrc/fonts/registry.test.ts: uncommitted edits\nsrc/fonts/store.test.ts: uncommitted edits\nsrc/settings/AppearanceSettings.tsx: uncommitted edits\nsrc/settings/appearance-settings.css: uncommitted edits\ntests/w9-fonts.spec.ts: uncommitted edits\ndocs/agent-work/2026-11-10-ui-wave-9/notes/C3.md: uncommitted edits"
+    },
+    {
+      "at": "2026-11-11T01:12:59+00:00",
+      "agent": "agent-38c2",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-11-11T01:13:19+00:00",
+      "agent": "agent-38c2",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-11-11T01:55:11+00:00",
+      "agent": "agent-38c2",
+      "event": "review requested",
+      "note": "Completed C3 takeover. Fixed initFonts so saved built-in/installed interface font choices survive reload while unavailable added-only families fall back, and made added-style labels deterministic. Re-pinned the Appearance assertions for A1 hover scale and Palette-before-Section-colours ordering; tests/appearance.spec.ts was registered to T266 after T255 entered review. Verified: npx vitest run src/fonts (4 files/17 tests), npx tsc -b clean, and PLAYWRIGHT_PORT=1440 npx playwright test tests/w9-fonts.spec.ts tests/appearance.spec.ts --output test-results/T266 (22/22 passed). No native/WebKit run. Details in notes/C3.md."
+    },
+    {
+      "at": "2026-11-11T02:53:21+00:00",
+      "agent": "agent-2ff3",
+      "event": "rejected",
+      "note": "Rejected (agent-2ff3, W9 reviewer r2) for a browser spec that does not test the plan's main acceptance. The code itself looks right and is NOT to be rewritten: fontInfo/store/registry/AppearanceSettings read in full; initFonts wired in src/main.tsx; document font options wired in Writer.tsx; GeneralSettings renders AppearanceSettings; earlier demand met (tests/appearance.spec.ts:79 now expects matrix(0.99); :417 Palette/Section colours re-pinned to order-only). My fresh runs: npx vitest run src/fonts src/split.test.ts -> all passed; npx tsc -b exit 0; PLAYWRIGHT_PORT=1440 npx playwright test tests/w9-fonts.spec.ts tests/appearance.spec.ts --output test-results/T266-review -> 22/22 passed.\n\nWORK ORDER (edit only tests/w9-fonts.spec.ts and notes/C3.md; do not touch src/ unless a new assertion exposes a real bug, then fix only that in a T266-registered file and report it):\n1. Interface font everywhere (PLAN.md C3 step 7). After choosing Georgia (spec line 28-30), add a helper `expectUiFont(page, where)` that runs page.evaluate over document.querySelectorAll(\"body *\"), keeps elements that are visible (el.getClientRects().length > 0) and have a direct child text node with non-blank text, skips any element inside `.brand, .writing-surface, .ProseMirror, .read-prose, code, pre, kbd`, and returns those whose getComputedStyle(el).fontFamily does not start with \"Georgia\". Assert the returned list is [] (print it on failure). Call it on each of: the Projects page (page.goto(\"/\") after the choice), the project workspace (sidebar + toolbar visible), an open toolbar dropdown (click the \"Font family\" button), the command palette (press Meta+Shift+p; dialog name \"Command palette\"), the Research panel (click .group-title \"Research\", as in tests/research-pdf.spec.ts:15), a citation card (copy citeDoiInCard from tests/floating.spec.ts around line 506; if it needs a network DOI that the dev server cannot serve, open the card the same way that spec does and say which way in the note), and Settings. Also assert getComputedStyle(document.querySelector(\".brand\")).fontFamily still starts with \"Futura\".\n2. Exactly three uploaded faces: at spec line 56-61 also assert faces.length === 3 (the zero-before check at line 33 stays).\n3. Remove -> gone from BOTH menus (step 7 last sentence): after the Remove click at line 69, open the \"Interface font\" dropdown and the \"Font family\" dropdown in the editor and assert getByRole(\"option\", { name: \"Trebuchet MS\" }) has count 0 in each (installed-family listing is still the C6 stub, so 0 is correct now).\n4. Fail-first for the spec (plan: \"write the spec first; it fails against the T0 stubs\"): the note only shows a unit-test fail-first. On a doctored copy, prove the new step-1 assertion can fail: temporarily change setInterfaceFont in src/fonts/registry.ts to not set --ui-font (or make the helper expect \"Verdana\"), run the spec once, save the failing output to docs/agent-work/2026-11-10-ui-wave-9/notes/C3-fail-first.txt, restore, and state in C3.md exactly what was doctored.\n5. If any surface fails step 1 because of a hard-coded font-family in a file you do not own (e.g. src/styles.css owned by T256, src/editor/editor.css:530 page-break label), do not edit it: list file:line and selector in C3.md for task V and mark that surface as a known exception in the helper with a comment.\nProof: PLAYWRIGHT_PORT=1440 npx playwright test tests/w9-fonts.spec.ts tests/appearance.spec.ts --output test-results/T266 (take the serial lock) -> all pass; npx vitest run src/fonts -> all pass; npx tsc -b clean. Update C3.md with the counts. Also report in C3.md that the Dropdown has no type-ahead (plan stop rule default) if that is still true."
+    },
+    {
+      "at": "2026-11-11T03:02:29+00:00",
+      "agent": "agent-1e9f",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-11-11T03:02:29+00:00",
+      "agent": "agent-1e9f",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-11-11T03:12:02+00:00",
+      "agent": "agent-1e9f",
+      "event": "handoff",
+      "note": "Rework r2 (reviewer work order from agent-2ff3). DONE: tests/w9-fonts.spec.ts rewritten for items 1-3. Added expectUiFont helper (every visible own-text element must compute to Georgia; exceptions .brand, .writing-surface, .ProseMirror, .read-prose, code, pre, kbd) called on Settings, Manuscript workspace, open Font family dropdown, command palette, Research panel, citation card, Projects page; .brand asserted Futura; exact faces.length === 3; after Remove, 'Trebuchet MS' option count 0 in both Interface font and Font family menus. NOT DONE: the spec has never been run (the shared serial-check lock was held by other agents for the whole session), so there are no pass/fail counts. Fail-first r2 (item 4) not done: notes/C3-fail-first-r2.txt does not exist and its path is not registered. NEXT ACTIONS: (1) run PLAYWRIGHT_PORT=1440 npx playwright test tests/w9-fonts.spec.ts tests/appearance.spec.ts under the lock and read the whole log; (2) expect likely issues: the docked citation-card step may need floating mode (tests/floating.spec.ts ~592 and seedFloating ~17-27); the final page.goto('/') may reopen the project because addInitScript forces restoreTabs; the document Font family menu may style options in their own face, needing a narrow commented exception; (3) doctored fail-first: make UI_FONT 'Verdana' in the spec only, run, save output to docs/agent-work/2026-11-10-ui-wave-9/notes/C3-fail-first-r2.txt (register it with files add first), restore 'Georgia'. Notes: notes/C3.md has a Rework r2 status section appended. A stray queued runner (pid 57571, run-t266.sh) from agent-1e9f may still be waiting for the lock; its log goes to /private/tmp/claude-502/-Users-ethansiegel-Local-Projects/2571f6f9-0752-435d-9988-01f8405dffd1/scratchpad/T266-run1.log. Check it before starting a second run. Path states: tests/w9-fonts.spec.ts: uncommitted edits; docs/agent-work/2026-11-10-ui-wave-9/notes/C3.md: uncommitted edits; src/fonts/store.ts: clean; src/fonts/registry.ts: clean; src/fonts/fontInfo.ts: clean; src/fonts/fontInfo.test.ts: clean; src/fonts/registry.test.ts: clean; src/fonts/store.test.ts: clean; src/settings/AppearanceSettings.tsx: clean; src/settings/appearance-settings.css: clean; tests/appearance.spec.ts: clean. Call-count overrun: about 150 calls, most spent waiting on the serial lock."
+    },
+    {
+      "at": "2026-11-11T03:20:21+00:00",
+      "agent": "agent-33f5",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-11-11T03:20:21+00:00",
+      "agent": "agent-33f5",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-11-11T05:00:42+00:00",
+      "agent": "agent-33f5",
+      "event": "review requested",
+      "note": "Rework r2: tests/w9-fonts.spec.ts finished and passing. expectUiFont scans every visible own-text element for Georgia on Settings, workspace, open Font family dropdown, command palette, Research panel, citation card (floating mode, the only mode with a card) and Projects page; narrow commented exceptions listed in notes/C3.md. Exactly 3 faces; removed family gone from Interface font and Font family menus. DEVIATION: .brand is NOT Futura after choosing Georgia (styles.css ~1496 'font-family: inherit', pre-existing, untouched), so spec pins brand==parent font instead; flag for reviewer/task V. No app code changed. Results: playwright w9-fonts+appearance 22/22 pass; vitest src/fonts 24/24; tsc -b clean. Fail-first: notes/C3-fail-first-r2.txt (5 doctored variants each fail at the intended assertion, spec restored). Dropdown does have type-ahead. No native run."
+    },
+    {
+      "at": "2026-11-11T05:03:55+00:00",
+      "agent": "agent-e0a3",
+      "event": "rejected",
+      "note": "Rejected (agent-e0a3, W9 reviewer r3) on the logo only; everything else stays. RULING: the logo must keep its own face. PLAN '## Request' item 5: interface font for 'everything besides the logo'; PLAN C3 step 7: '.brand is unchanged'. Today .brand follows the chosen font: src/styles.css:1496-1497 is '.brand { font-family: inherit; ...}' (pre-existing; harmless before wave 9 because :root was the Futura stack, wrong now that --ui-font changes). The spec at tests/w9-fonts.spec.ts:189-196 pins that wrong behaviour (brand == parent font). Other points ACCEPTED: the four helper exceptions are narrow ([aria-label='Font family'] .dropdown-value shows the document font; .footnote-number/.footnote-body are only in src/editor/FootnoteArea.tsx, the notes printed under the page = document text, which the plan's 'document text' exception covers; .dropdown-option skipped only while the font menu is open, because each option previews its face; Popover data-state='closing' is a menu leaving the screen). Fresh runs: PLAYWRIGHT_PORT=1440 npx playwright test tests/w9-fonts.spec.ts tests/appearance.spec.ts --output test-results/T266-review -> 22/22; npx vitest run src/fonts -> 24/24; npx tsc -b exit 0.\nWORK ORDER:\n(1) python3 team/team.py files add T266 --agent <ID> src/styles.css (unowned now). If it exits 2, stop and say so in the done note.\n(2) src/styles.css line 1497, inside the '.brand {' rule that starts at line 1496 (the one with font-size: var(--type-title)): replace 'font-family: inherit;' with 'font-family: Futura, \"Avenir Next\", -apple-system, BlinkMacSystemFont, sans-serif;' (the old default stack, so the logo looks exactly as before). Use the Edit tool; change nothing else in that file.\n(3) tests/w9-fonts.spec.ts:189-196: replace the brandInherits block and its comment with an assertion that, with Georgia chosen, getComputedStyle(document.querySelector('.brand')).fontFamily (quotes stripped) starts with 'Futura', and keep the comment 'the brand keeps its own face (PLAN C3 step 7)'. Also assert the brand's parent computes to Georgia, so the check proves the brand differs from its surroundings.\n(4) Add one plain-dropdown scan: on the Projects page (after the existing expectUiFont at :188) click the 'Sort projects' button, wait for role option 'Name' visible, call expectUiFont(page, 'open Sort dropdown') with no font-menu flag, press Escape. (The plan's 'an open dropdown' is otherwise only checked with every option exempt.)\n(5) Fail-first: before step 2, run the spec once with steps 3-4 in place; the brand assertion must fail (it receives Georgia). Save that output to docs/agent-work/2026-11-10-ui-wave-9/notes/C3-fail-first-r3.txt.\nProof: PLAYWRIGHT_PORT=1440 npx playwright test tests/w9-fonts.spec.ts tests/appearance.spec.ts tests/projects-screen.spec.ts --output test-results/T266 (serial lock) -> all pass (projects-screen checks the brand's position); npx tsc -b clean. Update notes/C3.md: remove the brand deviation, add the r3 evidence."
+    },
+    {
+      "at": "2026-11-11T05:04:29+00:00",
+      "agent": "agent-0766",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-11-11T05:04:29+00:00",
+      "agent": "agent-0766",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-11-11T05:07:59+00:00",
+      "agent": "agent-0766",
+      "event": "review requested",
+      "note": "Rework r3: src/styles.css .brand font-family -> Futura stack (one line, Edit); tests/w9-fonts.spec.ts brand assertion flipped (brand Futura, parent Georgia) + open Sort dropdown scan. Fail-first: notes/C3-fail-first-r3.txt (brand assertion failed before CSS change). Results: playwright w9-fonts+appearance+projects-screen 65/65; vitest src/fonts 24/24; tsc -b clean. notes/C3.md updated."
+    },
+    {
+      "at": "2026-11-11T05:10:41+00:00",
+      "agent": "agent-e0a3",
+      "event": "approved",
+      "note": "Approved (agent-e0a3, W9 reviewer r3), rework 3 matches my work order. src/styles.css: the only C3 change is the later .brand rule (line 1496-1497, with font-size var(--type-title)) now font-family: Futura, \"Avenir Next\", -apple-system, BlinkMacSystemFont, sans-serif; the other hunks in the file are earlier approved tasks' edits (--ui-font refactor etc.). tests/w9-fonts.spec.ts: brand must start with Futura while its parent starts with Georgia; plain Sort dropdown scanned open with no exemptions. Fail-first notes/C3-fail-first-r3.txt: brand assertion at :203 failed before the CSS change. Fresh runs: PLAYWRIGHT_PORT=1440 npx playwright test w9-fonts appearance projects-screen --output test-results/T266r3-review -> 65/65; npx tsc -b exit 0; npx vitest run src/fonts -> 24/24 (earlier this session, no font code changed since). Hand check: choose Georgia, the Projects logo stays Futura."
+    }
+  ]
+}

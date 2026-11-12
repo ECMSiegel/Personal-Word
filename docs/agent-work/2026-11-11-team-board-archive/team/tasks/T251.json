@@ -1,0 +1,58 @@
+{
+  "id": "T251",
+  "title": "Later -- Selected footnote marker then Insert image drops the note",
+  "description": "Owner: save for later. Seen only through a test; real-user reach unknown; may be normal replace-selection. REVIEW-r3 T242.",
+  "status": "done",
+  "owner": null,
+  "priority": 3,
+  "depends_on": [],
+  "files": [
+    "src/editor/extensions.ts",
+    "tests/t251-marker-image.spec.ts",
+    "docs/agent-work/2026-11-11-t251-marker-image"
+  ],
+  "review_required": true,
+  "created_by": "agent-81bd",
+  "created_at": "2026-11-05T04:36:34+00:00",
+  "claimed_at": "2026-11-11T01:54:54+00:00",
+  "updated_at": "2026-11-11T03:01:53+00:00",
+  "handoff": null,
+  "review": {
+    "by": "agent-2ff3",
+    "at": "2026-11-11T03:01:53+00:00",
+    "verdict": "approved",
+    "note": "Approved (agent-2ff3, W9 reviewer r2) as a fix of the path REVIEW-r3 described (marker node-selected, End does not move, image then replaces the marker). src/editor/extensions.ts: NodeSelectionCaretKeys binds End/Home only for a NodeSelection inside a textblock (block images/tables untouched), moves to a TextSelection at the block end/start, else returns false. Fail-first verified in node_modules/.cache/personal-word-beta/t251-marker/fail-first-final.log (Expected 'text', Received 'node'). Fresh run: PLAYWRIGHT_PORT=1439 npx playwright test tests/t251-marker-image.spec.ts tests/footnotes.spec.ts --output test-results/T251-review -> 7/7 passed; npx tsc -b exit 0. OPEN for the owner/coordinator, not fixed here: clicking Insert image directly while a marker is node-selected (no End key) still inserts at the node selection and would still replace the marker; that path is untested and Insert image was deliberately left unchanged. If the owner wants that closed, it needs a new task (e.g. insert after an inline-atom node selection instead of replacing it). Also: the worker ran the 4 markdown-roundtrip dist-chunk tests with PLAYWRIGHT_PREVIEW=1 against the existing build; it did not rebuild dist, but W9 workers must not use PLAYWRIGHT_PREVIEW."
+  },
+  "log": [
+    {
+      "at": "2026-11-05T04:36:34+00:00",
+      "agent": "agent-81bd",
+      "event": "created",
+      "note": ""
+    },
+    {
+      "at": "2026-11-11T01:54:54+00:00",
+      "agent": "opencode-watch",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-11-11T01:54:55+00:00",
+      "agent": "opencode-watch",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-11-11T02:13:31+00:00",
+      "agent": "opencode-watch",
+      "event": "review requested",
+      "note": "Fix in src/editor/extensions.ts: new NodeSelectionCaretKeys extension (priority 1000, in documentExtensions) binds End/Home only for a NodeSelection whose node sits in a text block; End -> TextSelection.near(doc.resolve($to.end($to.depth)), -1), Home -> near(resolve($from.start($from.depth)), 1), both scrollIntoView; returns false otherwise so visual-line End/Home for text carets is untouched. Insert image unchanged. Fail-first on the final fixture (fix temporarily unregistered): End left the node selection (node_modules/.cache/personal-word-beta/t251-marker/fail-first-final.log). Acceptance 1/1 (acceptance-r2.log). tsc -b EXIT=0 twice. Regression under serial lock: footnotes 6/6; markdown-roundtrip 9/9 dev-runnable, and its 4 dist-chunk tests 4/4 in preview mode (dev server cannot serve /assets dist chunks; environmental). Full evidence: docs/agent-work/2026-11-11-t251-marker-image/NOTE.md"
+    },
+    {
+      "at": "2026-11-11T03:01:53+00:00",
+      "agent": "agent-2ff3",
+      "event": "approved",
+      "note": "Approved (agent-2ff3, W9 reviewer r2) as a fix of the path REVIEW-r3 described (marker node-selected, End does not move, image then replaces the marker). src/editor/extensions.ts: NodeSelectionCaretKeys binds End/Home only for a NodeSelection inside a textblock (block images/tables untouched), moves to a TextSelection at the block end/start, else returns false. Fail-first verified in node_modules/.cache/personal-word-beta/t251-marker/fail-first-final.log (Expected 'text', Received 'node'). Fresh run: PLAYWRIGHT_PORT=1439 npx playwright test tests/t251-marker-image.spec.ts tests/footnotes.spec.ts --output test-results/T251-review -> 7/7 passed; npx tsc -b exit 0. OPEN for the owner/coordinator, not fixed here: clicking Insert image directly while a marker is node-selected (no End key) still inserts at the node selection and would still replace the marker; that path is untested and Insert image was deliberately left unchanged. If the owner wants that closed, it needs a new task (e.g. insert after an inline-atom node selection instead of replacing it). Also: the worker ran the 4 markdown-roundtrip dist-chunk tests with PLAYWRIGHT_PREVIEW=1 against the existing build; it did not rebuild dist, but W9 workers must not use PLAYWRIGHT_PREVIEW."
+    }
+  ]
+}

@@ -1,0 +1,23 @@
+
+Running 17 tests using 1 worker
+
+  ✓   1 tests/of3-rulers.spec.ts:51:1 › page view: neither ruler touches any sheet at rest; the top ruler stays pinned and the caret clears it (9.5s)
+  ✓   2 tests/of3-rulers.spec.ts:108:5 › top ruler greys outside the margins: pages at 75% (2.5s)
+  ✓   3 tests/of3-rulers.spec.ts:108:5 › top ruler greys outside the margins: pages at 100% (2.6s)
+  ✓   4 tests/of3-rulers.spec.ts:108:5 › top ruler greys outside the margins: pages at 150% (2.6s)
+  ✓   5 tests/of3-rulers.spec.ts:108:5 › top ruler greys outside the margins: continuous at 75% (2.4s)
+  ✓   6 tests/of3-rulers.spec.ts:108:5 › top ruler greys outside the margins: continuous at 100% (2.4s)
+  ✓   7 tests/of3-rulers.spec.ts:108:5 › top ruler greys outside the margins: continuous at 150% (2.5s)
+  ✓   8 tests/of3-rulers.spec.ts:142:1 › each ruler toggles alone and each choice survives a reload (4.8s)
+  ✓   9 tests/of3-rulers.spec.ts:174:1 › the old single preference turns both rulers on, and they then split (3.5s)
+  ✓  10 tests/of3-rulers.spec.ts:194:1 › page view: a click on the strip's grey end leaves the caret and the scroll alone (3.7s)
+  ✓  11 tests/of3-rulers.spec.ts:224:1 › page view with a floating sidebar: the sidebar and the citation card paint above the pinned strip (3.6s)
+  ✓  12 tests/of5-settings.spec.ts:34:1 › the hidden font file input stays hidden and Add font matches project Settings (2.1s)
+  ✓  13 tests/of5-settings.spec.ts:47:1 › Add font sits on the Interface font row, to its right, in the project Settings (1.7s)
+  ✓  14 tests/of5-settings.spec.ts:52:1 › Add font sits on the Interface font row, to its right, in the Projects dialog (849ms)
+  ✓  15 tests/of5-settings.spec.ts:57:1 › project Settings shows exactly one rule between the section strip and General (1.6s)
+  ✓  16 tests/of5-settings.spec.ts:102:1 › Remove font button is the danger colour in both Settings places (2.7s)
+  ✓  17 tests/w9-fonts.spec.ts:72:1 › interface and document font choices persist and added styles are shared (9.4s)
+
+  17 passed (1.1m)
+EXIT 0

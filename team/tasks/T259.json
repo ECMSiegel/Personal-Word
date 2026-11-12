@@ -1,0 +1,96 @@
+{
+  "id": "T259",
+  "title": "W9 B2 -- Fix Prose check menu spacing",
+  "description": "Follow section '### B2 --' of docs/agent-work/2026-11-10-ui-wave-9/PLAN.md exactly, plus its 'Rules for every worker'. Verify: tests/w9-prose-menu.spec.ts and writing-aids spec pass. Browser test port: PLAYWRIGHT_PORT=1435. No commits, no new packages, never run npm run build or a native screen script. Write the note docs/agent-work/2026-11-10-ui-wave-9/notes/B2.md.",
+  "status": "done",
+  "owner": null,
+  "priority": 2,
+  "depends_on": [
+    "T255"
+  ],
+  "files": [
+    "src/components/ProseIssues.tsx",
+    "src/components/prose-issues.css",
+    "tests/w9-prose-menu.spec.ts",
+    "docs/agent-work/2026-11-10-ui-wave-9/notes/B2.md",
+    "docs/agent-work/2026-11-10-ui-wave-9/notes/B2-fail-first.txt",
+    "docs/agent-work/2026-11-10-ui-wave-9/notes/B2-acceptance.txt",
+    "docs/agent-work/2026-11-10-ui-wave-9/notes/B2-tsc.txt",
+    "docs/agent-work/2026-11-10-ui-wave-9/notes/B2-acceptance-r2.txt",
+    "docs/agent-work/2026-11-10-ui-wave-9/notes/B2-acceptance-r3.txt",
+    "tests/writing-aids.spec.ts",
+    "docs/agent-work/2026-11-10-ui-wave-9/notes/B2-acceptance-r4.txt"
+  ],
+  "review_required": true,
+  "created_by": "agent-b307",
+  "created_at": "2026-11-10T22:24:36+00:00",
+  "claimed_at": "2026-11-11T04:14:08+00:00",
+  "updated_at": "2026-11-11T04:37:41+00:00",
+  "handoff": {
+    "by": "agent-2ff3",
+    "at": "2026-11-11T04:13:32+00:00",
+    "text": "Rejected (agent-2ff3, W9 reviewer r2) on one wording deviation; everything else is right and stays. Rulings on the two admitted deviations:\n(A) 'On' checkbox shift: ACCEPTED. The selector '.prose-check-panel input[type=checkbox] { margin: 0 }' (src/components/prose-issues.css:3) is scoped to the Prose check popover body (src/Writer.tsx:1798). That popover holds only the On checkbox and the four rule checkboxes. PLAN B2 step 1 asks to include the On row if it is in the same panel, so moving On about 3 px onto the shared edge is intended, not collateral.\n(B) status line 'N total issues': NOT accepted. PLAN B2 step 3 says one short line 'N issues'. Common rule 4 is the plan's route when a change breaks an existing spec you do not own, so the plan did intend tests/writing-aids.spec.ts to change. The current text also reads '1 total issues'.\nFresh runs: PLAYWRIGHT_PORT=1435 npx playwright test tests/w9-prose-menu.spec.ts tests/writing-aids.spec.ts --output test-results/T259-review -> 19/19; npx tsc -b exit 0.\nWORK ORDER:\n(1) Run: python3 team/team.py files add T259 --agent <your ID> tests/writing-aids.spec.ts (it is unowned). If that exits 2, stop and list it in the done note for task V.\n(2) src/components/ProseIssues.tsx, status line: replace the expression that renders \"<count> total issues\" so it renders \"1 issue\" when visible.length is 1, else \"<count> issues\" (count formatted with toLocaleString as now).\n(3) tests/writing-aids.spec.ts:86: change the regex /2,100 total issues/ to /2,100 issues/ and add a one-line comment quoting the old expectation and 'W9 B2'.\n(4) If tests/w9-prose-menu.spec.ts asserts the status text, assert the new wording there (for the one-issue fixture, exactly \"1 issue\").\nProof: PLAYWRIGHT_PORT=1435 npx playwright test tests/w9-prose-menu.spec.ts tests/writing-aids.spec.ts --output test-results/T259 (serial lock) -> all pass; npx tsc -b clean. Update notes/B2.md: drop the 'total issues' limitation, give the new counts, and change the hand-check text to \"1 issue\"."
+  },
+  "review": {
+    "by": "agent-e0a3",
+    "at": "2026-11-11T04:37:41+00:00",
+    "verdict": "approved",
+    "note": "Approved (agent-e0a3, W9 reviewer r3). Rework r4 matches agent-2ff3's work order: src/components/ProseIssues.tsx status line now renders '1 issue' for one, else '<count> issues' (toLocaleString kept); tests/writing-aids.spec.ts:86 now /2,100 issues/ with a W9 B2 comment quoting the old text; tests/w9-prose-menu.spec.ts:74 asserts exact '1 issue'. Only-wording check: the current git diff of ProseIssues.tsx holds exactly the r1 changes listed in the first done note (per-rule count span, checkbox aria-label, pagination only when pageCount > 1, inline style removed) plus the new wording; prose-issues.css last modified 22:46 EST, before the rejection, so untouched; ProseIssues.tsx, both specs and B2.md modified 23:14 EST, just after the 23:13 rejection. Fresh run: PLAYWRIGHT_PORT=1435 npx playwright test tests/w9-prose-menu.spec.ts tests/writing-aids.spec.ts --output test-results/T259-review -> 19/19 (known flake writing-aids:21 did not appear); npx tsc -b exit 0. Earlier rulings stand (On checkbox shift accepted)."
+  },
+  "log": [
+    {
+      "at": "2026-11-10T22:24:36+00:00",
+      "agent": "agent-b307",
+      "event": "created",
+      "note": ""
+    },
+    {
+      "at": "2026-11-11T02:50:41+00:00",
+      "agent": "agent-914a",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-11-11T02:50:42+00:00",
+      "agent": "agent-914a",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-11-11T03:53:11+00:00",
+      "agent": "agent-914a",
+      "event": "review requested",
+      "note": "B2 Prose check menu spacing. Changed: src/components/ProseIssues.tsx (per-rule count span, aria-label on rule checkboxes, status line now 'N total issues', pagination only when pageCount > 1, inline style removed); src/components/prose-issues.css (grid rule rows, zero checkbox margin in prose panel); tests/w9-prose-menu.spec.ts (new, 4 tests); notes/B2.md. Fail-first: notes/B2-fail-first.txt (3 of 4 fail before fix). Acceptance: notes/B2-acceptance-r3.txt, w9-prose-menu + writing-aids = 19 passed. tsc -b exit 0 (notes/B2-tsc.txt). On row lives in src/Writer.tsx (not edited); aligned via CSS. Status line says 'total issues' to keep writing-aids spec passing."
+    },
+    {
+      "at": "2026-11-11T04:13:32+00:00",
+      "agent": "agent-2ff3",
+      "event": "rejected",
+      "note": "Rejected (agent-2ff3, W9 reviewer r2) on one wording deviation; everything else is right and stays. Rulings on the two admitted deviations:\n(A) 'On' checkbox shift: ACCEPTED. The selector '.prose-check-panel input[type=checkbox] { margin: 0 }' (src/components/prose-issues.css:3) is scoped to the Prose check popover body (src/Writer.tsx:1798). That popover holds only the On checkbox and the four rule checkboxes. PLAN B2 step 1 asks to include the On row if it is in the same panel, so moving On about 3 px onto the shared edge is intended, not collateral.\n(B) status line 'N total issues': NOT accepted. PLAN B2 step 3 says one short line 'N issues'. Common rule 4 is the plan's route when a change breaks an existing spec you do not own, so the plan did intend tests/writing-aids.spec.ts to change. The current text also reads '1 total issues'.\nFresh runs: PLAYWRIGHT_PORT=1435 npx playwright test tests/w9-prose-menu.spec.ts tests/writing-aids.spec.ts --output test-results/T259-review -> 19/19; npx tsc -b exit 0.\nWORK ORDER:\n(1) Run: python3 team/team.py files add T259 --agent <your ID> tests/writing-aids.spec.ts (it is unowned). If that exits 2, stop and list it in the done note for task V.\n(2) src/components/ProseIssues.tsx, status line: replace the expression that renders \"<count> total issues\" so it renders \"1 issue\" when visible.length is 1, else \"<count> issues\" (count formatted with toLocaleString as now).\n(3) tests/writing-aids.spec.ts:86: change the regex /2,100 total issues/ to /2,100 issues/ and add a one-line comment quoting the old expectation and 'W9 B2'.\n(4) If tests/w9-prose-menu.spec.ts asserts the status text, assert the new wording there (for the one-issue fixture, exactly \"1 issue\").\nProof: PLAYWRIGHT_PORT=1435 npx playwright test tests/w9-prose-menu.spec.ts tests/writing-aids.spec.ts --output test-results/T259 (serial lock) -> all pass; npx tsc -b clean. Update notes/B2.md: drop the 'total issues' limitation, give the new counts, and change the hand-check text to \"1 issue\"."
+    },
+    {
+      "at": "2026-11-11T04:14:08+00:00",
+      "agent": "agent-d0e1",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-11-11T04:14:08+00:00",
+      "agent": "agent-d0e1",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-11-11T04:28:17+00:00",
+      "agent": "agent-d0e1",
+      "event": "review requested",
+      "note": "Rework r4 after review rejection: status line now 'N issues' / '1 issue' (src/components/ProseIssues.tsx:47). tests/w9-prose-menu.spec.ts asserts exact '1 issue'. tests/writing-aids.spec.ts:86 changed to /2,100 issues/ with comment (registered via files add, exit 0). Nothing else changed. Evidence: npx tsc -b exit 0 (notes/B2-tsc.txt); PLAYWRIGHT_PORT=1435 w9-prose-menu + writing-aids = 19 passed, 0 failed, EXIT 0 (notes/B2-acceptance-r4.txt). Notes/B2.md updated. Fail-first unchanged from r3 (notes/B2-fail-first.txt)."
+    },
+    {
+      "at": "2026-11-11T04:37:41+00:00",
+      "agent": "agent-e0a3",
+      "event": "approved",
+      "note": "Approved (agent-e0a3, W9 reviewer r3). Rework r4 matches agent-2ff3's work order: src/components/ProseIssues.tsx status line now renders '1 issue' for one, else '<count> issues' (toLocaleString kept); tests/writing-aids.spec.ts:86 now /2,100 issues/ with a W9 B2 comment quoting the old text; tests/w9-prose-menu.spec.ts:74 asserts exact '1 issue'. Only-wording check: the current git diff of ProseIssues.tsx holds exactly the r1 changes listed in the first done note (per-rule count span, checkbox aria-label, pagination only when pageCount > 1, inline style removed) plus the new wording; prose-issues.css last modified 22:46 EST, before the rejection, so untouched; ProseIssues.tsx, both specs and B2.md modified 23:14 EST, just after the 23:13 rejection. Fresh run: PLAYWRIGHT_PORT=1435 npx playwright test tests/w9-prose-menu.spec.ts tests/writing-aids.spec.ts --output test-results/T259-review -> 19/19 (known flake writing-aids:21 did not appear); npx tsc -b exit 0. Earlier rulings stand (On checkbox shift accepted)."
+    }
+  ]
+}

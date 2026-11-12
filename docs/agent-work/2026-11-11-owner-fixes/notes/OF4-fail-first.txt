@@ -1,0 +1,38 @@
+== playwright
+
+Running 9 tests using 1 worker
+
+  ✓  1 tests/w9-projects-page.spec.ts:33:1 › the toolbar holds only Start, Import writing, the search and the gear (9.3s)
+  ✘  2 tests/w9-projects-page.spec.ts:49:1 › Sort sits on the same toolbar row as Start new project (5.9s)
+  ✓  3 tests/w9-projects-page.spec.ts:58:1 › Sort, reverse and the view toggle form a quiet 12 px muted caption row above the list (5.5s)
+  ✓  4 tests/w9-projects-page.spec.ts:101:1 › row titles are 15 px and first; Edited is normal colour, Added is muted; cards keep the order (5.0s)
+  ✓  5 tests/w9-projects-page.spec.ts:125:1 › sort, direction and view survive a reload (5.2s)
+  ✓  6 tests/w9-projects-page.spec.ts:144:1 › bad saved library preferences fall back to the defaults (686ms)
+  ✓  7 tests/w9-projects-page.spec.ts:151:1 › the page's icon buttons carry icon-grow and the arrow sits in a span (4.0s)
+  ✓  8 tests/w9-projects-page.spec.ts:162:1 › with no projects the list area offers one sentence and text controls, no illustration (908ms)
+  ✓  9 tests/w9-projects-page.spec.ts:186:1 › an empty search keeps 'No matching projects.' and not the empty-state block (3.0s)
+
+
+  1) tests/w9-projects-page.spec.ts:49:1 › Sort sits on the same toolbar row as Start new project ──
+
+    Error: expect(received).toBeLessThanOrEqual(expected)
+
+    Expected: <= 4
+    Received:    55.5
+
+      53 |     return b.y + b.height / 2;
+      54 |   };
+    > 55 |   expect(Math.abs((await centreY("Sort projects")) - (await centreY("Start new project")))).toBeLessThanOrEqual(4);
+         |                                                                                             ^
+      56 | });
+      57 |
+      58 | test("Sort, reverse and the view toggle form a quiet 12 px muted caption row above the list", async ({ page }) => {
+        at /Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/tests/w9-projects-page.spec.ts:55:93
+
+    Error Context: test-results/T287/w9-projects-page-Sort-sits-76623-ar-row-as-Start-new-project/error-context.md
+
+  1 failed
+    tests/w9-projects-page.spec.ts:49:1 › Sort sits on the same toolbar row as Start new project ───
+  8 passed (44.4s)
+PW=1
+EXIT=1

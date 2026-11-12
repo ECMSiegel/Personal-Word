@@ -25,6 +25,11 @@ async function create(page: Page, title: string, template = "Blank") {
   await page.getByRole("button", { name: "Save", exact: true }).click();
 }
 
+// Wave 9: the repeat-citation checkboxes sit in the collapsed "Citation rules" row.
+async function openRules(page: Page) {
+  await page.locator("details.citation-rules").evaluate((el) => { (el as HTMLDetailsElement).open = true; });
+}
+
 async function openResearch(page: Page) {
   await page
     .locator(".group-title")
@@ -129,6 +134,7 @@ test("text-only footnotes keep the insert-at-cursor flow", async ({ page }) => {
   const editor = page.getByRole("textbox", { name: "Writing editor" });
   await editor.fill("Evidence here.");
   await openResearch(page);
+  await page.locator(".research-tabs").getByRole("button", { name: "Notes", exact: true }).click();
   await page.getByRole("button", { name: "Insert footnote at cursor" }).click();
   await page
     .getByLabel("Footnote text", { exact: true })
@@ -195,13 +201,13 @@ test("Sources tab: rules split Zotero, sources and text-only notes; helper texts
         ruleA: box(rules[0] ?? null),
         list: box(document.querySelector(".source-list")),
         ruleB: box(rules[1] ?? null),
-        subhead: box(document.querySelector(".research-subhead")),
+        subhead: box(document.querySelector(".research-bibliography")),
         ruleAStyle: rules[0] ? getComputedStyle(rules[0]).borderTopStyle : "",
         ruleABackground: rules[0] ? getComputedStyle(rules[0]).backgroundImage : "",
       };
     });
 
-  // Zero sources: the Zotero area, one rule, then Text-only notes, with no empty band.
+  // Zero sources: the Zotero area, one rule, then Bibliography, with no empty band.
   let g = await geometry();
   expect(g.ruleAStyle).toBe("solid");
   expect(g.ruleABackground).toBe("none");
@@ -289,6 +295,7 @@ test("opt-in Ibid. rules reach the page notes and research preview, persist, and
   // Old projects and new ones without rules keep the legacy short note.
   await expect(notes).toContainText("Halloway, Lamps and Ledgers.");
   await expect(notes).not.toContainText("Ibid.");
+  await openRules(page);
   await page.getByLabel("Use repeat citation rules", { exact: true }).check();
   await page.getByRole("button", { name: "Back-to-back repeat", exact: true }).click();
   await page.getByRole("option", { name: "Ibid.", exact: true }).click();
@@ -310,6 +317,7 @@ test("opt-in Ibid. rules reach the page notes and research preview, persist, and
   await page.locator(".project-row").filter({ has: page.getByText("Ibid rules", { exact: true }) }).locator("button").first().click();
   await expect(page.locator(".footnote-area")).toContainText("Ibid.");
   await openResearch(page);
+  await openRules(page);
   await page.getByLabel("Use repeat citation rules", { exact: true }).uncheck();
   await expect(page.locator(".footnote-area")).toContainText("Halloway, Lamps and Ledgers.");
   await expect(page.locator(".footnote-area")).not.toContainText("Ibid.");
@@ -355,6 +363,7 @@ test("citation rules agree across page notes, preview and reader through section
 
   await openResearch(page);
   await page.locator(".source-toggle").click();
+  await openRules(page);
   await page.getByLabel("Use repeat citation rules", { exact: true }).check();
   await page.getByRole("button", { name: "Back-to-back repeat", exact: true }).click();
   await page.getByRole("option", { name: "Ibid.", exact: true }).click();
@@ -365,6 +374,7 @@ test("citation rules agree across page notes, preview and reader through section
 
   await openResearch(page);
   if (await page.locator(".footnote-item").count() === 0) await page.locator(".source-toggle").click();
+  await openRules(page);
   await page.getByRole("button", { name: "Full citation again", exact: true }).click();
   await page.getByRole("option", { name: "In each section (one manuscript entry)", exact: true }).click();
   await expect(page.locator(".footnote-item .citation-preview")).toHaveText([full4, "Ibid., 9.", full9]);
@@ -392,9 +402,11 @@ test("helper captions are gone; hints live in placeholder and a keyboard-reachab
   await openResearch(page);
 
   // Empty footnote: no "Write a note or choose a source." caption.
+  await page.locator(".research-tabs").getByRole("button", { name: "Notes", exact: true }).click();
   await page.getByRole("button", { name: "Insert footnote at cursor" }).click();
   await expect(page.getByLabel("Footnote text", { exact: true })).toBeVisible();
   await expect(page.getByText("Write a note or choose a source.")).toHaveCount(0);
+  await page.locator(".research-tabs").getByRole("button", { name: "Sources", exact: true }).click();
 
   // Zotero export hint is not visible text.
   await expect(page.getByText("In Zotero, export CSL JSON or BibTeX")).toHaveCount(0);
@@ -568,6 +580,7 @@ test("research hints span the whole field row and the repeat-rule fields are spa
   expect(Math.abs(hintWidth - panelWidth)).toBeLessThanOrEqual(2);
 
   // Repeat citation rules: the two menus have a gap between them.
+  await openRules(page);
   await page.getByLabel("Use repeat citation rules").check();
   const first = await page
     .locator(".repeat-rules .field")

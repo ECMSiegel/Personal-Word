@@ -1,0 +1,41 @@
+
+Running 5 tests using 1 worker
+
+[1/5] tests/popover-bounds.spec.ts:57:1 › research menus stay inside the research aside scroll container
+[2/5] tests/popover-bounds.spec.ts:100:1 › a menu in the 390 px research aside keeps the Dropdown's 320 px max-width
+[3/5] tests/popover-bounds.spec.ts:131:1 › repeat-rule menus stay inside a narrow research aside
+[4/5] tests/popover-bounds.spec.ts:164:1 › cards-view status dropdown stays inside the sidebar scroll container
+[5/5] tests/popover-bounds.spec.ts:178:1 › toolbar popovers keep their recorded untouched-tree placement
+  1) tests/popover-bounds.spec.ts:178:1 › toolbar popovers keep their recorded untouched-tree placement 
+
+    Error: Page setup x moved
+
+    expect(received).toBeLessThanOrEqual(expected)
+
+    Expected: <= 1
+    Received:    33.4375
+
+      210 |       Math.abs(b!.x - want.x),
+      211 |       `${name} x moved`,
+    > 212 |     ).toBeLessThanOrEqual(1);
+          |       ^
+      213 |     expect(
+      214 |       Math.abs(b!.y - want.y),
+      215 |       `${name} y moved`,
+        at /Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/tests/popover-bounds.spec.ts:212:7
+
+    Error Context: test-results/T289/popover-bounds-toolbar-pop-f859e-ed-untouched-tree-placement/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/T289/popover-bounds-toolbar-pop-f859e-ed-untouched-tree-placement/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/T289/popover-bounds-toolbar-pop-f859e-ed-untouched-tree-placement/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+  1 failed
+    tests/popover-bounds.spec.ts:178:1 › toolbar popovers keep their recorded untouched-tree placement 
+  4 passed (34.7s)
+EXIT 1

@@ -73,6 +73,7 @@ Run expensive builds, Playwright, cargo, and native checks one at a time, in the
 - [x] UI wave 5 plan (docs/agent-work/2026-11-01-ui-wave-5/PLAN.md, tasks T194-T207) is done with independent reviews, its validation list has run (native checks on an unlocked screen, screenshots viewed in light/dark x Plain/Color x floating on/off), a Fable review passed, and the owner hand checks are prepared with status CLAIMED.
 - [ ] UI wave 6 plan (docs/agent-work/2026-11-02-ui-wave-6/PLAN.md) is done with independent reviews, its final check V has run (native screens on an unlocked screen, screenshots viewed), a Fable review passed with repairs re-run, and the owner hand checks are prepared with status CLAIMED.
 - [ ] UI wave 7 (docs/agent-work/2026-11-04-ui-wave-7/REQUEST.md): sidebar hierarchy, resize edges, floating small try, ruler and top gap, CI diagnosed, lanes A-C reviewed, final check V run, owner hand checks prepared.
+- [ ] UI wave 9 plan (docs/agent-work/2026-11-10-ui-wave-9/PLAN.md, owner approved 2026-11-10; board titles start "W9") is done with independent reviews, its Validation list has run, and the owner hand checks are prepared with status CLAIMED. Owner-approved exception to "no new packages": objc2-core-text declared as a direct dependency (already locked, no downloads).
 
 ## Milestones
 1. Reconcile the current working tree and existing implementation/review reports before assigning remaining work.

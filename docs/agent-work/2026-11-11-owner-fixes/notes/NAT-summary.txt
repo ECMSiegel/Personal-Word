@@ -1,0 +1,64 @@
+e9b9ae8d2272cfcb8beb33e7b1a43edce4b2fe3d83ee15cff1c2d2c3c5ca7672  src-tauri/target/debug/folio
+=== smoke start Wed Nov 11 18:40:22 EST 2026
+=== smoke exit 1 Wed Nov 11 18:40:56 EST 2026
+=== rel-baseline start Wed Nov 11 18:40:56 EST 2026
+=== rel-baseline exit 0 Wed Nov 11 18:41:50 EST 2026
+=== rel-beta start Wed Nov 11 18:41:50 EST 2026
+=== rel-beta exit 0 Wed Nov 11 18:43:05 EST 2026
+=== screens-plain start Wed Nov 11 18:43:05 EST 2026
+=== screens-plain exit 0 Wed Nov 11 18:45:15 EST 2026
+=== screens-color start Wed Nov 11 18:45:15 EST 2026
+=== screens-color exit 0 Wed Nov 11 18:47:24 EST 2026
+=== blur1x start Wed Nov 11 18:47:24 EST 2026
+=== blur1x exit 0 Wed Nov 11 18:49:10 EST 2026
+=== blur1x-check start Wed Nov 11 18:49:10 EST 2026
+=== blur1x-check exit 0 Wed Nov 11 18:49:16 EST 2026
+=== blur1x-analyze start Wed Nov 11 18:49:16 EST 2026
+=== blur1x-analyze exit 0 Wed Nov 11 18:52:25 EST 2026
+=== zoomA start Wed Nov 11 18:52:25 EST 2026
+=== zoomA exit 0 Wed Nov 11 18:52:38 EST 2026
+=== blankA start Wed Nov 11 18:52:38 EST 2026
+=== blankA exit 0 Wed Nov 11 18:52:50 EST 2026
+ALLDONE
+=== smoke-rerun1 start Wed Nov 11 18:52:57 EST 2026
+=== smoke-rerun1 exit 0 Wed Nov 11 18:53:05 EST 2026
+=== smoke-rerun2 start Wed Nov 11 18:53:05 EST 2026
+=== smoke-rerun2 exit 0 Wed Nov 11 18:53:14 EST 2026
+=== buildB start Wed Nov 11 18:53:14 EST 2026
+=== buildB exit 0 Wed Nov 11 18:53:32 EST 2026 77e7482e95260f7a689efcdec31248c69da153570c84b9daa18791fb522f07d0  src-tauri/target/debug/folio
+=== of-rulers start Wed Nov 11 18:53:33 EST 2026
+=== of-rulers exit 1 Wed Nov 11 18:53:56 EST 2026
+=== of-sanity start Wed Nov 11 18:53:56 EST 2026
+=== of-sanity exit 0 Wed Nov 11 18:54:06 EST 2026
+=== blankB-rulers start Wed Nov 11 18:54:06 EST 2026
+=== blankB-rulers exit 0 Wed Nov 11 18:54:19 EST 2026
+=== zoomB-rulers start Wed Nov 11 18:54:19 EST 2026
+=== zoomB-rulers exit 0 Wed Nov 11 18:54:31 EST 2026
+PHASEB-DONE
+=== buildC start Wed Nov 11 18:54:34 EST 2026
+=== buildC finished Wed Nov 11 18:55:12 EST 2026 09ef606e8b46596108b4e16619be429efb94a1148b5f04e85fe9d07499ffb9ea  src-tauri/target/debug/folio
+   Compiling folio v0.3.0 (/Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/src-tauri)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 15.14s
+       Built application at: /Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/src-tauri/target/debug/folio
+=== blur2x start Wed Nov 11 18:55:13 EST 2026
+=== blur2x exit 0 Wed Nov 11 18:57:04 EST 2026
+=== blur2x-analyze start Wed Nov 11 18:57:04 EST 2026
+=== note: blur2x-analyze stopped by runner Wed Nov 11 19:50:33 EST 2026 after ~47 min (crops written; numbers from of-n/blur2x-metrics.py -> NAT-blur2x-metrics.log)
+=== blur2x-analyze exit 143 Wed Nov 11 19:50:38 EST 2026
+=== blur2x-check start Wed Nov 11 19:50:38 EST 2026
+=== blur2x-check exit 1 Wed Nov 11 19:52:25 EST 2026
+=== buildB2 start Wed Nov 11 19:52:25 EST 2026
+=== buildB2 exit 0 Wed Nov 11 19:53:01 EST 2026 299226b15f1b4eaf66269bb756c04695b57da3614dadc5246b6159aa8b9cf67f  src-tauri/target/debug/folio
+=== of-rulers2 start Wed Nov 11 19:53:01 EST 2026
+=== of-rulers2 exit 0 Wed Nov 11 19:53:33 EST 2026
+PHASED-DONE
+=== release start Wed Nov 11 19:54:10 EST 2026; before: 2586aeee2b80906d90ef6d62ecf0bbab9632b329b2ede2f2e6c468e287c5a752  src-tauri/target/release/bundle/macos/Personal Word.app/Contents/MacOS/folio
+=== release exit 0 Wed Nov 11 19:56:31 EST 2026
+total 31960
+drwxr-xr-x@ 3 ethansiegel  staff        96 Nov 11 19:56 .
+drwxr-xr-x@ 5 ethansiegel  staff       160 Nov 11 19:56 ..
+-rwxr-xr-x@ 1 ethansiegel  staff  16363504 Nov 11 19:56 folio
+18d3e20aab900dbc5b27d7e92e0339659a968388f310abcff9377d477b4d743f  src-tauri/target/release/bundle/macos/Personal Word.app/Contents/MacOS/folio
+Nov 11 19:56:30 2026 src-tauri/target/release/bundle/macos/Personal Word.app/Contents/MacOS/folio
+ 16M	src-tauri/target/release/bundle/macos/Personal Word.app
+RELEASE-DONE

@@ -1,0 +1,5 @@
+# HS3 Square checkboxes everywhere
+Changed: src/styles.css (one global checkbox rule: appearance none, 14px, 1px --muted border, radius 0, --paper bg; checked = --accent fill + --paper check mark; `.dialog input` now excludes checkboxes because it forced width 100%), src/research/research.css (accent-color/14px duplicates removed), src/editor/editor.css `.prose-check-panel` 16->14, src/components/prose-issues.css grid column 16->14, src/research/CslImportPreview.tsx (inline checkbox style removed), docs/design-system.md (one sentence), tests/hs3-checkbox.spec.ts, src/checkboxSquare.test.ts (CSS guard: no radius/accent-color/appearance:auto on a checkbox rule).
+Owner sees: square boxes everywhere, accent fill with a white check when on; screenshots HS3-light.png / HS3-dark.png.
+Limits: no indeterminate or disabled-specific rule (existing `input:disabled` opacity still applies). Chromium only; WebKit not checked.
+Hand check: Settings > General, toggle boxes in light and dark; Prose check popover; Export document section.

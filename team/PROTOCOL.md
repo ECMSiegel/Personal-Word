@@ -15,17 +15,27 @@ Words used below:
 - **Task states**: `available` (nobody has it), `claimed` (an agent has taken it), `in_progress`
   (the agent has started), `blocked` (waiting on an answer), `review` (finished, awaiting review),
   `done` (complete). A **live task** is one that is `claimed`, `in_progress`, or `blocked`.
+- **Path reservations**: registered paths block overlapping claims while a task is `claimed`,
+  `in_progress`, `blocked`, or `review`. Review is not live work, but its paths stay reserved until
+  the reviewer approves or rejects it.
 - **Owner**: the agent that currently holds a task.
-- **Stale agent**: an agent that has not run any command with its agent ID for `stale_minutes`
+- **Stale agent**: an agent that has not run an activity-recording command with its agent ID for `stale_minutes`
   (30 by default, set in `team/config.json`). Its tasks can be taken over by other agents.
+- **Coordinator**: an agent that joined with `join --role coordinator`. It watches the board, is
+  told when a question, review, block, or handoff needs attention, and may take any task over from
+  a live owner. Workers are every other agent.
+- **Busy**: a short promise that you are in a long step. `busy` keeps you from being called stale
+  until the time you gave is up (see "Staying current").
 - **The user**: the human. The user runs commands with the literal agent ID `user`.
-- **Views**: `team/BOARD.md`, `team/MESSAGES.md`, `team/DECISIONS.md`, `team/DISCOVERIES.md`, and
+- **Views**: `team/BOARD.md`, `team/BOARD.html` (a picture of the same board for a person, see
+  "Coordinating a team"), `team/MESSAGES.md`, `team/DECISIONS.md`, `team/DISCOVERIES.md`, and
   `team/QUESTIONS.md`. The tool rewrites them after every change (read-only commands such as `show`
   and `owner` leave them alone); they are for reading only.
 
 What is in `team/`:
-- `team/team.py`: the command you run. Usually a small launcher (a "shim") that finds and runs the
-  shared tool in the workspace; in a standalone project it is the whole tool.
+- `team/team.py`: the command you run. It is usually a small launcher pinned to the kit used by
+  `init`; for an in-kit project it keeps a relative path, and for an external project it keeps the
+  kit path needed to reach the shared tool. A standalone project has the whole tool here.
 - `team/PROTOCOL.md` (this file), `team/PLAN.md` (the project plan), `team/config.json` (settings).
 - `team/tasks/`, `team/agents/`, `team/questions/` (one JSON file per task, agent, and question)
   and `team/messages.jsonl`, `team/decisions.jsonl`, `team/discoveries.jsonl` (one line per
@@ -48,27 +58,29 @@ python3 team/team.py <command> ...
 ```
 
 The tool needs Python 3 and nothing else. Run the commands; do not create or edit files inside
-`team/` by hand (the one exception is `team/PLAN.md`, under the conditions in "Rules"). The tool
-takes a lock for every change, which is what makes it safe for several agents to act at the same
-moment; a file you edit yourself skips that lock.
+`team/` by hand (the one exception is `team/PLAN.md`, under the conditions in "Rules"). State
+changes are serialized by a lock. `status` is a read-only snapshot and does not use the lock.
 
 ## Identity
 
 1. Run `python3 team/team.py join --label "<your tool name>"` (for example `--label "Codex"`).
    If your tool shows you a session ID, you may join with `--agent <that ID>` instead (letters,
    digits, `.`, `_` and `-`, up to 64 characters).
-2. The tool prints `You are <ID>. Pass --agent <ID> on every command.` Write that ID down where you
+2. The tool prints `You are <ID>. Pass --agent <ID> on agent commands.` Write that ID down where you
    will keep seeing it (your notes or task list).
-3. Pass `--agent <ID>` on every later command. Alternatively, you may set the environment variable
-   `TEAM_AGENT=<ID>` for your commands, if your tool keeps environment variables between commands.
-   When in doubt, pass `--agent` explicitly.
+3. Pass `--agent <ID>` on agent commands. Alternatively, you may set the environment variable
+   `TEAM_AGENT=<ID>` for commands that support it, if your tool keeps environment variables between
+   commands. When in doubt, pass `--agent` explicitly.
 4. Never use another agent's ID, even one that looks unused.
 5. If you lose your ID, run `join` again and use the new ID. Your old ID will go stale and its task
    will be taken over through the normal stale path (see "Stale agents"). Do not try to guess or
    reuse the old one.
 
-Every command that carries `--agent` also counts as a sign of life for that agent. That is the
-only heartbeat; there is no separate "I am alive" command.
+`status` is read-only: it does not acquire the lock, rewrite views, or update an agent's activity
+timestamp. Supported work commands record activity. For an explicit check-in without changing task
+state, run `python3 team/team.py next --agent <ID>`; it shows claimable and review work and records
+activity. Before a long step with no commands in it, use `busy` (see "Staying current"). Do not
+invent any other heartbeat command.
 
 ## The loop
 
@@ -99,8 +111,9 @@ names; do not work around it.
    to 11, then go to step 12. If `next` lists nothing you can claim, go through these in order and
    stop at the first that applies:
    1. it lists tasks in `review` that you do not own: review one, then go to step 12;
-   2. run `python3 team/team.py stale`; if a stale or left agent owns a live task, take it with
-      `reclaim` (see "Stale agents") and continue at step 7;
+   2. `next` also ends with a list "Tasks you can take over (owner stale or left)", each with a
+      ready `reclaim` command; if it lists one, take it with `reclaim` (see "Stale agents") and
+      continue at step 7 (`python3 team/team.py stale` shows the same owners);
    3. run `python3 team/team.py complete`; if it prints `COMPLETE`, tell the user the project is
       finished and run `leave`;
    4. otherwise nothing is available to you. Run `question` only if something blocks the whole
@@ -132,7 +145,8 @@ names; do not work around it.
     `python3 team/team.py msg --agent <ID> --to <their ID> ...` or `--to all`.
 11. Finish it: `python3 team/team.py done <T> --agent <ID> --note "what changed and how it was
     verified"`. A task that requires review goes to `review`; otherwise it goes to `done`.
-12. Go back to step 3.
+12. If your tool shows how much of your usage or context is used, report it:
+    `python3 team/team.py usage --agent <ID> --percent <n> --note "..."`. Then go back to step 3.
 13. Before you stop for any reason, run
     `python3 team/team.py handoff <T> --agent <ID> --note "..."` for every live task you own
     (`claimed`, `in_progress`, or `blocked`). End each note with one line per registered path, in
@@ -161,6 +175,10 @@ have to stop), stop starting new work and do this at once:
    task; otherwise it exits with code 2 and names the tasks you still have to hand off.
 3. Run `python3 team/team.py leave --agent <ID>`.
 
+If your tool shows how much usage or context is left, report it first with
+`python3 team/team.py usage --agent <ID> --percent <n> --note "..."` so the person watching the
+board can see why you stopped. Always report it before a handoff.
+
 Each task goes back to `available` with your note attached, and the next agent that claims it sees
 the note. This per-task handoff is separate from a project-wide `HANDOFF.md` file that some
 projects keep: that file describes the whole project, while unfinished task state always goes
@@ -183,12 +201,15 @@ Plan:
   requires review then goes to `review`, and another agent or the user approves it.
 
 Files:
-- Never edit a file registered to another live task. To find out who owns a path, run
+- Never edit a file reserved by another task. Reservations include tasks in `review`, even though
+  they are not live work. To find out who owns a path, run
   `python3 team/team.py owner "<path>"`.
-- Register paths relative to the project folder (for example `src/app.py`). The tool stores an
-  absolute path inside the project in that same form, so two spellings of one file still collide;
-  a path outside the project stays absolute.
-- Never edit the view files (`BOARD.md`, `MESSAGES.md`, `DECISIONS.md`, `DISCOVERIES.md`,
+- Register paths relative to the project folder (for example `src/app.py`). Inside the project the tool stores paths relative to the project root,
+  including when you supply an absolute name. Outside paths stay absolute.
+- Register exact files or the narrowest necessary directories. Do not use wildcard paths for new
+  reservations; broad and pattern-based claims are hard to audit, even if overlap checking
+  understands them.
+- Never edit the view files (`BOARD.md`, `BOARD.html`, `MESSAGES.md`, `DECISIONS.md`, `DISCOVERIES.md`,
   `QUESTIONS.md`) or the files under `team/tasks/`, `team/agents/`, `team/questions/`, or the
   `.jsonl` logs. Only the tool writes them.
 
@@ -210,21 +231,25 @@ Review:
   cannot review their own task.
 - The reviewer reads the changes to the task's registered paths (for example with `git diff --
   "<path>"` when the project is a git repository) and runs the verification the task names.
-- A task in `review` no longer holds its paths, so another task may claim and change them. If
-  `owner "<path>"` names another live task, review only the changes the `done` note describes, and
-  say so in the review note.
+- A task keeps its registered path reservations while in `review`. Approval or rejection releases
+  them; do not alter its files while the review is pending. A reviewer must be someone other than
+  the task owner. Check the submitted changes and run the named verification before deciding.
 - Approve: `python3 team/team.py review <T> --agent <ID> --approve --note "..."` moves the task to
   `done`.
 - Reject: `python3 team/team.py review <T> --agent <ID> --reject --note "what is wrong"` sends it
   back to `available` with the note attached as a handoff, and tells the old owner.
 
-Staying alive:
-- While working, run any command with `--agent` at least every 10 minutes (for example
-  `python3 team/team.py status --agent <ID>`), so you are not marked stale.
-- Before a step that may take longer than 10 minutes (a long build or test run), tell the others
-  and state how long you expect it to take:
-  `python3 team/team.py msg --agent <ID> --to all --kind info --text "T004: running the full
-  build, expected to take about 25 minutes"`.
+Staying current:
+- Staleness is based on the last activity-recording command. `status` is read-only and never counts
+  as a check-in, even with `--agent`. While working, use the supported check-in when needed:
+  `python3 team/team.py next --agent <ID>`. It displays available/review work and records activity.
+- Before a step that may take longer than 10 minutes (a long build or test run), run
+  `python3 team/team.py busy --agent <ID> --minutes <N> --text "T004: running the full build"`.
+  It tells everyone and stops you from being called stale until those minutes pass (at most
+  `busy_max_minutes` in `team/config.json`, 120 by default). Run any command, such as `next`, when
+  the step ends. A coordinator or the user can still take your task at once.
+- Report your usage with `usage --agent <ID> --percent <n> --note "..."` whenever your tool shows
+  it. The figure is self-reported; the board shows "not reported" until you do.
 
 Skills (shared procedures):
 - Before starting work, run `python3 team/team.py skills` and use any skill that fits the task. It
@@ -238,6 +263,12 @@ Skills (shared procedures):
 Talking to the user:
 - To reach the user, run `question`. Do not use `msg` for the user; the user reads
   `team/QUESTIONS.md`, not an inbox (`msg --to user` is refused).
+- To reach the coordinator, run `msg --to coordinator ...`; every active coordinator gets it. With
+  no coordinator it is refused, and you use `question` instead.
+- Coordinators are told automatically when anyone opens a question, blocks, proposes a plan change,
+  sends a task to review, or hands off or releases a task. You do not need to message them about
+  those. After any command, up to three unread direct messages are printed in full under the
+  unread line.
 - The user answers with `python3 team/team.py resolve <Q> --agent user --text "..."`. The view
   files are regenerated after every command and are never edited by hand, so an answer typed into
   `QUESTIONS.md` is lost.
@@ -253,10 +284,15 @@ Commits:
 
 - `python3 team/team.py stale` lists agents that have not run a command for `stale_minutes`, and
   the live tasks they still own.
-- Before you `reclaim`, read that owner's recent messages in `team/MESSAGES.md`. If they announced
-  a long step and its stated duration has not yet passed, do not reclaim; choose other work.
+- An owner who ran `busy` is not stale until its time is up, so `stale`, `next`, and `reclaim` do
+  not offer its task. You no longer need to read messages to find out.
 - `python3 team/team.py reclaim <T> --agent <ID>` is the only way to take a task that another
-  agent owns. It works only if that owner has left or is stale; otherwise it is refused.
+  agent owns. For an ordinary agent it works only if that owner has left or is stale; otherwise it
+  is refused. A coordinator or the user may take a task from an active owner at any time (the
+  log says "override"). The old owner is told.
+- `python3 team/team.py reclaim <T> --agent <ID> --release` does not take the task: it returns it to
+  `available` with no owner and a note warning of uncommitted edits. Anyone may do it for a stale or
+  left owner; a coordinator or the user may do it always.
 - `reclaim` prints the previous owner's handoff note (if any) and the last 10 log entries of the
   task. Read them, and look at the current state of the task's registered paths, before
   continuing. Do not redo work the log says is finished.
@@ -266,13 +302,46 @@ Commits:
 ## Project finished
 
 - `python3 team/team.py complete` prints `COMPLETE` only when at least one task exists, every task
-  is `done`, and `team/PLAN.md` has no unchecked box (`- [ ]`) in its `## Definition of done`
-  section. Otherwise it prints what remains.
-- When every task is done, the last agent checks each Definition-of-done item. For each item that
-  is truly met, it logs the edit with `decide` and then ticks the box (`- [ ]` becomes `- [x]`) in
-  `team/PLAN.md`. An item that is not met becomes a new task (`add`) or a `question`, not a ticked
-  box.
+  is `done`, and `team/PLAN.md` has exactly one non-empty `## Definition of done` section with at
+  least one real checkbox criterion, no malformed or placeholder criteria, and no unchecked box
+  (`- [ ]`). Otherwise it prints the remaining tasks or plan problems.
+- When every task is done, the last agent checks each Definition-of-done item against evidence. For
+  each item that is truly met, it logs the edit with `decide` and then ticks the box (`- [ ]` becomes
+  `- [x]`) in `team/PLAN.md`. An item that is not met becomes a new task (`add`) or a `question`, not
+  a ticked box. An empty board, missing/duplicate/empty Definition of done, or template/unchecked
+  criterion cannot pass `complete`.
 - When `complete` prints `COMPLETE`, tell the user, run `leave`, and stop.
+
+## Task worktrees (optional)
+
+Off by default. In a git project, set `"worktrees": true` in `team/config.json` and each task gets
+its own working copy, so one agent's half-done edits cannot trip over another's.
+
+- **Turn on.** Edit `team/config.json`. The project folder must be the top of its git repository,
+  on a branch with at least one commit, and git must not track any file under `team/` (the tool
+  adds `/team/` to `.git/info/exclude` for you). Otherwise `claim` is refused with the reason.
+- **Where.** `claim` (and `reclaim`) creates the folder `team/worktrees/<T>` on a branch named
+  `team/<T>` and prints both the folder and the exact `team.py` command to run. Work and commit
+  only inside that folder, and run team commands with the printed path. Absolute paths inside the
+  folder are understood by `owner` and `files add`.
+- **Handoff.** `handoff` leaves the folder and any edits in it for the next owner, who gets the
+  same folder when they claim or reclaim the task.
+- **Finish.** `done` is refused while the worktree has uncommitted edits: commit them there first.
+- **Review.** The project folder shows no change until approval. A reviewer reads the work with
+  the `git diff <base>...team/<T>` line that `show` prints (for example
+  `git diff main...team/T003`), not with a plain `git diff`.
+- **Approval merges.** Approving (or `done` on a task that needs no review) merges `team/<T>` into
+  the base branch, which must be the branch checked out in the project folder, then removes the
+  folder and the branch. If the merge hits a conflict, the tool undoes the merge, keeps the task in
+  `review`, and refuses: reject the task with a note so the owner can fix the branch. If git
+  refuses the merge because the project folder has uncommitted edits, commit or stash them and
+  approve again.
+- **Timing.** Each git call is cut off after 15 seconds. A claim runs several git calls and holds
+  the lock while it does, and a lock older than 20 seconds is treated as stale, so on a very slow
+  disk or a huge repository a claim can fail or collide with another command. Run `claim` again.
+- **Searching.** Every worktree holds a full copy of the project under `team/worktrees/`, so a
+  plain recursive `grep -r` from the project folder also lists those copies. Search inside
+  `src/` (or exclude `team/worktrees`), and keep test runners from scanning `team/`.
 
 ## Solo mode
 
@@ -290,10 +359,36 @@ The user can also add tasks (`add --agent user ...`) and answer questions
 
 ## Coordinating a team
 
-A coordinator is the session that writes the plan, adds tasks, spawns worker and reviewer agents, and
-reports to the user. It is usually the most expensive model in the room, so it should do the least
-typing. The 2026-11-02 workflow retro measured coordinators running for days at 300k-760k tokens of
-context, mostly on bookkeeping. Five rules follow from that:
+The coordinator is the person or session that prepares the plan, creates tasks, starts worker chats,
+and tracks the board. This is optional workflow guidance; the kit does not start agents or schedule
+work. The simplest setup is to open one chat per worker and give each the startup sentence above.
+Choose any coding tool or model that can read the project and run its commands.
+
+- Give each worker a short brief containing the task ID, goal, registered paths, constraints, and
+  verification command. Ask it to follow this protocol.
+- Start a separate reviewer chat for tasks in `review`, or review them yourself. The owner cannot
+  approve its own task.
+- Join with `join --role coordinator`. Workers never wait: they run the loop and hand off. The
+  coordinator can sit in its chat and run `python3 team/team.py wait --agent <ID>` in the
+  background; it prints what is already waiting, then returns with lines starting `NEW:` when a
+  question, review, stale owner, high usage report, or direct message appears (or `NOTHING NEW`
+  after `--timeout` seconds, 1500 by default).
+- For the person, `team/BOARD.html` is a picture of the board: one lane per agent, a "Needs you"
+  strip, each agent's reported usage, and a detail panel for any task. Double-click it to open it in
+  a browser; it reloads itself every 5 seconds and shows STALE without any command being run. To
+  be alerted on a Mac, run `python3 team/team.py watch` in a terminal: it plays a sound and shows a
+  banner for each new item. Banners need a one-time setup, which `watch` prints when it starts.
+- Use `status` to inspect progress. If a worker needs an explicit activity check-in, it can run
+  `next --agent <ID>`; there is no automatic monitor or scheduler.
+- At a natural stopping point, have the worker hand off unfinished work and open another chat only
+  when useful.
+
+### When one session spawns the agents (this workspace)
+
+A coordinator session that writes the plan, adds tasks, and spawns worker and reviewer agents is
+usually the most expensive model in the room, so it should do the least typing. The 2026-11-02
+workflow retro measured coordinators running for days at 300k-760k tokens of context, mostly on
+bookkeeping. Five rules follow from that:
 
 - **Compact at wave boundaries.** When a wave of tasks is approved, write `HANDOFF.md`, then end the
   turn telling the user to compact or open a new session before the next wave. A coordinator cannot
@@ -309,6 +404,8 @@ context, mostly on bookkeeping. Five rules follow from that:
 - **Recurring checks keep one ID.** A scheduled check (for example an hourly Codex check) re-joins
   with a fixed ID: `join --agent codex-hourly --label "Codex hourly check"`. A fresh ID per run adds
   a dead agent row every hour.
+- **Wait instead of polling.** Run `wait --agent <ID>` in the background between waves instead of
+  reading `status` on a timer; it returns when something needs you.
 
 ## Command reference
 
@@ -322,14 +419,13 @@ Run every command as `python3 team/team.py <command> ...` from the project folde
   (`join` itself and the ID `user` are exempt.) Other refusals are listed per command below. For
   `complete`, exit 2 is not a refusal: it means "not finished yet", and the output lists what
   remains.
-- 3 = the team lock is busy (another agent is mid-change); wait a moment and retry. Every command
-  takes the lock for a moment, read commands too (to refresh the views and to record the sign of
-  life of `--agent`), so any command can exit 3.
+- 3 = the team lock is busy (another agent is mid-change); wait a moment and retry. Commands that
+  change state take the lock. `status` is a read-only snapshot and does not take it.
 
-`--agent <ID>` may be replaced by the `TEAM_AGENT` environment variable. The read commands `show`,
-`status`, `stale`, `owner`, `skills`, `complete`, and `doctor` take an optional `--agent <ID>`;
-passing it counts as a sign of life (`next` always needs it). `python3 team/team.py --help` prints
-one line per command.
+`--agent <ID>` may be replaced by the `TEAM_AGENT` environment variable where supported. Read
+commands take an optional `--agent <ID>`. `status` never records activity. `next --agent <ID>` is
+the supported explicit check-in: it shows available/review work and records activity.
+`python3 team/team.py --help` prints one line per command.
 
 Unread messages: after any command that carries your agent ID (except `join`, `inbox`, and the ID
 `user`), the tool prints one last line, `N unread message(s): team.py inbox --agent <ID>`, when you
@@ -341,7 +437,8 @@ Setup and identity:
   the launcher, never overwrites `PLAN.md`, `config.json`, or state; `--standalone` copies the whole
   tool for projects outside a workspace. Exit 2: never. Exit 1 if the new launcher cannot reach the
   tool (then use `--standalone`).
-- `join [--agent <ID>] [--label "<text>"]` — register as a new agent and print your ID. A new agent
+- `join [--agent <ID>] [--label "<text>"] [--role coordinator]` — register as a new agent and print
+  your ID. `--role coordinator` makes you a coordinator. A new agent
   starts with an empty inbox (messages sent before it joined are in `team/MESSAGES.md`). Exit 2: the
   requested ID belongs to an active agent.
 - `leave --agent <ID>` — mark yourself as left. Exit 2: you still own a claimed, in-progress, or
@@ -355,18 +452,17 @@ Tasks:
   someone other than their owner. Exit 2: only the unknown-agent rule.
 - `show <T> [--full] [--agent <ID>]` — print one task, including its registered paths, handoff, and
   log. Long log notes are cut to 240 characters (reject, review-requested and handoff notes are never
-  cut); `--full`
-  prints everything. With `--agent`, counts as a sign of life. Exit 2: only the unknown-agent rule.
-- `status [--all] [--agent <ID>]` — print the board. Agents that have left are hidden (a count line
-  says how many); `--all` lists them. With `--agent`, also your unread message count (and counts as
-  a sign of life). Exit 2: only the unknown-agent rule.
+  cut); `--full` prints everything. Exit 2: only the unknown-agent rule.
+- `status [--all] [--agent <ID>]` — print the board as a read-only snapshot. Agents that have left
+  are hidden (a count line says how many); `--all` lists them. It never updates activity or rewrites
+  views.
 - `claim <T> --agent <ID>` — take an available task; prints it, including any handoff note.
   Exit 2: the task is not `available`, a dependency is not `done`, or one of its registered paths
-  overlaps a path of a live task. An unknown task ID is exit 1.
+  overlaps a reserved path (including one held by a task in `review`). An unknown task ID is exit 1.
 - `start <T> --agent <ID>` — move your claimed task to `in_progress`. Exit 2: you are not the owner,
   or the task is not in a state that allows this.
 - `files add <T> --agent <ID> "<path>" ...` — register more paths on your task. Exit 2: you are not
-  the owner, or a path overlaps another live task.
+  the owner, or a path overlaps another task's reservation, including review.
 - `owner "<path>" [--agent <ID>]` — print the live task and agent that own a path, or `unowned`.
   Exit 2: only the unknown-agent rule.
 - `block <T> --agent <ID> --reason "<text>"` — mark your task `blocked` and open a question for the
@@ -386,15 +482,17 @@ Tasks:
   owner, or the task is not in a state that allows this.
 - `stale [--agent <ID>]` — list stale or left agents and the live tasks they own. Exit 2: only the
   unknown-agent rule.
-- `reclaim <T> --agent <ID>` — take over a task whose owner has left or is stale; prints the old
-  handoff and the last 10 log entries. Exit 2: the owner is still active and not stale, or the task
-  is not in a state that allows this. An unknown task ID is exit 1.
+- `reclaim <T> --agent <ID> [--release]` — take over a task whose owner has left or is stale (a
+  coordinator or `user` may take it from an active owner); prints the old handoff and the last 10
+  log entries. With `--release` the task returns to `available` instead, with no owner. Exit 2: the
+  owner is still active and not stale and you are not a coordinator or `user`, or the task is not in
+  a state that allows this. An unknown task ID is exit 1.
 - `complete [--agent <ID>]` — print `COMPLETE` when the project is finished (see "Project
   finished"). Exit 2: the project is not finished (the output says what remains), or the unknown-agent
   rule.
 - `check-exit --agent <ID>` — run it before `leave`: prints `OK to leave: no live task owned by
-  <ID>` when you own no `claimed`, `in_progress`, or `blocked` task. Changes nothing (it only counts
-  as a sign of life). Exit 2: you still own one or more live tasks (the reason lists them and names
+  <ID>` when you own no `claimed`, `in_progress`, or `blocked` task. Changes no task state. Exit 2:
+  you still own one or more live tasks (the reason lists them and names
   the `handoff` command to run), or the unknown-agent rule. A user may wire it into a tool-specific
   stop hook if that tool has one; the tool itself does not do that.
 - `doctor [--agent <ID>] [--fix-views]` — read-only check of `team/`; prints `OK` when it finds
@@ -407,9 +505,24 @@ Tasks:
   given, which rewrites the views. Exit 2: at least one problem was found, or the unknown-agent
   rule.
 
+Usage, waiting and watching:
+- `usage --agent <ID> [--percent 0-100] [--note "<text>"]` — record your self-reported usage; shown
+  on the board, and 80 percent or more (`usage_warn_percent`) is listed as needing attention. Exit 1:
+  neither flag given, or the percent is outside 0 to 100.
+- `busy --agent <ID> --minutes <N> --text "<text>"` — say you are in a long step; you are not
+  called stale for N minutes and everyone is told. Exit 1: N is below 1 or above `busy_max_minutes`.
+- `wait --agent <ID> [--timeout <seconds>] [--interval <seconds>]` — block until something new
+  needs attention or a message arrives for you or all, then print it as `NEW: ...` and exit 0; after
+  the timeout print `NOTHING NEW`. For coordinators. It never takes the lock except a brief
+  check-in. Exit 2: the unknown-agent rule.
+- `watch [--interval <seconds>] [--once] [--no-notify]` — print each new thing that needs attention
+  and, on macOS, play a sound and show a banner (`--no-notify` turns both off). Banners need
+  Script Editor to be allowed to notify once and do not show during Do Not Disturb; the sound
+  needs nothing. For a person, in a terminal; stop with Ctrl-C. Needs no agent ID.
+
 Messages and records:
-- `msg --agent <ID> --to all|<agent ID> --kind finding|question|warning|request|handoff|review|info
-  --text "<text>" [--task <T>]` — send a message to one agent or to all. Exit 2: `--to user`
+- `msg --agent <ID> --to all|coordinator|<agent ID> --kind finding|question|warning|request|handoff|review|info
+  --text "<text>" [--task <T>]` — send a message to one agent, to `coordinator`, or to all. Exit 2: `--to user`
   (use `question` instead), or `--to` names an unknown agent.
 - `inbox --agent <ID> [--peek]` — print your new messages, oldest first, and mark them read
   (`--peek` leaves them unread). Exit 2: only the unknown-agent rule.

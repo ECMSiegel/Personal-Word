@@ -1,0 +1,118 @@
+   Compiling objc2-exception-helper v0.1.1
+   Compiling objc2 v0.6.5
+   Compiling ring v0.17.14
+   Compiling libsqlite3-sys v0.30.1
+   Compiling objc2-foundation v0.3.2
+   Compiling block2 v0.6.2
+   Compiling objc2-core-foundation v0.3.2
+   Compiling wry v0.57.0
+   Compiling rustls v0.23.46
+   Compiling dispatch2 v0.3.1
+   Compiling objc2-core-text v0.3.2
+   Compiling rusqlite v0.32.1
+   Compiling rustls-webpki v0.103.15
+   Compiling ureq v2.12.1
+   Compiling objc2-quartz-core v0.3.2
+   Compiling objc2-app-kit v0.3.2
+   Compiling objc2-web-kit v0.3.2
+   Compiling tao v0.37.1
+   Compiling muda v0.20.0
+   Compiling window-vibrancy v0.8.1
+   Compiling rfd v0.16.0
+   Compiling tauri-runtime v2.12.2
+   Compiling tauri-runtime-wry v2.12.2
+   Compiling tauri v2.12.4
+   Compiling tauri-plugin-fs v2.7.1
+   Compiling tauri-plugin-dialog v2.8.3
+   Compiling folio v0.3.0 (/Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/src-tauri)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 2m 57s
+     Running unittests src/lib.rs (target/debug/deps/folio_lib-9d63a7413f479f99)
+
+running 71 tests
+test assets::tests::jpeg_frame_size_is_read_after_other_segments ... ok
+test assets::tests::asset_identity_type_and_size_are_checked ... ok
+test dropped::tests::pdf_reads_a_listed_pdf_case_insensitively ... ok
+test dropped::tests::pdf_refuses_anything_that_is_not_a_pdf ... ok
+test dropped::tests::reads_a_listed_markdown_file ... ok
+test dropped::tests::pdf_refuses_a_folder_or_a_symlink ... ok
+test dropped::tests::pdf_refuses_a_path_that_was_not_dropped ... ok
+test dropped::tests::the_importer_allow_list_still_excludes_pdf ... ok
+test dropped::tests::refuses_a_file_over_the_cap ... ok
+test dropped::tests::refuses_a_folder_or_a_symlink ... ok
+test dropped::tests::refuses_an_extension_the_importer_cannot_read ... ok
+test dropped::tests::refuses_a_path_that_was_not_dropped ... ok
+test lookup::tests::accepts_http_and_https ... ok
+test lookup::tests::accepts_mixed_case_https_with_unicode_host_and_path ... ok
+test lookup::tests::rejects_malformed_unicode_after_partial_http_schemes_without_panicking ... ok
+test lookup::tests::rejects_non_web_schemes_without_network ... ok
+test printing::tests::counts_pdf_page_objects_not_the_page_tree ... ok
+test printing::tests::host_csp_precedes_supplied_markup ... ok
+test instance_lock_tests::advisory_lock_rejects_a_second_handle_and_releases_on_drop ... ok
+test printing::tests::image_sources_must_be_this_snapshots_assets ... ok
+test printing::tests::papers_and_margins_are_bounded ... ok
+test printing::tests::readiness_requires_loaded_fonts_and_decoded_images ... ok
+test dropped::tests::reads_a_file_of_exactly_the_cap ... ok
+test dropped::tests::pdf_refuses_a_file_over_25_mb_and_reads_exactly_25_mb ... ok
+test printing::tests::rejects_wrong_layout_version_invalid_snapshot_and_oversize_markup ... ok
+test store::tests::bench_save_100k_active_entry_100_saves ... ignored
+test fonts::tests::rejects_duplicates_bad_magic_size_names_styles_and_unknown_ids ... ok
+test fonts::tests::add_list_read_remove_and_accept_multiple_styles ... ok
+test store::tests::delete_sets_the_folder_aside_instead_of_erasing_it ... ok
+test store::tests::deleting_a_project_with_pending_copies_does_not_block_quit ... ok
+test store::tests::extended_project_metadata_survives_save_and_restart ... ok
+test store::tests::extraction_is_atomic_and_history_retains_source ... ok
+test store::tests::failed_sql_write_rolls_back ... ok
+test store::tests::macos_database_connections_enable_fullfsync_and_checkpoint_fullfsync ... ok
+test assets::tests::pdf_assets_are_accepted_without_dimensions ... ok
+test store::tests::malformed_stale_and_conflicting_writes_preserve_data ... ok
+test store::tests::delta_saves_rebuild_the_project_from_entry_rows ... ok
+test store::tests::refuses_a_database_saved_by_a_newer_version ... ok
+test store::tests::asset_references_require_staged_bytes_and_reach_mirrors ... ok
+test store::tests::one_damaged_folder_does_not_hide_healthy_projects ... ok
+test store::tests::retention_keeps_recent_saves_then_thins_by_time ... ok
+test store::tests::mirror_failure_can_be_retried_without_losing_commit ... ok
+test store::tests::new_project_and_its_assets_commit_together ... ok
+test store::tests::rejects_newer_schemas_and_malformed_rich_text ... ok
+test store::tests::migrates_a_version_1_database ... ok
+test store::tests::tables_must_be_rectangular_unmerged_and_unnested ... ok
+test store::tests::history_shares_unchanged_entries_and_prunes_by_age ... ok
+test store::tests::source_pdfs_reach_the_attachments_mirror ... ok
+test store::tests::sparse_metadata_survives_history_mirrors_and_restart ... ok
+test store::tests::standalone_pdfs_reach_the_attachments_mirror ... ok
+test store::tests::stale_portable_copy_is_repaired_after_a_restart ... ok
+test zotero::tests::accepts_exact_localhost_zotero_api ... ok
+test zotero::tests::agent_is_configured_with_no_redirects_and_12s_timeout ... ok
+test zotero::tests::reads_a_normal_loopback_response ... ok
+test zotero::tests::refuses_a_loopback_body_over_5_mib ... ok
+test store::tests::restart_mirrors_backup_and_snapshots ... ok
+test zotero::tests::rejects_credentials_in_authority ... ok
+test zotero::tests::rejects_invalid_ports ... ok
+test zotero::tests::rejects_non_http_schemes ... ok
+test zotero::tests::rejects_non_loopback_hosts ... ok
+test zotero::tests::rejects_path_traversal_and_malformed_chars ... ok
+test zotero::tests::reports_not_modified_for_a_304 ... ok
+test zotero::tests::size_cap_is_an_error_not_a_truncation ... ok
+test store::tests::version_two_databases_gain_assets_after_a_backup ... ok
+test store::tests::beta_synthetic_project_survives_every_store_route ... ok
+test zotero::tests::refuses_redirects_without_following_them ... ok
+test zotero::tests::times_out_when_the_server_never_answers ... ok
+test sysfonts::tests::family_list_contains_georgia ... ok
+test sysfonts::tests::unknown_family_is_none ... ok
+test sysfonts::tests::futura_is_a_collection_with_no_bytes ... ok
+test sysfonts::tests::georgia_regular_is_true_type_and_bold_is_other_bytes ... ok
+
+test result: ok. 70 passed; 0 failed; 1 ignored; 0 measured; 0 filtered out; finished in 6.85s
+
+     Running unittests src/main.rs (target/debug/deps/folio-45b9551a8d709b40)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests folio_lib
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+cargo exit 0

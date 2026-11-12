@@ -23,6 +23,7 @@ async function openResearch(page: any) {
 
 async function insertTextOnlyFootnote(page: any) {
   await openResearch(page);
+  await page.locator(".research-tabs").getByRole("button", { name: "Notes", exact: true }).click();
   await page.getByRole("button", { name: "Insert footnote at cursor" }).click();
 }
 
@@ -164,6 +165,7 @@ test("a slow frame after inserting a footnote does not pull typing back to the d
     const frame = window.requestAnimationFrame.bind(window);
     window.requestAnimationFrame = (callback) => window.setTimeout(() => frame(callback), 300) as unknown as number;
   });
+  await page.locator(".research-tabs").getByRole("button", { name: "Notes", exact: true }).click();
   await page.getByRole("button", { name: "Insert footnote at cursor" }).click();
 
   const textarea = page.getByLabel("Footnote 1 text");
@@ -216,6 +218,7 @@ test("footnote text appears at the bottom of the page and is editable there", as
     .locator(".group-title")
     .filter({ hasText: /^Research$/ })
     .click();
+  await page.locator(".research-tabs").getByRole("button", { name: "Notes", exact: true }).click();
   await page.getByRole("button", { name: "Insert footnote at cursor" }).click();
   await page
     .getByLabel("Footnote text", { exact: true })

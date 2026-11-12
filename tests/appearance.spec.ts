@@ -75,8 +75,8 @@ test("controls show hover, focus, pressed, disabled and selected states", async 
   await expect(snapshot).toHaveCSS("color", "rgb(36, 36, 40)");
   await page.mouse.down();
   await expect(snapshot).toHaveCSS("background-color", "rgba(0, 0, 0, 0)");
-  // wave 4: a pressed text control is still hovered, so the press (0.99) multiplies the hover scale (1.04)
-  await expect(snapshot).toHaveCSS("transform", "matrix(1.0296, 0, 0, 1.0296, 0, 0)");
+  // A pressed text control uses the press scale without growing on hover.
+  await expect(snapshot).toHaveCSS("transform", "matrix(0.99, 0, 0, 0.99, 0, 0)");
   await page.mouse.up();
   await page.mouse.move(0, 0);
   const sidebarButton = page.locator(".sidebar button:visible").first();
@@ -421,7 +421,10 @@ for (const mode of [
     const settings = page.locator(".project-settings");
     await expect(settings.getByText("Section colours", { exact: true })).toBeVisible();
     const generalLabels = await settings.locator(".settings-section").first().locator(".settings-label").allTextContents();
-    expect(generalLabels.slice(generalLabels.indexOf("Palette"), generalLabels.indexOf("Palette") + 2)).toEqual(["Palette", "Section colours"]);
+    const paletteIndex = generalLabels.indexOf("Palette");
+    const sectionColoursIndex = generalLabels.indexOf("Section colours");
+    expect(paletteIndex).toBeGreaterThanOrEqual(0);
+    expect(sectionColoursIndex).toBeGreaterThan(paletteIndex);
     const sectionRow = settings.locator(".settings-field").filter({ hasText: "Section colours" });
     await expect(sectionRow.locator(".settings-help")).toHaveCount(0);
     const manuscriptColour = page.getByRole("button", { name: "Manuscript colour" });

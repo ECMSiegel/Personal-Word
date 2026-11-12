@@ -1,0 +1,90 @@
+{
+  "id": "T268",
+  "title": "W9 C5 -- Add the side ruler in page view",
+  "description": "Follow section '### C5 --' of docs/agent-work/2026-11-10-ui-wave-9/PLAN.md exactly, plus its 'Rules for every worker'. Verify: tests/w9-side-ruler.spec.ts and the ruler, pages, pages-zoom and split-view specs pass. Browser test port: PLAYWRIGHT_PORT=1441. No commits, no new packages, never run npm run build or a native screen script. Write the note docs/agent-work/2026-11-10-ui-wave-9/notes/C5.md.",
+  "status": "done",
+  "owner": null,
+  "priority": 2,
+  "depends_on": [
+    "T258"
+  ],
+  "files": [
+    "src/Writer.tsx",
+    "src/editor/SideRuler.tsx",
+    "src/editor/side-ruler.css",
+    "tests/w9-side-ruler.spec.ts",
+    "docs/agent-work/2026-11-10-ui-wave-9/notes/C5.md"
+  ],
+  "review_required": true,
+  "created_by": "agent-b307",
+  "created_at": "2026-11-10T22:24:38+00:00",
+  "claimed_at": "2026-11-11T03:02:25+00:00",
+  "updated_at": "2026-11-11T03:52:05+00:00",
+  "handoff": {
+    "by": "agent-2ff3",
+    "at": "2026-11-11T02:59:47+00:00",
+    "text": "Rejected (agent-2ff3, W9 reviewer r2) for two spec gaps only; the code is right and must NOT be changed. Reviewed: SideRuler.tsx, side-ruler.css, Writer.tsx side-ruler hunks (axis 'y' drag reusing the margin drag, adjustMarginWithSideKey, one SideRuler per page when pages+rulerShown+!focusMode); the prop-list deviation is documented and fine. My fresh run: PLAYWRIGHT_PORT=1441 npx playwright test tests/w9-side-ruler.spec.ts tests/ruler.spec.ts tests/pages.spec.ts tests/pages-zoom.spec.ts tests/split-view.spec.ts --output test-results/T268-review -> 76 passed, 0 failed. WORK ORDER (edit only tests/w9-side-ruler.spec.ts and notes/C5.md): (1) The floating-sidebar test (tests/w9-side-ruler.spec.ts:159-169) is toothless: toBeHidden() also passes when no .side-ruler exists, which is why it passed in C5-fail-first.txt. Before line 168 add: await expect(page.locator('.side-ruler')).not.toHaveCount(0); so the test proves the strip is rendered but hidden. Then prove it can fail: temporarily comment out the '.app:has(.sidebar-shell.is-floating) .side-ruler { display: none; }' rule in src/editor/side-ruler.css, run that one test, save the failing output as docs/agent-work/2026-11-10-ui-wave-9/notes/C5-fail-first-floating.txt, restore the rule. (2) PLAN C5 step 1 asks 'changing the margin with the top ruler updates the bands'; the spec only changes it from the side ruler. In the first test, after line 80 (aria-valuenow 96), focus the top ruler's left marker (leftMarker, line 79) and press ArrowRight once (the top ruler's key step; check adjustMarginWithKey in src/Writer.tsx for the step size), read the new margin with margin(page), and assert measure(page).rulers[0].top_band and bottom_band each equal newMargin * scale within 1 px; then press ArrowLeft to return to 96 before the drag part (assert margin 96). Proof: PLAYWRIGHT_PORT=1441 npx playwright test tests/w9-side-ruler.spec.ts --output test-results/T268 (serial lock) -> 4/4 pass; update C5.md with counts and the new fail-first file. No need to rerun the other four specs (they passed 72/72 in my run)."
+  },
+  "review": {
+    "by": "agent-2ff3",
+    "at": "2026-11-11T03:52:05+00:00",
+    "verdict": "approved",
+    "note": "Approved (agent-2ff3, W9 reviewer r2) after rework. Both work-order items done, spec only, app code unchanged: (1) floating test now asserts .side-ruler count is not 0 before toBeHidden; C5-fail-first-floating.txt shows it fails (Received: visible) with the floating rule disabled. (2) top-ruler key change: left marker ArrowRight -> margin 102, side bands asserted at 102*scale within 1 px, ArrowLeft back to 96. Can that assertion fail? Yes: the bands' height is the SideRuler 'margin' prop (style height: margin); if the side ruler did not follow the top ruler's change, the bands would stay at 96*scale, 6*scale px (about 6 px at this viewport) off, well over the 1 px tolerance. So the missing doctored-run proof is not needed. Fresh run: PLAYWRIGHT_PORT=1441 npx playwright test tests/w9-side-ruler.spec.ts --output test-results/T268r2-review -> 4/4 passed. The other four specs passed 72/72 in my earlier run, and the app code is unchanged since then. Not checked: native WebKit, 150% hand check, split view (T278)."
+  },
+  "log": [
+    {
+      "at": "2026-11-10T22:24:38+00:00",
+      "agent": "agent-b307",
+      "event": "created",
+      "note": ""
+    },
+    {
+      "at": "2026-11-11T01:19:52+00:00",
+      "agent": "agent-c150",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-11-11T01:19:54+00:00",
+      "agent": "agent-c150",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-11-11T01:42:50+00:00",
+      "agent": "agent-c150",
+      "event": "review requested",
+      "note": "C5 side ruler: SideRuler.tsx + css + Writer wiring (axis y drag, side keys). w9-side-ruler 4/4 pass (3 failed first); ruler/pages/pages-zoom/split-view 72 passed. tsc clean. See notes/C5.md"
+    },
+    {
+      "at": "2026-11-11T02:59:47+00:00",
+      "agent": "agent-2ff3",
+      "event": "rejected",
+      "note": "Rejected (agent-2ff3, W9 reviewer r2) for two spec gaps only; the code is right and must NOT be changed. Reviewed: SideRuler.tsx, side-ruler.css, Writer.tsx side-ruler hunks (axis 'y' drag reusing the margin drag, adjustMarginWithSideKey, one SideRuler per page when pages+rulerShown+!focusMode); the prop-list deviation is documented and fine. My fresh run: PLAYWRIGHT_PORT=1441 npx playwright test tests/w9-side-ruler.spec.ts tests/ruler.spec.ts tests/pages.spec.ts tests/pages-zoom.spec.ts tests/split-view.spec.ts --output test-results/T268-review -> 76 passed, 0 failed. WORK ORDER (edit only tests/w9-side-ruler.spec.ts and notes/C5.md): (1) The floating-sidebar test (tests/w9-side-ruler.spec.ts:159-169) is toothless: toBeHidden() also passes when no .side-ruler exists, which is why it passed in C5-fail-first.txt. Before line 168 add: await expect(page.locator('.side-ruler')).not.toHaveCount(0); so the test proves the strip is rendered but hidden. Then prove it can fail: temporarily comment out the '.app:has(.sidebar-shell.is-floating) .side-ruler { display: none; }' rule in src/editor/side-ruler.css, run that one test, save the failing output as docs/agent-work/2026-11-10-ui-wave-9/notes/C5-fail-first-floating.txt, restore the rule. (2) PLAN C5 step 1 asks 'changing the margin with the top ruler updates the bands'; the spec only changes it from the side ruler. In the first test, after line 80 (aria-valuenow 96), focus the top ruler's left marker (leftMarker, line 79) and press ArrowRight once (the top ruler's key step; check adjustMarginWithKey in src/Writer.tsx for the step size), read the new margin with margin(page), and assert measure(page).rulers[0].top_band and bottom_band each equal newMargin * scale within 1 px; then press ArrowLeft to return to 96 before the drag part (assert margin 96). Proof: PLAYWRIGHT_PORT=1441 npx playwright test tests/w9-side-ruler.spec.ts --output test-results/T268 (serial lock) -> 4/4 pass; update C5.md with counts and the new fail-first file. No need to rerun the other four specs (they passed 72/72 in my run)."
+    },
+    {
+      "at": "2026-11-11T03:02:25+00:00",
+      "agent": "agent-edad",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-11-11T03:02:25+00:00",
+      "agent": "agent-edad",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-11-11T03:04:56+00:00",
+      "agent": "agent-edad",
+      "event": "review requested",
+      "note": "Rework r2 (reviewer work order). Spec only: tests/w9-side-ruler.spec.ts. Floating-sidebar test now asserts the side ruler exists before asserting it is hidden. Added margin-change case: top ruler left-marker ArrowRight moves margin 96->102, side bands equal 102*scale within 1px, ArrowLeft back to 96. App code unchanged. Fail-first: rule disabled -> floating test fails (notes/C5-fail-first-floating.txt, copy in C5-fail-first-r2.txt); rule restored byte-identical. Margin-change assertion not separately proven against a broken condition (limitation). Run: PLAYWRIGHT_PORT=1441 w9-side-ruler.spec.ts 4 passed 0 failed (notes/C5-acceptance-r2.txt). Other specs not rerun (no app code change). Note: docs/agent-work/.../notes/C5.md updated."
+    },
+    {
+      "at": "2026-11-11T03:52:05+00:00",
+      "agent": "agent-2ff3",
+      "event": "approved",
+      "note": "Approved (agent-2ff3, W9 reviewer r2) after rework. Both work-order items done, spec only, app code unchanged: (1) floating test now asserts .side-ruler count is not 0 before toBeHidden; C5-fail-first-floating.txt shows it fails (Received: visible) with the floating rule disabled. (2) top-ruler key change: left marker ArrowRight -> margin 102, side bands asserted at 102*scale within 1 px, ArrowLeft back to 96. Can that assertion fail? Yes: the bands' height is the SideRuler 'margin' prop (style height: margin); if the side ruler did not follow the top ruler's change, the bands would stay at 96*scale, 6*scale px (about 6 px at this viewport) off, well over the 1 px tolerance. So the missing doctored-run proof is not needed. Fresh run: PLAYWRIGHT_PORT=1441 npx playwright test tests/w9-side-ruler.spec.ts --output test-results/T268r2-review -> 4/4 passed. The other four specs passed 72/72 in my earlier run, and the app code is unchanged since then. Not checked: native WebKit, 150% hand check, split view (T278)."
+    }
+  ]
+}

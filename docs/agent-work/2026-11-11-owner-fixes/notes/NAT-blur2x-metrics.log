@@ -1,0 +1,36 @@
+dpr 2
+writing/sidebar-row:
+  v0-rest fringe 1.83 noCore 0.062 ink 891.9
+  v1-current fringe 1.91 noCore 0.063 ink 1020.2
+  v5-shadow-03px fringe 1.91 noCore 0.063 ink 1020.2
+  v5-shadow-05px fringe 1.94 noCore 0.061 ink 1076.0
+  v5-shadow-1px fringe 2.54 noCore 0.072 ink 1240.6
+  v4-weight-700 fringe 2.27 noCore 0.077 ink 1361.2
+writing/project-title:
+  v0-rest fringe 1.91 noCore 0.069 ink 2566.9
+  v1-current fringe 1.88 noCore 0.064 ink 2814.3
+  v5-shadow-03px fringe 1.88 noCore 0.064 ink 2814.3
+  v5-shadow-05px fringe 1.93 noCore 0.064 ink 2897.1
+  v5-shadow-1px fringe 2.33 noCore 0.074 ink 3175.5
+  v4-weight-700 fringe 1.91 noCore 0.069 ink 2566.9
+writing/tab:
+  v0-rest fringe 3.7 noCore 0.288 ink 1789.7
+  v1-current fringe 3.96 noCore 0.309 ink 1965.2
+  v5-shadow-03px fringe 3.96 noCore 0.309 ink 1965.2
+  v5-shadow-05px fringe 4.5 noCore 0.335 ink 2054.5
+  v5-shadow-1px fringe 5.01 noCore 0.386 ink 2271.2
+  v4-weight-700 fringe 3.74 noCore 0.29 ink 1789.6
+writing/toolbar-menu:
+  v0-rest fringe 2.12 noCore 0.152 ink 541.0
+  v1-current fringe 1.96 noCore 0.159 ink 637.1
+  v5-shadow-03px fringe 1.96 noCore 0.159 ink 637.1
+  v5-shadow-05px fringe 2.32 noCore 0.164 ink 673.2
+  v5-shadow-1px fringe 2.57 noCore 0.207 ink 788.4
+  v4-weight-700 fringe 2.22 noCore 0.187 ink 766.7
+projects/projects-row:
+  v0-rest fringe 2.08 noCore 0.066 ink 1693.1
+  v1-current fringe 1.91 noCore 0.056 ink 1955.3
+  v5-shadow-03px fringe 1.91 noCore 0.056 ink 1955.3
+  v5-shadow-05px fringe 1.95 noCore 0.056 ink 2027.9
+  v5-shadow-1px fringe 2.49 noCore 0.071 ink 2319.2
+  v4-weight-700 fringe 1.95 noCore 0.069 ink 2564.7

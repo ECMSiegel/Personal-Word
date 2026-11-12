@@ -1,0 +1,33 @@
+/* Sticky section strip on the Settings page. Weight and colour only, like
+   .segmented; the shared text hover rule in styles.css applies as is. */
+.settings-nav {
+  position: sticky;
+  /* div.project-settings has 40px top padding (research.css) and sticky
+     rests at the content edge, so pull the strip up to the page top. */
+  top: -40px;
+  z-index: 2;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1) var(--space-4);
+  margin: var(--space-3) 0 0;
+  padding: var(--space-2) 0;
+  background: var(--paper);
+  border-bottom: 1px solid var(--line);
+  font-size: var(--type-small);
+}
+/* The strip's bottom border is the one rule; General drops its own top border. */
+.project-settings .settings-nav + .settings-section {
+  border-top: 0;
+}
+.settings-nav a {
+  color: var(--muted);
+  text-decoration: none;
+  background: transparent;
+}
+.settings-nav a:is(:hover, :focus-visible) {
+  color: var(--text);
+}
+.settings-nav a[aria-current="true"] {
+  font-weight: 600;
+  color: var(--accent);
+}

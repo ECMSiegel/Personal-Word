@@ -1,0 +1,62 @@
+{
+  "id": "T267",
+  "title": "W9 C4 -- Embed applied fonts in PDF export",
+  "description": "Follow section '### C4 --' of docs/agent-work/2026-11-10-ui-wave-9/PLAN.md exactly, plus its 'Rules for every worker'. Verify: vitest src/export passes, including existing PDF tests. No browser tests. No commits, no new packages, never run npm run build or a native screen script. Write the note docs/agent-work/2026-11-10-ui-wave-9/notes/C4.md.",
+  "status": "done",
+  "owner": null,
+  "priority": 2,
+  "depends_on": [
+    "T254"
+  ],
+  "files": [
+    "src/export/pdf.ts",
+    "src/export/fontSource.ts",
+    "src/export/fontSource.test.ts",
+    "src/export/pdf-fonts.test.ts",
+    "docs/agent-work/2026-11-10-ui-wave-9/notes/C4.md"
+  ],
+  "review_required": true,
+  "created_by": "agent-b307",
+  "created_at": "2026-11-10T22:24:38+00:00",
+  "claimed_at": "2026-11-11T00:36:47+00:00",
+  "updated_at": "2026-11-11T01:19:39+00:00",
+  "handoff": null,
+  "review": {
+    "by": "agent-26ce",
+    "at": "2026-11-11T01:19:39+00:00",
+    "verdict": "approved",
+    "note": "Approved (CLAIMED; unit tests only, no Preview or native check). Read fontSource.ts, the pdf.ts diff and both tests. defaultFontSource matches step 1: an added family matched by sameFont gives the requested style, else regular, else any file (exact false when the style differs); otherwise systemFontFile, null for a collection; it never throws, and a readFontInfo rejection maps to 'restricted' as the plan says. In pdf.ts: exportPdf gains an optional last fontSource parameter defaulting to defaultFontSource() (ExportPanel and exportActions are not edited for it). Distinct (family, bold, italic) triples are resolved once before segmentation, and 'restricted' results are skipped. A character the font has gets a custom:N key; every other character keeps its bundled key. Each custom font is embedded once with subset:true, and the same fontkit font is used for measurement. Notes, bibliography and their headings pass useCustomFont=false. Heading and table-header bold agree between collectRequests and mapBlock. FAIL-FIRST, run by me because the note only cited a prior session: pdf-fonts.test.ts against HEAD's pdf.ts in a scratch copy (git archive HEAD plus the new fonts/ and fontSource.ts) gave 2 failed, 2 passed. The two new-behaviour cases failed, and the null and rejects equivalence cases passed as expected. Current tree: npx vitest run src/export gives 9 files, 167 passed; tsc errors in pdf.ts and pdf-fonts.test.ts from 20:05 are gone. No files outside the registered paths, no package. Minor, not blocking: segment() checks font.characterSet.includes() per character, a linear scan; a Set built once per custom key would be cheaper on long documents. The 'exactly as today' cases compare against the new code's default source, not HEAD output. My HEAD-copy run covers that gap for null and reject."
+  },
+  "log": [
+    {
+      "at": "2026-11-10T22:24:38+00:00",
+      "agent": "agent-b307",
+      "event": "created",
+      "note": ""
+    },
+    {
+      "at": "2026-11-11T00:36:47+00:00",
+      "agent": "agent-38c2",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-11-11T00:36:49+00:00",
+      "agent": "agent-38c2",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-11-11T01:12:12+00:00",
+      "agent": "agent-38c2",
+      "event": "review requested",
+      "note": "Implemented PDF custom-font resolution and embedding, including one-time family/style resolution, glyph-based use with bundled fallback, restricted/unreadable/failed-embedding fallback, and no custom-font handling for notes or bibliography. Added resolver branch tests and corrected the PDF count fixture to preserve an unformatted run beside the applied-font run. Verified: npx tsc -b passed; npx vitest run src/export passed 167 tests across 9 files. Note: docs/agent-work/2026-11-10-ui-wave-9/notes/C4.md. No browser, native, or Preview check was run."
+    },
+    {
+      "at": "2026-11-11T01:19:39+00:00",
+      "agent": "agent-26ce",
+      "event": "approved",
+      "note": "Approved (CLAIMED; unit tests only, no Preview or native check). Read fontSource.ts, the pdf.ts diff and both tests. defaultFontSource matches step 1: an added family matched by sameFont gives the requested style, else regular, else any file (exact false when the style differs); otherwise systemFontFile, null for a collection; it never throws, and a readFontInfo rejection maps to 'restricted' as the plan says. In pdf.ts: exportPdf gains an optional last fontSource parameter defaulting to defaultFontSource() (ExportPanel and exportActions are not edited for it). Distinct (family, bold, italic) triples are resolved once before segmentation, and 'restricted' results are skipped. A character the font has gets a custom:N key; every other character keeps its bundled key. Each custom font is embedded once with subset:true, and the same fontkit font is used for measurement. Notes, bibliography and their headings pass useCustomFont=false. Heading and table-header bold agree between collectRequests and mapBlock. FAIL-FIRST, run by me because the note only cited a prior session: pdf-fonts.test.ts against HEAD's pdf.ts in a scratch copy (git archive HEAD plus the new fonts/ and fontSource.ts) gave 2 failed, 2 passed. The two new-behaviour cases failed, and the null and rejects equivalence cases passed as expected. Current tree: npx vitest run src/export gives 9 files, 167 passed; tsc errors in pdf.ts and pdf-fonts.test.ts from 20:05 are gone. No files outside the registered paths, no package. Minor, not blocking: segment() checks font.characterSet.includes() per character, a linear scan; a Set built once per custom key would be cheaper on long documents. The 'exactly as today' cases compare against the new code's default source, not HEAD output. My HEAD-copy run covers that gap for null and reject."
+    }
+  ]
+}

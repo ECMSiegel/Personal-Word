@@ -1,0 +1,57 @@
+{
+  "id": "T279",
+  "title": "W9 F1 -- Update sidebar-selection.spec.ts for the A1 hover change and the C1 More details box",
+  "description": "Spec-only fix; change NO app code. Five tests in tests/sidebar-selection.spec.ts pass in notes/baseline-dev.txt and fail now because approved wave 9 tasks changed behaviour on purpose (found by reviewer agent-e0a3 during T257). (1) The test at :485 (assertions near :518 and :531) still expects the old 1.04 hover grow on .entry-main; A1/T255 removed the grow: expect scale 1, the same way tests/hover-emphasis.spec.ts was updated by T255. (2-5) The test at :622 (four palettes) times out near :680 clicking 'Open beside' on a source: C1/T264 moved the attached-PDF field inside the collapsed 'More details' box (src/research/SourceForm.tsx:162-206, button near :183): make the spec open 'More details' first, then click. Keep every other assertion. Verify: PLAYWRIGHT_PORT=1447 npx playwright test tests/sidebar-selection.spec.ts --output test-results/F1 fully passes (serial lock). Write notes/F1.md. No commits.",
+  "status": "done",
+  "owner": null,
+  "priority": 2,
+  "depends_on": [],
+  "files": [
+    "tests/sidebar-selection.spec.ts",
+    "docs/agent-work/2026-11-10-ui-wave-9/notes/F1.md"
+  ],
+  "review_required": true,
+  "created_by": "agent-a63f",
+  "created_at": "2026-11-11T04:56:45+00:00",
+  "claimed_at": "2026-11-11T04:57:03+00:00",
+  "updated_at": "2026-11-11T05:03:55+00:00",
+  "handoff": null,
+  "review": {
+    "by": "agent-e0a3",
+    "at": "2026-11-11T05:03:55+00:00",
+    "verdict": "approved",
+    "note": "Approved (agent-e0a3, W9 reviewer r3). Diff of tests/sidebar-selection.spec.ts matches the T257 findings exactly: :518 and :531 now expect hover/focus scale 1 (computed matrix a ~ 1) instead of matrix(1.04); stroke, colour and weight assertions kept. :680 area opens details.source-more (summary click, only if closed) before clicking the source's Open beside; iframe and header assertions after it kept. No assertion removed or skipped. Fresh run: PLAYWRIGHT_PORT=1447 npx playwright test tests/sidebar-selection.spec.ts --output test-results/T279-review -> 29 passed, 0 failed. The 5 tests failed before the edit (my T257 review run, same failures)."
+  },
+  "log": [
+    {
+      "at": "2026-11-11T04:56:45+00:00",
+      "agent": "agent-a63f",
+      "event": "created",
+      "note": ""
+    },
+    {
+      "at": "2026-11-11T04:57:03+00:00",
+      "agent": "agent-2dab",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-11-11T04:57:04+00:00",
+      "agent": "agent-2dab",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-11-11T04:59:03+00:00",
+      "agent": "agent-2dab",
+      "event": "review requested",
+      "note": "Changed tests/sidebar-selection.spec.ts only (no app code): (1) W7 Plain test (~line 485): .entry-main hover and focus now expect scale 1 instead of 1.04, via computed transform; stroke assertion kept. (2) B1 palette test (~line 622): opens the More details box (details.source-more) if closed before clicking Open beside. Note: notes/F1.md. Fail-first: tests were already failing; failing output cited from notes/A3-acceptance-r5.txt. Verify: PLAYWRIGHT_PORT=1447 npx playwright test tests/sidebar-selection.spec.ts --output test-results/F1 under serial lock, log node_modules/.cache/personal-word-beta/w9-T279-run.log: 29 passed, 0 failed, EXIT 0. No commits."
+    },
+    {
+      "at": "2026-11-11T05:03:55+00:00",
+      "agent": "agent-e0a3",
+      "event": "approved",
+      "note": "Approved (agent-e0a3, W9 reviewer r3). Diff of tests/sidebar-selection.spec.ts matches the T257 findings exactly: :518 and :531 now expect hover/focus scale 1 (computed matrix a ~ 1) instead of matrix(1.04); stroke, colour and weight assertions kept. :680 area opens details.source-more (summary click, only if closed) before clicking the source's Open beside; iframe and header assertions after it kept. No assertion removed or skipped. Fresh run: PLAYWRIGHT_PORT=1447 npx playwright test tests/sidebar-selection.spec.ts --output test-results/T279-review -> 29 passed, 0 failed. The 5 tests failed before the edit (my T257 review run, same failures)."
+    }
+  ]
+}

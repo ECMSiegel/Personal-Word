@@ -1,0 +1,8 @@
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 6 ⎯⎯⎯⎯⎯⎯⎯
+ FAIL  src/research/removeFootnote.test.ts > removeTextOnlyFootnote > removes a marker in the middle of a paragraph and keeps the text around it
+ FAIL  src/research/removeFootnote.test.ts > removeTextOnlyFootnote > removes the marker from a fragment as well as a section
+ FAIL  src/research/removeFootnote.test.ts > removeTextOnlyFootnote > handles two markers of different notes in one entry, one at a time
+ FAIL  src/research/removeFootnote.test.ts > removeTextOnlyFootnote > leaves an empty paragraph when the marker was its only child
+ FAIL  src/research/removeFootnote.test.ts > removeTextOnlyFootnote > never removes a cited footnote or its marker
+ FAIL  src/research/removeFootnote.test.ts > removeTextOnlyFootnote > skips entries the open editor will clean itself
+      Tests  6 failed | 3 passed (9)

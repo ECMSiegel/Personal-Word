@@ -1,0 +1,30 @@
+
+ RUN  v4.1.11 /Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor
+
+ ❯ src/fonts/registry.test.ts (7 tests | 1 failed) 27ms
+     × keeps a saved added font when the added-font list failed to load 19ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/fonts/registry.test.ts > initFonts saved interface font > keeps a saved added font when the added-font list failed to load
+AssertionError: expected 'Futura, "Avenir Next", -apple-system,…' to be '"Menlo", sans-serif' // Object.is equality
+
+Expected: ""Menlo", sans-serif"
+Received: "Futura, "Avenir Next", -apple-system, BlinkMacSystemFont, sans-serif"
+
+ ❯ src/fonts/registry.test.ts:58:39
+     56|     vi.mocked(listSystemFamilies).mockResolvedValue(["Georgia"]);
+     57|     await initFonts();
+     58|     expect(localStorage.getItem(KEY)).toBe(MENLO);
+       |                                       ^
+     59|     expect(uiFont()).toBe(MENLO);
+     60|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 6 passed (7)
+   Start at  01:18:33
+   Duration  389ms (transform 107ms, setup 0ms, import 143ms, tests 27ms, environment 0ms)
+

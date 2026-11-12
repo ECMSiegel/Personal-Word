@@ -1,0 +1,9 @@
+
+Running 3 tests using 1 worker
+
+  ✓  1 tests/hs7-document-font.spec.ts:13:1 › a sans project's editor and Read view use the interface font; Chicago does not (6.1s)
+  ✓  2 tests/hs7-document-font.spec.ts:27:1 › changing the interface font updates a sans project live (2.3s)
+  ✓  3 tests/hs7-document-font.spec.ts:38:1 › a Chicago (serif) project is unaffected by the interface font (2.0s)
+
+  3 passed (13.6s)
+exit 0

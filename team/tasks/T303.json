@@ -1,0 +1,86 @@
+{
+  "id": "T303",
+  "title": "HS12 -- Toolbar buttons return focus to the editor at once",
+  "description": "Full brief: docs/agent-work/2026-11-11-home-stretch/BRIEF.md then section HS12 of docs/agent-work/2026-11-11-home-stretch/TASKS.md.",
+  "status": "done",
+  "owner": null,
+  "priority": 2,
+  "depends_on": [],
+  "files": [
+    "docs/agent-work/2026-11-11-home-stretch/notes/HS12.md",
+    "docs/agent-work/2026-11-11-home-stretch/notes/HS12-fail-first.txt",
+    "tests/hs11-font-focus.spec.ts"
+  ],
+  "review_required": true,
+  "created_by": "agent-b823",
+  "created_at": "2026-11-12T19:51:32+00:00",
+  "claimed_at": "2026-11-12T20:34:40+00:00",
+  "updated_at": "2026-11-12T20:52:23+00:00",
+  "handoff": {
+    "by": "agent-bb67",
+    "at": "2026-11-12T20:34:01+00:00",
+    "text": "See docs/agent-work/2026-11-11-home-stretch/REVIEW-6.md. 1 (high) src/Writer.tsx:1426-1429,1449-1452: font size +/- now steal focus on keyboard activation; Space pressed 3x on Increase font size with 'Beta' selected turned 'Alpha Beta' into 'Alpha   '. Fix: focus only when e.detail > 0; test +/- with a dispatched click detail:1 and add a keyboard Space x3 case (text unchanged, size +3). 2 (low) Writer.tsx:1669-1672 Delete table and :1982-1986 Insert page break close their popover but keep Tiptap's one-frame focus gap (Delete table probe: focus=BUTTON); add editor.view.focus() after the command, list in HS12.md. 3 (low) Enter on focused Bullet list took doc from 1 to 2 top-level blocks; compare with old behaviour once. 4 (low) spec gaps: selection case does not check size change; Undo case toContainText(Hello) proves nothing. tsc clean, vitest src/editor 147 passed, hs11-font-focus 10/10 passed."
+  },
+  "review": {
+    "by": "agent-d20d",
+    "at": "2026-11-12T20:52:23+00:00",
+    "verdict": "approved",
+    "note": "REVIEW-6.md Round 2: all e.detail>0 guards present (Writer.tsx 1253,1276,1291,1429,1452,1489,1673,1698,1712,1988); keyboard paths identical to pre-HS12; probe: Space x3 on + keeps 'Alpha Beta', size 12->15, focus on button; real-click Delete table / Insert page break type straight into the editor; Bullet list 2nd block = StarterKit TrailingNode (pre-existing). tsc clean; hs11-font-focus + probe 20/20 passed."
+  },
+  "log": [
+    {
+      "at": "2026-11-12T19:51:32+00:00",
+      "agent": "agent-b823",
+      "event": "created",
+      "note": ""
+    },
+    {
+      "at": "2026-11-12T19:51:59+00:00",
+      "agent": "agent-18ab",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-11-12T19:51:59+00:00",
+      "agent": "agent-18ab",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-11-12T20:01:05+00:00",
+      "agent": "agent-18ab",
+      "event": "review requested",
+      "note": "Writer.tsx: iconButton + undo/redo + size +/- + indent + remove link call editor.view.focus(); 8 new cases in tests/hs11-font-focus.spec.ts; fail-first 7 failed then 10 passed; dev 69 passed, preview (after build) 69 passed; tsc clean; vitest src/editor 147 passed. Notes HS12.md."
+    },
+    {
+      "at": "2026-11-12T20:34:01+00:00",
+      "agent": "agent-bb67",
+      "event": "rejected",
+      "note": "See docs/agent-work/2026-11-11-home-stretch/REVIEW-6.md. 1 (high) src/Writer.tsx:1426-1429,1449-1452: font size +/- now steal focus on keyboard activation; Space pressed 3x on Increase font size with 'Beta' selected turned 'Alpha Beta' into 'Alpha   '. Fix: focus only when e.detail > 0; test +/- with a dispatched click detail:1 and add a keyboard Space x3 case (text unchanged, size +3). 2 (low) Writer.tsx:1669-1672 Delete table and :1982-1986 Insert page break close their popover but keep Tiptap's one-frame focus gap (Delete table probe: focus=BUTTON); add editor.view.focus() after the command, list in HS12.md. 3 (low) Enter on focused Bullet list took doc from 1 to 2 top-level blocks; compare with old behaviour once. 4 (low) spec gaps: selection case does not check size change; Undo case toContainText(Hello) proves nothing. tsc clean, vitest src/editor 147 passed, hs11-font-focus 10/10 passed."
+    },
+    {
+      "at": "2026-11-12T20:34:40+00:00",
+      "agent": "agent-7c69",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-11-12T20:34:40+00:00",
+      "agent": "agent-7c69",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-11-12T20:49:17+00:00",
+      "agent": "agent-7c69",
+      "event": "review requested",
+      "note": "Rework: pointer-only (e.detail>0) editor.view.focus() on iconButton/undo/redo/size/indent/remove link/delete table/page break; tests updated; dev 83+1 passed, preview same; notes HS12.md"
+    },
+    {
+      "at": "2026-11-12T20:52:23+00:00",
+      "agent": "agent-d20d",
+      "event": "approved",
+      "note": "REVIEW-6.md Round 2: all e.detail>0 guards present (Writer.tsx 1253,1276,1291,1429,1452,1489,1673,1698,1712,1988); keyboard paths identical to pre-HS12; probe: Space x3 on + keeps 'Alpha Beta', size 12->15, focus on button; real-click Delete table / Insert page break type straight into the editor; Bullet list 2nd block = StarterKit TrailingNode (pre-existing). tsc clean; hs11-font-focus + probe 20/20 passed."
+    }
+  ]
+}

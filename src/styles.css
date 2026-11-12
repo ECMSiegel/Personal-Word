@@ -36,9 +36,9 @@
   --ease-out: cubic-bezier(0.2, 0, 0, 1);
   --ease-in: cubic-bezier(0.4, 0, 1, 1);
   /* Text-control emphasis (the one hover/focus rule, see the block after button:focus-visible). */
-  --emph-stroke: 0.04em;
+  --emph-bold: 0.3px;
   --emph-duration: var(--duration-fast); /* the :active state of a text control sets --duration-press */
-  --emph-scale: 1.04;
+  --emph-scale: 1;
   --focus-ring: 2px solid var(--accent);
   --focus-offset: 1px;
   --pressed: var(--line);
@@ -220,12 +220,8 @@
 .swatch-chip[data-swatch="indigo"] { background: var(--swatch-indigo); }
 .swatch-chip[data-swatch="purple"] { background: var(--swatch-purple); }
 :root {
-  font-family:
-    Futura,
-    "Avenir Next",
-    -apple-system,
-    BlinkMacSystemFont,
-    sans-serif;
+  --ui-font: Futura, "Avenir Next", -apple-system, BlinkMacSystemFont, sans-serif;
+  font-family: var(--ui-font);
   color: var(--text);
   background: var(--paper);
   font-synthesis: none;
@@ -404,8 +400,10 @@ button:focus-visible {
 
 /* Text-control emphasis: the ONE hover/focus rule for every control that shows text
    (docs/agent-work/2026-10-28-ui-wave-4/PLAN.md, H2). A width-neutral faux bold
-   (-webkit-text-stroke, --emph-stroke: owner decision, no layout shift) and a --emph-scale
-   grow by transform; only the scale is animated. Reduce Motion drops the scale, keeps the stroke. Icon-only controls are excluded: they keep the
+   (a 0.3 px text-shadow copy in the text colour, --emph-bold: owner decision, no layout shift;
+   never -webkit-text-stroke, which macOS WebKit paints without font smoothing and blurs on 1x screens, see
+   docs/agent-work/2026-11-11-owner-fixes/BLUR-DIAGNOSIS.md) and a --emph-scale
+   grow by transform; only the scale is animated. Reduce Motion drops the scale, keeps the faux bold. Icon-only controls are excluded: they keep the
    colour rule above (and the toolbar icons get the dock). No other rule may set hover weight
    or a hover scale. A new button, link, tab, menu row or summary gets this with no new CSS. */
 :is(button, a[href], [role="tab"], [role="menuitem"], [role="option"], summary, label:has(input[type="checkbox"], input[type="radio"]), .text-action):not(:is(
@@ -470,12 +468,12 @@ button:focus-visible {
     .emph-row
   )):is(:hover, :focus-visible, [data-highlighted], .is-highlighted, label:has(> input:focus-visible)),
   .emph-row:is(:hover, :focus-visible, [data-highlighted], .is-highlighted) .emph-label {
-    -webkit-text-stroke: var(--emph-stroke) currentColor;
+    text-shadow: var(--emph-bold) 0 0 currentColor;
     --emph-s: var(--emph-scale);
   }
-/* The stroke is inherited: keep typed text in a hovered label un-stroked. */
+/* The faux bold is inherited: keep typed text in a hovered label plain. */
 :is(label:has(input), label:has(textarea)) :is(input, textarea) {
-  -webkit-text-stroke: 0;
+  text-shadow: none;
 }
 :is(button, a[href], [role="tab"], [role="menuitem"], [role="option"], summary, label:has(input[type="checkbox"], input[type="radio"]), .text-action):active:not(:disabled) {
   --press-s: 0.99;
@@ -510,7 +508,35 @@ input[type="checkbox"]:focus-visible {
   outline-offset: var(--focus-offset);
 }
 input[type="checkbox"] {
-  accent-color: var(--accent);
+  -webkit-appearance: none;
+  appearance: none;
+  position: relative;
+  box-sizing: border-box;
+  flex: none;
+  width: 14px;
+  height: 14px;
+  min-width: 14px;
+  margin: 0;
+  padding: 0;
+  border: 1px solid var(--muted);
+  border-radius: 0;
+  background: var(--paper);
+  vertical-align: middle;
+}
+input[type="checkbox"]:checked {
+  border-color: var(--accent);
+  background: var(--accent);
+}
+input[type="checkbox"]:checked::after {
+  content: "";
+  position: absolute;
+  left: 3px;
+  top: 0;
+  width: 4px;
+  height: 8px;
+  border: solid var(--paper);
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
 }
 input:not([type="checkbox"]):hover:not(:disabled),
 textarea:hover:not(:disabled) {
@@ -1256,7 +1282,7 @@ p {
   font-size: var(--type-small);
   color: var(--text);
 }
-.dialog input {
+.dialog input:not([type="checkbox"]) {
   display: block;
   width: 100%;
   margin: var(--space-2) 0 var(--space-6);
@@ -1474,12 +1500,7 @@ p {
 
 /* Flat workspace surfaces share the chosen appearance. */
 :root {
-  font-family:
-    Futura,
-    "Avenir Next",
-    -apple-system,
-    BlinkMacSystemFont,
-    sans-serif;
+  font-family: var(--ui-font);
 }
 button,
 input,
@@ -1503,7 +1524,7 @@ button[aria-pressed="true"],
   font-weight: 600;
 }
 .brand {
-  font-family: inherit;
+  font-family: Futura, "Avenir Next", -apple-system, BlinkMacSystemFont, sans-serif;
   font-size: var(--type-title);
   font-weight: 600;
   letter-spacing: -0.3px;
@@ -1639,11 +1660,31 @@ button[aria-pressed="true"],
 .search {
   margin: var(--space-3) 0 var(--space-4);
 }
+/* HS4: docked sidebar only. The title row fills the same 40 px band as .topbar and the
+   search row the same 40 px band as the format bar, content centred, no new border lines.
+   Floating and overlay sidebars keep their own spacing. */
+.sidebar-shell:not(.is-floating):not(.is-overlay) .sidebar {
+  padding-top: 0;
+}
+.sidebar-shell:not(.is-floating):not(.is-overlay) .sidebar-title-row {
+  height: 40px;
+  min-height: 0;
+}
+.sidebar-shell:not(.is-floating):not(.is-overlay) .sidebar .search {
+  height: 40px;
+  margin-top: 0;
+  margin-bottom: var(--space-3);
+}
 .sidebar-groups {
   position: relative;
   flex: 1;
   min-height: 0;
-  overflow: auto;
+  overflow-x: hidden;
+  overflow-y: auto;
+  scrollbar-width: none;
+}
+.sidebar-groups::-webkit-scrollbar {
+  display: none;
 }
 .sidebar-bottom-groups {
   position: relative;
@@ -1717,6 +1758,14 @@ button[aria-pressed="true"],
 .sidebar-group:focus-within > .group-heading .group-actions {
   opacity: 1;
 }
+/* HS9 (owner approved): the "+" on Manuscript and custom top-level sections is always shown;
+   their view toggle stays hover/focus-revealed. */
+.sidebar-group[data-group-kind="manuscript"] > .group-heading .group-actions {
+  opacity: 1;
+}
+.sidebar-group[data-group-kind="manuscript"]:not(:hover, :focus-within) > .group-heading .group-view-toggle {
+  opacity: 0;
+}
 .group-actions button {
   padding: var(--space-1) 2px;
 }
@@ -1759,18 +1808,32 @@ button[aria-pressed="true"],
   border-color: color-mix(in srgb, var(--muted) 55%, var(--line));
   background: var(--paper);
 }
+.cards-view .entry-row {
+  min-width: 0;
+  max-width: 100%;
+}
 .cards-view .entry-main {
   flex-wrap: wrap;
   gap: var(--space-2);
   padding: var(--space-3);
+  min-width: 0;
+  max-width: 100%;
 }
-/* Cards pad their row by --space-3, so the depth step is measured from there
-   and the PDF child still sits one --space-4 past its source card. */
+/* A PDF child card steps in one --space-4 from its source card, so its label
+   sits one --space-4 past the source label. */
+.cards-view .entry-row[data-depth="1"] {
+  margin-left: var(--space-4);
+  max-width: calc(100% - var(--space-4));
+}
 .cards-view .entry-row[data-depth="1"] .entry-main {
-  padding-left: calc(var(--space-3) + var(--space-4));
+  padding-left: var(--space-3);
 }
 .cards-view .entry-main > span {
   flex-basis: calc(100% - 25px);
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 .entry-preview {
   font-size: var(--type-small);
@@ -1809,9 +1872,18 @@ button[aria-pressed="true"],
   }
 }
 @container (min-width: 380px) {
-  .cards-view .entry-list {
+  .cards-view:not([data-group="research"]) .entry-list {
     grid-template-columns: 1fr 1fr;
   }
+}
+/* Research cards are one-line rows in one column: no preview block, and the
+   normal one-line height (vertical padding --space-2, not --space-3). */
+.cards-view[data-group="research"] .entry-preview {
+  display: none;
+}
+.cards-view[data-group="research"] .entry-main {
+  padding-top: var(--space-2);
+  padding-bottom: var(--space-2);
 }
 .focus .sidebar-shell {
   display: none;
@@ -1927,8 +1999,11 @@ button[aria-pressed="true"],
   font-size: var(--type-small);
   padding: var(--space-5) 0;
 }
+/* Default document text is the "sans" project font, which follows the interface font. */
 .writing-surface,
-.read-prose,
+.read-prose {
+  font-family: var(--ui-font, Futura, "Avenir Next", -apple-system, sans-serif);
+}
 .manuscript-read h1,
 .read-title,
 .preview-content h3,
@@ -1936,11 +2011,7 @@ button[aria-pressed="true"],
 .dialog h2,
 .panel-heading h2,
 .preview-dialog h2 {
-  font-family:
-    Futura,
-    "Avenir Next",
-    -apple-system,
-    sans-serif;
+  font-family: var(--ui-font);
 }
 .statusbar {
   border: 0;
@@ -2022,6 +2093,32 @@ button[aria-pressed="true"],
 .cards-view .entry-row {
   flex-direction: column;
   align-items: stretch;
+}
+/* An empty card (no synopsis, no draft status) hides its boxes at rest and on
+   hover; opening it or focusing inside it shows them. */
+.cards-view .entry-row[data-empty]:not([data-open]):not(:focus-within) .entry-details {
+  display: none;
+}
+/* The open-beside icon sits inside the card's top and right content edges. */
+.cards-view .reorder {
+  top: var(--space-3);
+  right: var(--space-3);
+}
+.cards-view .reorder button {
+  padding: 0;
+}
+/* HS9: while a card's icons show, only its one-line title makes room for them (More and
+   open-beside), so the body text below never re-wraps and no card moves. The list row's
+   whole-button hover padding (~714) is undone in cards. */
+.cards-view .entry-row:has(.reorder):is(:hover, :focus-within) .entry-main {
+  padding-right: var(--space-3);
+}
+.cards-view .entry-row:has(.entry-more):is(:hover, :focus-within) .entry-main > span {
+  padding-right: 36px;
+}
+/* A research card's open-beside icon sits inside the card, not 7 px past its edge. */
+.cards-view .collection-open-beside {
+  right: var(--space-2);
 }
 .entry-details {
   padding: 0 var(--space-2) var(--space-2);
@@ -2238,7 +2335,7 @@ button[aria-pressed="true"],
 :root[data-palette="color"] .sidebar-group {
   --tint: var(--accent);
 }
-:root[data-palette="color"] .sidebar-group[data-group="manuscript"] {
+:root[data-palette="color"] .sidebar-group:is([data-group="manuscript"], [data-group-kind="manuscript"]) {
   --tint: var(--tint-manuscript);
 }
 :root[data-palette="color"] .sidebar-group[data-group="fragments"] {
@@ -2251,6 +2348,6 @@ button[aria-pressed="true"],
 :root[data-palette="color"] .sidebar-bottom-groups .sidebar-group[data-group] .group-title.selected {
   color: var(--tint);
 }
-:root[data-palette="color"] .sidebar-group:is([data-group="manuscript"], [data-group="fragments"], [data-group="research"]) :is(.group-title svg, .entry-main svg) {
+:root[data-palette="color"] .sidebar-group:is([data-group="manuscript"], [data-group-kind="manuscript"], [data-group="fragments"], [data-group="research"]) :is(.group-title svg, .entry-main svg) {
   color: var(--tint);
 }

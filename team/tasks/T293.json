@@ -1,0 +1,58 @@
+{
+  "id": "T293",
+  "title": "HS2 -- Line-spacing popover: drop pt, align the boxes",
+  "description": "Full brief: docs/agent-work/2026-11-11-home-stretch/BRIEF.md then section HS2 of docs/agent-work/2026-11-11-home-stretch/TASKS.md. Shared files (styles.css, App.tsx, Writer.tsx, editor/editor.css) are edited by region only and registered on no task.",
+  "status": "done",
+  "owner": null,
+  "priority": 2,
+  "depends_on": [],
+  "files": [
+    "docs/agent-work/2026-11-11-home-stretch/notes/HS2.md",
+    "docs/agent-work/2026-11-11-home-stretch/notes/HS2-fail-first.txt",
+    "tests/hs2-spacing.spec.ts"
+  ],
+  "review_required": true,
+  "created_by": "agent-b823",
+  "created_at": "2026-11-12T03:58:41+00:00",
+  "claimed_at": "2026-11-12T04:00:07+00:00",
+  "updated_at": "2026-11-12T05:27:04+00:00",
+  "handoff": null,
+  "review": {
+    "by": "agent-1324",
+    "at": "2026-11-12T05:27:04+00:00",
+    "verdict": "approved",
+    "note": "Approve. Boxes equal width/right edge, no pt, aria-labels carry points, .toolbar-field-unit removed with no remaining users. hs2 spec passes; screenshot checked. See REVIEW-1.md."
+  },
+  "log": [
+    {
+      "at": "2026-11-12T03:58:41+00:00",
+      "agent": "agent-b823",
+      "event": "created",
+      "note": ""
+    },
+    {
+      "at": "2026-11-12T04:00:07+00:00",
+      "agent": "agent-d606",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-11-12T04:00:18+00:00",
+      "agent": "agent-d606",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-11-12T05:01:31+00:00",
+      "agent": "agent-d606",
+      "event": "review requested",
+      "note": "HS2: removed pt + unit wrappers, three inputs width 64, aria-labels carry points, removed unused .toolbar-field-unit; Writer.tsx spacing case, editor.css, tests/hs2-spacing.spec.ts. Fail-first failed on old code (notes/HS2-fail-first.txt). Playwright hs2+features+editor-toolbar 26 passed."
+    },
+    {
+      "at": "2026-11-12T05:27:04+00:00",
+      "agent": "agent-1324",
+      "event": "approved",
+      "note": "Approve. Boxes equal width/right edge, no pt, aria-labels carry points, .toolbar-field-unit removed with no remaining users. hs2 spec passes; screenshot checked. See REVIEW-1.md."
+    }
+  ]
+}

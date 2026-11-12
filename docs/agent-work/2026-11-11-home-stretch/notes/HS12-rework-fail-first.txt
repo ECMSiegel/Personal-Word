@@ -1,0 +1,175 @@
+
+Running 16 tests using 1 worker
+
+  ✓   1 tests/hs11-font-focus.spec.ts:11:3 › choosing "Georgia" from Font family focuses the editor immediately (4.9s)
+  ✓   2 tests/hs11-font-focus.spec.ts:11:3 › choosing "Heading 1" from Paragraph style focuses the editor immediately (4.7s)
+  ✓   3 tests/hs11-font-focus.spec.ts:62:3 › pointer click on "Bold (⌘B)" focuses the editor immediately (3.0s)
+  ✓   4 tests/hs11-font-focus.spec.ts:62:3 › pointer click on "Bullet list" focuses the editor immediately (3.2s)
+  ✓   5 tests/hs11-font-focus.spec.ts:62:3 › pointer click on "Increase font size" focuses the editor immediately (2.3s)
+  ✓   6 tests/hs11-font-focus.spec.ts:62:3 › pointer click on "Decrease font size" focuses the editor immediately (2.2s)
+  ✓   7 tests/hs11-font-focus.spec.ts:62:3 › pointer click on "Increase indent" focuses the editor immediately (3.2s)
+  ✓   8 tests/hs11-font-focus.spec.ts:71:1 › pointer click on Undo focuses the editor immediately and undoes the typing (3.7s)
+  ✓   9 tests/hs11-font-focus.spec.ts:81:1 › pointer click on font size + changes the selection's size and keeps the selection (2.9s)
+  ✓  10 tests/hs11-font-focus.spec.ts:92:1 › font size + sets the size of the next typed text (2.8s)
+  ✘  11 tests/hs11-font-focus.spec.ts:103:3 › Space x3 on "Increase font size" leaves the text alone, steps the size and keeps focus on the button (8.3s)
+  ✘  12 tests/hs11-font-focus.spec.ts:103:3 › Space x3 on "Decrease font size" leaves the text alone, steps the size and keeps focus on the button (8.6s)
+  ✓  13 tests/hs11-font-focus.spec.ts:116:1 › Space on a focused Bold button toggles it and types nothing (3.2s)
+  ✘  14 tests/hs11-font-focus.spec.ts:125:1 › Enter on a focused Bullet list button toggles the list and adds no block (3.2s)
+  ✘  15 tests/hs11-font-focus.spec.ts:136:1 › pointer click on Delete table returns focus to the editor at once (3.1s)
+  ✘  16 tests/hs11-font-focus.spec.ts:144:1 › pointer click on Insert page break returns focus to the editor at once (3.5s)
+
+
+  1) tests/hs11-font-focus.spec.ts:103:3 › Space x3 on "Increase font size" leaves the text alone, steps the size and keeps focus on the button 
+
+    Error: expect(locator).toHaveText(expected) failed
+
+    Locator:  getByRole('textbox', { name: 'Writing editor' })
+    Expected: "Alpha Beta"
+    Received: "Alpha   "
+    Timeout:  5000ms
+
+    Call log:
+      - Expect "toHaveText" getByRole('textbox', { name: 'Writing editor' }) with timeout 5000ms
+      - waiting for getByRole('textbox', { name: 'Writing editor' })
+        14 × locator resolved to <div tabindex="0" role="textbox" translate="no" spellcheck="true" contenteditable="true" aria-label="Writing editor" class="tiptap ProseMirror writing-surface ProseMirror-focused">…</div>
+           - unexpected value "Alpha   "
+
+
+      108 |     await page.getByRole("button", { name, exact: true }).focus();
+      109 |     for (let i = 0; i < 3; i++) await page.keyboard.press("Space");
+    > 110 |     await expect(editor).toHaveText("Alpha Beta");
+          |                          ^
+      111 |     expect(parseFloat(await sizeBox(page).inputValue())).toBe(before + 3 * delta);
+      112 |     expect(await focusedName(page)).toBe(name);
+      113 |   });
+        at /Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/tests/hs11-font-focus.spec.ts:110:26
+
+    Error Context: test-results/HS12/hs11-font-focus-Space-x3-o-dfdff-d-keeps-focus-on-the-button/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/HS12/hs11-font-focus-Space-x3-o-dfdff-d-keeps-focus-on-the-button/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/HS12/hs11-font-focus-Space-x3-o-dfdff-d-keeps-focus-on-the-button/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/hs11-font-focus.spec.ts:103:3 › Space x3 on "Decrease font size" leaves the text alone, steps the size and keeps focus on the button 
+
+    Error: expect(locator).toHaveText(expected) failed
+
+    Locator:  getByRole('textbox', { name: 'Writing editor' })
+    Expected: "Alpha Beta"
+    Received: "Alpha   "
+    Timeout:  5000ms
+
+    Call log:
+      - Expect "toHaveText" getByRole('textbox', { name: 'Writing editor' }) with timeout 5000ms
+      - waiting for getByRole('textbox', { name: 'Writing editor' })
+        14 × locator resolved to <div tabindex="0" role="textbox" translate="no" spellcheck="true" contenteditable="true" aria-label="Writing editor" class="tiptap ProseMirror writing-surface ProseMirror-focused">…</div>
+           - unexpected value "Alpha   "
+
+
+      108 |     await page.getByRole("button", { name, exact: true }).focus();
+      109 |     for (let i = 0; i < 3; i++) await page.keyboard.press("Space");
+    > 110 |     await expect(editor).toHaveText("Alpha Beta");
+          |                          ^
+      111 |     expect(parseFloat(await sizeBox(page).inputValue())).toBe(before + 3 * delta);
+      112 |     expect(await focusedName(page)).toBe(name);
+      113 |   });
+        at /Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/tests/hs11-font-focus.spec.ts:110:26
+
+    Error Context: test-results/HS12/hs11-font-focus-Space-x3-o-d780d-d-keeps-focus-on-the-button/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/HS12/hs11-font-focus-Space-x3-o-d780d-d-keeps-focus-on-the-button/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/HS12/hs11-font-focus-Space-x3-o-d780d-d-keeps-focus-on-the-button/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) tests/hs11-font-focus.spec.ts:125:1 › Enter on a focused Bullet list button toggles the list and adds no block 
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: 1
+    Received: 2
+
+      130 |   await expect(editor.locator("ul")).toHaveCount(1);
+      131 |   await page.waitForTimeout(200);
+    > 132 |   expect(await editor.evaluate((el) => (el.querySelector(".ProseMirror") ?? el).children.length)).toBe(1);
+          |                                                                                                   ^
+      133 |   await expect(editor).toHaveText("Hello");
+      134 | });
+      135 |
+        at /Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/tests/hs11-font-focus.spec.ts:132:99
+
+    Error Context: test-results/HS12/hs11-font-focus-Enter-on-a-b240f--the-list-and-adds-no-block/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/HS12/hs11-font-focus-Enter-on-a-b240f--the-list-and-adds-no-block/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/HS12/hs11-font-focus-Enter-on-a-b240f--the-list-and-adds-no-block/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) tests/hs11-font-focus.spec.ts:136:1 › pointer click on Delete table returns focus to the editor at once 
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: "Writing editor"
+    Received: "BUTTON"
+
+      139 |   await editor.locator("table td").first().click();
+      140 |   await (await toolbarButton(page, "Table controls")).click();
+    > 141 |   expect(await pointerClick(page, "Delete table")).toBe("Writing editor");
+          |                                                    ^
+      142 | });
+      143 |
+      144 | test("pointer click on Insert page break returns focus to the editor at once", async ({ page }) => {
+        at /Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/tests/hs11-font-focus.spec.ts:141:52
+
+    Error Context: test-results/HS12/hs11-font-focus-pointer-cl-35872-focus-to-the-editor-at-once/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/HS12/hs11-font-focus-pointer-cl-35872-focus-to-the-editor-at-once/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/HS12/hs11-font-focus-pointer-cl-35872-focus-to-the-editor-at-once/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  5) tests/hs11-font-focus.spec.ts:144:1 › pointer click on Insert page break returns focus to the editor at once 
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: "Writing editor"
+    Received: "BUTTON"
+
+      146 |   await page.keyboard.type("Hello");
+      147 |   await (await toolbarButton(page, "Page setup")).click();
+    > 148 |   expect(await pointerClick(page, "Insert page break")).toBe("Writing editor");
+          |                                                         ^
+      149 | });
+      150 |
+        at /Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/tests/hs11-font-focus.spec.ts:148:57
+
+    Error Context: test-results/HS12/hs11-font-focus-pointer-cl-b0374-focus-to-the-editor-at-once/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/HS12/hs11-font-focus-pointer-cl-b0374-focus-to-the-editor-at-once/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/HS12/hs11-font-focus-pointer-cl-b0374-focus-to-the-editor-at-once/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  5 failed
+    tests/hs11-font-focus.spec.ts:103:3 › Space x3 on "Increase font size" leaves the text alone, steps the size and keeps focus on the button 
+    tests/hs11-font-focus.spec.ts:103:3 › Space x3 on "Decrease font size" leaves the text alone, steps the size and keeps focus on the button 
+    tests/hs11-font-focus.spec.ts:125:1 › Enter on a focused Bullet list button toggles the list and adds no block 
+    tests/hs11-font-focus.spec.ts:136:1 › pointer click on Delete table returns focus to the editor at once 
+    tests/hs11-font-focus.spec.ts:144:1 › pointer click on Insert page break returns focus to the editor at once 
+  11 passed (1.2m)

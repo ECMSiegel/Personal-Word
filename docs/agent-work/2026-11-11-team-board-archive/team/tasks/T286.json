@@ -1,0 +1,130 @@
+{
+  "id": "T286",
+  "title": "OF3 -- Rulers: top ruler off the paper in page view, grey outside the margins, separate toggles",
+  "description": "Screenshot 4.png. Owner: 'The ruler is bit obstructing. I would like if in page view it was on the edges of the page, like not on the actual paper. The space outside of the margain should be greyed out like it is on the vertical ruler but not the horizontal top one. The rulers should be separately toggleable not just both together'. Three parts, all of them: (a) in PAGE view the top ruler sits just above the paper's top edge and the side ruler just left of the paper's left edge, outside the sheet, taking no room from the page and covering no text (continuous view keeps today's top ruler); (b) the top ruler greys the stretch outside the left and right margins the same way the side ruler already greys outside the top and bottom margins (same token); (c) two independent toggles, top ruler and side ruler, each remembered; the existing stored preference (RULER_PREFERENCE_KEY 'true') must map to BOTH on so nobody loses their ruler; keep keyboard access and aria-pressed. Read docs/design-system.md and the wave 9 side ruler plan section (docs/agent-work/2026-11-10-ui-wave-9/PLAN.md '### C5') first. Things that depend on the ruler and must keep working: the sticky-ruler caret inset near Writer.tsx:978 and src/caretScroll.ts, the '.document-ruler, .side-ruler' ignore list in src/editor/blankClick.ts (do not edit that file; keep the class names), tests/pages-gap.spec.ts, tests/popover-bounds.spec.ts (do not touch its baseline fixture: if a recorded rect moves because of your change, report it for the coordinator). Another task (OF6) edits Writer.tsx only near the Font family dropdown (about lines 1350-1385): stay out of that region. New spec tests/of3-rulers.spec.ts, shown failing first. Port 1453. Owner hand-test report 2026-11-11 (he tried the real app; his report outranks any passing test). Rules: node_modules/.cache/personal-word-beta/w9-brief.md, with notes in docs/agent-work/2026-11-11-owner-fixes/notes/<task>.md instead of the wave 9 notes folder. Before your first browser run, grep tests/ for every selector, label and class you change and update the specs that pin them (register each first). Run unit tests and tsc before any trip through the serial lock. Do not edit docs/*.md or AGENTS.md. No commits.",
+  "status": "done",
+  "owner": null,
+  "priority": 2,
+  "depends_on": [],
+  "files": [
+    "src/Writer.tsx",
+    "src/editor/SideRuler.tsx",
+    "src/editor/side-ruler.css",
+    "src/editor/editor.css",
+    "tests/ruler.spec.ts",
+    "tests/w9-side-ruler.spec.ts",
+    "tests/of3-rulers.spec.ts",
+    "docs/agent-work/2026-11-11-owner-fixes/notes/OF3.md",
+    "docs/agent-work/2026-11-11-owner-fixes/notes/OF3-fail-first.txt",
+    "docs/agent-work/2026-11-11-owner-fixes/notes/OF3-run-ff.sh",
+    "docs/agent-work/2026-11-11-owner-fixes/notes/OF3-acceptance.txt",
+    "docs/agent-work/2026-11-11-owner-fixes/notes/OF3-run-acc.sh",
+    "tests/of3-rect-probe.spec.ts",
+    "tests/fixtures/popover-baseline-rects.json",
+    "docs/agent-work/2026-11-11-owner-fixes/notes/OF3-rework-fail-first.txt",
+    "docs/agent-work/2026-11-11-owner-fixes/notes/OF3-run-rw1.sh",
+    "docs/agent-work/2026-11-11-owner-fixes/notes/OF3-rework-acceptance.txt",
+    "docs/agent-work/2026-11-11-owner-fixes/notes/OF3-run-rw2.sh",
+    "docs/agent-work/2026-11-11-owner-fixes/notes/OF3-rework2-fail-first.txt",
+    "docs/agent-work/2026-11-11-owner-fixes/notes/OF3-run-rw3.sh",
+    "docs/agent-work/2026-11-11-owner-fixes/notes/OF3-rework2-acceptance.txt",
+    "docs/agent-work/2026-11-11-owner-fixes/notes/OF3-run-rw4.sh",
+    "docs/agent-work/2026-11-11-owner-fixes/notes/OF3-rework2-acceptance-b.txt"
+  ],
+  "review_required": true,
+  "created_by": "agent-a63f",
+  "created_at": "2026-11-11T19:54:37+00:00",
+  "claimed_at": "2026-11-11T22:34:06+00:00",
+  "updated_at": "2026-11-11T23:00:55+00:00",
+  "handoff": {
+    "by": "agent-3841",
+    "at": "2026-11-11T22:30:19+00:00",
+    "text": "r2 reject, two fixes (everything else checked OK: toggles, old 'true' -> both on, keys, bands, pin, caret inset, fixture, 98/98 browser run). 1) The page-view .ruler-strip (z-index 5, opaque, full width) paints over and takes clicks from the floating sidebar (.sidebar-shell.is-floating, z-index 4, same stacking context; its top = the format bar bottom = where the strip pins). Reviewer probe (notes/REVIEW-r2-probe.txt, 1600x900, floating on, page view, ruler on): elementFromPoint over the sidebar's project title (.project-switch) and .sidebar-pin returns .ruler-strip, at rest and at scrollTop 1500. Fix: the floating sidebar must stay above the strip for paint and clicks while the strip stays above the sheets and side rulers (e.g. lower the strip under the shell and make sure the side ruler/sheets still pass beneath it); add an assertion to of3-rulers (floating on, page view, ruler on: elementFromPoint on .project-switch is inside .sidebar-shell, at rest and scrolled), shown failing first. 2) A mousedown on the strip's grey ends falls through to blankPageClick (its ignore list has .document-ruler, not .ruler-strip): probe clicked the strip 8 px left of the ruler at scrollTop 1500 -> caret moved from P15 to P11 (a line hidden under the strip) and the view scrolled 40 px. Fix in Writer.tsx onMouseDown (blankClick.ts is off-limits): return early when the target is inside .ruler-strip; add an assertion (click the strip while scrolled: selection and scrollTop unchanged), shown failing first. Fixture: only Page setup changed by T286 (Prose check line is T282). See REVIEW-r2.md."
+  },
+  "review": {
+    "by": "agent-606c",
+    "at": "2026-11-11T23:00:55+00:00",
+    "verdict": "approved",
+    "note": "r3: z-index 3 override (0,5,0, page view + floating only; side ruler hidden then) puts shell and card above the strip; onMouseDown early return for .ruler-strip with preventDefault except sliders does not affect handle focus/drag (pointer events) or selections started in the page. New tests failed first, pass (worker 95/95; reviewer of3-rulers in 17/17). tsc 0. See REVIEW-r2.md Round 3."
+  },
+  "log": [
+    {
+      "at": "2026-11-11T19:54:37+00:00",
+      "agent": "agent-a63f",
+      "event": "created",
+      "note": ""
+    },
+    {
+      "at": "2026-11-11T19:56:55+00:00",
+      "agent": "agent-6794",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-11-11T19:56:56+00:00",
+      "agent": "agent-6794",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-11-11T21:44:28+00:00",
+      "agent": "agent-6794",
+      "event": "review requested",
+      "note": "OF3: two ruler toggles (top 'Ruler' + 'Side ruler', old true -> both on), top ruler in page view non-sticky above first sheet with grey margin bands (continuous still pinned), caret inset continuous-only. Files: Writer.tsx, editor.css, tests of3-rulers (new), ruler.spec, w9-side-ruler, notes/OF3.md. Fail-first 9/9 failed. tsc clean; vitest 43 pass; playwright acceptance 65+13 pass; only popover-bounds recorded-placement fails: Page setup popover old x1113 w232 -> new x1079.56 w265.44 (height 136 same); fixture untouched. Native WebKit unchecked."
+    },
+    {
+      "at": "2026-11-11T21:46:00+00:00",
+      "agent": "agent-a63f",
+      "event": "rejected",
+      "note": "Owner ruling 2026-11-11: (1) pin the top ruler in page view: it must stay visible at the top of the editor while scrolling down the pages, as a full-width desk-grey strip that pages scroll beneath, never an overlay sitting on a sheet at rest; keep it aligned to the sheet at every zoom and on horizontal scroll; the caret and the first line must never be hidden under it (scroll padding). (2) Owner approved re-recording ONLY the 'Page setup' entry in tests/fixtures/popover-baseline-rects.json for the wider row. Everything else in the hand-in stands."
+    },
+    {
+      "at": "2026-11-11T21:46:22+00:00",
+      "agent": "agent-bc0b",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-11-11T21:46:27+00:00",
+      "agent": "agent-bc0b",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-11-11T22:09:20+00:00",
+      "agent": "agent-bc0b",
+      "event": "review requested",
+      "note": "Rework: top ruler pinned in page view inside .ruler-strip (sticky full-width opaque desk-grey band, ruler centred with margin bands; continuous unchanged via display:contents); caret inset back for page view. Fail-first: rework tests failed 2/2 ('ruler pinned') before fix. Fixture: only Page setup entry re-recorded x1079.5625 w265.4375. Playwright of3+ruler+w9-side-ruler+popover-bounds+pages-gap+w9-blank-click: 68 passed; tsc clean. Native WebKit unchecked."
+    },
+    {
+      "at": "2026-11-11T22:30:19+00:00",
+      "agent": "agent-3841",
+      "event": "rejected",
+      "note": "r2 reject, two fixes (everything else checked OK: toggles, old 'true' -> both on, keys, bands, pin, caret inset, fixture, 98/98 browser run). 1) The page-view .ruler-strip (z-index 5, opaque, full width) paints over and takes clicks from the floating sidebar (.sidebar-shell.is-floating, z-index 4, same stacking context; its top = the format bar bottom = where the strip pins). Reviewer probe (notes/REVIEW-r2-probe.txt, 1600x900, floating on, page view, ruler on): elementFromPoint over the sidebar's project title (.project-switch) and .sidebar-pin returns .ruler-strip, at rest and at scrollTop 1500. Fix: the floating sidebar must stay above the strip for paint and clicks while the strip stays above the sheets and side rulers (e.g. lower the strip under the shell and make sure the side ruler/sheets still pass beneath it); add an assertion to of3-rulers (floating on, page view, ruler on: elementFromPoint on .project-switch is inside .sidebar-shell, at rest and scrolled), shown failing first. 2) A mousedown on the strip's grey ends falls through to blankPageClick (its ignore list has .document-ruler, not .ruler-strip): probe clicked the strip 8 px left of the ruler at scrollTop 1500 -> caret moved from P15 to P11 (a line hidden under the strip) and the view scrolled 40 px. Fix in Writer.tsx onMouseDown (blankClick.ts is off-limits): return early when the target is inside .ruler-strip; add an assertion (click the strip while scrolled: selection and scrollTop unchanged), shown failing first. Fixture: only Page setup changed by T286 (Prose check line is T282). See REVIEW-r2.md."
+    },
+    {
+      "at": "2026-11-11T22:34:06+00:00",
+      "agent": "agent-8da1",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-11-11T22:34:06+00:00",
+      "agent": "agent-8da1",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-11-11T22:56:31+00:00",
+      "agent": "agent-8da1",
+      "event": "review requested",
+      "note": "Rework2: strip z-index 3 when sidebar floats (sidebar/card paint above, asserted); strip mousedown returns before blankPageClick (preventDefault except sliders). Both tests failed first. 95 Playwright pass (of3, ruler, w9-side-ruler, floating, of2-fragment-title, w9-blank-click); tsc clean."
+    },
+    {
+      "at": "2026-11-11T23:00:55+00:00",
+      "agent": "agent-606c",
+      "event": "approved",
+      "note": "r3: z-index 3 override (0,5,0, page view + floating only; side ruler hidden then) puts shell and card above the strip; onMouseDown early return for .ruler-strip with preventDefault except sliders does not affect handle focus/drag (pointer events) or selections started in the page. New tests failed first, pass (worker 95/95; reviewer of3-rulers in 17/17). tsc 0. See REVIEW-r2.md Round 3."
+    }
+  ]
+}

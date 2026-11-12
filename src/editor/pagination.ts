@@ -10,7 +10,9 @@ import {
   TextSelection,
   type EditorState,
 } from "@tiptap/pm/state";
+import type { ResolvedPos } from "@tiptap/pm/model";
 import { Decoration, DecorationSet, type EditorView } from "@tiptap/pm/view";
+import { reportsUnzoomedRects, totalZoom } from "../components/floating";
 
 /**
  * A page boundary at `pos`: before a block, or (`inline`) before the first
@@ -522,7 +524,7 @@ export function paginate(view: EditorView, fresh = false): boolean {
 }
 
 /** Click on a spacer: above the page's lower edge = end of that page, else the next page's start. */
-function clickSpacer(view: EditorView, event: MouseEvent) {
+export function clickSpacer(view: EditorView, event: MouseEvent) {
   const spacer = (event.target as Element | null)?.closest?.(".page-spacer");
   if (!(spacer instanceof HTMLElement) || !view.dom.contains(spacer))
     return false;
@@ -530,8 +532,13 @@ function clickSpacer(view: EditorView, event: MouseEvent) {
     paginationKey.getState(view.state)?.boundaries[Number(spacer.dataset.index)];
   if (!boundary) return false;
   const rect = spacer.getBoundingClientRect();
+  // clientY is drawn px. Native WebKit reports rects inside the zoomed page in drawn / zoom
+  // (OF7), so bring the spacer's top and height to drawn px first (Chromium: scale is 1).
+  const scale = reportsUnzoomedRects() ? totalZoom(spacer) : 1;
+  const rectTop = rect.top * scale;
+  const rectHeight = rect.height * scale;
   const height = parseFloat(spacer.style.height) || rect.height || 1;
-  const local = (event.clientY - rect.top) * (height / (rect.height || height));
+  const local = (event.clientY - rectTop) * (height / (rectHeight || height));
   const before = local < Number(spacer.dataset.split);
   // Inside a paragraph the page's last line ends at the same position the next
   // page's first line starts, and the caret there is drawn on the next page;
@@ -552,6 +559,16 @@ function clickSpacer(view: EditorView, event: MouseEvent) {
   view.focus();
   view.dispatch(view.state.tr.setSelection(selection).scrollIntoView());
   return true;
+}
+
+/** Where a table right-click lands. Under native WebKit zoom, posAtCoords compares unzoomed block
+ * rects with drawn px and answers "after the table" (OF7), so when it misses the cell the clicked
+ * cell's own start is used. Chromium and zoom 1 keep the old rule (posAtCoords, else the cell). */
+export function menuPositionInCell(view: EditorView, cell: Element, x: number, y: number, inCell: ($pos: ResolvedPos) => boolean): number {
+  const at = view.posAtCoords({ left: x, top: y })?.pos;
+  if (at == null) return view.posAtDOM(cell, 0);
+  if (reportsUnzoomedRects() && totalZoom(cell) !== 1 && !inCell(view.state.doc.resolve(at))) return view.posAtDOM(cell, 0);
+  return at;
 }
 
 /**

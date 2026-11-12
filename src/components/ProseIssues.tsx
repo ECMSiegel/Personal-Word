@@ -36,16 +36,15 @@ export function ProseIssues({
   const pageCount = Math.max(1, Math.ceil(visible.length / pageSize));
   const currentPage = Math.min(page, pageCount - 1);
   const rows = visible.slice(currentPage * pageSize, (currentPage + 1) * pageSize);
-  const counts = RULE_LABELS.map(([kind, label]) => [label, issues.filter(issue => issue.kind === kind).length] as const);
 
   return <section className="prose-issues-panel" aria-label="Prose issues">
-    {RULE_LABELS.map(([kind, label]) => <label className="toolbar-field" key={kind}>
+    {RULE_LABELS.map(([kind, label]) => <label className="toolbar-field prose-rule" key={kind}>
       <span>{label}</span>
-      <input type="checkbox" checked={rules[kind]} onChange={event => onRuleChange(kind, event.currentTarget.checked)} />
+      <span className="prose-rule-count">{issues.filter(issue => issue.kind === kind).length.toLocaleString()}</span>
+      <input type="checkbox" aria-label={label} checked={rules[kind]} onChange={event => onRuleChange(kind, event.currentTarget.checked)} />
     </label>)}
-    <div className="toolbar-field-title" aria-live="polite" style={{ whiteSpace: "normal", overflowWrap: "anywhere" }}>
-      {unavailable ? "Prose check is unavailable in this browser." : pending ? "Analyzing prose…" : `${rows.length.toLocaleString()} shown on this page -- ${visible.length.toLocaleString()} total issues`}
-      {!unavailable && !pending && ` -- ${counts.map(([label, count]) => `${label} ${count}`).join(" -- ")}`}
+    <div className="toolbar-field-title" aria-live="polite">
+      {unavailable ? "Prose check is unavailable in this browser." : pending ? "Analyzing prose…" : visible.length === 1 ? "1 issue" : `${visible.length.toLocaleString()} issues`}
     </div>
     <div className="prose-issues" aria-busy={pending}>
       {!unavailable && !pending && rows.map(issue => <div className="prose-issue-row" key={issue.id ?? `${issue.from}-${issue.kind}`}>
@@ -56,7 +55,7 @@ export function ProseIssues({
       </div>)}
       {!unavailable && !pending && visible.length === 0 && <span className="toolbar-field-title">No issues found.</span>}
     </div>
-    {!unavailable && <div className="prose-issue-pagination">
+    {!unavailable && pageCount > 1 && <div className="prose-issue-pagination">
       <button type="button" className="toolbar-text-button" aria-label="Previous issue page" disabled={currentPage === 0} onClick={() => onPageChange(currentPage - 1)}>Previous</button>
       <span aria-live="polite">Page {currentPage + 1} of {pageCount}</span>
       <button type="button" className="toolbar-text-button" aria-label="Next issue page" disabled={currentPage + 1 >= pageCount} onClick={() => onPageChange(currentPage + 1)}>Next</button>

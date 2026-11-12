@@ -4,7 +4,9 @@ mod lookup;
 mod zotero;
 mod assets;
 mod dropped;
+mod fonts;
 mod store;
+mod sysfonts;
 // Layout L1 print probe: the command is registered only in native-smoke builds.
 #[cfg_attr(not(feature = "native-smoke"), allow(dead_code))]
 mod printing;
@@ -254,6 +256,12 @@ pub fn run() {
         zotero::zotero_read,
         dropped::read_dropped_file,
         dropped::read_dropped_pdf,
+        fonts::font_add,
+        fonts::font_list,
+        fonts::font_read,
+        fonts::font_remove,
+        sysfonts::system_font_families,
+        sysfonts::system_font_file,
         smoke::smoke_report,
         smoke::diagnostic_profile_identity,
         smoke::smoke_close_window,
@@ -288,7 +296,13 @@ pub fn run() {
         lookup::lookup_fetch,
         zotero::zotero_read,
         dropped::read_dropped_file,
-        dropped::read_dropped_pdf
+        dropped::read_dropped_pdf,
+        fonts::font_add,
+        fonts::font_list,
+        fonts::font_read,
+        fonts::font_remove,
+        sysfonts::system_font_families,
+        sysfonts::system_font_file,
     ]);
     // The one window-event handler for both builds: remember the latest drop's
     // paths so read_dropped_file can read only those.

@@ -142,7 +142,7 @@ export function ContextMenu({
       aria-label={label}
       tabIndex={-1}
       aria-activedescendant={highlight >= 0 ? `${id}-${highlight}` : undefined}
-      data-animate={viaKeyboard ? undefined : ""}
+      data-animate={viaKeyboard || window.matchMedia("(prefers-reduced-motion: reduce)").matches ? undefined : ""}
       data-shown={shown ? "" : undefined}
       onKeyDown={onKeyDown}
       onContextMenu={(e) => e.preventDefault()}

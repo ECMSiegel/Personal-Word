@@ -1,0 +1,25 @@
+
+ RUN  v4.1.11 /Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor
+
+ ❯ src/derived/footnoteLocations.test.ts (0 test)
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/derived/footnoteLocations.test.ts [ src/derived/footnoteLocations.test.ts ]
+Error: Cannot find module './footnoteLocations' imported from /Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/src/derived/footnoteLocations.test.ts
+ ❯ src/derived/footnoteLocations.test.ts:3:1
+      1| import { describe, expect, it } from "vitest";
+      2| import { entry, newProject } from "../model";
+      3| import { footnoteLocations } from "./footnoteLocations";
+       | ^
+      4|
+      5| function fixture() {
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  no tests
+   Start at  21:51:28
+   Duration  526ms (transform 134ms, setup 0ms, import 0ms, tests 0ms, environment 0ms)
+

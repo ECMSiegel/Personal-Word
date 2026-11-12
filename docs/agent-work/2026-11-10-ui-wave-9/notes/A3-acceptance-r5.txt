@@ -1,0 +1,202 @@
+
+Running 42 tests using 1 worker
+
+  ✓   1 tests/alignment.spec.ts:41:1 › sidebar labels at one depth start at one x (2.7s)
+  ✓   2 tests/alignment.spec.ts:83:1 › every icon button reaches a 24 x 24 target (3.4s)
+  ✓   3 tests/alignment.spec.ts:121:1 › counters ask for tabular figures (1.6s)
+  ✓   4 tests/alignment.spec.ts:138:1 › toolbar icon ink sits at its button centre (2.2s)
+  ✓   5 tests/alignment.spec.ts:200:1 › a separator draws one pixel of the line colour (1.6s)
+  ✓   6 tests/alignment.spec.ts:254:1 › hit-area rule leaves absolutely placed buttons absolute (1.9s)
+  ✓   7 tests/alignment.spec.ts:334:3 › sidebar bottom row and pane footer form one band (single) (1.8s)
+  ✓   8 tests/alignment.spec.ts:334:3 › sidebar bottom row and pane footer form one band (split) (3.3s)
+  ✓   9 tests/alignment.spec.ts:452:3 › every list row starts with a 16 px icon and one label x at 190 px (3.7s)
+  ✓  10 tests/alignment.spec.ts:452:3 › every list row starts with a 16 px icon and one label x at 270 px (4.6s)
+  ✓  11 tests/alignment.spec.ts:452:3 › every list row starts with a 16 px icon and one label x at 390 px (5.7s)
+  ✓  12 tests/alignment.spec.ts:510:1 › floating sidebar: with 40 notes the list ends above the bottom rows (2.6s)
+  ✓  13 tests/alignment.spec.ts:570:1 › T6 record: split view sidebar placement, pinned and overlay, at 1280 and 1600 (6.2s)
+  ✓  14 tests/sidebar-selection.spec.ts:61:1 › dragging across plain sidebar heading text does not select chrome (2.8s)
+  ✓  15 tests/sidebar-selection.spec.ts:79:1 › search, rename, editor, and prose preview text remain selectable (5.9s)
+  ✓  16 tests/sidebar-selection.spec.ts:167:1 › sidebar drag, resize, collapse, pin, and keyboard controls still work (6.0s)
+  ✓  17 tests/sidebar-selection.spec.ts:234:1 › at the 190 px minimum sidebar width every row stays on one line (2.0s)
+  ✓  18 tests/sidebar-selection.spec.ts:340:1 › bottom rows keep their fixed order and carry no hover actions (2.0s)
+  ✓  19 tests/sidebar-selection.spec.ts:370:1 › Option+Down on the last top group leaves the order and says it is already last (1.9s)
+  ✓  20 tests/sidebar-selection.spec.ts:386:1 › a hidden feature row leaves the sidebar, survives reload, and stays per project (3.5s)
+  ✘  21 tests/sidebar-selection.spec.ts:485:1 › W7 Plain: active heading is bold normal text; rows stay regular and reveal full colour (7.4s)
+  ✓  22 tests/sidebar-selection.spec.ts:553:3 › W7 Plain: nothing in the three sections is lit while Comments is on screen (2.5s)
+  ✓  23 tests/sidebar-selection.spec.ts:553:3 › W7 Plain: nothing in the three sections is lit while Read manuscript is on screen (2.3s)
+  ✓  24 tests/sidebar-selection.spec.ts:566:1 › W7 Plain: a clicked Bibliography row goes dim once the pointer leaves, and nothing in the three sections is lit (2.4s)
+  ✓  25 tests/sidebar-selection.spec.ts:581:1 › W7 resize handles stay unpainted on hover and retain keyboard focus cues (2.7s)
+  ✘  26 tests/sidebar-selection.spec.ts:622:5 › B1 plain light: split panes light their own sections; a source PDF lights Research (1.5m)
+  ✘  27 tests/sidebar-selection.spec.ts:622:5 › B1 plain dark: split panes light their own sections; a source PDF lights Research (1.5m)
+  ✘  28 tests/sidebar-selection.spec.ts:622:5 › B1 color light: split panes light their own sections; a source PDF lights Research (1.5m)
+  ✘  29 tests/sidebar-selection.spec.ts:622:5 › B1 color dark: split panes light their own sections; a source PDF lights Research (1.5m)
+  ✓  30 tests/sidebar-selection.spec.ts:692:1 › W7 T244: after the Manuscript heading, a fragment on screen leaves only Fragments bold (2.6s)
+  ✓  31 tests/sidebar-selection.spec.ts:766:5 › T6 plain @190px: heading actions in flow, no fill, clear of labels (1.5s)
+  ✓  32 tests/sidebar-selection.spec.ts:766:5 › T6 plain @240px: heading actions in flow, no fill, clear of labels (1.5s)
+  ✓  33 tests/sidebar-selection.spec.ts:766:5 › T6 plain @270px: heading actions in flow, no fill, clear of labels (1.5s)
+  ✓  34 tests/sidebar-selection.spec.ts:766:5 › T6 plain @390px: heading actions in flow, no fill, clear of labels (1.6s)
+  ✓  35 tests/sidebar-selection.spec.ts:766:5 › T6 color @190px: heading actions in flow, no fill, clear of labels (1.5s)
+  ✓  36 tests/sidebar-selection.spec.ts:766:5 › T6 color @240px: heading actions in flow, no fill, clear of labels (1.5s)
+  ✓  37 tests/sidebar-selection.spec.ts:766:5 › T6 color @270px: heading actions in flow, no fill, clear of labels (1.6s)
+  ✓  38 tests/sidebar-selection.spec.ts:766:5 › T6 color @390px: heading actions in flow, no fill, clear of labels (1.5s)
+  ✓  39 tests/sidebar-selection.spec.ts:806:3 › sidebar row and header geometry (W7 T247) › bottom rows sit evenly between their dividers and share one icon and label column (1.6s)
+  ✓  40 tests/sidebar-selection.spec.ts:847:3 › sidebar row and header geometry (W7 T247) › a bottom group's own list stacks below its heading, inside the sidebar (1.8s)
+  ✓  41 tests/sidebar-selection.spec.ts:870:3 › sidebar row and header geometry (W7 T247) › the split icon keeps one token gap from the rail in every list row (2.1s)
+  ✓  42 tests/sidebar-selection.spec.ts:916:3 › sidebar row and header geometry (W7 T247) › section chevrons share one right-hand column, stay rightmost, and ignore the revealed view and add buttons (1.8s)
+
+
+  1) tests/sidebar-selection.spec.ts:485:1 › W7 Plain: active heading is bold normal text; rows stay regular and reveal full colour 
+
+    Error: expect(locator).toHaveCSS(expected) failed
+
+    Locator: locator('.sidebar-group[data-group="manuscript"] .entry-row').first().locator('.entry-main')
+    Expected pattern: /matrix\(1\.04, 0, 0, 1\.04/
+    Received string:  "matrix(1, 0, 0, 1, 0, 0)"
+    Timeout: 5000ms
+
+    Call log:
+      - Expect "toHaveCSS" locator('.sidebar-group[data-group="manuscript"] .entry-row').first().locator('.entry-main') with timeout 5000ms
+      - waiting for locator('.sidebar-group[data-group="manuscript"] .entry-row').first().locator('.entry-main')
+        14 × locator resolved to <button class="entry-main" data-row-id="49b7882f-1972-46ee-8ad9-09dcfb23b5cd">…</button>
+           - unexpected value "matrix(1, 0, 0, 1, 0, 0)"
+
+
+      516 |   const main = first.locator(".entry-main");
+      517 |   await main.hover();
+    > 518 |   await expect(main).toHaveCSS("transform", /matrix\(1\.04, 0, 0, 1\.04/);
+          |                      ^
+      519 |   expect(await main.evaluate((el) => parseFloat(getComputedStyle(el).webkitTextStrokeWidth))).toBeGreaterThan(0);
+      520 |   await expect(main).toHaveCSS("color", "rgb(36, 36, 40)");
+      521 |   await expect(main).toHaveCSS("font-weight", "400");
+        at /Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/tests/sidebar-selection.spec.ts:518:22
+
+    Error Context: test-results/T257/sidebar-selection-W7-Plain-b2d51-ular-and-reveal-full-colour/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/T257/sidebar-selection-W7-Plain-b2d51-ular-and-reveal-full-colour/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/T257/sidebar-selection-W7-Plain-b2d51-ular-and-reveal-full-colour/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/sidebar-selection.spec.ts:622:5 › B1 plain light: split panes light their own sections; a source PDF lights Research 
+
+    Test timeout of 90000ms exceeded.
+
+    Error: locator.click: Test timeout of 90000ms exceeded.
+    Call log:
+      - waiting for locator('.source-item').filter({ hasText: 'Lit source' }).getByRole('button', { name: 'Open beside' })
+
+
+      678 |         buffer: PDF_BYTES,
+      679 |       });
+    > 680 |       await source.getByRole("button", { name: "Open beside" }).click();
+          |                                                                 ^
+      681 |       await expect(page.locator('iframe[title="PDF: lit.pdf"]')).toBeVisible();
+      682 |       await expectHeader(page, "research", true);
+      683 |       await expectHeader(page, "fragments", false);
+        at /Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/tests/sidebar-selection.spec.ts:680:65
+
+    Error Context: test-results/T257/sidebar-selection-B1-plain-431e8--source-PDF-lights-Research/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/T257/sidebar-selection-B1-plain-431e8--source-PDF-lights-Research/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/T257/sidebar-selection-B1-plain-431e8--source-PDF-lights-Research/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) tests/sidebar-selection.spec.ts:622:5 › B1 plain dark: split panes light their own sections; a source PDF lights Research 
+
+    Test timeout of 90000ms exceeded.
+
+    Error: locator.click: Test timeout of 90000ms exceeded.
+    Call log:
+      - waiting for locator('.source-item').filter({ hasText: 'Lit source' }).getByRole('button', { name: 'Open beside' })
+
+
+      678 |         buffer: PDF_BYTES,
+      679 |       });
+    > 680 |       await source.getByRole("button", { name: "Open beside" }).click();
+          |                                                                 ^
+      681 |       await expect(page.locator('iframe[title="PDF: lit.pdf"]')).toBeVisible();
+      682 |       await expectHeader(page, "research", true);
+      683 |       await expectHeader(page, "fragments", false);
+        at /Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/tests/sidebar-selection.spec.ts:680:65
+
+    Error Context: test-results/T257/sidebar-selection-B1-plain-6a3c7--source-PDF-lights-Research/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/T257/sidebar-selection-B1-plain-6a3c7--source-PDF-lights-Research/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/T257/sidebar-selection-B1-plain-6a3c7--source-PDF-lights-Research/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) tests/sidebar-selection.spec.ts:622:5 › B1 color light: split panes light their own sections; a source PDF lights Research 
+
+    Test timeout of 90000ms exceeded.
+
+    Error: locator.click: Test timeout of 90000ms exceeded.
+    Call log:
+      - waiting for locator('.source-item').filter({ hasText: 'Lit source' }).getByRole('button', { name: 'Open beside' })
+
+
+      678 |         buffer: PDF_BYTES,
+      679 |       });
+    > 680 |       await source.getByRole("button", { name: "Open beside" }).click();
+          |                                                                 ^
+      681 |       await expect(page.locator('iframe[title="PDF: lit.pdf"]')).toBeVisible();
+      682 |       await expectHeader(page, "research", true);
+      683 |       await expectHeader(page, "fragments", false);
+        at /Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/tests/sidebar-selection.spec.ts:680:65
+
+    Error Context: test-results/T257/sidebar-selection-B1-color-51af8--source-PDF-lights-Research/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/T257/sidebar-selection-B1-color-51af8--source-PDF-lights-Research/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/T257/sidebar-selection-B1-color-51af8--source-PDF-lights-Research/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  5) tests/sidebar-selection.spec.ts:622:5 › B1 color dark: split panes light their own sections; a source PDF lights Research 
+
+    Test timeout of 90000ms exceeded.
+
+    Error: locator.click: Test timeout of 90000ms exceeded.
+    Call log:
+      - waiting for locator('.source-item').filter({ hasText: 'Lit source' }).getByRole('button', { name: 'Open beside' })
+
+
+      678 |         buffer: PDF_BYTES,
+      679 |       });
+    > 680 |       await source.getByRole("button", { name: "Open beside" }).click();
+          |                                                                 ^
+      681 |       await expect(page.locator('iframe[title="PDF: lit.pdf"]')).toBeVisible();
+      682 |       await expectHeader(page, "research", true);
+      683 |       await expectHeader(page, "fragments", false);
+        at /Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/tests/sidebar-selection.spec.ts:680:65
+
+    Error Context: test-results/T257/sidebar-selection-B1-color-6edba--source-PDF-lights-Research/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/T257/sidebar-selection-B1-color-6edba--source-PDF-lights-Research/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/T257/sidebar-selection-B1-color-6edba--source-PDF-lights-Research/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  5 failed
+    tests/sidebar-selection.spec.ts:485:1 › W7 Plain: active heading is bold normal text; rows stay regular and reveal full colour 
+    tests/sidebar-selection.spec.ts:622:5 › B1 plain light: split panes light their own sections; a source PDF lights Research 
+    tests/sidebar-selection.spec.ts:622:5 › B1 plain dark: split panes light their own sections; a source PDF lights Research 
+    tests/sidebar-selection.spec.ts:622:5 › B1 color light: split panes light their own sections; a source PDF lights Research 
+    tests/sidebar-selection.spec.ts:622:5 › B1 color dark: split panes light their own sections; a source PDF lights Research 
+  37 passed (8.0m)
+EXIT=1

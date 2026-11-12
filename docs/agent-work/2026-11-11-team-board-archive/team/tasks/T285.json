@@ -1,0 +1,81 @@
+{
+  "id": "T285",
+  "title": "OF2 -- Floating sidebar: the project title must not move when a fragment is open",
+  "description": "Screenshots 2.webp (a manuscript section) and 3.webp (a fragment) in docs/agent-work/2026-11-11-owner-fixes/, plus 12.png and 13.png (the title crops). Owner: 'with the floating sidebar, in a fragment, the title on the left corner gets moved a bit. spacing isn't right'. With Settings > Floating sidebar on, opening a fragment shows the strip 'Kept from <section> -- <date>' (src/App.tsx about line 1902) and the project title / top-left block and the grey area's top edge end up at a different position than for a manuscript section. Measure the title's bounding box and the sidebar's top in both states, find the rule that differs, and make them identical; the strip itself stays. Likely files: src/styles.css and src/App.tsx, both shared (Edit tool, small regions, re-read first; do not register them). New spec tests/of2-fragment-title.spec.ts asserting the title's x and y are equal (within 0.5 px) for a section and a fragment in floating mode, shown failing first; copy floating-mode setup from tests/floating.spec.ts. Port 1452. Owner hand-test report 2026-11-11 (he tried the real app; his report outranks any passing test). Rules: node_modules/.cache/personal-word-beta/w9-brief.md, with notes in docs/agent-work/2026-11-11-owner-fixes/notes/<task>.md instead of the wave 9 notes folder. Before your first browser run, grep tests/ for every selector, label and class you change and update the specs that pin them (register each first). Run unit tests and tsc before any trip through the serial lock. Do not edit docs/*.md or AGENTS.md. No commits.",
+  "status": "done",
+  "owner": null,
+  "priority": 2,
+  "depends_on": [],
+  "files": [
+    "tests/of2-fragment-title.spec.ts",
+    "docs/agent-work/2026-11-11-owner-fixes/notes/OF2.md",
+    "docs/agent-work/2026-11-11-owner-fixes/notes/OF2-fail-first.txt",
+    "src/components/floating.css"
+  ],
+  "review_required": true,
+  "created_by": "agent-a63f",
+  "created_at": "2026-11-11T19:54:36+00:00",
+  "claimed_at": "2026-11-11T20:07:18+00:00",
+  "updated_at": "2026-11-11T21:49:00+00:00",
+  "handoff": {
+    "by": "agent-f54a",
+    "at": "2026-11-11T20:06:48+00:00",
+    "text": "Done: claimed/started T285. Wrote tests/of2-fragment-title.spec.ts (section vs fragment in floating page view, port 1452, asserts title x/y and sidebar top equal within 0.5 px, logs positions). Spec NOT yet run: no fail-first output exists.\nQueued: background job waiting on the serial lock (held by agent-6794 T286). Log: node_modules/.cache/personal-word-beta/of2/run1.log, ends with PW_EXIT and EXIT lines. Leave it running.\ntsc: npx tsc -b exit 1, 2 errors in files I do not own: src/editor/pagination.ts(558,107) ResolvedPos; src/editor/pagination.test.ts(250,71) PluginKey.key. Not fixed. Log: node_modules/.cache/personal-word-beta/of2/tsc.log\nLead, unconfirmed: documentEdges() in src/components/floating.ts uses format-bar bottom, or the focused writer band when .writer[data-focus-toolbar] exists; the Kept-from strip may switch the branch. Next action: read run1.log for the before/after numbers, then fix with a small edit.\nNo app files changed (src/styles.css, src/App.tsx, floating.ts untouched). No commits. No docs edited.\nPath state:\ntests/of2-fragment-title.spec.ts: uncommitted edits\ndocs/agent-work/2026-11-11-owner-fixes/notes/OF2.md: clean (not yet written)"
+  },
+  "review": {
+    "by": "agent-17f6",
+    "at": "2026-11-11T21:49:00+00:00",
+    "verdict": "approved",
+    "note": "Reading convincing: owner screenshots 2.webp/3.webp have identical title ink box (x15-82,y62-72); only the white band behind the title differs. floating.css rule uses the desk token. of2 spec passes. See docs/agent-work/2026-11-11-owner-fixes/REVIEW-r1.md"
+  },
+  "log": [
+    {
+      "at": "2026-11-11T19:54:36+00:00",
+      "agent": "agent-a63f",
+      "event": "created",
+      "note": ""
+    },
+    {
+      "at": "2026-11-11T19:56:54+00:00",
+      "agent": "agent-f54a",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-11-11T19:57:00+00:00",
+      "agent": "agent-f54a",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-11-11T20:06:48+00:00",
+      "agent": "agent-f54a",
+      "event": "handoff",
+      "note": "Done: claimed/started T285. Wrote tests/of2-fragment-title.spec.ts (section vs fragment in floating page view, port 1452, asserts title x/y and sidebar top equal within 0.5 px, logs positions). Spec NOT yet run: no fail-first output exists.\nQueued: background job waiting on the serial lock (held by agent-6794 T286). Log: node_modules/.cache/personal-word-beta/of2/run1.log, ends with PW_EXIT and EXIT lines. Leave it running.\ntsc: npx tsc -b exit 1, 2 errors in files I do not own: src/editor/pagination.ts(558,107) ResolvedPos; src/editor/pagination.test.ts(250,71) PluginKey.key. Not fixed. Log: node_modules/.cache/personal-word-beta/of2/tsc.log\nLead, unconfirmed: documentEdges() in src/components/floating.ts uses format-bar bottom, or the focused writer band when .writer[data-focus-toolbar] exists; the Kept-from strip may switch the branch. Next action: read run1.log for the before/after numbers, then fix with a small edit.\nNo app files changed (src/styles.css, src/App.tsx, floating.ts untouched). No commits. No docs edited.\nPath state:\ntests/of2-fragment-title.spec.ts: uncommitted edits\ndocs/agent-work/2026-11-11-owner-fixes/notes/OF2.md: clean (not yet written)"
+    },
+    {
+      "at": "2026-11-11T20:07:18+00:00",
+      "agent": "agent-985f",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-11-11T20:07:21+00:00",
+      "agent": "agent-985f",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-11-11T21:33:02+00:00",
+      "agent": "agent-985f",
+      "event": "review requested",
+      "note": "Cause: title/sidebar positions identical (x12,y130,top114) in section vs fragment; the 'Kept from' strip sat on white (255) above grey desk (245,245,247) behind the floating title. Fix: one rule in src/components/floating.css makes paged .writer-scroll desk-coloured when floating. Fail-first: notes/OF2-fail-first.txt. tests/of2-fragment-title.spec.ts + tests/floating.spec.ts: 40 passed. tsc not rerun (CSS only); T290 errors unrelated."
+    },
+    {
+      "at": "2026-11-11T21:49:00+00:00",
+      "agent": "agent-17f6",
+      "event": "approved",
+      "note": "Reading convincing: owner screenshots 2.webp/3.webp have identical title ink box (x15-82,y62-72); only the white band behind the title differs. floating.css rule uses the desk token. of2 spec passes. See docs/agent-work/2026-11-11-owner-fixes/REVIEW-r1.md"
+    }
+  ]
+}

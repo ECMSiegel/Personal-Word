@@ -1,0 +1,7 @@
+light: pdfProbe {"contentType": "application/pdf", "embedType": "application/pdf", "height": 538, "width": 622}
+light: captured projects, writing, writing-pages, research, settings, pdf-preview, floating-sidebar, floating-card
+light: states 31/31
+dark: pdfProbe {"contentType": "application/pdf", "embedType": "application/pdf", "height": 538, "width": 622}
+dark: captured projects, writing, writing-pages, research, settings, pdf-preview, floating-sidebar, floating-card
+dark: states 31/31
+16 native screenshots written to node_modules/.cache/personal-word-beta/of-n/screens-plain

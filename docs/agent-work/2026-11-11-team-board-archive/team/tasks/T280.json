@@ -1,0 +1,60 @@
+{
+  "id": "T280",
+  "title": "W9 F2 -- Fix four browser specs found by validation (REVIEW.md A2, A3, A4, A6)",
+  "description": "Spec-only; change NO app code and do NOT touch tests/fixtures/popover-baseline-rects.json (that is A1, waiting for the owner). Follow the work orders A2, A3, A4 and A6 in docs/agent-work/2026-11-10-ui-wave-9/REVIEW.md exactly. A2: tests/w9-research-panel.spec.ts lines 92-93 expect 1 Used-in location and 1 Go to. A3: tests/w9-settings-nav.spec.ts:100 must not import /src; drive the real path (Export menu, then Export settings...); obey its stop-and-report line. A4: tests/w9-export-menu.spec.ts:55 wait for the first row to have focus before sending arrow keys. A6: tests/popover-bounds.spec.ts:57 add the waits REVIEW.md names. Verify on the BUILT app (dist/ exists; do not rebuild): PLAYWRIGHT_PREVIEW=1 PLAYWRIGHT_PORT=1420 npx playwright test <the four files> --trace off --repeat-each 5 --output test-results/F2 under the serial lock; A2-A4 and popover-bounds:57 must pass 5 of 5 (popover-bounds:174 stays red until A1). Also run them once on the dev server (no PLAYWRIGHT_PREVIEW, PLAYWRIGHT_PORT=1448). Write notes/F2.md. No commits.",
+  "status": "done",
+  "owner": null,
+  "priority": 1,
+  "depends_on": [],
+  "files": [
+    "tests/w9-research-panel.spec.ts",
+    "tests/w9-settings-nav.spec.ts",
+    "tests/w9-export-menu.spec.ts",
+    "tests/popover-bounds.spec.ts",
+    "docs/agent-work/2026-11-10-ui-wave-9/notes/F2.md"
+  ],
+  "review_required": true,
+  "created_by": "agent-a63f",
+  "created_at": "2026-11-11T06:04:41+00:00",
+  "claimed_at": "2026-11-11T06:05:19+00:00",
+  "updated_at": "2026-11-11T06:17:48+00:00",
+  "handoff": null,
+  "review": {
+    "by": "agent-23c2",
+    "at": "2026-11-11T06:17:48+00:00",
+    "verdict": "approved",
+    "note": "Approved (agent-23c2). Spec-only confirmed: no src/ or src-tauri/ file modified in the F2 window (only the four specs; T281's src/fonts files are separate); tests/fixtures/popover-baseline-rects.json has no diff (mtime Nov 3). Three specs are untracked, so I checked test lists against the pre-F2 run (w9-v/step4-e2e.log): same 16 tests, same titles, nothing dropped or skipped; no .only/.skip/.fixme, no /src/ import; the only waitForTimeout calls (popover-bounds:204,227) are pre-existing. A2 matches the work order word for word (1 .footnote-where matching /^in \\S/, 1 Go to). A3 matches: no module import; Export button -> 'Export settings...' -> poll 'Export document' h2 within 60 px of the strip. It still tests S1's same-tick case: line 104 proves Settings is not mounted, App.tsx:2446-2449 calls goToDestination then scrollToSettingsSection in one tick, so the MutationObserver path must fire; Export document is the last section, so it cannot be within 60 px of the strip without that scroll. A4 matches: waits for first-row focus after Cmd+Shift+E and asserts Plain text focused before Enter; no sleep, nothing weakened. A6 matches: getAnimations()==0 wait after the three aside checks, expect.poll on the three menu-in-aside checks, narrow one before menuRect. Rerun on the built app: PLAYWRIGHT_PREVIEW=1 PLAYWRIGHT_PORT=1420, 4 files --repeat-each 3: 46 passed, 2 failed, both popover-bounds:178 'Prose check height changed' 86 (A1, expected). Log node_modules/.cache/personal-word-beta/r4-23c2/T280-pw.log. FLAG for A1 (not T280's fault): in repeat 3 the A1 baseline test PASSED against the old 232 baseline, so the Prose check popover height is not stable run to run; changing the fixture to 146 may then fail intermittently. Rerun A1 with --repeat-each 5 or more after the fixture change before trusting it. Export menu one-frame gap: leave it (not user-visible); if the owner wants it closed, ExportMenu.tsx:47-50 can use useLayoutEffect and focus items()[0] with {preventScroll:true} directly (rows are mounted synchronously by usePresence, so this is safe), then npm run build and rerun w9-export-menu."
+  },
+  "log": [
+    {
+      "at": "2026-11-11T06:04:41+00:00",
+      "agent": "agent-a63f",
+      "event": "created",
+      "note": ""
+    },
+    {
+      "at": "2026-11-11T06:05:19+00:00",
+      "agent": "agent-b878",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-11-11T06:05:19+00:00",
+      "agent": "agent-b878",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-11-11T06:12:32+00:00",
+      "agent": "agent-b878",
+      "event": "review requested",
+      "note": "Spec-only: A2 (research panel expects 1 Used-in + 1 Go to), A3 (settings-nav drives Export menu > Export settings...), A4 (export-menu waits for focus), A6 (popover-bounds animation wait + expect.poll). Preview x5 on 4 files: 75 passed, 5 failed = only the A1 baseline test (Prose check height 86). Dev once: 15 passed, 1 failed (same A1 test). Logs in node_modules/.cache/personal-word-beta/f2/. A4: real one-frame gap in ExportMenu focus (rAF); keys within ~16ms of Cmd+Shift+E land on Export button; app unchanged. Notes: notes/F2.md"
+    },
+    {
+      "at": "2026-11-11T06:17:48+00:00",
+      "agent": "agent-23c2",
+      "event": "approved",
+      "note": "Approved (agent-23c2). Spec-only confirmed: no src/ or src-tauri/ file modified in the F2 window (only the four specs; T281's src/fonts files are separate); tests/fixtures/popover-baseline-rects.json has no diff (mtime Nov 3). Three specs are untracked, so I checked test lists against the pre-F2 run (w9-v/step4-e2e.log): same 16 tests, same titles, nothing dropped or skipped; no .only/.skip/.fixme, no /src/ import; the only waitForTimeout calls (popover-bounds:204,227) are pre-existing. A2 matches the work order word for word (1 .footnote-where matching /^in \\S/, 1 Go to). A3 matches: no module import; Export button -> 'Export settings...' -> poll 'Export document' h2 within 60 px of the strip. It still tests S1's same-tick case: line 104 proves Settings is not mounted, App.tsx:2446-2449 calls goToDestination then scrollToSettingsSection in one tick, so the MutationObserver path must fire; Export document is the last section, so it cannot be within 60 px of the strip without that scroll. A4 matches: waits for first-row focus after Cmd+Shift+E and asserts Plain text focused before Enter; no sleep, nothing weakened. A6 matches: getAnimations()==0 wait after the three aside checks, expect.poll on the three menu-in-aside checks, narrow one before menuRect. Rerun on the built app: PLAYWRIGHT_PREVIEW=1 PLAYWRIGHT_PORT=1420, 4 files --repeat-each 3: 46 passed, 2 failed, both popover-bounds:178 'Prose check height changed' 86 (A1, expected). Log node_modules/.cache/personal-word-beta/r4-23c2/T280-pw.log. FLAG for A1 (not T280's fault): in repeat 3 the A1 baseline test PASSED against the old 232 baseline, so the Prose check popover height is not stable run to run; changing the fixture to 146 may then fail intermittently. Rerun A1 with --repeat-each 5 or more after the fixture change before trusting it. Export menu one-frame gap: leave it (not user-visible); if the owner wants it closed, ExportMenu.tsx:47-50 can use useLayoutEffect and focus items()[0] with {preventScroll:true} directly (rows are mounted synchronously by usePresence, so this is safe), then npm run build and rerun w9-export-menu."
+    }
+  ]
+}

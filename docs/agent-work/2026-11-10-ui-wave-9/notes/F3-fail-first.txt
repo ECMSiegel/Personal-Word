@@ -1,0 +1,66 @@
+
+ RUN  v4.1.11 /Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor
+
+ ❯ src/fonts/registry.test.ts (6 tests | 3 failed) 15ms
+     × applies the saved font before the font lists resolve 7ms
+     × keeps a saved installed font when the installed-font list failed 3ms
+     × keeps the saved font when the installed list is empty 1ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/fonts/registry.test.ts > initFonts saved interface font > applies the saved font before the font lists resolve
+AssertionError: expected '' to be '"Menlo", sans-serif' // Object.is equality
+
+- Expected
++ Received
+
+- "Menlo", sans-serif
+
+ ❯ src/fonts/registry.test.ts:38:22
+     36|     vi.mocked(listSystemFamilies).mockReturnValue(new Promise<string[]…
+     37|     const pending = initFonts();
+     38|     expect(uiFont()).toBe(MENLO);
+       |                      ^
+     39|     release(["Menlo"]);
+     40|     await pending;
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/3]⎯
+
+ FAIL  src/fonts/registry.test.ts > initFonts saved interface font > keeps a saved installed font when the installed-font list failed
+AssertionError: expected 'Futura, "Avenir Next", -apple-system,…' to be '"Menlo", sans-serif' // Object.is equality
+
+Expected: ""Menlo", sans-serif"
+Received: "Futura, "Avenir Next", -apple-system, BlinkMacSystemFont, sans-serif"
+
+ ❯ src/fonts/registry.test.ts:49:39
+     47|     vi.mocked(listSystemFamilies).mockRejectedValue(new Error("ipc fai…
+     48|     await initFonts();
+     49|     expect(localStorage.getItem(KEY)).toBe(MENLO);
+       |                                       ^
+     50|     expect(uiFont()).toBe(MENLO);
+     51|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/3]⎯
+
+ FAIL  src/fonts/registry.test.ts > initFonts saved interface font > keeps the saved font when the installed list is empty
+AssertionError: expected 'Futura, "Avenir Next", -apple-system,…' to be '"Menlo", sans-serif' // Object.is equality
+
+Expected: ""Menlo", sans-serif"
+Received: "Futura, "Avenir Next", -apple-system, BlinkMacSystemFont, sans-serif"
+
+ ❯ src/fonts/registry.test.ts:58:39
+     56|     vi.mocked(listSystemFamilies).mockResolvedValue([]);
+     57|     await initFonts();
+     58|     expect(localStorage.getItem(KEY)).toBe(MENLO);
+       |                                       ^
+     59|   });
+     60|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/3]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  3 failed | 3 passed (6)
+   Start at  01:05:42
+   Duration  273ms (transform 68ms, setup 0ms, import 94ms, tests 15ms, environment 0ms)
+

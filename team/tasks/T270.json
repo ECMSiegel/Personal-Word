@@ -1,0 +1,88 @@
+{
+  "id": "T270",
+  "title": "W9 C7 -- Embed applied fonts in Word export",
+  "description": "Follow section '### C7 --' of docs/agent-work/2026-11-10-ui-wave-9/PLAN.md exactly, plus its 'Rules for every worker'. Verify: vitest src/export passes, including existing Word tests. No browser tests. No commits, no new packages, never run npm run build or a native screen script. Write the note docs/agent-work/2026-11-10-ui-wave-9/notes/C7.md.",
+  "status": "done",
+  "owner": null,
+  "priority": 2,
+  "depends_on": [
+    "T254"
+  ],
+  "files": [
+    "src/export/docx.ts",
+    "src/export/docx-fonts.test.ts",
+    "docs/agent-work/2026-11-10-ui-wave-9/notes/C7.md"
+  ],
+  "review_required": true,
+  "created_by": "agent-b307",
+  "created_at": "2026-11-10T22:24:39+00:00",
+  "claimed_at": "2026-11-11T01:32:11+00:00",
+  "updated_at": "2026-11-11T02:51:35+00:00",
+  "handoff": {
+    "by": "agent-26ce",
+    "at": "2026-11-11T01:26:33+00:00",
+    "text": "Rejected on one plan-default gap that can make Word export worse than today. The rest is right: triples are collected from body, nested tables and notes and resolved once; only 'installable' and 'editable' fonts are embedded; one entry per family, preferring regular; run names are written as before; fail-first is 3/6 before and 6/6 after. FINDING 1 (blocking): the plan's stop rule 'embedding an .otf makes the library throw' was neither tested nor defaulted, and the note says a Packer throw is not caught, so one font would fail the whole .docx export. The owner is away, so apply the plan's default: embed TrueType only. Check the bytes' first four bytes are 00 01 00 00 or 'true'; skip 'OTTO' (CFF) and anything else. Also guard the pack step: if Packer.toBlob throws while fonts are set, rebuild once without the fonts option so the export still succeeds exactly as today. Add unit tests: (i) a resolved font whose bytes start with 'OTTO' is not embedded and the export succeeds; (ii) a Packer failure caused by a bad font falls back to a no-fonts export, for example a source returning installable bytes that docx cannot use, or a stubbed Packer that throws only when fonts is set. Show both fail before the guard. Record 'embedded fonts: TrueType only' in C7.md for docs/limitations.md (D1). FINDING 2 (note only): FontOptions.data is typed Buffer and Uint8Array is cast to it; this was checked only in Node. The finding-1 fallback makes a browser-side failure harmless. Say in C7.md that the WebKit build was not checked, and add it to the hand check for the final owner-present task (T278). Rerun npx vitest run src/export and npx tsc -b and report the counts."
+  },
+  "review": {
+    "by": "agent-2ff3",
+    "at": "2026-11-11T02:51:35+00:00",
+    "verdict": "approved",
+    "note": "Approved (agent-2ff3, W9 reviewer r2). Earlier rejection demands met: (1) TrueType only: isTrueType in src/export/docx.ts checks the first four bytes 00 01 00 00 or 'true'; OTTO/CFF, WOFF and anything else are skipped while run names are still written; (2) pack guard: Packer.toBlob(buildDoc(fonts)) in try, on a throw with fonts set it rebuilds once with no fonts (a throw with no fonts is rethrown, as before); (3) Uint8Array-as-Buffer still Node-only, now stated in C7.md and handed to T278 as a hand check, and the fallback makes a browser-side throw harmless. New tests really test it: the OTTO case would embed one file without isTrueType; the fallback case uses a docx stub whose Packer throws only when 'Poison Face' is in fonts, so it fails without the guard (worker's fail-first: 2 failed | 6 passed before). Fixture switch from the bundled WOFF to synthetic TTF bytes is justified (WOFF is not TrueType); old expectations unchanged. Plan steps 3-4 met (triples from body, nested tables and notes, resolved once; installable/editable only; one entry per family, regular preferred; run names untouched). Fresh runs: npx vitest run src/export -> 10 files, 175/175 passed; npx tsc -b -> exit 0. For D1: 'embedded fonts: TrueType only'. For T278: export a .docx with an added TrueType font in the built app (WebKit) and open it in Word and Pages; a silent fallback there would mean the font is simply not embedded."
+  },
+  "log": [
+    {
+      "at": "2026-11-10T22:24:39+00:00",
+      "agent": "agent-b307",
+      "event": "created",
+      "note": ""
+    },
+    {
+      "at": "2026-11-11T01:21:09+00:00",
+      "agent": "agent-e113",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-11-11T01:21:10+00:00",
+      "agent": "agent-e113",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-11-11T01:25:26+00:00",
+      "agent": "agent-e113",
+      "event": "review requested",
+      "note": "C7: docx embeds applied fonts via optional fontSource; vitest src/export 173/173 (10 files), failed first 3/6 on missing feature. Caveat: .otf untried, uncaught Packer throw possible; Buffer cast untested in browser. See notes/C7.md. All paths uncommitted edits."
+    },
+    {
+      "at": "2026-11-11T01:26:33+00:00",
+      "agent": "agent-26ce",
+      "event": "rejected",
+      "note": "Rejected on one plan-default gap that can make Word export worse than today. The rest is right: triples are collected from body, nested tables and notes and resolved once; only 'installable' and 'editable' fonts are embedded; one entry per family, preferring regular; run names are written as before; fail-first is 3/6 before and 6/6 after. FINDING 1 (blocking): the plan's stop rule 'embedding an .otf makes the library throw' was neither tested nor defaulted, and the note says a Packer throw is not caught, so one font would fail the whole .docx export. The owner is away, so apply the plan's default: embed TrueType only. Check the bytes' first four bytes are 00 01 00 00 or 'true'; skip 'OTTO' (CFF) and anything else. Also guard the pack step: if Packer.toBlob throws while fonts are set, rebuild once without the fonts option so the export still succeeds exactly as today. Add unit tests: (i) a resolved font whose bytes start with 'OTTO' is not embedded and the export succeeds; (ii) a Packer failure caused by a bad font falls back to a no-fonts export, for example a source returning installable bytes that docx cannot use, or a stubbed Packer that throws only when fonts is set. Show both fail before the guard. Record 'embedded fonts: TrueType only' in C7.md for docs/limitations.md (D1). FINDING 2 (note only): FontOptions.data is typed Buffer and Uint8Array is cast to it; this was checked only in Node. The finding-1 fallback makes a browser-side failure harmless. Say in C7.md that the WebKit build was not checked, and add it to the hand check for the final owner-present task (T278). Rerun npx vitest run src/export and npx tsc -b and report the counts."
+    },
+    {
+      "at": "2026-11-11T01:32:11+00:00",
+      "agent": "opencode-watch",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-11-11T01:32:12+00:00",
+      "agent": "opencode-watch",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-11-11T01:54:31+00:00",
+      "agent": "opencode-watch",
+      "event": "review requested",
+      "note": "Repair of the reviewer's findings on agent-e113's C7. Finding 1 (blocking), plan default applied: embedded fonts are TrueType only -- new isTrueType check in embeddedFonts (first four bytes 00 01 00 00 or 'true'; OTTO/CFF, WOFF and anything else skipped, run names still written); plus a pack guard: Packer.toBlob in try, on throw with fonts set the document is rebuilt once without fonts so the export succeeds exactly as today (throw without fonts rethrown). Fail-first for both new tests: 2 failed | 6 passed before the guard (OTTO test and pack-fallback test; the latter via a docx module stub whose Packer.toBlob throws only for a poisoned family). Fixture note: the old tests' bundled Noto bytes are WOFF (wOFF magic), not TrueType, so fixtures switched to synthetic TrueType bytes; no old expectation changed. Limitation for D1 recorded in notes/C7.md: embedded fonts: TrueType only. Finding 2 noted: FontOptions.data Buffer cast is Node-tested only; WebKit not checked, hand check added to T278 in notes/C7.md. Verified: npx vitest run src/export -> 10 files, 175/175 passed (was 173; +2 new). npx tsc -b -> EXIT=0, clean. Full detail: docs/agent-work/2026-11-10-ui-wave-9/notes/C7.md."
+    },
+    {
+      "at": "2026-11-11T02:51:35+00:00",
+      "agent": "agent-2ff3",
+      "event": "approved",
+      "note": "Approved (agent-2ff3, W9 reviewer r2). Earlier rejection demands met: (1) TrueType only: isTrueType in src/export/docx.ts checks the first four bytes 00 01 00 00 or 'true'; OTTO/CFF, WOFF and anything else are skipped while run names are still written; (2) pack guard: Packer.toBlob(buildDoc(fonts)) in try, on a throw with fonts set it rebuilds once with no fonts (a throw with no fonts is rethrown, as before); (3) Uint8Array-as-Buffer still Node-only, now stated in C7.md and handed to T278 as a hand check, and the fallback makes a browser-side throw harmless. New tests really test it: the OTTO case would embed one file without isTrueType; the fallback case uses a docx stub whose Packer throws only when 'Poison Face' is in fonts, so it fails without the guard (worker's fail-first: 2 failed | 6 passed before). Fixture switch from the bundled WOFF to synthetic TTF bytes is justified (WOFF is not TrueType); old expectations unchanged. Plan steps 3-4 met (triples from body, nested tables and notes, resolved once; installable/editable only; one entry per family, regular preferred; run names untouched). Fresh runs: npx vitest run src/export -> 10 files, 175/175 passed; npx tsc -b -> exit 0. For D1: 'embedded fonts: TrueType only'. For T278: export a .docx with an added TrueType font in the built app (WebKit) and open it in Word and Pages; a silent fallback there would mean the font is simply not embedded."
+    }
+  ]
+}

@@ -22,6 +22,8 @@ import {
   type PdfFontShard,
   type PdfFontStyle,
 } from "./fonts";
+import { defaultFontSource, type ExportFontSource } from "./fontSource";
+import { primaryFamily } from "../fonts/names";
 type Line = {
   runs: Inline[];
   height: number;
@@ -60,6 +62,7 @@ export async function exportPdf(
   project: ExportProject,
   injectedFontBytes?: PdfFontBytes,
   assets: Map<AssetId, PendingAsset> = new Map(),
+  fontSource: ExportFontSource = defaultFontSource(),
 ): Promise<Blob> {
   const d = documentBlocks(project, assets),
     s = d.settings,
@@ -79,6 +82,8 @@ export async function exportPdf(
     PdfFontKey,
     { bytes: Uint8Array; font: ReturnType<typeof fontkit.create> }
   >();
+  const customKeys = new Map<string, PdfFontKey>();
+  const embeddedFonts = new Map<PdfFontKey, PDFFont>();
   const shards: PdfFontShard[] = [
     "latin",
     "latin-ext",
@@ -95,6 +100,44 @@ export async function exportPdf(
         ? decodeFontDataUrl(bundledFontDataUrls[key]!)
         : undefined);
     if (bytes) fontAssets.set(key, { bytes, font: fontkit.create(bytes) });
+  }
+  const tripleKey = (family: string, bold: boolean, italic: boolean) =>
+    JSON.stringify([family, bold, italic]);
+  const requested = new Map<string, { family: string; bold: boolean; italic: boolean }>();
+  const collectRequests = (block: Block, bold = false) => {
+    for (const run of block.runs) {
+      if (!run.fontFamily) continue;
+      const familyName = primaryFamily(run.fontFamily);
+      const requestBold = !!run.bold || bold || block.kind === "heading";
+      const requestKey = tripleKey(familyName, requestBold, !!run.italic);
+      requested.set(requestKey, {
+        family: familyName,
+        bold: requestBold,
+        italic: !!run.italic,
+      });
+    }
+    block.table?.rows.forEach((row) =>
+      row.forEach((cell) => cell.blocks.forEach((nested) => collectRequests(nested, cell.header))),
+    );
+  };
+  d.blocks.forEach((block) => collectRequests(block));
+  for (const [requestKey, request] of requested) {
+    try {
+      const resolved = await fontSource.resolve(
+        request.family,
+        request.bold,
+        request.italic,
+      );
+      if (!resolved || resolved.embedding === "restricted") continue;
+      const key = `custom:${customKeys.size}` as PdfFontKey;
+      const font = fontkit.create(resolved.bytes);
+      const embedded = await pdf.embedFont(resolved.bytes, { subset: true });
+      fontAssets.set(key, { bytes: resolved.bytes, font });
+      customKeys.set(requestKey, key);
+      embeddedFonts.set(key, embedded);
+    } catch {
+      // Keep the existing bundled-font output when a font cannot be loaded.
+    }
   }
   const shapeError = () =>
     new Error(
@@ -113,10 +156,24 @@ export async function exportPdf(
     }
     throw shapeError();
   };
-  const segment = (r: Inline): Inline[] => {
+  const segment = (r: Inline, useCustomFont = true): Inline[] => {
     if (r.lineBreak || !r.text) return [r];
     const chunks: Inline[] = [];
+    const requestedKey = useCustomFont && r.fontFamily
+      ? customKeys.get(
+          tripleKey(primaryFamily(r.fontFamily), !!r.bold, !!r.italic),
+        )
+      : undefined;
     for (const character of Array.from(r.text)) {
+      if (
+        requestedKey &&
+        fontAssets.get(requestedKey)?.font.characterSet.includes(character.codePointAt(0)!)
+      ) {
+        const previous = chunks.at(-1);
+        if (previous?.fontFamily === requestedKey) previous.text += character;
+        else chunks.push({ ...r, text: character, fontFamily: requestedKey });
+        continue;
+      }
       const shard = selectShard(character);
       const key = `${family}:${styleFor(r)}:${shard}` as PdfFontKey;
       const actualKey =
@@ -158,10 +215,14 @@ export async function exportPdf(
   const allRuns = [
     ...blocks.flatMap(flatRuns),
     ...d.notes.flatMap((n) =>
-      noteParagraphs(n.parts).flatMap((para) => para.flatMap(segment)),
+      noteParagraphs(n.parts).flatMap((para) =>
+        para.flatMap((run) => segment(run, false)),
+      ),
     ),
-    ...d.bibliography.flatMap((b) => b.parts.flatMap(segment)),
-    ...segment({ text: "Bibliography", bold: true }),
+    ...d.bibliography.flatMap((b) =>
+      b.parts.flatMap((run) => segment(run, false)),
+    ),
+    ...segment({ text: "Bibliography", bold: true }, false),
   ];
   const usedKeys = [
     ...new Set<PdfFontKey>([
@@ -171,8 +232,8 @@ export async function exportPdf(
         .filter((key): key is PdfFontKey => !!key),
     ]),
   ];
-  const embeddedFonts = new Map<PdfFontKey, PDFFont>();
   for (const key of usedKeys) {
+    if (embeddedFonts.has(key)) continue;
     const injected = injectedFontBytes?.[key];
     const bytes =
       injected ??
@@ -376,7 +437,7 @@ export async function exportPdf(
         wrap(
           [
             ...(index === 0 ? segment({ text: `${n}. ` }) : []),
-            ...para.flatMap(segment),
+            ...para.flatMap((run) => segment(run, false)),
           ],
           10,
           1.2,
@@ -530,16 +591,23 @@ export async function exportPdf(
         ny -= 4;
       }
     }
-    if (s.pageNumbers && !(project.templateId === "chicago" && index === 0))
-      page.drawText(
-        String(project.templateId === "chicago" ? index : index + 1),
-        {
-          x: paperWidth - margin - 10,
-          y: margin / 2,
-          size: 10,
-          font: embeddedFonts.values().next().value!,
-        },
-      );
+    if (s.pageNumbers && !(project.templateId === "chicago" && index === 0)) {
+      const label = String(project.templateId === "chicago" ? index : index + 1);
+      const numberFont = embeddedFonts.values().next().value!;
+      const position = s.pageNumberPosition ?? "bottom-right";
+      const numberWidth = numberFont.widthOfTextAtSize(label, 10);
+      const numberX = position.endsWith("left")
+        ? margin
+        : position.endsWith("center")
+          ? paperWidth / 2 - numberWidth / 2
+          : paperWidth - margin - 10;
+      page.drawText(label, {
+        x: numberX,
+        y: position.startsWith("top") ? paperHeight - margin / 2 - 10 : margin / 2,
+        size: 10,
+        font: numberFont,
+      });
+    }
   });
   return new Blob([new Uint8Array(await pdf.save())], {
     type: "application/pdf",

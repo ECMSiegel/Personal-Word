@@ -6,13 +6,11 @@ from pathlib import Path
 
 here = Path(__file__).resolve().parent
 os.environ["TEAM_DIR"] = str(here)
-# Walk up for the workspace tool, then try the tool that ran init (for symlinked folders).
-candidates = [folder / ".agents" / "team" / "team.py" for folder in [here] + list(here.parents)]
-candidates.append(Path('/Users/ethansiegel/Local Projects/VC Projects/.agents/team/team.py'))
-for tool in candidates:
-    if tool.is_file():
-        runpy.run_path(str(tool), run_name="__main__")
-        sys.exit(0)
+# Bind to the initializing kit; a neighboring or outer kit may be a different version.
+tool = here / '../../.agents/team/team.py'
+if tool.is_file():
+    runpy.run_path(str(tool), run_name="__main__")
+    sys.exit(0)
 print("workspace tool not found; run: python3 <path-to-a-copy-of-team.py> init --standalone",
       file=sys.stderr)
 sys.exit(1)

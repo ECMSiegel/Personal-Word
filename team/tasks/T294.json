@@ -1,0 +1,64 @@
+{
+  "id": "T294",
+  "title": "HS3 -- Square checkboxes everywhere",
+  "description": "Full brief: docs/agent-work/2026-11-11-home-stretch/BRIEF.md then section HS3 of docs/agent-work/2026-11-11-home-stretch/TASKS.md. Shared files (styles.css, App.tsx, Writer.tsx, editor/editor.css) are edited by region only and registered on no task.",
+  "status": "done",
+  "owner": null,
+  "priority": 2,
+  "depends_on": [],
+  "files": [
+    "docs/agent-work/2026-11-11-home-stretch/notes/HS3.md",
+    "docs/agent-work/2026-11-11-home-stretch/notes/HS3-fail-first.txt",
+    "src/research/research.css",
+    "src/components/prose-issues.css",
+    "src/organization/organization.css",
+    "src/research/CslImportPreview.tsx",
+    "docs/design-system.md",
+    "tests/hs3-checkbox.spec.ts",
+    "src/checkboxSquare.test.ts"
+  ],
+  "review_required": true,
+  "created_by": "agent-b823",
+  "created_at": "2026-11-12T03:58:43+00:00",
+  "claimed_at": "2026-11-12T04:00:15+00:00",
+  "updated_at": "2026-11-12T05:52:03+00:00",
+  "handoff": null,
+  "review": {
+    "by": "agent-082c",
+    "at": "2026-11-12T05:52:03+00:00",
+    "verdict": "approved",
+    "note": "Global square checkbox rule verified: no other input rule restyles a checkbox; check legible light/dark; focus ring and disabled opacity OK; labels centred within 1px. hs3 3/3, vitest guard pass. See REVIEW-2.md."
+  },
+  "log": [
+    {
+      "at": "2026-11-12T03:58:43+00:00",
+      "agent": "agent-b823",
+      "event": "created",
+      "note": ""
+    },
+    {
+      "at": "2026-11-12T04:00:15+00:00",
+      "agent": "agent-8ad1",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-11-12T04:00:22+00:00",
+      "agent": "agent-8ad1",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-11-12T05:24:15+00:00",
+      "agent": "agent-8ad1",
+      "event": "review requested",
+      "note": "Global square 14px checkbox rule in styles.css, per-context overrides reconciled, CSL inline styles removed, design-system line. Fail-first: 3/3 failed before (appearance auto) in notes/HS3-fail-first.txt. After: playwright hs3 3/3 pass; vitest checkboxSquare+hoverEmphasis+motion 25/25; tsc -b clean. Files: styles.css, research.css, editor.css, prose-issues.css, CslImportPreview.tsx, design-system.md, tests/hs3-checkbox.spec.ts, src/checkboxSquare.test.ts, notes."
+    },
+    {
+      "at": "2026-11-12T05:52:03+00:00",
+      "agent": "agent-082c",
+      "event": "approved",
+      "note": "Global square checkbox rule verified: no other input rule restyles a checkbox; check legible light/dark; focus ring and disabled opacity OK; labels centred within 1px. hs3 3/3, vitest guard pass. See REVIEW-2.md."
+    }
+  ]
+}

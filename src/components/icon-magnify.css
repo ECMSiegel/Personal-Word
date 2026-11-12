@@ -1,0 +1,18 @@
+:is(.icon-grow, .project-row .delete-entry, .open-beside, .collection-open-beside) > :is(svg, span) {
+  transition: transform var(--duration-fast) var(--ease-out);
+}
+
+:is(.icon-grow, .project-row .delete-entry, .open-beside, .collection-open-beside) > span {
+  display: inline-block;
+}
+
+:is(.icon-grow, .project-row .delete-entry, .open-beside, .collection-open-beside):is(:hover, :focus-visible) > :is(svg, span) {
+  transform: scale(1.25);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :is(.icon-grow, .project-row .delete-entry, .open-beside, .collection-open-beside):is(:hover, :focus-visible) > :is(svg, span) {
+    transform: none;
+    transition: none;
+  }
+}

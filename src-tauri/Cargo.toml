@@ -68,6 +68,21 @@ objc2-foundation = { version = "0.3.2", default-features = false, features = [
     "NSURL",
     "NSURLRequest",
 ] }
+# Installed fonts (wave 9 C6): every crate here is already locked through wry/tao at the same
+# version; only the feature flags actually used are enabled.
+objc2-core-text = { version = "0.3.2", default-features = false, features = [
+    "CTFont",
+    "CTFontDescriptor",
+    "CTFontManager",
+    "CTFontTraits",
+] }
+objc2-core-foundation = { version = "0.3.2", default-features = false, features = [
+    "CFArray",
+    "CFCGTypes",
+    "CFDictionary",
+    "CFString",
+    "CFURL",
+] }
 
 [dev-dependencies]
 tempfile = "3"

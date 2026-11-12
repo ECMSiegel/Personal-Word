@@ -1,0 +1,128 @@
+{
+  "id": "T284",
+  "title": "OF1 -- Research: move text-only notes to the Notes tab and let them be deleted",
+  "description": "Screenshot docs/agent-work/2026-11-11-owner-fixes/1.png. Owner: 'on the research bar, there isnt a way to delete text only footnotes. Lets move the text only footnote thing to the notes side of the research bar so it doesnt share the section with sources'. Move the whole 'Text-only notes' block (heading, 'Insert footnote at cursor', the list with Used-in / Go to / Preview) out of the Sources tab into the Notes tab of the Research panel, and give each text-only footnote a Delete control with keyboard access, styled like the existing 'Delete note'. Deleting must also remove that footnote's marker from the document text, exactly the way deleting a cited footnote/source note already does today: find that existing path and reuse it; if no existing path removes a marker, STOP and block the task with what you found (this touches the owner's writing). Take a safety snapshot if the existing delete path does. src/App.tsx may need a small region edit to supply a handler: it is a shared file (Edit tool, small region, re-read first; do not register it). New spec tests/of1-text-notes.spec.ts, shown failing first. Port 1451. Owner hand-test report 2026-11-11 (he tried the real app; his report outranks any passing test). Rules: node_modules/.cache/personal-word-beta/w9-brief.md, with notes in docs/agent-work/2026-11-11-owner-fixes/notes/<task>.md instead of the wave 9 notes folder. Before your first browser run, grep tests/ for every selector, label and class you change and update the specs that pin them (register each first). Run unit tests and tsc before any trip through the serial lock. Do not edit docs/*.md or AGENTS.md. No commits.",
+  "status": "done",
+  "owner": null,
+  "priority": 2,
+  "depends_on": [],
+  "files": [
+    "src/research/ResearchPanel.tsx",
+    "src/research/research.css",
+    "tests/w9-research-panel.spec.ts",
+    "tests/w9-used-in.spec.ts",
+    "tests/research.spec.ts",
+    "tests/of1-text-notes.spec.ts",
+    "docs/agent-work/2026-11-11-owner-fixes/notes/OF1.md",
+    "tests/accessibility.spec.ts",
+    "tests/features.spec.ts",
+    "tests/footnotes.spec.ts",
+    "tests/t251-marker-image.spec.ts",
+    "docs/agent-work/2026-11-11-owner-fixes/notes/OF1-fail-first.txt",
+    "src/research/removeFootnote.ts",
+    "src/research/removeFootnote.test.ts",
+    "docs/agent-work/2026-11-11-owner-fixes/notes/OF1-unit-fail-first.txt",
+    "docs/agent-work/2026-11-11-owner-fixes/notes/OF1-delete-fail-first.txt",
+    "docs/agent-work/2026-11-11-owner-fixes/notes/OF1-acceptance.txt",
+    "docs/agent-work/2026-11-11-owner-fixes/notes/OF1-acceptance2.txt",
+    "docs/agent-work/2026-11-11-owner-fixes/notes/OF1-acceptance3.txt",
+    "docs/agent-work/2026-11-11-owner-fixes/notes/OF1-rework-fail-first.txt",
+    "docs/agent-work/2026-11-11-owner-fixes/notes/OF1-rework-pass.txt"
+  ],
+  "review_required": true,
+  "created_by": "agent-a63f",
+  "created_at": "2026-11-11T19:54:33+00:00",
+  "claimed_at": "2026-11-11T21:49:42+00:00",
+  "updated_at": "2026-11-11T22:30:10+00:00",
+  "handoff": {
+    "by": "agent-17f6",
+    "at": "2026-11-11T21:49:01+00:00",
+    "text": "Delete flow, snapshot, cited-guard, Cancel/Esc and spec edits are fine. One regression: renderFootnote got a 2nd param extraActions but src/research/ResearchPanel.tsx:361 still calls {footnotes.map(renderFootnote)}, so Array.map passes the index and every cited footnote under a source renders a stray '0','1',... next to Unlink source (tsc cannot catch it). Fix: 1) change line 361 to {footnotes.map((note) => renderFootnote(note))}. 2) add one assertion (of1 or research spec) that a cited footnote's .item-actions text is exactly 'Unlink source', shown failing first. See docs/agent-work/2026-11-11-owner-fixes/REVIEW-r1.md"
+  },
+  "review": {
+    "by": "agent-3841",
+    "at": "2026-11-11T22:30:10+00:00",
+    "verdict": "approved",
+    "note": "r2: ResearchPanel.tsx:361 now footnotes.map((note) => renderFootnote(note)); the only other renderFootnote call (Notes tab ~809) passes the Delete button deliberately. New of1 assertion (.source-body .footnote-item .item-actions has exact text 'Unlink source') failed first with 'Unlink source0' (OF1-rework-fail-first.txt) and passes in the reviewer run (of1-text-notes 4/4). tsc clean, vitest 1277/1277. See REVIEW-r2.md."
+  },
+  "log": [
+    {
+      "at": "2026-11-11T19:54:33+00:00",
+      "agent": "agent-a63f",
+      "event": "created",
+      "note": ""
+    },
+    {
+      "at": "2026-11-11T19:56:56+00:00",
+      "agent": "agent-af23",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-11-11T19:56:57+00:00",
+      "agent": "agent-af23",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-11-11T19:58:02+00:00",
+      "agent": "agent-af23",
+      "event": "blocked",
+      "note": "Q029: Stop condition hit. Only existing marker-removal path is Writer.tsx deleteEmptyNote (line ~820) + App.tsx onFootnoteDelete (~1803): Backspace on an EMPTY, source-less footnote in the footnote area of the entry open in the editor; it deletes marker and record in one revision, no snapshot. Nothing removes a marker for a footnote that has text (e.g. 'lkdjlwakjd' in the owner's screenshot), for one whose marker is in a section not open (the 'in Angela Demonstration Fragment' rows), or from the Research panel. Panel 'Delete note' (ResearchPanel deleteNote) and removeSource only touch records, never document text. A Delete that removes markers from text/other sections would be new behaviour on the owner's writing (needs a cross-entry marker-removal op + safety snapshot + decision on whether notes with text may be deleted). No files changed. Owner decision needed."
+    },
+    {
+      "at": "2026-11-11T19:58:17+00:00",
+      "agent": "agent-af23",
+      "event": "handoff",
+      "note": "Blocked at the stop condition (see Q029); no code or files changed, no spec written. Done: read ResearchPanel.tsx (Text-only block lines ~708-722, renderFootnote 182, Notes tab 746-805), Writer.tsx deleteEmptyNote (~820), App.tsx onFootnoteDelete (~1803), FootnoteArea.tsx Backspace (~156). Finding: the only marker-removal path deletes marker+record for EMPTY source-less footnotes in the open editor, no snapshot. Next: after owner answers Q029, either (a) limit Delete to empty footnotes in the open entry, or (b) build cross-entry marker removal + safety snapshot, then move the block to the Notes tab and write tests/of1-text-notes.spec.ts fail-first. Do not redo: the investigation. Paths: src/research/ResearchPanel.tsx untouched; src/research/research.css untouched; tests/w9-research-panel.spec.ts untouched; tests/w9-used-in.spec.ts untouched; tests/research.spec.ts untouched; tests/of1-text-notes.spec.ts not created; docs/agent-work/2026-11-11-owner-fixes/notes/OF1.md not created"
+    },
+    {
+      "at": "2026-11-11T19:59:17+00:00",
+      "agent": "agent-f3b2",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-11-11T19:59:21+00:00",
+      "agent": "agent-f3b2",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-11-11T21:42:05+00:00",
+      "agent": "agent-f3b2",
+      "event": "review requested",
+      "note": "Text-only block moved to Research Notes tab; red 'Delete footnote' per row -> existing confirm dialog (names section; Cancel/Esc no-op) -> flush, snapshot 'Before deleting a footnote', open editor removes its own marker, one mutation removes record + markers in other entries (new src/research/removeFootnote.ts, cited footnotes never removed). App.tsx small edits (handler + prop). Fail-first: notes/OF1-fail-first.txt, OF1-delete-fail-first.txt, OF1-unit-fail-first.txt. vitest 1277 pass, tsc -b clean; playwright: of1 spec 3/3, footnotes, w9-used-in, w9-research-panel, research, t251 pass after updating specs that pinned old place (see OF1-acceptance*.txt). Undo = snapshot restore; editor Cmd+Z untested. Chromium only."
+    },
+    {
+      "at": "2026-11-11T21:49:01+00:00",
+      "agent": "agent-17f6",
+      "event": "rejected",
+      "note": "Delete flow, snapshot, cited-guard, Cancel/Esc and spec edits are fine. One regression: renderFootnote got a 2nd param extraActions but src/research/ResearchPanel.tsx:361 still calls {footnotes.map(renderFootnote)}, so Array.map passes the index and every cited footnote under a source renders a stray '0','1',... next to Unlink source (tsc cannot catch it). Fix: 1) change line 361 to {footnotes.map((note) => renderFootnote(note))}. 2) add one assertion (of1 or research spec) that a cited footnote's .item-actions text is exactly 'Unlink source', shown failing first. See docs/agent-work/2026-11-11-owner-fixes/REVIEW-r1.md"
+    },
+    {
+      "at": "2026-11-11T21:49:42+00:00",
+      "agent": "agent-db01",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-11-11T21:49:44+00:00",
+      "agent": "agent-db01",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-11-11T21:56:41+00:00",
+      "agent": "agent-db01",
+      "event": "review requested",
+      "note": "Rework: fixed footnotes.map(renderFootnote) index bug (ResearchPanel ~361); new of1 assertion 'Unlink source' exact text failed first (notes/OF1-rework-fail-first.txt), passes after (OF1-rework-pass.txt: of1 + w9-used-in 8 passed). tsc -b clean; vitest src/research pass. No other map(render*) of a changed signature."
+    },
+    {
+      "at": "2026-11-11T22:30:10+00:00",
+      "agent": "agent-3841",
+      "event": "approved",
+      "note": "r2: ResearchPanel.tsx:361 now footnotes.map((note) => renderFootnote(note)); the only other renderFootnote call (Notes tab ~809) passes the Delete button deliberately. New of1 assertion (.source-body .footnote-item .item-actions has exact text 'Unlink source') failed first with 'Unlink source0' (OF1-rework-fail-first.txt) and passes in the reviewer run (of1-text-notes 4/4). tsc clean, vitest 1277/1277. See REVIEW-r2.md."
+    }
+  ]
+}

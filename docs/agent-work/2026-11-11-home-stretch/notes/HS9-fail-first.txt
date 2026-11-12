@@ -1,0 +1,48 @@
+
+ ❯ src/organization/groups.test.ts (0 test)
+ ❯ src/model.test.ts (65 tests | 1 failed) 518ms
+   × validates top-level section fields and keeps them through the archive and save-queue header 20ms
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/organization/groups.test.ts [ src/organization/groups.test.ts ]
+Error: Cannot find module './groups' imported from /Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/src/organization/groups.test.ts
+ ❯ src/organization/groups.test.ts:3:1
+      1| import { describe, expect, it } from "vitest";
+      2| import { entry, newProject, validateProject, type Project } from "../m…
+      3| import {
+       | ^
+      4|   addGroup,
+      5|   addSectionEntry,
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/model.test.ts > validates top-level section fields and keeps them through the archive and save-queue header
+AssertionError: expected [Function] to throw an error
+ ❯ src/model.test.ts:343:59
+    341|   expect(() => validateProject({ ...grouped, entries: [{ ...base.entri…
+    342|   for (const groups of [{}, [{ id: "", title: "x" }], [{ id: "g", titl…
+    343|     expect(() => validateProject({ ...grouped, groups })).toThrow();
+       |                                                           ^
+    344|   expect(() => validateProject({ ...grouped, groupTitles: { manuscript…
+    345|   expect(() => validateProject({ ...grouped, groupTitles: { read: "x" …
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  2 failed (2)
+      Tests  1 failed | 64 passed (65)
+   Start at  23:14:40
+   Duration  6.31s (transform 1.43s, setup 0ms, import 2.63s, tests 518ms, environment 0ms)
+
+
+--- note (HS9) ---
+Above: vitest run of src/organization/groups.test.ts + src/model.test.ts before groups.ts and the
+model.ts validation existed: groups.test.ts failed (module missing), the model test failed
+(invalid `groups` shapes were accepted). Both pass after the change (74/74).
+The Playwright spec tests/hs9-top-level-sections.spec.ts was NOT run against the old code: the serial
+lock was held by other workers until after the sidebar edits landed, so its fail-first is unproven
+(its features -- "New top-level section" button, data-group-kind sections -- did not exist before).

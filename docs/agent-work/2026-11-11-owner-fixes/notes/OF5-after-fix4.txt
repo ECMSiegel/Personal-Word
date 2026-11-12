@@ -1,0 +1,38 @@
+WAITING for lock Wed Nov 11 16:54:12 EST 2026
+LOCK ACQUIRED Wed Nov 11 17:09:13 EST 2026
+
+Running 30 tests using 1 worker
+
+  ✓   1 tests/appearance.spec.ts:3:1 › system appearance changes live and the writing area scrolls on its own (7.2s)
+  ✓   2 tests/appearance.spec.ts:62:1 › controls show hover, focus, pressed, disabled and selected states (7.8s)
+  ✓   3 tests/appearance.spec.ts:118:1 › choosing Dark under a light system sticks across a reload (4.9s)
+  ✓   4 tests/appearance.spec.ts:138:1 › choosing Light under a dark system overrides the system (3.2s)
+  ✓   5 tests/appearance.spec.ts:147:1 › choosing System again follows the operating system live (2.9s)
+  ✓   6 tests/appearance.spec.ts:161:1 › Cmd/Ctrl+Shift+L flips between Light and Dark on the Projects screen (1.2s)
+  ✓   7 tests/appearance.spec.ts:171:1 › the Appearance row has no caption and its buttons use arrow keys (4.1s)
+  ✓   8 tests/appearance.spec.ts:196:1 › a segmented choice is weight and colour, not a fill, and Home/End jump the ends (3.3s)
+  ✓   9 tests/appearance.spec.ts:239:1 › Plain palette keeps today's blue primary button (2.5s)
+  ✓  10 tests/appearance.spec.ts:250:1 › the Palette row sits under Appearance with no caption and Plain selected (2.8s)
+  ✓  11 tests/appearance.spec.ts:263:1 › Color palette tints the interface in light and keeps the document colours (4.4s)
+  ✓  12 tests/appearance.spec.ts:331:1 › Color palette fills primary buttons blue and destructive confirms red (3.9s)
+  ✓  13 tests/appearance.spec.ts:353:1 › Color palette in dark uses the dark tints (2.8s)
+  ✓  14 tests/appearance.spec.ts:377:1 › Choosing Plain again restores Plain selected text color (2.2s)
+  ✓  15 tests/appearance.spec.ts:392:1 › a selected entry is regular and its section title is bold in the text colour; no highlight box shows (W7) (1.7s)
+  ✓  16 tests/appearance.spec.ts:417:3 › section swatches persist and Plain hides them in light (3.9s)
+  ✓  17 tests/appearance.spec.ts:417:3 › section swatches persist and Plain hides them in dark (4.0s)
+  ✓  18 tests/appearance.spec.ts:463:3 › icon buttons recolour on hover, focus and press (light) (1.9s)
+  ✓  19 tests/appearance.spec.ts:463:3 › icon buttons recolour on hover, focus and press (dark) (2.4s)
+  ✓  20 tests/appearance.spec.ts:515:1 › floating sidebar and research: off by default, sits under the hover row, toggles and survives a reload (3.8s)
+  ✓  21 tests/appearance.spec.ts:549:1 › settings has a centered column and a dedicated Sidebar section (2.5s)
+  ✓  22 tests/of5-settings.spec.ts:34:1 › the hidden font file input stays hidden and Add font matches project Settings (2.9s)
+  ✓  23 tests/of5-settings.spec.ts:47:1 › Add font sits on the Interface font row, to its right, in the project Settings (2.0s)
+  ✓  24 tests/of5-settings.spec.ts:52:1 › Add font sits on the Interface font row, to its right, in the Projects dialog (1.1s)
+  ✓  25 tests/of5-settings.spec.ts:57:1 › project Settings shows exactly one rule between the section strip and General (2.6s)
+  ✓  26 tests/w9-fonts.spec.ts:72:1 › interface and document font choices persist and added styles are shared (9.8s)
+  ✓  27 tests/w9-settings-nav.spec.ts:23:1 › the strip lists every section in order and stays at the top while scrolling (1.9s)
+  ✓  28 tests/w9-settings-nav.spec.ts:42:1 › clicking a link brings that heading just under the strip and marks it (1.8s)
+  ✓  29 tests/w9-settings-nav.spec.ts:78:1 › links work from the keyboard and scroll instantly (1.8s)
+  ✓  30 tests/w9-settings-nav.spec.ts:100:1 › scrollToSettingsSection works in the same tick that opens Settings (2.1s)
+
+  30 passed (1.8m)
+EXIT 0 Wed Nov 11 17:11:00 EST 2026

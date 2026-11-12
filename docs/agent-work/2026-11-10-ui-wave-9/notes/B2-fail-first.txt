@@ -1,0 +1,109 @@
+
+Running 4 tests using 1 worker
+
+  ✓  1 tests/w9-prose-menu.spec.ts:34:1 › prose check rule checkboxes share one right edge with the On row (2.9s)
+  ✘  2 tests/w9-prose-menu.spec.ts:49:1 › each prose rule row shows its own count (7.8s)
+  ✘  3 tests/w9-prose-menu.spec.ts:59:1 › hovering a prose rule row does not move its checkbox (1.5m)
+  ✘  4 tests/w9-prose-menu.spec.ts:72:1 › the status line is one short line and pagination is hidden on one page (6.9s)
+
+
+  1) tests/w9-prose-menu.spec.ts:49:1 › each prose rule row shows its own count ────────────────────
+
+    Error: expect(locator).toHaveText(expected) failed
+
+    Locator: getByRole('region', { name: 'Prose issues' }).locator('label.prose-rule').filter({ hasText: 'Repeated words' }).locator('.prose-rule-count')
+    Expected: "1"
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toHaveText" getByRole('region', { name: 'Prose issues' }).locator('label.prose-rule').filter({ hasText: 'Repeated words' }).locator('.prose-rule-count') with timeout 5000ms
+      - waiting for getByRole('region', { name: 'Prose issues' }).locator('label.prose-rule').filter({ hasText: 'Repeated words' }).locator('.prose-rule-count')
+
+
+      53 |   for (let i = 0; i < RULE_NAMES.length; i++) {
+      54 |     const row = issues.locator("label.prose-rule").filter({ hasText: RULE_NAMES[i] });
+    > 55 |     await expect(row.locator(".prose-rule-count")).toHaveText(expected[i]);
+         |                                                    ^
+      56 |   }
+      57 | });
+      58 |
+        at /Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/tests/w9-prose-menu.spec.ts:55:52
+
+    Error Context: test-results/T259/w9-prose-menu-each-prose-rule-row-shows-its-own-count/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/T259/w9-prose-menu-each-prose-rule-row-shows-its-own-count/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/T259/w9-prose-menu-each-prose-rule-row-shows-its-own-count/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/w9-prose-menu.spec.ts:59:1 › hovering a prose rule row does not move its checkbox ───────
+
+    Test timeout of 90000ms exceeded.
+
+    Error: locator.hover: Test timeout of 90000ms exceeded.
+    Call log:
+      - waiting for getByRole('region', { name: 'Prose issues' }).locator('label.prose-rule').filter({ hasText: 'Filler words' })
+
+
+      62 |   const box = issues.getByRole("checkbox", { name: "Filler words", exact: true });
+      63 |   const before = await box.boundingBox();
+    > 64 |   await row.hover();
+         |             ^
+      65 |   const during = await box.boundingBox();
+      66 |   expect(before).not.toBeNull();
+      67 |   expect(during).not.toBeNull();
+        at /Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/tests/w9-prose-menu.spec.ts:64:13
+
+    Error Context: test-results/T259/w9-prose-menu-hovering-a-p-0c40e--does-not-move-its-checkbox/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/T259/w9-prose-menu-hovering-a-p-0c40e--does-not-move-its-checkbox/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/T259/w9-prose-menu-hovering-a-p-0c40e--does-not-move-its-checkbox/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) tests/w9-prose-menu.spec.ts:72:1 › the status line is one short line and pagination is hidden on one page 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('region', { name: 'Prose issues' }).getByText('1 total issues', { exact: true })
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('region', { name: 'Prose issues' }).getByText('1 total issues', { exact: true }) with timeout 5000ms
+      - waiting for getByRole('region', { name: 'Prose issues' }).getByText('1 total issues', { exact: true })
+
+
+      72 | test("the status line is one short line and pagination is hidden on one page", async ({ page }) => {
+      73 |   const issues = await openProseCheck(page);
+    > 74 |   await expect(issues.getByText("1 total issues", { exact: true })).toBeVisible();
+         |                                                                     ^
+      75 |   await expect(page.getByRole("button", { name: "Previous issue page" })).toHaveCount(0);
+      76 |   await expect(page.getByRole("button", { name: "Next issue page" })).toHaveCount(0);
+      77 | });
+        at /Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/tests/w9-prose-menu.spec.ts:74:69
+
+    Error Context: test-results/T259/w9-prose-menu-the-status-l-1c658-ation-is-hidden-on-one-page/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/T259/w9-prose-menu-the-status-l-1c658-ation-is-hidden-on-one-page/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/T259/w9-prose-menu-the-status-l-1c658-ation-is-hidden-on-one-page/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3 failed
+    tests/w9-prose-menu.spec.ts:49:1 › each prose rule row shows its own count ─────────────────────
+    tests/w9-prose-menu.spec.ts:59:1 › hovering a prose rule row does not move its checkbox ────────
+    tests/w9-prose-menu.spec.ts:72:1 › the status line is one short line and pagination is hidden on one page 
+  1 passed (1.9m)
+playwright exit 1

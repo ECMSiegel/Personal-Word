@@ -44,6 +44,8 @@ test("a source PDF opens beside its section and survives reload", async ({ page 
       buffer: pdfBytes,
     });
 
+  // Wave 9: the PDF control sits in the collapsed "More details".
+  await source.locator("details.source-more").evaluate((el) => { (el as HTMLDetailsElement).open = true; });
   await expect(source.getByText("source.pdf", { exact: true })).toBeVisible();
   const sidebarPdf = page
     .locator('.sidebar [data-group="research"] .entry-main')
@@ -77,6 +79,7 @@ test("a source PDF opens beside its section and survives reload", async ({ page 
   await page.getByRole("button", { name: "Close right pane" }).click();
   await openResearch(page);
   await source.locator(".source-toggle").click();
+  await source.locator("details.source-more").evaluate((el) => { (el as HTMLDetailsElement).open = true; });
   await page.getByRole("button", { name: "Remove PDF" }).click();
   await expect(page.locator('.sidebar [data-group="research"] .entry-main').filter({ hasText: /^source\.pdf$/ })).toHaveCount(0);
   expect(externalRequests).toEqual([]);

@@ -1,4 +1,8 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
+import { getSchema } from "@tiptap/core";
+import { EditorState, type Transaction } from "@tiptap/pm/state";
+import type { EditorView } from "@tiptap/pm/view";
+import { documentExtensions } from "./extensions";
 import { planPages, sameBoundaries, type BlockBox, type Boundary } from "./pagination";
 
 // Letter page at 100%: 1056 px tall, 96 px margins, 32 px gap.
@@ -205,5 +209,108 @@ describe("sameBoundaries", () => {
     expect(sameBoundaries(list([224]), list([224, 224]))).toBe(false);
     expect(sameBoundaries(list([224]), [{ pos: 1, height: 224, split: 20 }])).toBe(false);
     expect(sameBoundaries(list([224]), [{ pos: 0, height: 224, split: 20, inline: true }])).toBe(false);
+  });
+});
+
+// OF7 (owner's Mac app, WebKit at 125 and 150 percent zoom): WebKit reports rects inside the
+// CSS-zoomed page in drawn / zoom while pointer coordinates are drawn px. Chromium reports drawn px.
+describe("page-gap click and table right-click under WebKit's unzoomed rects", () => {
+  const mockFloating = async (unzoomed: boolean, zoom: number) => {
+    vi.resetModules();
+    vi.doMock("../components/floating", () => ({ reportsUnzoomedRects: () => unzoomed, totalZoom: () => zoom }));
+    return import("./pagination");
+  };
+
+  // Two paragraphs, a page gap between them: the boundary is position 5; the caret goes to
+  // 4 (end of page one) when the click is above the page's lower edge, else to 6.
+  const spacerClick = async (unzoomed: boolean, zoom: number, rect: { top: number; height: number }, clientY: number) => {
+    const mod = await mockFloating(unzoomed, zoom);
+    const schema = getSchema(documentExtensions());
+    const doc = schema.node("doc", null, [
+      schema.node("paragraph", null, [schema.text("one")]),
+      schema.node("paragraph", null, [schema.text("two")]),
+    ]);
+    const state = EditorState.create({ doc });
+    const spacerState = { boundaries: [{ pos: 5, inline: false }] };
+    const dispatched: Transaction[] = [];
+    class FakeEl {
+      dataset = { index: "0", split: "100" };
+      style = { height: "150px" };
+      closest() {
+        return this;
+      }
+      getBoundingClientRect() {
+        return { top: rect.top, height: rect.height };
+      }
+    }
+    vi.stubGlobal("HTMLElement", FakeEl);
+    const spacer = new FakeEl();
+    const view = {
+      dom: { contains: () => true },
+      state: Object.assign(Object.create(state), { [(mod.paginationKey as unknown as { key: string }).key]: spacerState }),
+      focus: vi.fn(),
+      dispatch: (tr: Transaction) => dispatched.push(tr),
+    } as unknown as EditorView;
+    // paginationKey.getState reads state[key]; Object.create keeps doc/tr from the real state.
+    const event = { target: spacer, clientY, shiftKey: false, preventDefault: vi.fn() } as unknown as MouseEvent;
+    const handled = mod.clickSpacer(view, event);
+    vi.unstubAllGlobals();
+    vi.doUnmock("../components/floating");
+    return { handled, head: dispatched[0]?.selection.head };
+  };
+
+  it("WebKit 150%: a click above the page's lower edge stays on that page", async () => {
+    // Drawn gap top 300 (reported 200), css height 150, split 100: the click is 120 drawn = 80 css px down.
+    const r = await spacerClick(true, 1.5, { top: 200, height: 150 }, 420);
+    expect(r).toEqual({ handled: true, head: 4 });
+  });
+
+  it("WebKit 150%: a click below the page's lower edge goes to the next page", async () => {
+    const r = await spacerClick(true, 1.5, { top: 200, height: 150 }, 300 + 180); // 120 css px down
+    expect(r).toEqual({ handled: true, head: 6 });
+  });
+
+  it("Chromium (rects already drawn) and WebKit at zoom 1 keep the old arithmetic", async () => {
+    expect((await spacerClick(false, 1.5, { top: 300, height: 225 }, 420)).head).toBe(4);
+    expect((await spacerClick(false, 1.5, { top: 300, height: 225 }, 480)).head).toBe(6);
+    expect((await spacerClick(true, 1, { top: 300, height: 150 }, 380)).head).toBe(4);
+    expect((await spacerClick(true, 1, { top: 300, height: 150 }, 420)).head).toBe(6);
+  });
+
+  // Table right-click: at 125/150 percent WebKit's posAtCoords answers "after the table".
+  const menuPos = async (unzoomed: boolean, zoom: number, landed: number | undefined, cellStart: number) => {
+    const mod = await mockFloating(unzoomed, zoom);
+    const cell = {};
+    const posAtDOM = vi.fn(() => cellStart);
+    const view = {
+      posAtCoords: vi.fn(() => (landed == null ? null : { pos: landed, inside: -1 })),
+      posAtDOM,
+      state: { doc: { resolve: (p: number) => ({ pos: p }) } },
+    } as unknown as EditorView;
+    const inCell = ($p: { pos: number }) => $p.pos >= 10 && $p.pos <= 20;
+    const pos = mod.menuPositionInCell(view, cell as unknown as Element, 50, 60, inCell as never);
+    vi.doUnmock("../components/floating");
+    return { pos, posAtDOM };
+  };
+
+  it("WebKit zoomed: when posAtCoords lands outside a cell, the clicked cell's own position is used", async () => {
+    const r = await menuPos(true, 1.5, 134, 12);
+    expect(r.pos).toBe(12);
+    expect(r.posAtDOM).toHaveBeenCalled();
+  });
+
+  it("WebKit zoomed: a position inside a cell is kept", async () => {
+    const r = await menuPos(true, 1.5, 15, 12);
+    expect(r.pos).toBe(15);
+  });
+
+  it.each([
+    ["Chromium", false, 1.5],
+    ["WebKit at zoom 1", true, 1],
+  ])("%s: posAtCoords answer is returned unchanged even outside a cell (as before)", async (_l, unzoomed, zoom) => {
+    const r = await menuPos(unzoomed, zoom, 134, 12);
+    expect(r.pos).toBe(134);
+    expect(r.posAtDOM).not.toHaveBeenCalled();
+    expect((await menuPos(unzoomed, zoom, undefined, 12)).pos).toBe(12); // old null fallback
   });
 });

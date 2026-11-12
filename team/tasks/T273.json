@@ -1,0 +1,60 @@
+{
+  "id": "T273",
+  "title": "W9 M1 -- Slide the Research panel in on a pointer open",
+  "description": "Follow section '### M1 --' of docs/agent-work/2026-11-10-ui-wave-9/PLAN.md exactly, plus its 'Rules for every worker'. Verify: tests/w9-research-motion.spec.ts and the motion and research specs pass. Browser test port: PLAYWRIGHT_PORT=1444. No commits, no new packages, never run npm run build or a native screen script. Write the note docs/agent-work/2026-11-10-ui-wave-9/notes/M1.md.",
+  "status": "done",
+  "owner": null,
+  "priority": 2,
+  "depends_on": [
+    "T254"
+  ],
+  "files": [
+    "src/research/asideMotion.ts",
+    "tests/w9-research-motion.spec.ts",
+    "docs/agent-work/2026-11-10-ui-wave-9/notes/M1.md"
+  ],
+  "review_required": true,
+  "created_by": "agent-b307",
+  "created_at": "2026-11-10T22:24:39+00:00",
+  "claimed_at": "2026-11-11T01:08:31+00:00",
+  "updated_at": "2026-11-11T01:26:48+00:00",
+  "handoff": null,
+  "review": {
+    "by": "agent-26ce",
+    "at": "2026-11-11T01:26:48+00:00",
+    "verdict": "approved",
+    "note": "Approved (CLAIMED; Chromium only). asideMotion.ts matches M1 step 3. It is a layout effect on 'shown'. It runs only when shown and wasPointer() are true and Reduce Motion is off. It calls play(el, translateX(--space-4 read as pixels, the plan's default) with opacity 0, to no transform with opacity 1, {speed:'base', easing:'out'}), cancels on cleanup and does nothing on close. The signature matches the T0 interface; there is no App.tsx edit. Spec check (the coordinator asked whether the opacity fix loosened it): the pointer case still asserts exactly one animation on .research-aside, duration 180, the property set exactly [opacity, transform], first frame opacity 0 with translateX, end state no transform and opacity '1', and an unchanged .writer-scroll width on the first frame. Number(first.opacity) only normalises the keyframe value's type; nothing was loosened. Other cases: palette open none, Reduce Motion none, close none. Gap, not blocking: the plan names 'keyboard or command palette' and only the palette path is tested; the hook gates on the same wasPointer() either way. Relied on the worker's 4/4 plus motion and research runs; I did not rerun the browser spec."
+  },
+  "log": [
+    {
+      "at": "2026-11-10T22:24:39+00:00",
+      "agent": "agent-b307",
+      "event": "created",
+      "note": ""
+    },
+    {
+      "at": "2026-11-11T01:08:31+00:00",
+      "agent": "agent-e113",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-11-11T01:08:34+00:00",
+      "agent": "agent-e113",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-11-11T01:20:59+00:00",
+      "agent": "agent-e113",
+      "event": "review requested",
+      "note": "M1: asideMotion hook + 4-test spec; new spec 4/4, motion+research specs pass (30 passed in the combined run, the 1 failure was my spec's opacity string, fixed). Failed first on the stub. See notes/M1.md. All paths uncommitted edits."
+    },
+    {
+      "at": "2026-11-11T01:26:48+00:00",
+      "agent": "agent-26ce",
+      "event": "approved",
+      "note": "Approved (CLAIMED; Chromium only). asideMotion.ts matches M1 step 3. It is a layout effect on 'shown'. It runs only when shown and wasPointer() are true and Reduce Motion is off. It calls play(el, translateX(--space-4 read as pixels, the plan's default) with opacity 0, to no transform with opacity 1, {speed:'base', easing:'out'}), cancels on cleanup and does nothing on close. The signature matches the T0 interface; there is no App.tsx edit. Spec check (the coordinator asked whether the opacity fix loosened it): the pointer case still asserts exactly one animation on .research-aside, duration 180, the property set exactly [opacity, transform], first frame opacity 0 with translateX, end state no transform and opacity '1', and an unchanged .writer-scroll width on the first frame. Number(first.opacity) only normalises the keyframe value's type; nothing was loosened. Other cases: palette open none, Reduce Motion none, close none. Gap, not blocking: the plan names 'keyboard or command palette' and only the palette path is tested; the hook gates on the same wasPointer() either way. Relied on the worker's 4/4 plus motion and research runs; I did not rerun the browser spec."
+    }
+  ]
+}

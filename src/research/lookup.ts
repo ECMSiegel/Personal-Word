@@ -8,6 +8,12 @@ export type LookupResult = { source: SourceDraft; provider: string };
 export type LookupIdentifier =
   | { kind: "doi"; doi: string }
   | { kind: "isbn"; isbn: string }
+  | {
+      kind: "pmid";
+      pmid: string;
+      database?: "pubmed" | "pmc";
+      fallbackUrl?: string;
+    }
   | { kind: "url"; url: string };
 export type FetchText = (url: string) => Promise<string>;
 export type LookupOptions = { fetchText?: FetchText; today?: string };
@@ -18,6 +24,8 @@ const crossrefDown =
   "Couldn't reach Crossref -- check the connection and try again";
 const openLibraryDown =
   "Couldn't reach Open Library -- check the connection and try again";
+const ncbiDown =
+  "Couldn't reach PubMed -- check the connection and try again";
 const accept = "text/html,application/json;q=0.9,*/*;q=0.5";
 
 export class FetchFailure extends Error {
@@ -42,6 +50,8 @@ export function parseIdentifier(input: string): LookupIdentifier {
   if (!value) throw new Error(lookupPrompt);
   const doi = normalizeDoi(value);
   if (doi) return { kind: "doi", doi };
+  const prefixedPmid = /^pmid(?::\s*|\s+)(\d{1,9})$/i.exec(value);
+  if (prefixedPmid) return { kind: "pmid", pmid: prefixedPmid[1] };
   const compact = value
     .replace(/^isbn[:\s]*/i, "")
     .replace(/[\s-]/g, "")
@@ -53,8 +63,26 @@ export function parseIdentifier(input: string): LookupIdentifier {
   }
   try {
     const url = new URL(value);
-    if (url.protocol === "http:" || url.protocol === "https:")
+    if (url.protocol === "http:" || url.protocol === "https:") {
+      const pubmed =
+        url.hostname.toLowerCase() === "pubmed.ncbi.nlm.nih.gov"
+          ? /^\/(\d{1,9})\/?$/.exec(url.pathname)
+          : null;
+      if (pubmed)
+        return { kind: "pmid", pmid: pubmed[1], fallbackUrl: url.href };
+      const pmc =
+        url.hostname.toLowerCase() === "pmc.ncbi.nlm.nih.gov"
+          ? /^\/articles\/PMC(\d+)\/?$/i.exec(url.pathname)
+          : null;
+      if (pmc)
+        return {
+          kind: "pmid",
+          pmid: pmc[1],
+          database: "pmc",
+          fallbackUrl: url.href,
+        };
       return { kind: "url", url: url.href };
+    }
   } catch {
     // Not a web address; fall through to the prompt error.
   }
@@ -397,6 +425,77 @@ async function lookupIsbn(
   return finish(mapOpenLibrary(json, isbn), "Open Library", today);
 }
 
+type NcbiSummary = {
+  title?: string;
+  authors?: { name?: string }[];
+  fulljournalname?: string;
+  source?: string;
+  volume?: string;
+  issue?: string;
+  pages?: string;
+  pubdate?: string;
+  epubdate?: string;
+  articleids?: { idtype?: string; value?: string }[];
+};
+
+function mapNcbiSummary(raw: unknown, pmid: string): SourceDraft {
+  const record = (raw as { result?: Record<string, NcbiSummary> } | null)
+    ?.result?.[pmid];
+  if (!record) throw new Error("No match found for that PMID");
+  const date = record.pubdate ?? record.epubdate ?? "";
+  return makeDraft(
+    {
+      kind: "journal",
+      title: record.title?.trim() ?? "",
+      authors: (record.authors ?? [])
+        .map((author) => author.name?.trim() ?? "")
+        .filter(Boolean),
+    },
+    {
+      journal: record.fulljournalname?.trim() || record.source?.trim(),
+      volume: record.volume,
+      issue: record.issue,
+      pages: record.pages?.replace(/\s*-+\s*/g, "–"),
+      year: /\b(\d{4})\b/.exec(date)?.[1],
+    },
+  );
+}
+
+async function lookupPmid(
+  pmid: string,
+  database: "pubmed" | "pmc",
+  get: FetchText,
+  today: string,
+  fallbackUrl?: string,
+): Promise<LookupResult> {
+  const endpoint =
+    "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esummary.fcgi" +
+    `?db=${database}&id=${encodeURIComponent(pmid)}&retmode=json`;
+  let text: string;
+  try {
+    text = await get(endpoint);
+  } catch {
+    if (fallbackUrl) return lookupUrl(fallbackUrl, get, today);
+    throw new Error(ncbiDown);
+  }
+  let raw: unknown;
+  try {
+    raw = JSON.parse(text);
+  } catch {
+    throw new Error("NCBI sent a response that could not be read");
+  }
+  const record = (raw as { result?: Record<string, NcbiSummary> } | null)
+    ?.result?.[pmid];
+  if (!record) throw new Error("No match found for that PMID");
+  const doi = normalizeDoi(
+    record.articleids?.find(
+      (articleId) => articleId.idtype?.toLowerCase() === "doi",
+    )?.value ?? "",
+  );
+  if (doi) return lookupDoi(doi, get, today);
+  return finish(mapNcbiSummary(raw, pmid), "PubMed", today);
+}
+
 async function lookupUrl(
   url: string,
   get: FetchText,
@@ -433,5 +532,13 @@ export async function lookupIdentifier(
   if (identifier.kind === "doi") return lookupDoi(identifier.doi, get, today);
   if (identifier.kind === "isbn")
     return lookupIsbn(identifier.isbn, get, today);
+  if (identifier.kind === "pmid")
+    return lookupPmid(
+      identifier.pmid,
+      identifier.database ?? "pubmed",
+      get,
+      today,
+      identifier.fallbackUrl,
+    );
   return lookupUrl(identifier.url, get, today);
 }

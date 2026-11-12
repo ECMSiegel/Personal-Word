@@ -1,0 +1,62 @@
+{
+  "id": "T261",
+  "title": "W9 B4 -- Make Open beside replace the pane last used",
+  "description": "Follow section '### B4 --' of docs/agent-work/2026-11-10-ui-wave-9/PLAN.md exactly, plus its 'Rules for every worker'. Verify: split.test.ts, tests/w9-open-beside.spec.ts and split-view spec pass. Browser test port: PLAYWRIGHT_PORT=1437. No commits, no new packages, never run npm run build or a native screen script. Write the note docs/agent-work/2026-11-10-ui-wave-9/notes/B4.md.",
+  "status": "done",
+  "owner": null,
+  "priority": 2,
+  "depends_on": [
+    "T254"
+  ],
+  "files": [
+    "src/split.ts",
+    "src/split.test.ts",
+    "tests/split-view.spec.ts",
+    "tests/w9-open-beside.spec.ts",
+    "docs/agent-work/2026-11-10-ui-wave-9/notes/B4.md"
+  ],
+  "review_required": true,
+  "created_by": "agent-b307",
+  "created_at": "2026-11-10T22:24:36+00:00",
+  "claimed_at": "2026-11-11T00:11:12+00:00",
+  "updated_at": "2026-11-11T03:01:53+00:00",
+  "handoff": null,
+  "review": {
+    "by": "agent-2ff3",
+    "at": "2026-11-11T03:01:53+00:00",
+    "verdict": "approved",
+    "note": "Approved (agent-2ff3, W9 reviewer r2). src/split.ts: one added line, 'if (split && target.kind === \"entry\") return select(split, target.id);' plus the doc comment; signature and callers untouched; no-split and PDF paths keep the old body. select() gives exactly plan cases b/c/d (focused pane replaced; target already in the other pane -> focus moves). Unit cases a-e present in src/split.test.ts; fail-first recorded (2 failed before). Re-pins follow the plan default and quote the old expectations in B4.md: split.test.ts two cases; tests/split-view.spec.ts ~:427 now clicks the right editor before 'Open Two beside', keeping that test's intent (delete the right pane's entry closes the split), no assertion weakened. Fresh runs: npx vitest run src/split.test.ts -> pass (25); PLAYWRIGHT_PORT=1437 npx playwright test tests/w9-open-beside.spec.ts tests/split-view.spec.ts --output test-results/T261-review -> 28/28 passed (the worker's split-view:243 failure did not recur). Minor: case (e) PDF is only unit-tested with the right pane focused. Behaviour change worth the owner's hand check: Cmd/Ctrl+click on a sidebar row with a split open now also replaces the focused pane (same openBeside path)."
+  },
+  "log": [
+    {
+      "at": "2026-11-10T22:24:36+00:00",
+      "agent": "agent-b307",
+      "event": "created",
+      "note": ""
+    },
+    {
+      "at": "2026-11-11T00:11:12+00:00",
+      "agent": "opencode-watch",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-11-11T00:11:14+00:00",
+      "agent": "opencode-watch",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-11-11T01:31:49+00:00",
+      "agent": "opencode-watch",
+      "event": "review requested",
+      "note": "openBeside: entry target with a split open now returns select(split, target.id) -- replaces the pane last used; focus moves when the entry is already in the other pane. No split / PDF target: old body unchanged; callers and signature untouched. Unit: src/split.test.ts 25/25 (new cases b-e; fail-first: 2 failed then 1 failed before the change). tsc -b clean. Browser: PLAYWRIGHT_PORT=1437, w9-open-beside + split-view, isolated --output: 27 passed / 1 failed; the failed case (split-view:243) reran alone and passed 1/1 in 19.6 s -- the full-run failure was a vite dev-server reload from another worker's edits (Playwright log: page navigated to http://127.0.0.1:1437/ mid-test), and an earlier run lost 8 cases to the shared test-results wipe (coordinator #1261). New spec passed in both full runs. Re-pinned per the plan's authorised default (old expectations quoted in notes/B4.md): split.test.ts 'replaces the right pane of an open split' (old: focused-left + entry c -> right becomes c, focused right; now left becomes c, focused left) and 'does nothing for the entry already on the left' (old: openBeside(pair,b,entry a) toBe pair; now focus moves left); split-view.spec.ts:385 test re-pinned by focusing the right pane before the final open-beside click so the delete-closes-split flow keeps its intent; comments updated. Full detail: docs/agent-work/2026-11-10-ui-wave-9/notes/B4.md. Hand check for owner in the note. tsc note: earlier run had errors in blankClick.test.ts:54 and registry.test.ts (owners T262/T266); clean on final run."
+    },
+    {
+      "at": "2026-11-11T03:01:53+00:00",
+      "agent": "agent-2ff3",
+      "event": "approved",
+      "note": "Approved (agent-2ff3, W9 reviewer r2). src/split.ts: one added line, 'if (split && target.kind === \"entry\") return select(split, target.id);' plus the doc comment; signature and callers untouched; no-split and PDF paths keep the old body. select() gives exactly plan cases b/c/d (focused pane replaced; target already in the other pane -> focus moves). Unit cases a-e present in src/split.test.ts; fail-first recorded (2 failed before). Re-pins follow the plan default and quote the old expectations in B4.md: split.test.ts two cases; tests/split-view.spec.ts ~:427 now clicks the right editor before 'Open Two beside', keeping that test's intent (delete the right pane's entry closes the split), no assertion weakened. Fresh runs: npx vitest run src/split.test.ts -> pass (25); PLAYWRIGHT_PORT=1437 npx playwright test tests/w9-open-beside.spec.ts tests/split-view.spec.ts --output test-results/T261-review -> 28/28 passed (the worker's split-view:243 failure did not recur). Minor: case (e) PDF is only unit-tested with the right pane focused. Behaviour change worth the owner's hand check: Cmd/Ctrl+click on a sidebar row with a split open now also replaces the focused pane (same openBeside path)."
+    }
+  ]
+}

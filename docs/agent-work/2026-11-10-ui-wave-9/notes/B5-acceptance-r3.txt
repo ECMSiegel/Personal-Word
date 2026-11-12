@@ -1,0 +1,90 @@
+
+Running 2 tests using 1 worker
+
+blank-click below last paragraph: elementFromPoint(463, 260) = div.tiptap.ProseMirror.writing-surface
+blank-click left margin at paragraph two: elementFromPoint(379, 184) = div.editor-paper
+blank-click right margin at paragraph two: elementFromPoint(1171, 184) = div.editor-paper
+blank-click shift setup: {"anchor":4,"head":4}
+blank-click shift-click left margin: elementFromPoint(379, 184) = div.editor-paper
+blank-click inside text: elementFromPoint(482.125, 159.5) = p
+  ✘  1 tests/w9-blank-click.spec.ts:38:3 › blank-page clicks place and extend the caret in continuous view (16.8s)
+blank-click below last paragraph: elementFromPoint(463, 338) = div.editor-paper
+blank-click left margin at paragraph two: elementFromPoint(379, 262) = div.editor-paper
+blank-click right margin at paragraph two: elementFromPoint(1171, 262) = div.editor-paper
+blank-click shift setup: {"anchor":4,"head":4}
+blank-click shift-click left margin: elementFromPoint(379, 262) = div.editor-paper
+blank-click inside text: elementFromPoint(482.125, 237.5) = p
+  ✘  2 tests/w9-blank-click.spec.ts:38:3 › blank-page clicks place and extend the caret in page view (17.8s)
+
+
+  1) tests/w9-blank-click.spec.ts:38:3 › blank-page clicks place and extend the caret in continuous view 
+
+    Error: continuous blank-click failures
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 1
+    + Received  + 4
+
+    - Array []
+    + Array [
+    +   "(d) anchor 13 != 4",
+    +   "(d) shift-click did not extend the selection",
+    + ]
+
+      134 |     if (!textClick.empty || textClick.head <= first.start || textClick.head >= first.end)
+      135 |       failures.push(`(e) ProseMirror did not place an empty text selection inside paragraph one: ${textClick.head}`);
+    > 136 |     expect(failures, `${mode} blank-click failures`).toEqual([]);
+          |                                                      ^
+      137 |   });
+      138 | }
+      139 |
+        at /Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/tests/w9-blank-click.spec.ts:136:54
+
+    Error Context: test-results/T262-r3/w9-blank-click-blank-page--b9d4f-he-caret-in-continuous-view/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/T262-r3/w9-blank-click-blank-page--b9d4f-he-caret-in-continuous-view/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/T262-r3/w9-blank-click-blank-page--b9d4f-he-caret-in-continuous-view/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/w9-blank-click.spec.ts:38:3 › blank-page clicks place and extend the caret in page view ─
+
+    Error: page blank-click failures
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 1
+    + Received  + 4
+
+    - Array []
+    + Array [
+    +   "(d) anchor 13 != 4",
+    +   "(d) shift-click did not extend the selection",
+    + ]
+
+      134 |     if (!textClick.empty || textClick.head <= first.start || textClick.head >= first.end)
+      135 |       failures.push(`(e) ProseMirror did not place an empty text selection inside paragraph one: ${textClick.head}`);
+    > 136 |     expect(failures, `${mode} blank-click failures`).toEqual([]);
+          |                                                      ^
+      137 |   });
+      138 | }
+      139 |
+        at /Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/tests/w9-blank-click.spec.ts:136:54
+
+    Error Context: test-results/T262-r3/w9-blank-click-blank-page--707b9-tend-the-caret-in-page-view/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/T262-r3/w9-blank-click-blank-page--707b9-tend-the-caret-in-page-view/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/T262-r3/w9-blank-click-blank-page--707b9-tend-the-caret-in-page-view/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2 failed
+    tests/w9-blank-click.spec.ts:38:3 › blank-page clicks place and extend the caret in continuous view 
+    tests/w9-blank-click.spec.ts:38:3 › blank-page clicks place and extend the caret in page view ──

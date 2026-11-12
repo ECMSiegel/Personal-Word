@@ -1,0 +1,7 @@
+
+Running 2 tests using 1 worker
+
+[1/2] tests/split-view.spec.ts:155:1 › split view: the shared bar's menus open in place and act on the focused pane
+[2/2] tests/split-view.spec.ts:903:1 › select all still selects when a click lands before the previous select-all is read back
+  2 passed (12.3s)
+EXIT 0

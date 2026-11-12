@@ -1,0 +1,171 @@
+
+Running 4 tests using 1 worker
+
+  ✘  1 tests/w9-cards.spec.ts:82:3 › cards fit the list, research cards are rows, and the open-beside icon is inset at 220 px (7.0s)
+  ✘  2 tests/w9-cards.spec.ts:82:3 › cards fit the list, research cards are rows, and the open-beside icon is inset at 254 px (5.1s)
+  ✘  3 tests/w9-cards.spec.ts:82:3 › cards fit the list, research cards are rows, and the open-beside icon is inset at 420 px (5.0s)
+  ✘  4 tests/w9-cards.spec.ts:173:1 › an empty card hides its boxes at rest and on hover, shows them when opened or focused, and a card with a synopsis always shows them (10.0s)
+
+
+  1) tests/w9-cards.spec.ts:82:3 › cards fit the list, research cards are rows, and the open-beside icon is inset at 220 px 
+
+    Error: expect(received).toEqual(expected) // deep equality
+
+    - Expected  -  1
+    + Received  + 15
+
+    - Array []
+    + Array [
+    +   "manuscript group scrolls sideways",
+    +   "manuscript list scrolls sideways",
+    +   "manuscript card \"OpeningEmptyNotes\" leaves the list",
+    +   "manuscript card \"Pneumonoultramicrosc\" leaves the list",
+    +   "manuscript card \"Synopsis cardEmptyNo\" leaves the list",
+    +   "fragments group scrolls sideways",
+    +   "fragments list scrolls sideways",
+    +   "fragments card \"Antidisestablishment\" leaves the list",
+    +   "research group scrolls sideways",
+    +   "research list scrolls sideways",
+    +   "research card \"Bibliography\" leaves the list",
+    +   "research card \"Example -- A local s\" leaves the list",
+    +   "research card \"source.pdf\" leaves the list",
+    + ]
+
+      105 |       return problems;
+      106 |     });
+    > 107 |     expect(fit).toEqual([]);
+          |                 ^
+      108 |
+      109 |     // Synopsis input and status row sit inside their visible card.
+      110 |     const inside = await page.evaluate(() => {
+        at /Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/tests/w9-cards.spec.ts:107:17
+
+    Error Context: test-results/T257/w9-cards-cards-fit-the-lis-9ee95-ide-icon-is-inset-at-220-px/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/T257/w9-cards-cards-fit-the-lis-9ee95-ide-icon-is-inset-at-220-px/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/T257/w9-cards-cards-fit-the-lis-9ee95-ide-icon-is-inset-at-220-px/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/w9-cards.spec.ts:82:3 › cards fit the list, research cards are rows, and the open-beside icon is inset at 254 px 
+
+    Error: expect(received).toEqual(expected) // deep equality
+
+    - Expected  -  1
+    + Received  + 12
+
+    - Array []
+    + Array [
+    +   "manuscript group scrolls sideways",
+    +   "manuscript list scrolls sideways",
+    +   "manuscript card \"OpeningEmptyNotes\" leaves the list",
+    +   "manuscript card \"Pneumonoultramicrosc\" leaves the list",
+    +   "manuscript card \"Synopsis cardEmptyNo\" leaves the list",
+    +   "fragments group scrolls sideways",
+    +   "fragments list scrolls sideways",
+    +   "fragments card \"Antidisestablishment\" leaves the list",
+    +   "research group scrolls sideways",
+    +   "research list scrolls sideways",
+    + ]
+
+      105 |       return problems;
+      106 |     });
+    > 107 |     expect(fit).toEqual([]);
+          |                 ^
+      108 |
+      109 |     // Synopsis input and status row sit inside their visible card.
+      110 |     const inside = await page.evaluate(() => {
+        at /Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/tests/w9-cards.spec.ts:107:17
+
+    Error Context: test-results/T257/w9-cards-cards-fit-the-lis-98ecc-ide-icon-is-inset-at-254-px/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/T257/w9-cards-cards-fit-the-lis-98ecc-ide-icon-is-inset-at-254-px/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/T257/w9-cards-cards-fit-the-lis-98ecc-ide-icon-is-inset-at-254-px/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) tests/w9-cards.spec.ts:82:3 › cards fit the list, research cards are rows, and the open-beside icon is inset at 420 px 
+
+    Error: expect(received).toEqual(expected) // deep equality
+
+    - Expected  -  1
+    + Received  + 10
+
+    - Array []
+    + Array [
+    +   "manuscript group scrolls sideways",
+    +   "manuscript list scrolls sideways",
+    +   "manuscript card \"Pneumonoultramicrosc\" leaves the list",
+    +   "fragments group scrolls sideways",
+    +   "fragments list scrolls sideways",
+    +   "fragments card \"Antidisestablishment\" leaves the list",
+    +   "research group scrolls sideways",
+    +   "research list scrolls sideways",
+    + ]
+
+      105 |       return problems;
+      106 |     });
+    > 107 |     expect(fit).toEqual([]);
+          |                 ^
+      108 |
+      109 |     // Synopsis input and status row sit inside their visible card.
+      110 |     const inside = await page.evaluate(() => {
+        at /Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/tests/w9-cards.spec.ts:107:17
+
+    Error Context: test-results/T257/w9-cards-cards-fit-the-lis-6548b-ide-icon-is-inset-at-420-px/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/T257/w9-cards-cards-fit-the-lis-6548b-ide-icon-is-inset-at-420-px/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/T257/w9-cards-cards-fit-the-lis-6548b-ide-icon-is-inset-at-420-px/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) tests/w9-cards.spec.ts:173:1 › an empty card hides its boxes at rest and on hover, shows them when opened or focused, and a card with a synopsis always shows them 
+
+    Error: expect(locator).toBeHidden() failed
+
+    Locator:  locator('.sidebar-group[data-group="manuscript"] .entry-row').filter({ hasText: 'PneumonoultramicroscopicPneumo' }).locator('.entry-details input')
+    Expected: hidden
+    Received: visible
+    Timeout:  5000ms
+
+    Call log:
+      - Expect "toBeHidden" locator('.sidebar-group[data-group="manuscript"] .entry-row').filter({ hasText: 'PneumonoultramicroscopicPneumo' }).locator('.entry-details input') with timeout 5000ms
+      - waiting for locator('.sidebar-group[data-group="manuscript"] .entry-row').filter({ hasText: 'PneumonoultramicroscopicPneumo' }).locator('.entry-details input')
+        14 × locator resolved to <input value="" placeholder="Synopsis" aria-label="Synopsis for PneumonoultramicroscopicPneumonoultramicroscopicPneumonoultr"/>
+           - unexpected value "visible"
+
+
+      188 |   // At rest: hidden.
+      189 |   await page.mouse.move(0, 0);
+    > 190 |   await expect(emptyInput).toBeHidden();
+          |                            ^
+      191 |   await expect(emptyStatus).toBeHidden();
+      192 |
+      193 |   // Hover alone does not reveal them.
+        at /Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/tests/w9-cards.spec.ts:190:28
+
+    Error Context: test-results/T257/w9-cards-an-empty-card-hid-35f49--synopsis-always-shows-them/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/T257/w9-cards-an-empty-card-hid-35f49--synopsis-always-shows-them/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/T257/w9-cards-an-empty-card-hid-35f49--synopsis-always-shows-them/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4 failed
+    tests/w9-cards.spec.ts:82:3 › cards fit the list, research cards are rows, and the open-beside icon is inset at 220 px 
+    tests/w9-cards.spec.ts:82:3 › cards fit the list, research cards are rows, and the open-beside icon is inset at 254 px 
+    tests/w9-cards.spec.ts:82:3 › cards fit the list, research cards are rows, and the open-beside icon is inset at 420 px 
+    tests/w9-cards.spec.ts:173:1 › an empty card hides its boxes at rest and on hover, shows them when opened or focused, and a card with a synopsis always shows them 
+EXIT=1

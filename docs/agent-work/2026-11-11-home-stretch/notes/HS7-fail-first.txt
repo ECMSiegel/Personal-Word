@@ -1,0 +1,14 @@
+== playwright before fix ==
+  ✘  1 tests/hs7-document-font.spec.ts:13:1 › a sans project's editor and Read view use the interface font; Chicago does not (15.1s)
+  ✘  2 tests/hs7-document-font.spec.ts:27:1 › changing the interface font updates a sans project live (16.0s)
+  ✓  3 tests/hs7-document-font.spec.ts:38:1 › a Chicago (serif) project is unaffected by the interface font (9.1s)
+  1) tests/hs7-document-font.spec.ts:13:1 › a sans project's editor and Read view use the interface font; Chicago does not 
+    Expected pattern: /^"?Avenir Next/
+    Received string:  "Futura, system-ui, sans-serif"
+  2) tests/hs7-document-font.spec.ts:27:1 › changing the interface font updates a sans project live 
+    Expected pattern: /^"?Gill Sans/
+    Received string:  "Futura, system-ui, sans-serif"
+  2 failed
+    tests/hs7-document-font.spec.ts:13:1 › a sans project's editor and Read view use the interface font; Chicago does not 
+    tests/hs7-document-font.spec.ts:27:1 › changing the interface font updates a sans project live ─
+  1 passed (1.2m)

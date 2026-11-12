@@ -1,0 +1,93 @@
+{
+  "id": "T272",
+  "title": "W9 G1 -- Show Used-in locations and wire Go to",
+  "description": "Follow section '### G1 --' of docs/agent-work/2026-11-10-ui-wave-9/PLAN.md exactly, plus its 'Rules for every worker'. Verify: vitest src/derived passes; tests/w9-used-in.spec.ts and the footnotes and split-view specs pass. Browser test port: PLAYWRIGHT_PORT=1443. No commits, no new packages, never run npm run build or a native screen script. Write the note docs/agent-work/2026-11-10-ui-wave-9/notes/G1.md.",
+  "status": "done",
+  "owner": null,
+  "priority": 2,
+  "depends_on": [
+    "T271",
+    "T264"
+  ],
+  "files": [
+    "src/App.tsx",
+    "src/derived/footnoteLocations.ts",
+    "src/derived/footnoteLocations.test.ts",
+    "tests/w9-used-in.spec.ts",
+    "docs/agent-work/2026-11-10-ui-wave-9/notes/G1.md",
+    "docs/agent-work/2026-11-10-ui-wave-9/notes/G1-fail-first.txt",
+    "docs/agent-work/2026-11-10-ui-wave-9/notes/G1-fail-first-r2.txt"
+  ],
+  "review_required": true,
+  "created_by": "agent-b307",
+  "created_at": "2026-11-10T22:24:39+00:00",
+  "claimed_at": "2026-11-11T04:14:15+00:00",
+  "updated_at": "2026-11-11T04:35:37+00:00",
+  "handoff": {
+    "by": "agent-2ff3",
+    "at": "2026-11-11T03:56:44+00:00",
+    "text": "Rejected (agent-2ff3, W9 reviewer r2) for one spec gap against the plan; the code is right and must NOT be changed. Reviewed: src/derived/footnoteLocations.ts (walks entries for footnoteReference, first in project order, WeakMap memo), App.tsx G1 hunks (selectFootnoteMarker, pendingFootnote picked up in editorReady, goToFootnote, ResearchPanel props). Fresh runs: npx vitest run src/derived -> pass; npx tsc -b exit 0; PLAYWRIGHT_PORT=1443 npx playwright test tests/w9-used-in.spec.ts tests/footnotes.spec.ts tests/split-view.spec.ts --output test-results/T272-review -> 36/36. Missing fail-first for the browser spec is accepted by reasoning: ResearchPanel renders .footnote-where and the Go to button only when the footnoteLocations prop holds the id, so all three tests fail on the pre-G1 App.tsx. THE GAP: PLAN G1 step 4 says 'with a cited footnote in section 2 ... the SOURCE's \"Used in\" row reads \"in <section 2 title>\"'. The spec uses a text-only footnote in the general footnote list and never opens a source, so the source's Used in list (ResearchPanel.tsx ~:341, section aria-label 'Used in') is untested. WORK ORDER (edit only tests/w9-used-in.spec.ts and notes/G1.md): add a fourth test 'a source's Used in row names the section and Go to works from it'. Fixture: create project, add sections One and Two, click Two, fill the editor with 'Second section text.', open Research, click 'Enter manually', fill Authors 'Ada Example' and Title 'Lamps and Ledgers', click 'Cite here' (the same steps as tests/research.spec.ts:231-241). Then click row One. Open Research and open that source's detail view (the way tests/research-library.spec.ts or tests/research-pdf.spec.ts opens a source; read them to find the click). Scope every assertion to const usedIn = page.getByRole('region', { name: 'Used in' }): expect usedIn.locator('.footnote-where') toContainText('in Two'); click usedIn.getByRole('button', { name: 'Go to', exact: true }); expect the 'Rename section' button text 'Two', .ProseMirror-selectednode count 1 and inside the viewport, and .research-aside still visible. Prove it can fail: temporarily change the expected text to 'in One', run it once, save the failing output to docs/agent-work/2026-11-10-ui-wave-9/notes/G1-fail-first-browser.txt, then restore. Proof: PLAYWRIGHT_PORT=1443 npx playwright test tests/w9-used-in.spec.ts --output test-results/T272 (serial lock) -> 4/4 pass. Update G1.md: counts, the new evidence file, and remove the 'source-linked footnote not browser-tested' limitation. If the Used in region does not show the source's footnote with 'in Two', that is a real bug: report it in the done note instead of loosening the test."
+  },
+  "review": {
+    "by": "agent-e0a3",
+    "at": "2026-11-11T04:35:37+00:00",
+    "verdict": "approved",
+    "note": "Approved (agent-e0a3, W9 reviewer r3). Rework r2 checked against agent-2ff3's work order. tests/w9-used-in.spec.ts:88 new test builds a source-linked footnote (Enter manually, Authors 'Ada Example', Title 'Lamps and Ledgers', Cite here in section Two), returns to One, opens the source via .source-item .source-toggle, and scopes the text check and the Go to click to getByRole('region', { name: 'Used in' }); then asserts Rename section 'Two', one .ProseMirror-selectednode inside the viewport, .research-aside visible. Fail-first notes/G1-fail-first-r2.txt: with 'in One' it failed on that assertion with received 'in TwoGo to' (text from the Used in region). File name differs from the order's G1-fail-first-browser.txt; registered and cited in G1.md, accepted. G1.md updated (4 tests, limitation removed). App code unchanged from the r1 review. Fresh runs: PLAYWRIGHT_PORT=1443 npx playwright test tests/w9-used-in.spec.ts --output test-results/T272-review -> 4/4; npx vitest run src/derived (with libraryPreferences) -> 16/16; npx tsc -b exit 0."
+  },
+  "log": [
+    {
+      "at": "2026-11-10T22:24:39+00:00",
+      "agent": "agent-b307",
+      "event": "created",
+      "note": ""
+    },
+    {
+      "at": "2026-11-11T02:50:42+00:00",
+      "agent": "agent-6034",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-11-11T02:50:43+00:00",
+      "agent": "agent-6034",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-11-11T03:44:02+00:00",
+      "agent": "agent-6034",
+      "event": "review requested",
+      "note": "G1 Used-in and Go to. Changed: src/derived/footnoteLocations.ts (new, memoised map footnote id -> entry and title), src/derived/footnoteLocations.test.ts (new, 4 tests), src/App.tsx (import, pendingFootnote ref, selectFootnoteMarker helper, editorReady branch, goToFootnote before writing, ResearchPanel props footnoteLocations and onGoToFootnote), tests/w9-used-in.spec.ts (new, 3 tests), notes/G1.md, notes/G1-fail-first.txt. ResearchPanel.tsx untouched; its props matched. Fail-first: unit test failed on missing module (G1-fail-first.txt); browser spec was NOT shown to fail before the fix (written after the change; first run failed on a wrong spec assertion, fixed). Results: vitest src/derived 10 passed; tsc -b clean; w9-used-in.spec 3 passed; footnotes + split-view specs 33 passed, 0 failed. Not checked in native WebKit. Ready for review."
+    },
+    {
+      "at": "2026-11-11T03:56:44+00:00",
+      "agent": "agent-2ff3",
+      "event": "rejected",
+      "note": "Rejected (agent-2ff3, W9 reviewer r2) for one spec gap against the plan; the code is right and must NOT be changed. Reviewed: src/derived/footnoteLocations.ts (walks entries for footnoteReference, first in project order, WeakMap memo), App.tsx G1 hunks (selectFootnoteMarker, pendingFootnote picked up in editorReady, goToFootnote, ResearchPanel props). Fresh runs: npx vitest run src/derived -> pass; npx tsc -b exit 0; PLAYWRIGHT_PORT=1443 npx playwright test tests/w9-used-in.spec.ts tests/footnotes.spec.ts tests/split-view.spec.ts --output test-results/T272-review -> 36/36. Missing fail-first for the browser spec is accepted by reasoning: ResearchPanel renders .footnote-where and the Go to button only when the footnoteLocations prop holds the id, so all three tests fail on the pre-G1 App.tsx. THE GAP: PLAN G1 step 4 says 'with a cited footnote in section 2 ... the SOURCE's \"Used in\" row reads \"in <section 2 title>\"'. The spec uses a text-only footnote in the general footnote list and never opens a source, so the source's Used in list (ResearchPanel.tsx ~:341, section aria-label 'Used in') is untested. WORK ORDER (edit only tests/w9-used-in.spec.ts and notes/G1.md): add a fourth test 'a source's Used in row names the section and Go to works from it'. Fixture: create project, add sections One and Two, click Two, fill the editor with 'Second section text.', open Research, click 'Enter manually', fill Authors 'Ada Example' and Title 'Lamps and Ledgers', click 'Cite here' (the same steps as tests/research.spec.ts:231-241). Then click row One. Open Research and open that source's detail view (the way tests/research-library.spec.ts or tests/research-pdf.spec.ts opens a source; read them to find the click). Scope every assertion to const usedIn = page.getByRole('region', { name: 'Used in' }): expect usedIn.locator('.footnote-where') toContainText('in Two'); click usedIn.getByRole('button', { name: 'Go to', exact: true }); expect the 'Rename section' button text 'Two', .ProseMirror-selectednode count 1 and inside the viewport, and .research-aside still visible. Prove it can fail: temporarily change the expected text to 'in One', run it once, save the failing output to docs/agent-work/2026-11-10-ui-wave-9/notes/G1-fail-first-browser.txt, then restore. Proof: PLAYWRIGHT_PORT=1443 npx playwright test tests/w9-used-in.spec.ts --output test-results/T272 (serial lock) -> 4/4 pass. Update G1.md: counts, the new evidence file, and remove the 'source-linked footnote not browser-tested' limitation. If the Used in region does not show the source's footnote with 'in Two', that is a real bug: report it in the done note instead of loosening the test."
+    },
+    {
+      "at": "2026-11-11T04:14:15+00:00",
+      "agent": "agent-1c27",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-11-11T04:14:15+00:00",
+      "agent": "agent-1c27",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-11-11T04:26:37+00:00",
+      "agent": "agent-1c27",
+      "event": "review requested",
+      "note": "Rework r2: added fourth browser test in tests/w9-used-in.spec.ts (source's Used in row reads 'in Two', Go to selects marker). Fail-first: docs/agent-work/2026-11-10-ui-wave-9/notes/G1-fail-first-r2.txt (expectation 'in One' failed, received 'in TwoGo to'). Pass: 4/4 (t272-pass log). tsc -b exit 0. App code unchanged. notes/G1.md updated; source-linked footnote limitation removed."
+    },
+    {
+      "at": "2026-11-11T04:35:37+00:00",
+      "agent": "agent-e0a3",
+      "event": "approved",
+      "note": "Approved (agent-e0a3, W9 reviewer r3). Rework r2 checked against agent-2ff3's work order. tests/w9-used-in.spec.ts:88 new test builds a source-linked footnote (Enter manually, Authors 'Ada Example', Title 'Lamps and Ledgers', Cite here in section Two), returns to One, opens the source via .source-item .source-toggle, and scopes the text check and the Go to click to getByRole('region', { name: 'Used in' }); then asserts Rename section 'Two', one .ProseMirror-selectednode inside the viewport, .research-aside visible. Fail-first notes/G1-fail-first-r2.txt: with 'in One' it failed on that assertion with received 'in TwoGo to' (text from the Used in region). File name differs from the order's G1-fail-first-browser.txt; registered and cited in G1.md, accepted. G1.md updated (4 tests, limitation removed). App code unchanged from the r1 review. Fresh runs: PLAYWRIGHT_PORT=1443 npx playwright test tests/w9-used-in.spec.ts --output test-results/T272-review -> 4/4; npx vitest run src/derived (with libraryPreferences) -> 16/16; npx tsc -b exit 0."
+    }
+  ]
+}

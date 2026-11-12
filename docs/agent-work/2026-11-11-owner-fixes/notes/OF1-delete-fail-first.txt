@@ -1,0 +1,74 @@
+
+Running 3 tests using 1 worker
+
+  ✓  1 tests/of1-text-notes.spec.ts:14:1 › Text-only notes live on the Notes tab, not the Sources tab (9.9s)
+  ✘  2 tests/of1-text-notes.spec.ts:86:1 › Delete in a section that is not open: confirm, cancel, snapshot, renumber, reload (18.7s)
+  ✘  3 tests/of1-text-notes.spec.ts:128:1 › Delete while the section is open in the editor removes the marker and survives the next save (1.5m)
+
+
+  1) tests/of1-text-notes.spec.ts:86:1 › Delete in a section that is not open: confirm, cancel, snapshot, renumber, reload 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: locator('.research-group .footnote-item').first().getByRole('button', { name: 'Delete footnote', exact: true })
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" locator('.research-group .footnote-item').first().getByRole('button', { name: 'Delete footnote', exact: true }) with timeout 5000ms
+      - waiting for locator('.research-group .footnote-item').first().getByRole('button', { name: 'Delete footnote', exact: true })
+
+
+      86 | test("Delete in a section that is not open: confirm, cancel, snapshot, renumber, reload", async ({ page }) => {
+      87 |   await twoNotes(page, "One");
+    > 88 |   await expect(del(page, 0)).toBeVisible();
+         |                              ^
+      89 |
+      90 |   // Cancel (button and Escape) changes nothing.
+      91 |   await del(page, 0).click();
+        at /Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/tests/of1-text-notes.spec.ts:88:30
+
+    Error Context: test-results/T284/of1-text-notes-Delete-in-a-985cd-el-snapshot-renumber-reload/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/T284/of1-text-notes-Delete-in-a-985cd-el-snapshot-renumber-reload/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/T284/of1-text-notes-Delete-in-a-985cd-el-snapshot-renumber-reload/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/of1-text-notes.spec.ts:128:1 › Delete while the section is open in the editor removes the marker and survives the next save 
+
+    Test timeout of 90000ms exceeded.
+
+    Error: locator.focus: Test timeout of 90000ms exceeded.
+    Call log:
+      - waiting for locator('.research-group .footnote-item').nth(1).getByRole('button', { name: 'Delete footnote', exact: true })
+
+
+      128 | test("Delete while the section is open in the editor removes the marker and survives the next save", async ({ page }) => {
+      129 |   await twoNotes(page, "Two");
+    > 130 |   await del(page, 1).focus();
+          |                      ^
+      131 |   await page.keyboard.press("Enter");
+      132 |   await expect(page.getByRole("dialog")).toContainText("in “Two”");
+      133 |   await page.getByRole("dialog").getByRole("button", { name: "Delete footnote" }).click();
+        at /Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/tests/of1-text-notes.spec.ts:130:22
+
+    Error Context: test-results/T284/of1-text-notes-Delete-whil-f0f51--and-survives-the-next-save/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/T284/of1-text-notes-Delete-whil-f0f51--and-survives-the-next-save/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/T284/of1-text-notes-Delete-whil-f0f51--and-survives-the-next-save/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2 failed
+    tests/of1-text-notes.spec.ts:86:1 › Delete in a section that is not open: confirm, cancel, snapshot, renumber, reload 
+    tests/of1-text-notes.spec.ts:128:1 › Delete while the section is open in the editor removes the marker and survives the next save 
+  1 passed (2.2m)
+EXIT 1

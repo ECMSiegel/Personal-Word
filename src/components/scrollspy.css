@@ -15,7 +15,7 @@
    .entry-list; cards view draws no rail and keeps its full width. The gutter is the longest
    line plus one --space-2 gap (UI wave 7 T247), so a row's split icon, which sits on the row's
    right edge, always keeps that gap from the rail. The list is the rail's positioning box. */
-.sidebar-group:is([data-group="manuscript"], [data-group="fragments"], [data-group="research"]).list-view
+.sidebar-group:is([data-group="manuscript"], [data-group-kind="manuscript"], [data-group="fragments"], [data-group="research"]).list-view
   .entry-list {
   --rail-line: 16px;
   position: relative;

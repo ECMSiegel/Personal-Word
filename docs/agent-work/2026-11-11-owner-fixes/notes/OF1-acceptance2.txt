@@ -1,0 +1,65 @@
+
+Running 27 tests using 1 worker
+
+  ✓   1 tests/of1-text-notes.spec.ts:14:1 › Text-only notes live on the Notes tab, not the Sources tab (5.0s)
+  ✘   2 tests/of1-text-notes.spec.ts:89:1 › Delete in a section that is not open: confirm, cancel, snapshot, renumber, reload (1.5m)
+  ✓   3 tests/of1-text-notes.spec.ts:131:1 › Delete while the section is open in the editor removes the marker and survives the next save (6.3s)
+  ✓   4 tests/research.spec.ts:41:1 › research panel has Sources and Notes tabs in the app font (2.1s)
+  ✓   5 tests/research.spec.ts:65:1 › manual source shows a Chicago bibliography preview and lookup fills a new source (3.6s)
+  ✓   6 tests/research.spec.ts:109:1 › a cited footnote appears under its source and in the manuscript (2.9s)
+  ✓   7 tests/research.spec.ts:131:1 › text-only footnotes keep the insert-at-cursor flow (3.7s)
+  ✓   8 tests/research.spec.ts:145:1 › second citation of a source shows a shortened note (3.6s)
+  ✓   9 tests/research.spec.ts:168:1 › imports sources from a Zotero CSL JSON file (3.2s)
+  ✓  10 tests/research.spec.ts:183:1 › Sources tab: rules split Zotero, sources and text-only notes; helper texts are gone (3.4s)
+  ✓  11 tests/research.spec.ts:232:1 › Cite here shows the citation at once, not an empty note field (2.6s)
+  ✓  12 tests/research.spec.ts:246:1 › captured quote inserts with its citation and one undo removes both (7.3s)
+  ✓  13 tests/research.spec.ts:278:1 › opt-in Ibid. rules reach the page notes and research preview, persist, and turn off cleanly (8.4s)
+  ✓  14 tests/research.spec.ts:328:1 › citation rules agree across page notes, preview and reader through section scope, reorder and reload (12.0s)
+  ✓  15 tests/research.spec.ts:393:1 › helper captions are gone; hints live in placeholder and a keyboard-reachable tooltip (3.1s)
+  ✓  16 tests/research.spec.ts:438:1 › Research sidebar lists Bibliography and sources; the Bibliography page orders, persists, matches Markdown and opens sources (10.5s)
+  ✓  17 tests/research.spec.ts:513:1 › Research sidebar group: no Bibliography without sources, Chicago always has it, notes sit under Research (6.2s)
+  ✓  18 tests/research.spec.ts:560:1 › research hints span the whole field row and the repeat-rule fields are spaced (3.0s)
+  ✓  19 tests/research.spec.ts:596:1 › a note has a visible Note label and room above its field (2.3s)
+  ✓  20 tests/research.spec.ts:626:1 › Notes tab rework: add-note spacing, divider line only between notes, dropdown and delete share a row (2.5s)
+  ✓  21 tests/research.spec.ts:706:1 › Notes tab: no 'Ideas and reminders' hint (2.6s)
+  ✓  22 tests/research.spec.ts:719:1 › Notes tab: exactly one rendered line between two notes, no two lines within 8 px (3.3s)
+  ✓  23 tests/research.spec.ts:783:1 › Upload PDF stores a standalone PDF with no source, opens beside, survives reload, and removes (6.6s)
+  ✓  24 tests/w9-used-in.spec.ts:45:1 › Used in names the section that holds the footnote, and Go to selects its marker (7.5s)
+  ✓  25 tests/w9-used-in.spec.ts:65:1 › Go to in a split focuses the pane already showing the section and changes no entry (9.9s)
+  ✓  26 tests/w9-used-in.spec.ts:81:1 › Go to works from the keyboard (7.3s)
+  ✓  27 tests/w9-used-in.spec.ts:92:1 › a source's Used in row names the section and Go to works from it (5.4s)
+
+
+  1) tests/of1-text-notes.spec.ts:89:1 › Delete in a section that is not open: confirm, cancel, snapshot, renumber, reload 
+
+    Test timeout of 90000ms exceeded.
+
+    Error: locator.click: Test timeout of 90000ms exceeded.
+    Call log:
+      - waiting for locator('.research-tabs').getByRole('button', { name: 'Notes', exact: true })
+
+
+      79 |   if (openSection === "One") {
+      80 |     await sidebarRow(page, "One").click();
+    > 81 |     await tab(page, "Notes").click();
+         |                              ^
+      82 |   }
+      83 |   await expect(page.getByRole("button", { name: "Rename section" })).toHaveText(openSection);
+      84 | }
+        at twoNotes (/Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/tests/of1-text-notes.spec.ts:81:30)
+        at /Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/tests/of1-text-notes.spec.ts:90:3
+
+    Error Context: test-results/T284/of1-text-notes-Delete-in-a-985cd-el-snapshot-renumber-reload/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/T284/of1-text-notes-Delete-in-a-985cd-el-snapshot-renumber-reload/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/T284/of1-text-notes-Delete-in-a-985cd-el-snapshot-renumber-reload/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/of1-text-notes.spec.ts:89:1 › Delete in a section that is not open: confirm, cancel, snapshot, renumber, reload 
+  26 passed (3.9m)
+EXIT 1

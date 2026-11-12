@@ -1,0 +1,67 @@
+{
+  "id": "T274",
+  "title": "W9 P1 -- Rework the Projects page (caption controls, remembered sort, empty state)",
+  "description": "Follow section '### P1 --' of docs/agent-work/2026-11-10-ui-wave-9/PLAN.md exactly, plus its 'Rules for every worker'. Verify: libraryPreferences.test.ts passes; tests/w9-projects-page.spec.ts and the projects-screen, hover-emphasis, import and accessibility specs pass. Browser test port: PLAYWRIGHT_PORT=1445. No commits, no new packages, never run npm run build or a native screen script. Write the note docs/agent-work/2026-11-10-ui-wave-9/notes/P1.md.",
+  "status": "done",
+  "owner": null,
+  "priority": 2,
+  "depends_on": [
+    "T254"
+  ],
+  "files": [
+    "src/components/ProjectLibrary.tsx",
+    "src/components/library.css",
+    "src/libraryPreferences.ts",
+    "src/libraryPreferences.test.ts",
+    "tests/projects-screen.spec.ts",
+    "tests/w9-projects-page.spec.ts",
+    "docs/agent-work/2026-11-10-ui-wave-9/notes/P1.md",
+    "tests/hover-emphasis.spec.ts",
+    "docs/agent-work/2026-11-10-ui-wave-9/notes/T274-fail-first.txt",
+    "docs/agent-work/2026-11-10-ui-wave-9/notes/T274-acceptance.txt"
+  ],
+  "review_required": true,
+  "created_by": "agent-b307",
+  "created_at": "2026-11-10T22:24:40+00:00",
+  "claimed_at": "2026-11-11T03:48:01+00:00",
+  "updated_at": "2026-11-11T04:33:54+00:00",
+  "handoff": null,
+  "review": {
+    "by": "agent-e0a3",
+    "at": "2026-11-11T04:33:54+00:00",
+    "verdict": "approved",
+    "note": "Approved (agent-e0a3, W9 reviewer r3). Read: ProjectLibrary.tsx diff (toolbar = Start/Import/search/gear; .library-caption with Sort Dropdown + icon-button icon-grow reverse (arrow in aria-hidden span) + view toggle; prefs via useState(readLibraryPreferences) and changePrefs writing on every change; rows Edited then Added; empty state sentence + templateChoices buttons calling onCreate(id) and Import writing calling writingInput.click(), the same actions as the Start menu items), library.css additions (tokens --type-small 12px, --type-large 15px, --muted, --text), new libraryPreferences.ts/.test.ts, new tests/w9-projects-page.spec.ts. Storage key is folio.workspace.library; bad data falls back per field (unparseable, non-object, null, number, throwing storage all tested). Fail-first T274-fail-first.txt: 6 of 8 failed pre-change (the 2 passing were the empty-search and bad-prefs cases, expected). Fresh runs: npx vitest run src/libraryPreferences.test.ts src/derived -> 16/16; npx tsc -b exit 0; PLAYWRIGHT_PORT=1445 npx playwright test w9-projects-page projects-screen hover-emphasis import accessibility appearance sidebar-search --output test-results/T274-review -> 90 passed, 8 skipped (sidebar-search opt-in screenshots), 0 failed; H3 un-hoverable 10 (cap 12). Rulings: (1) empty-state aria-labels 'Start a Blank project' etc. ACCEPTED: the name contains the visible word (label-in-name holds) and avoids exact-name clashes with the Start menu items. (2) Sort trigger faux bold on hover ACCEPTED: the plan's exemption parenthetical covers the icon-only controls; Sort is a text control and AGENTS.md forbids a second hover rule; at rest it is 12 px muted, not bold, no border. Owner may want to judge it in the hand check. (3) Caption row shown with no projects ACCEPTED: the plan does not forbid it and motion.spec relies on it. Hand check: P1.md steps 1-5."
+  },
+  "log": [
+    {
+      "at": "2026-11-10T22:24:40+00:00",
+      "agent": "agent-b307",
+      "event": "created",
+      "note": ""
+    },
+    {
+      "at": "2026-11-11T03:48:01+00:00",
+      "agent": "agent-927d",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-11-11T03:48:01+00:00",
+      "agent": "agent-927d",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-11-11T04:03:16+00:00",
+      "agent": "agent-927d",
+      "event": "review requested",
+      "note": "Projects page reworked: toolbar = Start/Import writing/search/gear; Sort+reverse+view in .library-caption (12px muted, icon-button icon-grow, arrow in aria-hidden span); rows title 15px, Edited (text) then Added (muted); folio.workspace.library prefs (libraryPreferences.ts + test); empty-state sentence + Blank/Chicago/Screenplay/Import writing text controls (aria-labels 'Start a X project' to avoid exact-name clashes with menu). Files: ProjectLibrary.tsx, library.css, libraryPreferences(.test).ts, tests/w9-projects-page.spec.ts, notes/P1.md. projects-screen.spec needed no re-pin. Fail-first: notes/T274-fail-first.txt (6 failed, 2 passed pre-change). Acceptance: notes/T274-acceptance.txt, 90 passed 0 failed (w9-projects-page, projects-screen, hover-emphasis, import, accessibility, w9-icon-magnify, alignment, motion, drop-target); vitest libraryPreferences 6 passed; tsc -b clean. Flake at projects-screen:587 not seen."
+    },
+    {
+      "at": "2026-11-11T04:33:54+00:00",
+      "agent": "agent-e0a3",
+      "event": "approved",
+      "note": "Approved (agent-e0a3, W9 reviewer r3). Read: ProjectLibrary.tsx diff (toolbar = Start/Import/search/gear; .library-caption with Sort Dropdown + icon-button icon-grow reverse (arrow in aria-hidden span) + view toggle; prefs via useState(readLibraryPreferences) and changePrefs writing on every change; rows Edited then Added; empty state sentence + templateChoices buttons calling onCreate(id) and Import writing calling writingInput.click(), the same actions as the Start menu items), library.css additions (tokens --type-small 12px, --type-large 15px, --muted, --text), new libraryPreferences.ts/.test.ts, new tests/w9-projects-page.spec.ts. Storage key is folio.workspace.library; bad data falls back per field (unparseable, non-object, null, number, throwing storage all tested). Fail-first T274-fail-first.txt: 6 of 8 failed pre-change (the 2 passing were the empty-search and bad-prefs cases, expected). Fresh runs: npx vitest run src/libraryPreferences.test.ts src/derived -> 16/16; npx tsc -b exit 0; PLAYWRIGHT_PORT=1445 npx playwright test w9-projects-page projects-screen hover-emphasis import accessibility appearance sidebar-search --output test-results/T274-review -> 90 passed, 8 skipped (sidebar-search opt-in screenshots), 0 failed; H3 un-hoverable 10 (cap 12). Rulings: (1) empty-state aria-labels 'Start a Blank project' etc. ACCEPTED: the name contains the visible word (label-in-name holds) and avoids exact-name clashes with the Start menu items. (2) Sort trigger faux bold on hover ACCEPTED: the plan's exemption parenthetical covers the icon-only controls; Sort is a text control and AGENTS.md forbids a second hover rule; at rest it is 12 px muted, not bold, no border. Owner may want to judge it in the hand check. (3) Caption row shown with no projects ACCEPTED: the plan does not forbid it and motion.spec relies on it. Hand check: P1.md steps 1-5."
+    }
+  ]
+}

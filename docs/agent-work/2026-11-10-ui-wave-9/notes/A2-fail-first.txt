@@ -1,0 +1,35 @@
+
+Running 1 test using 1 worker
+
+  ✘  1 tests/w9-sidebar-scroll.spec.ts:8:1 › sidebar group list hides its scrollbar and never scrolls sideways (12.8s)
+
+
+  1) tests/w9-sidebar-scroll.spec.ts:8:1 › sidebar group list hides its scrollbar and never scrolls sideways 
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: "hidden"
+    Received: "auto"
+
+      26 |     return { overflowX: s.overflowX, overflowY: s.overflowY, scrollbarWidth: s.scrollbarWidth };
+      27 |   });
+    > 28 |   expect(style.overflowX).toBe("hidden");
+         |                           ^
+      29 |   expect(style.overflowY).toBe("auto");
+      30 |   expect(style.scrollbarWidth).toBe("none");
+      31 |
+        at /Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/tests/w9-sidebar-scroll.spec.ts:28:27
+
+    Error Context: test-results/T256/w9-sidebar-scroll-sidebar--f032d--and-never-scrolls-sideways/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/T256/w9-sidebar-scroll-sidebar--f032d--and-never-scrolls-sideways/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/T256/w9-sidebar-scroll-sidebar--f032d--and-never-scrolls-sideways/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/w9-sidebar-scroll.spec.ts:8:1 › sidebar group list hides its scrollbar and never scrolls sideways 
+EXIT 1

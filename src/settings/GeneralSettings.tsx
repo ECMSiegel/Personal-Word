@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import { Dropdown } from "../components/Dropdown";
 import { Segmented } from "../components/Segmented";
+import { AppearanceSettings } from "./AppearanceSettings";
 import {
   SWATCHES,
   type Appearance,
@@ -77,6 +78,7 @@ export function GeneralSettings({
               onChange={(palette) => onAppearance({ ...appearance, palette })}
             />
           </div>
+          <AppearanceSettings />
           {appearance.palette === "color" && (
             <div className="settings-field settings-field--wide">
               <span className="settings-label">Section colours</span>

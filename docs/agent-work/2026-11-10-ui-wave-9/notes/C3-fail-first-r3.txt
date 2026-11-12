@@ -1,0 +1,35 @@
+
+Running 1 test using 1 worker
+
+  ✘  1 tests/w9-fonts.spec.ts:72:1 › interface and document font choices persist and added styles are shared (10.6s)
+
+
+  1) tests/w9-fonts.spec.ts:72:1 › interface and document font choices persist and added styles are shared 
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+      201 |     };
+      202 |   });
+    > 203 |   expect(brandFonts.brand.startsWith("Futura")).toBe(true);
+          |                                                 ^
+      204 |   expect(brandFonts.parent.startsWith(UI_FONT)).toBe(true);
+      205 | });
+      206 |
+        at /Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/tests/w9-fonts.spec.ts:203:49
+
+    Error Context: test-results/T266/w9-fonts-interface-and-doc-15995-and-added-styles-are-shared/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/T266/w9-fonts-interface-and-doc-15995-and-added-styles-are-shared/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/T266/w9-fonts-interface-and-doc-15995-and-added-styles-are-shared/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/w9-fonts.spec.ts:72:1 › interface and document font choices persist and added styles are shared 
+EXIT 1

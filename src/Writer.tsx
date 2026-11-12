@@ -30,6 +30,7 @@ import {
   AlignJustify,
   Focus,
   Settings2,
+  SpellCheck,
   Ellipsis,
   MessageSquarePlus,
   Minus,
@@ -62,8 +63,9 @@ import "./editor/editor.css";
 import "./editor/toolbar-motion.css";
 import { useDock } from "./components/dock";
 import { documentExtensions } from "./editor/extensions";
+import { insertPageBreak } from "./editor/pageBreakKeys";
 import { paragraphRange } from "./editor/paragraphTarget";
-import { Pagination, paginate, paginationKey } from "./editor/pagination";
+import { Pagination, menuPositionInCell, paginate, paginationKey } from "./editor/pagination";
 import { TableContextMenu } from "./editor/TableContextMenu";
 import { setImageSourceResolver } from "./editor/media";
 import {
@@ -88,8 +90,18 @@ import {
 import { useFootnoteLayout } from "./editor/useFootnoteLayout";
 import { Dropdown, type DropdownOption } from "./components/Dropdown";
 import { ProseIssues } from "./components/ProseIssues";
-import type { DocumentSettings } from "./research/types";
+import { SideRuler } from "./editor/SideRuler";
+import { blankPageClick } from "./editor/blankClick";
+import { editorSettings, exportSettings } from "./research/documentSettingsDefaults";
+import {
+  pageNumberPositionOptions,
+  type DocumentSettings,
+} from "./research/types";
 import { type Entry } from "./model";
+import { primaryFamily, sameFont } from "./fonts/names";
+import { loadRecentFonts, pushRecentFont, recentFontOptions, saveRecentFonts } from "./fonts/recent";
+import { BUILT_IN_FONTS, useDocumentFontOptions, useInterfaceFont } from "./fonts/registry";
+import { documentFontStack } from "./editor/documentFont";
 
 type ToolbarPanel = "spacing" | "setup" | "more" | "aids" | "table";
 type ToolbarGroup =
@@ -149,6 +161,8 @@ type GroupWidths = Partial<Record<ToolbarGroup, number>>;
 type RulerDrag = {
   kind: "margin" | "topGap";
   edge?: "left" | "right";
+  /** "y" for the side ruler: the vertical pointer distance moves the margin. */
+  axis?: "x" | "y";
   scale: number;
   startX: number;
   startY: number;
@@ -170,9 +184,21 @@ const LINE_PRESETS = [
   { value: 1.5, label: "1.5" },
   { value: 2, label: "Double" },
 ];
+/** The two ruler switches. The side ruler key is absent before this existed: an old "true" turns both on. */
+function readRulerPrefs(): { top: boolean; side: boolean } {
+  try {
+    const top = localStorage.getItem(RULER_PREFERENCE_KEY) === "true";
+    const side = localStorage.getItem(SIDE_RULER_PREFERENCE_KEY);
+    return { top, side: side === null ? top : side === "true" };
+  } catch {
+    return { top: false, side: false };
+  }
+}
 /** Half the ruler marker's width (editor.css .ruler-margin-marker), so its point sits on the margin. */
 const RULER_MARKER_HALF = 6;
 const RULER_PREFERENCE_KEY = "folio.workspace.ruler";
+/** The side ruler's own switch. Absent in storage written before it existed: it then follows RULER_PREFERENCE_KEY. */
+const SIDE_RULER_PREFERENCE_KEY = "folio.workspace.side-ruler";
 const RULER_PREFERENCE_EVENT = "folio-ruler-preference-change";
 
 function withCurrent(
@@ -196,6 +222,7 @@ export function Writer({
   resolveAsset,
   layout: controlledLayout,
   onLayoutChange,
+  onDocumentSettingsChange,
   onPageCountChange,
   onPageStatus,
   onEditorReady,
@@ -223,7 +250,7 @@ export function Writer({
   /** Split view: only the focused pane shows its format bar. */
   showToolbar?: boolean;
   editorLabel?: string;
-  documentSettings?: DocumentSettings;
+  documentSettings?: Partial<DocumentSettings>;
   footnoteNumbers?: Record<string, number>;
   footnotes?: FootnoteNote[];
   onFootnote?: (id: string) => void;
@@ -233,6 +260,7 @@ export function Writer({
   onEditorReady?: (editor: Editor | null) => void;
   layout?: PageLayout;
   onLayoutChange?: (layout: PageLayout) => void;
+  onDocumentSettingsChange?: (patch: Partial<DocumentSettings>) => void;
   onPageCountChange?: (count: number) => void;
   onPageStatus?: (status: { current: number; total: number }) => void;
   onComment?: () => void;
@@ -266,6 +294,7 @@ export function Writer({
   const shortcutsRef = useRef(shortcuts);
   shortcutsRef.current = shortcuts;
   const hints = useMemo(() => shortcutHints(shortcuts), [shortcuts]);
+  const documentFontOptions = useDocumentFontOptions();
   const focusModeRef = useRef(focusMode);
   focusModeRef.current = focusMode;
   const proseCheckRef = useRef(proseCheck);
@@ -306,35 +335,22 @@ export function Writer({
   const [prosePage, setProsePage] = useState(0);
   const pageStatusRef = useRef(onPageStatus);
   pageStatusRef.current = onPageStatus;
-  const defaultFont =
-    documentSettings?.font === "serif"
-      ? "Times New Roman, serif"
-      : documentSettings?.font === "mono"
-        ? "Courier New, monospace"
-        : "Futura, system-ui, sans-serif";
-  const defaultSize = documentSettings?.fontSize ?? 14;
-  const defaultLine = documentSettings?.lineSpacing ?? 1.5;
+  const interfaceFont = useInterfaceFont();
+  const editorLook = editorSettings(documentSettings);
+  const defaultFont = documentFontStack(editorLook.font, interfaceFont);
+  const defaultSize = editorLook.fontSize;
+  const defaultLine = editorLook.lineSpacing;
   const [localLayout, setLocalLayout] = useState<PageLayout>({
     ...defaultPageLayout,
-    margin: documentSettings
-      ? documentSettings.marginInches * 96
-      : defaultPageLayout.margin,
+    margin: editorLook.marginInches * 96,
   });
-  const [rulerShown, setRulerShownState] = useState(() => {
-    try {
-      return typeof window !== "undefined" && localStorage.getItem(RULER_PREFERENCE_KEY) === "true";
-    } catch {
-      return false;
-    }
-  });
+  const [rulerPrefs, setRulerPrefs] = useState(readRulerPrefs);
+  const rulerShown = rulerPrefs.top;
+  const sideRulerShown = rulerPrefs.side;
   const [rulerPreview, setRulerPreview] = useState<RulerDrag | null>(null);
   useEffect(() => {
     const sync = () => {
-      try {
-        setRulerShownState(localStorage.getItem(RULER_PREFERENCE_KEY) === "true");
-      } catch {
-        setRulerShownState(false);
-      }
+      setRulerPrefs(readRulerPrefs());
     };
     window.addEventListener("storage", sync);
     window.addEventListener(RULER_PREFERENCE_EVENT, sync);
@@ -343,11 +359,13 @@ export function Writer({
       window.removeEventListener(RULER_PREFERENCE_EVENT, sync);
     };
   }, []);
-  const toggleRuler = () => {
-    const next = !rulerShown;
-    setRulerShownState(next);
+  const toggleRuler = (which: "top" | "side") => {
+    const next = { ...rulerPrefs, [which]: !rulerPrefs[which] };
+    setRulerPrefs(next);
     try {
-      localStorage.setItem(RULER_PREFERENCE_KEY, String(next));
+      // Both keys are written, so an old "true" is never read as "side follows top" again.
+      localStorage.setItem(RULER_PREFERENCE_KEY, String(next.top));
+      localStorage.setItem(SIDE_RULER_PREFERENCE_KEY, String(next.side));
       window.dispatchEvent(new Event(RULER_PREFERENCE_EVENT));
     } catch {
       // The ruler remains available for this writer even when storage is unavailable.
@@ -558,6 +576,7 @@ export function Writer({
     kind: RulerDrag["kind"],
     edge: RulerDrag["edge"],
     event: ReactPointerEvent<HTMLDivElement>,
+    axis: RulerDrag["axis"] = "x",
   ) => {
     if (event.button !== 0) return;
     const surface = kind === "margin" ? rulerRef.current : footnotePaper.current;
@@ -565,6 +584,7 @@ export function Writer({
     const drag: RulerDrag = {
       kind,
       edge,
+      axis,
       startX: event.clientX,
       scale: (layout.zoom / 100) * (layout.mode === "pages" ? fitScale : 1),
       startY: event.clientY,
@@ -579,7 +599,7 @@ export function Writer({
     const drag = rulerDragRef.current;
     if (!drag) return;
     const nextValue = drag.kind === "margin"
-      ? Math.min(192, Math.max(24, drag.startValue + ((event.clientX - drag.startX) / drag.scale) * (drag.edge === "left" ? 1 : -1)))
+      ? Math.min(192, Math.max(24, drag.startValue + (((drag.axis === "y" ? event.clientY - drag.startY : event.clientX - drag.startX)) / drag.scale) * (drag.edge === "left" ? 1 : -1)))
       : Math.min(200, Math.max(0, drag.startValue + (event.clientY - drag.startY) / drag.scale));
     const updated = { ...drag, nextValue };
     rulerDragRef.current = updated;
@@ -605,6 +625,15 @@ export function Writer({
     event.preventDefault();
     const step = event.shiftKey ? 24 : 6;
     const direction = (event.key === "ArrowRight" ? 1 : -1) * (edge === "left" ? 1 : -1);
+    const next = event.key === "Home" ? 24 : event.key === "End" ? 192 : Math.min(192, Math.max(24, Math.round(layout.margin) + direction * step));
+    setLayout({ margin: next });
+  };
+  // Side ruler: the top marker (edge "left" in the drag maths) grows the margin when dragged down.
+  const adjustMarginWithSideKey = (event: ReactKeyboardEvent<HTMLDivElement>, edge: "top" | "bottom") => {
+    if (event.key !== "ArrowUp" && event.key !== "ArrowDown" && event.key !== "Home" && event.key !== "End") return;
+    event.preventDefault();
+    const step = event.shiftKey ? 24 : 6;
+    const direction = (event.key === "ArrowDown" ? 1 : -1) * (edge === "top" ? 1 : -1);
     const next = event.key === "Home" ? 24 : event.key === "End" ? 192 : Math.min(192, Math.max(24, Math.round(layout.margin) + direction * step));
     setLayout({ margin: next });
   };
@@ -665,11 +694,7 @@ export function Writer({
           const cell = target?.closest("td, th");
           const root = writerRootRef.current;
           if (!cell || !view.dom.contains(cell) || !root) return false;
-          let position = view.posAtCoords({
-            left: mouse.clientX,
-            top: mouse.clientY,
-          })?.pos;
-          if (position == null) position = view.posAtDOM(cell, 0);
+          const position = menuPositionInCell(view, cell, mouse.clientX, mouse.clientY, ($p) => !!cellAround($p));
           const $position = view.state.doc.resolve(position);
           if (!cellAround($position)) return false;
           const rect = root.getBoundingClientRect();
@@ -951,7 +976,7 @@ export function Writer({
     fit();
     return () => observer.disconnect();
   }, [editor, layout.mode, layout.zoom, geometry.width]);
-  // The sticky ruler covers the top of the scroller, so ProseMirror must keep
+  // The pinned ruler (the strip in page view) covers the top of the scroller, so ProseMirror must keep
   // the caret below it: scrollMargin/scrollThreshold top = the ruler's drawn
   // height (measured, since CSS zoom scales it). Off: ProseMirror's defaults.
   useEffect(() => {
@@ -1102,7 +1127,7 @@ export function Writer({
     "--document-font": defaultFont,
     "--document-size": `${defaultSize}pt`,
     "--document-line": defaultLine,
-    "--document-indent": documentSettings?.firstLineIndent ? "0.5in" : "0",
+    "--document-indent": editorLook.firstLineIndent ? "0.5in" : "0",
     "--page-width": `${geometry.width}px`,
     "--page-height": `${geometry.height}px`,
     "--page-margin": `${geometry.margin}px`,
@@ -1122,8 +1147,15 @@ export function Writer({
     : editor.isActive("heading", { level: 2 })
       ? "2"
       : "0";
-  const fontValue: string =
+  const rawFontValue: string =
     editor.getAttributes("textFormat").fontFamily ?? defaultFont;
+  const fontCandidates = [
+    ...FONT_FACES,
+    ...documentFontOptions.map((option) => option.value),
+  ];
+  const fontValue =
+    fontCandidates.find((candidate) => sameFont(candidate, rawFontValue)) ??
+    rawFontValue;
   const size =
     parseFloat(editor.getAttributes("textFormat").fontSize ?? "") ||
     defaultSize;
@@ -1213,7 +1245,13 @@ export function Writer({
       title={t.label}
       aria-label={t.label}
       aria-pressed={t.active}
-      onClick={t.run}
+      onClick={(e) => {
+        t.run();
+        // Tiptap's focus() defers view.focus() one frame; for a pointer click
+        // focus now so a key typed right after does not land on this button.
+        // Keyboard activation (detail 0) keeps its old behaviour.
+        if (e.detail > 0) editor.view.focus();
+      }}
     >
       <t.icon size={16} aria-hidden="true" />
       {toolbarLabel(t.label, inMore)}
@@ -1233,7 +1271,10 @@ export function Writer({
               title="Undo"
               aria-label="Undo"
               disabled={!editor.can().undo()}
-              onClick={() => editor.chain().focus().undo().run()}
+              onClick={(e) => {
+                editor.chain().focus().undo().run();
+                if (e.detail > 0) editor.view.focus();
+              }}
             >
               <Undo2 size={16} aria-hidden="true" />
               {lab("Undo")}
@@ -1245,7 +1286,10 @@ export function Writer({
               title="Redo"
               aria-label="Redo"
               disabled={!editor.can().redo()}
-              onClick={() => editor.chain().focus().redo().run()}
+              onClick={(e) => {
+                editor.chain().focus().redo().run();
+                if (e.detail > 0) editor.view.focus();
+              }}
             >
               <Redo2 size={16} aria-hidden="true" />
               {lab("Redo")}
@@ -1291,15 +1335,18 @@ export function Writer({
                   shortcut: hints["Heading 2"],
                 },
               ]}
-              onChange={(value) =>
-                value === "0"
-                  ? editor.chain().focus().setParagraph().run()
-                  : editor
-                      .chain()
-                      .focus()
-                      .toggleHeading({ level: Number(value) as 1 | 2 })
-                      .run()
-              }
+              onChange={(value) => {
+                if (value === "0") editor.chain().focus().setParagraph().run();
+                else
+                  editor
+                    .chain()
+                    .focus()
+                    .toggleHeading({ level: Number(value) as 1 | 2 })
+                    .run();
+                // Tiptap's focus() defers view.focus() one frame; focus now so keys
+                // typed right after choosing reach the editor, not the dropdown button.
+                editor.view.focus();
+              }}
               label="Paragraph style"
               width={104}
             />
@@ -1310,14 +1357,15 @@ export function Writer({
                   value: style,
                   label: style[0].toUpperCase() + style.slice(1),
                 }))}
-                onChange={(style) =>
+                onChange={(style) => {
                   editor
                     .chain()
                     .focus()
                     .setParagraph()
                     .updateAttributes("paragraph", screenplayAttributes(style))
-                    .run()
-                }
+                    .run();
+                  editor.view.focus(); // see Paragraph style: no one-frame focus gap
+                }}
                 label="Screenplay paragraph style"
                 title="Tab advances paragraph style; Shift Tab reverses"
                 width={110}
@@ -1326,27 +1374,45 @@ export function Writer({
           </>
         );
       case "font":
+        const fontOptions: DropdownOption<string>[] = FONT_FACES.map((value) => ({
+          value,
+          label: primaryFamily(value),
+          style: { fontFamily: value },
+        }));
+        for (const option of documentFontOptions) {
+          if (!fontOptions.some((existing) => sameFont(existing.value, option.value)))
+            fontOptions.push(option);
+        }
+        const recentFonts = recentFontOptions(loadRecentFonts(), fontOptions);
         return (
           <Dropdown
             value={fontValue}
-            options={withCurrent(
-              FONT_FACES.map((f) => ({
-                value: f,
-                label: f.split(",")[0],
-                style: { fontFamily: f },
-              })),
-              fontValue,
-              fontValue.split(",")[0],
-            )}
-            onChange={(value) =>
+            options={[
+              ...(recentFonts.length
+                ? [
+                    { value: "\0recent-heading", label: "Recent", kind: "heading" as const },
+                    ...recentFonts,
+                    { value: "\0recent-divider", label: "", kind: "separator" as const },
+                  ]
+                : []),
+              ...withCurrent(
+                fontOptions,
+                fontValue,
+                BUILT_IN_FONTS.find((f) => sameFont(f.stack, fontValue))?.label ??
+                  primaryFamily(fontValue),
+              ),
+            ]}
+            onChange={(value) => {
+              saveRecentFonts(pushRecentFont(loadRecentFonts(), value));
               editor
                 .chain()
                 .focus()
                 .setMark("textFormat", { fontFamily: value })
-                .run()
-            }
+                .run();
+              editor.view.focus(); // see Paragraph style: no one-frame focus gap
+            }}
             label="Font family"
-            width={124}
+            className="font-family-dropdown"
           />
         );
       case "size":
@@ -1358,7 +1424,10 @@ export function Writer({
               {...mp}
               title="Decrease font size"
               aria-label="Decrease font size"
-              onClick={() => setSize(size - 1)}
+              onClick={(e) => {
+                setSize(size - 1);
+                if (e.detail > 0) editor.view.focus();
+              }}
             >
               <Minus size={16} aria-hidden="true" />
               {lab("Decrease font size")}
@@ -1378,7 +1447,10 @@ export function Writer({
               {...mp}
               title="Increase font size"
               aria-label="Increase font size"
-              onClick={() => setSize(size + 1)}
+              onClick={(e) => {
+                setSize(size + 1);
+                if (e.detail > 0) editor.view.focus();
+              }}
             >
               <Plus size={16} aria-hidden="true" />
               {lab("Increase font size")}
@@ -1412,7 +1484,10 @@ export function Writer({
                 {...mp}
                 title="Remove link"
                 aria-label="Remove link"
-                onClick={() => editor.chain().focus().unsetLink().run()}
+                onClick={(e) => {
+                  editor.chain().focus().unsetLink().run();
+                  if (e.detail > 0) editor.view.focus();
+                }}
               >
                 <Unlink size={16} aria-hidden="true" />
                 {lab("Remove link")}
@@ -1592,9 +1667,10 @@ export function Writer({
                     <button
                       type="button"
                       className="toolbar-text-button is-danger"
-                      onClick={() => {
+                      onClick={(e) => {
                         setPanel(null);
                         editor.chain().focus().deleteTable().run();
+                        if (e.detail > 0) editor.view.focus();
                       }}
                     >
                       Delete table
@@ -1617,7 +1693,10 @@ export function Writer({
               {...mp}
               title="Decrease indent"
               aria-label="Decrease indent"
-              onClick={() => changeIndent(editor, -1)}
+              onClick={(e) => {
+                changeIndent(editor, -1);
+                if (e.detail > 0) editor.view.focus();
+              }}
             >
               <IndentDecrease size={16} aria-hidden="true" />
               {lab("Decrease indent")}
@@ -1628,7 +1707,10 @@ export function Writer({
               {...mp}
               title="Increase indent"
               aria-label="Increase indent"
-              onClick={() => changeIndent(editor, 1)}
+              onClick={(e) => {
+                changeIndent(editor, 1);
+                if (e.detail > 0) editor.view.focus();
+              }}
             >
               <IndentIncrease size={16} aria-hidden="true" />
               {lab("Increase indent")}
@@ -1679,35 +1761,27 @@ export function Writer({
               </div>
               <div className="toolbar-field">
                 <span>Space before</span>
-                <span className="toolbar-field-unit">
-                  <NumberInput
-                    label="Paragraph spacing before"
-                    value={parseFloat(paragraphAttrs.spaceBefore ?? "0") || 0}
-                    min={0}
-                    max={144}
-                    step={1}
-                    width={56}
-                    onCommit={(n) =>
-                      setParagraphFormat("spaceBefore", `${n}pt`)
-                    }
-                  />
-                  pt
-                </span>
+                <NumberInput
+                  label="Space before, points"
+                  value={parseFloat(paragraphAttrs.spaceBefore ?? "0") || 0}
+                  min={0}
+                  max={144}
+                  step={1}
+                  width={64}
+                  onCommit={(n) => setParagraphFormat("spaceBefore", `${n}pt`)}
+                />
               </div>
               <div className="toolbar-field">
                 <span>Space after</span>
-                <span className="toolbar-field-unit">
-                  <NumberInput
-                    label="Paragraph spacing after"
-                    value={parseFloat(paragraphAttrs.spaceAfter ?? "0") || 0}
-                    min={0}
-                    max={144}
-                    step={1}
-                    width={56}
-                    onCommit={(n) => setParagraphFormat("spaceAfter", `${n}pt`)}
-                  />
-                  pt
-                </span>
+                <NumberInput
+                  label="Space after, points"
+                  value={parseFloat(paragraphAttrs.spaceAfter ?? "0") || 0}
+                  min={0}
+                  max={144}
+                  step={1}
+                  width={64}
+                  onCommit={(n) => setParagraphFormat("spaceAfter", `${n}pt`)}
+                />
               </div>
             </div>
           </PanelButton>
@@ -1756,7 +1830,7 @@ export function Writer({
               inMore={inMore}
               label="Prose check"
               dialogLabel="Prose check"
-              icon={Settings2}
+              icon={SpellCheck}
               open={panel === "aids"}
               onToggle={() => setPanel(panel === "aids" ? null : "aids")}
               onEscape={() => closePanel("aids")}
@@ -1863,20 +1937,55 @@ export function Writer({
                   width={112}
                 />
               </div>
+              {onDocumentSettingsChange && (
+                <>
+                  <label className="toolbar-field">
+                    <span>Page numbers</span>
+                    <input
+                      type="checkbox"
+                      checked={
+                        exportSettings(documentSettings)
+                          .pageNumbers
+                      }
+                      onChange={(e) =>
+                        onDocumentSettingsChange({
+                          pageNumbers: e.target.checked,
+                        })
+                      }
+                    />
+                  </label>
+                  {exportSettings(documentSettings)
+                    .pageNumbers && (
+                    <div className="toolbar-field">
+                      <span>Position</span>
+                      <Dropdown
+                        value={
+                          documentSettings?.pageNumberPosition ??
+                          "bottom-right"
+                        }
+                        options={pageNumberPositionOptions}
+                        onChange={(pageNumberPosition) =>
+                          onDocumentSettingsChange({ pageNumberPosition })
+                        }
+                        label="Page number position"
+                        width={112}
+                      />
+                    </div>
+                  )}
+                  <span className="toolbar-field-title">
+                    Shown in PDF and Word exports.
+                  </span>
+                </>
+              )}
               <div className="toolbar-button-row">
                 <button
                   type="button"
                   className="toolbar-text-button"
-                  onClick={() => {
+                  onClick={(e) => {
                     setPanel(null);
-                    editor
-                      .chain()
-                      .focus()
-                      .insertContent([
-                        { type: "pageBreak" },
-                        { type: "paragraph" },
-                      ])
-                      .run();
+                    editor.commands.focus();
+                    insertPageBreak(editor);
+                    if (e.detail > 0) editor.view.focus();
                   }}
                 >
                   Insert page break
@@ -1885,9 +1994,17 @@ export function Writer({
                   type="button"
                   className="toolbar-text-button"
                   aria-pressed={rulerShown}
-                  onClick={toggleRuler}
+                  onClick={() => toggleRuler("top")}
                 >
                   Ruler
+                </button>
+                <button
+                  type="button"
+                  className="toolbar-text-button"
+                  aria-pressed={sideRulerShown}
+                  onClick={() => toggleRuler("side")}
+                >
+                  Side ruler
                 </button>
               </div>
             </div>
@@ -2046,11 +2163,21 @@ export function Writer({
             if (target?.dataset.footnoteId)
               onFootnote?.(target.dataset.footnoteId);
           }}
+          onMouseDown={(event) => {
+            // The pinned ruler strip is chrome, not paper: its grey ends are not a blank-page click.
+            // preventDefault keeps the browser from selecting the tick numbers (the markers still work).
+            if ((event.target as HTMLElement).closest(".ruler-strip")) {
+              if (!(event.target as HTMLElement).closest("[role='slider']")) event.preventDefault();
+              return;
+            }
+            if (editor) blankPageClick(editor.view, event.nativeEvent);
+          }}
           ref={viewport}
           className={`editor-viewport ${layout.mode === "pages" ? "is-paged" : "is-continuous"}`}
           style={pageVars}
         >
           {rulerShown && !focusMode && (
+            <div className="ruler-strip">
             <div
               ref={rulerRef}
               className="document-ruler"
@@ -2058,6 +2185,8 @@ export function Writer({
               aria-label="Page margin ruler"
               style={{ zoom: pageStyle.zoom }}
             >
+              <div className="ruler-band ruler-band--left" style={{ width: shownMargin }} aria-hidden="true" />
+              <div className="ruler-band ruler-band--right" style={{ width: shownMargin }} aria-hidden="true" />
               <div className="ruler-ticks" aria-hidden="true">
                 {Array.from({ length: Math.floor(geometry.width / 12) + 1 }, (_, i) => (
                   <span
@@ -2102,6 +2231,7 @@ export function Writer({
                 onKeyDown={(event) => adjustMarginWithKey(event, "right")}
               />
             </div>
+            </div>
           )}
           <div className="editor-paper" style={pageStyle} ref={footnotePaper}>
             {rulerShown && !focusMode && layout.mode === "continuous" && (
@@ -2133,6 +2263,23 @@ export function Writer({
                   className="page-sheet"
                   aria-hidden="true"
                   style={{ top: page * (geometry.height + geometry.gap) }}
+                />
+              ))}
+            {layout.mode === "pages" &&
+              sideRulerShown &&
+              !focusMode &&
+              Array.from({ length: pages }, (_, page) => (
+                <SideRuler
+                  key={page}
+                  pageIndex={page}
+                  geometry={geometry}
+                  margin={shownMargin}
+                  onDragStart={(event, edge) =>
+                    startRulerDrag("margin", edge === "top" ? "left" : "right", event, "y")}
+                  onDragMove={updateRulerDrag}
+                  onDragEnd={finishRulerDrag}
+                  onDragCancel={cancelRulerDrag}
+                  onKeyDown={adjustMarginWithSideKey}
                 />
               ))}
             <EditorContent editor={editor} />

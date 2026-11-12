@@ -1,0 +1,98 @@
+
+Running 3 tests using 1 worker
+
+  ✘  1 tests/hs3-checkbox.spec.ts:42:1 › checkboxes in Settings (General and Export) are square 14px boxes that fill with the accent (15.4s)
+  ✘  2 tests/hs3-checkbox.spec.ts:63:1 › checkboxes in the Projects-screen Settings dialog are square too (6.5s)
+  ✘  3 tests/hs3-checkbox.spec.ts:72:1 › checkboxes in the prose check panel are 14px squares (1.5m)
+
+
+  1) tests/hs3-checkbox.spec.ts:42:1 › checkboxes in Settings (General and Export) are square 14px boxes that fill with the accent 
+
+    Error: project settings: appearance
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: "none"
+    Received: "auto"
+
+      33 |   expect(styles.length, `${where}: has checkboxes`).toBeGreaterThan(0);
+      34 |   for (const s of styles) {
+    > 35 |     expect(s.appearance, `${where}: appearance`).toBe("none");
+         |                                                  ^
+      36 |     expect(s.radius, `${where}: radius`).toEqual(["0px", "0px", "0px", "0px"]);
+      37 |     expect([s.w, s.h], `${where}: size`).toEqual([14, 14]);
+      38 |     expect(s.borderWidth, `${where}: border`).toBe("1px");
+        at expectSquare (/Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/tests/hs3-checkbox.spec.ts:35:50)
+        at /Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/tests/hs3-checkbox.spec.ts:44:3
+
+    Error Context: test-results/HS3/hs3-checkbox-checkboxes-in-f0baf-s-that-fill-with-the-accent/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/HS3/hs3-checkbox-checkboxes-in-f0baf-s-that-fill-with-the-accent/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/HS3/hs3-checkbox-checkboxes-in-f0baf-s-that-fill-with-the-accent/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/hs3-checkbox.spec.ts:63:1 › checkboxes in the Projects-screen Settings dialog are square too 
+
+    Error: settings dialog: appearance
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: "none"
+    Received: "auto"
+
+      33 |   expect(styles.length, `${where}: has checkboxes`).toBeGreaterThan(0);
+      34 |   for (const s of styles) {
+    > 35 |     expect(s.appearance, `${where}: appearance`).toBe("none");
+         |                                                  ^
+      36 |     expect(s.radius, `${where}: radius`).toEqual(["0px", "0px", "0px", "0px"]);
+      37 |     expect([s.w, s.h], `${where}: size`).toEqual([14, 14]);
+      38 |     expect(s.borderWidth, `${where}: border`).toBe("1px");
+        at expectSquare (/Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/tests/hs3-checkbox.spec.ts:35:50)
+        at /Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/tests/hs3-checkbox.spec.ts:69:3
+
+    Error Context: test-results/HS3/hs3-checkbox-checkboxes-in-d97da-tings-dialog-are-square-too/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/HS3/hs3-checkbox-checkboxes-in-d97da-tings-dialog-are-square-too/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/HS3/hs3-checkbox-checkboxes-in-d97da-tings-dialog-are-square-too/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) tests/hs3-checkbox.spec.ts:72:1 › checkboxes in the prose check panel are 14px squares ────────
+
+    Test timeout of 90000ms exceeded.
+
+    Error: locator.click: Test timeout of 90000ms exceeded.
+    Call log:
+      - waiting for getByRole('button', { name: /prose check|check prose|prose issues/i }).first()
+
+
+      78 |   await page.getByRole("button", { name: "Save", exact: true }).click();
+      79 |   const opener = page.getByRole("button", { name: /prose check|check prose|prose issues/i }).first();
+    > 80 |   await opener.click();
+         |                ^
+      81 |   expectSquare(await checkboxStyles(page, ".prose-check-panel"), "prose check panel");
+      82 | });
+      83 |
+        at /Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/tests/hs3-checkbox.spec.ts:80:16
+
+    Error Context: test-results/HS3/hs3-checkbox-checkboxes-in-149e9-heck-panel-are-14px-squares/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/HS3/hs3-checkbox-checkboxes-in-149e9-heck-panel-are-14px-squares/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/HS3/hs3-checkbox-checkboxes-in-149e9-heck-panel-are-14px-squares/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3 failed
+    tests/hs3-checkbox.spec.ts:42:1 › checkboxes in Settings (General and Export) are square 14px boxes that fill with the accent 
+    tests/hs3-checkbox.spec.ts:63:1 › checkboxes in the Projects-screen Settings dialog are square too 
+    tests/hs3-checkbox.spec.ts:72:1 › checkboxes in the prose check panel are 14px squares ─────────

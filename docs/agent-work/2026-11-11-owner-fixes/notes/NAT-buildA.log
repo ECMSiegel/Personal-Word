@@ -1,0 +1,78 @@
+start Wed Nov 11 18:38:07 EST 2026
+v22.23.3
+3b663b7a9f38a71171e33f99d448553058059b938d840217515e2fe0e8fc00a8  src/styles.css
+b5448e80a82251054bd37ecab0a2e3b1a7e5ed5a6ade5d14ea771224c0ced7b0  src/Writer.tsx
+2580b3f672e31ea050c6157579d06c965fa165408280915e515fc4a0fe007d46  src/editor/pagination.ts
+1fd4ba40169c34a33e72a829786b3ca940b418921891c5358178891e0944a678  tests/native-smoke.js
+0cb11a0f30b56919be576c4a478989060775cfa4ff001951492c67dc42ef8bc2  src-tauri/target/debug/folio
+
+> personal-word@0.3.0 tauri
+> tauri build --debug --features native-smoke --no-bundle --config {"identifier":"com.folio.smoke"}
+
+        Info Looking up installed tauri packages to check mismatched versions...
+     Running beforeBuildCommand `npm run build`
+
+> personal-word@0.3.0 build
+> tsc -b && vite build
+
+vite v7.3.7 building client environment for production...
+transforming...
+✓ 2059 modules transformed.
+rendering chunks...
+[plugin vite:reporter] 
+(!) /Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/node_modules/@tauri-apps/plugin-dialog/dist-js/index.js is dynamically imported by /Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/src/App.tsx but also statically imported by /Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/src/export/document.ts, dynamic import will not move module into another chunk.
+
+computing gzip size...
+dist/index.html                             0.46 kB │ gzip:     0.31 kB
+dist/assets/prose.worker-C-GvP1AP.js        3.86 kB
+dist/assets/index-CMbohcM3.css             99.11 kB │ gzip:    17.39 kB
+dist/assets/fontSource-_pE6Imjy.js          0.76 kB │ gzip:     0.37 kB
+dist/assets/event-rssLEjV5.js               1.42 kB │ gzip:     0.69 kB
+dist/assets/webview-DH67sStg.js             3.43 kB │ gzip:     1.17 kB
+dist/assets/markdownBundle-DlWR7lu5.js     10.26 kB │ gzip:     3.94 kB
+dist/assets/window-DCb1Ux9w.js             14.39 kB │ gzip:     3.59 kB
+dist/assets/docx-Sb-emq3F.js              419.76 kB │ gzip:   123.20 kB
+dist/assets/editor-DSbNAoa2.js            446.91 kB │ gzip:   142.28 kB
+dist/assets/fontkit.es-CZH78QoD.js        763.83 kB │ gzip:   344.31 kB
+dist/assets/index-bEi8EdHc.js             839.36 kB │ gzip:   278.57 kB
+dist/assets/pdf-DfTKRm7g.js             2,538.66 kB │ gzip: 1,762.30 kB
+
+(!) Some chunks are larger than 500 kB after minification. Consider:
+- Using dynamic import() to code-split the application
+- Use build.rollupOptions.output.manualChunks to improve chunking: https://rollupjs.org/configuration-options/#output-manualchunks
+- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+✓ built in 10.15s
+   Compiling objc2-exception-helper v0.1.1
+   Compiling objc2 v0.6.5
+   Compiling ring v0.17.14
+   Compiling libsqlite3-sys v0.30.1
+   Compiling folio v0.3.0 (/Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/src-tauri)
+   Compiling objc2-foundation v0.3.2
+   Compiling objc2-core-foundation v0.3.2
+   Compiling block2 v0.6.2
+   Compiling wry v0.57.0
+   Compiling dispatch2 v0.3.1
+   Compiling rustls v0.23.46
+   Compiling rusqlite v0.32.1
+   Compiling objc2-core-text v0.3.2
+   Compiling rustls-webpki v0.103.15
+   Compiling ureq v2.12.1
+   Compiling objc2-quartz-core v0.3.2
+   Compiling objc2-app-kit v0.3.2
+   Compiling objc2-web-kit v0.3.2
+   Compiling tao v0.37.1
+   Compiling window-vibrancy v0.8.1
+   Compiling muda v0.20.0
+   Compiling rfd v0.16.0
+   Compiling tauri-runtime v2.12.2
+   Compiling tauri-runtime-wry v2.12.2
+   Compiling tauri v2.12.4
+   Compiling tauri-plugin-fs v2.7.1
+   Compiling tauri-plugin-dialog v2.8.3
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 1m 02s
+       Built application at: /Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/src-tauri/target/debug/folio
+e9b9ae8d2272cfcb8beb33e7b1a43edce4b2fe3d83ee15cff1c2d2c3c5ca7672  src-tauri/target/debug/folio
+-rwxr-xr-x@ 1 ethansiegel  staff  39327992 Nov 11 18:39 src-tauri/target/debug/folio
+dist/assets/index-CMbohcM3.css
+dist/assets/index-CMbohcM3.css
+build rc=0 Wed Nov 11 18:39:40 EST 2026

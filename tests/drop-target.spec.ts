@@ -33,6 +33,8 @@ async function sourceCard(page: Page, title: string) {
   await page.getByLabel("Title", { exact: true }).fill(title);
   await page.getByLabel("Authors", { exact: true }).fill("Ada Example");
   await page.getByLabel("Year", { exact: true }).fill("2026");
+  // Wave 9: the PDF slot sits in the collapsed "More details".
+  await page.locator("details.source-more").evaluate((el) => { (el as HTMLDetailsElement).open = true; });
   return page.locator(".source-item").filter({ hasText: title });
 }
 

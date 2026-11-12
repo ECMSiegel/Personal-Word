@@ -1,0 +1,98 @@
+{
+  "id": "T300",
+  "title": "HS9 -- Top-level sections beside Manuscript (add, rename, delete, move entries)",
+  "description": "Full brief: docs/agent-work/2026-11-11-home-stretch/BRIEF.md then section HS9 of docs/agent-work/2026-11-11-home-stretch/TASKS.md. Shared files (styles.css, App.tsx, Writer.tsx, editor/editor.css) are edited by region only and registered on no task.",
+  "status": "done",
+  "owner": null,
+  "priority": 1,
+  "depends_on": [],
+  "files": [
+    "docs/agent-work/2026-11-11-home-stretch/notes/HS9.md",
+    "docs/agent-work/2026-11-11-home-stretch/notes/HS9-fail-first.txt",
+    "src/organization/groups.ts",
+    "src/organization/groups.test.ts",
+    "src/model.ts",
+    "src/model.test.ts",
+    "src/components/ProjectSidebar.tsx",
+    "src/components/scrollspy.css",
+    "tests/hs9-top-level-sections.spec.ts",
+    "tests/sidebar-context-menu.spec.ts",
+    "AGENTS.md",
+    "src-tauri/src/store.rs",
+    "docs/design-system.md",
+    "docs/agent-work/2026-11-11-home-stretch/notes/HS9-rework-fail-first.txt",
+    "tests/split-view.spec.ts"
+  ],
+  "review_required": true,
+  "created_by": "agent-b823",
+  "created_at": "2026-11-12T04:06:37+00:00",
+  "claimed_at": "2026-11-12T05:53:09+00:00",
+  "updated_at": "2026-11-12T06:36:28+00:00",
+  "handoff": {
+    "by": "agent-082c",
+    "at": "2026-11-12T05:52:03+00:00",
+    "text": "See docs/agent-work/2026-11-11-home-stretch/REVIEW-2.md. 1) should-fix, reproduced: src/components/ProjectSidebar.tsx:248/264 falls back to the session-local localOrder (reset only on project.id change) when props.groupOrder is undefined. After restoring a version with no sidebarOrder, the sidebar still shows the old heading order while Read/export (project.order) put Manuscript first. Repro: add Part two+Alpha, snapshot, move Part two up, restore: sidebar Part two first, export Opening first. It persists after an edit until reload. Fix: when props.onGroupOrder is given, use only props.groupOrder (sidebarOrder: props.onGroupOrder ? props.groupOrder : localOrder), or reset localOrder when groupOrder changes; add a Playwright case (snapshot, move heading, restore, then assert sidebar order == export order). 2) low: ProjectSidebar.tsx:781-783 More is drawn left of split (order:-1) but tabbed after it; optional DOM reorder. 3) low: built-in restore-default only by typing the default name (dialog refuses empty); optional 'Restore default name' item. 4) low, mostly pre-existing: styles.css:2112 (and :714) pad the whole .entry-main incl. .entry-preview, so hovering a card with body text re-wraps it and moves the cards below by 18px; pad the title span instead (probed: zero shifts). The hs9 spec's no-shift case uses empty cards. Everything else checked fine: normalisation, orphans, delete, drag, search, spy, tints, tests."
+  },
+  "review": {
+    "by": "agent-fd1b",
+    "at": "2026-11-12T06:36:28+00:00",
+    "verdict": "approved",
+    "note": "REVIEW-4.md. All five rework items verified: REVIEW-2 restore repro now sidebar==Read==export (immediately, after an edit), heading move+drag survive reload, no-sidebarOrder default order OK; Tab goes More then Open beside; Reset name; card hover 0 shifts and the relative test counts 3 shifts on the old CSS (checked by injecting it); design-system lines 190/198 correct. Playwright 18/18, vitest 286/286, tsc clean. cargo still not run; split-view not in my run."
+  },
+  "log": [
+    {
+      "at": "2026-11-12T04:06:37+00:00",
+      "agent": "agent-b823",
+      "event": "created",
+      "note": ""
+    },
+    {
+      "at": "2026-11-12T04:08:12+00:00",
+      "agent": "agent-8a9e",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-11-12T04:08:17+00:00",
+      "agent": "agent-8a9e",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-11-12T05:35:33+00:00",
+      "agent": "agent-8a9e",
+      "event": "review requested",
+      "note": "HS9 built per design. Files: src/organization/groups.ts(+test), src/model.ts(+test), src/components/ProjectSidebar.tsx, src/components/scrollspy.css, src-tauri/src/store.rs (test fixture only), AGENTS.md, tests/hs9-top-level-sections.spec.ts, tests/sidebar-context-menu.spec.ts (pins ~106, ~227); shared regions: App.tsx (mutate normalises order, add/reorder, group handlers, palette entry, sidebar props), styles.css (tint selectors, always-visible + rule, cards hover padding). Fail-first: unit tests failed before groups.ts/validation (notes/HS9-fail-first.txt); Playwright fail-first unproven. Results: vitest 110/110 targeted, full 1301/1303 (2 load timeouts pass alone); tsc clean; Playwright hs9 3/3 and sidebar/drag/scrollspy/cards/split/alignment/appearance green; floating.spec Read test failing (HS6 in progress). cargo test needed. docs/design-system.md not updated (owned by T294) -- needs the always-visible + sentence. Details notes/HS9.md."
+    },
+    {
+      "at": "2026-11-12T05:52:03+00:00",
+      "agent": "agent-082c",
+      "event": "rejected",
+      "note": "See docs/agent-work/2026-11-11-home-stretch/REVIEW-2.md. 1) should-fix, reproduced: src/components/ProjectSidebar.tsx:248/264 falls back to the session-local localOrder (reset only on project.id change) when props.groupOrder is undefined. After restoring a version with no sidebarOrder, the sidebar still shows the old heading order while Read/export (project.order) put Manuscript first. Repro: add Part two+Alpha, snapshot, move Part two up, restore: sidebar Part two first, export Opening first. It persists after an edit until reload. Fix: when props.onGroupOrder is given, use only props.groupOrder (sidebarOrder: props.onGroupOrder ? props.groupOrder : localOrder), or reset localOrder when groupOrder changes; add a Playwright case (snapshot, move heading, restore, then assert sidebar order == export order). 2) low: ProjectSidebar.tsx:781-783 More is drawn left of split (order:-1) but tabbed after it; optional DOM reorder. 3) low: built-in restore-default only by typing the default name (dialog refuses empty); optional 'Restore default name' item. 4) low, mostly pre-existing: styles.css:2112 (and :714) pad the whole .entry-main incl. .entry-preview, so hovering a card with body text re-wraps it and moves the cards below by 18px; pad the title span instead (probed: zero shifts). The hs9 spec's no-shift case uses empty cards. Everything else checked fine: normalisation, orphans, delete, drag, search, spy, tints, tests."
+    },
+    {
+      "at": "2026-11-12T05:53:09+00:00",
+      "agent": "agent-fe44",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-11-12T05:53:10+00:00",
+      "agent": "agent-fe44",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-11-12T06:06:06+00:00",
+      "agent": "agent-fe44",
+      "event": "review requested",
+      "note": "Rework per REVIEW-2: (1) sidebar top order uses only props.groupOrder when App owns it -- restore keeps sidebar == Read == export (new spec case, failed first); (2) More button first in DOM, split-view Tab line updated; (3) 'Reset name' heading item for renamed built-ins; (4) cards: hover room reserved on the title span, whole-button padding undone in cards -- no card shift (new spec with body text, failed first: +18px); (5) design-system.md two sentences. Fail-first: notes/HS9-rework-fail-first.txt. tsc clean; vitest 98/98; Playwright hs9 5/5, sidebar-context-menu/w9-cards/drag-reorder/sidebar-selection/split-view green. cargo test still needed (store.rs fixture)."
+    },
+    {
+      "at": "2026-11-12T06:36:28+00:00",
+      "agent": "agent-fd1b",
+      "event": "approved",
+      "note": "REVIEW-4.md. All five rework items verified: REVIEW-2 restore repro now sidebar==Read==export (immediately, after an edit), heading move+drag survive reload, no-sidebarOrder default order OK; Tab goes More then Open beside; Reset name; card hover 0 shifts and the relative test counts 3 shifts on the old CSS (checked by injecting it); design-system lines 190/198 correct. Playwright 18/18, vitest 286/286, tsc clean. cargo still not run; split-view not in my run."
+    }
+  ]
+}

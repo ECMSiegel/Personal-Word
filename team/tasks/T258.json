@@ -1,0 +1,62 @@
+{
+  "id": "T258",
+  "title": "W9 B1 -- Fix the font menu (one entry per font, full name) and give Prose check its own icon",
+  "description": "Follow section '### B1 --' of docs/agent-work/2026-11-10-ui-wave-9/PLAN.md exactly, plus its 'Rules for every worker'. Verify: tests/w9-font-menu.spec.ts and editor-toolbar spec pass. Browser test port: PLAYWRIGHT_PORT=1434. No commits, no new packages, never run npm run build or a native screen script. Write the note docs/agent-work/2026-11-10-ui-wave-9/notes/B1.md.",
+  "status": "done",
+  "owner": null,
+  "priority": 1,
+  "depends_on": [
+    "T254"
+  ],
+  "files": [
+    "src/Writer.tsx",
+    "src/editor/editor.css",
+    "tests/w9-font-menu.spec.ts",
+    "docs/agent-work/2026-11-10-ui-wave-9/notes/B1.md",
+    "test-results/T258"
+  ],
+  "review_required": true,
+  "created_by": "agent-b307",
+  "created_at": "2026-11-10T22:24:35+00:00",
+  "claimed_at": "2026-11-11T00:10:26+00:00",
+  "updated_at": "2026-11-11T01:15:49+00:00",
+  "handoff": null,
+  "review": {
+    "by": "agent-26ce",
+    "at": "2026-11-11T01:15:49+00:00",
+    "verdict": "approved",
+    "note": "Approved (CLAIMED; Chromium only). Read the B1 part of the Writer.tsx and editor.css diffs, separating out T0's seam lines (blankClick import and onMouseDown, the --ui-font replacements). fontValue maps the mark to the first FONT_FACES or useDocumentFontOptions() value that is sameFont, else keeps the raw value (step 2). Options are FONT_FACES labelled primaryFamily(value) plus the registry options, with later sameFont duplicates dropped, and the withCurrent fallback is primaryFamily(fontValue) (step 3). width={124} is replaced by className font-family-dropdown with min 124 px and max 220 px; dropdown.css already ellipsises .dropdown-value (step 4). Prose check uses SpellCheck and Page setup keeps Settings2 (step 5). Names match the T0 interfaces. No files outside the registered paths, no new package, no folio key, no hover rule. My reruns: PLAYWRIGHT_PORT=1450 npx playwright test tests/w9-font-menu.spec.ts tests/popover-bounds.spec.ts --output test-results/review -> 6 passed, so the popover baseline rects do not move (plan trap checked). npx tsc -b reports nothing in B1 files; its only errors are in T267's in-progress pdf.ts and pdf-fonts.test.ts. I relied on the worker's editor-toolbar 17/17. Fail-first is reported at the quote assertion (the spec applies a quoted '\"Times New Roman\", serif' mark to stand in for a registry value): acceptable. T268 (C5) may now take Writer.tsx."
+  },
+  "log": [
+    {
+      "at": "2026-11-10T22:24:35+00:00",
+      "agent": "agent-b307",
+      "event": "created",
+      "note": ""
+    },
+    {
+      "at": "2026-11-11T00:10:26+00:00",
+      "agent": "agent-38c2",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-11-11T00:10:34+00:00",
+      "agent": "agent-38c2",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-11-11T00:59:14+00:00",
+      "agent": "agent-38c2",
+      "event": "review requested",
+      "note": "Font-menu and toolbar changes are complete. The required font-menu spec passed in the isolated acceptance run; the isolated editor-toolbar rerun passed 17/17 with --output test-results/T258. Note updated. No native/screen check run."
+    },
+    {
+      "at": "2026-11-11T01:15:49+00:00",
+      "agent": "agent-26ce",
+      "event": "approved",
+      "note": "Approved (CLAIMED; Chromium only). Read the B1 part of the Writer.tsx and editor.css diffs, separating out T0's seam lines (blankClick import and onMouseDown, the --ui-font replacements). fontValue maps the mark to the first FONT_FACES or useDocumentFontOptions() value that is sameFont, else keeps the raw value (step 2). Options are FONT_FACES labelled primaryFamily(value) plus the registry options, with later sameFont duplicates dropped, and the withCurrent fallback is primaryFamily(fontValue) (step 3). width={124} is replaced by className font-family-dropdown with min 124 px and max 220 px; dropdown.css already ellipsises .dropdown-value (step 4). Prose check uses SpellCheck and Page setup keeps Settings2 (step 5). Names match the T0 interfaces. No files outside the registered paths, no new package, no folio key, no hover rule. My reruns: PLAYWRIGHT_PORT=1450 npx playwright test tests/w9-font-menu.spec.ts tests/popover-bounds.spec.ts --output test-results/review -> 6 passed, so the popover baseline rects do not move (plan trap checked). npx tsc -b reports nothing in B1 files; its only errors are in T267's in-progress pdf.ts and pdf-fonts.test.ts. I relied on the worker's editor-toolbar 17/17. Fail-first is reported at the quote assertion (the spec applies a quoted '\"Times New Roman\", serif' mark to stand in for a registry value): acceptable. T268 (C5) may now take Writer.tsx."
+    }
+  ]
+}

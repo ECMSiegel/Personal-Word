@@ -1,0 +1,59 @@
+{
+  "id": "T281",
+  "title": "W9 F3 -- Apply the saved interface font at once and never reset it on a failed font list (REVIEW.md B-S1)",
+  "description": "Follow work order B-S1 in docs/agent-work/2026-11-10-ui-wave-9/REVIEW.md exactly. src/fonts/registry.ts about lines 70-84: the chosen interface font is applied only after two async loads (Futura flashes at every launch), and if the native installed-font list fails once a saved installed font is reset to Futura for good. Fix: apply the saved font first; reset only when the list actually loaded and the font is truly absent. Fail-first unit tests in src/fonts/registry.test.ts for both cases. Verify: npx vitest run src/fonts; npx tsc -b; PLAYWRIGHT_PORT=1440 npx playwright test tests/w9-fonts.spec.ts tests/appearance.spec.ts --output test-results/F3 (serial lock). Write notes/F3.md. No commits.",
+  "status": "done",
+  "owner": null,
+  "priority": 2,
+  "depends_on": [],
+  "files": [
+    "src/fonts/registry.ts",
+    "src/fonts/registry.test.ts",
+    "docs/agent-work/2026-11-10-ui-wave-9/notes/F3.md",
+    "docs/agent-work/2026-11-10-ui-wave-9/notes/F3-fail-first.txt"
+  ],
+  "review_required": true,
+  "created_by": "agent-a63f",
+  "created_at": "2026-11-11T06:04:41+00:00",
+  "claimed_at": "2026-11-11T06:05:17+00:00",
+  "updated_at": "2026-11-11T06:16:45+00:00",
+  "handoff": null,
+  "review": {
+    "by": "agent-23c2",
+    "at": "2026-11-11T06:16:45+00:00",
+    "verdict": "approved",
+    "note": "Approved (agent-23c2). src/fonts/ is untracked, so no git diff: read registry.ts and registry.test.ts in full. initFonts sets --ui-font from the saved value at line 72, before any await; reset only when selected!=saved AND installed.length>0 (lines 82-84); a rejected or empty installed list keeps both the key and --ui-font. PREF_KEY folio.workspace.interfaceFont unchanged (line 21); initFonts(): Promise<void> unchanged, single caller main.tsx:13; tsc clean. 'Loaded = non-empty' is sound: macOS families() (sysfonts.rs:33-49) returns Core Text's full family list, never legitimately empty; the non-mac branch returns Err, which system.ts turns into []; browser preview is always [] by design. Consequence: in preview a saved font missing from built-in/added lists is no longer reset at start-up; it falls through its CSS stack. Removing an added font in Settings still resets the interface font (AppearanceSettings.tsx:48), and w9-fonts' remove path passed. Fail-first: 3 of the 4 new tests failed before (F3-fail-first.txt); the 4th (truly-absent reset) guards existing behaviour and passing before is expected. Reruns: npx vitest run src/fonts 28/28 passed; npx tsc -b exit 0; PLAYWRIGHT_PORT=1440 playwright w9-fonts+appearance 22/22 passed (log node_modules/.cache/personal-word-beta/r4-23c2/T281-pw.log). FOLLOW-UP for the coordinator (same failure class as B-S1, outside this work order): listUserFonts().catch(() => []) at registry.ts:73 makes a failed native font_list look like 'no added fonts'; with the installed list loaded, a saved ADDED font is then reset to Futura for good. Suggested fix: track whether listUserFonts rejected and skip the reset in that case, plus one unit test (listUserFonts rejects, installed ['Georgia'], saved '\"My Font\", sans-serif' stays)."
+  },
+  "log": [
+    {
+      "at": "2026-11-11T06:04:41+00:00",
+      "agent": "agent-a63f",
+      "event": "created",
+      "note": ""
+    },
+    {
+      "at": "2026-11-11T06:05:17+00:00",
+      "agent": "agent-0ee6",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-11-11T06:05:17+00:00",
+      "agent": "agent-0ee6",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-11-11T06:08:02+00:00",
+      "agent": "agent-0ee6",
+      "event": "review requested",
+      "note": "B-S1 fixed in src/fonts/registry.ts initFonts: saved font set on --ui-font before any await; reset to Futura only when installed list non-empty and font absent. 4 new unit tests in registry.test.ts; fail-first (3 failed before fix) in notes/F3-fail-first.txt. vitest src/fonts 28/28 pass; tsc -b clean; playwright w9-fonts+appearance 22/22 pass (log node_modules/.cache/personal-word-beta/f3-run.log). Hand check in notes/F3.md."
+    },
+    {
+      "at": "2026-11-11T06:16:45+00:00",
+      "agent": "agent-23c2",
+      "event": "approved",
+      "note": "Approved (agent-23c2). src/fonts/ is untracked, so no git diff: read registry.ts and registry.test.ts in full. initFonts sets --ui-font from the saved value at line 72, before any await; reset only when selected!=saved AND installed.length>0 (lines 82-84); a rejected or empty installed list keeps both the key and --ui-font. PREF_KEY folio.workspace.interfaceFont unchanged (line 21); initFonts(): Promise<void> unchanged, single caller main.tsx:13; tsc clean. 'Loaded = non-empty' is sound: macOS families() (sysfonts.rs:33-49) returns Core Text's full family list, never legitimately empty; the non-mac branch returns Err, which system.ts turns into []; browser preview is always [] by design. Consequence: in preview a saved font missing from built-in/added lists is no longer reset at start-up; it falls through its CSS stack. Removing an added font in Settings still resets the interface font (AppearanceSettings.tsx:48), and w9-fonts' remove path passed. Fail-first: 3 of the 4 new tests failed before (F3-fail-first.txt); the 4th (truly-absent reset) guards existing behaviour and passing before is expected. Reruns: npx vitest run src/fonts 28/28 passed; npx tsc -b exit 0; PLAYWRIGHT_PORT=1440 playwright w9-fonts+appearance 22/22 passed (log node_modules/.cache/personal-word-beta/r4-23c2/T281-pw.log). FOLLOW-UP for the coordinator (same failure class as B-S1, outside this work order): listUserFonts().catch(() => []) at registry.ts:73 makes a failed native font_list look like 'no added fonts'; with the installed list loaded, a saved ADDED font is then reset to Futura for good. Suggested fix: track whether listUserFonts rejected and skip the reset in that case, plus one unit test (listUserFonts rejects, installed ['Georgia'], saved '\"My Font\", sans-serif' stays)."
+    }
+  ]
+}

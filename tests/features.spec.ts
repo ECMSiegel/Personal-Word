@@ -22,6 +22,7 @@ test("exports the project as Markdown", async ({ page }) => {
   await create(page, "Portable writing", "Chicago");
   await page.getByRole("textbox", { name: "Writing editor" }).fill("Evidence to preserve.");
   await page.locator(".group-title").filter({ hasText: /^Research$/ }).click();
+  await page.locator(".research-tabs").getByRole("button", { name: "Notes", exact: true }).click();
   await page.getByRole("button", { name: "Insert footnote at cursor" }).click();
   await page.getByLabel("Footnote text", { exact: true }).fill("A supporting note.");
   await page.getByRole("button", { name: "Close research", exact: true }).click();
@@ -78,6 +79,7 @@ test("research notes, footnote insertion, comments, and export route", async ({
     .locator(".group-title")
     .filter({ hasText: /^Research$/ })
     .click();
+  await page.locator(".research-tabs").getByRole("button", { name: "Notes", exact: true }).click();
   await page.getByRole("button", { name: "Insert footnote at cursor" }).click();
   await page
     .getByLabel("Footnote text", { exact: true })

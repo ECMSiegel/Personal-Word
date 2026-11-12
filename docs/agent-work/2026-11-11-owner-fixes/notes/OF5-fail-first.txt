@@ -1,0 +1,205 @@
+WAITING for lock Wed Nov 11 15:08:58 EST 2026
+LOCK ACQUIRED Wed Nov 11 15:29:41 EST 2026
+
+Running 4 tests using 1 worker
+
+[WebServer] 3:30:15 PM [vite] Internal server error: /Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/src/Writer.tsx: Unexpected token, expected "}" (1390:12)
+[WebServer] 
+[WebServer]   1388 |                 .run()
+[WebServer]   1389 |             }
+[WebServer] > 1390 |             label="Font family"
+[WebServer]        |             ^
+[WebServer]   1391 |             className="font-family-dropdown"
+[WebServer]   1392 |           />
+[WebServer]   1393 |         );
+[WebServer]   Plugin: vite:react-babel
+[WebServer]   File: /Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/src/Writer.tsx:1390:12
+[WebServer]   1388 |                  .run()
+[WebServer]   1389 |              }
+[WebServer]   1390 |              label="Font family"
+[WebServer]        |              ^
+[WebServer]   1391 |              className="font-family-dropdown"
+[WebServer]   1392 |            />
+[WebServer]       at constructor (/Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/node_modules/@babel/parser/lib/index.js:369:19)
+[WebServer]       at TypeScriptParserMixin.raise (/Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/node_modules/@babel/parser/lib/index.js:6622:19)
+[WebServer]       at TypeScriptParserMixin.unexpected (/Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/node_modules/@babel/parser/lib/index.js:6642:16)
+[WebServer]       at TypeScriptParserMixin.expect (/Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/node_modules/@babel/parser/lib/index.js:6922:12)
+[WebServer]       at TypeScriptParserMixin.jsxParseExpressionContainer (/Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/node_modules/@babel/parser/lib/index.js:4655:10)
+[WebServer]       at TypeScriptParserMixin.jsxParseAttributeValue (/Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/node_modules/@babel/parser/lib/index.js:4622:21)
+[WebServer]       at TypeScriptParserMixin.jsxParseAttribute (/Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/node_modules/@babel/parser/lib/index.js:4671:38)
+[WebServer]       at TypeScriptParserMixin.jsxParseOpeningElementAfterName (/Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/node_modules/@babel/parser/lib/index.js:4685:28)
+[WebServer]       at TypeScriptParserMixin.jsxParseOpeningElementAfterName (/Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/node_modules/@babel/parser/lib/index.js:10066:18)
+[WebServer]       at TypeScriptParserMixin.jsxParseOpeningElementAt (/Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/node_modules/@babel/parser/lib/index.js:4680:17)
+[WebServer]       at TypeScriptParserMixin.jsxParseElementAt (/Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/node_modules/@babel/parser/lib/index.js:4704:33)
+[WebServer]       at TypeScriptParserMixin.jsxParseElement (/Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/node_modules/@babel/parser/lib/index.js:4767:17)
+[WebServer]       at TypeScriptParserMixin.parseExprAtom (/Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/node_modules/@babel/parser/lib/index.js:4777:19)
+[WebServer]       at TypeScriptParserMixin.parseExprSubscripts (/Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/node_modules/@babel/parser/lib/index.js:11107:23)
+[WebServer]       at TypeScriptParserMixin.parseUpdate (/Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/node_modules/@babel/parser/lib/index.js:11092:21)
+[WebServer]       at TypeScriptParserMixin.parseMaybeUnary (/Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/node_modules/@babel/parser/lib/index.js:11072:23)
+[WebServer]       at TypeScriptParserMixin.parseMaybeUnary (/Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/node_modules/@babel/parser/lib/index.js:9860:18)
+[WebServer]       at TypeScriptParserMixin.parseMaybeUnaryOrPrivate (/Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/node_modules/@babel/parser/lib/index.js:10925:61)
+[WebServer]       at TypeScriptParserMixin.parseExprOps (/Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/node_modules/@babel/parser/lib/index.js:10930:23)
+[WebServer]       at TypeScriptParserMixin.parseMaybeConditional (/Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/node_modules/@babel/parser/lib/index.js:10907:23)
+[WebServer]       at TypeScriptParserMixin.parseMaybeAssign (/Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/node_modules/@babel/parser/lib/index.js:10857:21)
+[WebServer]       at /Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/node_modules/@babel/parser/lib/index.js:9798:39
+[WebServer]       at TypeScriptParserMixin.tryParse (/Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/node_modules/@babel/parser/lib/index.js:6930:20)
+[WebServer]       at TypeScriptParserMixin.parseMaybeAssign (/Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/node_modules/@babel/parser/lib/index.js:9798:18)
+[WebServer]       at /Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/node_modules/@babel/parser/lib/index.js:10826:39
+[WebServer]       at TypeScriptParserMixin.allowInAnd (/Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/node_modules/@babel/parser/lib/index.js:12460:12)
+[WebServer]       at TypeScriptParserMixin.parseMaybeAssignAllowIn (/Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/node_modules/@babel/parser/lib/index.js:10826:17)
+[WebServer]       at TypeScriptParserMixin.parseMaybeAssignAllowInOrVoidPattern (/Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/node_modules/@babel/parser/lib/index.js:12527:17)
+[WebServer]       at TypeScriptParserMixin.parseParenAndDistinguishExpression (/Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/node_modules/@babel/parser/lib/index.js:11706:28)
+[WebServer]       at TypeScriptParserMixin.parseExprAtom (/Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/node_modules/@babel/parser/lib/index.js:11362:23)
+[WebServer]       at TypeScriptParserMixin.parseExprAtom (/Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/node_modules/@babel/parser/lib/index.js:4782:20)
+[WebServer]       at TypeScriptParserMixin.parseExprSubscripts (/Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/node_modules/@babel/parser/lib/index.js:11107:23)
+[WebServer]       at TypeScriptParserMixin.parseUpdate (/Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/node_modules/@babel/parser/lib/index.js:11092:21)
+[WebServer]       at TypeScriptParserMixin.parseMaybeUnary (/Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/node_modules/@babel/parser/lib/index.js:11072:23)
+[WebServer]       at TypeScriptParserMixin.parseMaybeUnary (/Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/node_modules/@babel/parser/lib/index.js:9860:18)
+[WebServer]       at TypeScriptParserMixin.parseMaybeUnaryOrPrivate (/Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/node_modules/@babel/parser/lib/index.js:10925:61)
+[WebServer]       at TypeScriptParserMixin.parseExprOps (/Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/node_modules/@babel/parser/lib/index.js:10930:23)
+[WebServer]       at TypeScriptParserMixin.parseMaybeConditional (/Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/node_modules/@babel/parser/lib/index.js:10907:23)
+[WebServer]       at TypeScriptParserMixin.parseMaybeAssign (/Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/node_modules/@babel/parser/lib/index.js:10857:21)
+[WebServer]       at TypeScriptParserMixin.parseMaybeAssign (/Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/node_modules/@babel/parser/lib/index.js:9809:20)
+[WebServer]       at TypeScriptParserMixin.parseExpressionBase (/Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/node_modules/@babel/parser/lib/index.js:10810:23)
+[WebServer]       at /Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/node_modules/@babel/parser/lib/index.js:10806:39
+[WebServer]       at TypeScriptParserMixin.allowInAnd (/Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/node_modules/@babel/parser/lib/index.js:12455:16)
+[WebServer]       at TypeScriptParserMixin.parseExpression (/Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/node_modules/@babel/parser/lib/index.js:10806:17)
+[WebServer]       at TypeScriptParserMixin.parseReturnStatement (/Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/node_modules/@babel/parser/lib/index.js:13176:28)
+[WebServer]       at TypeScriptParserMixin.parseStatementContent (/Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/node_modules/@babel/parser/lib/index.js:12832:21)
+[WebServer]       at TypeScriptParserMixin.parseStatementContent (/Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/node_modules/@babel/parser/lib/index.js:9531:18)
+[WebServer]       at TypeScriptParserMixin.parseStatementLike (/Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/node_modules/@babel/parser/lib/index.js:12801:17)
+[WebServer]       at TypeScriptParserMixin.parseStatementListItem (/Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/node_modules/@babel/parser/lib/index.js:12781:17)
+[WebServer]       at TypeScriptParserMixin.parseSwitchStatement (/Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/node_modules/@babel/parser/lib/index.js:13208:36)
+  ✘  1 tests/of5-settings.spec.ts:34:1 › the hidden font file input stays hidden and Add font matches project Settings (15.1s)
+  ✘  2 tests/of5-settings.spec.ts:47:1 › Add font sits on the Interface font row, to its right, in the project Settings (29.1s)
+  ✘  3 tests/of5-settings.spec.ts:52:1 › Add font sits on the Interface font row, to its right, in the Projects dialog (5.2s)
+  ✘  4 tests/of5-settings.spec.ts:57:1 › project Settings shows exactly one rule between the section strip and General (13.2s)
+
+
+  1) tests/of5-settings.spec.ts:34:1 › the hidden font file input stays hidden and Add font matches project Settings 
+
+    Error: expect(locator).toBeHidden() failed
+
+    Locator:  getByRole('dialog', { name: 'Settings' }).locator('input[type="file"][accept=".ttf,.otf"]')
+    Expected: hidden
+    Received: visible
+    Timeout:  5000ms
+
+    Call log:
+      - Expect "toBeHidden" getByRole('dialog', { name: 'Settings' }).locator('input[type="file"][accept=".ttf,.otf"]') with timeout 5000ms
+      - waiting for getByRole('dialog', { name: 'Settings' }).locator('input[type="file"][accept=".ttf,.otf"]')
+        14 × locator resolved to <input multiple hidden="" type="file" accept=".ttf,.otf"/>
+           - unexpected value "visible"
+
+
+      35 |   await openDialogSettings(page);
+      36 |   const dialog = page.getByRole("dialog", { name: "Settings" });
+    > 37 |   await expect(dialog.locator('input[type="file"][accept=".ttf,.otf"]')).toBeHidden();
+         |                                                                          ^
+      38 |   const dialogButton = await box(dialog.getByRole("button", { name: "Add font..." }));
+      39 |   await dialog.getByRole("button", { name: "Close" }).click();
+      40 |
+        at /Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/tests/of5-settings.spec.ts:37:74
+
+    Error Context: test-results/T288/of5-settings-the-hidden-fo-821d1-nt-matches-project-Settings/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/T288/of5-settings-the-hidden-fo-821d1-nt-matches-project-Settings/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/T288/of5-settings-the-hidden-fo-821d1-nt-matches-project-Settings/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/of5-settings.spec.ts:47:1 › Add font sits on the Interface font row, to its right, in the project Settings 
+
+    Error: project Settings: vertical centres
+
+    expect(received).toBeLessThanOrEqual(expected)
+
+    Expected: <= 4
+    Received:    57.5
+
+      28 |   const b = await box(addButton);
+      29 |   const m = await box(menu);
+    > 30 |   expect(Math.abs(b.y + b.height / 2 - (m.y + m.height / 2)), `${where}: vertical centres`).toBeLessThanOrEqual(4);
+         |                                                                                             ^
+      31 |   expect(b.x, `${where}: Add font is to the right of the dropdown`).toBeGreaterThanOrEqual(m.x + m.width);
+      32 | }
+      33 |
+        at expectSharedRow (/Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/tests/of5-settings.spec.ts:30:93)
+        at /Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/tests/of5-settings.spec.ts:49:3
+
+    Error Context: test-results/T288/of5-settings-Add-font-sits-e88d7-ght-in-the-project-Settings/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/T288/of5-settings-Add-font-sits-e88d7-ght-in-the-project-Settings/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/T288/of5-settings-Add-font-sits-e88d7-ght-in-the-project-Settings/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) tests/of5-settings.spec.ts:52:1 › Add font sits on the Interface font row, to its right, in the Projects dialog 
+
+    Error: Projects dialog: vertical centres
+
+    expect(received).toBeLessThanOrEqual(expected)
+
+    Expected: <= 4
+    Received:    83.25
+
+      28 |   const b = await box(addButton);
+      29 |   const m = await box(menu);
+    > 30 |   expect(Math.abs(b.y + b.height / 2 - (m.y + m.height / 2)), `${where}: vertical centres`).toBeLessThanOrEqual(4);
+         |                                                                                             ^
+      31 |   expect(b.x, `${where}: Add font is to the right of the dropdown`).toBeGreaterThanOrEqual(m.x + m.width);
+      32 | }
+      33 |
+        at expectSharedRow (/Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/tests/of5-settings.spec.ts:30:93)
+        at /Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/tests/of5-settings.spec.ts:54:3
+
+    Error Context: test-results/T288/of5-settings-Add-font-sits-82d87-ight-in-the-Projects-dialog/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/T288/of5-settings-Add-font-sits-82d87-ight-in-the-Projects-dialog/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/T288/of5-settings-Add-font-sits-82d87-ight-in-the-Projects-dialog/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) tests/of5-settings.spec.ts:57:1 › project Settings shows exactly one rule between the section strip and General 
+
+    Error: rules between the strip and General (gap 57.0px)
+
+    expect(received).toHaveLength(expected)
+
+    Expected length: 1
+    Received length: 2
+    Received array:  ["strip bottom at 189.5", "section.settings-section top at 221.5"]
+
+      77 |     return { lines, gap: headRect.top - navRect.bottom };
+      78 |   });
+    > 79 |   expect(result.lines, `rules between the strip and General (gap ${result.gap.toFixed(1)}px)`).toHaveLength(1);
+         |                                                                                                ^
+      80 | });
+      81 |
+        at /Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/tests/of5-settings.spec.ts:79:96
+
+    Error Context: test-results/T288/of5-settings-project-Setti-dba62-e-section-strip-and-General/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/T288/of5-settings-project-Setti-dba62-e-section-strip-and-General/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/T288/of5-settings-project-Setti-dba62-e-section-strip-and-General/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4 failed
+    tests/of5-settings.spec.ts:34:1 › the hidden font file input stays hidden and Add font matches project Settings 
+    tests/of5-settings.spec.ts:47:1 › Add font sits on the Interface font row, to its right, in the project Settings 
+    tests/of5-settings.spec.ts:52:1 › Add font sits on the Interface font row, to its right, in the Projects dialog 
+    tests/of5-settings.spec.ts:57:1 › project Settings shows exactly one rule between the section strip and General 
+EXIT 1 Wed Nov 11 15:31:49 EST 2026

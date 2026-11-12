@@ -1,0 +1,109 @@
+
+Running 4 tests using 1 worker
+
+[1/4] tests/w9-side-ruler.spec.ts:53:1 › side ruler: one per page, shaded margins, drag and keys change the margin
+  1) tests/w9-side-ruler.spec.ts:53:1 › side ruler: one per page, shaded margins, drag and keys change the margin 
+
+    Error: expect(locator).toHaveCount(expected) failed
+
+    Locator:  locator('.side-ruler')
+    Expected: 5
+    Received: 0
+    Timeout:  5000ms
+
+    Call log:
+      - Expect "toHaveCount" locator('.side-ruler') with timeout 5000ms
+      - waiting for locator('.side-ruler')
+        14 × locator resolved to 0 elements
+           - unexpected value "0"
+
+
+      60 |   const sheetCount = await page.locator(".page-sheet").count();
+      61 |   expect(sheetCount).toBeGreaterThanOrEqual(2);
+    > 62 |   await expect(page.locator(".side-ruler")).toHaveCount(sheetCount);
+         |                                             ^
+      63 |
+      64 |   const m = await measure(page);
+      65 |   const m0 = await margin(page);
+        at /Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/tests/w9-side-ruler.spec.ts:62:45
+
+    Error Context: test-results/T268/w9-side-ruler-side-ruler-o-75b1a--and-keys-change-the-margin/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/T268/w9-side-ruler-side-ruler-o-75b1a--and-keys-change-the-margin/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/T268/w9-side-ruler-side-ruler-o-75b1a--and-keys-change-the-margin/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+[2/4] tests/w9-side-ruler.spec.ts:118:1 › side ruler: absent with Ruler off, in continuous view and in focus mode
+  2) tests/w9-side-ruler.spec.ts:118:1 › side ruler: absent with Ruler off, in continuous view and in focus mode 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: locator('.side-ruler').first()
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" locator('.side-ruler').first() with timeout 5000ms
+      - waiting for locator('.side-ruler').first()
+
+
+      120 |   await pageView(page, true);
+      121 |   await setRuler(page, true);
+    > 122 |   await expect(page.locator(".side-ruler").first()).toBeVisible();
+          |                                                     ^
+      123 |   await setRuler(page, false);
+      124 |   await expect(page.locator(".side-ruler")).toHaveCount(0);
+      125 |   await setRuler(page, true);
+        at /Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/tests/w9-side-ruler.spec.ts:122:53
+
+    Error Context: test-results/T268/w9-side-ruler-side-ruler-a-bc01d-uous-view-and-in-focus-mode/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/T268/w9-side-ruler-side-ruler-a-bc01d-uous-view-and-in-focus-mode/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/T268/w9-side-ruler-side-ruler-a-bc01d-uous-view-and-in-focus-mode/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+[3/4] tests/w9-side-ruler.spec.ts:139:1 › side ruler: ticks line up with the page at 150 percent
+  3) tests/w9-side-ruler.spec.ts:139:1 › side ruler: ticks line up with the page at 150 percent ────
+
+    Error: Timeout 5000ms exceeded while waiting on the predicate
+
+       at pages-helpers.ts:98
+
+       96 |       }, percent / 100),
+       97 |     )
+    >  98 |     .toBeLessThan(0.0005);
+          |      ^
+       99 | }
+      100 |
+      101 | export async function settle(page: Page) {
+        at setZoom (/Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/tests/pages-helpers.ts:98:6)
+        at /Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/tests/w9-side-ruler.spec.ts:142:3
+
+    Error Context: test-results/T268/w9-side-ruler-side-ruler-t-b5be1-ith-the-page-at-150-percent/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/T268/w9-side-ruler-side-ruler-t-b5be1-ith-the-page-at-150-percent/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/T268/w9-side-ruler-side-ruler-t-b5be1-ith-the-page-at-150-percent/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+[4/4] tests/w9-side-ruler.spec.ts:158:1 › side ruler: hidden while the sidebar floats
+  3 failed
+    tests/w9-side-ruler.spec.ts:53:1 › side ruler: one per page, shaded margins, drag and keys change the margin 
+    tests/w9-side-ruler.spec.ts:118:1 › side ruler: absent with Ruler off, in continuous view and in focus mode 
+    tests/w9-side-ruler.spec.ts:139:1 › side ruler: ticks line up with the page at 150 percent ─────
+  1 passed (1.5m)

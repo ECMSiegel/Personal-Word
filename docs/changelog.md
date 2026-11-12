@@ -2,6 +2,34 @@
 
 Dated history, newest first, built from `git log --date=short` and [app history](app-history.md). [app-history.md](app-history.md) already gives a fuller narrative for 2026-10-14 to 2026-10-18 (including what each pass did and did not verify), so this file links to it rather than repeating it. Fixed issues are listed with dates in [limitations](limitations.md). Verification details are in the [validation record](validation.md).
 
+## Unreleased
+
+2026-11-11 owner fixes (CLAIMED; Chromium, unit evidence only; native WebKit not checked). Notes: [owner-fixes folder](agent-work/2026-11-11-owner-fixes/).
+
+- Research: Text-only notes moved from Sources to the Notes tab; each has a red **Delete footnote** with a confirmation, a "Before deleting a footnote" snapshot is taken first, and the marker is removed from whichever section holds it. Cited footnotes cannot be deleted this way.
+- Floating sidebar in page view: the area behind the "Kept from" strip in a fragment is desk grey like the rest.
+- Rulers: separate **Ruler** and **Side ruler** switches in Page setup (an old Ruler setting turns both on); the top ruler is pinned in a full-width grey strip above the pages in page view and has grey bands outside the margins; clicks on the strip leave the caret alone; under a floating sidebar the strip sits beneath it.
+- Projects page: Sort, reverse and the view toggle are back in the toolbar's right group; the caption row is gone.
+- Settings fonts: **Add font...** shares the Interface font row (260 px menu), no file box shows, one line before General in project Settings, and **Remove** is danger red.
+- Font menu: a **Recent** section (up to five fonts) with a grey divider at the top.
+- Two WebKit zoom fixes (not proven natively): table right-click menu at 125 and 150 percent, and clicking under a page's last line at 150 percent.
+- Hover emphasis: a 0.3 px `text-shadow` copy (`--emph-bold`) replaces the text-stroke faux bold, the cause of the grey halo on 1x screens.
+
+UI wave 9 (tasks T254-T276; CLAIMED; Chromium, unit and cargo evidence only: nothing has been checked in the real Mac app (native WebKit)). Plan: [the wave-9 plan](agent-work/2026-11-10-ui-wave-9/PLAN.md); per-task notes are in its `notes/` folder.
+
+- Hover: text controls no longer grow; hover and focus show the faux bold only. Standalone icons outside the toolbar (Projects trash, reverse, view, search and gear; sidebar Open beside) grow 25 percent on hover and focus, the icon only, off under Reduce Motion.
+- Fonts: Settings > General has an **Interface font** menu and **Add font...** (`.ttf`, `.otf`, several styles per family, Remove). Installed Mac fonts appear in both font menus once per family. The logo stays Futura. Added fonts are stored by the app, not in projects. PDF embeds permitted fonts as subsets; Word embeds TrueType fonts only.
+- Font menu: one entry per family, no quote marks; Prose check and Page setup have different icons.
+- Prose check: rule rows show a count and line up their checkboxes; the status reads "N issues" ("1 issue").
+- Sidebar: no scrollbar and no sideways scroll; card view fits at narrow widths, with one-line research cards; empty cards hide their Synopsis and status until opened.
+- Split view: Open beside (and Cmd/Ctrl+click) replaces the pane you were last working in.
+- Editing: clicking the blank paper puts the caret at the nearest spot; a side ruler with inch numbers runs down the left of each page and sets the shared margin.
+- Research: Source, Citation and Used in zones; less-used fields and the attached PDF under **More details**; repeat-citation options under **Citation rules**; **Used in** shows which section holds each footnote with a **Go to** button; lookup accepts PubMed, PMC and PMID; the panel slides in on a click.
+- Header: **Export** menu (Cmd+Shift+E, also in the command palette) replaces the download icon; Export settings... opens Settings at Export document.
+- Settings: a section strip stays at the top of the page.
+- Projects page: Sort, direction and view are remembered; rows show the larger title first, then "Edited" and "Added"; the empty state offers Blank, Chicago, Screenplay and Import writing.
+- Docs: design system, user guide, limitations, architecture, AGENTS.md.
+
 ## 2026-11-04
 
 UI wave 7 (lanes A, B, C and tasks T236-T244; CLAIMED; T240 ran Chromium, unit and cargo; two native WebKit harness runs followed (T242), by command only: real keys, drags and resize edges are not checked; the final Chromium run on this tree had one failure, a probable timing flake, and Rust was unchanged so cargo was not rerun). Record: [wave-7 validation](agent-work/2026-11-04-ui-wave-7/VALIDATION.md).

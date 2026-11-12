@@ -1,0 +1,36 @@
+
+Running 1 test using 1 worker
+
+  ✘  1 tests/hs1-export-menu.spec.ts:5:1 › Export menu rows paint above the format bar (18.3s)
+
+
+  1) tests/hs1-export-menu.spec.ts:5:1 › Export menu rows paint above the format bar ───────────────
+
+    Error: "Word (.docx)" is the topmost element at its centre
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+      24 |       return !!hit && (hit === el || el.contains(hit));
+      25 |     });
+    > 26 |     expect(top, `"${label}" is the topmost element at its centre`).toBe(true);
+         |                                                                    ^
+      27 |   }
+      28 | });
+      29 |
+        at /Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/tests/hs1-export-menu.spec.ts:26:68
+
+    Error Context: test-results/HS1/hs1-export-menu-Export-menu-rows-paint-above-the-format-bar/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/HS1/hs1-export-menu-Export-menu-rows-paint-above-the-format-bar/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/HS1/hs1-export-menu-Export-menu-rows-paint-above-the-format-bar/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/hs1-export-menu.spec.ts:5:1 › Export menu rows paint above the format bar ────────────────

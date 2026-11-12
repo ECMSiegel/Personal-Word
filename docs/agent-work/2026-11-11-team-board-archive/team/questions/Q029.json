@@ -1,0 +1,9 @@
+{
+  "id": "Q029",
+  "at": "2026-11-11T19:58:02+00:00",
+  "by": "agent-af23",
+  "task": "T284",
+  "text": "T284 is blocked: Stop condition hit. Only existing marker-removal path is Writer.tsx deleteEmptyNote (line ~820) + App.tsx onFootnoteDelete (~1803): Backspace on an EMPTY, source-less footnote in the footnote area of the entry open in the editor; it deletes marker and record in one revision, no snapshot. Nothing removes a marker for a footnote that has text (e.g. 'lkdjlwakjd' in the owner's screenshot), for one whose marker is in a section not open (the 'in Angela Demonstration Fragment' rows), or from the Research panel. Panel 'Delete note' (ResearchPanel deleteNote) and removeSource only touch records, never document text. A Delete that removes markers from text/other sections would be new behaviour on the owner's writing (needs a cross-entry marker-removal op + safety snapshot + decision on whether notes with text may be deleted). No files changed. Owner decision needed.",
+  "status": "resolved",
+  "resolution": "Owner, 2026-11-11: 'full delete -- not empty only but show a confirm delete of some kind.' Delete works on any text-only footnote (with or without text, in any section, open or not): it removes the marker from the document and the footnote, after a confirmation step and a safety snapshot."
+}

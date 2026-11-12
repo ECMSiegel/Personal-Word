@@ -1,0 +1,206 @@
+
+Running 10 tests using 1 worker
+
+  ✓   1 tests/hs11-font-focus.spec.ts:11:3 › choosing "Georgia" from Font family focuses the editor immediately (3.0s)
+  ✓   2 tests/hs11-font-focus.spec.ts:11:3 › choosing "Heading 1" from Paragraph style focuses the editor immediately (2.9s)
+  ✘   3 tests/hs11-font-focus.spec.ts:48:3 › clicking "Bold (⌘B)" focuses the editor immediately (1.8s)
+  ✘   4 tests/hs11-font-focus.spec.ts:48:3 › clicking "Bullet list" focuses the editor immediately (1.8s)
+  ✘   5 tests/hs11-font-focus.spec.ts:48:3 › clicking "Increase font size" focuses the editor immediately (1.8s)
+  ✘   6 tests/hs11-font-focus.spec.ts:48:3 › clicking "Decrease font size" focuses the editor immediately (1.8s)
+  ✘   7 tests/hs11-font-focus.spec.ts:48:3 › clicking "Increase indent" focuses the editor immediately (1.9s)
+  ✘   8 tests/hs11-font-focus.spec.ts:57:1 › clicking Undo focuses the editor immediately (3.0s)
+  ✘   9 tests/hs11-font-focus.spec.ts:68:1 › font size + applies to the next typed text and keeps the selection (1.9s)
+  ✓  10 tests/hs11-font-focus.spec.ts:91:1 › Space on a focused toolbar button toggles it and types nothing (1.7s)
+
+
+  1) tests/hs11-font-focus.spec.ts:48:3 › clicking "Bold (⌘B)" focuses the editor immediately ──────
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: "Writing editor"
+    Received: "Bold (⌘B)"
+
+      49 |     const editor = await openBlankEditor(page);
+      50 |     await page.keyboard.type("Hello");
+    > 51 |     expect(await focusedLabel(page, name)).toBe("Writing editor");
+         |                                            ^
+      52 |     await page.keyboard.type(" there");
+      53 |     await expect(editor).toContainText("Hello there");
+      54 |   });
+        at /Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/tests/hs11-font-focus.spec.ts:51:44
+
+    Error Context: test-results/HS12/hs11-font-focus-clicking-B-3b435-uses-the-editor-immediately/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/HS12/hs11-font-focus-clicking-B-3b435-uses-the-editor-immediately/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/HS12/hs11-font-focus-clicking-B-3b435-uses-the-editor-immediately/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/hs11-font-focus.spec.ts:48:3 › clicking "Bullet list" focuses the editor immediately ────
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: "Writing editor"
+    Received: "Bullet list"
+
+      49 |     const editor = await openBlankEditor(page);
+      50 |     await page.keyboard.type("Hello");
+    > 51 |     expect(await focusedLabel(page, name)).toBe("Writing editor");
+         |                                            ^
+      52 |     await page.keyboard.type(" there");
+      53 |     await expect(editor).toContainText("Hello there");
+      54 |   });
+        at /Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/tests/hs11-font-focus.spec.ts:51:44
+
+    Error Context: test-results/HS12/hs11-font-focus-clicking-B-40f9d-uses-the-editor-immediately/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/HS12/hs11-font-focus-clicking-B-40f9d-uses-the-editor-immediately/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/HS12/hs11-font-focus-clicking-B-40f9d-uses-the-editor-immediately/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) tests/hs11-font-focus.spec.ts:48:3 › clicking "Increase font size" focuses the editor immediately 
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: "Writing editor"
+    Received: "Increase font size"
+
+      49 |     const editor = await openBlankEditor(page);
+      50 |     await page.keyboard.type("Hello");
+    > 51 |     expect(await focusedLabel(page, name)).toBe("Writing editor");
+         |                                            ^
+      52 |     await page.keyboard.type(" there");
+      53 |     await expect(editor).toContainText("Hello there");
+      54 |   });
+        at /Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/tests/hs11-font-focus.spec.ts:51:44
+
+    Error Context: test-results/HS12/hs11-font-focus-clicking-I-e71d0-uses-the-editor-immediately/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/HS12/hs11-font-focus-clicking-I-e71d0-uses-the-editor-immediately/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/HS12/hs11-font-focus-clicking-I-e71d0-uses-the-editor-immediately/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) tests/hs11-font-focus.spec.ts:48:3 › clicking "Decrease font size" focuses the editor immediately 
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: "Writing editor"
+    Received: "Decrease font size"
+
+      49 |     const editor = await openBlankEditor(page);
+      50 |     await page.keyboard.type("Hello");
+    > 51 |     expect(await focusedLabel(page, name)).toBe("Writing editor");
+         |                                            ^
+      52 |     await page.keyboard.type(" there");
+      53 |     await expect(editor).toContainText("Hello there");
+      54 |   });
+        at /Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/tests/hs11-font-focus.spec.ts:51:44
+
+    Error Context: test-results/HS12/hs11-font-focus-clicking-D-41a34-uses-the-editor-immediately/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/HS12/hs11-font-focus-clicking-D-41a34-uses-the-editor-immediately/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/HS12/hs11-font-focus-clicking-D-41a34-uses-the-editor-immediately/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  5) tests/hs11-font-focus.spec.ts:48:3 › clicking "Increase indent" focuses the editor immediately 
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: "Writing editor"
+    Received: "Increase indent"
+
+      49 |     const editor = await openBlankEditor(page);
+      50 |     await page.keyboard.type("Hello");
+    > 51 |     expect(await focusedLabel(page, name)).toBe("Writing editor");
+         |                                            ^
+      52 |     await page.keyboard.type(" there");
+      53 |     await expect(editor).toContainText("Hello there");
+      54 |   });
+        at /Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/tests/hs11-font-focus.spec.ts:51:44
+
+    Error Context: test-results/HS12/hs11-font-focus-clicking-I-09f21-uses-the-editor-immediately/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/HS12/hs11-font-focus-clicking-I-09f21-uses-the-editor-immediately/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/HS12/hs11-font-focus-clicking-I-09f21-uses-the-editor-immediately/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  6) tests/hs11-font-focus.spec.ts:57:1 › clicking Undo focuses the editor immediately ─────────────
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: "Writing editor"
+    Received: "Undo"
+
+      62 |   await page.keyboard.type(" bold");
+      63 |   await expect(page.getByRole("button", { name: "Undo", exact: true })).toBeEnabled();
+    > 64 |   expect(await focusedLabel(page, "Undo")).toBe("Writing editor");
+         |                                            ^
+      65 |   await expect(editor).toContainText("Hello");
+      66 | });
+      67 |
+        at /Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/tests/hs11-font-focus.spec.ts:64:44
+
+    Error Context: test-results/HS12/hs11-font-focus-clicking-Undo-focuses-the-editor-immediately/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/HS12/hs11-font-focus-clicking-Undo-focuses-the-editor-immediately/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/HS12/hs11-font-focus-clicking-Undo-focuses-the-editor-immediately/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  7) tests/hs11-font-focus.spec.ts:68:1 › font size + applies to the next typed text and keeps the selection 
+
+    Error: expect(received).toBeGreaterThan(expected)
+
+    Expected: > 16
+    Received:   NaN
+
+      79 |     return getComputedStyle(p).fontSize;
+      80 |   });
+    > 81 |   expect(parseFloat(size)).toBeGreaterThan(parseFloat(base));
+         |                            ^
+      82 |   // with a selection: size changes the selected word and the selection stays
+      83 |   await page.keyboard.press("Shift+ArrowLeft");
+      84 |   await page.keyboard.press("Shift+ArrowLeft");
+        at /Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/tests/hs11-font-focus.spec.ts:81:28
+
+    Error Context: test-results/HS12/hs11-font-focus-font-size--f9035-ext-and-keeps-the-selection/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/HS12/hs11-font-focus-font-size--f9035-ext-and-keeps-the-selection/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/HS12/hs11-font-focus-font-size--f9035-ext-and-keeps-the-selection/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  7 failed
+    tests/hs11-font-focus.spec.ts:48:3 › clicking "Bold (⌘B)" focuses the editor immediately ───────
+    tests/hs11-font-focus.spec.ts:48:3 › clicking "Bullet list" focuses the editor immediately ─────
+    tests/hs11-font-focus.spec.ts:48:3 › clicking "Increase font size" focuses the editor immediately 
+    tests/hs11-font-focus.spec.ts:48:3 › clicking "Decrease font size" focuses the editor immediately 
+    tests/hs11-font-focus.spec.ts:48:3 › clicking "Increase indent" focuses the editor immediately ─
+    tests/hs11-font-focus.spec.ts:57:1 › clicking Undo focuses the editor immediately ──────────────
+    tests/hs11-font-focus.spec.ts:68:1 › font size + applies to the next typed text and keeps the selection 
+  3 passed (29.6s)

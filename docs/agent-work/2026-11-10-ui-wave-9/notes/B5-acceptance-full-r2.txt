@@ -1,0 +1,111 @@
+
+Running 56 tests using 1 worker
+
+  ✓   1 tests/footnotes.spec.ts:48:1 › Backspace in an empty text-only footnote removes marker, row and record (4.6s)
+  ✓   2 tests/footnotes.spec.ts:95:1 › Backspace in an empty citation footnote keeps its marker (2.3s)
+  ✓   3 tests/footnotes.spec.ts:134:1 › Backspace in a text-only footnote with text deletes one character (2.0s)
+  ✓   4 tests/footnotes.spec.ts:154:1 › a slow frame after inserting a footnote does not pull typing back to the document (2.7s)
+  ✓   5 tests/footnotes.spec.ts:176:1 › Cite here scrolls back to a caret that was out of view (2.1s)
+  ✓   6 tests/footnotes.spec.ts:208:1 › footnote text appears at the bottom of the page and is editable there (2.7s)
+  ✓   7 tests/pages-gap.spec.ts:119:3 › fuzz at 100 %: caret and empty lines never in a gap (seed 4101) (1.6m)
+  ✓   8 tests/pages-gap.spec.ts:119:3 › fuzz at 75 %: caret and empty lines never in a gap (seed 4175) (1.6m)
+  ✓   9 tests/pages-gap.spec.ts:119:3 › fuzz at 125 %: caret and empty lines never in a gap (seed 4125) (1.6m)
+  ✓  10 tests/pages-gap.spec.ts:230:3 › targeted gap cases at 100 % › Enter at the last line of page 1 puts the caret at the top of page 2 (3.8s)
+  ✓  11 tests/pages-gap.spec.ts:243:3 › targeted gap cases at 100 % › Enter after Enter from a half-full page: the caret is always on a page (14.4s)
+  ✓  12 tests/pages-gap.spec.ts:259:3 › targeted gap cases at 100 % › Backspace at the first paragraph of page 2 merges up; the caret is on page 1 (3.7s)
+  ✓  13 tests/pages-gap.spec.ts:270:3 › targeted gap cases at 100 % › a click in the bottom margin goes to page 1's end, in the gap to page 2's start (4.1s)
+  ✓  14 tests/pages-gap.spec.ts:295:3 › targeted gap cases at 100 % › Shift+click across a gap selects across both pages (4.5s)
+  ✓  15 tests/pages-gap.spec.ts:310:3 › targeted gap cases at 100 % › Backspace after a page break and Delete before one remove the break with a visible caret; undo restores (7.3s)
+  ✓  16 tests/pages-gap.spec.ts:362:3 › targeted gap cases at 100 % › undo and redo of a page-filling paste keep every line on a page (5.7s)
+  ✓  17 tests/ruler.spec.ts:103:1 › ruler toggles on and exposes keyboard-accessible linked margin markers (3.1s)
+  ✓  18 tests/ruler.spec.ts:146:5 › ruler box and markers match the page: continuous view at 75% (2.4s)
+  ✓  19 tests/ruler.spec.ts:146:5 › ruler box and markers match the page: continuous view at 100% (2.3s)
+  ✓  20 tests/ruler.spec.ts:146:5 › ruler box and markers match the page: continuous view at 150% (2.4s)
+  ✓  21 tests/ruler.spec.ts:146:5 › ruler box and markers match the page: pages view at 75% (2.6s)
+  ✓  22 tests/ruler.spec.ts:146:5 › ruler box and markers match the page: pages view at 100% (2.2s)
+  ✓  23 tests/ruler.spec.ts:146:5 › ruler box and markers match the page: pages view at 150% (2.6s)
+  ✓  24 tests/ruler.spec.ts:165:1 › ruler matches the page in a narrow window without horizontal scroll (1.9s)
+  ✓  25 tests/ruler.spec.ts:174:1 › each split pane's ruler matches its own paper, text and markers (2.4s)
+  ✓  26 tests/ruler.spec.ts:197:3 › ruler stays pinned, opaque and on top of scrolled text: continuous view (2.6s)
+  ✓  27 tests/ruler.spec.ts:197:3 › ruler stays pinned, opaque and on top of scrolled text: pages view (5.7s)
+  ✓  28 tests/ruler.spec.ts:223:1 › a top gap below the ruler height keeps the first line and the gap handle off the ticks (2.4s)
+  ✓  29 tests/ruler.spec.ts:241:1 › only the primary button drags a marker (2.8s)
+  ✓  30 tests/ruler.spec.ts:261:1 › continuous top gap is ruler-only, screen-only and does not change page-view padding (3.1s)
+  ✓  31 tests/ruler.spec.ts:291:1 › a gap-only change leaves a different stored export margin alone (3.1s)
+  ✓  32 tests/ruler.spec.ts:340:3 › first glyph sits on the left marker in continuous view at 75% (3.0s)
+  ✓  33 tests/ruler.spec.ts:340:3 › first glyph sits on the left marker in continuous view at 100% (2.8s)
+  ✓  34 tests/ruler.spec.ts:340:3 › first glyph sits on the left marker in continuous view at 150% (2.9s)
+  ✓  35 tests/ruler.spec.ts:372:3 › caret never goes behind the ruler: ArrowUp and typing, continuous view (16.7s)
+  ✓  36 tests/ruler.spec.ts:372:3 › caret never goes behind the ruler: ArrowUp and typing, pages view (19.1s)
+  ✓  37 tests/ruler.spec.ts:403:5 › caret stays clear at 75% zoom: continuous view, ruler on (11.1s)
+  ✓  38 tests/ruler.spec.ts:403:5 › caret stays clear at 75% zoom: continuous view, ruler off (9.7s)
+  ✓  39 tests/ruler.spec.ts:403:5 › caret stays clear at 75% zoom: pages view, ruler on (11.8s)
+  ✓  40 tests/ruler.spec.ts:403:5 › caret stays clear at 75% zoom: pages view, ruler off (9.7s)
+  ✓  41 tests/ruler.spec.ts:436:1 › caret scrolling with the ruler off keeps the default margin (5.2s)
+  ✓  42 tests/ruler.spec.ts:503:7 › emulated WebKit rects: ArrowUp/Down keep the caret in view at 75%: pages view, ruler on (11.9s)
+  ✓  43 tests/ruler.spec.ts:503:7 › emulated WebKit rects: ArrowUp/Down keep the caret in view at 75%: pages view, ruler off (10.3s)
+  ✓  44 tests/ruler.spec.ts:503:7 › emulated WebKit rects: ArrowUp/Down keep the caret in view at 150%: pages view, ruler on (13.5s)
+  ✓  45 tests/ruler.spec.ts:503:7 › emulated WebKit rects: ArrowUp/Down keep the caret in view at 150%: pages view, ruler off (10.4s)
+  ✓  46 tests/ruler.spec.ts:503:7 › emulated WebKit rects: ArrowUp/Down keep the caret in view at 75%: continuous view, ruler on (10.5s)
+  ✓  47 tests/ruler.spec.ts:503:7 › emulated WebKit rects: ArrowUp/Down keep the caret in view at 75%: continuous view, ruler off (10.1s)
+  ✓  48 tests/ruler.spec.ts:503:7 › emulated WebKit rects: ArrowUp/Down keep the caret in view at 150%: continuous view, ruler on (10.3s)
+  ✓  49 tests/ruler.spec.ts:503:7 › emulated WebKit rects: ArrowUp/Down keep the caret in view at 150%: continuous view, ruler off (10.1s)
+  ✓  50 tests/ruler.spec.ts:536:3 › a slow moment after ArrowUp still keeps the caret clear of the ruler at 75% (13.4s)
+  ✓  51 tests/ruler.spec.ts:536:3 › a slow moment after ArrowUp still keeps the caret clear of the ruler at 150% (14.6s)
+  ✓  52 tests/ruler.spec.ts:562:1 › a movement key that moves nothing does not make select-all jump to the end (2.3s)
+  ✓  53 tests/ruler.spec.ts:576:3 › emulated WebKit rects: a selected tall image clears the ruler at 100% (4.0s)
+  ✓  54 tests/ruler.spec.ts:576:3 › emulated WebKit rects: a selected tall image clears the ruler at 75% (3.9s)
+blank-click below last paragraph: elementFromPoint(463, 260) = div.tiptap.ProseMirror.writing-surface
+blank-click left margin at paragraph two: elementFromPoint(379, 184) = div.editor-paper
+blank-click right margin at paragraph two: elementFromPoint(1171, 184) = div.editor-paper
+blank-click shift setup: {"anchor":4,"head":4}
+blank-click shift-click left margin: elementFromPoint(379, 184) = div.editor-paper
+blank-click inside text: elementFromPoint(492.765625, 159.5) = p
+  ✘  55 tests/w9-blank-click.spec.ts:43:3 › blank-page clicks place and extend the caret in continuous view (2.5s)
+blank-click below last paragraph: elementFromPoint(463, 338) = div.editor-paper
+blank-click left margin at paragraph two: elementFromPoint(379, 262) = div.editor-paper
+blank-click right margin at paragraph two: elementFromPoint(1171, 262) = div.editor-paper
+blank-click shift setup: {"anchor":4,"head":4}
+blank-click shift-click left margin: elementFromPoint(379, 262) = div.editor-paper
+blank-click inside text: elementFromPoint(492.765625, 237.5) = p
+  ✓  56 tests/w9-blank-click.spec.ts:43:3 › blank-page clicks place and extend the caret in page view (3.1s)
+
+
+  1) tests/w9-blank-click.spec.ts:43:3 › blank-page clicks place and extend the caret in continuous view 
+
+    Error: continuous blank-click failures
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 1
+    + Received  + 3
+
+    - Array []
+    + Array [
+    +   "(e) ProseMirror did not place an empty text selection inside paragraph one: 13",
+    + ]
+
+      143 |     if (!textClick.empty || textClick.head <= first.start || textClick.head >= first.end)
+      144 |       failures.push(`(e) ProseMirror did not place an empty text selection inside paragraph one: ${textClick.head}`);
+    > 145 |     expect(failures, `${mode} blank-click failures`).toEqual([]);
+          |                                                      ^
+      146 |   });
+      147 | }
+      148 |
+        at /Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/tests/w9-blank-click.spec.ts:145:54
+
+    Error Context: test-results/T262-full-r2/w9-blank-click-blank-page--b9d4f-he-caret-in-continuous-view/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/T262-full-r2/w9-blank-click-blank-page--b9d4f-he-caret-in-continuous-view/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/T262-full-r2/w9-blank-click-blank-page--b9d4f-he-caret-in-continuous-view/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  Slow test file: tests/pages-gap.spec.ts (5.6m)
+  Consider running tests from slow files in parallel. See: https://playwright.dev/docs/test-parallel
+  1 failed
+    tests/w9-blank-click.spec.ts:43:3 › blank-page clicks place and extend the caret in continuous view 
+  55 passed (10.3m)

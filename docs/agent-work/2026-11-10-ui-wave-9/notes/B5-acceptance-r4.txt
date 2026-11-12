@@ -1,0 +1,100 @@
+
+Running 2 tests using 1 worker
+
+blank-click below last paragraph: elementFromPoint(463, 260) = div.tiptap.ProseMirror.writing-surface
+blank-click below last paragraph event: {"shiftKey":false,"defaultPrevented":true,"target":"tiptap ProseMirror writing-surface ProseMirror-focused"}
+blank-click left margin at paragraph two: elementFromPoint(379, 184) = div.editor-paper
+blank-click left margin at paragraph two event: {"shiftKey":false,"defaultPrevented":true,"target":"editor-paper"}
+blank-click right margin at paragraph two: elementFromPoint(1171, 184) = div.editor-paper
+blank-click right margin at paragraph two event: {"shiftKey":false,"defaultPrevented":true,"target":"editor-paper"}
+blank-click shift setup: {"anchor":4,"head":4}
+blank-click shift-click left margin: elementFromPoint(379, 184) = div.editor-paper
+blank-click shift-click left margin event: {"shiftKey":false,"defaultPrevented":true,"target":"editor-paper"}
+blank-click inside text: elementFromPoint(482.125, 159.5) = p
+blank-click inside text event: {"shiftKey":false,"defaultPrevented":false,"target":""}
+  ✘  1 tests/w9-blank-click.spec.ts:56:3 › blank-page clicks place and extend the caret in continuous view (14.5s)
+blank-click below last paragraph: elementFromPoint(463, 338) = div.editor-paper
+blank-click below last paragraph event: {"shiftKey":false,"defaultPrevented":true,"target":"editor-paper"}
+blank-click left margin at paragraph two: elementFromPoint(379, 262) = div.editor-paper
+blank-click left margin at paragraph two event: {"shiftKey":false,"defaultPrevented":true,"target":"editor-paper"}
+blank-click right margin at paragraph two: elementFromPoint(1171, 262) = div.editor-paper
+blank-click right margin at paragraph two event: {"shiftKey":false,"defaultPrevented":true,"target":"editor-paper"}
+blank-click shift setup: {"anchor":4,"head":4}
+blank-click shift-click left margin: elementFromPoint(379, 262) = div.editor-paper
+blank-click shift-click left margin event: {"shiftKey":false,"defaultPrevented":true,"target":"editor-paper"}
+blank-click inside text: elementFromPoint(482.125, 237.5) = p
+blank-click inside text event: {"shiftKey":false,"defaultPrevented":false,"target":""}
+  ✘  2 tests/w9-blank-click.spec.ts:56:3 › blank-page clicks place and extend the caret in page view (8.8s)
+
+
+  1) tests/w9-blank-click.spec.ts:56:3 › blank-page clicks place and extend the caret in continuous view 
+
+    Error: continuous blank-click failures
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 1
+    + Received  + 4
+
+    - Array []
+    + Array [
+    +   "(d) anchor 13 != 4",
+    +   "(d) shift-click did not extend the selection",
+    + ]
+
+      152 |     if (!textClick.empty || textClick.head <= first.start || textClick.head >= first.end)
+      153 |       failures.push(`(e) ProseMirror did not place an empty text selection inside paragraph one: ${textClick.head}`);
+    > 154 |     expect(failures, `${mode} blank-click failures`).toEqual([]);
+          |                                                      ^
+      155 |   });
+      156 | }
+      157 |
+        at /Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/tests/w9-blank-click.spec.ts:154:54
+
+    Error Context: test-results/T262-r4/w9-blank-click-blank-page--b9d4f-he-caret-in-continuous-view/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/T262-r4/w9-blank-click-blank-page--b9d4f-he-caret-in-continuous-view/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/T262-r4/w9-blank-click-blank-page--b9d4f-he-caret-in-continuous-view/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/w9-blank-click.spec.ts:56:3 › blank-page clicks place and extend the caret in page view ─
+
+    Error: page blank-click failures
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 1
+    + Received  + 4
+
+    - Array []
+    + Array [
+    +   "(d) anchor 13 != 4",
+    +   "(d) shift-click did not extend the selection",
+    + ]
+
+      152 |     if (!textClick.empty || textClick.head <= first.start || textClick.head >= first.end)
+      153 |       failures.push(`(e) ProseMirror did not place an empty text selection inside paragraph one: ${textClick.head}`);
+    > 154 |     expect(failures, `${mode} blank-click failures`).toEqual([]);
+          |                                                      ^
+      155 |   });
+      156 | }
+      157 |
+        at /Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/tests/w9-blank-click.spec.ts:154:54
+
+    Error Context: test-results/T262-r4/w9-blank-click-blank-page--707b9-tend-the-caret-in-page-view/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/T262-r4/w9-blank-click-blank-page--707b9-tend-the-caret-in-page-view/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/T262-r4/w9-blank-click-blank-page--707b9-tend-the-caret-in-page-view/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2 failed
+    tests/w9-blank-click.spec.ts:56:3 › blank-page clicks place and extend the caret in continuous view 
+    tests/w9-blank-click.spec.ts:56:3 › blank-page clicks place and extend the caret in page view ──

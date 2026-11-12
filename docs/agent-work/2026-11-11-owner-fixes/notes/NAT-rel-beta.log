@@ -1,0 +1,1440 @@
+{
+  "suite": "beta",
+  "ok": true,
+  "status": "passed",
+  "runId": "20261111T234150Z-9054fa61",
+  "host": "macOS-15.7.9-x86_64-i386-64bit-Mach-O",
+  "binary": "/Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/src-tauri/target/debug/folio",
+  "identity": {
+    "binaryPath": "/Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/src-tauri/target/debug/folio",
+    "binarySha256": "e9b9ae8d2272cfcb8beb33e7b1a43edce4b2fe3d83ee15cff1c2d2c3c5ca7672",
+    "sourceInputs": [
+      {
+        "path": "index.html",
+        "sha256": "f75ed9744655f6d2dbf02aaa7443835e2e4ae60e6f65bf9c6efc12d4436b98dc"
+      },
+      {
+        "path": "package-lock.json",
+        "sha256": "f053815678395482bcbba8ebcb5d7f59c726b5fba3f23c2bfdf7edf6a466ab4b"
+      },
+      {
+        "path": "package.json",
+        "sha256": "d4b3f572737a6198433d4d28481ce97745c359ee15f96ff0d0d69077286226ad"
+      },
+      {
+        "path": "src/App.tsx",
+        "sha256": "bce886efb2848dcd0e791a8d9d5f2ef33d6dbbf3b2eb16ba5eb6b11f1f19af77"
+      },
+      {
+        "path": "src/Writer.tsx",
+        "sha256": "b5448e80a82251054bd37ecab0a2e3b1a7e5ed5a6ade5d14ea771224c0ced7b0"
+      },
+      {
+        "path": "src/adversarial-wp1.test.ts",
+        "sha256": "77605745162db478021d8e8e02034b56a82a5d20a5fb0a94c37c8a0476d5a389"
+      },
+      {
+        "path": "src/adversarial-wp2-1.test.ts",
+        "sha256": "1a7bb69391765ce7f0794b04b92bb5ae3dc26068b9498e1e5e179552bbc401dc"
+      },
+      {
+        "path": "src/adversarial-wp2.test.ts",
+        "sha256": "ebe2315f8e4768d0b9d82aa4e28fea0e4cdfd68c76c91bfc20b5413e5022c211"
+      },
+      {
+        "path": "src/adversarial-wp3-exports.test.ts",
+        "sha256": "9a28dec574fe4f8fd1dba66b202cc88b5edf3343b494f74509c9fab0cc3784c2"
+      },
+      {
+        "path": "src/adversarial-wp3-fragments.test.ts",
+        "sha256": "a8222e16ef44e2ec2c5de8a1adfaa9bd8177927756bdadce6b767d7b80a4c3e1"
+      },
+      {
+        "path": "src/adversarial-wp4.test.ts",
+        "sha256": "ce0e5ef6df473acc82bd31a43325245078696187078983e0121695f00d170e4f"
+      },
+      {
+        "path": "src/adversarial-wp5.test.ts",
+        "sha256": "22dfa66d03f1c0ae53d15affefa37fd235cec2cf52adc9221b627f581d07b2ec"
+      },
+      {
+        "path": "src/adversarial-wp7-exportpanel.test.ts",
+        "sha256": "aa4a5c3f97de978ca30b56bf4a21fa32e6e176155e8751232aad732923f9987c"
+      },
+      {
+        "path": "src/app/ProjectDialogs.tsx",
+        "sha256": "af94c1f6d8175820f34c5737eea17aa9dc3ee8ae3f113d280a59aa0ca6b7d880"
+      },
+      {
+        "path": "src/appearance.test.ts",
+        "sha256": "e4240dfe18c00603f5669d5c384d4ef1fdfadda0e1b6e04d72b14865f60f232a"
+      },
+      {
+        "path": "src/appearance.ts",
+        "sha256": "b12c693c98c297930f8fc46f5730102cc668fd2579bf7c0c0479bb44ce4c32dd"
+      },
+      {
+        "path": "src/assets/assets.test.ts",
+        "sha256": "93d247d9cef801c961e636a5b5ed8567dbccc4a9eeadf10a12e840733edd404b"
+      },
+      {
+        "path": "src/assets/assets.ts",
+        "sha256": "0c369c8adfc6a24fba26eeb06865b4b4b09edda5df8998cc0e95e3ce48224e5e"
+      },
+      {
+        "path": "src/assets/pdf.test.ts",
+        "sha256": "efc7d6eb00b6f59356a1524a3bb06efa632710e40b33e6e8777cba2c923ec828"
+      },
+      {
+        "path": "src/assets/pdf.ts",
+        "sha256": "14a656ab28abfe48cec432a137c21770d85802d6f3ea2edb0194940ad952e5b0"
+      },
+      {
+        "path": "src/assets/types.ts",
+        "sha256": "d88ae7ae54b5564ebd312b2e404f0e48b6863184e976c31f8166c67807a6b14f"
+      },
+      {
+        "path": "src/betaDurability.test.ts",
+        "sha256": "9b028b23f88d6e8d6d4f584467dfa35cfece782b084ecfa60bcebfd61bd4c92d"
+      },
+      {
+        "path": "src/caretScroll.test.ts",
+        "sha256": "f71b9f2d58225c27b7ada01de4588a57684ed57a672889d346e6c586c6964a91"
+      },
+      {
+        "path": "src/caretScroll.ts",
+        "sha256": "baac26936e90994521663e7c1f56f70a46a518f1c099a5f19eea6915f7665849"
+      },
+      {
+        "path": "src/components/CommandPalette.tsx",
+        "sha256": "40d40269cbc950b0bb955036bd4ec62569395777d1bce304891b23cb6dea74d2"
+      },
+      {
+        "path": "src/components/ContextMenu.tsx",
+        "sha256": "a3a50d1961f62f344df0a99623772a824b2656a8b76d64ef546a218ffb52b1ce"
+      },
+      {
+        "path": "src/components/DropTarget.tsx",
+        "sha256": "cbf1c4b9cb79ed7c53a77202a9741215183b84e4628a411e90703ef71e34e6d0"
+      },
+      {
+        "path": "src/components/Dropdown.tsx",
+        "sha256": "a6024afa7b5c3b2074591592bf09176c5ff89d3b6c2e541cae811135dbd8619f"
+      },
+      {
+        "path": "src/components/PaneFooter.tsx",
+        "sha256": "3aabff6287c742f7958dac43b383a23d88a545be2be4111c3d44e4d2cc63ca7b"
+      },
+      {
+        "path": "src/components/Popover.test.ts",
+        "sha256": "3cc69ccf853c96902e1e9fab378df817c0120b4983804e6e64c6a8108e515cfd"
+      },
+      {
+        "path": "src/components/Popover.tsx",
+        "sha256": "7ffc8b229598e4b01ebb8d85fc5759ffd9f8a0c5a0efc6bcb258fa72a1824d13"
+      },
+      {
+        "path": "src/components/ProjectLibrary.tsx",
+        "sha256": "d97cb70a45be7a9ff7487cf04791fd67f1075ecda78018313437b9227eee5c4a"
+      },
+      {
+        "path": "src/components/ProjectSidebar.tsx",
+        "sha256": "c4ab041e52039e7f602f5e78b88a176ee0e1c4ad02c90b3ee021e7895beb15bc"
+      },
+      {
+        "path": "src/components/ProjectTabs.tsx",
+        "sha256": "52886512442b6e5c041eae40836e04bc906985d94c8531fdf4e45e79dd4c3a0a"
+      },
+      {
+        "path": "src/components/ProseIssues.tsx",
+        "sha256": "c2e0a19d81de76eff924f339522dc8ccacf36dcc685cddec5440e1b72dc71323"
+      },
+      {
+        "path": "src/components/ReadDocument.test.ts",
+        "sha256": "e19fb9af2a0fc8dcb6dd0e936df564c82d1a24307214b144e7193d5a91993de9"
+      },
+      {
+        "path": "src/components/ReadDocument.tsx",
+        "sha256": "d368359a10746c56b453c2833a1956e65f2736e67eb25c6f5b3269cbcb51ae8a"
+      },
+      {
+        "path": "src/components/Segmented.tsx",
+        "sha256": "fc103f1eb95507410b64f6177faf1c938f90c80b7aa5ca5e8bc9b2e10a140284"
+      },
+      {
+        "path": "src/components/SplitDivider.tsx",
+        "sha256": "e6b3943d71e4e74bb1e465754261f7da372ac0a723aaca35ba25c75b03696e51"
+      },
+      {
+        "path": "src/components/SpyRail.tsx",
+        "sha256": "000b4d45299ac8b3ef6ea59094705ba58617abc02c7f0f371a998271a945b1b0"
+      },
+      {
+        "path": "src/components/command-palette.css",
+        "sha256": "f75d8f9c921ad5c3bf9869737a87e4c53148cd237791c7091e14b862b944324c"
+      },
+      {
+        "path": "src/components/context-menu.css",
+        "sha256": "a2c009c6d1c453c9d432c16eaa6e03c10308830e513846d6b3d7f5049f69b695"
+      },
+      {
+        "path": "src/components/dock.test.ts",
+        "sha256": "1692a5c9602f132de948a897971ff08bc7d0fcef584d0eaa17815cdc4349694c"
+      },
+      {
+        "path": "src/components/dock.ts",
+        "sha256": "2153f88f63f98b779c0e499091bd519f8e21b0e75204339a6511cdaf3d25c215"
+      },
+      {
+        "path": "src/components/drag-reorder.css",
+        "sha256": "d3d2dd9aecf8e3f587b9e413b51894296f10523590ce77bb6e4163e4d0f2b5aa"
+      },
+      {
+        "path": "src/components/dragReorder.test.ts",
+        "sha256": "5239ebcad9fb9cc79b6c5a9b62a187b6b19c7082f7ba864baf0ad55260917ed3"
+      },
+      {
+        "path": "src/components/dragReorder.ts",
+        "sha256": "1606145e8673446040165db1bbce8e96db5e791b259a4897ecb1708d20d725d5"
+      },
+      {
+        "path": "src/components/drop-target.css",
+        "sha256": "60b152fef76b5615fd6bf815afa450d84ca3fd9e61814a72c5cf9c2145603cd9"
+      },
+      {
+        "path": "src/components/dropTarget.test.ts",
+        "sha256": "903b67da055b3d236c4a442e9fb9eba3583dd416c5abee44e3f1bcf6ae881645"
+      },
+      {
+        "path": "src/components/dropdown.css",
+        "sha256": "dae9313f1dfef0580e7ebfe6a7fae8ccd08069a5018c22beacc0dbc7ce8c5e14"
+      },
+      {
+        "path": "src/components/floating.css",
+        "sha256": "8f2e6e57ef74afc7de9a069c33f0f526fa21d57dff3eef4199b87132db160eec"
+      },
+      {
+        "path": "src/components/floating.test.ts",
+        "sha256": "4a83caf0bb92493dc291b5e08bf30e97301b9947598085f9a26edd15f7f531fa"
+      },
+      {
+        "path": "src/components/floating.ts",
+        "sha256": "22c6f702783f3768b670a45b6b28ddc332658ea6153e0c5c2d54313929bc6e63"
+      },
+      {
+        "path": "src/components/icon-magnify.css",
+        "sha256": "1f77d2730976af4071085d2c96c50710427386e26bd5089fbb8e4dd07d3103ad"
+      },
+      {
+        "path": "src/components/library.css",
+        "sha256": "7cabf57c16a9137f4168898e7b297f4200cb0933d5ca44e8df3029c30d9ade15"
+      },
+      {
+        "path": "src/components/pane-footer.css",
+        "sha256": "14cf0020db87dec0e62945a8ab61b60cd8482ba5932563f4b70035a1f5320d7d"
+      },
+      {
+        "path": "src/components/popover.css",
+        "sha256": "04cd574407c42fa2be5cfd022bdcfe350334b316615f026af0ca59ce4ccad66d"
+      },
+      {
+        "path": "src/components/prose-issues.css",
+        "sha256": "fc719337fdb1cbe773a7a0fb63193a5c5cfdefd52f0532eadad844e6e988e918"
+      },
+      {
+        "path": "src/components/scroll-fade.css",
+        "sha256": "057b98ece7b7cfa9ce81546257802fa15569e083bf5a3395b729f3abeed75ac7"
+      },
+      {
+        "path": "src/components/scrollFade.test.ts",
+        "sha256": "67c0de9768bb508b958659ea3411972bb1a172c92f1f982287447dc1797aef19"
+      },
+      {
+        "path": "src/components/scrollFade.ts",
+        "sha256": "4880d83080ad051cd1177e5048876a7dcef071772f1e8222c9bafceaba53249f"
+      },
+      {
+        "path": "src/components/scrollspy.css",
+        "sha256": "4287afab17b0412e9ef11ca2a933325ebd009e2d5c32671b520032366731e826"
+      },
+      {
+        "path": "src/components/scrollspy.test.ts",
+        "sha256": "92edb3ca06e96dc11f4b94fd81ff6711b7eb85d5ea4343dde45fe5ca53bc4504"
+      },
+      {
+        "path": "src/components/scrollspy.ts",
+        "sha256": "2f55bc307ae569782dcf3a02dfd65a9ad168e8dd4a7e4fc591001b610e656842"
+      },
+      {
+        "path": "src/components/segmented.css",
+        "sha256": "1c445d5a1f125eea729726ccac56e5b14aaf4cd817fb16bb327f2319040977d7"
+      },
+      {
+        "path": "src/components/split.css",
+        "sha256": "8cba63397e7c0dfecc540e7904ea064b1f88c010487e8046bc4f6e86eb40883f"
+      },
+      {
+        "path": "src/components/useDragReorder.ts",
+        "sha256": "7dfd2bf9a3eacb9036767f9e2b57cc3258f3a12e99ff5274d7cf329430a7f03d"
+      },
+      {
+        "path": "src/derived/footnoteLocations.test.ts",
+        "sha256": "aa76924c9dacca1cfa317262df66863a94a4e396824a49d95c69af56d6e38917"
+      },
+      {
+        "path": "src/derived/footnoteLocations.ts",
+        "sha256": "0de27e5442b80ca62a040023124e16e8a1d622a85efcde6c999e75e9084421a6"
+      },
+      {
+        "path": "src/derived/projectIndex.test.ts",
+        "sha256": "e8a512edd41004e574af3749a14d42ef5d20313279ad59e8e67c95b092277146"
+      },
+      {
+        "path": "src/derived/projectIndex.ts",
+        "sha256": "4d12bc912a8069900307e43442a786657f119b01dbfa208853072881bc9f9389"
+      },
+      {
+        "path": "src/derived/prose.worker.ts",
+        "sha256": "0da2ab6e1d229986e31c3da85b1b078c00f21dfe9bb850bd52749baf38b7e0d0"
+      },
+      {
+        "path": "src/designTokens.test.ts",
+        "sha256": "6d6f39cc1c01308b5290526a47d25bcc4f4e991c060c19e2aa9358a68805b187"
+      },
+      {
+        "path": "src/editor/FootnoteArea.tsx",
+        "sha256": "4512645bad9b4dc26ab2296dc05ef00913691da4e2b7a45e6e6308d38b281c04"
+      },
+      {
+        "path": "src/editor/SideRuler.tsx",
+        "sha256": "087a0fd0623dedb5ff61f16e76f9b40f55427d4499e8627e5d6ebc7595f5afb8"
+      },
+      {
+        "path": "src/editor/TableContextMenu.tsx",
+        "sha256": "f17dc8a89756c831665e0b47721092ab55396680523f660fbbe0ee5e038ea01b"
+      },
+      {
+        "path": "src/editor/ToolbarControls.tsx",
+        "sha256": "5b84488741b1abe1da5efe733450d115ef2b34fc0a6f1cff35b11e40e7409564"
+      },
+      {
+        "path": "src/editor/blankClick.test.ts",
+        "sha256": "2484816eb05c82b28177ff44de2ff951c5b6d2704e2092fa930912e648254fbc"
+      },
+      {
+        "path": "src/editor/blankClick.ts",
+        "sha256": "a36218f125d819af41e503cd39d38ad14bce3cc11a17b31965aa5a66011434ff"
+      },
+      {
+        "path": "src/editor/commentAnchors.test.ts",
+        "sha256": "592e5fece92498009747d58c46a13e26849cd2ab220a2acba9f778dbf44ff5e0"
+      },
+      {
+        "path": "src/editor/commentAnchors.ts",
+        "sha256": "4fd21dac91786b9efac50eedc62b1c6cc9c4036463a122089f65ec68883bf28c"
+      },
+      {
+        "path": "src/editor/editor.css",
+        "sha256": "9618fc1baf3148dd4867aea6bd928db645bb204804d9ab73df46d328c19347aa"
+      },
+      {
+        "path": "src/editor/extensions.ts",
+        "sha256": "df7f1ae2fa8f5687cf22ae5b1b629a2b455a20f389d8feb289ada425592841ad"
+      },
+      {
+        "path": "src/editor/footnoteLayout.test.ts",
+        "sha256": "e64d0c18b4e022acfe878aaca36504e0d5142258cd23c623ee25e264bf539f56"
+      },
+      {
+        "path": "src/editor/footnoteLayout.ts",
+        "sha256": "7ac0090eefdf14aa1c7629aec22f45d911adb3e1b71b3aa9212c121005b4ced3"
+      },
+      {
+        "path": "src/editor/formatting.test.ts",
+        "sha256": "bceb5eee70c40723e78d0523b26b771d1da303106354d2739ecfe0d7e0457f08"
+      },
+      {
+        "path": "src/editor/formatting.ts",
+        "sha256": "f2bedc00512ed03034e0b19f153bfdab7222ba9bc0c4ef014c350d047efba95e"
+      },
+      {
+        "path": "src/editor/indent.test.ts",
+        "sha256": "a163f801f4bd79e6d41d3dad13497b27c8c4318e9bc2e1c3d485e6b97ea869bf"
+      },
+      {
+        "path": "src/editor/indent.ts",
+        "sha256": "1d98c9f9acc619055070576985c03dbfdcf8ecf17edb5e4e17f2b4c7d40f6c7e"
+      },
+      {
+        "path": "src/editor/media.test.ts",
+        "sha256": "4b0231d3153aa9ae599cf13efdadca347ae167c3d91617fc0a5af9af23cb4ccb"
+      },
+      {
+        "path": "src/editor/media.ts",
+        "sha256": "40cf577c7cf478c0b52a48818cb0de50ef117a00f3d103df155b5222c5173087"
+      },
+      {
+        "path": "src/editor/pageBreakKeys.ts",
+        "sha256": "a0acc0d8fe19874da3c5ee087fd1c55762c9dc1858ea591b6afb0579a09a31e0"
+      },
+      {
+        "path": "src/editor/pagination.test.ts",
+        "sha256": "79152816d80ff37f6d0a5f50bf4432351fe1db0a343c843fdf8c536e7c6cfebc"
+      },
+      {
+        "path": "src/editor/pagination.ts",
+        "sha256": "2580b3f672e31ea050c6157579d06c965fa165408280915e515fc4a0fe007d46"
+      },
+      {
+        "path": "src/editor/paragraphTarget.test.ts",
+        "sha256": "4646346a1e1a886f88b1352dcbbaf94a051f33c74ca55ed1d09a18bd8b3f4436"
+      },
+      {
+        "path": "src/editor/paragraphTarget.ts",
+        "sha256": "33800ab111d6cf35dc42fc46b2a2d4a96dfc0a5cd60f7477967817799947cf8c"
+      },
+      {
+        "path": "src/editor/proseCheck.test.ts",
+        "sha256": "8e5725bdd8ab2767f4ac080a009999e70362379b33b6853494badb1cce7e0f60"
+      },
+      {
+        "path": "src/editor/proseCheck.ts",
+        "sha256": "a7c7a127d2aa032e7bedeec91c645404b0f2f0a5690d1d6c187d67b1b92fe834"
+      },
+      {
+        "path": "src/editor/shortcuts.ts",
+        "sha256": "08311c35e9261c72ab9ca0b60506ff57eccc8429276f1c72fa6410e23e6c48ee"
+      },
+      {
+        "path": "src/editor/side-ruler.css",
+        "sha256": "b59524bdd60cc55dc242f8b783f50b5970c828ddcf8c72d40f4d4660d1b63563"
+      },
+      {
+        "path": "src/editor/tables.ts",
+        "sha256": "6bebc1cc2b94f4f7368dbf5d3a44d3bf7b458320d2a8e9f1cdd6bf233e48da3a"
+      },
+      {
+        "path": "src/editor/toolbar-motion.css",
+        "sha256": "fb56a5f21e596b89a01c72dadb1926646c9952f44687373d962c7b683cbd210f"
+      },
+      {
+        "path": "src/editor/useFootnoteLayout.ts",
+        "sha256": "c8900cbe0a10f9cb189224fa29dc06a4b3fcf3550a71446dbe3d6f13c248e8ee"
+      },
+      {
+        "path": "src/editor/writingAids.test.ts",
+        "sha256": "c80b0e85e530c947383ee795eb9006c9383761e3b27d78e1a964b1c1362f5899"
+      },
+      {
+        "path": "src/editor/writingAids.ts",
+        "sha256": "fec9c363fd8edb49186e1bbb70b7eb8f1d6cb58b7e76c58f4d2a226bae0e4540"
+      },
+      {
+        "path": "src/export/ExportMenu.tsx",
+        "sha256": "912353b94790cec14ab3e737d8b1e1464bd806f3434650cda0b94214f45a5ecd"
+      },
+      {
+        "path": "src/export/ExportPanel.tsx",
+        "sha256": "9a16bd71d43b82175a7e7cf0d2c7a04b21e364d7dc5fdc85bf28b540bbdbb342"
+      },
+      {
+        "path": "src/export/document.test.ts",
+        "sha256": "76791d1c67b57fad88f3cb8a36e26e64cac1ac4d52814f01ab2d5c21e2cdd8c5"
+      },
+      {
+        "path": "src/export/document.ts",
+        "sha256": "487db9146251485948f4d8ffe29f5efb68a3d19b0dbf4a133b72bac4eae46a54"
+      },
+      {
+        "path": "src/export/docx-fonts.test.ts",
+        "sha256": "593564cda7d8c4ddb7955b79463f3f5ea717b21fab78e991c943df2f020c07b3"
+      },
+      {
+        "path": "src/export/docx.ts",
+        "sha256": "1d7cd535a53e3e6516b1804b3d7910f55385abc06af8fd83cf481a6e4001a042"
+      },
+      {
+        "path": "src/export/export-fixtures.ts",
+        "sha256": "3386997c7a884a21d9605f030434e7380e751c1ef7d62df153b50f052901d702"
+      },
+      {
+        "path": "src/export/export-menu.css",
+        "sha256": "0169848107e5d72f37cfebde25e534136c18613212c2485fb566864d515b963c"
+      },
+      {
+        "path": "src/export/exportActions.test.ts",
+        "sha256": "d9a5d4275ce5c85a7ce05ee1739431a651c446b56bc094285d28bfffd12ac79d"
+      },
+      {
+        "path": "src/export/exportActions.ts",
+        "sha256": "ac7e0aff7cd43af3a0c89d26ed739d552891d191bfc1f167bbf4dd0aa06ee29a"
+      },
+      {
+        "path": "src/export/fontSource.test.ts",
+        "sha256": "2256eabf8ebbd3ef0609ead1b092924935cd08c7dbdfa1da41f3bd3ac1579280"
+      },
+      {
+        "path": "src/export/fontSource.ts",
+        "sha256": "455c2b0bd64bd5a6877ec0a91976b1925d4e64fc618b1cb8ebd8729dabec611f"
+      },
+      {
+        "path": "src/export/fonts.ts",
+        "sha256": "28aafe6ab1f643388d75cbd82e77038f3dc8a7d009feb2004356e80016233491"
+      },
+      {
+        "path": "src/export/markdownBundle.adversarial.test.ts",
+        "sha256": "d90b8cb8370e1d82869dbf227d2dc9061da28d42ca94f6eadffb291fd006f173"
+      },
+      {
+        "path": "src/export/markdownBundle.schema.test.ts",
+        "sha256": "b59846ec89f875f672af63598c1203eec1224423f90c1c341c1e73e46217e4c7"
+      },
+      {
+        "path": "src/export/markdownBundle.test.ts",
+        "sha256": "c28d523804079e39e1170b7bc5690daf589faea7d7f2c2146ad3dc149f4cf6a7"
+      },
+      {
+        "path": "src/export/markdownBundle.ts",
+        "sha256": "937402b4c7b23d18f88cf149574bbafe9d569713ffedcb7bddc2ccb3b3b5971d"
+      },
+      {
+        "path": "src/export/media-fixtures.ts",
+        "sha256": "e3fed9d365295c936b721c5594297d479968b6626891c2a0a0fbb8edcc7db864"
+      },
+      {
+        "path": "src/export/multiparagraphNote.test.ts",
+        "sha256": "eeeadd96cc07505ec94f435d1aef963ce3043e6704be1369c403fd6729bc4bce"
+      },
+      {
+        "path": "src/export/pdf-fonts.test.ts",
+        "sha256": "1076167d67ab7fdc4f9e1d916bce0432c164dc4024761899522141ad756536f3"
+      },
+      {
+        "path": "src/export/pdf.ts",
+        "sha256": "c496cee14345aa22785212cdc323697981c45349d6435350c6eb2f89421d4e56"
+      },
+      {
+        "path": "src/export/textExport.test.ts",
+        "sha256": "6f26e7c0e8a72b3424e022bffbe7f1cfeacf11c9ea125ff9c7798b1ed1cfd95f"
+      },
+      {
+        "path": "src/export/textExport.ts",
+        "sha256": "070e5ba922a24221954f31a8a85a96204ff972cd97c7f0d4ca7106a28dbd44c5"
+      },
+      {
+        "path": "src/fonts/fontInfo.test.ts",
+        "sha256": "40e855848b7a1c4b72f71161b15c212ef36899c847b069b9645042edeed3af1f"
+      },
+      {
+        "path": "src/fonts/fontInfo.ts",
+        "sha256": "0839e09acf47cc405f2c3d0bbaf505b1ececf9d4f794e9f1b6959595ba2deaff"
+      },
+      {
+        "path": "src/fonts/names.test.ts",
+        "sha256": "d1c3eae8b2a94312653a240b9a0bd2d4f0c3f6d007445e76e2d71dc846622e43"
+      },
+      {
+        "path": "src/fonts/names.ts",
+        "sha256": "5d7490da400c4615e10271c90c7066bd0e7d5d2198735c9bef81de548497380e"
+      },
+      {
+        "path": "src/fonts/recent.test.ts",
+        "sha256": "774672ae2677e3ca3d012a4559c469e86f417e02010d11d88097048dba3b5999"
+      },
+      {
+        "path": "src/fonts/recent.ts",
+        "sha256": "f00c139345684e1d830879edb60f425f08b344a2a50aa02aa52cfba7b1d984c7"
+      },
+      {
+        "path": "src/fonts/registry.test.ts",
+        "sha256": "7e329370ee37f16c14ce86a475fea6997741f102b69b01d8dd715fa44a5c6e0e"
+      },
+      {
+        "path": "src/fonts/registry.ts",
+        "sha256": "65be603642c0c0538b071d7a6692b63c276bd7e095a2601d32a3f33976fa0a50"
+      },
+      {
+        "path": "src/fonts/store.test.ts",
+        "sha256": "387729c909c42e50aa58e497799eef4011eb53189328bdecd0f923da45e67f0e"
+      },
+      {
+        "path": "src/fonts/store.ts",
+        "sha256": "5fae9415d9ba078ab30039156bd81bc8996192aa8f116267fa86a8673c353d64"
+      },
+      {
+        "path": "src/fonts/system.test.ts",
+        "sha256": "479c340ad107b54806e0388832cedcf405c313198a062788e3a1e8a1a25cf80d"
+      },
+      {
+        "path": "src/fonts/system.ts",
+        "sha256": "3bb435dea89cd18a0f3dfca48ac382599eeb6a573db72b898d6a0ecd80b099f4"
+      },
+      {
+        "path": "src/fonts/types.ts",
+        "sha256": "af73313d97eec596f059e027f23cd71350badd68d7a57d64489ab471564dbcb3"
+      },
+      {
+        "path": "src/goals.test.ts",
+        "sha256": "af69b4b06fc186082ddbb0a6f332eed49c6bafc2e657a9ec5af817aa3680f21e"
+      },
+      {
+        "path": "src/goals.ts",
+        "sha256": "b54a1dad553798fd1e4aa1a6e58a4858e69a95e4cf2b91c2adab0d63ab02652d"
+      },
+      {
+        "path": "src/hoverEmphasis.test.ts",
+        "sha256": "c1712404dbe5cccea0095a6f55d9774b3beffde3010c3204b466920492b12839"
+      },
+      {
+        "path": "src/import/ImportPreview.tsx",
+        "sha256": "977b6c38d259f2b40f3592cd9bfcd6d339a5cba9bd65c68050b73d09c793fb55"
+      },
+      {
+        "path": "src/import/docxImport.ts",
+        "sha256": "02704ec7ae35796afb8a788504833e65eb0735fcb66161889ab2724902e21851"
+      },
+      {
+        "path": "src/import/dropImport.test.ts",
+        "sha256": "63e49dccf9a9d9a06ab4a2f1d9aa3fad420ce66fa1e5b040474467577547562e"
+      },
+      {
+        "path": "src/import/dropImport.ts",
+        "sha256": "fd865db38b804de72fa6dc0a4b2d16a4d20c3d3ab64053382f40fd31a72f2d8c"
+      },
+      {
+        "path": "src/import/htmlImport.ts",
+        "sha256": "2bc013ae562fa98c4fc0913a0c33d8e815cb963e22bc26a32957df42ec6e9ca3"
+      },
+      {
+        "path": "src/import/importLimits.ts",
+        "sha256": "1a082ecba880276b9c0aa382774594339c4c35687bb14e6d8af218031ee0dbf2"
+      },
+      {
+        "path": "src/import/manuscript.test.ts",
+        "sha256": "50e8cc9e7576854f5077905713a0b8b5f2cb0cd0c009f49846a0be7b3a5164e2"
+      },
+      {
+        "path": "src/import/manuscript.ts",
+        "sha256": "871ac1df223947c64599636ae64ab006a3e1139f7a3e8dba98c1ad5f52ad0a9e"
+      },
+      {
+        "path": "src/import/markdownNotes.test.ts",
+        "sha256": "0585b7bf9db1320fc08b1c7414791d4480b5ed937eb823c768fb8f31aed8ba44"
+      },
+      {
+        "path": "src/import/markdownNotes.ts",
+        "sha256": "51ed4093bbae6b9c141b395c6efed5113c03380366ccc3d7958ba9d31331b1d4"
+      },
+      {
+        "path": "src/import/richImport.test.ts",
+        "sha256": "2071ee98b41f3f62e2ce259157a1a853dfed5e77ffb468baf4c6d9b455f4024f"
+      },
+      {
+        "path": "src/libraryPreferences.test.ts",
+        "sha256": "ed52b9d64371b20b514fc986dd039f294990b01fb480fcb24048ffbf4cb867d1"
+      },
+      {
+        "path": "src/libraryPreferences.ts",
+        "sha256": "8269c14ee9aa435506e50d5c66e14bb66f17a6c7a2607e33c4196f7004753140"
+      },
+      {
+        "path": "src/main.tsx",
+        "sha256": "594c4fca3366983a9c6facd1f277bc00efa81b753e987a9cd3f8cf32cdd0096c"
+      },
+      {
+        "path": "src/model.test.ts",
+        "sha256": "2846ef07562b9f29d6f2e5f0385377867dfcb72f4fcd41c33656cb57cdca6429"
+      },
+      {
+        "path": "src/model.ts",
+        "sha256": "d2652fc324197cbd82cbec4966149a46f0c6f07287a953cec72652d7d6fa498c"
+      },
+      {
+        "path": "src/motion.test.ts",
+        "sha256": "a7fb8252718c7831b19aa3849788a0048670fff4279e9342465b41542f2d6d23"
+      },
+      {
+        "path": "src/motion.ts",
+        "sha256": "018f20eaabf94ec57dd3df93307aadf7587ccc71777111e6500bc4e5610a71d9"
+      },
+      {
+        "path": "src/organization/CommentsPanel.tsx",
+        "sha256": "a31a0cca823eeaccd282fca13c71abcef777751fd8503e515a744083e20ad3d8"
+      },
+      {
+        "path": "src/organization/FragmentEditor.tsx",
+        "sha256": "2651e3799f56aeb2fa432cd5b677192255c0b1c2b92442ba7f3893c09c0bed49"
+      },
+      {
+        "path": "src/organization/FragmentLibrary.tsx",
+        "sha256": "0b24264b3a3a948dba88393ceea59f5d7da6a4d074d428ba64041cda506e46a3"
+      },
+      {
+        "path": "src/organization/RevisionComparison.tsx",
+        "sha256": "a6eb14d9348e28223edcb458c96a7955437c16f8b99c95939332b648996e6361"
+      },
+      {
+        "path": "src/organization/fragments.css",
+        "sha256": "7ce16bdbcfdca297742af74f19c2ab69bfb581a28318cab0fe421c82a01f8471"
+      },
+      {
+        "path": "src/organization/operations.test.ts",
+        "sha256": "2e8ff778e8be9d483d1fa1bca2c842228740a32c0bab0638fc7ef2c94fd8f240"
+      },
+      {
+        "path": "src/organization/operations.ts",
+        "sha256": "2e2d9a8c5f15712602f790d35436333f16f5b3868e91b1387db7b87b9cbf0f21"
+      },
+      {
+        "path": "src/organization/organization.css",
+        "sha256": "377ad662a965925b41fe624c60f8c48fa4bf4e0dfc63bfd4af42d04a7016e0e0"
+      },
+      {
+        "path": "src/organization/revisionDiff.test.ts",
+        "sha256": "327b352d1560e9e8e70978b172ced559c82e4457e9ff856ed55a3f87a5870857"
+      },
+      {
+        "path": "src/organization/revisionDiff.ts",
+        "sha256": "96d9c5a9f1bface85b791b2481208018ebf3b66c0a942b86e4f032b322644f9b"
+      },
+      {
+        "path": "src/palette.test.ts",
+        "sha256": "59665c455739eb7c7e905c5f6da6a2296d4b987508533ccccd8a469492c35400"
+      },
+      {
+        "path": "src/print/nativePdf.test.ts",
+        "sha256": "3b54a586308701d7ed73c5e7ad93be721b8df8439fa522ab6499b548e227d115"
+      },
+      {
+        "path": "src/print/nativePdf.ts",
+        "sha256": "072d93f8ec11ae52f45e7d35c09b8134f335726c8eccc0f8892659f409f58b07"
+      },
+      {
+        "path": "src/print/printProbe.ts",
+        "sha256": "ead14277d059cb9185701b1e5058d4f50b736f2a6a665b093446f515cbcc711e"
+      },
+      {
+        "path": "src/projectArchive.test.ts",
+        "sha256": "3dd6d387ff2e92e976a99d5b1013677fdde8e2135a887a04ebcd47e268fd117c"
+      },
+      {
+        "path": "src/projectArchive.ts",
+        "sha256": "fe477e16f52a959ae0f53620a9e3abe401a626429e41eacde00673b6968d2c0d"
+      },
+      {
+        "path": "src/research/BibliographyPage.tsx",
+        "sha256": "4b3445a61905e2e2f91da922e2f5837ddc1ded3933255b51296ce86fa7f82e5e"
+      },
+      {
+        "path": "src/research/CaptureQuote.tsx",
+        "sha256": "de239b626981e92d2b2756a143c2fa3161fd61f83d89f8015e015fc374b4f07b"
+      },
+      {
+        "path": "src/research/CitationCard.tsx",
+        "sha256": "ba6d880299a39472a76caa8a2d58f018f46eb2932ea34abb8d1262a5cd3dfa37"
+      },
+      {
+        "path": "src/research/Cite.tsx",
+        "sha256": "48b5758553a91af6b5c367902026c7a86a58acc9eb92e80842fee1ea9e9d18cf"
+      },
+      {
+        "path": "src/research/CslImportPreview.tsx",
+        "sha256": "7d76f68dd56bdfffb0b1f488980fcf6fc898da3285a984807878d356e04fea3d"
+      },
+      {
+        "path": "src/research/PdfPane.tsx",
+        "sha256": "799d5564e66df6175c878a13b745af111fe2145958e45029f878feae012542e0"
+      },
+      {
+        "path": "src/research/ResearchPanel.tsx",
+        "sha256": "cfd477e8e36fb7b198ef53b287f7d3ca85150d4d2d99b1e319d2ef0927eef6d6"
+      },
+      {
+        "path": "src/research/SourceForm.tsx",
+        "sha256": "b28a62d22a6991fcc9300c41e48c2a51632f78e9eecb7c0437f654107a405b17"
+      },
+      {
+        "path": "src/research/TemplatePicker.tsx",
+        "sha256": "ce22bd1a8134606885c399821aa65708c2edd38743dbc41dfa04bcdbfa369b2f"
+      },
+      {
+        "path": "src/research/asideMotion.ts",
+        "sha256": "40c15ede2a864f1ecf813aa46f404253ab8e64f0f38290ce7b02fa26e9637d66"
+      },
+      {
+        "path": "src/research/bibliography.test.ts",
+        "sha256": "029153a12166101250cb6c269bf20e93852824a0a7067aa86d70f50fe57ab9c8"
+      },
+      {
+        "path": "src/research/bibliography.ts",
+        "sha256": "cab229c33100c60338dd289a2d2ee6e0cf285b7c6108c022f3fb7c91f6fd11a5"
+      },
+      {
+        "path": "src/research/bibtexImport.test.ts",
+        "sha256": "6d66eb3a9f4fd28472cc9a6274f7ce9ace0b4d1223e8b6c2e4ab30bbb84fa42f"
+      },
+      {
+        "path": "src/research/bibtexImport.ts",
+        "sha256": "25159201f3f60cfd2fdecab4f04d491bcc95014b3b4286c256ebf978165fce15"
+      },
+      {
+        "path": "src/research/citation-card.css",
+        "sha256": "98e35083765b6fed09e1d4bf25a5db9422c669562405dbefbc839ae1fc351c29"
+      },
+      {
+        "path": "src/research/citationActions.test.ts",
+        "sha256": "e88a17e6639bad11392bbc67ecdbd650a5aac15c8a6c09d59b5f00cd97ebef69"
+      },
+      {
+        "path": "src/research/citationActions.ts",
+        "sha256": "55e2423fc5004a6aba83b533a187f6f012526bc7c82d4e7b2b5512fd20f0c553"
+      },
+      {
+        "path": "src/research/citationContext.test.ts",
+        "sha256": "913665e7a67e3f02ea5caa24e942832849df4b9af4c0de874eee68699f646440"
+      },
+      {
+        "path": "src/research/citationFixtures.test.ts",
+        "sha256": "afe11a7ca8270728b428ed86399fcbede1115d1f126401cf64afccc8a159b88f"
+      },
+      {
+        "path": "src/research/citations.test.ts",
+        "sha256": "d3e6defa799fb81d96eac82159f7b12ba02820d741c605f7926be27c93c382d9"
+      },
+      {
+        "path": "src/research/citations.ts",
+        "sha256": "166dccbcd01c77c39ec288e748c7202444c64c428fdbe157e07241e1821b145c"
+      },
+      {
+        "path": "src/research/cslImport.test.ts",
+        "sha256": "5e6ff55c94a1f76cb52314e889a686e79e072558718af2e2f195e1526ddc71a9"
+      },
+      {
+        "path": "src/research/cslImport.ts",
+        "sha256": "7bae49ca44d6f16083a7e542418a83df32bdadda3f34f8ea864a7e9a73481483"
+      },
+      {
+        "path": "src/research/identifiers.ts",
+        "sha256": "8524622d572cf28403ab042d54469efe098f438e590f9aed5bbc3e82ba0e2c75"
+      },
+      {
+        "path": "src/research/lookup.test.ts",
+        "sha256": "e450638da0c1bbdcae75174152b7d52b5068242a82e6bba8e3ed1bc6c3f6b39c"
+      },
+      {
+        "path": "src/research/lookup.ts",
+        "sha256": "f9a79d27c012cd102671af8e0c2877aea45cc6ecfec850300fb007bc4c6c9e65"
+      },
+      {
+        "path": "src/research/noteForms.test.ts",
+        "sha256": "942bac031bac883d487376e92a9a43ff2087843f37de1133af5a575ae569d652"
+      },
+      {
+        "path": "src/research/noteForms.ts",
+        "sha256": "15db952df6f6be3eed3a2f46fdb1e04f14e836dd7394d4cf6a6c696f56de1657"
+      },
+      {
+        "path": "src/research/quoteText.test.ts",
+        "sha256": "8a65ea143c91e771349e029b3c5e7c08c1cae522a3183cd7c969fd6c23e08e70"
+      },
+      {
+        "path": "src/research/quoteText.ts",
+        "sha256": "fa5fcedb7875ab7fd936ddc199be42267e736d318eb4e98e01fa99dd93e47d45"
+      },
+      {
+        "path": "src/research/removeFootnote.test.ts",
+        "sha256": "eaade20e111bd006041648066916504085b928f831a16173f6396c4581fffbdc"
+      },
+      {
+        "path": "src/research/removeFootnote.ts",
+        "sha256": "a6de69c76e307094db3c481b3b4c88ae95e6eb7d0d8b68810ee8d13d31b4caf7"
+      },
+      {
+        "path": "src/research/research.css",
+        "sha256": "cc7dd1a16fcaa5fe01e17fdd5574d8f30165c8453f1016afa5801d28deffa7a0"
+      },
+      {
+        "path": "src/research/sourceMerge.test.ts",
+        "sha256": "7c563a3f216551eab9603b188ada73124796e27f10a99a51a00b0889567bcd82"
+      },
+      {
+        "path": "src/research/sourceMerge.ts",
+        "sha256": "4ab00fe9a74d8c89f9c7694df4fcb3535b676d12bfaf9774a0096726b3955e5f"
+      },
+      {
+        "path": "src/research/types.ts",
+        "sha256": "68a55bc4589bb50921ec8bc2d5bac977766d1e53b6ed703676281a2eacfddff6"
+      },
+      {
+        "path": "src/research/useLookup.ts",
+        "sha256": "289abc864fb5a62f75f7fff007704778b9dc811174d94aabe1d4b41017e1c436"
+      },
+      {
+        "path": "src/research/zotero.adversarial.test.ts",
+        "sha256": "935da6511be11de48eb46487f00b5f67fc017db9c8f70164a947b8c26e147f8a"
+      },
+      {
+        "path": "src/research/zotero.test.ts",
+        "sha256": "4426554e4397f1db24870bc7e1db52628893cd7e2156278c40d7ebb848dd87cc"
+      },
+      {
+        "path": "src/research/zotero.ts",
+        "sha256": "69b43a3ffca99cf9e7b1268b62c84367e348377955ea1b3645abeb0b6910bc3e"
+      },
+      {
+        "path": "src/save-queue.test.ts",
+        "sha256": "e7820879cb422ea1871f33ff74c194bf9613e10b85305cd1a8d5d9e872b6a90c"
+      },
+      {
+        "path": "src/save-queue.ts",
+        "sha256": "abca7bb11464188631cfd33c98357149bc916cccb185ba642eff61cf8c3badc7"
+      },
+      {
+        "path": "src/save.bench.ts",
+        "sha256": "b92ae561d35ea604ce0bdf9b194f0af8129ea5e75409a4e53d161f2dbe618435"
+      },
+      {
+        "path": "src/settings/AppearanceSettings.tsx",
+        "sha256": "d0ef8648c2cf7b56dac02dc0fab19aa350ab5d93c1093ba13a70bf2a7172c600"
+      },
+      {
+        "path": "src/settings/GeneralSettings.tsx",
+        "sha256": "9e6dd9fa34fe4193bcce0ef5393eb3cfca80b51e5c0b476803898f2103e2d679"
+      },
+      {
+        "path": "src/settings/SettingsNav.tsx",
+        "sha256": "9465e75618a4e9cc2d320428a9014cd0b566be6a3d11bea4b9c18f652e9c6302"
+      },
+      {
+        "path": "src/settings/ShortcutsSettings.tsx",
+        "sha256": "40a8f76c816215105d342021f658177f0f9d641295c2f24c50f3edd49f7fda8c"
+      },
+      {
+        "path": "src/settings/appearance-settings.css",
+        "sha256": "956e617092dc50361a6332a0c350618ce2566ae494cc137be66395ec8830aeff"
+      },
+      {
+        "path": "src/settings/settings-nav.css",
+        "sha256": "6a970f08c310d1d78563bfbb064cf56ecbd046e5312b346339fe4d95929ed105"
+      },
+      {
+        "path": "src/settings/shortcuts-settings.css",
+        "sha256": "3913f26a025eb100299d683a7b2458d75e7ee4e5c7ba891191cd778d6c80137f"
+      },
+      {
+        "path": "src/shortcuts/chords.ts",
+        "sha256": "733041ff79a332bf11f5d473cd2e28a9b6048a8508b15b366e487cd56213d8b3"
+      },
+      {
+        "path": "src/shortcuts/registry.ts",
+        "sha256": "fa68d3b7db3cd0bbd3127615bf744b134ba0b5d706a687a26310840730cd6106"
+      },
+      {
+        "path": "src/shortcuts/shortcuts.test.ts",
+        "sha256": "ccde5c6118146d71bf66277849baf3c2ad443e635924103cdd3984ca61fe4479"
+      },
+      {
+        "path": "src/shortcuts/store.ts",
+        "sha256": "a9df1a9a5e10000874e90e0be847fe8fb29d4efd7d1df68b9b119da09b74344a"
+      },
+      {
+        "path": "src/sidebarPreferences.test.ts",
+        "sha256": "fab3f534e09ea70b229cf5ff42833b6cc7144aaf6600664de510998fea43e2f7"
+      },
+      {
+        "path": "src/sidebarPreferences.ts",
+        "sha256": "2f4b1ba249dc2c09c308cba1ef0a75ebfc1d61c5a4249c78ad98b0e327cf5fe9"
+      },
+      {
+        "path": "src/split.test.ts",
+        "sha256": "49edbc4815aff87f684ef9e1e8ad4906b668c8d985ce4b9284ed67810503bede"
+      },
+      {
+        "path": "src/split.ts",
+        "sha256": "bfd7f1c713d82fc94496b8c7409d8c9be72a485f7097d2cf1f28b4e8d772498f"
+      },
+      {
+        "path": "src/storage.test.ts",
+        "sha256": "c83280692ca109fa452ad650586cc394597f4f1dbd5327c5b92b54b39103e1c2"
+      },
+      {
+        "path": "src/storage.ts",
+        "sha256": "66de54e0e4efe9f7d4b2c7fe115244d5a2058cea7ddf11d26bdf2e7213326b4b"
+      },
+      {
+        "path": "src/styles.css",
+        "sha256": "3b663b7a9f38a71171e33f99d448553058059b938d840217515e2fe0e8fc00a8"
+      },
+      {
+        "path": "src/templates.ts",
+        "sha256": "696335ce48492222804dd7e4dec955b421b46670aa0f76bfd8bfa9ae5cdbdf4d"
+      },
+      {
+        "path": "src/vite-env.d.ts",
+        "sha256": "65996936fbb042915f7b74a200fcdde7e410f32a669b1ab9597cfaa4b0faddb5"
+      },
+      {
+        "path": "src-tauri/Cargo.lock",
+        "sha256": "e0e87fb6e23cebfd608e4bf92fe940c5ed1891ab090d6109a2b37d8ce4468ff2"
+      },
+      {
+        "path": "src-tauri/Cargo.toml",
+        "sha256": "edbdd220ffce25858836a71a67cd2cea8b4e3a49741026e17402807059f824cc"
+      },
+      {
+        "path": "src-tauri/build.rs",
+        "sha256": "487059eaf8a947b80f20a9aacac038a5047b2ad69d2401b827376c67d6fe847f"
+      },
+      {
+        "path": "src-tauri/src/assets.rs",
+        "sha256": "c0c77253b33c2ddec38c4a7a11f430c55f68eb70ce351d67d24c4952212388fe"
+      },
+      {
+        "path": "src-tauri/src/dropped.rs",
+        "sha256": "563f28c1663da40dee4b20cb872c786d9f785f6fd520ca5c2425d7bcfe00633b"
+      },
+      {
+        "path": "src-tauri/src/fonts.rs",
+        "sha256": "e4ad284a88967d8998ab15a54ab1269d1db08bf93b437a8e0a4a2be091bd8688"
+      },
+      {
+        "path": "src-tauri/src/lib.rs",
+        "sha256": "95595b1201f7de405b9795865e826af0a817541e4d3f1934f32746791aa2428c"
+      },
+      {
+        "path": "src-tauri/src/lookup.rs",
+        "sha256": "63163bc1a194bb93aa5eef4990d0c591df9ee882be9f1b5420fe45f4ea0394ee"
+      },
+      {
+        "path": "src-tauri/src/main.rs",
+        "sha256": "3bff216f946d13f97833bbf174079df1a6fe20e2a32752fc8bd6a9e40ad0dc02"
+      },
+      {
+        "path": "src-tauri/src/printing.rs",
+        "sha256": "0ac9a4d66e1152d82391ee38f254c9ae982e3dcc6da1cceaecb762d9f142c5a1"
+      },
+      {
+        "path": "src-tauri/src/smoke.rs",
+        "sha256": "3edc7e15d39a2a384b020d524540bb9383829856aa74c22f19b0165282b77ccf"
+      },
+      {
+        "path": "src-tauri/src/store.rs",
+        "sha256": "675a25de974657d6d564cea6bad13d8cd9a8f6ace9a747537a1778c72083350d"
+      },
+      {
+        "path": "src-tauri/src/sysfonts.rs",
+        "sha256": "30fa00aa79f867290011a33027910b476f1e35e2259ac6ae2561404220946478"
+      },
+      {
+        "path": "src-tauri/src/zotero.rs",
+        "sha256": "03bde130cddad6b435de4f1117569eaaac53ea712a8bd22e9d2091270d73ba2c"
+      },
+      {
+        "path": "src-tauri/tauri.conf.json",
+        "sha256": "6f92e6b8652a555e00bcd49acd3b4331374baecc0c3a1fa298b8418d08bd900d"
+      },
+      {
+        "path": "tests/fixtures/beta-synthetic-project.json",
+        "sha256": "9a2e76659b6bd7cd95843f590cc39a88b74fb6cf361b27aeac1313404991c244"
+      },
+      {
+        "path": "tests/native-reliability.js",
+        "sha256": "213c8618a5f3f918665844bcebf51cab74971a323c85ebfd4fd5071c5c57b69e"
+      },
+      {
+        "path": "tests/native-smoke.js",
+        "sha256": "1fd4ba40169c34a33e72a829786b3ca940b418921891c5358178891e0944a678"
+      },
+      {
+        "path": "vite.config.ts",
+        "sha256": "0ad1ff69a078b8d91c10a08d260db18eafb9b02ea8e8379c384f08e68f281ea2"
+      }
+    ],
+    "sourceManifestSha256": "ae69f13fa75aaf5bd1049c60d51e5cf55b749bcb71d46b3b7b5f0ea7ab7ce777",
+    "protocol": "d1-profile-isolation-v1"
+  },
+  "identityError": null,
+  "dataAndLogs": "/Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/node_modules/.cache/personal-word-beta/d1/runs/20261111T234150Z-9054fa61",
+  "scenarios": [
+    {
+      "scenario": "FULLFSYNC false-value negative control",
+      "status": "detected",
+      "reason": "macOS PRAGMA fullfsync did not report ON"
+    },
+    {
+      "scenario": "sparse metadata, mirror retry, native close retry",
+      "status": "passed",
+      "databaseRevision": 6,
+      "acknowledgedRevision": 6,
+      "windowCloseEvents": 2,
+      "processLog": "/Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/node_modules/.cache/personal-word-beta/d1/runs/20261111T234150Z-9054fa61/metadata/process-metadata-close-6ffb49e5.log"
+    },
+    {
+      "scenario": "reopen complete pre-restore safety snapshot",
+      "status": "passed",
+      "projectRevision": 6,
+      "processLog": "/Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/node_modules/.cache/personal-word-beta/d1/runs/20261111T234150Z-9054fa61/metadata/process-reopen-safety-1168d40e.log"
+    },
+    {
+      "scenario": "journal-malformed",
+      "status": "passed",
+      "projectRevision": 2,
+      "seedProcessLog": "/Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/node_modules/.cache/personal-word-beta/d1/runs/20261111T234150Z-9054fa61/journal-malformed/process-journal-malformed-7c0223f1.log",
+      "resolveProcessLog": "/Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/node_modules/.cache/personal-word-beta/d1/runs/20261111T234150Z-9054fa61/journal-malformed/process-journal-malformed-9972fbf8.log"
+    },
+    {
+      "scenario": "journal-incomplete",
+      "status": "passed",
+      "projectRevision": 2,
+      "seedProcessLog": "/Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/node_modules/.cache/personal-word-beta/d1/runs/20261111T234150Z-9054fa61/journal-incomplete/process-journal-incomplete-c1a1ecc3.log",
+      "resolveProcessLog": "/Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/node_modules/.cache/personal-word-beta/d1/runs/20261111T234150Z-9054fa61/journal-incomplete/process-journal-incomplete-cd05fec7.log"
+    },
+    {
+      "scenario": "journal-conflict",
+      "status": "passed",
+      "projectRevision": 2,
+      "seedProcessLog": "/Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/node_modules/.cache/personal-word-beta/d1/runs/20261111T234150Z-9054fa61/journal-conflict/process-journal-conflict-bd4a15b1.log",
+      "resolveProcessLog": "/Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/node_modules/.cache/personal-word-beta/d1/runs/20261111T234150Z-9054fa61/journal-conflict/process-journal-conflict-240694b0.log"
+    },
+    {
+      "scenario": "sql-rollback",
+      "status": "passed",
+      "databaseRevision": 2,
+      "journalRevision": 3,
+      "processLog": "/Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/node_modules/.cache/personal-word-beta/d1/runs/20261111T234150Z-9054fa61/sql-rollback/process-sql-rollback-8ced8497.log"
+    },
+    {
+      "scenario": "sql-disk-full",
+      "status": "passed",
+      "databaseRevision": 2,
+      "journalRevision": 3,
+      "processLog": "/Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/node_modules/.cache/personal-word-beta/d1/runs/20261111T234150Z-9054fa61/sql-disk-full/process-sql-disk-full-e53ec666.log"
+    },
+    {
+      "scenario": "sql-permission-denied",
+      "status": "passed",
+      "databaseRevision": 2,
+      "journalRevision": 3,
+      "processLog": "/Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/node_modules/.cache/personal-word-beta/d1/runs/20261111T234150Z-9054fa61/sql-permission-denied/process-sql-permission-denied-0dac4261.log"
+    },
+    {
+      "scenario": "pre-commit",
+      "status": "passed",
+      "lastAcknowledgedRevision": 2,
+      "checkpointRevision": 3,
+      "databaseRevision": 2,
+      "processLog": "/Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/node_modules/.cache/personal-word-beta/d1/runs/20261111T234150Z-9054fa61/pre-commit/process-pre-commit-4e1336e6.log"
+    },
+    {
+      "scenario": "post-commit mirror repair after restart",
+      "status": "passed",
+      "databaseRevision": 3,
+      "processLog": "/Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/node_modules/.cache/personal-word-beta/d1/runs/20261111T234150Z-9054fa61/post-commit-pre-mirror/process-post-commit-restart-e864f529.log"
+    },
+    {
+      "scenario": "post-commit-pre-mirror",
+      "status": "passed",
+      "lastAcknowledgedRevision": 2,
+      "checkpointRevision": 3,
+      "databaseRevision": 3,
+      "processLog": "/Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/node_modules/.cache/personal-word-beta/d1/runs/20261111T234150Z-9054fa61/post-commit-pre-mirror/process-post-commit-pre-mirror-9eb19d0e.log"
+    },
+    {
+      "scenario": "post-mirror",
+      "status": "passed",
+      "lastAcknowledgedRevision": 3,
+      "checkpointRevision": 3,
+      "databaseRevision": 3,
+      "processLog": "/Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/node_modules/.cache/personal-word-beta/d1/runs/20261111T234150Z-9054fa61/post-mirror/process-post-mirror-878f64bf.log"
+    },
+    {
+      "scenario": "asset crash recovery: stage, kill, restart, reopen",
+      "status": "passed",
+      "stagedAssetId": "b1ff9c8ea3a780bad09b346c423d2d0e46815926879b18e841d928376a946640",
+      "databaseRevision": 3,
+      "crashProcessLog": "/Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/node_modules/.cache/personal-word-beta/d1/runs/20261111T234150Z-9054fa61/asset-crash/process-asset-crash-cb0e08c8.log",
+      "restartProcessLog": "/Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/node_modules/.cache/personal-word-beta/d1/runs/20261111T234150Z-9054fa61/asset-crash/process-asset-restart-26392381.log",
+      "reopenProcessLog": "/Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/node_modules/.cache/personal-word-beta/d1/runs/20261111T234150Z-9054fa61/asset-crash/process-asset-reopen-d1ec717c.log"
+    },
+    {
+      "scenario": "metadata-loss negative control",
+      "status": "detected",
+      "reason": "doctored sparse history project metadata differs from the exact sparse-save fixture",
+      "processLog": "/Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/node_modules/.cache/personal-word-beta/d1/runs/20261111T234150Z-9054fa61/control-metadata/process-metadata-negative-8efa0bf4.log"
+    },
+    {
+      "scenario": "missing safety snapshot negative control",
+      "status": "detected",
+      "reason": "safety negative control: generated safety snapshot is missing",
+      "processLog": "/Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/node_modules/.cache/personal-word-beta/d1/runs/20261111T234150Z-9054fa61/control-safety/process-safety-negative-c8b2faa8.log"
+    },
+    {
+      "scenario": "premature close negative control",
+      "status": "detected",
+      "reason": "close acceptance check did not observe a blocked close, visible error, and completed retry",
+      "processLog": "/Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/node_modules/.cache/personal-word-beta/d1/runs/20261111T234150Z-9054fa61/control-close/process-close-negative-fab17804.log"
+    },
+    {
+      "scenario": "premature SQL acknowledgement negative control",
+      "status": "detected",
+      "reason": "SQLite revision 2 is below acknowledged revision 3",
+      "processLog": "/Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/node_modules/.cache/personal-word-beta/d1/runs/20261111T234150Z-9054fa61/control-sql-ack/process-sql-ack-negative-2b46a589.log"
+    },
+    {
+      "scenario": "beta control: lifecycle drops a project field (goals)",
+      "status": "detected",
+      "reason": "lifecycle quit 1: SQLite project: differs at $.goals: missing (expected {\"dailyWords\": 750, \"dayMode\": \"utc\", \"deadline\": \"2026-12-31\", \"scope\": \"manuscript-an...)"
+    },
+    {
+      "scenario": "beta control: lifecycle drops an entry field (tags)",
+      "status": "detected",
+      "reason": "lifecycle quit 1: SQLite project: differs at $.entries[0].tags: missing (expected [\"beta\", \"stratigraphy\"])"
+    },
+    {
+      "scenario": "beta control: lifecycle alters a source raw field",
+      "status": "detected",
+      "reason": "lifecycle quit 1: SQLite project: differs at $.research.sources[0].cslData.rawUnknownField: missing (expected {\"flag\": true, \"nested\": [1, 2, {\"deep\": \"\u0394\"}]})"
+    },
+    {
+      "scenario": "beta control: lifecycle loses an image row",
+      "status": "detected",
+      "reason": "lifecycle quit 1: stored images ['f6b373ee'] differ from ['3d514a5f', 'f6b373ee']"
+    },
+    {
+      "scenario": "beta control: lifecycle flips an attachment byte",
+      "status": "detected",
+      "reason": "lifecycle quit 1: attachment f6b373ee62d8abe053e1decceb83b38627e0ce3df932ce72729f10a2e6e8fc58.png bytes do not match their SHA-256"
+    },
+    {
+      "scenario": "beta control: lifecycle loses an attachment file",
+      "status": "detected",
+      "reason": "lifecycle quit 1: attachment files ['f6b373ee62d8abe053e1decceb83b38627e0ce3df932ce72729f10a2e6e8fc58.png'] differ from ['3d514a5fefae5717146a5a34587661bf8dc478f1228b7857e95cb8db669a82a9.jpg', 'f6b373ee62d8abe053e1decceb83b38627e0ce3df932ce72729f10a2e6e8fc58.png']"
+    },
+    {
+      "scenario": "beta control: lifecycle loses a history row",
+      "status": "detected",
+      "reason": "lifecycle quit 1: automatic history has no row for revision 1"
+    },
+    {
+      "scenario": "beta control: lifecycle loses the named snapshot",
+      "status": "detected",
+      "reason": "lifecycle quit 1: expected 1 snapshot(s) named 'Beta snapshot A', found 0"
+    },
+    {
+      "scenario": "beta control: lifecycle leaves a stale project.json",
+      "status": "detected",
+      "reason": "lifecycle quit 1: project.json: differs at $.entries[1].content.content[0].content[0].text: \"Revised observations from the western trench identify a ceramic horizon.\" vs \"Second revision: the ceramic horizon of the western trench is sealed by ash.\""
+    },
+    {
+      "scenario": "beta control: restore loses the generated safety snapshot",
+      "status": "detected",
+      "reason": "lifecycle restore: expected 1 snapshot(s) named 'Before restoring Beta snapshot A', found 0"
+    },
+    {
+      "scenario": "beta control: restore changes a table cell",
+      "status": "detected",
+      "reason": "UI restore of Beta snapshot A: differs at $.entries[0].content.content[3].content[1].content[1].content[0].content[0].text: \"0-46\" vs \"0\u201345\""
+    },
+    {
+      "scenario": "beta control: restore drops a comment anchor",
+      "status": "detected",
+      "reason": "UI restore of Beta snapshot A: differs at $.annotations[0].anchor: missing (expected {\"entryRevision\": 3, \"from\": 13, \"prefix\": \"The eastern \", \"status\": \"attached\", \"suffi...)"
+    },
+    {
+      "scenario": "beta control: new identity loses an image",
+      "status": "detected",
+      "reason": "import under a new identity: stored images ['3d514a5f'] differ from ['3d514a5f', 'f6b373ee']"
+    },
+    {
+      "scenario": "beta lifecycle: create, incremental saves, history, snapshot, UI restore with generated safety copy, fresh start, import under a new identity",
+      "status": "passed",
+      "finalRevision": 4,
+      "finalProjectSha256": "86deab8b47cf33a38dc116fe6dabf501d5bd5f3ce8ed513e69f317a9815ee2aa",
+      "processLogs": [
+        "/Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/node_modules/.cache/personal-word-beta/d1/runs/20261111T234150Z-9054fa61/beta-lifecycle/process-beta-lifecycle-41f014a2.log",
+        "/Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/node_modules/.cache/personal-word-beta/d1/runs/20261111T234150Z-9054fa61/beta-lifecycle/process-beta-lifecycle-restore-5d62499e.log",
+        "/Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/node_modules/.cache/personal-word-beta/d1/runs/20261111T234150Z-9054fa61/beta-lifecycle/process-beta-lifecycle-reopen-7762385d.log"
+      ]
+    },
+    {
+      "scenario": "beta control: staged image lost before the kill",
+      "status": "detected",
+      "reason": "after staging crash: stored images ['3d514a5f', 'f6b373ee'] differ from ['3d514a5f', '4f41c746', 'f6b373ee']"
+    },
+    {
+      "scenario": "beta control: staged image bytes corrupted",
+      "status": "detected",
+      "reason": "after staging crash: stored image png-late bytes do not match their SHA-256"
+    },
+    {
+      "scenario": "beta control: content visible although never committed",
+      "status": "detected",
+      "reason": "after staging crash (the content commit never happened): SQLite project: differs at $.entries[1].content.content: length 2 vs 1"
+    },
+    {
+      "scenario": "beta control: late image attachment missing after recovery",
+      "status": "detected",
+      "reason": "content commit after the staging crash: attachment files ['3d514a5fefae5717146a5a34587661bf8dc478f1228b7857e95cb8db669a82a9.jpg', 'f6b373ee62d8abe053e1decceb83b38627e0ce3df932ce72729f10a2e6e8fc58.png'] differ from ['3d514a5fefae5717146a5a34587661bf8dc478f1228b7857e95cb8db669a82a9.jpg', '4f41c74697cfb0d0fef50823998e9119d3f1eb92f5d3764fed5d2a1051456de8.png', 'f6b373ee62d8abe053e1decceb83b38627e0ce3d"
+    },
+    {
+      "scenario": "beta control: content commit lost after recovery",
+      "status": "detected",
+      "reason": "content commit after the staging crash: SQLite project: differs at $.entries[1].content.content: length 1 vs 2"
+    },
+    {
+      "scenario": "beta fault: asset staging vs content commit (kill, restart, commit referencing the staged image)",
+      "status": "passed",
+      "checkpoint": {
+        "pid": 78025,
+        "point": "post-asset-stage",
+        "revision": 0
+      },
+      "databaseRevision": 2,
+      "crashProcessLog": "/Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/node_modules/.cache/personal-word-beta/d1/runs/20261111T234150Z-9054fa61/beta-asset-stage/process-beta-crash-asset-stage-a0a920c0.log",
+      "restartProcessLog": "/Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/node_modules/.cache/personal-word-beta/d1/runs/20261111T234150Z-9054fa61/beta-asset-stage/process-beta-asset-stage-restart-37688467.log"
+    },
+    {
+      "scenario": "beta control: committed edit lost by the kill",
+      "status": "detected",
+      "reason": "after post-commit kill (the committed edit survives): SQLite project: differs at $.entries[1].content.content: length 1 vs 2"
+    },
+    {
+      "scenario": "beta control: portable copy already current",
+      "status": "detected",
+      "reason": "after post-commit kill: project.json must still be the previous revision: differs at $.entries[1].content.content: length 2 vs 1"
+    },
+    {
+      "scenario": "beta control: repair leaves the old project.json",
+      "status": "detected",
+      "reason": "mirror repair after restart: project.json: differs at $.entries[1].content.content: length 1 vs 2"
+    },
+    {
+      "scenario": "beta control: repair misses the new image attachment",
+      "status": "detected",
+      "reason": "mirror repair after restart: attachment files ['3d514a5fefae5717146a5a34587661bf8dc478f1228b7857e95cb8db669a82a9.jpg', 'f6b373ee62d8abe053e1decceb83b38627e0ce3df932ce72729f10a2e6e8fc58.png'] differ from ['3d514a5fefae5717146a5a34587661bf8dc478f1228b7857e95cb8db669a82a9.jpg', '4f41c74697cfb0d0fef50823998e9119d3f1eb92f5d3764fed5d2a1051456de8.png', 'f6b373ee62d8abe053e1decceb83b38627e0ce3df932ce72729"
+    },
+    {
+      "scenario": "beta fault: SQL transaction vs mirrors (surfaced portable-copy failure, kill after commit, repair on restart)",
+      "status": "passed",
+      "checkpoint": {
+        "pid": 78033,
+        "point": "post-commit-pre-mirror",
+        "revision": 2
+      },
+      "mirrorError": "Database saved, but portable copy failed: injected mirror write failure. Retry to repair it.",
+      "databaseRevision": 2,
+      "crashProcessLog": "/Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/node_modules/.cache/personal-word-beta/d1/runs/20261111T234150Z-9054fa61/beta-sql-mirrors/process-beta-crash-sql-mirrors-05f3b8aa.log",
+      "restartProcessLog": "/Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/node_modules/.cache/personal-word-beta/d1/runs/20261111T234150Z-9054fa61/beta-sql-mirrors/process-beta-mirror-restart-eb03222e.log"
+    },
+    {
+      "scenario": "beta control: merge visible before its commit",
+      "status": "detected",
+      "reason": "after merge crash (nothing merged): SQLite project: differs at $.research.sources[1].title: \"Radiocarbon Calibration in the Aegean Basin\" vs \"Radiocarbon Calibration in the Aegean\""
+    },
+    {
+      "scenario": "beta control: merge safety snapshot missing",
+      "status": "detected",
+      "reason": "after merge crash: expected 1 snapshot(s) named 'Before updating research sources', found 0"
+    },
+    {
+      "scenario": "beta control: merge safety snapshot holds merged sources",
+      "status": "detected",
+      "reason": "after merge crash: snapshot 'Before updating research sources' differs at $.research.sources[1].title: \"Changed\" vs \"Radiocarbon Calibration in the Aegean\""
+    },
+    {
+      "scenario": "beta control: retried merge not committed",
+      "status": "detected",
+      "reason": "retried merge: SQLite project: differs at $.research.sources[1].title: \"Radiocarbon Calibration in the Aegean\" vs \"Radiocarbon Calibration in the Aegean Basin\""
+    },
+    {
+      "scenario": "beta control: retry deleted the crashed safety copy",
+      "status": "detected",
+      "reason": "retried merge (the crashed copy is kept): expected 2 snapshot(s) named 'Before updating research sources', found 1"
+    },
+    {
+      "scenario": "beta fault: source merge (kill after the safety snapshot, restart, retried merge)",
+      "status": "passed",
+      "checkpoint": {
+        "pid": 78041,
+        "point": "post-merge-safety-snapshot",
+        "revision": 1
+      },
+      "databaseRevision": 2,
+      "crashProcessLog": "/Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/node_modules/.cache/personal-word-beta/d1/runs/20261111T234150Z-9054fa61/beta-source-merge/process-beta-crash-source-merge-9a234cb7.log",
+      "restartProcessLog": "/Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/node_modules/.cache/personal-word-beta/d1/runs/20261111T234150Z-9054fa61/beta-source-merge/process-beta-merge-restart-48161dbd.log"
+    },
+    {
+      "scenario": "beta control: restored content visible before its commit",
+      "status": "detected",
+      "reason": "after restore crash (nothing restored): SQLite project: differs at $.entries[1].content.content[0].content[0].text: \"Preliminary observations from the western trench were inconclusive.\" vs \"Revised observations from the western trench identify a ceramic horizon.\""
+    },
+    {
+      "scenario": "beta control: pre-restore safety snapshot missing",
+      "status": "detected",
+      "reason": "after restore crash: expected 1 snapshot(s) named 'Before restoring Beta V1', found 0"
+    },
+    {
+      "scenario": "beta control: named snapshot altered",
+      "status": "detected",
+      "reason": "after restore crash: snapshot 'Beta V1' differs at $.goals: missing (expected {\"dailyWords\": 750, \"dayMode\": \"utc\", \"deadline\": \"2026-12-31\", \"scope\": \"manuscript-an...)"
+    },
+    {
+      "scenario": "beta control: retried restore not committed",
+      "status": "detected",
+      "reason": "retried restore: SQLite project: differs at $.entries[1].content.content[0].content[0].text: \"Revised observations from the western trench identify a ceramic horizon.\" vs \"Preliminary observations from the western trench were inconclusive.\""
+    },
+    {
+      "scenario": "beta fault: snapshot restore (kill after the safety snapshot, restart, retried restore)",
+      "status": "passed",
+      "checkpoint": {
+        "pid": 78049,
+        "point": "post-restore-safety-snapshot",
+        "revision": 2
+      },
+      "databaseRevision": 3,
+      "crashProcessLog": "/Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/node_modules/.cache/personal-word-beta/d1/runs/20261111T234150Z-9054fa61/beta-restore/process-beta-crash-restore-212bf55e.log",
+      "restartProcessLog": "/Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/node_modules/.cache/personal-word-beta/d1/runs/20261111T234150Z-9054fa61/beta-restore/process-beta-restore-restart-46cb00db.log"
+    },
+    {
+      "scenario": "beta control: a changed file in a newer-schema project is detected",
+      "status": "detected",
+      "reason": "Opening a newer-schema project changed its files: ['attachments/3d514a5fefae5717146a5a34587661bf8dc478f1228b7857e95cb8db669a82a9.jpg']"
+    },
+    {
+      "scenario": "beta schema: project from a newer app version fails clearly and every file stays byte-identical",
+      "status": "passed",
+      "error": "This project was saved by a newer version of Personal Word. Update the app to open it.",
+      "filesCompared": 8,
+      "processLog": "/Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/node_modules/.cache/personal-word-beta/d1/runs/20261111T234150Z-9054fa61/beta-newer-schema/process-beta-newer-schema-72f16b4f.log"
+    },
+    {
+      "scenario": "beta control: the app's drop-metadata fault fails the equality check used by the lifecycle",
+      "status": "detected",
+      "reason": "drop-metadata control: SQLite project: differs at $.additiveBetaField: missing (expected {\"flag\": true, \"nested\": {\"list\": [1, 2, 3], \"unicode\": \"\u0394\u03c3\"}, \"wave\": 5})"
+    },
+    {
+      "scenario": "beta control: ragged table rejected, project unchanged",
+      "status": "detected",
+      "reason": "Table rows must all have the same number of cells",
+      "processLog": "/Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/node_modules/.cache/personal-word-beta/d1/runs/20261111T234150Z-9054fa61/beta-control-table/process-beta-control-corrupt-table-0ac82e0d.log"
+    },
+    {
+      "scenario": "beta control: edit referencing an unstored image rejected, project unchanged",
+      "status": "detected",
+      "reason": "An image in this edit is missing from the project's storage; nothing was saved. Your recovery journal has been kept.",
+      "processLog": "/Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/node_modules/.cache/personal-word-beta/d1/runs/20261111T234150Z-9054fa61/beta-control-missing-asset/process-beta-control-missing-asset-2b8a420d.log"
+    },
+    {
+      "scenario": "beta control: a skipped merge safety snapshot fails the snapshot check",
+      "status": "detected",
+      "reason": "merge without safety copy: expected 1 snapshot(s) named 'Before updating research sources', found 0"
+    },
+    {
+      "scenario": "beta control: merge stopped when its safety copy cannot be read",
+      "status": "detected",
+      "reason": "Query returned no rows",
+      "processLog": "/Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/node_modules/.cache/personal-word-beta/d1/runs/20261111T234150Z-9054fa61/beta-control-merge-no-safety/process-beta-control-merge-no-safety-d06dc831.log"
+    }
+  ],
+  "limit": "Owned-process termination tests acknowledged SQLite checkpoints; they do not test an uncommitted keystroke, physical power loss, or hardware failure."
+}

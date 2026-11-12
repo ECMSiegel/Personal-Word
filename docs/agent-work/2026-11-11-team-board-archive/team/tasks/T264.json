@@ -1,0 +1,67 @@
+{
+  "id": "T264",
+  "title": "W9 C1 -- Reorganise the Research panel into three zones with less text",
+  "description": "Follow section '### C1 --' of docs/agent-work/2026-11-10-ui-wave-9/PLAN.md exactly, plus its 'Rules for every worker'. Verify: tests/w9-research-panel.spec.ts and the research, research-library, research-pdf, floating and zotero specs pass. Browser test port: PLAYWRIGHT_PORT=1439. No commits, no new packages, never run npm run build or a native screen script. Write the note docs/agent-work/2026-11-10-ui-wave-9/notes/C1.md.",
+  "status": "done",
+  "owner": null,
+  "priority": 1,
+  "depends_on": [
+    "T254"
+  ],
+  "files": [
+    "src/research/ResearchPanel.tsx",
+    "src/research/SourceForm.tsx",
+    "src/research/research.css",
+    "tests/research.spec.ts",
+    "tests/w9-research-panel.spec.ts",
+    "docs/agent-work/2026-11-10-ui-wave-9/notes/C1.md",
+    "tests/research-library.spec.ts",
+    "tests/popover-bounds.spec.ts",
+    "tests/drop-target.spec.ts",
+    "tests/research-pdf.spec.ts"
+  ],
+  "review_required": true,
+  "created_by": "agent-b307",
+  "created_at": "2026-11-10T22:24:37+00:00",
+  "claimed_at": "2026-11-11T00:10:29+00:00",
+  "updated_at": "2026-11-11T01:31:13+00:00",
+  "handoff": null,
+  "review": {
+    "by": "agent-26ce",
+    "at": "2026-11-11T01:31:13+00:00",
+    "verdict": "approved",
+    "note": "Approved (CLAIMED; Chromium only). Read the ResearchPanel.tsx, SourceForm.tsx and research.css diffs and every re-pin. ZONES: Source / Citation (the three previews, then Cite here, Add quote, Delete source pushed right) / More details (collapsed, holding Short title, Edition, DOI, ISBN, URL, the three manual overrides under ONE helper sentence, CSL fields, PDF attach) / Used in (count line). No field was removed, only moved, and labels and accessible names are kept. Citation rules is collapsed under the list. The 'Review required details' sentence shows only when a core field is missing (step 4). The lookup caption uses '--'. Go to renders only when footnoteLocations has an entry AND onGoToFootnote is supplied, and the props type matches the T0 seam. CitationCard.tsx is untouched. RE-PINS (research, research-library, research-pdf, popover-bounds, drop-target): all open a collapsed details before acting, except research-library's hint expectation, which now expects no hint when core fields are present; that matches plan step 4. The extra specs were registered under common rule 4. FAIL-FIRST: the worker showed only the caption assertion failing on HEAD. I checked the rest against HEAD markup (git show HEAD:...): HEAD has no Source or Citation headings, no 'More details', no 'Citation rules', no caption, and its override sentence is rendered 3 times. So (a), (c), (d), (f) and (g) fail on HEAD by construction; (b) and (e) are layout checks. MY RERUNS (port 1450, --output test-results/review, serial lock): w9-research-panel 1/1 passed; popover-bounds.spec:57 and floating.spec:848 with --repeat-each=3, 6/6 passed; and at 20:14 popover-bounds.spec full file 5/5. So the two earlier failures each recurred 0 times in 3 solo runs. Record them for T277 as one-off intermittents (popover-bounds:57 rect read as 0,0,0,0; floating:848 focus step), not as fixed. OPEN FOR THE OWNER'S HAND CHECK (T278): the Authors label overlap from the owner's screenshot was NOT reproduced in Chromium and nothing was changed for it, so it is not fixed. The attached PDF now hides inside collapsed More details. The count line reads '1 footnote, 0 quotes' under the 'Used in' heading. RISK for T277: the hover-emphasis H3 un-hoverable count is 11 of a cap of 12, with 10 from controls inside closed details. G1 (T272) can start once T271 is approved."
+  },
+  "log": [
+    {
+      "at": "2026-11-10T22:24:37+00:00",
+      "agent": "agent-b307",
+      "event": "created",
+      "note": ""
+    },
+    {
+      "at": "2026-11-11T00:10:29+00:00",
+      "agent": "agent-6792",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-11-11T00:10:31+00:00",
+      "agent": "agent-6792",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-11-11T01:12:11+00:00",
+      "agent": "agent-6792",
+      "event": "review requested",
+      "note": "C1 done: Research panel now Source / Citation / More details (collapsed) / Used in; Citation rules collapsed under list; lookup caption; Go to props. New spec w9-research-panel passes; re-pinned research, research-library, research-pdf, popover-bounds, drop-target specs. Details, plan deviations and flakes in notes/C1.md. CLAIMED, not VERIFIED."
+    },
+    {
+      "at": "2026-11-11T01:31:13+00:00",
+      "agent": "agent-26ce",
+      "event": "approved",
+      "note": "Approved (CLAIMED; Chromium only). Read the ResearchPanel.tsx, SourceForm.tsx and research.css diffs and every re-pin. ZONES: Source / Citation (the three previews, then Cite here, Add quote, Delete source pushed right) / More details (collapsed, holding Short title, Edition, DOI, ISBN, URL, the three manual overrides under ONE helper sentence, CSL fields, PDF attach) / Used in (count line). No field was removed, only moved, and labels and accessible names are kept. Citation rules is collapsed under the list. The 'Review required details' sentence shows only when a core field is missing (step 4). The lookup caption uses '--'. Go to renders only when footnoteLocations has an entry AND onGoToFootnote is supplied, and the props type matches the T0 seam. CitationCard.tsx is untouched. RE-PINS (research, research-library, research-pdf, popover-bounds, drop-target): all open a collapsed details before acting, except research-library's hint expectation, which now expects no hint when core fields are present; that matches plan step 4. The extra specs were registered under common rule 4. FAIL-FIRST: the worker showed only the caption assertion failing on HEAD. I checked the rest against HEAD markup (git show HEAD:...): HEAD has no Source or Citation headings, no 'More details', no 'Citation rules', no caption, and its override sentence is rendered 3 times. So (a), (c), (d), (f) and (g) fail on HEAD by construction; (b) and (e) are layout checks. MY RERUNS (port 1450, --output test-results/review, serial lock): w9-research-panel 1/1 passed; popover-bounds.spec:57 and floating.spec:848 with --repeat-each=3, 6/6 passed; and at 20:14 popover-bounds.spec full file 5/5. So the two earlier failures each recurred 0 times in 3 solo runs. Record them for T277 as one-off intermittents (popover-bounds:57 rect read as 0,0,0,0; floating:848 focus step), not as fixed. OPEN FOR THE OWNER'S HAND CHECK (T278): the Authors label overlap from the owner's screenshot was NOT reproduced in Chromium and nothing was changed for it, so it is not fixed. The attached PDF now hides inside collapsed More details. The count line reads '1 footnote, 0 quotes' under the 'Used in' heading. RISK for T277: the hover-emphasis H3 un-hoverable count is 11 of a cap of 12, with 10 from controls inside closed details. G1 (T272) can start once T271 is approved."
+    }
+  ]
+}

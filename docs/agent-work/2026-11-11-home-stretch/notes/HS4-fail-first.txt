@@ -1,0 +1,66 @@
+
+Running 79 tests using 1 worker
+
+[1/79] tests/alignment.spec.ts:41:1 › sidebar labels at one depth start at one x
+[2/79] tests/alignment.spec.ts:83:1 › every icon button reaches a 24 x 24 target
+[3/79] tests/alignment.spec.ts:121:1 › counters ask for tabular figures
+[4/79] tests/alignment.spec.ts:138:1 › toolbar icon ink sits at its button centre
+[5/79] tests/alignment.spec.ts:200:1 › a separator draws one pixel of the line colour
+[6/79] tests/alignment.spec.ts:254:1 › hit-area rule leaves absolutely placed buttons absolute
+[7/79] tests/alignment.spec.ts:334:3 › sidebar bottom row and pane footer form one band (single)
+[8/79] tests/alignment.spec.ts:334:3 › sidebar bottom row and pane footer form one band (split)
+[9/79] tests/alignment.spec.ts:452:3 › every list row starts with a 16 px icon and one label x at 190 px
+[10/79] tests/alignment.spec.ts:452:3 › every list row starts with a 16 px icon and one label x at 270 px
+[11/79] tests/alignment.spec.ts:452:3 › every list row starts with a 16 px icon and one label x at 390 px
+[12/79] tests/alignment.spec.ts:510:1 › floating sidebar: with 40 notes the list ends above the bottom rows
+[13/79] tests/alignment.spec.ts:570:1 › T6 record: split view sidebar placement, pinned and overlay, at 1280 and 1600
+[14/79] tests/hs4-sidebar-align.spec.ts:22:1 › docked sidebar title and search line up with the top bar and format bar
+  1) tests/hs4-sidebar-align.spec.ts:22:1 › docked sidebar title and search line up with the top bar and format bar 
+
+    Error: title 68 topbar 54
+
+    expect(received).toBeLessThanOrEqual(expected)
+
+    Expected: <= 1
+    Received:    14
+
+      27 |   const search = await centreY(page, ".sidebar .search input");
+      28 |   const format = await centreY(page, ".writer > .format-bar");
+    > 29 |   expect(Math.abs(title - top), `title ${title} topbar ${top}`).toBeLessThanOrEqual(1);
+         |                                                                 ^
+      30 |   expect(Math.abs(search - format), `search ${search} format bar ${format}`).toBeLessThanOrEqual(1);
+      31 | });
+      32 |
+        at /Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/tests/hs4-sidebar-align.spec.ts:29:65
+
+    Error Context: test-results/HS4/hs4-sidebar-align-docked-s-76104--the-top-bar-and-format-bar/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/HS4/hs4-sidebar-align-docked-s-76104--the-top-bar-and-format-bar/trace.zip
+    Usage:
+[16/79] tests/hs4-sidebar-align.spec.ts:46:1 › floating sidebar title position is unchanged
+tests/hs4-sidebar-align.spec.ts:46:1 › floating sidebar title position is unchanged
+FLOATING {"top":130,"height":36} 190
+
+  3) tests/hs4-sidebar-align.spec.ts:46:1 › floating sidebar title position is unchanged ───────────
+
+    Error: expect(received).toBeCloseTo(expected, precision)
+
+    Expected: 0
+    Received: 130
+
+    Expected precision:    0
+    Expected difference: < 0.5
+    Received difference:   130
+
+      57 |   const s = await centreY(page, ".sidebar .search input");
+      58 |   console.log("FLOATING", JSON.stringify(t), s);
+    > 59 |   expect(t.top).toBeCloseTo(FLOAT_TITLE_TOP, 0);
+         |                 ^
+      60 |   expect(s).toBeCloseTo(FLOAT_SEARCH_Y, 0);
+      61 | });
+      62 |
+        at /Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/tests/hs4-sidebar-align.spec.ts:59:17
+
+    Error Context: test-results/HS4/hs4-sidebar-align-floating-20c68-title-position-is-unchanged/error-context.md
+

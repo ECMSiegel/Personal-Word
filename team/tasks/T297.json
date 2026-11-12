@@ -1,0 +1,60 @@
+{
+  "id": "T297",
+  "title": "HS6 -- Floating sidebar in Read manuscript",
+  "description": "Full brief: docs/agent-work/2026-11-11-home-stretch/BRIEF.md then section HS6 of docs/agent-work/2026-11-11-home-stretch/TASKS.md. Shared files (styles.css, App.tsx, Writer.tsx, editor/editor.css) are edited by region only and registered on no task.",
+  "status": "done",
+  "owner": null,
+  "priority": 2,
+  "depends_on": [],
+  "files": [
+    "docs/agent-work/2026-11-11-home-stretch/notes/HS6.md",
+    "docs/agent-work/2026-11-11-home-stretch/notes/HS6-fail-first.txt",
+    "src/components/floating.ts",
+    "src/components/floating.css",
+    "tests/floating.spec.ts"
+  ],
+  "review_required": true,
+  "created_by": "agent-b823",
+  "created_at": "2026-11-12T03:58:45+00:00",
+  "claimed_at": "2026-11-12T03:59:59+00:00",
+  "updated_at": "2026-11-12T05:57:35+00:00",
+  "handoff": null,
+  "review": {
+    "by": "agent-9ee7",
+    "at": "2026-11-12T05:57:35+00:00",
+    "verdict": "approved",
+    "note": "Approved. floating.ts:117-120 Read top = .manuscript-read top; editor unchanged. Probed top/mid scroll, reader size 40/spacing 3, 1600->1040->1600, Read->editor, dark: sidebar 74..868, content (options row, h1, table, code block) left 445 vs sidebar right 270; narrow falls back. Dash = by-design scroll-spy rail (same docked). Low: floating.spec.ts:443 overlap check covers only .read-prose. 47/47 playwright, tsc clean. Details REVIEW-3.md."
+  },
+  "log": [
+    {
+      "at": "2026-11-12T03:58:45+00:00",
+      "agent": "agent-b823",
+      "event": "created",
+      "note": ""
+    },
+    {
+      "at": "2026-11-12T03:59:59+00:00",
+      "agent": "agent-6ab6",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-11-12T04:00:44+00:00",
+      "agent": "agent-6ab6",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-11-12T05:43:39+00:00",
+      "agent": "agent-6ab6",
+      "event": "review requested",
+      "note": "HS6: floating.ts documentEdges top in Read = .manuscript-read top. Tests added to tests/floating.spec.ts. Fail-first: title 355px too low (notes/HS6-fail-first.txt). Results: floating.spec 41/41 pass, floating.test.ts 10/10, tsc clean. Dash = legit scroll-spy rail line."
+    },
+    {
+      "at": "2026-11-12T05:57:35+00:00",
+      "agent": "agent-9ee7",
+      "event": "approved",
+      "note": "Approved. floating.ts:117-120 Read top = .manuscript-read top; editor unchanged. Probed top/mid scroll, reader size 40/spacing 3, 1600->1040->1600, Read->editor, dark: sidebar 74..868, content (options row, h1, table, code block) left 445 vs sidebar right 270; narrow falls back. Dash = by-design scroll-spy rail (same docked). Low: floating.spec.ts:443 overlap check covers only .read-prose. 47/47 playwright, tsc clean. Details REVIEW-3.md."
+    }
+  ]
+}

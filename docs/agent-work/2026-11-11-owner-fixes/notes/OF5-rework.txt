@@ -1,0 +1,69 @@
+
+Running 31 tests using 1 worker
+
+  ✓   1 tests/appearance.spec.ts:3:1 › system appearance changes live and the writing area scrolls on its own (5.0s)
+  ✓   2 tests/appearance.spec.ts:62:1 › controls show hover, focus, pressed, disabled and selected states (3.8s)
+  ✓   3 tests/appearance.spec.ts:118:1 › choosing Dark under a light system sticks across a reload (2.8s)
+  ✓   4 tests/appearance.spec.ts:138:1 › choosing Light under a dark system overrides the system (2.6s)
+  ✓   5 tests/appearance.spec.ts:147:1 › choosing System again follows the operating system live (2.1s)
+  ✓   6 tests/appearance.spec.ts:161:1 › Cmd/Ctrl+Shift+L flips between Light and Dark on the Projects screen (649ms)
+  ✓   7 tests/appearance.spec.ts:171:1 › the Appearance row has no caption and its buttons use arrow keys (2.2s)
+  ✓   8 tests/appearance.spec.ts:196:1 › a segmented choice is weight and colour, not a fill, and Home/End jump the ends (2.2s)
+  ✓   9 tests/appearance.spec.ts:239:1 › Plain palette keeps today's blue primary button (1.3s)
+  ✓  10 tests/appearance.spec.ts:250:1 › the Palette row sits under Appearance with no caption and Plain selected (2.6s)
+  ✓  11 tests/appearance.spec.ts:263:1 › Color palette tints the interface in light and keeps the document colours (3.4s)
+  ✓  12 tests/appearance.spec.ts:331:1 › Color palette fills primary buttons blue and destructive confirms red (2.5s)
+  ✓  13 tests/appearance.spec.ts:353:1 › Color palette in dark uses the dark tints (2.4s)
+  ✓  14 tests/appearance.spec.ts:377:1 › Choosing Plain again restores Plain selected text color (2.6s)
+  ✓  15 tests/appearance.spec.ts:392:1 › a selected entry is regular and its section title is bold in the text colour; no highlight box shows (W7) (1.5s)
+  ✓  16 tests/appearance.spec.ts:417:3 › section swatches persist and Plain hides them in light (8.0s)
+  ✓  17 tests/appearance.spec.ts:417:3 › section swatches persist and Plain hides them in dark (14.9s)
+  ✓  18 tests/appearance.spec.ts:463:3 › icon buttons recolour on hover, focus and press (light) (4.7s)
+  ✓  19 tests/appearance.spec.ts:463:3 › icon buttons recolour on hover, focus and press (dark) (4.0s)
+  ✓  20 tests/appearance.spec.ts:515:1 › floating sidebar and research: off by default, sits under the hover row, toggles and survives a reload (6.8s)
+  ✓  21 tests/appearance.spec.ts:549:1 › settings has a centered column and a dedicated Sidebar section (4.8s)
+  ✓  22 tests/of5-settings.spec.ts:34:1 › the hidden font file input stays hidden and Add font matches project Settings (5.4s)
+  ✓  23 tests/of5-settings.spec.ts:47:1 › Add font sits on the Interface font row, to its right, in the project Settings (4.3s)
+  ✓  24 tests/of5-settings.spec.ts:52:1 › Add font sits on the Interface font row, to its right, in the Projects dialog (2.1s)
+  ✓  25 tests/of5-settings.spec.ts:57:1 › project Settings shows exactly one rule between the section strip and General (3.6s)
+  ✓  26 tests/of5-settings.spec.ts:102:1 › Remove font button is the danger colour in both Settings places (5.0s)
+  ✘  27 tests/w9-fonts.spec.ts:72:1 › interface and document font choices persist and added styles are shared (8.9s)
+  ✓  28 tests/w9-settings-nav.spec.ts:23:1 › the strip lists every section in order and stays at the top while scrolling (3.8s)
+  ✓  29 tests/w9-settings-nav.spec.ts:42:1 › clicking a link brings that heading just under the strip and marks it (3.6s)
+  ✓  30 tests/w9-settings-nav.spec.ts:78:1 › links work from the keyboard and scroll instantly (3.6s)
+  ✓  31 tests/w9-settings-nav.spec.ts:100:1 › scrollToSettingsSection works in the same tick that opens Settings (3.6s)
+
+
+  1) tests/w9-fonts.spec.ts:72:1 › interface and document font choices persist and added styles are shared 
+
+    Error: expect(received).toContain(expected) // indexOf
+
+    Expected substring: "Georgia"
+    Received string:    "Futura, \"Avenir Next\", -apple-system, BlinkMacSystemFont, sans-serif"
+
+    Call Log:
+    - Timeout 5000ms exceeded while waiting on the predicate
+
+      84 |   await interfaceFont.click();
+      85 |   await page.getByRole("option", { name: UI_FONT }).click();
+    > 86 |   await expect.poll(() => page.evaluate(() => getComputedStyle(document.documentElement).getPropertyValue("--ui-font"))).toContain(UI_FONT);
+         |                                                                                                                          ^
+      87 |   await expect(page.locator(".settings-section").first()).toHaveCSS("font-family", /Georgia/);
+      88 |   // Wait until the chosen menu has closed before scanning the page.
+      89 |   await expect(page.getByRole("option")).toHaveCount(0);
+        at /Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/tests/w9-fonts.spec.ts:86:122
+
+    Error Context: test-results/T288r/w9-fonts-interface-and-doc-15995-and-added-styles-are-shared/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/T288r/w9-fonts-interface-and-doc-15995-and-added-styles-are-shared/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/T288r/w9-fonts-interface-and-doc-15995-and-added-styles-are-shared/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/w9-fonts.spec.ts:72:1 › interface and document font choices persist and added styles are shared 
+  30 passed (2.2m)
+EXIT 1

@@ -1,0 +1,700 @@
+
+Running 521 tests using 1 worker
+
+  ✓    1 tests/accessibility.spec.ts:21:1 › dropdown listbox owns keyboard focus and returns it on Escape or selection (8.5s)
+  ✓    2 tests/accessibility.spec.ts:64:1 › dropdown closes on Tab and its menu stays inside a compact viewport (4.5s)
+  ✓    3 tests/accessibility.spec.ts:93:1 › page layout measurement preserves the editor element and undo history (4.5s)
+  ✓    4 tests/accessibility.spec.ts:117:1 › an overlong page footnote offers a keyboard-operated continuous view (5.2s)
+  ✓    5 tests/alignment.spec.ts:41:1 › sidebar labels at one depth start at one x (2.3s)
+  ✓    6 tests/alignment.spec.ts:83:1 › every icon button reaches a 24 x 24 target (2.1s)
+  ✓    7 tests/alignment.spec.ts:121:1 › counters ask for tabular figures (2.0s)
+  ✓    8 tests/alignment.spec.ts:138:1 › toolbar icon ink sits at its button centre (2.3s)
+  ✓    9 tests/alignment.spec.ts:200:1 › a separator draws one pixel of the line colour (2.2s)
+  ✓   10 tests/alignment.spec.ts:254:1 › hit-area rule leaves absolutely placed buttons absolute (2.4s)
+  ✓   11 tests/alignment.spec.ts:334:3 › sidebar bottom row and pane footer form one band (single) (1.9s)
+  ✓   12 tests/alignment.spec.ts:334:3 › sidebar bottom row and pane footer form one band (split) (3.0s)
+  ✓   13 tests/alignment.spec.ts:452:3 › every list row starts with a 16 px icon and one label x at 190 px (5.1s)
+  ✓   14 tests/alignment.spec.ts:452:3 › every list row starts with a 16 px icon and one label x at 270 px (5.2s)
+  ✓   15 tests/alignment.spec.ts:452:3 › every list row starts with a 16 px icon and one label x at 390 px (4.4s)
+  ✓   16 tests/alignment.spec.ts:510:1 › floating sidebar: with 40 notes the list ends above the bottom rows (2.9s)
+  ✓   17 tests/alignment.spec.ts:570:1 › T6 record: split view sidebar placement, pinned and overlay, at 1280 and 1600 (5.9s)
+  ✓   18 tests/appearance.spec.ts:3:1 › system appearance changes live and the writing area scrolls on its own (3.3s)
+  ✓   19 tests/appearance.spec.ts:62:1 › controls show hover, focus, pressed, disabled and selected states (2.5s)
+  ✓   20 tests/appearance.spec.ts:118:1 › choosing Dark under a light system sticks across a reload (3.0s)
+  ✓   21 tests/appearance.spec.ts:138:1 › choosing Light under a dark system overrides the system (2.3s)
+  ✓   22 tests/appearance.spec.ts:147:1 › choosing System again follows the operating system live (2.1s)
+  ✓   23 tests/appearance.spec.ts:161:1 › Cmd/Ctrl+Shift+L flips between Light and Dark on the Projects screen (857ms)
+  ✓   24 tests/appearance.spec.ts:171:1 › the Appearance row has no caption and its buttons use arrow keys (2.5s)
+  ✓   25 tests/appearance.spec.ts:196:1 › a segmented choice is weight and colour, not a fill, and Home/End jump the ends (2.3s)
+  ✓   26 tests/appearance.spec.ts:239:1 › Plain palette keeps today's blue primary button (1.4s)
+  ✓   27 tests/appearance.spec.ts:250:1 › the Palette row sits under Appearance with no caption and Plain selected (2.5s)
+  ✓   28 tests/appearance.spec.ts:263:1 › Color palette tints the interface in light and keeps the document colours (5.0s)
+  ✓   29 tests/appearance.spec.ts:331:1 › Color palette fills primary buttons blue and destructive confirms red (3.6s)
+  ✓   30 tests/appearance.spec.ts:353:1 › Color palette in dark uses the dark tints (4.2s)
+  ✓   31 tests/appearance.spec.ts:377:1 › Choosing Plain again restores Plain selected text color (2.9s)
+  ✓   32 tests/appearance.spec.ts:392:1 › a selected entry is regular and its section title is bold in the text colour; no highlight box shows (W7) (2.0s)
+  ✓   33 tests/appearance.spec.ts:417:3 › section swatches persist and Plain hides them in light (5.0s)
+  ✓   34 tests/appearance.spec.ts:417:3 › section swatches persist and Plain hides them in dark (5.0s)
+  ✓   35 tests/appearance.spec.ts:460:3 › icon buttons recolour on hover, focus and press (light) (2.6s)
+  ✓   36 tests/appearance.spec.ts:460:3 › icon buttons recolour on hover, focus and press (dark) (2.5s)
+  ✓   37 tests/appearance.spec.ts:512:1 › floating sidebar and research: off by default, sits under the hover row, toggles and survives a reload (3.4s)
+  ✓   38 tests/appearance.spec.ts:546:1 › settings has a centered column and a dedicated Sidebar section (2.7s)
+  ✓   39 tests/assets.spec.ts:30:1 › table insertion creates a 3x3 table with header row and places focus in the first cell (3.0s)
+  ✓   40 tests/assets.spec.ts:56:1 › editing text inside cells across multiple rows and columns updates table contents (3.6s)
+  ✓   41 tests/assets.spec.ts:120:1 › keyboard navigation traverses table cells forward with Tab and backward with Shift-Tab across row boundaries (3.4s)
+  ✓   42 tests/assets.spec.ts:161:1 › table manipulation controls insert and delete rows, columns, toggle header row, and delete table (4.4s)
+  ✓   43 tests/assets.spec.ts:219:1 › table persists across reload in preview storage and remains editable (5.0s)
+  ✓   44 tests/assets.spec.ts:281:1 › ReadDocument renders table faithfully in Reading View (3.7s)
+  ✓   45 tests/assets.spec.ts:323:1 › ReadDocument renders image with alt text fallback in Reading View (2.7s)
+  ✓   46 tests/assets.spec.ts:383:1 › image toolbar action inserts image with alt text and displays image figure in editor (2.8s)
+  ✓   47 tests/assets.spec.ts:419:1 › stored image displays after leaving, reopening, and reloading its project (3.8s)
+  ✓   48 tests/ci-indent.spec.ts:59:1 › Blank start indent survives undo, redo, save, and reload (5.4s)
+  ✓   49 tests/ci-indent.spec.ts:102:1 › Chicago inherited indent uses left indent and survives undo, redo, and reload (7.6s)
+  ✓   50 tests/ci-indent.spec.ts:155:1 › Screenplay Tab keeps cycling paragraph styles (2.2s)
+  ✓   51 tests/ci-indent.spec.ts:186:1 › Keyboard focus: Blank start indent survives undo, redo, save, and reload (5.9s)
+  ✓   52 tests/ci-indent.spec.ts:229:1 › Keyboard focus: Chicago inherited indent uses left indent and survives undo, redo, and reload (7.5s)
+  ✓   53 tests/command-palette.spec.ts:30:1 › Cmd+Shift+P opens, typing filters, Escape returns focus to the editor (2.8s)
+  ✓   54 tests/command-palette.spec.ts:51:1 › Enter on Take snapshot opens the snapshot prompt (2.3s)
+  ✓   55 tests/command-palette.spec.ts:63:1 › Go to opens the entry; New fragment is listed and works (5.3s)
+  ✓   56 tests/command-palette.spec.ts:91:1 › rebinding in Settings > Shortcuts changes the chord the palette shows (2.6s)
+  ✓   57 tests/command-palette.spec.ts:106:1 › an outside click closes the palette (2.1s)
+  ✓   58 tests/command-palette.spec.ts:114:1 › a modal closes the palette, and the palette will not open over a modal (2.1s)
+  ✓   59 tests/command-palette.spec.ts:138:1 › Escape puts the caret back where it was (2.7s)
+  ✓   60 tests/command-palette.spec.ts:147:1 › Enter on a command that does not move focus keeps the caret (3.1s)
+  ✓   61 tests/command-palette.spec.ts:157:1 › the highlighted row's hint does not move and its padding is equal (2.4s)
+  -   62 tests/command-palette.spec.ts:182:5 › screenshot light Plain
+  -   63 tests/command-palette.spec.ts:182:5 › screenshot light Color
+  -   64 tests/command-palette.spec.ts:182:5 › screenshot dark Plain
+  -   65 tests/command-palette.spec.ts:182:5 › screenshot dark Color
+  ✓   66 tests/comments.spec.ts:36:1 › comment anchors retain the second duplicate, detach on deletion, and reattach by selection (6.4s)
+  ✓   67 tests/comments.spec.ts:117:1 › multi-paragraph captured quote keeps the citation in its last paragraph across one undo/redo (3.8s)
+  ✓   68 tests/drag-reorder.spec.ts:42:1 › dragging Fragments above Manuscript reorders the groups and the order survives a reload (3.3s)
+  ✓   69 tests/drag-reorder.spec.ts:78:1 › dragging an entry below its sibling reorders the manuscript and persists (4.1s)
+  ✓   70 tests/drag-reorder.spec.ts:97:1 › a drag that ends on its own slot, or is cancelled with Escape, changes nothing (3.2s)
+  ✓   71 tests/drag-reorder.spec.ts:110:1 › a press that barely moves is still a click (3.2s)
+  ✓   72 tests/drag-reorder.spec.ts:122:1 › Option+Up/Down reorders groups and sections from the keyboard (3.1s)
+  ✓   73 tests/drag-reorder.spec.ts:134:1 › under reduced motion, rows that step aside do not animate (2.5s)
+  ✓   74 tests/drag-reorder.spec.ts:147:1 › without reduced motion, the shifted row animates transform only (3.1s)
+  ✓   75 tests/drag-reorder.spec.ts:160:1 › a press released outside the row does not leave the row armed (3.5s)
+  ✓   76 tests/drag-reorder.spec.ts:247:1 › the sidebar has no move arrow buttons anywhere (3.4s)
+  ✓   77 tests/drag-reorder.spec.ts:263:1 › dragging a fragment reorders the fragments and persists (4.4s)
+  ✓   78 tests/drag-reorder.spec.ts:275:1 › dragging a source carries its PDF row, dragging a note reorders notes, and both persist (6.2s)
+  ✓   79 tests/drag-reorder.spec.ts:315:1 › Option+Down moves a fragment, a source, a note, a section and a group; focus stays and the move is announced (6.8s)
+  ✓   80 tests/drag-reorder.spec.ts:385:1 › with a search query the chord moves the focused fragment past its visible neighbour (3.7s)
+  ✓   81 tests/drag-reorder.spec.ts:400:1 › a repeated announcement is re-read: the live region text is rewritten on the second press (3.5s)
+  ✓   82 tests/drop-target.spec.ts:39:1 › the Projects list outlines for a .docx, rejects a .pdf with the reason, and the page body is untouched (1.1s)
+  ✓   83 tests/drop-target.spec.ts:74:1 › a project.json is not taken by the writing importer (912ms)
+  ✓   84 tests/drop-target.spec.ts:84:1 › the Projects import control is a labelled toolbar button at control height that opens the picker and imports the chosen file (1.3s)
+  ✓   85 tests/drop-target.spec.ts:121:1 › the Projects import control is reachable by keyboard (880ms)
+  ✓   86 tests/drop-target.spec.ts:131:1 › a source's PDF slot outlines for a PDF, rejects a .txt, and a drop attaches the PDF (2.5s)
+  ✓   87 tests/drop-target.spec.ts:162:1 › a PDF over 25 MB or a second file is refused on drop with a message (2.5s)
+  ✓   88 tests/drop-target.spec.ts:183:1 › Select files in the PDF slot opens the picker and attaches the chosen PDF (2.8s)
+  ✓   89 tests/editor-toolbar.spec.ts:12:1 › formatting toolbar stays on one row (2.2s)
+  ✓   90 tests/editor-toolbar.spec.ts:21:1 › Tab indents the paragraph and keeps focus in the editor (2.6s)
+  ✓   91 tests/editor-toolbar.spec.ts:59:1 › Tab nests a bullet list item (2.3s)
+  ✓   92 tests/editor-toolbar.spec.ts:73:1 › Font family dropdown opens from the keyboard and changes the font (2.5s)
+  ✓   93 tests/editor-toolbar.spec.ts:111:1 › icons only at every width (2.5s)
+  ✓   94 tests/editor-toolbar.spec.ts:126:1 › a narrower format bar shows icons only (2.2s)
+  ✓   95 tests/editor-toolbar.spec.ts:141:1 › the default window keeps Insert on the bar (2.6s)
+  ✓   96 tests/editor-toolbar.spec.ts:199:1 › More lists labelled rows with shortcut hints and emphasizes the hovered row (2.4s)
+  ✓   97 tests/editor-toolbar.spec.ts:229:1 › a Bold row in More toggles bold (2.4s)
+  ✓   98 tests/editor-toolbar.spec.ts:254:1 › dock magnifies the hovered icon with neighbour falloff and no layout shift (2.2s)
+  ✓   99 tests/editor-toolbar.spec.ts:284:1 › dock: Reduce Motion means no magnification (1.9s)
+  ✓  100 tests/editor-toolbar.spec.ts:295:1 › dock: keyboard focus peaks instantly (1.9s)
+  ✓  101 tests/editor-toolbar.spec.ts:307:1 › scissor uses the cursor paragraph and keeps dock geometry fixed (2.9s)
+  ✓  102 tests/editor-toolbar.spec.ts:349:1 › comment on a collapsed cursor captures the whole paragraph (2.7s)
+  ✓  103 tests/editor-toolbar.spec.ts:366:1 › format bar zoom, paragraph style and font dropdowns draw no border or fill (2.1s)
+  ✓  104 tests/editor-toolbar.spec.ts:394:1 › Page setup Paper size and Page margins keep their 1 px box (2.4s)
+  ✓  105 tests/editor-toolbar.spec.ts:412:1 › format bar dropdowns held in More draw no border at a narrow width (2.4s)
+  ✓  106 tests/features.spec.ts:8:1 › daily goal shows progress in the status line (3.1s)
+  ✓  107 tests/features.spec.ts:20:1 › exports the project as Markdown (4.1s)
+  ✓  108 tests/features.spec.ts:43:1 › projects default startup, tabs, sidebar cards, and durable formatting (4.6s)
+  ✓  109 tests/features.spec.ts:70:1 › research notes, footnote insertion, comments, and export route (3.6s)
+  ✓  110 tests/features.spec.ts:116:1 › page layout stacks long paragraphs vertically and preserves undo and formatting (5.6s)
+  ✓  111 tests/features.spec.ts:157:1 › invalid extended-year goal deadlines never replace the saved deadline (3.8s)
+  ✓  112 tests/features.spec.ts:176:1 › Settings has no paragraph captions under the startup or goals controls (2.3s)
+  ✓  113 tests/features.spec.ts:186:1 › Settings Goals pickers use the interface font and square corners (2.4s)
+  ✓  114 tests/floating.spec.ts:91:3 › floating sidebar › off by default: the normal panel (2.0s)
+  ✓  115 tests/floating.spec.ts:98:3 › floating sidebar › page view at 100 %: bare text in the left margin, clear of the sheet (3.0s)
+  ✓  116 tests/floating.spec.ts:123:3 › floating sidebar › UI wave 7 C: at one window size the floating contents line up with the docked ones (4.5s)
+  ✓  117 tests/floating.spec.ts:170:3 › floating sidebar › a tight margin narrows the sidebar and still keeps the gap (3.5s)
+  ✓  118 tests/floating.spec.ts:187:3 › floating sidebar › continuous view: clear of the text column (2.8s)
+  ✓  119 tests/floating.spec.ts:196:3 › floating sidebar › a narrow window falls back to the normal panel (4.5s)
+  ✓  120 tests/floating.spec.ts:209:3 › floating sidebar › a 1100 px window: continuous view floats and stays clear, page view keeps the panel (3.8s)
+  ✓  121 tests/floating.spec.ts:223:3 › floating sidebar › page view at 150 % falls back, and floats again at 100 % (5.3s)
+  ✓  122 tests/floating.spec.ts:237:3 › floating sidebar › Toggle sidebar, pin, hover reveal and Escape keep working (4.3s)
+  ✓  123 tests/floating.spec.ts:286:3 › floating sidebar › unpinned: a slow 1 px pointer walk across the gap keeps the sidebar revealed (4.1s)
+  ✓  124 tests/floating.spec.ts:305:3 › floating sidebar › unpinned: z-index 4 and a format-bar menu paints above the sidebar (7.6s)
+  ✓  125 tests/floating.spec.ts:344:3 › floating sidebar › Reduce Motion: revealing has no transition (2.4s)
+  ✓  126 tests/floating.spec.ts:357:3 › floating sidebar › split view falls back to the panel (4.5s)
+  ✓  127 tests/floating.spec.ts:377:3 › floating sidebar › a destination page falls back to the panel (3.0s)
+  ✓  128 tests/floating.spec.ts:386:3 › floating sidebar › focus mode: the sidebar starts below the toolbar reveal band (3.7s)
+  ✓  129 tests/floating.spec.ts:411:3 › floating sidebar screenshots › light/dark, Plain/Color, page/continuous (14.5s)
+  ✓  130 tests/floating.spec.ts:550:3 › citation card › the Research heading opens the card at the top right, clear of the page and the bars (4.1s)
+  ✓  131 tests/floating.spec.ts:583:3 › citation card › no drift: DOI -> preview -> Cite here stores what the panel stores (10.9s)
+  ✓  132 tests/floating.spec.ts:627:3 › citation card › Add another gives an empty lookup with focus (4.6s)
+  ✓  133 tests/floating.spec.ts:644:3 › citation card › a footnote number opens its card; Page edits the locator; Escape returns to the editor (5.1s)
+  ✓  134 tests/floating.spec.ts:668:3 › citation card › the card's link opens the full panel with the source expanded; its X closes it (5.0s)
+  ✓  135 tests/floating.spec.ts:682:3 › citation card › source and note rows in the sidebar open the full panel (7.5s)
+  ✓  136 tests/floating.spec.ts:691:3 › citation card › a narrow window falls back to the research panel (4.2s)
+  ✓  137 tests/floating.spec.ts:699:3 › citation card › narrowing the window while the card is open swaps it for the panel (3.6s)
+  ✓  138 tests/floating.spec.ts:710:3 › citation card › T5: a 1240 window at 75 %: the docked sidebar's room counts, so the sidebar floats and Research opens the card (4.5s)
+  ✓  139 tests/floating.spec.ts:722:3 › citation card › T5: widening the window while the research panel is open hands it back to the card (3.9s)
+  ✓  140 tests/floating.spec.ts:733:3 › citation card › T5: a toast raised while the card is open never covers the card or the sheet (5.1s)
+  ✓  141 tests/floating.spec.ts:749:3 › citation card › T5: on a short window the card reaches the toast's corner, so the toast sits left of it (3.8s)
+  ✓  142 tests/floating.spec.ts:766:3 › citation card › T5: a toast raised while the research panel is open sits left of the panel (4.5s)
+  ✓  143 tests/floating.spec.ts:788:5 › citation card › T5: page view, Research open, widening: one steady state per width, never over the sheet (19.1s)
+  ✓  144 tests/floating.spec.ts:788:5 › citation card › T5: page view, Research open, narrowing: one steady state per width, never over the sheet (19.5s)
+  ✓  145 tests/floating.spec.ts:830:3 › citation card › floating off: the research panel as before (4.3s)
+  ✓  146 tests/floating.spec.ts:838:3 › citation card › Reduce Motion: the card opens without a transition (3.8s)
+  ✓  147 tests/floating.spec.ts:848:3 › citation card › keyboard only: manual entry, Cite here, Add another, Escape returns focus (5.7s)
+  ✓  148 tests/floating.spec.ts:897:3 › citation card › focus mode: the card sits below the reveal band and the revealed toolbar does not cover it (6.6s)
+  ✓  149 tests/floating.spec.ts:917:3 › citation card › split view: the heading and a footnote number open the panel (7.9s)
+  ✓  150 tests/floating.spec.ts:948:3 › citation card screenshots › card states in light/dark, Plain/Color (34.6s)
+  ✓  151 tests/floating.spec.ts:1015:5 › floating sidebar: zoomed continuous view › continuous view at 125 %: never over the text, same state resizing up and down (31.0s)
+  ✓  152 tests/floating.spec.ts:1015:5 › floating sidebar: zoomed continuous view › continuous view at 150 %: never over the text, same state resizing up and down (29.5s)
+  ✓  153 tests/footnotes.spec.ts:48:1 › Backspace in an empty text-only footnote removes marker, row and record (4.1s)
+  ✓  154 tests/footnotes.spec.ts:95:1 › Backspace in an empty citation footnote keeps its marker (3.1s)
+  ✓  155 tests/footnotes.spec.ts:134:1 › Backspace in a text-only footnote with text deletes one character (3.1s)
+  ✓  156 tests/footnotes.spec.ts:154:1 › a slow frame after inserting a footnote does not pull typing back to the document (3.6s)
+  ✓  157 tests/footnotes.spec.ts:176:1 › Cite here scrolls back to a caret that was out of view (3.2s)
+  ✓  158 tests/footnotes.spec.ts:208:1 › footnote text appears at the bottom of the page and is editable there (3.9s)
+  ✓  159 tests/fragments-panel.spec.ts:37:1 › fragments panel shows the whole fragment, a count, and search (2.6s)
+  ✓  160 tests/fragments-panel.spec.ts:68:1 › empty library explains how to make a fragment (2.4s)
+  ✓  161 tests/fragments-panel.spec.ts:77:1 › more than three fragments start collapsed and Show all expands one (4.1s)
+  ✓  162 tests/fragments-panel.spec.ts:106:1 › insert at cursor puts the whole fragment into the main editor (needs App wiring) (3.0s)
+  ✓  163 tests/fragments-panel.spec.ts:122:1 › inline edits in the panel are saved to the fragment (needs App wiring) (3.1s)
+  ✓  164 tests/fragments-panel.spec.ts:142:1 › an unsplit fragment opens in the editor without a restore strip (2.4s)
+  ✓  165 tests/housekeeping.spec.ts:18:1 › rename project, delete a section and a fragment with safety snapshots, delete the project (7.7s)
+  ✓  166 tests/housekeeping.spec.ts:93:1 › a conflicting same-revision journal offers a choice instead of locking the project (3.8s)
+  ✓  167 tests/housekeeping.spec.ts:122:1 › a corrupt recovery journal is listed as damaged without hiding the library (2.5s)
+  ✓  168 tests/housekeeping.spec.ts:147:1 › links are added through the name dialog, not window.prompt (3.6s)
+H1 inventory: 1141 controls (529 text) over 20 screens
+Projects (empty)
+Projects
+Writing
+Writing (sections in sidebar)
+Writing (page view)
+Dialog: Page setup
+Dialog: Snapshot name
+Fragments panel
+Research (empty)
+Research (source with PDF)
+Research
+Research (Notes)
+Comments
+History
+Read manuscript
+Settings
+Settings: Shortcuts region
+Split view
+Projects (with a project)
+Projects(lib)
+not crawled / skipped:
+
+H3 un-hoverable controls: 1
+Fragments panel | div.app-shell > div.app > div.notice[role=status] > button | Dismiss notification
+H3 exceptions: 0
+
+  ✓  169 tests/hover-emphasis.spec.ts:160:1 › hover inventory: crawl controls across screens (1.7m)
+H2 create menu row: stroke 0.48px scale 1.04 width 218->218 neighbour shifts 0,0,0,0,0
+H2 Snapshot: stroke 0.48px scale 1.04 width 90->90 neighbour shifts 0,0
+H2 Projects tab: stroke 0.48px scale 1.04 width 67->67 neighbour shifts 0
+H2 sidebar entry: stroke 0.52px scale 1.04 width 221->221 neighbour shifts 0
+H2 Delete note: stroke 0.52px scale 1.04 width 68->68 neighbour shifts 
+H2 settings button: stroke 0.52px scale 1.04 width 89->89 neighbour shifts 0
+H2 settings checkbox label: stroke 0.52px scale 1.04 width 624->624 neighbour shifts 0,0,0
+  ✓  170 tests/hover-emphasis.spec.ts:412:1 › H2 emphasis: no-shift faux bold and scale 1.04 on hover (8.9s)
+  ✓  171 tests/hover-emphasis.spec.ts:464:1 › H5 emphasis never touches links inside the document (editor and Read view) (3.5s)
+H2 dialog Cancel: stroke 0.52px scale 1.04 width 73->73 neighbour shifts 0
+H2 dialog Save: stroke 0.48px scale 1.04 width 59->59 neighbour shifts 0
+  ✓  172 tests/hover-emphasis.spec.ts:506:1 › H4 emphasis: Reduce Motion, danger colour and the drift probe (6.5s)
+  ✓  173 tests/import-cancel.spec.ts:29:1 › cancelling a slow import leaves no preview dialog and no project (4.6s)
+  ✘  174 tests/import-cancel.spec.ts:75:1 › cancelling while the parser is running inside previewWriting leaves no preview dialog and no project (1.5m)
+  ✓  175 tests/import-cancel.spec.ts:127:1 › a completed import still opens the preview dialog (control) (1.6s)
+  ✓  176 tests/import-cancel.spec.ts:145:1 › pressing Escape on the Importing writing dialog cancels a slow import and leaves no preview dialog and no project (5.7s)
+  ✓  177 tests/import-cancel.spec.ts:185:1 › pressing Escape on the Import writing preview dialog abandons the import and creates no project (3.8s)
+  ✓  178 tests/import.spec.ts:3:1 › Markdown import is previewed, cancel is safe, and accepted writing survives reload (2.5s)
+  ✓  179 tests/import.spec.ts:27:1 › import label states the real per-format size limits (1.0s)
+  ✓  180 tests/import.spec.ts:34:1 › import dialog keeps focus inside, cancels on Escape, and never fetches source images (1.2s)
+  ✓  181 tests/layout.spec.ts:18:1 › the blue reading progress bar is gone (2.6s)
+  ✓  182 tests/layout.spec.ts:27:1 › a selected entry stays regular and its section title is bold in the normal text colour (W7) (2.4s)
+  ✓  183 tests/layout.spec.ts:50:1 › an unpinned sidebar has an invisible edge strip that reveals it on hover (2.5s)
+  ✓  184 tests/layout.spec.ts:68:1 › page view typing and caret movement never shift the layout sideways (3.5s)
+  ✓  185 tests/layout.spec.ts:92:1 › the research side panel resizes from its left edge with the arrow keys (3.2s)
+  ✓  186 tests/layout.spec.ts:112:1 › the writing area starts near the top of the workspace at 1280x800 (2.1s)
+  ✓  187 tests/layout.spec.ts:122:1 › the sidebar starts with the project title and the hover switch lives in Settings (12.0s)
+  ✘  188 tests/markdown-roundtrip.spec.ts:179:1 › ExportPanel offers 'Markdown with images (.zip)' and the preview serves the bundled chunk (7.4s)
+  ✘  189 tests/markdown-roundtrip.spec.ts:192:1 › UI export -> real download -> re-import keeps image, table, multi-paragraph notes, reference positions, manifest hashes; zero off-origin requests (8.5s)
+  ✓  190 tests/markdown-roundtrip.spec.ts:262:1 › bundle download name is filesystem-safe for a title with path characters (3.3s)
+  ✓  191 tests/markdown-roundtrip.spec.ts:283:1 › missing asset at export: visible actionable error, no download, no file (5.0s)
+  ✘  192 tests/markdown-roundtrip.spec.ts:318:1 › limits are enforced before inflation in the production chunk (677ms)
+  ✘  193 tests/markdown-roundtrip.spec.ts:357:1 › remote image URLs inside an imported bundle are never fetched (861ms)
+  ✓  194 tests/markdown-roundtrip.spec.ts:372:1 › listener liveness: an in-page off-origin request is counted by the same watcher (945ms)
+  ✓  195 tests/markdown-roundtrip.spec.ts:381:1 › UI import of a .zip bundle through the writing-import input restores image, table and notes (7.8s)
+  ✓  196 tests/markdown-roundtrip.spec.ts:400:1 › writing-import input accepts .zip and mentions Markdown bundles (844ms)
+  ✓  197 tests/markdown-roundtrip.spec.ts:408:1 › UI import of a bundle carries its image asset into the new project and survives reload (5.6s)
+  ✓  198 tests/markdown-roundtrip.spec.ts:433:1 › cancelling a bundle, a DOCX and an HTML import leaves no new project, even after reload (5.7s)
+  ✓  199 tests/motion-u5.spec.ts:10:1 › (g) opening the create menu animates only allowed properties (1.1s)
+  ✓  200 tests/motion-u5.spec.ts:23:1 › (g2) the create menu items are opaque from the first frame (873ms)
+  ✓  201 tests/motion-u5.spec.ts:37:1 › (g3) reopening reverses the create trigger fade in place (1.1s)
+  ✓  202 tests/motion-u6.spec.ts:12:1 › opening the More menu animates only transform, opacity and clip-path (2.2s)
+  ✓  203 tests/motion-u7.spec.ts:43:1 › changing a Segmented value animates nothing but transform and opacity (no sliding box) (2.6s)
+  ✓  204 tests/motion-u7.spec.ts:61:1 › changing the sidebar selection animates nothing but transform and opacity (no sliding box) (3.0s)
+  ✓  205 tests/motion.spec.ts:36:1 › (a) opening the projects search animates only transform, opacity, clip-path or visibility (1.4s)
+  ✓  206 tests/motion.spec.ts:50:1 › (b) revealing the unpinned sidebar animates only allowed properties (2.5s)
+  ✓  207 tests/motion.spec.ts:58:1 › (c) with Reduce Motion there are no running animations and panels change at once (2.6s)
+  ✓  208 tests/motion.spec.ts:72:1 › (d) opening the Sort dropdown animates only allowed properties and marks one item highlighted without a box (1.3s)
+  ✓  209 tests/motion.spec.ts:91:1 › (e) a menu reopened mid-close reverses from its current frame without remounting (1.1s)
+  ✓  210 tests/motion.spec.ts:123:1 › (f) with Reduce Motion a dropdown opens and closes at once with no animations (1.2s)
+  ✓  211 tests/motion.spec.ts:137:1 › (g) the highlighted item is the active descendant and emphasised with a text stroke (never a heavier weight), inside a bordered, scrolled popover (910ms)
+  ✓  212 tests/notice.spec.ts:34:3 › notice never covers Export PDF and dismisses itself (light) (8.1s)
+  ✓  213 tests/notice.spec.ts:34:3 › notice never covers Export PDF and dismisses itself (dark) (8.3s)
+  ✓  214 tests/notice.spec.ts:54:1 › notice stays clear of the comments and research panels at 1280x800 (3.4s)
+  ✓  215 tests/notice.spec.ts:69:5 › notice covers nothing in the writing view at 1280x800 (light) (4.8s)
+  ✓  216 tests/notice.spec.ts:69:5 › notice covers nothing in the writing view at 1280x800 (dark) (4.7s)
+  ✓  217 tests/notice.spec.ts:69:5 › notice covers nothing in the writing view at 1024x700 (light) (5.1s)
+  ✓  218 tests/notice.spec.ts:69:5 › notice covers nothing in the writing view at 1024x700 (dark) (4.4s)
+  ✓  219 tests/page-break.spec.ts:19:1 › Shift+Enter inserts an exported page break while Cmd+Enter stays soft (3.0s)
+  ✓  220 tests/page-break.spec.ts:66:3 › Shift+Enter in a list item stays a soft break and page view and DOCX agree (2.7s)
+  ✓  221 tests/page-break.spec.ts:66:3 › Shift+Enter in a block quote stays a soft break and page view and DOCX agree (2.8s)
+  ✓  222 tests/pages-gap.spec.ts:119:3 › fuzz at 100 %: caret and empty lines never in a gap (seed 4101) (1.6m)
+  ✓  223 tests/pages-gap.spec.ts:119:3 › fuzz at 75 %: caret and empty lines never in a gap (seed 4175) (1.6m)
+  ✓  224 tests/pages-gap.spec.ts:119:3 › fuzz at 125 %: caret and empty lines never in a gap (seed 4125) (1.6m)
+  ✓  225 tests/pages-gap.spec.ts:230:3 › targeted gap cases at 100 % › Enter at the last line of page 1 puts the caret at the top of page 2 (3.9s)
+  ✓  226 tests/pages-gap.spec.ts:243:3 › targeted gap cases at 100 % › Enter after Enter from a half-full page: the caret is always on a page (14.5s)
+  ✓  227 tests/pages-gap.spec.ts:259:3 › targeted gap cases at 100 % › Backspace at the first paragraph of page 2 merges up; the caret is on page 1 (3.8s)
+  ✓  228 tests/pages-gap.spec.ts:270:3 › targeted gap cases at 100 % › a click in the bottom margin goes to page 1's end, in the gap to page 2's start (3.7s)
+  ✓  229 tests/pages-gap.spec.ts:295:3 › targeted gap cases at 100 % › Shift+click across a gap selects across both pages (4.4s)
+  ✓  230 tests/pages-gap.spec.ts:310:3 › targeted gap cases at 100 % › Backspace after a page break and Delete before one remove the break with a visible caret; undo restores (7.6s)
+  ✓  231 tests/pages-gap.spec.ts:362:3 › targeted gap cases at 100 % › undo and redo of a page-filling paste keep every line on a page (5.9s)
+  ✓  232 tests/pages-zoom.spec.ts:23:3 › page view at every toolbar zoom › page starts and drawn page gaps hold at 50, 75, 125 and 150 % (11.6s)
+  ✓  233 tests/pages.spec.ts:241:3 › vertical page view › stacks pages vertically with no sideways scroll; caret, clicks, footnotes and undo (7.9s)
+  ✓  234 tests/pages.spec.ts:386:3 › vertical page view › typing just above a split rewraps the paragraph across the page gap (8.9s)
+  ✓  235 tests/pages.spec.ts:446:3 › vertical page view › Shift+Enter starts a new page (3.0s)
+  ✓  236 tests/pages.spec.ts:463:3 › vertical page view › Reduce Motion leaves page view unchanged (3.0s)
+  ✓  237 tests/pages.spec.ts:476:3 › vertical page view › spacers wait for an input-method composition to end (2.8s)
+  ✓  238 tests/pages.spec.ts:505:3 › page view in a split pane › a 585 px pane scales the page, keeps every page start, and scrolls only its own page number (5.5s)
+  ✓  239 tests/performance.spec.ts:20:1 › goal scope and day preferences persist and start explicit fresh baselines (5.5s)
+  ✓  240 tests/performance.spec.ts:64:3 › goal calendar resets its baseline at local midnight (2.7s)
+  ✓  241 tests/performance.spec.ts:64:3 › goal calendar resets its baseline at utc midnight (3.1s)
+  ✓  242 tests/performance.spec.ts:100:1 › 100k words across 60 sections and 1000 notes meet the synthetic input budget -- ordinary sections (18.5s)
+  ✓  243 tests/performance.spec.ts:100:1 › 100k words across 60 sections and 1000 notes meet the synthetic input budget -- repeated-word paragraph (20.6s)
+  ✓  244 tests/performance.spec.ts:170:1 › page view on a 90-page section meets the synthetic input budget (26.1s)
+  ✓  245 tests/popover-bounds.spec.ts:52:1 › research menus stay inside the research aside scroll container (2.2s)
+  ✓  246 tests/popover-bounds.spec.ts:93:1 › a menu in the 390 px research aside keeps the Dropdown's 320 px max-width (1.9s)
+  ✓  247 tests/popover-bounds.spec.ts:122:1 › repeat-rule menus stay inside a narrow research aside (1.8s)
+  ✓  248 tests/popover-bounds.spec.ts:152:1 › cards-view status dropdown stays inside the sidebar scroll container (1.6s)
+  ✓  249 tests/popover-bounds.spec.ts:166:1 › toolbar popovers keep their recorded untouched-tree placement (6.6s)
+  ✓  250 tests/projects-screen.spec.ts:20:1 › search expands from the magnifier, filters by title, and Escape collapses (3.5s)
+  ✓  251 tests/projects-screen.spec.ts:50:1 › open search field stays right of the create button at 850x600 (3.4s)
+  ✓  252 tests/projects-screen.spec.ts:61:1 › search works from the keyboard alone (3.0s)
+  ✓  253 tests/projects-screen.spec.ts:78:1 › search box is square and has no motion under reduced motion (2.3s)
+  ✓  254 tests/projects-screen.spec.ts:90:1 › search box reveals by clip-path by default (3.1s)
+  ✓  255 tests/projects-screen.spec.ts:102:1 › closed search slot shows no field border above the magnifier (3.7s)
+  ✓  256 tests/projects-screen.spec.ts:135:1 › open search input text clears the left border (3.0s)
+  ✓  257 tests/projects-screen.spec.ts:154:1 › create button opens a panel listing every template, then the two file actions (785ms)
+  ✓  258 tests/projects-screen.spec.ts:164:1 › the create menu covers the button and grows out of it (1.1s)
+  ✓  259 tests/projects-screen.spec.ts:192:1 › the create menu collapses with a morph on close, and instantly under reduced motion (1.4s)
+  ✓  260 tests/projects-screen.spec.ts:204:1 › Escape closes the panel and returns focus to the create button (1.1s)
+  ✓  261 tests/projects-screen.spec.ts:212:1 › tabbing out of the create panel dismisses it (803ms)
+  ✓  262 tests/projects-screen.spec.ts:219:1 › Escape on the focused create trigger closes the open panel (842ms)
+  ✓  263 tests/projects-screen.spec.ts:232:1 › clicking outside closes the panel (832ms)
+  ✓  264 tests/projects-screen.spec.ts:240:1 › the Projects screen has no heading: the button sits left, the controls right (622ms)
+  ✓  265 tests/projects-screen.spec.ts:256:1 › create panel works from the keyboard alone (697ms)
+  ✓  266 tests/projects-screen.spec.ts:280:1 › Import a file opens the writing picker and a chosen file reaches the import preview (1.2s)
+  ✓  267 tests/projects-screen.spec.ts:291:1 › Recover from a project.json file opens the project.json picker (1.2s)
+  ✓  268 tests/projects-screen.spec.ts:300:1 › the two old import links are gone but both pickers stay mounted (601ms)
+  ✓  269 tests/projects-screen.spec.ts:311:1 › create menu is square and opens with a morph by default (743ms)
+  ✓  270 tests/projects-screen.spec.ts:321:1 › create menu has no motion under reduced motion (740ms)
+  ✓  271 tests/projects-screen.spec.ts:336:5 › create panel items are full-contrast text at once (light/plain) (1.2s)
+  ✓  272 tests/projects-screen.spec.ts:336:5 › create panel items are full-contrast text at once (light/plain, reduced motion) (1.2s)
+  ✓  273 tests/projects-screen.spec.ts:336:5 › create panel items are full-contrast text at once (light/color) (1.1s)
+  ✓  274 tests/projects-screen.spec.ts:336:5 › create panel items are full-contrast text at once (light/color, reduced motion) (1.2s)
+  ✓  275 tests/projects-screen.spec.ts:336:5 › create panel items are full-contrast text at once (dark/plain) (1.1s)
+  ✓  276 tests/projects-screen.spec.ts:336:5 › create panel items are full-contrast text at once (dark/plain, reduced motion) (1.2s)
+  ✓  277 tests/projects-screen.spec.ts:336:5 › create panel items are full-contrast text at once (dark/color) (1.2s)
+  ✓  278 tests/projects-screen.spec.ts:336:5 › create panel items are full-contrast text at once (dark/color, reduced motion) (1.2s)
+  ✓  279 tests/projects-screen.spec.ts:389:1 › dropping a Markdown file outlines the project list only and opens the import preview; Cancel creates nothing (878ms)
+  ✓  280 tests/projects-screen.spec.ts:416:1 › the drop outline does not flicker over children and clears on dragleave (621ms)
+  ✓  281 tests/projects-screen.spec.ts:430:1 › a file dropped outside the Projects list does not make the browser open it (551ms)
+  ✓  282 tests/projects-screen.spec.ts:442:1 › a dropped PDF shows a clear error and opens nothing (631ms)
+  ✓  283 tests/projects-screen.spec.ts:451:1 › dropping two files asks for one at a time (616ms)
+  ✓  284 tests/projects-screen.spec.ts:458:1 › a dropped Markdown file over 5 MB is refused by the existing import limit (667ms)
+  ✓  285 tests/projects-screen.spec.ts:465:1 › a drop while the new-project name dialog is open opens nothing (1.5s)
+  ✓  286 tests/projects-screen.spec.ts:477:1 › the trash icon never overlaps the dates when a project row is hovered (3.2s)
+  ✓  287 tests/projects-screen.spec.ts:497:1 › the Projects toolbar stays put as projects are added (no vertical re-centring) (3.1s)
+  ✓  288 tests/projects-screen.spec.ts:511:1 › a project saved from the hidden Story template still opens (2.0s)
+  ✓  289 tests/projects-screen.spec.ts:533:1 › the gear opens Settings from the Projects screen; Dark applies at once and survives a reload (1.3s)
+  ✓  290 tests/projects-screen.spec.ts:564:1 › the Projects-screen Settings dialog shows the floating row and it toggles the preference (874ms)
+  ✓  291 tests/projects-screen.spec.ts:587:3 › a project row label eases its grow back after unhover (5.0s)
+  ✓  292 tests/projects-screen.spec.ts:587:3 › a project row label drops its grow instantly under Reduce Motion (2.4s)
+  ✓  293 tests/research-library.spec.ts:27:1 › different works survive title/surname collisions and exact DOI copies are a choice (3.8s)
+  ✓  294 tests/research-library.spec.ts:58:1 › raw source fields, corporate creators and manual forms survive browser save and reopen (3.1s)
+  ✓  295 tests/research-library.spec.ts:86:1 › editing an editor keeps a chapter's legacy author and enables the bounded chapter preview (2.4s)
+  ✓  296 tests/research-library.spec.ts:121:1 › selected imported fields update one stable source without overwriting local edits or note references (3.8s)
+  ✓  297 tests/research-library.spec.ts:144:1 › a mismatched source-update safety snapshot blocks every field change (3.3s)
+  ✓  298 tests/research-library.spec.ts:167:1 › same-title update targets are distinguishable and update only the chosen stable record (3.6s)
+  ✓  299 tests/research-library.spec.ts:194:1 › a recovered duplicate source identity cannot update multiple existing records (3.7s)
+  ✓  300 tests/research-library.spec.ts:224:1 › required-detail hints recognize structured corporate authors without legacy author strings (2.7s)
+  ✓  301 tests/research-pdf.spec.ts:28:1 › a source PDF opens beside its section and survives reload (3.6s)
+  ✓  302 tests/research-pdf.spec.ts:85:1 › source PDFs reject non-PDF bytes and files over 25 MB (6.5s)
+  ✓  303 tests/research.spec.ts:36:1 › research panel has Sources and Notes tabs in the app font (1.7s)
+  ✓  304 tests/research.spec.ts:60:1 › manual source shows a Chicago bibliography preview and lookup fills a new source (2.0s)
+  ✓  305 tests/research.spec.ts:104:1 › a cited footnote appears under its source and in the manuscript (1.9s)
+  ✓  306 tests/research.spec.ts:126:1 › text-only footnotes keep the insert-at-cursor flow (1.7s)
+  ✓  307 tests/research.spec.ts:139:1 › second citation of a source shows a shortened note (2.1s)
+  ✓  308 tests/research.spec.ts:162:1 › imports sources from a Zotero CSL JSON file (1.9s)
+  ✓  309 tests/research.spec.ts:177:1 › Sources tab: rules split Zotero, sources and text-only notes; helper texts are gone (1.9s)
+  ✓  310 tests/research.spec.ts:226:1 › Cite here shows the citation at once, not an empty note field (1.8s)
+  ✓  311 tests/research.spec.ts:240:1 › captured quote inserts with its citation and one undo removes both (4.5s)
+  ✓  312 tests/research.spec.ts:272:1 › opt-in Ibid. rules reach the page notes and research preview, persist, and turn off cleanly (4.0s)
+  ✓  313 tests/research.spec.ts:320:1 › citation rules agree across page notes, preview and reader through section scope, reorder and reload (5.8s)
+  ✓  314 tests/research.spec.ts:383:1 › helper captions are gone; hints live in placeholder and a keyboard-reachable tooltip (1.9s)
+  ✓  315 tests/research.spec.ts:426:1 › Research sidebar lists Bibliography and sources; the Bibliography page orders, persists, matches Markdown and opens sources (4.7s)
+  ✓  316 tests/research.spec.ts:501:1 › Research sidebar group: no Bibliography without sources, Chicago always has it, notes sit under Research (3.9s)
+  ✓  317 tests/research.spec.ts:548:1 › research hints span the whole field row and the repeat-rule fields are spaced (1.8s)
+  ✓  318 tests/research.spec.ts:583:1 › a note has a visible Note label and room above its field (1.8s)
+  ✓  319 tests/research.spec.ts:613:1 › Notes tab rework: add-note spacing, divider line only between notes, dropdown and delete share a row (1.9s)
+  ✓  320 tests/research.spec.ts:693:1 › Notes tab: no 'Ideas and reminders' hint (1.6s)
+  ✓  321 tests/research.spec.ts:706:1 › Notes tab: exactly one rendered line between two notes, no two lines within 8 px (2.3s)
+  ✓  322 tests/research.spec.ts:770:1 › Upload PDF stores a standalone PDF with no source, opens beside, survives reload, and removes (2.9s)
+  ✓  323 tests/revisions.spec.ts:23:1 › word comparison labels changes, navigates them, and restores a changed rich-text paragraph safely (3.9s)
+  ✓  324 tests/revisions.spec.ts:55:1 › does not offer a guessed paragraph restore when inserted and edited blocks are ambiguous (2.8s)
+  ✓  325 tests/revisions.spec.ts:72:1 › oversized comparisons offer a bounded, cancellable selected-passage view (3.9s)
+  ✓  326 tests/revisions.spec.ts:93:1 › refuses a corrupted safety snapshot and keeps current prose unchanged (2.9s)
+  ✓  327 tests/revisions.spec.ts:120:1 › snapshot page: the restore-section button, its help text and the compare control share one left text edge (2.8s)
+  ✓  328 tests/rich-import.spec.ts:24:1 › file picker accept attribute includes .docx, .html, and .htm (558ms)
+  ✓  329 tests/rich-import.spec.ts:34:1 › DOCX import extracts rich structure, counts, and assets in Chromium (production preview) (653ms)
+  ✓  330 tests/rich-import.spec.ts:55:1 › HTML import neutralizes malicious scripts and never fetches remote media (633ms)
+  ✓  331 tests/rich-import.spec.ts:85:1 › Import preview modal displays content count pills and warnings (643ms)
+  ✓  332 tests/rich-import.spec.ts:103:1 › Cancellation safety: invalid or aborted import leaves zero persistent projects (758ms)
+  ✓  333 tests/rich-import.spec.ts:149:1 › DOCX with an External image relationship warns, makes no off-origin request, and keeps the remote URL out of the editor (4.1s)
+  ✓  334 tests/rich-import.spec.ts:182:1 › External-image case: the off-origin watcher is live (an in-page request is counted) (564ms)
+  ✓  335 tests/ruler.spec.ts:103:1 › ruler toggles on and exposes keyboard-accessible linked margin markers (3.2s)
+  ✓  336 tests/ruler.spec.ts:146:5 › ruler box and markers match the page: continuous view at 75% (2.5s)
+  ✓  337 tests/ruler.spec.ts:146:5 › ruler box and markers match the page: continuous view at 100% (2.4s)
+  ✓  338 tests/ruler.spec.ts:146:5 › ruler box and markers match the page: continuous view at 150% (2.3s)
+  ✓  339 tests/ruler.spec.ts:146:5 › ruler box and markers match the page: pages view at 75% (2.6s)
+  ✓  340 tests/ruler.spec.ts:146:5 › ruler box and markers match the page: pages view at 100% (2.5s)
+  ✓  341 tests/ruler.spec.ts:146:5 › ruler box and markers match the page: pages view at 150% (2.5s)
+  ✓  342 tests/ruler.spec.ts:165:1 › ruler matches the page in a narrow window without horizontal scroll (1.9s)
+  ✓  343 tests/ruler.spec.ts:174:1 › each split pane's ruler matches its own paper, text and markers (2.5s)
+  ✓  344 tests/ruler.spec.ts:197:3 › ruler stays pinned, opaque and on top of scrolled text: continuous view (2.7s)
+  ✓  345 tests/ruler.spec.ts:197:3 › ruler stays pinned, opaque and on top of scrolled text: pages view (2.9s)
+  ✓  346 tests/ruler.spec.ts:223:1 › a top gap below the ruler height keeps the first line and the gap handle off the ticks (2.3s)
+  ✓  347 tests/ruler.spec.ts:241:1 › only the primary button drags a marker (2.8s)
+  ✓  348 tests/ruler.spec.ts:261:1 › continuous top gap is ruler-only, screen-only and does not change page-view padding (3.2s)
+  ✓  349 tests/ruler.spec.ts:291:1 › a gap-only change leaves a different stored export margin alone (3.3s)
+  ✓  350 tests/ruler.spec.ts:340:3 › first glyph sits on the left marker in continuous view at 75% (3.0s)
+  ✓  351 tests/ruler.spec.ts:340:3 › first glyph sits on the left marker in continuous view at 100% (2.7s)
+  ✓  352 tests/ruler.spec.ts:340:3 › first glyph sits on the left marker in continuous view at 150% (3.1s)
+  ✓  353 tests/ruler.spec.ts:372:3 › caret never goes behind the ruler: ArrowUp and typing, continuous view (16.6s)
+  ✓  354 tests/ruler.spec.ts:372:3 › caret never goes behind the ruler: ArrowUp and typing, pages view (16.6s)
+  ✓  355 tests/ruler.spec.ts:403:5 › caret stays clear at 75% zoom: continuous view, ruler on (10.6s)
+  ✓  356 tests/ruler.spec.ts:403:5 › caret stays clear at 75% zoom: continuous view, ruler off (9.6s)
+  ✓  357 tests/ruler.spec.ts:403:5 › caret stays clear at 75% zoom: pages view, ruler on (11.0s)
+  ✓  358 tests/ruler.spec.ts:403:5 › caret stays clear at 75% zoom: pages view, ruler off (9.8s)
+  ✓  359 tests/ruler.spec.ts:436:1 › caret scrolling with the ruler off keeps the default margin (5.3s)
+  ✓  360 tests/ruler.spec.ts:503:7 › emulated WebKit rects: ArrowUp/Down keep the caret in view at 75%: pages view, ruler on (11.1s)
+  ✓  361 tests/ruler.spec.ts:503:7 › emulated WebKit rects: ArrowUp/Down keep the caret in view at 75%: pages view, ruler off (10.2s)
+  ✓  362 tests/ruler.spec.ts:503:7 › emulated WebKit rects: ArrowUp/Down keep the caret in view at 150%: pages view, ruler on (11.1s)
+  ✓  363 tests/ruler.spec.ts:503:7 › emulated WebKit rects: ArrowUp/Down keep the caret in view at 150%: pages view, ruler off (10.3s)
+  ✓  364 tests/ruler.spec.ts:503:7 › emulated WebKit rects: ArrowUp/Down keep the caret in view at 75%: continuous view, ruler on (10.7s)
+  ✓  365 tests/ruler.spec.ts:503:7 › emulated WebKit rects: ArrowUp/Down keep the caret in view at 75%: continuous view, ruler off (9.9s)
+  ✓  366 tests/ruler.spec.ts:503:7 › emulated WebKit rects: ArrowUp/Down keep the caret in view at 150%: continuous view, ruler on (10.2s)
+  ✓  367 tests/ruler.spec.ts:503:7 › emulated WebKit rects: ArrowUp/Down keep the caret in view at 150%: continuous view, ruler off (9.9s)
+  ✓  368 tests/ruler.spec.ts:536:3 › a slow moment after ArrowUp still keeps the caret clear of the ruler at 75% (13.4s)
+  ✓  369 tests/ruler.spec.ts:536:3 › a slow moment after ArrowUp still keeps the caret clear of the ruler at 150% (14.3s)
+  ✓  370 tests/ruler.spec.ts:562:1 › a movement key that moves nothing does not make select-all jump to the end (2.3s)
+  ✓  371 tests/ruler.spec.ts:576:3 › emulated WebKit rects: a selected tall image clears the ruler at 100% (4.0s)
+  ✓  372 tests/ruler.spec.ts:576:3 › emulated WebKit rects: a selected tall image clears the ruler at 75% (3.9s)
+  ✓  373 tests/scroll-fade.spec.ts:33:1 › research panel fades only at the edge that has more content (2.1s)
+  ✓  374 tests/scroll-fade.spec.ts:73:1 › short research panel has no fade (1.6s)
+  ✓  375 tests/scroll-fade.spec.ts:82:1 › citation card: Cite here is visible in preview at 900 px, only the fields scroll and fade (2.1s)
+  ✓  376 tests/scrollspy.spec.ts:64:1 › (a) Read mode: the line follows the reading position; a line click eases there; Reduce Motion is instant (5.8s)
+  ✓  377 tests/scrollspy.spec.ts:118:1 › (b) Write mode: the open section's line is active; a section open beside is half-expanded (4.5s)
+  ✓  378 tests/scrollspy.spec.ts:144:1 › (c) hover or keyboard focus on a row expands its line; the keyboard change is not animated (4.1s)
+  ✓  379 tests/scrollspy.spec.ts:176:1 › (d) the lines hide with a hover-reveal sidebar (3.4s)
+  ✓  380 tests/scrollspy.spec.ts:195:1 › (e, f) a dragged row keeps the rail in row order; collapsing Manuscript removes the rail (3.5s)
+  ✓  381 tests/scrollspy.spec.ts:206:1 › (g) at the 190 px sidebar the heading and titles stay readable (labels fit or ellipsize) (3.4s)
+  ✓  382 tests/scrollspy.spec.ts:243:1 › (h) cards view draws no lines and no gutter (3.4s)
+  ✓  383 tests/scrollspy.spec.ts:256:5 › screens: plain light, single, split and Read (5.3s)
+  ✓  384 tests/scrollspy.spec.ts:256:5 › screens: plain dark, single, split and Read (5.2s)
+  ✓  385 tests/scrollspy.spec.ts:256:5 › screens: color light, single, split and Read (5.3s)
+  ✓  386 tests/scrollspy.spec.ts:256:5 › screens: color dark, single, split and Read (5.2s)
+  ✓  387 tests/scrollspy.spec.ts:346:1 › (i) Fragments and Research rows have lines with idle/open/active states and a 24 px gutter (4.7s)
+  ✓  388 tests/scrollspy.spec.ts:392:1 › (j) lines grow toward the pointer with a cosine falloff; keyboard focus magnifies at once (4.3s)
+  ✓  389 tests/scrollspy.spec.ts:444:1 › (p) hovering a row magnifies its line and neighbours as the pointer on the line does; leaving drops it (4.2s)
+  ✓  390 tests/scrollspy.spec.ts:470:1 › (q) Reduce Motion: hovering a row does not magnify its line (3.3s)
+  ✓  391 tests/scrollspy.spec.ts:488:1 › (k) Write mode: the active line fills as the open section or fragment scrolls (continuous and page view) (6.3s)
+  ✓  392 tests/scrollspy.spec.ts:526:1 › (l) Read mode: the active line fills through its section (4.6s)
+  ✓  393 tests/scrollspy.spec.ts:555:1 › (m) Reduce Motion: no magnify; hover and focus fall back to the half-length line (3.3s)
+  ✓  394 tests/scrollspy.spec.ts:576:1 › (n) cards view of Fragments and Research draws no lines and no gutter (3.0s)
+  ✓  395 tests/scrollspy.spec.ts:589:1 › (o) at the 190 px sidebar idle lines are unchanged and Fragments/Research labels stay readable (3.9s)
+  ✓  396 tests/scrollspy.spec.ts:646:1 › T7b: clicking the second line opens the second section; Enter and Space on a focused line do the same (3.7s)
+  ✓  397 tests/scrollspy.spec.ts:660:1 › T7b: hover or focus on a line shows no preview card (owner removed it 2026-11-03) (4.9s)
+  ✓  398 tests/scrollspy.spec.ts:675:1 › T7b: lines are evenly spaced (+/-1 px) in each group, single and split (3.6s)
+  ✓  399 tests/shortcuts.spec.ts:25:1 › rebinding Focus mode moves the chord, the menu hint and survives reload (2.7s)
+  ✓  400 tests/shortcuts.spec.ts:68:1 › recording a reserved or taken chord is refused; Reset all restores (1.7s)
+  ✓  401 tests/shortcuts.spec.ts:92:1 › Cmd+Shift+S takes one snapshot and does not save (1.8s)
+  ✓  402 tests/shortcuts.spec.ts:107:1 › Escape cancels recording and leaves the old chord (1.6s)
+  ✓  403 tests/shortcuts.spec.ts:125:1 › a chord with no Command, Control or Option is refused with a reason (1.7s)
+  ✓  404 tests/shortcuts.spec.ts:149:1 › Show formatting bar is listed with its default chord and obeys the chord rules (1.8s)
+  ✓  405 tests/sidebar-context-menu.spec.ts:98:1 › right-click on a section opens the menu at the pointer; Escape returns focus to the row (2.0s)
+  ✓  406 tests/sidebar-context-menu.spec.ts:135:1 › Shift+F10 and the ContextMenu key open it on the focused row; arrows, Home/End and Enter work (2.0s)
+  ✓  407 tests/sidebar-context-menu.spec.ts:179:1 › Open, Open beside, Rename and Delete from a section and a fragment (4.7s)
+  ✓  408 tests/sidebar-context-menu.spec.ts:224:1 › group heading: Collapse/Expand, Move up, Move down (2.5s)
+  ✓  409 tests/sidebar-context-menu.spec.ts:252:1 › research rows: source, PDF, note and Bibliography items; moves are announced (4.7s)
+  ✓  410 tests/sidebar-context-menu.spec.ts:289:1 › the menu stays inside the window near its edges (1.6s)
+  ✓  411 tests/sidebar-context-menu.spec.ts:310:1 › a right-click in the editor gets no sidebar menu (1.6s)
+  ✓  412 tests/sidebar-context-menu.spec.ts:319:1 › Reduce Motion: a pointer-opened menu is instant (1.2s)
+  ✓  413 tests/sidebar-context-menu.spec.ts:355:3 › floating sidebar › floating: no separators above the bottom rows; the menu still opens at the pointer (1.7s)
+  ✓  414 tests/sidebar-context-menu.spec.ts:369:3 › floating sidebar › normal: the separators stay above Comments, History and Settings (1.4s)
+  ✓  415 tests/sidebar-context-menu.spec.ts:384:3 › floating sidebar, short window › the scrolling group list ends above the bottom rows; no row overlaps them (2.6s)
+  -  416 tests/sidebar-context-menu.spec.ts:419:5 › screenshots light plain: menu on a section and a group heading; floating without dividers
+  -  417 tests/sidebar-context-menu.spec.ts:419:5 › screenshots light color: menu on a section and a group heading; floating without dividers
+  -  418 tests/sidebar-context-menu.spec.ts:419:5 › screenshots dark plain: menu on a section and a group heading; floating without dividers
+  -  419 tests/sidebar-context-menu.spec.ts:419:5 › screenshots dark color: menu on a section and a group heading; floating without dividers
+  ✓  420 tests/sidebar-rename.spec.ts:22:1 › renaming from the sidebar title saves on blur and shows one name (2.1s)
+  ✓  421 tests/sidebar-rename.spec.ts:40:1 › Escape reverts the rename and returns focus to the title (1.5s)
+  ✓  422 tests/sidebar-rename.spec.ts:51:1 › Enter saves the rename and returns focus to the title (1.6s)
+  ✓  423 tests/sidebar-rename.spec.ts:62:1 › the breadcrumb shows only the section with correct semantics (1.5s)
+  ✓  424 tests/sidebar-search.spec.ts:31:1 › clear button is absent when empty and clears while the field keeps focus (1.9s)
+  ✓  425 tests/sidebar-search.spec.ts:47:1 › Cmd-K still focuses Find in project with no hint shown (1.5s)
+  ✓  426 tests/sidebar-search.spec.ts:56:1 › clear button is icon-only, flat, square, colour hover at the search end (2.0s)
+  ✓  427 tests/sidebar-search.spec.ts:81:1 › Escape clears a non-empty query without leaving the field; empty Escape is unchanged (1.6s)
+  ✓  428 tests/sidebar-search.spec.ts:94:1 › Escape on an empty field in the overlay sidebar still closes it (1.8s)
+  ✓  429 tests/sidebar-search.spec.ts:108:1 › fade uses opacity with the fast duration; Reduce Motion is instant (1.6s)
+  ✓  430 tests/sidebar-search.spec.ts:128:1 › floating sidebar: the search has no surface behind it (1.6s)
+  -  431 tests/sidebar-search.spec.ts:143:7 › screenshots light plain
+  -  432 tests/sidebar-search.spec.ts:143:7 › screenshots light plain floating
+  -  433 tests/sidebar-search.spec.ts:143:7 › screenshots light color
+  -  434 tests/sidebar-search.spec.ts:143:7 › screenshots light color floating
+  -  435 tests/sidebar-search.spec.ts:143:7 › screenshots dark plain
+  -  436 tests/sidebar-search.spec.ts:143:7 › screenshots dark plain floating
+  -  437 tests/sidebar-search.spec.ts:143:7 › screenshots dark color
+  -  438 tests/sidebar-search.spec.ts:143:7 › screenshots dark color floating
+  ✓  439 tests/sidebar-selection.spec.ts:61:1 › dragging across plain sidebar heading text does not select chrome (1.9s)
+  ✓  440 tests/sidebar-selection.spec.ts:79:1 › search, rename, editor, and prose preview text remain selectable (3.9s)
+  ✓  441 tests/sidebar-selection.spec.ts:167:1 › sidebar drag, resize, collapse, pin, and keyboard controls still work (4.0s)
+  ✓  442 tests/sidebar-selection.spec.ts:234:1 › at the 190 px minimum sidebar width every row stays on one line (1.5s)
+  ✓  443 tests/sidebar-selection.spec.ts:340:1 › bottom rows keep their fixed order and carry no hover actions (1.6s)
+  ✓  444 tests/sidebar-selection.spec.ts:370:1 › Option+Down on the last top group leaves the order and says it is already last (1.6s)
+  ✓  445 tests/sidebar-selection.spec.ts:386:1 › a hidden feature row leaves the sidebar, survives reload, and stays per project (3.1s)
+  ✓  446 tests/sidebar-selection.spec.ts:485:1 › W7 Plain: active heading is bold normal text; rows stay regular and reveal full colour (3.0s)
+  ✓  447 tests/sidebar-selection.spec.ts:553:3 › W7 Plain: nothing in the three sections is lit while Comments is on screen (2.1s)
+  ✓  448 tests/sidebar-selection.spec.ts:553:3 › W7 Plain: nothing in the three sections is lit while Read manuscript is on screen (2.1s)
+  ✓  449 tests/sidebar-selection.spec.ts:566:1 › W7 Plain: a clicked Bibliography row goes dim once the pointer leaves, and nothing in the three sections is lit (2.1s)
+  ✓  450 tests/sidebar-selection.spec.ts:581:1 › W7 resize handles stay unpainted on hover and retain keyboard focus cues (2.3s)
+  ✓  451 tests/sidebar-selection.spec.ts:622:5 › B1 plain light: split panes light their own sections; a source PDF lights Research (4.2s)
+  ✓  452 tests/sidebar-selection.spec.ts:622:5 › B1 plain dark: split panes light their own sections; a source PDF lights Research (4.2s)
+  ✓  453 tests/sidebar-selection.spec.ts:622:5 › B1 color light: split panes light their own sections; a source PDF lights Research (4.3s)
+  ✓  454 tests/sidebar-selection.spec.ts:622:5 › B1 color dark: split panes light their own sections; a source PDF lights Research (4.3s)
+  ✓  455 tests/sidebar-selection.spec.ts:692:1 › W7 T244: after the Manuscript heading, a fragment on screen leaves only Fragments bold (2.3s)
+  ✓  456 tests/sidebar-selection.spec.ts:766:5 › T6 plain @190px: heading actions in flow, no fill, clear of labels (1.5s)
+  ✓  457 tests/sidebar-selection.spec.ts:766:5 › T6 plain @240px: heading actions in flow, no fill, clear of labels (1.6s)
+  ✓  458 tests/sidebar-selection.spec.ts:766:5 › T6 plain @270px: heading actions in flow, no fill, clear of labels (1.5s)
+  ✓  459 tests/sidebar-selection.spec.ts:766:5 › T6 plain @390px: heading actions in flow, no fill, clear of labels (1.5s)
+  ✓  460 tests/sidebar-selection.spec.ts:766:5 › T6 color @190px: heading actions in flow, no fill, clear of labels (1.5s)
+  ✓  461 tests/sidebar-selection.spec.ts:766:5 › T6 color @240px: heading actions in flow, no fill, clear of labels (1.5s)
+  ✓  462 tests/sidebar-selection.spec.ts:766:5 › T6 color @270px: heading actions in flow, no fill, clear of labels (1.6s)
+  ✓  463 tests/sidebar-selection.spec.ts:766:5 › T6 color @390px: heading actions in flow, no fill, clear of labels (1.6s)
+  ✓  464 tests/sidebar-selection.spec.ts:806:3 › sidebar row and header geometry (W7 T247) › bottom rows sit evenly between their dividers and share one icon and label column (1.6s)
+  ✓  465 tests/sidebar-selection.spec.ts:847:3 › sidebar row and header geometry (W7 T247) › a bottom group's own list stacks below its heading, inside the sidebar (1.8s)
+  ✓  466 tests/sidebar-selection.spec.ts:870:3 › sidebar row and header geometry (W7 T247) › the split icon keeps one token gap from the rail in every list row (2.1s)
+  ✓  467 tests/sidebar-selection.spec.ts:916:3 › sidebar row and header geometry (W7 T247) › section chevrons share one right-hand column, stay rightmost, and ignore the revealed view and add buttons (1.7s)
+  ✓  468 tests/snapshots-dialog.spec.ts:13:3 › Snapshot name dialog takes focus at once; Escape closes it and focus returns (click) (2.4s)
+  ✓  469 tests/snapshots-dialog.spec.ts:13:3 › Snapshot name dialog takes focus at once; Escape closes it and focus returns (keyboard) (1.9s)
+  ✓  470 tests/snapshots-dialog.spec.ts:34:1 › Escape closes the Snapshot name dialog even when focus has left it (5.2s)
+  ✓  471 tests/split-view.spec.ts:30:1 › split view: two panes, one format bar, focus routing, per-pane undo, persistence (14.2s)
+  ✓  472 tests/split-view.spec.ts:155:1 › split view: the shared bar's menus open in place and act on the focused pane (8.6s)
+  ✓  473 tests/split-view.spec.ts:243:1 › split safety: a fragment live in a pane is read-only in the Fragments panel (6.0s)
+  ✓  474 tests/split-view.spec.ts:274:1 › split safety: a fragment in a split pane has no restore strip (Fragments panel Append covers the rest) (3.5s)
+  ✓  475 tests/split-view.spec.ts:288:1 › split safety: Fragments panel Append into the unfocused pane's section is kept (6.1s)
+  ✓  476 tests/split-view.spec.ts:318:1 › split safety: deleting a pane's entry closes the split; Cmd+click still opens beside (5.5s)
+  ✓  477 tests/split-view.spec.ts:348:1 › split jumps: New section opens in the focused pane; the split stays and pane edits stay put (5.5s)
+  ✓  478 tests/split-view.spec.ts:385:1 › open beside: the row button shows on hover and keyboard focus and opens the right pane (5.3s)
+  ✓  479 tests/split-view.spec.ts:436:1 › split jumps: Go to passage focuses the pane that shows the commented section (7.4s)
+  ✓  480 tests/split-view.spec.ts:468:1 › split jumps: restoring a section from a snapshot keeps both panes and shows the restored text (9.1s)
+  ✓  481 tests/split-view.spec.ts:528:1 › split view: undo history survives opening a split (3.5s)
+  ✓  482 tests/split-view.spec.ts:543:1 › split view: the left pane keeps its scroll position across a split round trip (4.3s)
+  ✓  483 tests/split-view.spec.ts:567:1 › split view: both panes' first text lines start at the same y in continuous and page view (4.5s)
+  ✓  484 tests/split-view.spec.ts:596:1 › split view: the footer page status follows the focused pane at once (5.0s)
+  ✓  485 tests/split-view.spec.ts:632:1 › split view: undo still works after closing the split, and the left editor DOM node never changes (5.5s)
+  ✓  486 tests/split-view.spec.ts:678:1 › split view: the left scroll position holds on open and again on close (4.8s)
+{"dpr":1,"scheme":"light","g":{"leftLeft":270,"leftRight":855,"rightLeft":855,"headerBottomL":146,"headerBottomR":146,"panesTop":114,"panesBottom":900,"barBottom":114},"col":855,"ruleY":145}
+  ✓  487 tests/split-view.spec.ts:711:7 › split divider junction at DPR 1, light, ratio 0.5 › the header rule and the divider line meet in one clean junction (5.1s)
+{"dpr":1,"scheme":"light","g":{"leftLeft":270,"leftRight":706.40625,"rightLeft":706.40625,"headerBottomL":146,"headerBottomR":146,"panesTop":114,"panesBottom":900,"barBottom":114},"col":706,"ruleY":145}
+  ✓  488 tests/split-view.spec.ts:711:7 › split divider junction at DPR 1, light, ratio 0.373 › the header rule and the divider line meet in one clean junction (5.4s)
+{"dpr":1,"scheme":"dark","g":{"leftLeft":270,"leftRight":855,"rightLeft":855,"headerBottomL":146,"headerBottomR":146,"panesTop":114,"panesBottom":900,"barBottom":114},"col":855,"ruleY":145}
+  ✓  489 tests/split-view.spec.ts:711:7 › split divider junction at DPR 1, dark, ratio 0.5 › the header rule and the divider line meet in one clean junction (6.0s)
+{"dpr":1,"scheme":"dark","g":{"leftLeft":270,"leftRight":706.40625,"rightLeft":706.40625,"headerBottomL":146,"headerBottomR":146,"panesTop":114,"panesBottom":900,"barBottom":114},"col":706,"ruleY":145}
+  ✓  490 tests/split-view.spec.ts:711:7 › split divider junction at DPR 1, dark, ratio 0.373 › the header rule and the divider line meet in one clean junction (4.7s)
+{"dpr":2,"scheme":"light","g":{"leftLeft":270,"leftRight":855,"rightLeft":855,"headerBottomL":146,"headerBottomR":146,"panesTop":114,"panesBottom":900,"barBottom":114},"col":1710,"ruleY":291}
+  ✓  491 tests/split-view.spec.ts:711:7 › split divider junction at DPR 2, light, ratio 0.5 › the header rule and the divider line meet in one clean junction (6.5s)
+{"dpr":2,"scheme":"light","g":{"leftLeft":270,"leftRight":706.40625,"rightLeft":706.40625,"headerBottomL":146,"headerBottomR":146,"panesTop":114,"panesBottom":900,"barBottom":114},"col":1413,"ruleY":291}
+  ✓  492 tests/split-view.spec.ts:711:7 › split divider junction at DPR 2, light, ratio 0.373 › the header rule and the divider line meet in one clean junction (5.7s)
+{"dpr":2,"scheme":"dark","g":{"leftLeft":270,"leftRight":855,"rightLeft":855,"headerBottomL":146,"headerBottomR":146,"panesTop":114,"panesBottom":900,"barBottom":114},"col":1710,"ruleY":291}
+  ✓  493 tests/split-view.spec.ts:711:7 › split divider junction at DPR 2, dark, ratio 0.5 › the header rule and the divider line meet in one clean junction (4.6s)
+{"dpr":2,"scheme":"dark","g":{"leftLeft":270,"leftRight":706.40625,"rightLeft":706.40625,"headerBottomL":146,"headerBottomR":146,"panesTop":114,"panesBottom":900,"barBottom":114},"col":1413,"ruleY":291}
+  ✓  494 tests/split-view.spec.ts:711:7 › split divider junction at DPR 2, dark, ratio 0.373 › the header rule and the divider line meet in one clean junction (6.5s)
+  ✓  495 tests/split-view.spec.ts:798:1 › split view: each pane has its own footer with its own page status and word count (5.9s)
+  ✓  496 tests/split-view.spec.ts:866:1 › split view: the sidebar bolds each pane's section heading in the text colour and keeps both open rows regular (W7) (5.5s)
+  ✓  497 tests/split-view.spec.ts:898:1 › select all still selects when a click lands before the previous select-all is read back (4.7s)
+  ✓  498 tests/tables-context.spec.ts:26:1 › right-click opens table actions and Delete table removes the table (3.1s)
+  ✓  499 tests/tables-context.spec.ts:79:1 › Shift+F10 opens table actions at the caret (2.2s)
+  ✓  500 tests/tables-context.spec.ts:96:1 › right-click outside a table does not open table actions (2.8s)
+  ✓  501 tests/writing-aids.spec.ts:21:1 › focus mode dims other paragraphs and the shortcut toggles it (4.0s)
+  ✓  502 tests/writing-aids.spec.ts:52:1 › prose check lists issues and Enter on an issue selects it (2.8s)
+  ✓  503 tests/writing-aids.spec.ts:67:1 › aids stay off for a new session by default (2.1s)
+  ✓  504 tests/writing-aids.spec.ts:76:1 › the issue index pages every result while decorations stay bounded (3.7s)
+  ✓  505 tests/writing-aids.spec.ts:99:1 › prose rules can be switched off and a one-time dismissal expires when text changes (3.6s)
+  ✓  506 tests/writing-aids.spec.ts:142:3 › focus mode hides the toolbar until needed (X1) › hidden in focus mode, revealed by pointer, hides again, editor does not move (4.4s)
+  ✓  507 tests/writing-aids.spec.ts:165:3 › focus mode hides the toolbar until needed (X1) › keyboard focus and the shortcut reveal it instantly; Escape hides it (3.9s)
+  ✓  508 tests/writing-aids.spec.ts:180:3 › focus mode hides the toolbar until needed (X1) › an open toolbar panel keeps it revealed; Reduce Motion is instant (4.2s)
+  ✓  509 tests/writing-aids.spec.ts:196:5 › revealed focus-mode toolbar never covers text (X1b) › first line stays below the revealed bar and does not jump: continuous (4.7s)
+  ✓  510 tests/writing-aids.spec.ts:196:5 › revealed focus-mode toolbar never covers text (X1b) › first line stays below the revealed bar and does not jump: page view (4.0s)
+  ✓  511 tests/writing-aids.spec.ts:237:7 › focus mode in page view: the reserved toolbar band is desk (X1c) › band pixel equals desk colour: light plain (3.4s)
+  ✓  512 tests/writing-aids.spec.ts:237:7 › focus mode in page view: the reserved toolbar band is desk (X1c) › band pixel equals desk colour: light color (3.3s)
+  ✓  513 tests/writing-aids.spec.ts:237:7 › focus mode in page view: the reserved toolbar band is desk (X1c) › band pixel equals desk colour: dark plain (3.5s)
+  ✓  514 tests/writing-aids.spec.ts:237:7 › focus mode in page view: the reserved toolbar band is desk (X1c) › band pixel equals desk colour: dark color (3.9s)
+  ✓  515 tests/writing-aids.spec.ts:282:1 › focus mode in split view: panes do not jump and headers are never covered (5.4s)
+  ✓  516 tests/writing.spec.ts:2:1 › writer journey: project, rapid edits, sections, fragments, snapshots, restore, reload (8.9s)
+  ✓  517 tests/writing.spec.ts:70:1 › recovers a newer journal after an interrupted save (2.6s)
+  ✓  518 tests/writing.spec.ts:103:1 › five thousand words survive rapid section changes and drag reordering (10.9s)
+  ✓  519 tests/zotero.spec.ts:15:1 › BibTeX file import displays 'Import sources' and loads sources cleanly (2.8s)
+  ✓  520 tests/zotero.spec.ts:44:1 › Zotero refresh in the browser preview says it is desktop-only and never contacts Zotero (2.9s)
+  ✓  521 tests/zotero.spec.ts:74:1 › Zotero local refresh explains the required desktop setting (2.3s)
+
+
+  1) tests/import-cancel.spec.ts:75:1 › cancelling while the parser is running inside previewWriting leaves no preview dialog and no project 
+
+    Test timeout of 90000ms exceeded.
+
+    Error Context: test-results/import-cancel-cancelling-w-61d07-eview-dialog-and-no-project/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/import-cancel-cancelling-w-61d07-eview-dialog-and-no-project/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/import-cancel-cancelling-w-61d07-eview-dialog-and-no-project/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/markdown-roundtrip.spec.ts:179:1 › ExportPanel offers 'Markdown with images (.zip)' and the preview serves the bundled chunk 
+
+    Error: expect(received).toContain(expected) // indexOf
+
+    Expected substring: "importMarkdownBundle"
+    Received string:    "<!doctype html><html lang=\"en\"><head>
+      <script type=\"module\">import { injectIntoGlobalHook } from \"/@react-refresh\";
+    injectIntoGlobalHook(window);
+    window.$RefreshReg$ = () => {};
+    window.$RefreshSig$ = () => (type) => type;</script>·
+      <script type=\"module\" src=\"/@vite/client\"></script>
+    <meta charset=\"UTF-8\"/><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"/><title>Personal Word — A place for your writing</title></head><body><div id=\"root\"></div><script type=\"module\" src=\"/src/main.tsx\"></script></body></html>
+    "
+
+      187 |   const res = await page.request.get(bundleChunkUrl());
+      188 |   expect(res.status()).toBe(200);
+    > 189 |   expect(await res.text()).toContain("importMarkdownBundle");
+          |                            ^
+      190 | });
+      191 |
+      192 | test("UI export -> real download -> re-import keeps image, table, multi-paragraph notes, reference positions, manifest hashes; zero off-origin requests", async ({ page, baseURL }) => {
+        at /Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/tests/markdown-roundtrip.spec.ts:189:28
+
+    Error Context: test-results/markdown-roundtrip-ExportP-5ef73-ew-serves-the-bundled-chunk/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/markdown-roundtrip-ExportP-5ef73-ew-serves-the-bundled-chunk/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/markdown-roundtrip-ExportP-5ef73-ew-serves-the-bundled-chunk/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) tests/markdown-roundtrip.spec.ts:192:1 › UI export -> real download -> re-import keeps image, table, multi-paragraph notes, reference positions, manifest hashes; zero off-origin requests 
+
+    Error: page.evaluate: TypeError: Failed to fetch dynamically imported module: http://127.0.0.1:1430/assets/markdownBundle-CetGN2Zh.js
+
+      150 | async function importWithChunk(page: Page, bytes: Buffer | Uint8Array, name: string) {
+      151 |   const chunk = bundleChunkUrl();
+    > 152 |   return page.evaluate(
+          |               ^
+      153 |     async ({ b64, name, chunk }) => {
+      154 |       const mod = await import(/* @vite-ignore */ chunk);
+      155 |       const raw = atob(b64);
+        at importWithChunk (/Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/tests/markdown-roundtrip.spec.ts:152:15)
+        at /Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/tests/markdown-roundtrip.spec.ts:228:19
+
+    Error Context: test-results/markdown-roundtrip-UI-expo-95a4c-es-zero-off-origin-requests/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/markdown-roundtrip-UI-expo-95a4c-es-zero-off-origin-requests/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/markdown-roundtrip-UI-expo-95a4c-es-zero-off-origin-requests/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) tests/markdown-roundtrip.spec.ts:318:1 › limits are enforced before inflation in the production chunk 
+
+    Error: page.evaluate: TypeError: Failed to fetch dynamically imported module: http://127.0.0.1:1430/assets/markdownBundle-CetGN2Zh.js
+
+      150 | async function importWithChunk(page: Page, bytes: Buffer | Uint8Array, name: string) {
+      151 |   const chunk = bundleChunkUrl();
+    > 152 |   return page.evaluate(
+          |               ^
+      153 |     async ({ b64, name, chunk }) => {
+      154 |       const mod = await import(/* @vite-ignore */ chunk);
+      155 |       const raw = atob(b64);
+        at importWithChunk (/Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/tests/markdown-roundtrip.spec.ts:152:15)
+        at /Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/tests/markdown-roundtrip.spec.ts:325:19
+
+    Error Context: test-results/markdown-roundtrip-limits--cf719-ion-in-the-production-chunk/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/markdown-roundtrip-limits--cf719-ion-in-the-production-chunk/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/markdown-roundtrip-limits--cf719-ion-in-the-production-chunk/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  5) tests/markdown-roundtrip.spec.ts:357:1 › remote image URLs inside an imported bundle are never fetched 
+
+    Error: page.evaluate: TypeError: Failed to fetch dynamically imported module: http://127.0.0.1:1430/assets/markdownBundle-CetGN2Zh.js
+
+      150 | async function importWithChunk(page: Page, bytes: Buffer | Uint8Array, name: string) {
+      151 |   const chunk = bundleChunkUrl();
+    > 152 |   return page.evaluate(
+          |               ^
+      153 |     async ({ b64, name, chunk }) => {
+      154 |       const mod = await import(/* @vite-ignore */ chunk);
+      155 |       const raw = atob(b64);
+        at importWithChunk (/Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/tests/markdown-roundtrip.spec.ts:152:15)
+        at /Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/tests/markdown-roundtrip.spec.ts:362:19
+
+    Error Context: test-results/markdown-roundtrip-remote--2d58e-ed-bundle-are-never-fetched/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/markdown-roundtrip-remote--2d58e-ed-bundle-are-never-fetched/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/markdown-roundtrip-remote--2d58e-ed-bundle-are-never-fetched/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  Slow test file: tests/pages-gap.spec.ts (5.6m)
+  Slow test file: tests/floating.spec.ts (5.0m)
+  Consider running tests from slow files in parallel. See: https://playwright.dev/docs/test-parallel
+  5 failed
+    tests/import-cancel.spec.ts:75:1 › cancelling while the parser is running inside previewWriting leaves no preview dialog and no project 
+    tests/markdown-roundtrip.spec.ts:179:1 › ExportPanel offers 'Markdown with images (.zip)' and the preview serves the bundled chunk 
+    tests/markdown-roundtrip.spec.ts:192:1 › UI export -> real download -> re-import keeps image, table, multi-paragraph notes, reference positions, manifest hashes; zero off-origin requests 
+    tests/markdown-roundtrip.spec.ts:318:1 › limits are enforced before inflation in the production chunk 
+    tests/markdown-roundtrip.spec.ts:357:1 › remote image URLs inside an imported bundle are never fetched 
+  16 skipped
+  500 passed (42.1m)

@@ -1,0 +1,61 @@
+{
+  "id": "T275",
+  "title": "W9 S1 -- Add the sticky Settings section strip",
+  "description": "Follow section '### S1 --' of docs/agent-work/2026-11-10-ui-wave-9/PLAN.md exactly, plus its 'Rules for every worker'. Verify: tests/w9-settings-nav.spec.ts and the appearance and shortcuts specs pass. Browser test port: PLAYWRIGHT_PORT=1446. No commits, no new packages, never run npm run build or a native screen script. Write the note docs/agent-work/2026-11-10-ui-wave-9/notes/S1.md.",
+  "status": "done",
+  "owner": null,
+  "priority": 2,
+  "depends_on": [
+    "T254"
+  ],
+  "files": [
+    "src/settings/SettingsNav.tsx",
+    "src/settings/settings-nav.css",
+    "tests/w9-settings-nav.spec.ts",
+    "docs/agent-work/2026-11-10-ui-wave-9/notes/S1.md"
+  ],
+  "review_required": true,
+  "created_by": "agent-b307",
+  "created_at": "2026-11-10T22:24:40+00:00",
+  "claimed_at": "2026-11-11T00:36:23+00:00",
+  "updated_at": "2026-11-11T01:27:10+00:00",
+  "handoff": null,
+  "review": {
+    "by": "agent-26ce",
+    "at": "2026-11-11T01:27:10+00:00",
+    "verdict": "approved",
+    "note": "Approved (CLAIMED; Chromium only). SettingsNav.tsx matches S1. Links are built from the direct-child .settings-section h2s of the nearest .project-settings, with ids derived when missing; a MutationObserver on the container's direct children re-reads them; an IntersectionObserver rooted on the Settings scroller sets aria-current='true'; a pointer click scrolls smoothly and a keyboard click (detail 0) or Reduce Motion scrolls instantly. scrollToSettingsSection(heading) keeps the T0 signature and waits up to 2 s (body MutationObserver) when called before Settings mounts, which is what E1 needs. CSS: the selected link uses weight and colour only; the hover/focus colour change is colour only (no weight, no scale, no fill), and the shared emphasis rule applies untouched. top:-40px hard-codes div.project-settings' 'padding: 40px 48px' (research.css:418). That padding is a literal with no token, so I accept it; D1 should note in design-system.md that the strip's top offset must follow that padding. Spec: 4 cases, fail-first 4/4 on the stub. Gaps, not blocking: Reduce Motion is not exercised by its own case, and the Library settings dialog gets no strip (the plan only placed it on Project settings). Known non-S1 failures it reported belong elsewhere: appearance:62 to T255, appearance:417 to T266, and hoverEmphasis.test (c) to T260, all messaged; shortcuts:107 page.goto timeout under load was rerun alone with a pass (my 3x rerun is queued behind the serial lock). I relied on the worker's 4/4 and did not rerun the spec. T271's 'Export settings...' case can now be rerun against this."
+  },
+  "log": [
+    {
+      "at": "2026-11-10T22:24:40+00:00",
+      "agent": "agent-b307",
+      "event": "created",
+      "note": ""
+    },
+    {
+      "at": "2026-11-11T00:36:23+00:00",
+      "agent": "agent-e113",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-11-11T00:36:25+00:00",
+      "agent": "agent-e113",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-11-11T01:08:16+00:00",
+      "agent": "agent-e113",
+      "event": "review requested",
+      "note": "S1: SettingsNav + css + 4-test spec (4/4 pass, failed first on the stub). appearance/shortcuts: 4 failures not from S1 (A1 hover scale, C3 field between Palette and Section colours in appearance:417, shortcuts:107 goto timeout passes alone). See notes/S1.md. All paths uncommitted edits."
+    },
+    {
+      "at": "2026-11-11T01:27:10+00:00",
+      "agent": "agent-26ce",
+      "event": "approved",
+      "note": "Approved (CLAIMED; Chromium only). SettingsNav.tsx matches S1. Links are built from the direct-child .settings-section h2s of the nearest .project-settings, with ids derived when missing; a MutationObserver on the container's direct children re-reads them; an IntersectionObserver rooted on the Settings scroller sets aria-current='true'; a pointer click scrolls smoothly and a keyboard click (detail 0) or Reduce Motion scrolls instantly. scrollToSettingsSection(heading) keeps the T0 signature and waits up to 2 s (body MutationObserver) when called before Settings mounts, which is what E1 needs. CSS: the selected link uses weight and colour only; the hover/focus colour change is colour only (no weight, no scale, no fill), and the shared emphasis rule applies untouched. top:-40px hard-codes div.project-settings' 'padding: 40px 48px' (research.css:418). That padding is a literal with no token, so I accept it; D1 should note in design-system.md that the strip's top offset must follow that padding. Spec: 4 cases, fail-first 4/4 on the stub. Gaps, not blocking: Reduce Motion is not exercised by its own case, and the Library settings dialog gets no strip (the plan only placed it on Project settings). Known non-S1 failures it reported belong elsewhere: appearance:62 to T255, appearance:417 to T266, and hoverEmphasis.test (c) to T260, all messaged; shortcuts:107 page.goto timeout under load was rerun alone with a pass (my 3x rerun is queued behind the serial lock). I relied on the worker's 4/4 and did not rerun the spec. T271's 'Export settings...' case can now be rerun against this."
+    }
+  ]
+}

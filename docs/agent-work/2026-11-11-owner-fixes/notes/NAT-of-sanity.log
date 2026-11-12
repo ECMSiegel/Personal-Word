@@ -1,0 +1,112 @@
+data dir: /Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/node_modules/.cache/personal-word-beta/of-n/runs/sanity-cstm7_w9
+identity: {"info": "identity", "phase": "of/sanity", "appIdentifier": "com.folio.smoke", "dataStoreIdentifier": "5a366a7cd271461f875aa934d2afe7a5", "expectedStore": "5a366a7cd271461f875aa934d2afe7a5", "protocol": "d1-profile-isolation-v1", "unzoomed": true}
+
+PASS Projects Sort on the toolbar row
+{
+ "check": "Projects Sort on the toolbar row",
+ "pass": true,
+ "sortCentreY": 171.5,
+ "startCentreY": 171.5,
+ "sortLeft": 810.2,
+ "startRight": 367.1,
+ "barRight": 1020,
+ "window": 1240,
+ "captionRow": false,
+ "toolbarButtons": [
+  "Start new project",
+  "Import writing (text, Markdown, Word, HTML or a .zip bundle)",
+  "Search projects",
+  "Sort projects",
+  "Reverse project sort order",
+  "Show project cards",
+  "Settings"
+ ]
+}
+
+PASS Recent section in the font menu
+{
+ "check": "Recent section in the font menu",
+ "pass": true,
+ "applied": [
+  "Georgia",
+  "Arial"
+ ],
+ "firstRows": [
+  "#Recent",
+  "Arial",
+  "Georgia",
+  "--",
+  "Futura",
+  "Arial"
+ ],
+ "recentKey": "[\"Arial, sans-serif\",\"Georgia, serif\"]"
+}
+
+PASS text-only note delete flow
+{
+ "check": "text-only note delete flow",
+ "pass": true,
+ "before": {
+  "rows": 2,
+  "markers": 2
+ },
+ "dialogText": "PERSONAL WORDDelete this text-only footnote?It is in \u201cOpening\u201d. Its marker leaves the text and its note text is deleted. A safety snapshot is kept first, so you can bring it back from Snapshots & history.CancelDelete footnote",
+ "afterCancel": {
+  "dialog": false,
+  "rows": 2,
+  "markers": 2
+ },
+ "afterDelete": {
+  "dialog": false,
+  "rows": 1,
+  "markers": 1,
+  "remaining": "Note B",
+  "markerLabel": "Edit footnote 1"
+ },
+ "snapshotFound": true,
+ "versions": [
+  "Before deleting a footnote11/11/2026, 6:54:04 PM"
+ ]
+}
+
+PASS Settings Add font row
+{
+ "check": "Settings Add font row",
+ "pass": true,
+ "addCentreY": 416.5,
+ "menuCentreY": 416.5,
+ "addLeft": 782,
+ "menuRight": 770,
+ "fileInputs": 1,
+ "visibleFileInputs": 0,
+ "fontInputFound": true,
+ "remove": {
+  "danger": "rgb(255, 149, 141)",
+  "rest": "rgb(255, 149, 141)",
+  "focused": "rgb(255, 149, 141)",
+  "focusVisible": true
+ }
+}
+summary {
+ "info": "summary",
+ "results": [
+  {
+   "check": "Projects Sort on the toolbar row",
+   "pass": true
+  },
+  {
+   "check": "Recent section in the font menu",
+   "pass": true
+  },
+  {
+   "check": "text-only note delete flow",
+   "pass": true
+  },
+  {
+   "check": "Settings Add font row",
+   "pass": true
+  }
+ ]
+}
+
+RESULT of/sanity done=True ok=True

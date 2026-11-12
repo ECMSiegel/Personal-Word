@@ -1,0 +1,47 @@
+
+Running 4 tests using 1 worker
+
+  ✓  1 tests/w9-used-in.spec.ts:44:1 › Used in names the section that holds the footnote, and Go to selects its marker (9.3s)
+  ✓  2 tests/w9-used-in.spec.ts:63:1 › Go to in a split focuses the pane already showing the section and changes no entry (6.6s)
+  ✓  3 tests/w9-used-in.spec.ts:78:1 › Go to works from the keyboard (8.7s)
+  ✘  4 tests/w9-used-in.spec.ts:88:1 › a source's Used in row names the section and Go to works from it (15.3s)
+
+
+  1) tests/w9-used-in.spec.ts:88:1 › a source's Used in row names the section and Go to works from it 
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: getByRole('region', { name: 'Used in' }).locator('.footnote-where')
+    Expected substring: "in One"
+    Received string:    "in TwoGo to"
+    Timeout: 5000ms
+
+    Call log:
+      - Expect "toContainText" getByRole('region', { name: 'Used in' }).locator('.footnote-where') with timeout 5000ms
+      - waiting for getByRole('region', { name: 'Used in' }).locator('.footnote-where')
+        14 × locator resolved to <div class="footnote-where">…</div>
+           - unexpected value "in TwoGo to"
+
+
+      103 |
+      104 |   const usedIn = page.getByRole("region", { name: "Used in" });
+    > 105 |   await expect(usedIn.locator(".footnote-where")).toContainText("in One");
+          |                                                   ^
+      106 |   await usedIn.getByRole("button", { name: "Go to", exact: true }).click();
+      107 |   await expect(page.getByRole("button", { name: "Rename section" })).toHaveText("Two");
+      108 |   const marker = page.locator(".ProseMirror-selectednode");
+        at /Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/tests/w9-used-in.spec.ts:105:51
+
+    Error Context: test-results/T272/w9-used-in-a-source-s-Used-2c9cd-ion-and-Go-to-works-from-it/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/T272/w9-used-in-a-source-s-Used-2c9cd-ion-and-Go-to-works-from-it/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/T272/w9-used-in-a-source-s-Used-2c9cd-ion-and-Go-to-works-from-it/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/w9-used-in.spec.ts:88:1 › a source's Used in row names the section and Go to works from it 
+  3 passed (42.5s)

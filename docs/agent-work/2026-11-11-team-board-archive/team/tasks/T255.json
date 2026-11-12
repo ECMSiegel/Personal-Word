@@ -1,0 +1,91 @@
+{
+  "id": "T255",
+  "title": "W9 A1 -- Drop the hover grow on text controls",
+  "description": "Follow section '### A1 --' of docs/agent-work/2026-11-10-ui-wave-9/PLAN.md exactly, plus its 'Rules for every worker'. Verify: tests/hover-emphasis.spec.ts passes with hover scale 1 (failed first). Browser test port: PLAYWRIGHT_PORT=1431. No commits, no new packages, never run npm run build or a native screen script. Write the note docs/agent-work/2026-11-10-ui-wave-9/notes/A1.md.",
+  "status": "done",
+  "owner": null,
+  "priority": 1,
+  "depends_on": [
+    "T254"
+  ],
+  "files": [
+    "src/styles.css",
+    "tests/hover-emphasis.spec.ts",
+    "docs/agent-work/2026-11-10-ui-wave-9/notes/A1.md",
+    "docs/agent-work/2026-11-10-ui-wave-9/notes/A1-fail-first.txt",
+    "docs/agent-work/2026-11-10-ui-wave-9/notes/A1-acceptance.txt",
+    "src/hoverEmphasis.test.ts"
+  ],
+  "review_required": true,
+  "created_by": "agent-b307",
+  "created_at": "2026-11-10T22:24:34+00:00",
+  "claimed_at": "2026-11-11T01:03:36+00:00",
+  "updated_at": "2026-11-11T02:47:45+00:00",
+  "handoff": {
+    "by": "agent-26ce",
+    "at": "2026-11-11T00:58:52+00:00",
+    "text": "Rejected for one unit-test regression the change causes, plus a spec check the change made toothless. The CSS change (--emph-scale: 1 at styles.css:41, stroke, press and Reduce Motion untouched) and the browser re-pins are correct, and A1-acceptance.txt shows 4/4 with --output. FINDING 1 (blocking): src/hoverEmphasis.test.ts test (d) 'the tokens are 0.04em and 1.04' now fails: line 82 expects /--emph-scale:\\s*1\\.04/. My run of npx vitest run src/hoverEmphasis.test.ts gives 2 failed / 5 passed. (d) is yours. (c) fails on src/components/icon-magnify.css, which is T260's and not your problem. The plan's stop-rule search covered tests/ only, but common rule 4 applies to this file too: it is unowned. FIX: files add T255 src/hoverEmphasis.test.ts; re-pin line 82 to /--emph-scale:\\s*1\\s*;/ and rename (d) to say 'scale token is 1'; leave (c) alone for T260; rerun the file and report (d) passing and (c) failing only on icon-magnify.css. FINDING 2: tests/hover-emphasis.spec.ts:321 and :341 still flag an icon-only control only when its scale equals 1.04. With the token at 1 that can never fire, so the check no longer catches anything. Change both to flag any grow (Math.abs(scale - 1) > 0.002) so an icon-only control that picks up a scale is still caught. Then rerun PLAYWRIGHT_PORT=1431 npx playwright test tests/hover-emphasis.spec.ts --output test-results/T255 (take the serial lock as usual) and update A1.md with the counts. Not a finding: tests/appearance.spec.ts:78 is a comment only, and tests/projects-screen.spec.ts:587 is registered to T260."
+  },
+  "review": {
+    "by": "agent-2ff3",
+    "at": "2026-11-11T02:47:45+00:00",
+    "verdict": "approved",
+    "note": "Approved (agent-2ff3, W9 reviewer r2). styles.css: only --emph-scale 1.04 -> 1 in the :root token block (stroke 0.04em, press 0.99, Reduce Motion unchanged); other styles.css hunks belong to other tasks and were not judged. Earlier rejection demands all met: (1) src/hoverEmphasis.test.ts (d) re-pinned to /--emph-scale:\\s*1\\s*;/ and renamed; (2) tests/hover-emphasis.spec.ts :321 and :341 icon-only checks now flag any scale deviation > 0.002 (no longer toothless); text-control checks likewise; H2 renamed 'no grow'; (3) tests/appearance.spec.ts:79 no longer asserts matrix(1.0296): it now asserts the press scale matrix(0.99) (file is unowned; edit is correct). Fail-first evidence A1-fail-first.txt: H3/H2/H4 failed with 'scale x 1.04' before the CSS change. Fresh runs: npx vitest run src/hoverEmphasis.test.ts -> 6 passed, 1 failed: the only failure is (c), caused by src/components/icon-magnify.css (T260/B3's child scale rule); that is T260's to fix with a narrow exception and is NOT a T255 defect -- do not approve T260 while (c) fails. PLAYWRIGHT_PORT=1431 npx playwright test tests/hover-emphasis.spec.ts --output test-results/T255-review -> 4 passed (1.6m); H3 0 exceptions, 10 un-hoverable (cap 12), H2 all controls scale 1, stroke ~0.5px, 0 neighbour shift. Not checked: native WebKit sharpness of the stroke (hand check in T278)."
+  },
+  "log": [
+    {
+      "at": "2026-11-10T22:24:34+00:00",
+      "agent": "agent-b307",
+      "event": "created",
+      "note": ""
+    },
+    {
+      "at": "2026-11-11T00:10:09+00:00",
+      "agent": "agent-3552",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-11-11T00:10:10+00:00",
+      "agent": "agent-3552",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-11-11T00:57:43+00:00",
+      "agent": "agent-3552",
+      "event": "review requested",
+      "note": "Set --emph-scale to 1 while preserving faux-bold stroke and press scale; updated hover spec expectations. Verified fail-first: PLAYWRIGHT_PORT=1431 npx playwright test tests/hover-emphasis.spec.ts failed with expected 1.04 transform mismatches. Verified acceptance: PLAYWRIGHT_PORT=1431 npx playwright test tests/hover-emphasis.spec.ts --output test-results/T255 (4 passed). Details and hand check in docs/agent-work/2026-11-10-ui-wave-9/notes/A1.md. Full output in A1-fail-first.txt and A1-acceptance.txt. T260 owns re-pinning the existing projects-screen scale assertion; no Mac hand check was run."
+    },
+    {
+      "at": "2026-11-11T00:58:52+00:00",
+      "agent": "agent-26ce",
+      "event": "rejected",
+      "note": "Rejected for one unit-test regression the change causes, plus a spec check the change made toothless. The CSS change (--emph-scale: 1 at styles.css:41, stroke, press and Reduce Motion untouched) and the browser re-pins are correct, and A1-acceptance.txt shows 4/4 with --output. FINDING 1 (blocking): src/hoverEmphasis.test.ts test (d) 'the tokens are 0.04em and 1.04' now fails: line 82 expects /--emph-scale:\\s*1\\.04/. My run of npx vitest run src/hoverEmphasis.test.ts gives 2 failed / 5 passed. (d) is yours. (c) fails on src/components/icon-magnify.css, which is T260's and not your problem. The plan's stop-rule search covered tests/ only, but common rule 4 applies to this file too: it is unowned. FIX: files add T255 src/hoverEmphasis.test.ts; re-pin line 82 to /--emph-scale:\\s*1\\s*;/ and rename (d) to say 'scale token is 1'; leave (c) alone for T260; rerun the file and report (d) passing and (c) failing only on icon-magnify.css. FINDING 2: tests/hover-emphasis.spec.ts:321 and :341 still flag an icon-only control only when its scale equals 1.04. With the token at 1 that can never fire, so the check no longer catches anything. Change both to flag any grow (Math.abs(scale - 1) > 0.002) so an icon-only control that picks up a scale is still caught. Then rerun PLAYWRIGHT_PORT=1431 npx playwright test tests/hover-emphasis.spec.ts --output test-results/T255 (take the serial lock as usual) and update A1.md with the counts. Not a finding: tests/appearance.spec.ts:78 is a comment only, and tests/projects-screen.spec.ts:587 is registered to T260."
+    },
+    {
+      "at": "2026-11-11T01:03:36+00:00",
+      "agent": "agent-c1b2",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-11-11T01:05:18+00:00",
+      "agent": "agent-c1b2",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-11-11T01:35:34+00:00",
+      "agent": "agent-c1b2",
+      "event": "review requested",
+      "note": "Repaired the scale-1 consistency assertion in src/hoverEmphasis.test.ts (test d) and changed both icon-only hover/focus browser checks to catch any grow over 0.002. Fresh acceptance: PLAYWRIGHT_PORT=1431 npx playwright test tests/hover-emphasis.spec.ts --output test-results/T255 passed 4/4, H3 1,162 controls/20 screens, 0 exceptions, 0 skipped; H2 scale=1, stroke retained, no neighbor movement. Isolated H5 passed after one earlier full-run timeout, and the subsequent full run passed. Unit suite: 6/7; (d) passes; sole failure (c) is the T260-owned child scale in src/components/icon-magnify.css and is documented. Details in notes/A1.md and A1-acceptance.txt."
+    },
+    {
+      "at": "2026-11-11T02:47:45+00:00",
+      "agent": "agent-2ff3",
+      "event": "approved",
+      "note": "Approved (agent-2ff3, W9 reviewer r2). styles.css: only --emph-scale 1.04 -> 1 in the :root token block (stroke 0.04em, press 0.99, Reduce Motion unchanged); other styles.css hunks belong to other tasks and were not judged. Earlier rejection demands all met: (1) src/hoverEmphasis.test.ts (d) re-pinned to /--emph-scale:\\s*1\\s*;/ and renamed; (2) tests/hover-emphasis.spec.ts :321 and :341 icon-only checks now flag any scale deviation > 0.002 (no longer toothless); text-control checks likewise; H2 renamed 'no grow'; (3) tests/appearance.spec.ts:79 no longer asserts matrix(1.0296): it now asserts the press scale matrix(0.99) (file is unowned; edit is correct). Fail-first evidence A1-fail-first.txt: H3/H2/H4 failed with 'scale x 1.04' before the CSS change. Fresh runs: npx vitest run src/hoverEmphasis.test.ts -> 6 passed, 1 failed: the only failure is (c), caused by src/components/icon-magnify.css (T260/B3's child scale rule); that is T260's to fix with a narrow exception and is NOT a T255 defect -- do not approve T260 while (c) fails. PLAYWRIGHT_PORT=1431 npx playwright test tests/hover-emphasis.spec.ts --output test-results/T255-review -> 4 passed (1.6m); H3 0 exceptions, 10 un-hoverable (cap 12), H2 all controls scale 1, stroke ~0.5px, 0 neighbour shift. Not checked: native WebKit sharpness of the stroke (hand check in T278)."
+    }
+  ]
+}

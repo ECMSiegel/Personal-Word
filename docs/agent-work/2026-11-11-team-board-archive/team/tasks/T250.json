@@ -1,0 +1,25 @@
+{
+  "id": "T250",
+  "title": "Later -- Apple silicon build for releases",
+  "description": "Owner: save for the future. Needs rustup target aarch64-apple-darwin (owner OK needed to install).",
+  "status": "available",
+  "owner": null,
+  "priority": 3,
+  "depends_on": [],
+  "files": [],
+  "review_required": true,
+  "created_by": "agent-81bd",
+  "created_at": "2026-11-05T04:36:32+00:00",
+  "claimed_at": null,
+  "updated_at": "2026-11-05T04:36:32+00:00",
+  "handoff": null,
+  "review": null,
+  "log": [
+    {
+      "at": "2026-11-05T04:36:32+00:00",
+      "agent": "agent-81bd",
+      "event": "created",
+      "note": ""
+    }
+  ]
+}

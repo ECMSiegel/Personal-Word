@@ -1,0 +1,34 @@
+
+ RUN  v4.1.11 /Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor
+
+ ❯ src/editor/pageBreakKeys.test.ts (3 tests | 1 failed) 185ms
+     × keeps font, size and bold for text typed after a break at the end 151ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/editor/pageBreakKeys.test.ts > insertPageBreak > keeps font, size and bold for text typed after a break at the end
+AssertionError: expected undefined to be 'Georgia, serif' // Object.is equality
+
+- Expected:
+"Georgia, serif"
+
++ Received:
+undefined
+
+ ❯ checkMarks src/editor/pageBreakKeys.test.ts:64:32
+     62| function checkMarks(marks: readonly any[]) {
+     63|   const tf = marks.find((m) => m.type.name === "textFormat");
+     64|   expect(tf?.attrs.fontFamily).toBe(FONT);
+       |                                ^
+     65|   expect(tf?.attrs.fontSize).toBe(SIZE);
+     66|   expect(marks.some((m) => m.type.name === "bold")).toBe(true);
+ ❯ src/editor/pageBreakKeys.test.ts:77:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 2 passed (3)
+   Start at  23:14:19
+   Duration  2.91s (transform 450ms, setup 0ms, import 943ms, tests 185ms, environment 1ms)
+

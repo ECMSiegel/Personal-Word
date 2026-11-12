@@ -83,7 +83,8 @@ test("the issue index pages every result while decorations stay bounded", async 
   await page.getByRole("checkbox", { name: "On", exact: true }).check();
 
   const issues = page.getByRole("region", { name: "Prose issues" });
-  await expect(issues.getByText(/2,100 total issues/)).toBeVisible();
+  // W9 B2: status line changed from "2,100 total issues" to "2,100 issues".
+  await expect(issues.getByText(/2,100 issues/)).toBeVisible();
   await expect(issues.getByRole("button", { name: "Next issue page" })).toBeVisible();
   await expect(issues.getByRole("button", { name: /Repeated word/ })).toHaveCount(100);
   await issues.getByRole("button", { name: "Next issue page" }).click();

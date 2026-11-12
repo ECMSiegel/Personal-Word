@@ -4,6 +4,7 @@ import {
   ExternalHyperlink,
   FootnoteReferenceRun,
   Footer,
+  Header,
   ImageRun,
   Table,
   TableCell,
@@ -22,6 +23,65 @@ import {
   type ExportProject,
   type Inline,
 } from "./document";
+import { defaultFontSource, type ExportFontSource } from "./fontSource";
+
+// A run's font as Word is told it (first family, quotes stripped).
+const runFont = (fontFamily?: string) =>
+  fontFamily?.split(",")[0].replaceAll("'", "").replaceAll('"', "");
+
+// Fonts applied to runs that a Word file can carry: one per family, the
+// regular face when several styles resolved. Preview-only and restricted
+// fonts are not embedded (a Word file is editable), and only TrueType
+// outlines are embedded: the first four bytes must be 00 01 00 00 or "true"
+// ("OTTO"/CFF and anything else is skipped). Never throws.
+const isTrueType = (bytes: Uint8Array) => {
+  const ttf =
+    bytes[0] === 0x00 && bytes[1] === 0x01 && bytes[2] === 0x00 && bytes[3] === 0x00;
+  const tag = String.fromCharCode(bytes[0], bytes[1], bytes[2], bytes[3]);
+  return ttf || tag === "true";
+};
+async function embeddedFonts(
+  blocks: Block[],
+  notes: { parts: Inline[] }[],
+  source: ExportFontSource,
+) {
+  const triples = new Map<string, { family: string; bold: boolean; italic: boolean }>();
+  const visit = (runs: Inline[]) => {
+    for (const r of runs) {
+      const family = runFont(r.fontFamily)?.trim();
+      if (!family || r.lineBreak || r.footnote) continue;
+      const bold = !!r.bold,
+        italic = !!r.italic;
+      triples.set(`${family}\u0000${bold}\u0000${italic}`, { family, bold, italic });
+    }
+  };
+  const walk = (list: Block[]) => {
+    for (const b of list) {
+      visit(b.runs);
+      b.table?.rows.forEach((row) => row.forEach((cell) => walk(cell.blocks)));
+    }
+  };
+  walk(blocks);
+  notes.forEach((n) => visit(n.parts));
+  const byFamily = new Map<string, { regular: boolean; bytes: Uint8Array }>();
+  for (const { family, bold, italic } of triples.values()) {
+    try {
+      const got = await source.resolve(family, bold, italic);
+      if (!got || (got.embedding !== "installable" && got.embedding !== "editable")) continue;
+      if (!isTrueType(got.bytes)) continue;
+      const regular = !bold && !italic;
+      const have = byFamily.get(family);
+      if (!have || (regular && !have.regular)) byFamily.set(family, { regular, bytes: got.bytes });
+    } catch {
+      // A font that cannot be found is simply not embedded.
+    }
+  }
+  return [...byFamily].map(([name, { bytes }]) => ({
+    name,
+    data: bytes as unknown as Buffer,
+  }));
+}
+
 // A footnote's text may hold blank-line paragraph breaks (the model, Markdown and plain
 // text keep them). Split into paragraphs on blank lines; a single newline is a soft wrap
 // and becomes a space. Text without any newline is returned untouched, as one paragraph.
@@ -46,9 +106,11 @@ function noteParagraphs(parts: Inline[]): Inline[][] {
 export async function exportDocx(
   project: ExportProject,
   assets: Map<AssetId, PendingAsset> = new Map(),
+  fontSource: ExportFontSource = defaultFontSource(),
 ): Promise<Blob> {
   const d = documentBlocks(project, assets),
     s = d.settings;
+  const fonts = await embeddedFonts(d.blocks, d.notes, fontSource);
   const font =
     s.font === "mono"
       ? "Courier New"
@@ -188,7 +250,22 @@ export async function exportDocx(
       }),
     });
   };
-  const doc = new Document({
+  const numberAtTop = (s.pageNumberPosition ?? "bottom-right").startsWith("top");
+  const numberAlignment = (s.pageNumberPosition ?? "bottom-right").endsWith("left")
+    ? AlignmentType.LEFT
+    : (s.pageNumberPosition ?? "bottom-right").endsWith("center")
+      ? AlignmentType.CENTER
+      : AlignmentType.RIGHT;
+  const numberParagraph = () =>
+    new Paragraph({
+      alignment: numberAlignment,
+      children: [new TextRun({ children: [PageNumber.CURRENT] })],
+    });
+  const numberFooter = new Footer({ children: [numberParagraph()] });
+  const numberHeader = new Header({ children: [numberParagraph()] });
+  const buildDoc = (docFonts: typeof fonts) => {
+    return new Document({
+    ...(docFonts.length ? { fonts: docFonts } : {}),
     numbering: {
       config: [
         ...new Map(
@@ -267,18 +344,8 @@ export async function exportDocx(
             },
           },
         },
-        footers: s.pageNumbers
-          ? {
-              default: new Footer({
-                children: [
-                  new Paragraph({
-                    alignment: AlignmentType.RIGHT,
-                    children: [new TextRun({ children: [PageNumber.CURRENT] })],
-                  }),
-                ],
-              }),
-            }
-          : undefined,
+        footers: s.pageNumbers && !numberAtTop ? { default: numberFooter } : undefined,
+        headers: s.pageNumbers && numberAtTop ? { default: numberHeader } : undefined,
         children: [
           ...d.blocks.map((b) => blockToDocx(b, false)),
           ...(d.bibliography.length
@@ -308,6 +375,14 @@ export async function exportDocx(
         ],
       },
     ],
-  });
-  return Packer.toBlob(doc);
+    });
+  };
+  try {
+    return await Packer.toBlob(buildDoc(fonts));
+  } catch (error) {
+    // One font the packer rejects must not fail the whole export: rebuild once
+    // without fonts, so the file is exactly the no-font export as before.
+    if (!fonts.length) throw error;
+    return Packer.toBlob(buildDoc([]));
+  }
 }

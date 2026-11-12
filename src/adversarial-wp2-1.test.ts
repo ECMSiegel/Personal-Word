@@ -801,8 +801,9 @@ describe("Adversarial WP2 (Instance 1): CSS Rules and AGENTS.md Conformance", ()
   });
 
   it("uses Futura / Avenir Next / sans-serif typography on image fallback and buttons", () => {
+    // Interface stacks read the shared --ui-font token (Futura, Avenir Next, ..., sans-serif).
     expect(css).toContain("Futura");
-    expect(css).toContain("Avenir Next");
+    expect(css).toContain("var(--ui-font)");
     expect(css).toContain("sans-serif");
   });
 });

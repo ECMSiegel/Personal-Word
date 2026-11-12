@@ -4,12 +4,7 @@
   gap: var(--space-4);
   min-width: 0;
   padding: 0 0 var(--space-5);
-  font-family:
-    Futura,
-    "Avenir Next",
-    -apple-system,
-    BlinkMacSystemFont,
-    sans-serif;
+  font-family: var(--ui-font);
   font-size: var(--type-body);
   line-height: 1.45;
   color: var(--text);
@@ -72,7 +67,6 @@
 }
 .research-panel input[type="checkbox"] {
   margin: 0;
-  accent-color: var(--accent);
 }
 .research-panel .dropdown-button {
   padding: var(--space-1) 0;
@@ -496,12 +490,7 @@ div.project-settings {
   cursor: default;
 }
 .project-settings input[type="checkbox"] {
-  width: 14px;
-  height: 14px;
   margin: 0;
-  padding: 0;
-  border: 0;
-  accent-color: var(--accent);
 }
 .project-settings .settings-actions {
   display: flex;
@@ -628,4 +617,39 @@ div.project-settings {
   margin: 0 0 var(--space-3);
   font-size: var(--type-large);
   line-height: 1.6;
+}
+
+/* Wave 9 C1: an open source reads Source / Citation / More details / Used in. */
+.source-actions .is-danger {
+  margin-left: auto;
+}
+.source-more > summary,
+.citation-rules > summary {
+  color: var(--accent);
+  padding: var(--space-1) 0;
+  cursor: default;
+}
+.source-more > .research-fields {
+  margin-top: var(--space-2);
+}
+.source-more > .research-fields > .research-hint,
+.source-more > .research-fields > .source-pdf-field,
+.source-more > .research-fields > details {
+  grid-column: 1 / -1;
+}
+.citation-zone,
+.used-in {
+  display: grid;
+  gap: var(--space-3);
+}
+.citation-rules {
+  margin-top: var(--space-2);
+}
+.citation-rules > :not(summary) {
+  margin-top: var(--space-2);
+}
+.footnote-where {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
 }

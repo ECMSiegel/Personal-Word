@@ -1,0 +1,59 @@
+{
+  "id": "T296",
+  "title": "HS5 -- Text after a page break keeps font and size",
+  "description": "Full brief: docs/agent-work/2026-11-11-home-stretch/BRIEF.md then section HS5 of docs/agent-work/2026-11-11-home-stretch/TASKS.md. Shared files (styles.css, App.tsx, Writer.tsx, editor/editor.css) are edited by region only and registered on no task.",
+  "status": "done",
+  "owner": null,
+  "priority": 2,
+  "depends_on": [],
+  "files": [
+    "docs/agent-work/2026-11-11-home-stretch/notes/HS5.md",
+    "docs/agent-work/2026-11-11-home-stretch/notes/HS5-fail-first.txt",
+    "src/editor/pageBreakKeys.ts",
+    "src/editor/pageBreakKeys.test.ts"
+  ],
+  "review_required": true,
+  "created_by": "agent-b823",
+  "created_at": "2026-11-12T03:58:44+00:00",
+  "claimed_at": "2026-11-12T04:00:03+00:00",
+  "updated_at": "2026-11-12T05:27:06+00:00",
+  "handoff": null,
+  "review": {
+    "by": "agent-1324",
+    "at": "2026-11-12T05:27:06+00:00",
+    "verdict": "approved",
+    "note": "Approve. Browser: bold carries after Shift+Enter and Page setup button (focus returns), one Cmd+Z removes the break, mid-paragraph tail moves below with marks and caret in it. Low: (1) pageBreakKeys.ts:14 carries non-splittable marks (link extends past break; filter via editor.extensionManager.splittableMarks); (2) mid-paragraph leaves an empty paragraph, pre-existing. See REVIEW-1.md."
+  },
+  "log": [
+    {
+      "at": "2026-11-12T03:58:44+00:00",
+      "agent": "agent-b823",
+      "event": "created",
+      "note": ""
+    },
+    {
+      "at": "2026-11-12T04:00:03+00:00",
+      "agent": "agent-a1a3",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-11-12T04:00:31+00:00",
+      "agent": "agent-a1a3",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-11-12T04:17:59+00:00",
+      "agent": "agent-a1a3",
+      "event": "review requested",
+      "note": "Added insertPageBreak helper (marks + paragraph attrs carried) used by Shift-Enter and Writer.tsx button; new src/editor/pageBreakKeys.test.ts 3 tests; fail-first: end-of-paragraph test fails with carry removed (notes/HS5-fail-first.txt); vitest src/editor 12 files/146 pass; tsc errors only in src/organization/groups.ts (other worker)"
+    },
+    {
+      "at": "2026-11-12T05:27:06+00:00",
+      "agent": "agent-1324",
+      "event": "approved",
+      "note": "Approve. Browser: bold carries after Shift+Enter and Page setup button (focus returns), one Cmd+Z removes the break, mid-paragraph tail moves below with marks and caret in it. Low: (1) pageBreakKeys.ts:14 carries non-splittable marks (link extends past break; filter via editor.extensionManager.splittableMarks); (2) mid-paragraph leaves an empty paragraph, pre-existing. See REVIEW-1.md."
+    }
+  ]
+}

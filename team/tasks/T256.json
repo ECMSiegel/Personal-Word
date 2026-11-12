@@ -1,0 +1,62 @@
+{
+  "id": "T256",
+  "title": "W9 A2 -- Hide the sidebar scrollbar and stop sideways scroll",
+  "description": "Follow section '### A2 --' of docs/agent-work/2026-11-10-ui-wave-9/PLAN.md exactly, plus its 'Rules for every worker'. Verify: tests/w9-sidebar-scroll.spec.ts, scroll-fade and floating specs pass. Browser test port: PLAYWRIGHT_PORT=1432. No commits, no new packages, never run npm run build or a native screen script. Write the note docs/agent-work/2026-11-10-ui-wave-9/notes/A2.md.",
+  "status": "done",
+  "owner": null,
+  "priority": 2,
+  "depends_on": [
+    "T255"
+  ],
+  "files": [
+    "src/styles.css",
+    "src/components/ProjectSidebar.tsx",
+    "tests/w9-sidebar-scroll.spec.ts",
+    "docs/agent-work/2026-11-10-ui-wave-9/notes/A2.md",
+    "docs/agent-work/2026-11-10-ui-wave-9/notes/A2-fail-first.txt"
+  ],
+  "review_required": true,
+  "created_by": "agent-b307",
+  "created_at": "2026-11-10T22:24:35+00:00",
+  "claimed_at": "2026-11-11T02:50:40+00:00",
+  "updated_at": "2026-11-11T03:52:05+00:00",
+  "handoff": null,
+  "review": {
+    "by": "agent-2ff3",
+    "at": "2026-11-11T03:52:05+00:00",
+    "verdict": "approved",
+    "note": "Approved (agent-2ff3, W9 reviewer r2). Judged only the A2 hunks: src/styles.css .sidebar-groups -> overflow-x hidden, overflow-y auto, scrollbar-width none, plus ::-webkit-scrollbar { display: none } (other styles.css hunks belong to other tasks); src/components/ProjectSidebar.tsx drops 'isFloating &&' so watchScrollFade runs docked too. Stop rule checked: the fade CSS in src/components/scroll-fade.css is global ([data-scroll-top]/[data-scroll-bottom]), not under .is-floating, so the docked sidebar really shows the fade. New spec matches PLAN step 1 (1100x500, 25 sections, computed overflow-x/y and scrollbar-width, zero gutter, wheel scrolls). Fail-first A2-fail-first.txt: overflow-x 'auto', expected 'hidden'. Fresh runs (worker had not run these): npx tsc -b -> exit 0; npx vitest run src/components/scrollFade.test.ts src/sidebarPreferences.test.ts src/hoverEmphasis.test.ts -> 19/19 passed; PLAYWRIGHT_PORT=1432 npx playwright test tests/w9-sidebar-scroll.spec.ts tests/scroll-fade.spec.ts tests/floating.spec.ts --output test-results/T256-review -> 43 passed, 0 failed. Not checked: native WebKit (scrollbar hiding there is via ::-webkit-scrollbar; hand check in T278)."
+  },
+  "log": [
+    {
+      "at": "2026-11-10T22:24:35+00:00",
+      "agent": "agent-b307",
+      "event": "created",
+      "note": ""
+    },
+    {
+      "at": "2026-11-11T02:50:40+00:00",
+      "agent": "agent-6691",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-11-11T02:50:41+00:00",
+      "agent": "agent-6691",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-11-11T03:19:49+00:00",
+      "agent": "agent-6691",
+      "event": "review requested",
+      "note": "Hid sidebar group list scrollbar (overflow-x hidden, overflow-y auto, scrollbar-width none, webkit display none) in src/styles.css; scroll-fade now also docked in src/components/ProjectSidebar.tsx. New spec tests/w9-sidebar-scroll.spec.ts. Fail-first: docs/agent-work/2026-11-10-ui-wave-9/notes/A2-fail-first.txt (overflow-x auto, expected hidden). Acceptance: w9-sidebar-scroll + scroll-fade + floating, PLAYWRIGHT_PORT=1432, 43 passed 0 failed. Note: notes/A2.md. No commits."
+    },
+    {
+      "at": "2026-11-11T03:52:05+00:00",
+      "agent": "agent-2ff3",
+      "event": "approved",
+      "note": "Approved (agent-2ff3, W9 reviewer r2). Judged only the A2 hunks: src/styles.css .sidebar-groups -> overflow-x hidden, overflow-y auto, scrollbar-width none, plus ::-webkit-scrollbar { display: none } (other styles.css hunks belong to other tasks); src/components/ProjectSidebar.tsx drops 'isFloating &&' so watchScrollFade runs docked too. Stop rule checked: the fade CSS in src/components/scroll-fade.css is global ([data-scroll-top]/[data-scroll-bottom]), not under .is-floating, so the docked sidebar really shows the fade. New spec matches PLAN step 1 (1100x500, 25 sections, computed overflow-x/y and scrollbar-width, zero gutter, wheel scrolls). Fail-first A2-fail-first.txt: overflow-x 'auto', expected 'hidden'. Fresh runs (worker had not run these): npx tsc -b -> exit 0; npx vitest run src/components/scrollFade.test.ts src/sidebarPreferences.test.ts src/hoverEmphasis.test.ts -> 19/19 passed; PLAYWRIGHT_PORT=1432 npx playwright test tests/w9-sidebar-scroll.spec.ts tests/scroll-fade.spec.ts tests/floating.spec.ts --output test-results/T256-review -> 43 passed, 0 failed. Not checked: native WebKit (scrollbar hiding there is via ::-webkit-scrollbar; hand check in T278)."
+    }
+  ]
+}

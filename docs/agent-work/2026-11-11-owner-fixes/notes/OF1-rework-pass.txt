@@ -1,0 +1,14 @@
+
+Running 8 tests using 1 worker
+
+  ✓  1 tests/of1-text-notes.spec.ts:14:1 › Text-only notes live on the Notes tab, not the Sources tab (11.6s)
+  ✓  2 tests/of1-text-notes.spec.ts:91:1 › Delete in a section that is not open: confirm, cancel, snapshot, renumber, reload (22.1s)
+  ✓  3 tests/of1-text-notes.spec.ts:133:1 › Delete while the section is open in the editor removes the marker and survives the next save (11.2s)
+  ✓  4 tests/of1-text-notes.spec.ts:152:1 › a cited footnote's action row says exactly Unlink source (no stray index) (3.5s)
+  ✓  5 tests/w9-used-in.spec.ts:45:1 › Used in names the section that holds the footnote, and Go to selects its marker (7.5s)
+  ✓  6 tests/w9-used-in.spec.ts:65:1 › Go to in a split focuses the pane already showing the section and changes no entry (6.3s)
+  ✓  7 tests/w9-used-in.spec.ts:81:1 › Go to works from the keyboard (5.1s)
+  ✓  8 tests/w9-used-in.spec.ts:92:1 › a source's Used in row names the section and Go to works from it (7.4s)
+
+  8 passed (1.4m)
+EXIT 0

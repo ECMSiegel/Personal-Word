@@ -170,7 +170,7 @@ test("(c) hover or keyboard focus on a row expands its line; the keyboard change
   await expect(line(page, "Gamma part")).toHaveAttribute("data-state", "active");
   // The line carries no text-emphasis stroke or scale of its own.
   await line(page, "Alpha part").hover();
-  expect(await line(page, "Alpha part").evaluate((el) => parseFloat(getComputedStyle(el).webkitTextStrokeWidth) || 0)).toBe(0);
+  expect(await line(page, "Alpha part").evaluate((el) => (getComputedStyle(el).textShadow === "none" ? 0 : parseFloat(/(-?[\d.]+)px/.exec(getComputedStyle(el).textShadow)?.[1] ?? "0")))).toBe(0);
 });
 
 test("(d) the lines hide with a hover-reveal sidebar", async ({ page }) => {

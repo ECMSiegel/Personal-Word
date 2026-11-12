@@ -122,7 +122,7 @@ export async function hoverSample(page: Page, id: string, settleMs = 200): Promi
     }
     return await loc.evaluate((el) => {
       const cs = getComputedStyle(el);
-      return { weight: cs.fontWeight, transform: cs.transform, color: cs.color, duration: cs.transitionDuration, stroke: parseFloat(cs.webkitTextStrokeWidth) || 0, strokeColor: cs.webkitTextStrokeColor };
+      return { weight: cs.fontWeight, transform: cs.transform, color: cs.color, duration: cs.transitionDuration, stroke: (cs.textShadow === "none" ? 0 : parseFloat(/(-?[\d.]+)px/.exec(cs.textShadow)?.[1] ?? "0")), strokeColor: (cs.textShadow.match(/rgba?\([^)]*\)/)?.[0] ?? "") };
     });
   } catch {
     return null;
@@ -142,7 +142,7 @@ export async function focusSample(page: Page, id: string, settleMs = 220): Promi
     const out = await loc.evaluate((el) => {
       const cs = getComputedStyle(el);
       const ok = el.matches(":focus-visible");
-      const res = { weight: cs.fontWeight, transform: cs.transform, color: cs.color, duration: cs.transitionDuration, stroke: parseFloat(cs.webkitTextStrokeWidth) || 0, strokeColor: cs.webkitTextStrokeColor, ok };
+      const res = { weight: cs.fontWeight, transform: cs.transform, color: cs.color, duration: cs.transitionDuration, stroke: (cs.textShadow === "none" ? 0 : parseFloat(/(-?[\d.]+)px/.exec(cs.textShadow)?.[1] ?? "0")), strokeColor: (cs.textShadow.match(/rgba?\([^)]*\)/)?.[0] ?? ""), ok };
       (el as HTMLElement).blur();
       return res;
     });

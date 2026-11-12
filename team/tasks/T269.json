@@ -1,0 +1,70 @@
+{
+  "id": "T269",
+  "title": "W9 C6 -- List installed fonts and read their files in the native app (Core Text)",
+  "description": "Follow section '### C6 --' of docs/agent-work/2026-11-10-ui-wave-9/PLAN.md exactly, plus its 'Rules for every worker'. Verify: cargo test sysfonts passes; cargo check --offline passes; src/fonts/system.test.ts passes. No browser tests. No commits, no new packages, never run npm run build or a native screen script. Write the note docs/agent-work/2026-11-10-ui-wave-9/notes/C6.md.",
+  "status": "done",
+  "owner": null,
+  "priority": 2,
+  "depends_on": [
+    "T265"
+  ],
+  "files": [
+    "src-tauri/src/sysfonts.rs",
+    "src-tauri/src/lib.rs",
+    "src-tauri/Cargo.toml",
+    "src-tauri/Cargo.lock",
+    "src/fonts/system.ts",
+    "src/fonts/system.test.ts",
+    "docs/agent-work/2026-11-10-ui-wave-9/notes/C6.md"
+  ],
+  "review_required": true,
+  "created_by": "agent-b307",
+  "created_at": "2026-11-10T22:24:38+00:00",
+  "claimed_at": "2026-11-11T04:19:56+00:00",
+  "updated_at": "2026-11-11T04:38:38+00:00",
+  "handoff": null,
+  "review": {
+    "by": "agent-e0a3",
+    "at": "2026-11-11T04:38:38+00:00",
+    "verdict": "approved",
+    "note": "Approved (agent-e0a3, W9 reviewer r3). Read: src-tauri/src/sysfonts.rs (new; families via CTFontManagerCopyAvailableFontFamilyNames, sorted, '.'-names dropped; file() matches descriptors by kCTFontFamilyNameAttribute and bold/italic symbolic traits, reads only the path from kCTFontURLAttribute, ttcf -> collection with empty data, >30 MB -> None; non-macOS stubs return Err; 4 macOS tests per PLAN C6 step 5); lib.rs C6 lines only = 'mod sysfonts;' plus both commands in both handler lists; Cargo.toml adds only objc2-core-text and objc2-core-foundation 0.3.2 with default-features off and 4/5 feature flags; Cargo.lock diff adds only those two names to the app crate's dependency list, no new [[package]] entries (both already locked at 0.3.2). src/fonts/system.ts returns [] / null outside the native app, on errors, and for collections; system.test.ts 7 tests with mocked invoke. git status src-tauri: only Cargo.toml, Cargo.lock, lib.rs modified plus untracked fonts.rs (C2) and sysfonts.rs: no cargo fmt spill. Fresh runs (serial lock): cd src-tauri && cargo check --offline -> 0; cargo check --offline --features native-smoke -> 0; cargo test --offline sysfonts -> 4 passed, 0 failed; no warnings, no downloads; npx vitest run src/fonts/system.test.ts -> 7/7; npx tsc -b exit 0. Minor, not blocking: the 30 MB limit is checked after reading the whole file (std::fs::read then len); a metadata check first would avoid reading a huge file. Three unsafe calls (symbolic_traits, attribute, post_script_name) lack SAFETY comments. Native app UI and export with an installed font are unverified: owner hand check in notes/C6.md."
+  },
+  "log": [
+    {
+      "at": "2026-11-10T22:24:38+00:00",
+      "agent": "agent-b307",
+      "event": "created",
+      "note": ""
+    },
+    {
+      "at": "2026-11-11T02:45:22+00:00",
+      "agent": "opencode-watch",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-11-11T04:19:56+00:00",
+      "agent": "agent-e8b7",
+      "event": "reclaimed from opencode-watch",
+      "note": ""
+    },
+    {
+      "at": "2026-11-11T04:19:57+00:00",
+      "agent": "agent-e8b7",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-11-11T04:36:38+00:00",
+      "agent": "agent-e8b7",
+      "event": "review requested",
+      "note": "Implemented/finalized C6 Core Text system-font listing and file lookup; added unsafe blocks with safety rationale for the Core Text family-key static and font constructor; wrote docs/agent-work/2026-11-10-ui-wave-9/notes/C6.md. cargo check --offline PASS; cargo test sysfonts PASS (4/4); cargo check PASS; cargo check --features native-smoke PASS; rustfmt --check src/sysfonts.rs PASS; npx vitest run src/fonts/system.test.ts PASS (7/7). Initial cargo check failures for unsafe FFI calls were fixed. No app launch or screen checks; hand check remains for owner. No new package or commit."
+    },
+    {
+      "at": "2026-11-11T04:38:38+00:00",
+      "agent": "agent-e0a3",
+      "event": "approved",
+      "note": "Approved (agent-e0a3, W9 reviewer r3). Read: src-tauri/src/sysfonts.rs (new; families via CTFontManagerCopyAvailableFontFamilyNames, sorted, '.'-names dropped; file() matches descriptors by kCTFontFamilyNameAttribute and bold/italic symbolic traits, reads only the path from kCTFontURLAttribute, ttcf -> collection with empty data, >30 MB -> None; non-macOS stubs return Err; 4 macOS tests per PLAN C6 step 5); lib.rs C6 lines only = 'mod sysfonts;' plus both commands in both handler lists; Cargo.toml adds only objc2-core-text and objc2-core-foundation 0.3.2 with default-features off and 4/5 feature flags; Cargo.lock diff adds only those two names to the app crate's dependency list, no new [[package]] entries (both already locked at 0.3.2). src/fonts/system.ts returns [] / null outside the native app, on errors, and for collections; system.test.ts 7 tests with mocked invoke. git status src-tauri: only Cargo.toml, Cargo.lock, lib.rs modified plus untracked fonts.rs (C2) and sysfonts.rs: no cargo fmt spill. Fresh runs (serial lock): cd src-tauri && cargo check --offline -> 0; cargo check --offline --features native-smoke -> 0; cargo test --offline sysfonts -> 4 passed, 0 failed; no warnings, no downloads; npx vitest run src/fonts/system.test.ts -> 7/7; npx tsc -b exit 0. Minor, not blocking: the 30 MB limit is checked after reading the whole file (std::fs::read then len); a metadata check first would avoid reading a huge file. Three unsafe calls (symbolic_traits, attribute, post_script_name) lack SAFETY comments. Native app UI and export with an installed font are unverified: owner hand check in notes/C6.md."
+    }
+  ]
+}

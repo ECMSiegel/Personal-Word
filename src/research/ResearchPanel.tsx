@@ -1,4 +1,4 @@
-import { useEffect, useId, useRef, useState } from "react";
+import { useEffect, useId, useRef, useState, type ReactNode } from "react";
 import { useLookup } from "./useLookup";
 import { Cite, Field, Preview } from "./Cite";
 import { firstWords, kindLabels, sourceSummary, addCitation, addManualSource, patchResearchNote, patchSource as patchSourceData, patchFootnote as patchFootnoteData, removeSource } from "./citationActions";
@@ -59,6 +59,9 @@ export function ResearchPanel({
   onAttachPdf,
   onUploadPdf,
   onOpenPdf,
+  footnoteLocations,
+  onGoToFootnote,
+  onDeleteTextOnlyFootnote,
 }: {
   data?: ResearchData;
   onChange: (data: ResearchData) => void;
@@ -77,6 +80,10 @@ export function ResearchPanel({
   /** Stores a PDF in Research without a source. */
   onUploadPdf?: (file: File) => Promise<void>;
   onOpenPdf?: (sourceId: string) => void;
+  footnoteLocations?: ReadonlyMap<string, { entryId: string; title: string }>;
+  onGoToFootnote?: (footnoteId: string) => void;
+  /** Asks, then deletes a text-only footnote with its marker in the document. */
+  onDeleteTextOnlyFootnote?: (footnoteId: string) => void;
 }) {
   const [tab, setTab] = useState<ResearchTab>(
     initialTab === "notes" ? "notes" : "sources",
@@ -175,9 +182,10 @@ export function ResearchPanel({
     setPendingFocus(id);
   };
 
-  const renderFootnote = (note: Footnote) => {
+  const renderFootnote = (note: Footnote, extraActions?: ReactNode) => {
     const linked = Boolean(note.sourceId);
     const context = citationContext[note.id];
+    const where = footnoteLocations?.get(note.id);
     const parts = footnoteParts(note, data, context?.form, context?.locator);
     return (
       <div className="footnote-item" key={note.id}>
@@ -185,6 +193,12 @@ export function ResearchPanel({
           Footnote
           {note.text.trim() ? ` -- ${firstWords(note.text)}` : ""}
         </span>
+        {where && (
+          <div className="footnote-where">
+            <span className="research-hint">in {where!.title}</span>
+            {onGoToFootnote && <button type="button" onClick={() => onGoToFootnote(note.id)}>Go to</button>}
+          </div>
+        )}
         <textarea
           aria-label="Footnote text"
           data-research-id={note.id}
@@ -226,14 +240,17 @@ export function ResearchPanel({
             </p>
           </div>
         )}
-        {linked && (
+        {(linked || extraActions) && (
           <div className="item-actions">
-            <button
-              type="button"
-              onClick={() => patchFootnote(note.id, { sourceId: undefined })}
-            >
-              Unlink source
-            </button>
+            {linked && (
+              <button
+                type="button"
+                onClick={() => patchFootnote(note.id, { sourceId: undefined })}
+              >
+                Unlink source
+              </button>
+            )}
+            {extraActions}
           </div>
         )}
       </div>
@@ -291,54 +308,58 @@ export function ResearchPanel({
     const quotes = data.notes.filter((n) => n.sourceId === source.id);
     return (
       <div className="source-body" id={`${source.id}-panel`}>
-        <SourceForm source={source} patch={patch} idPrefix={source.id} onError={notify} onAttachPdf={onAttachPdf} onOpenPdf={onOpenPdf} />
-        <div className="citation-previews">
-          <Preview label="Note" parts={citationParts(source, "full")} />
-          <Preview
-            label="Shortened note"
-            parts={citationParts(source, "short")}
-          />
-          <Preview
-            label="Bibliography"
-            parts={citationParts(source, "bibliography")}
-          />
-        </div>
-        <div className="source-actions">
-          <button
-            type="button"
-            disabled={!onInsertFootnote}
-            title={onInsertFootnote ? undefined : "Open a section to cite"}
-            onClick={() => citeHere(source)}
-          >
-            Cite here
-          </button>
-          <button type="button" onClick={() => { setCaptureSourceId(source.id); setCapturingQuote(true); }}>
-            Add quote
-          </button>
-          <button
-            type="button"
-            className="is-danger"
-            onClick={() => deleteSource(source)}
-          >
-            Delete source
-          </button>
-        </div>
+        <SourceForm source={source} patch={patch} idPrefix={source.id} onError={notify} onAttachPdf={onAttachPdf} onOpenPdf={onOpenPdf}>
+          <section className="citation-zone" aria-label="Citation">
+            <h4 className="research-subhead">Citation</h4>
+            <div className="citation-previews">
+              <Preview label="Note" parts={citationParts(source, "full")} />
+              <Preview
+                label="Shortened note"
+                parts={citationParts(source, "short")}
+              />
+              <Preview
+                label="Bibliography"
+                parts={citationParts(source, "bibliography")}
+              />
+            </div>
+            <div className="source-actions">
+              <button
+                type="button"
+                disabled={!onInsertFootnote}
+                title={onInsertFootnote ? undefined : "Open a section to cite"}
+                onClick={() => citeHere(source)}
+              >
+                Cite here
+              </button>
+              <button type="button" onClick={() => { setCaptureSourceId(source.id); setCapturingQuote(true); }}>
+                Add quote
+              </button>
+              <button
+                type="button"
+                className="is-danger"
+                onClick={() => deleteSource(source)}
+              >
+                Delete source
+              </button>
+            </div>
+          </section>
+        </SourceForm>
+        <section className="used-in" aria-label="Used in">
+          <h4 className="research-subhead">Used in</h4>
+          <p className="research-hint">{plural(footnotes.length, "footnote")}, {plural(quotes.length, "quote")}</p>
         {quotes.length > 0 && (
           <section className="linked" aria-label="Quotes from this source">
-            <h4 className="research-subhead">Quotes and paraphrases</h4>
             {quotes.map(renderQuote)}
           </section>
         )}
         <section className="linked" aria-label="Footnotes from this source">
-          <h4 className="research-subhead">
-            {plural(footnotes.length, "footnote")}
-          </h4>
           {footnotes.length === 0 && (
             <p className="research-hint">
               No footnotes cite this source yet. Use Cite here.
             </p>
           )}
-          {footnotes.map(renderFootnote)}
+          {footnotes.map((note) => renderFootnote(note))}
+        </section>
         </section>
       </div>
     );
@@ -381,57 +402,6 @@ export function ResearchPanel({
       </nav>
       {tab === "sources" ? (
         <>
-          {!data.citationPolicy && (
-            <label className="check">
-              <input
-                type="checkbox"
-                checked={data.autoShortNotes ?? false}
-                onChange={(event) => onChange({ ...data, autoShortNotes: event.target.checked })}
-              />
-              Shorten repeat citations automatically
-            </label>
-          )}
-          <label className="check">
-            <input
-              type="checkbox"
-              checked={Boolean(data.citationPolicy)}
-              onChange={(event) => {
-                const { citationPolicy: _removed, ...rest } = data;
-                onChange(event.target.checked ? { ...rest, citationPolicy: { scope: "manuscript", repeats: "short" } } : rest);
-              }}
-            />
-            Use repeat citation rules
-          </label>
-          {data.citationPolicy && (
-            <div className="repeat-rules">
-              <div className="field">
-                <span className="field-label">Full citation again</span>
-                <Dropdown<CitationPolicy["scope"]>
-                  label="Full citation again"
-                  value={data.citationPolicy.scope}
-                  width="100%"
-                  options={[
-                    { value: "manuscript", label: "Never -- once per manuscript" },
-                    { value: "section", label: "In each section (one manuscript entry)" },
-                  ]}
-                  onChange={(scope) => onChange({ ...data, citationPolicy: { ...data.citationPolicy!, scope } })}
-                />
-              </div>
-              <div className="field">
-                <span className="field-label">Back-to-back repeat</span>
-                <Dropdown<CitationPolicy["repeats"]>
-                  label="Back-to-back repeat"
-                  value={data.citationPolicy.repeats}
-                  width="100%"
-                  options={[
-                    { value: "short", label: "Short note" },
-                    { value: "ibid", label: "Ibid." },
-                  ]}
-                  onChange={(repeats) => onChange({ ...data, citationPolicy: { ...data.citationPolicy!, repeats } })}
-                />
-              </div>
-            </div>
-          )}
           <input
             ref={importFile}
             type="file"
@@ -509,6 +479,7 @@ export function ResearchPanel({
                 {LOOKUP_PRIVACY}
               </span>
             </div>
+            <p className="research-hint">Lookup needs an internet connection -- everything else works offline.</p>
             <div className="research-actions">
               <button type="button" onClick={() => { setCaptureSourceId(undefined); setCapturingQuote(true); }}>
                 Capture quote
@@ -675,6 +646,60 @@ export function ResearchPanel({
               );
             })}
           </ul>
+          <details className="citation-rules">
+            <summary>Citation rules</summary>
+            {!data.citationPolicy && (
+              <label className="check">
+                <input
+                  type="checkbox"
+                  checked={data.autoShortNotes ?? false}
+                  onChange={(event) => onChange({ ...data, autoShortNotes: event.target.checked })}
+                />
+                Shorten repeat citations automatically
+              </label>
+            )}
+            <label className="check">
+              <input
+                type="checkbox"
+                checked={Boolean(data.citationPolicy)}
+                onChange={(event) => {
+                  const { citationPolicy: _removed, ...rest } = data;
+                  onChange(event.target.checked ? { ...rest, citationPolicy: { scope: "manuscript", repeats: "short" } } : rest);
+                }}
+              />
+              Use repeat citation rules
+            </label>
+            {data.citationPolicy && (
+              <div className="repeat-rules">
+                <div className="field">
+                  <span className="field-label">Full citation again</span>
+                  <Dropdown<CitationPolicy["scope"]>
+                    label="Full citation again"
+                    value={data.citationPolicy.scope}
+                    width="100%"
+                    options={[
+                      { value: "manuscript", label: "Never -- once per manuscript" },
+                      { value: "section", label: "In each section (one manuscript entry)" },
+                    ]}
+                    onChange={(scope) => onChange({ ...data, citationPolicy: { ...data.citationPolicy!, scope } })}
+                  />
+                </div>
+                <div className="field">
+                  <span className="field-label">Back-to-back repeat</span>
+                  <Dropdown<CitationPolicy["repeats"]>
+                    label="Back-to-back repeat"
+                    value={data.citationPolicy.repeats}
+                    width="100%"
+                    options={[
+                      { value: "short", label: "Short note" },
+                      { value: "ibid", label: "Ibid." },
+                    ]}
+                    onChange={(repeats) => onChange({ ...data, citationPolicy: { ...data.citationPolicy!, repeats } })}
+                  />
+                </div>
+              </div>
+            )}
+          </details>
           {capturingQuote && <CaptureQuote
             sources={data.sources}
             initialSourceId={captureSourceId}
@@ -687,20 +712,6 @@ export function ResearchPanel({
             }}
           />}
           <hr className="research-rule" />
-          <section className="research-group">
-            <h3 className="research-subhead">Text-only notes</h3>
-            <div className="research-actions">
-              <button
-                type="button"
-                disabled={!onInsertFootnote}
-                title={onInsertFootnote ? undefined : "Open a section to cite"}
-                onClick={insertTextOnly}
-              >
-                Insert footnote at cursor
-              </button>
-            </div>
-            {textOnly.map(renderFootnote)}
-          </section>
           <details className="research-bibliography">
             <summary>Bibliography</summary>
             {entries.length ? (
@@ -731,7 +742,7 @@ export function ResearchPanel({
               Add note
             </button>
           </div>
-          {looseNotes.length === 0 && (
+          {looseNotes.length === 0 && textOnly.length === 0 && (
             <p className="research-hint">No notes yet.</p>
           )}
           {looseNotes.length > 0 && (
@@ -782,6 +793,33 @@ export function ResearchPanel({
               ))}
             </div>
           )}
+          <section className="research-group">
+            <h3 className="research-subhead">Text-only notes</h3>
+            <div className="research-actions">
+              <button
+                type="button"
+                disabled={!onInsertFootnote}
+                title={onInsertFootnote ? undefined : "Open a section to cite"}
+                onClick={insertTextOnly}
+              >
+                Insert footnote at cursor
+              </button>
+            </div>
+            {textOnly.map((note) =>
+              renderFootnote(
+                note,
+                onDeleteTextOnlyFootnote && (
+                  <button
+                    type="button"
+                    className="is-danger"
+                    onClick={() => onDeleteTextOnlyFootnote(note.id)}
+                  >
+                    Delete footnote
+                  </button>
+                ),
+              ),
+            )}
+          </section>
         </>
       )}
       <p className="research-help">
