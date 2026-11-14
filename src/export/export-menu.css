@@ -1,30 +1,9 @@
 .export-menu-button {
+  padding: 0;
   min-height: var(--control-height);
   font-size: var(--type-small);
 }
 
-.export-menu .export-menu-options {
+.export-menu {
   min-width: 220px;
-}
-
-.export-menu-item {
-  display: flex;
-  width: 100%;
-  justify-content: flex-start;
-  padding: var(--space-2) var(--space-3);
-  font-size: var(--type-small);
-  white-space: nowrap;
-  text-align: left;
-}
-
-.export-menu-rule {
-  height: 1px;
-  margin: var(--space-1) 0;
-  background: var(--line);
-}
-
-/* Painted above the editor format bar (z-index 40) that follows the top bar; still below the
-   command palette (60) and modals (70). */
-.export-menu.popover {
-  z-index: 41;
 }

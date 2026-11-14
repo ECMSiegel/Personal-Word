@@ -1,0 +1,45 @@
+{
+ "after-click-manuscript-title": {
+  "manuscript": {
+   "need": 77,
+   "have": 65,
+   "toggle": 24,
+   "weight": "700",
+   "active": "group-title "
+  }
+ },
+ "after-click-entry-row": {
+  "manuscript": {
+   "need": 77,
+   "have": 65,
+   "toggle": 24,
+   "weight": "700",
+   "active": "entry-main row"
+  }
+ },
+ "after-click-fragments-title": {
+  "fragments": {
+   "need": 73,
+   "have": 65,
+   "toggle": 24,
+   "weight": "700",
+   "active": "group-title selected"
+  },
+  "manuscript": {
+   "need": 77,
+   "have": 77,
+   "toggle": 0,
+   "weight": "700",
+   "active": "group-title selected"
+  }
+ },
+ "after-click-plus": {
+  "manuscript": {
+   "need": 77,
+   "have": 77,
+   "toggle": 0,
+   "weight": "700",
+   "active": ""
+  }
+ }
+}

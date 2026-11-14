@@ -1,0 +1,43 @@
+
+Running 1 test using 1 worker
+
+  ✘  1 tests/hs9-top-level-sections.spec.ts:260:1 › a custom header's colour is set from its menu, survives a reload and shows on its icon (11.5s)
+
+
+  1) tests/hs9-top-level-sections.spec.ts:260:1 › a custom header's colour is set from its menu, survives a reload and shows on its icon 
+
+    Error: expect(locator).toHaveCount(expected) failed
+
+    Locator:  getByRole('option')
+    Expected: 0
+    Received: 9
+    Timeout:  5000ms
+
+    Call log:
+      - Expect "toHaveCount" getByRole('option') with timeout 5000ms
+      - waiting for getByRole('option')
+        14 × locator resolved to 9 elements
+           - unexpected value "9"
+
+
+      277 |   await page.getByRole("option", { name: "Purple" }).click();
+      278 |   // The list must stay closed after a choice (a label around the Dropdown reopens it).
+    > 279 |   await expect(page.getByRole("option")).toHaveCount(0);
+          |                                          ^
+      280 |   await expect(dialog.getByRole("button", { name: "Colour", exact: true })).toContainText("Purple");
+      281 |   await page.screenshot({ path: "docs/agent-work/2026-11-12-layout-primitives/notes/T9-dialog-light.png" });
+      282 |   await dialog.getByRole("button", { name: "Done" }).click();
+        at /Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/tests/hs9-top-level-sections.spec.ts:279:42
+
+    Error Context: test-results/T313/hs9-top-level-sections-a-c-c9d6e-eload-and-shows-on-its-icon/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/T313/hs9-top-level-sections-a-c-c9d6e-eload-and-shows-on-its-icon/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/T313/hs9-top-level-sections-a-c-c9d6e-eload-and-shows-on-its-icon/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/hs9-top-level-sections.spec.ts:260:1 › a custom header's colour is set from its menu, survives a reload and shows on its icon 

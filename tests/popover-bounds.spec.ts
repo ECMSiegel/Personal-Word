@@ -166,6 +166,7 @@ test("cards-view status dropdown stays inside the sidebar scroll container", asy
 }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
   await create(page, "Popover bounds cards");
+  await page.locator('.sidebar-group[data-group="manuscript"] > .group-heading').hover();
   await page.getByRole("button", { name: "Show Manuscript cards" }).click();
   const container = page.locator(".sidebar-groups");
   await expect(container).toBeVisible();

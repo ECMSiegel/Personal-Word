@@ -54,6 +54,36 @@ Use `--elevation-page` for the page, `--elevation-surface` for a panel surface, 
 
 An icon button draws a 16 px icon but reaches a 24 x 24 px target: a pseudo-element centred on the button is `max(24px, 100%)` wide and tall, so a 24 px button is untouched and a smaller one still takes a full-size press. Do not grow the padding to fake it; padding moves the row's layout, the pseudo-element does not. The hit-area rule is `:where()`, so it can never outrank a component that positions its own button: the cards-view trash and the Open beside button stay absolutely placed. Only the `::after` box itself uses `:is()`.
 
+## Layout primitives
+
+Added 2026-11-12 (layout-primitives plan, task T0; [plan](agent-work/2026-11-12-layout-primitives/PLAN.md)). Every bar, menu, popover, list row and icon button is meant to take its spacing from five CSS-class primitives in `src/components/layout.css` (imported in `src/main.tsx` straight after `styles.css`). Load order matters: `src/main.tsx` imports `App` first, so almost every component stylesheet loads BEFORE `layout.css`; a primitive therefore wins a tie against a single-class component rule, and a single-class override of a primitive loses silently. Delete the old declaration instead of overriding either way; two-class rules still beat primitives. Only `prose-issues.css`, `icon-magnify.css`, `appearance-settings.css` and `side-ruler.css` load after it. All surfaces were moved onto the primitives in tasks T1-T9 (2026-11-12). Status: CLAIMED.
+
+**Tokens** (first `:root` in `src/styles.css`, next to `--control-height`): `--bar-height` 40 px, `--row-height` 32 px, `--row-height-compact` 28 px, `--slot` 24 px, `--slot-toolbar-w` 28 px, `--edge` `var(--space-4)` (16), `--edge-main` `var(--space-5)` (24). Layers: `--layer-card` 39, `--layer-bar` 40, `--layer-popover` 45, `--layer-overlay` 60, `--layer-modal` 70.
+
+| Class | What it does |
+| --- | --- |
+| `.bar` | flex row, centred, `--bar-height` tall, `--edge` inline padding, `--space-2` gap, border-box |
+| `.bar-compact` | a bar at `--control-height` (project tabs) |
+| `.bar-main` | sets `--edge` to `--edge-main` (top bar, format bar, split header, pane footer) |
+| `.bar-divider` | 1 x 16 px `--line`, `--space-2` each side |
+| `.stack` | flex column, gap `--gap` (default `--space-2`); children have no block margin |
+| `.cluster` | flex row, centred, gap `--gap` (default `--space-1`), does not shrink |
+| `.gap-0` ... `.gap-6` | set `--gap` to 0 or `--space-1..6` on that element only (`--gap` is registered non-inheriting, so a nested cluster keeps its own default) |
+| `.row` | flex row, centred, at least `--row-height`, `--edge` inline padding, `--space-2` gap |
+| `.row-label` | the row's growing, shrinkable label |
+| `.row-trail` | a cluster pushed to the row's end |
+| `.row-value` | right-aligned tabular figures, at least `--value-width` (default 3ch) |
+| `.menu` | list surface: `--space-1` block padding, `--edge` 12 px for its rows |
+| `.menu-rule` | 1 px `--line` with `--space-1` above and below |
+| `.panel` | form-like popover body: a stack with `--space-3` padding, `--edge` 0, rows at `--row-height-compact` |
+| `.slot` | icon-button box: inline grid, centred, `--slot` square, no padding |
+| `.slot-toolbar` | `--slot-toolbar-w` x `--control-height` |
+| `.flush-end` / `.flush-start` | on a cluster of slots: a negative inline margin of (slot width - icon size) / 2 so the icon ink, not the box, sits on the edge (toolbar slots use their own width) |
+
+**Rules of use.** A component never sets margin on itself: the parent's `gap` spaces its children. Text and icon ink start at `--edge`; `--edge` is consumed, never copied (never write 16 or 24 for an inset). Any `z-index` of 10 or more is a `--layer-*` token; small local stacking (1-9) may stay literal. Fixed numbers: the sidebar and its popovers use `--edge` 16; main-pane bars use `.bar-main` (24); project tabs are `.bar-compact` (32); menus use `--row-height` 32; panels use 28; toolbar groups have gap 0 with `.bar-divider` between them; sidebar action clusters are `.gap-0` clusters of 24 px slots.
+
+**Guards.** `src/layoutPrimitives.test.ts` (a) counts, per CSS file under `src/` (except `layout.css` and `src/editor/side-ruler.css`), the declarations of margin*, padding*, gap, row-gap, column-gap, height and min-height whose value is not zero -- any value counts, tokens, `var()`, `calc()`, `auto` and percentages included -- skipping rules whose selector names document typography (`DOCUMENT_SELECTORS` read from `src/designTokens.test.ts`, plus `.editor-paper`, `.page-sheet`, `.page-spacer`, `.document-ruler`, `.ruler-strip`, `.footnote-area`) and everything inside `@media print`. The count must equal the file's number in `src/layoutBudget.json`: above it fails, below it fails with "lower the budget to N", so the numbers only go down. (b) fails on any `z-index` of 10 or more that is not `var(--layer-*)`. (c) fails on a raw px value in `layout.css` other than 0, a 1 px hairline, or the 16 px divider length in `.bar-divider`. `tests/layout-invariants.spec.ts` asserts the relationships (shared ink edges, even rows, slot sizes, bar heights) with the helpers in `tests/layout-helpers.ts`; `tests/layout-gallery.spec.ts` (`GALLERY=1`) takes the before/after screenshots. The citation card's `z-index` 39 is still an inline literal in `src/App.tsx` (`--layer-card` exists for it).
+
 ## Separator
 
 A separator is one pixel of `--line`. `.separator` draws it: vertical (`role="separator"` with `aria-orientation="vertical"`) stretches to its row and takes no fixed height; the horizontal rule keeps its 17 px length. Never draw a separator as a border on the neighbouring element, because the neighbour then owns its colour and its hover.
@@ -84,7 +114,7 @@ Every menu and toolbar panel renders through `src/components/Popover.tsx` (`popo
 
 The format bar is icons only at every width. The width-based label switch, its threshold constant and its attribute are gone; so are the width cache and the re-measure when crossing a threshold. Icons keep their `aria-label` as the accessible name, for example "Bold (Cmd+B)".
 
-The bar's own gap between groups is 0: groups abut and a 1 px `--line` divider (3 px margins) marks each boundary. Inside a group icons sit 2 px apart. Toolbar icons are 28 px wide at `--control-height`, default to `--muted`, go to `--text` on hover, and to `--accent` when pressed (`aria-pressed="true"`); keyboard focus shows the focus ring, not a colour change. Weight and colour, never a fill (see States).
+Toolbar spacing comes from the layout primitives (see Layout primitives): the format bar is a `.bar.bar-main`, its groups have gap 0 (`.gap-0`) and abut, and a `.bar-divider` (1 px `--line`, 16 px tall, `--space-1` (4 px) each side, narrowed from 8 px so the whole toolbar still fits at 1440) marks each boundary; toolbar icons are `.slot-toolbar` slots, `--slot-toolbar-w` (28 px) wide at `--control-height` (layout-primitives T3: each group is a `.cluster.gap-0` whose first child is its `.bar-divider`, so the bar measures groups with their dividers; the end group is `.flush-end`, putting the last icon's ink at `--edge-main` from the bar's right edge; every toolbar popover body is a `.panel` and each labelled line a `.row` with its control in `.row-trail`). Toolbar icons default to `--muted`, go to `--text` on hover, and to `--accent` when pressed (`aria-pressed="true"`); keyboard focus shows the focus ring, not a colour change. Weight and colour, never a fill (see States).
 
 **Format-bar dropdowns have no box (wave 7, lane B).** The zoom, paragraph style (including the screenplay style dropdown in mono font) and font family dropdowns on the format bar draw no border and no fill (`.writer .format-bar .dropdown-button { border: 0 }` in `src/editor/editor.css`, scoped so dialogs and Settings keep their boxes). This also holds when the More menu carries them. Page setup's Paper size and Page margins sit inside the format bar but keep their 1 px box (`.writer .format-bar .toolbar-popover-body .dropdown-button`). Their wrappers keep fixed widths (74 and 104 px), so the bar does not move and the width table below is unchanged. Hover is the shared text emphasis; keyboard focus keeps the outline from `dropdown.css`. The font-size box with the + and - buttons is not changed. Covered by `tests/editor-toolbar.spec.ts` (computed border 0, transparent background, solid focus outline; More at 460 px; Page setup's 1 px box).
 
@@ -182,7 +212,7 @@ On `<html>`, System removes `data-theme`; Light and Dark set `data-theme="light"
 System follows macOS live. Explicit Light overrides the system dark media query. Dark declarations in the media block and `[data-theme="dark"]` block must match, ignoring `color-scheme`; `src/designTokens.test.ts` enforces parity.
 Settings > General provides Appearance (System, Light, Dark) and Palette (Plain, Color) segmented rows without helper captions. Cmd/Ctrl+Shift+L switches to the opposite effective Light/Dark appearance.
 There is one General block, defined once in `src/settings/GeneralSettings.tsx` and shown in two places: the Settings destination and a Settings dialog opened from the gear at the right of the Projects screen's display row. The dialog reuses the destination's field rules rather than a second layout, so the two cannot drift; it is 560 px wide to hold the 180 px label column and the 260 px control column, hides the block's own heading because the dialog title carries it, and drops the section's top rule and the page padding. The dialog carries the whole block, Shortcuts included, because Shortcuts is part of General; it is not a second, smaller settings screen. Escape or Close returns focus to the gear. Project settings -- Sidebar and Goals -- stay in the destination and never appear in the dialog.
-In Color, Section colours provides Manuscript, Fragments and Research swatch pickers. The eight swatches are stored additively in `folio.workspace.appearance`; their contrast-safe values follow the active light or dark mode, while the default blue, green and orange assignments preserve today's section tints. Plain hides the row and keeps the default interface colours.
+In Color, every header's right-click menu ends with a rule and one row of the eight swatches (T12: 24x24 `.slot` buttons, a 16px square of the swatch, the current one outlined 1px in the text colour with a 2px offset); colours are per project (`Project.headerColours` for Manuscript, Fragments and Research, `Project.groups[].colour` for custom headers), and the older app-wide values in `folio.workspace.appearance` are only a read-only fallback; their contrast-safe values follow the active light or dark mode, while the default blue, green and orange assignments preserve today's section tints. Plain hides the row and keeps the default interface colours.
 The owner's answered question 2 requires the Mac title bar to follow the choice through `getCurrentWindow().setTheme()` with `core:window:allow-set-theme`; System passes `null`. Browser builds do nothing for the title bar. Only native checks establish this behaviour.
 
 ## Sidebar
@@ -195,7 +225,7 @@ Selection is weight and colour, never a box. `App.tsx` computes `openIds`: the m
 
 - A lit **section heading** (`.sidebar-group[data-open] > .group-heading .group-title`, and `.group-title.selected`) is real bold (700) in `--text`, never tinted. In Color its icon keeps the section tint. An unlit heading is 500. The heading is a little wider when it turns bold; rows never change weight, so no row jumps.
 - A **row** (`.sidebar-groups .entry-main`) is 400 weight in `--muted` (dim) at rest. Hover, keyboard focus (`:has(:focus-visible)`, so a mouse click that leaves focus on a row does not keep it lit) and `data-open` take it to `--text`. A row is never bold, selected or not (`.entry-row.selected` is 400). Headings and rows are both `--type-body` (13 px); the hover and focus emphasis (see States) still sits on top.
-- Section headers read label, then view toggle and add (on hover or focus), then the chevron, rightmost; all chevrons share one column. The "+" on Manuscript and custom top-level sections is always visible (owner approved, HS9); their view toggles stay hover/focus-revealed. Bottom rows are each `--control-height` with a centred label.
+- Section headers read label, then view toggle and add (on hover or focus), then the chevron, rightmost; all chevrons share one column. The "+" on Manuscript and custom top-level headers is always visible (owner approved, HS9); their view toggles stay hover/focus-revealed. Bottom rows are each `--control-height` with a centred label.
 - The **bottom rows** (Read, Comments, History, Settings) keep their own look (600 in `--text` in Plain, the tint in Color, scoped by `.sidebar-bottom-groups`) and are not lit by `data-open`.
 - On a destination page (Settings, Comments, Bibliography, Read) no heading or row is lit. After a click on the Bibliography row and the pointer leaving, the row is dim again.
 - A pressed heading or row stays `--text` in both palettes.
@@ -342,7 +372,7 @@ A scrolling region that has more content beyond an edge fades that edge with a m
 
 ## Section colours and templates
 
-In Color, Settings > General shows the Section colours row (Manuscript, Fragments, Research swatch pickers); the row is hidden in Plain. Templates carry a `hidden` flag (`src/templates.ts`): Blank, Chicago and Screenplay are offered in the create menu and in Settings > Templates; Essay and Story are hidden but still openable by id, so projects created from them keep working.
+A custom header ("header" always means a top-level sidebar section; a later page feature is "Page header") has its own colour from the same eight swatches: its menu's swatch row sets `Project.groups[].colour`, drawn through `data-tint` on the group; unset it uses Manuscript's tint. Templates carry a `hidden` flag (`src/templates.ts`): Blank, Chicago and Screenplay are offered in the create menu and in Settings > Templates; Essay and Story are hidden but still openable by id, so projects created from them keep working.
 
 ## Bibliography and PDFs
 

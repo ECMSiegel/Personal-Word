@@ -1,0 +1,12 @@
+
+Running 6 tests using 1 worker
+
+T6 settings rows [{"name":"Appearance","h":32,"labelX":543,"controlX":735,"controlW":174.1875,"gapAbove":null},{"name":"Palette","h":32,"labelX":543,"controlX":735,"controlW":113.15625,"gapAbove":12},{"name":"Interface font","h":32,"labelX":543,"controlX":735,"controlW":432,"gapAbove":12},{"name":"Storage location","h":32,"labelX":543,"controlX":735,"controlW":88.890625,"gapAbove":null},{"name":"Total word goal","h":32,"labelX":543,"controlX":735,"controlW":72,"gapAbove":null},{"name":"Daily word goal","h":32,"labelX":543,"controlX":735,"controlW":72,"gapAbove":12},{"name":"Goal scope","h":32,"labelX":543,"controlX":735,"controlW":260,"gapAbove":12},{"name":"Goal day","h":32,"labelX":543,"controlX":735,"controlW":260,"gapAbove":12},{"name":"Deadline","h":32,"labelX":543,"controlX":735,"controlW":260,"gapAbove":12},{"name":"Export typeface","h":32,"labelX":543,"controlX":735,"controlW":260,"gapAbove":null},{"name":"Font size","h":32,"labelX":543,"controlX":735,"controlW":72,"gapAbove":12},{"name":"Line spacing","h":32,"labelX":543,"controlX":735,"controlW":260,"gapAbove":12},{"name":"Margins (inches)","h":32,"labelX":543,"controlX":735,"controlW":72,"gapAbove":12},{"name":"Page number position","h":32,"labelX":543,"controlX":735,"controlW":260,"gapAbove":null}]
+  ✓  1 tests/layout-invariants.spec.ts:258:3 › dialogs, forms, Settings, versions (T6) › T6: every Settings row is 32 tall, 12 apart, with one label column and one control column (7.6s)
+  ✓  2 tests/layout-invariants.spec.ts:298:3 › dialogs, forms, Settings, versions (T6) › T6: Capture quote, Import preview and Projects Settings keep their buttons 16 apart at the right (6.4s)
+  ✓  3 tests/layout-invariants.spec.ts:326:3 › dialogs, forms, Settings, versions (T6) › T6: a versions row's title and date are 4 px apart (3.8s)
+  ✓  4 tests/layout-invariants.spec.ts:339:3 › dialogs, forms, Settings, versions (T6) › T6: a dialog is a 24 px stack inside 32 px padding, with its actions at the end (3.2s)
+  ✓  5 tests/tmp-t6-look.spec.ts:9:3 › T6 look light (12.9s)
+  ✓  6 tests/tmp-t6-look.spec.ts:9:3 › T6 look dark (16.0s)
+
+  6 passed (54.3s)

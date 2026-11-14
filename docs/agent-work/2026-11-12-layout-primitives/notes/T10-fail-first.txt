@@ -1,0 +1,122 @@
+
+Running 4 tests using 1 worker
+
+  ✘  1 tests/t10-dropdown-label.spec.ts:28:1 › Projects-page Sort stays closed after a mouse pick (13.0s)
+  ✘  2 tests/t10-dropdown-label.spec.ts:42:1 › Read manuscript Font stays closed after a mouse pick (10.6s)
+  ✘  3 tests/t10-dropdown-label.spec.ts:50:1 › Export typeface stays closed after a mouse pick (11.1s)
+  ✓  4 tests/t10-dropdown-label.spec.ts:59:1 › keyboard choice still closes the list and returns focus to the trigger (4.8s)
+
+
+  1) tests/t10-dropdown-label.spec.ts:28:1 › Projects-page Sort stays closed after a mouse pick ────
+
+    Error: expect(locator).toHaveCount(expected) failed
+
+    Locator:  getByRole('option')
+    Expected: 0
+    Received: 3
+    Timeout:  5000ms
+
+    Call log:
+      - Expect "toHaveCount" getByRole('option') with timeout 5000ms
+      - waiting for getByRole('option')
+        14 × locator resolved to 3 elements
+           - unexpected value "3"
+
+
+      21 |   await option.click();
+      22 |   await page.waitForTimeout(700); // close animation, and any re-open
+    > 23 |   await expect(page.getByRole("option")).toHaveCount(0);
+         |                                          ^
+      24 |   await expect(trigger).toContainText(text);
+      25 |   await expect(trigger).toHaveAttribute("aria-expanded", "false");
+      26 | }
+        at mousePick (/Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/tests/t10-dropdown-label.spec.ts:23:42)
+        at /Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/tests/t10-dropdown-label.spec.ts:39:3
+
+    Error Context: test-results/T314/t10-dropdown-label-Project-c8540-s-closed-after-a-mouse-pick/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/T314/t10-dropdown-label-Project-c8540-s-closed-after-a-mouse-pick/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/T314/t10-dropdown-label-Project-c8540-s-closed-after-a-mouse-pick/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/t10-dropdown-label.spec.ts:42:1 › Read manuscript Font stays closed after a mouse pick ──
+
+    Error: expect(locator).toHaveCount(expected) failed
+
+    Locator:  getByRole('option')
+    Expected: 0
+    Received: 4
+    Timeout:  5000ms
+
+    Call log:
+      - Expect "toHaveCount" getByRole('option') with timeout 5000ms
+      - waiting for getByRole('option')
+        14 × locator resolved to 4 elements
+           - unexpected value "4"
+
+
+      21 |   await option.click();
+      22 |   await page.waitForTimeout(700); // close animation, and any re-open
+    > 23 |   await expect(page.getByRole("option")).toHaveCount(0);
+         |                                          ^
+      24 |   await expect(trigger).toContainText(text);
+      25 |   await expect(trigger).toHaveAttribute("aria-expanded", "false");
+      26 | }
+        at mousePick (/Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/tests/t10-dropdown-label.spec.ts:23:42)
+        at /Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/tests/t10-dropdown-label.spec.ts:47:3
+
+    Error Context: test-results/T314/t10-dropdown-label-Read-ma-4d0c5-s-closed-after-a-mouse-pick/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/T314/t10-dropdown-label-Read-ma-4d0c5-s-closed-after-a-mouse-pick/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/T314/t10-dropdown-label-Read-ma-4d0c5-s-closed-after-a-mouse-pick/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) tests/t10-dropdown-label.spec.ts:50:1 › Export typeface stays closed after a mouse pick ───────
+
+    Error: expect(locator).toHaveCount(expected) failed
+
+    Locator:  getByRole('option')
+    Expected: 0
+    Received: 3
+    Timeout:  5000ms
+
+    Call log:
+      - Expect "toHaveCount" getByRole('option') with timeout 5000ms
+      - waiting for getByRole('option')
+        14 × locator resolved to 3 elements
+           - unexpected value "3"
+
+
+      21 |   await option.click();
+      22 |   await page.waitForTimeout(700); // close animation, and any re-open
+    > 23 |   await expect(page.getByRole("option")).toHaveCount(0);
+         |                                          ^
+      24 |   await expect(trigger).toContainText(text);
+      25 |   await expect(trigger).toHaveAttribute("aria-expanded", "false");
+      26 | }
+        at mousePick (/Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/tests/t10-dropdown-label.spec.ts:23:42)
+        at /Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/tests/t10-dropdown-label.spec.ts:56:3
+
+    Error Context: test-results/T314/t10-dropdown-label-Export--afd1f-s-closed-after-a-mouse-pick/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/T314/t10-dropdown-label-Export--afd1f-s-closed-after-a-mouse-pick/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/T314/t10-dropdown-label-Export--afd1f-s-closed-after-a-mouse-pick/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3 failed
+    tests/t10-dropdown-label.spec.ts:28:1 › Projects-page Sort stays closed after a mouse pick ─────
+    tests/t10-dropdown-label.spec.ts:42:1 › Read manuscript Font stays closed after a mouse pick ───
+    tests/t10-dropdown-label.spec.ts:50:1 › Export typeface stays closed after a mouse pick ────────
+  1 passed (50.1s)

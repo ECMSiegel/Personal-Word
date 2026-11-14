@@ -15,7 +15,7 @@ export function PaneFooter({
   side?: "left" | "right" | "single";
 }) {
   return (
-    <footer className="pane-footer" data-side={side}>
+    <footer className="pane-footer bar bar-compact bar-main" data-side={side}>
       {status && (
         <span aria-label="Page count" aria-live="polite">
           Section page {status.current} of {status.total}

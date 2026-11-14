@@ -1,0 +1,141 @@
+
+Running 5 tests using 1 worker
+
+  ✓  1 tests/layout-invariants.spec.ts:25:3 › sidebar (T2) › T2: title, search icon, heading icons, row icons and the add row share one left ink edge (5.9s)
+  ✓  2 tests/layout-invariants.spec.ts:44:3 › sidebar (T2) › T2: heading and row action icons are 24x24 slots in shared right-hand columns (6.2s)
+  ✓  3 tests/layout-invariants.spec.ts:78:3 › sidebar (T2) › T2: no heading label is truncated at 190px (4.2s)
+  ✓  4 tests/layout-invariants.spec.ts:105:3 › sidebar (T2) › T2: hovering a heading does not move its + or chevron, and the view toggle is reachable by keyboard (4.3s)
+  -  5 tests/layout-invariants.spec.ts:452:8 › slots (T2, T3) › T2/T3: every .slot is 24 x 24 and every .slot-toolbar 28 x 32
+
+  1 skipped
+  4 passed (23.3s)
+
+Running 1 test using 1 worker
+
+  ✓  1 tests/zz-t306-shots.spec.ts:4:1 › shots (6.1s)
+
+  1 passed (9.9s)
+
+Running 73 tests using 1 worker
+
+  ✓   1 tests/accessibility.spec.ts:21:1 › dropdown listbox owns keyboard focus and returns it on Escape or selection (5.9s)
+  ✓   2 tests/accessibility.spec.ts:64:1 › dropdown closes on Tab and its menu stays inside a compact viewport (5.4s)
+  ✓   3 tests/accessibility.spec.ts:93:1 › page layout measurement preserves the editor element and undo history (4.7s)
+  ✓   4 tests/accessibility.spec.ts:117:1 › an overlong page footnote offers a keyboard-operated continuous view (4.8s)
+  ✓   5 tests/alignment.spec.ts:41:1 › sidebar labels at one depth start at one x (2.4s)
+  ✓   6 tests/alignment.spec.ts:83:1 › every icon button reaches a 24 x 24 target (2.5s)
+  ✓   7 tests/alignment.spec.ts:121:1 › counters ask for tabular figures (2.4s)
+  ✓   8 tests/alignment.spec.ts:138:1 › toolbar icon ink sits at its button centre (2.4s)
+  ✓   9 tests/alignment.spec.ts:200:1 › a separator draws one pixel of the line colour (2.3s)
+  ✓  10 tests/alignment.spec.ts:254:1 › hit-area rule leaves absolutely placed buttons absolute (2.9s)
+  ✓  11 tests/alignment.spec.ts:337:3 › sidebar bottom row and pane footer form one band (single) (2.0s)
+  ✓  12 tests/alignment.spec.ts:337:3 › sidebar bottom row and pane footer form one band (split) (3.0s)
+  ✓  13 tests/alignment.spec.ts:455:3 › every list row starts with a 16 px icon and one label x at 190 px (4.8s)
+  ✓  14 tests/alignment.spec.ts:455:3 › every list row starts with a 16 px icon and one label x at 270 px (5.0s)
+  ✓  15 tests/alignment.spec.ts:455:3 › every list row starts with a 16 px icon and one label x at 390 px (5.7s)
+  ✓  16 tests/alignment.spec.ts:513:1 › floating sidebar: with 40 notes the list ends above the bottom rows (3.7s)
+  ✓  17 tests/alignment.spec.ts:573:1 › T6 record: split view sidebar placement, pinned and overlay, at 1280 and 1600 (7.5s)
+  ✓  18 tests/features.spec.ts:8:1 › daily goal shows progress in the status line (3.1s)
+  ✓  19 tests/features.spec.ts:20:1 › exports the project as Markdown (4.0s)
+  ✓  20 tests/features.spec.ts:44:1 › projects default startup, tabs, sidebar cards, and durable formatting (5.6s)
+  ✓  21 tests/features.spec.ts:72:1 › research notes, footnote insertion, comments, and export route (4.7s)
+  ✓  22 tests/features.spec.ts:119:1 › page layout stacks long paragraphs vertically and preserves undo and formatting (6.1s)
+  ✓  23 tests/features.spec.ts:160:1 › invalid extended-year goal deadlines never replace the saved deadline (4.7s)
+  ✓  24 tests/features.spec.ts:179:1 › Settings has no paragraph captions under the startup or goals controls (3.0s)
+  ✓  25 tests/features.spec.ts:189:1 › Settings Goals pickers use the interface font and square corners (5.0s)
+H1 inventory: 1194 controls (589 text) over 20 screens
+Projects (empty)
+Projects
+Writing
+Writing (sections in sidebar)
+Writing (page view)
+Dialog: Page setup
+Dialog: Snapshot name
+Fragments panel
+Research (empty)
+Research (source with PDF)
+Research
+Research (Notes)
+Comments
+History
+Read manuscript
+Settings
+Settings: Shortcuts region
+Split view
+Projects (with a project)
+Projects(lib)
+not crawled / skipped:
+
+H3 un-hoverable controls: 10
+Research (empty) | aside.research-aside > section.research-panel.stack > details.citation-rules > label.check.cluster | Shorten repeat citations automatically
+Research (empty) | aside.research-aside > section.research-panel.stack > details.citation-rules > label.check.cluster | Use repeat citation rules
+Research (source with PDF) | div.research-fields > div.field.source-pdf-field > div.item-actions > button | Open beside
+Research (source with PDF) | div.research-fields > div.field.source-pdf-field > div.item-actions > button.is-danger | Remove PDF
+Research (source with PDF) | aside.research-aside > section.research-panel.stack > details.citation-rules > label.check.cluster | Shorten repeat citations automatically
+Research (source with PDF) | aside.research-aside > section.research-panel.stack > details.citation-rules > label.check.cluster | Use repeat citation rules
+Research (popup 0) | div.research-fields > div.field.source-pdf-field > div.item-actions > button | Open beside
+Research (popup 0) | div.research-fields > div.field.source-pdf-field > div.item-actions > button.is-danger | Remove PDF
+Research (popup 0) | aside.research-aside > section.research-panel.stack > details.citation-rules > label.check.cluster | Shorten repeat citations automatically
+Research (popup 0) | aside.research-aside > section.research-panel.stack > details.citation-rules > label.check.cluster | Use repeat citation rules
+H3 exceptions: 0
+
+  ✓  26 tests/hover-emphasis.spec.ts:160:1 › hover inventory: crawl controls across screens (1.5m)
+H2 create menu row: stroke 0.3px scale 1 width 218->218 neighbour shifts 0,0,0,0,0
+H2 Snapshot: stroke 0.3px scale 1 width 74->74 neighbour shifts 0,0
+H2 Projects tab: stroke 0.3px scale 1 width 67->67 neighbour shifts 0
+H2 sidebar entry: stroke 0.3px scale 1 width 229->229 neighbour shifts 0
+H2 Delete note: stroke 0.3px scale 1 width 68->68 neighbour shifts 
+H2 settings button: stroke 0.3px scale 1 width 90->90 neighbour shifts 0,0
+H2 settings checkbox label: stroke 0.3px scale 1 width 624->624 neighbour shifts 0,0,0
+  ✓  27 tests/hover-emphasis.spec.ts:412:1 › H2 emphasis: no-shift faux bold and no grow on hover (9.9s)
+  ✓  28 tests/hover-emphasis.spec.ts:464:1 › H5 emphasis never touches links inside the document (editor and Read view) (3.8s)
+H2 dialog Cancel: stroke 0.3px scale 1 width 73->73 neighbour shifts 0
+H2 dialog Save: stroke 0.3px scale 1 width 59->59 neighbour shifts 0
+  ✓  29 tests/hover-emphasis.spec.ts:506:1 › H4 emphasis: Reduce Motion, danger colour and the drift probe (6.6s)
+  ✓  30 tests/hs9-top-level-sections.spec.ts:47:1 › add, fill, rename, reload, read, export, move into, delete a top-level section (13.6s)
+  ✓  31 tests/hs9-top-level-sections.spec.ts:122:1 › rename Manuscript and restore the default; empty sidebar space and palette add a section (6.9s)
+  ✓  32 tests/hs9-top-level-sections.spec.ts:166:1 › the row More button shifts nothing and overlaps neither the title nor the split icon (3.6s)
+  ✓  33 tests/hs9-top-level-sections.spec.ts:194:1 › restoring a snapshot taken before a heading move: sidebar order equals Read and export order (7.1s)
+  ✓  34 tests/hs9-top-level-sections.spec.ts:232:1 › hovering a card with body text moves no other card (11.1s)
+  ✓  35 tests/hs9-top-level-sections.spec.ts:262:1 › a custom header's colour is set from its menu, survives a reload and shows on its icon (7.4s)
+  ✓  36 tests/popover-bounds.spec.ts:57:1 › research menus stay inside the research aside scroll container (5.4s)
+  ✓  37 tests/popover-bounds.spec.ts:100:1 › a menu in the 390 px research aside keeps the Dropdown's 320 px max-width (3.5s)
+  ✓  38 tests/popover-bounds.spec.ts:131:1 › repeat-rule menus stay inside a narrow research aside (3.0s)
+  ✓  39 tests/popover-bounds.spec.ts:164:1 › cards-view status dropdown stays inside the sidebar scroll container (2.4s)
+  ✓  40 tests/popover-bounds.spec.ts:179:1 › toolbar popovers keep their recorded untouched-tree placement (8.9s)
+  ✓  41 tests/sidebar-selection.spec.ts:61:1 › dragging across plain sidebar heading text does not select chrome (2.5s)
+  ✓  42 tests/sidebar-selection.spec.ts:79:1 › search, rename, editor, and prose preview text remain selectable (6.4s)
+  ✓  43 tests/sidebar-selection.spec.ts:167:1 › sidebar drag, resize, collapse, pin, and keyboard controls still work (5.5s)
+  ✓  44 tests/sidebar-selection.spec.ts:234:1 › at the 190 px minimum sidebar width every row stays on one line (2.2s)
+  ✓  45 tests/sidebar-selection.spec.ts:340:1 › bottom rows keep their fixed order and carry no hover actions (2.3s)
+  ✓  46 tests/sidebar-selection.spec.ts:370:1 › Option+Down on the last top group leaves the order and says it is already last (2.1s)
+  ✓  47 tests/sidebar-selection.spec.ts:386:1 › a hidden feature row leaves the sidebar, survives reload, and stays per project (4.6s)
+  ✓  48 tests/sidebar-selection.spec.ts:485:1 › W7 Plain: active heading is bold normal text; rows stay regular and reveal full colour (5.1s)
+  ✓  49 tests/sidebar-selection.spec.ts:553:3 › W7 Plain: nothing in the three sections is lit while Comments is on screen (3.5s)
+  ✓  50 tests/sidebar-selection.spec.ts:553:3 › W7 Plain: nothing in the three sections is lit while Read manuscript is on screen (3.6s)
+  ✓  51 tests/sidebar-selection.spec.ts:566:1 › W7 Plain: a clicked Bibliography row goes dim once the pointer leaves, and nothing in the three sections is lit (3.7s)
+  ✓  52 tests/sidebar-selection.spec.ts:581:1 › W7 resize handles stay unpainted on hover and retain keyboard focus cues (4.3s)
+  ✓  53 tests/sidebar-selection.spec.ts:622:5 › B1 plain light: split panes light their own sections; a source PDF lights Research (7.2s)
+  ✓  54 tests/sidebar-selection.spec.ts:622:5 › B1 plain dark: split panes light their own sections; a source PDF lights Research (6.6s)
+  ✓  55 tests/sidebar-selection.spec.ts:622:5 › B1 color light: split panes light their own sections; a source PDF lights Research (10.9s)
+  ✓  56 tests/sidebar-selection.spec.ts:622:5 › B1 color dark: split panes light their own sections; a source PDF lights Research (13.9s)
+  ✓  57 tests/sidebar-selection.spec.ts:695:1 › W7 T244: after the Manuscript heading, a fragment on screen leaves only Fragments bold (5.5s)
+  ✓  58 tests/sidebar-selection.spec.ts:769:5 › T6 plain @190px: heading actions in flow, no fill, clear of labels (2.8s)
+  ✓  59 tests/sidebar-selection.spec.ts:769:5 › T6 plain @240px: heading actions in flow, no fill, clear of labels (2.6s)
+  ✓  60 tests/sidebar-selection.spec.ts:769:5 › T6 plain @270px: heading actions in flow, no fill, clear of labels (2.7s)
+  ✓  61 tests/sidebar-selection.spec.ts:769:5 › T6 plain @390px: heading actions in flow, no fill, clear of labels (2.7s)
+  ✓  62 tests/sidebar-selection.spec.ts:769:5 › T6 color @190px: heading actions in flow, no fill, clear of labels (2.3s)
+  ✓  63 tests/sidebar-selection.spec.ts:769:5 › T6 color @240px: heading actions in flow, no fill, clear of labels (2.3s)
+  ✓  64 tests/sidebar-selection.spec.ts:769:5 › T6 color @270px: heading actions in flow, no fill, clear of labels (2.2s)
+  ✓  65 tests/sidebar-selection.spec.ts:769:5 › T6 color @390px: heading actions in flow, no fill, clear of labels (2.4s)
+  ✓  66 tests/sidebar-selection.spec.ts:809:3 › sidebar row and header geometry (W7 T247) › bottom rows sit evenly between their dividers and share one icon and label column (2.8s)
+  ✓  67 tests/sidebar-selection.spec.ts:850:3 › sidebar row and header geometry (W7 T247) › a bottom group's own list stacks below its heading, inside the sidebar (3.8s)
+  ✓  68 tests/sidebar-selection.spec.ts:873:3 › sidebar row and header geometry (W7 T247) › the split icon keeps one token gap from the rail in every list row (3.7s)
+  ✓  69 tests/sidebar-selection.spec.ts:919:3 › sidebar row and header geometry (W7 T247) › section chevrons share one right-hand column, stay rightmost, and ignore the revealed view and add buttons (2.7s)
+  ✓  70 tests/w9-cards.spec.ts:82:3 › cards fit the list, research cards are rows, and the open-beside icon is inset at 220 px (5.8s)
+  ✓  71 tests/w9-cards.spec.ts:82:3 › cards fit the list, research cards are rows, and the open-beside icon is inset at 254 px (6.3s)
+  ✓  72 tests/w9-cards.spec.ts:82:3 › cards fit the list, research cards are rows, and the open-beside icon is inset at 420 px (7.7s)
+  ✓  73 tests/w9-cards.spec.ts:173:1 › an empty card hides its boxes at rest and on hover, shows them when opened or focused, and a card with a synopsis always shows them (7.8s)
+
+  73 passed (7.4m)
+FINISHED

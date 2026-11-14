@@ -1,0 +1,237 @@
+
+Running 162 tests using 1 worker
+
+  ✓    1 tests/alignment.spec.ts:41:1 › sidebar labels at one depth start at one x (4.2s)
+  ✓    2 tests/alignment.spec.ts:83:1 › every icon button reaches a 24 x 24 target (5.9s)
+  ✓    3 tests/alignment.spec.ts:121:1 › counters ask for tabular figures (2.3s)
+  ✓    4 tests/alignment.spec.ts:138:1 › toolbar icon ink sits at its button centre (2.8s)
+  ✓    5 tests/alignment.spec.ts:200:1 › a separator draws one pixel of the line colour (4.5s)
+  ✘    6 tests/alignment.spec.ts:254:1 › hit-area rule leaves absolutely placed buttons absolute (5.4s)
+  ✓    7 tests/alignment.spec.ts:336:3 › sidebar bottom row and pane footer form one band (single) (2.6s)
+  ✓    8 tests/alignment.spec.ts:336:3 › sidebar bottom row and pane footer form one band (split) (3.4s)
+  ✓    9 tests/alignment.spec.ts:454:3 › every list row starts with a 16 px icon and one label x at 190 px (5.5s)
+  ✓   10 tests/alignment.spec.ts:454:3 › every list row starts with a 16 px icon and one label x at 270 px (5.3s)
+  ✓   11 tests/alignment.spec.ts:454:3 › every list row starts with a 16 px icon and one label x at 390 px (5.8s)
+  ✓   12 tests/alignment.spec.ts:512:1 › floating sidebar: with 40 notes the list ends above the bottom rows (3.3s)
+  ✓   13 tests/alignment.spec.ts:572:1 › T6 record: split view sidebar placement, pinned and overlay, at 1280 and 1600 (6.2s)
+  ✓   14 tests/drag-reorder.spec.ts:42:1 › dragging Fragments above Manuscript reorders the groups and the order survives a reload (4.0s)
+  ✓   15 tests/drag-reorder.spec.ts:78:1 › dragging an entry below its sibling reorders the manuscript and persists (4.9s)
+  ✓   16 tests/drag-reorder.spec.ts:97:1 › a drag that ends on its own slot, or is cancelled with Escape, changes nothing (3.6s)
+  ✓   17 tests/drag-reorder.spec.ts:110:1 › a press that barely moves is still a click (3.7s)
+  ✓   18 tests/drag-reorder.spec.ts:122:1 › Option+Up/Down reorders groups and sections from the keyboard (3.1s)
+  ✓   19 tests/drag-reorder.spec.ts:134:1 › under reduced motion, rows that step aside do not animate (2.4s)
+  ✓   20 tests/drag-reorder.spec.ts:147:1 › without reduced motion, the shifted row animates transform only (2.7s)
+  ✓   21 tests/drag-reorder.spec.ts:160:1 › a press released outside the row does not leave the row armed (3.9s)
+  ✓   22 tests/drag-reorder.spec.ts:247:1 › the sidebar has no move arrow buttons anywhere (3.9s)
+  ✓   23 tests/drag-reorder.spec.ts:263:1 › dragging a fragment reorders the fragments and persists (5.6s)
+  ✓   24 tests/drag-reorder.spec.ts:275:1 › dragging a source carries its PDF row, dragging a note reorders notes, and both persist (7.6s)
+  ✓   25 tests/drag-reorder.spec.ts:315:1 › Option+Down moves a fragment, a source, a note, a section and a group; focus stays and the move is announced (12.5s)
+  ✓   26 tests/drag-reorder.spec.ts:385:1 › with a search query the chord moves the focused fragment past its visible neighbour (7.1s)
+  ✓   27 tests/drag-reorder.spec.ts:400:1 › a repeated announcement is re-read: the live region text is rewritten on the second press (4.9s)
+  ✓   28 tests/floating.spec.ts:91:3 › floating sidebar › off by default: the normal panel (2.4s)
+  ✓   29 tests/floating.spec.ts:98:3 › floating sidebar › page view at 100 %: bare text in the left margin, clear of the sheet (3.9s)
+  ✓   30 tests/floating.spec.ts:123:3 › floating sidebar › UI wave 7 C: at one window size the floating contents line up with the docked ones (5.5s)
+  ✓   31 tests/floating.spec.ts:170:3 › floating sidebar › a tight margin narrows the sidebar and still keeps the gap (5.7s)
+  ✓   32 tests/floating.spec.ts:187:3 › floating sidebar › continuous view: clear of the text column (5.0s)
+  ✓   33 tests/floating.spec.ts:196:3 › floating sidebar › a narrow window falls back to the normal panel (8.0s)
+  ✓   34 tests/floating.spec.ts:209:3 › floating sidebar › a 1100 px window: continuous view floats and stays clear, page view keeps the panel (5.5s)
+  ✓   35 tests/floating.spec.ts:223:3 › floating sidebar › page view at 150 % falls back, and floats again at 100 % (5.6s)
+  ✓   36 tests/floating.spec.ts:237:3 › floating sidebar › Toggle sidebar, pin, hover reveal and Escape keep working (4.9s)
+  ✓   37 tests/floating.spec.ts:286:3 › floating sidebar › unpinned: a slow 1 px pointer walk across the gap keeps the sidebar revealed (7.8s)
+  ✓   38 tests/floating.spec.ts:305:3 › floating sidebar › unpinned: z-index 4 and a format-bar menu paints above the sidebar (12.5s)
+  ✓   39 tests/floating.spec.ts:344:3 › floating sidebar › Reduce Motion: revealing has no transition (3.7s)
+  ✓   40 tests/floating.spec.ts:357:3 › floating sidebar › split view falls back to the panel (7.6s)
+  ✓   41 tests/floating.spec.ts:377:3 › floating sidebar › a destination page falls back to the panel (5.5s)
+  ✓   42 tests/floating.spec.ts:386:3 › floating sidebar › focus mode: the sidebar starts below the toolbar reveal band (6.1s)
+  ✓   43 tests/floating.spec.ts:425:3 › floating sidebar: Read manuscript › starts at the top of the reading area, shows the Manuscript heading, clear of the text, stays put on scroll (10.0s)
+  ✓   44 tests/floating.spec.ts:459:3 › floating sidebar: Read manuscript › a narrow window falls back to the normal panel (14.4s)
+  ✓   45 tests/floating.spec.ts:471:3 › floating sidebar screenshots › light/dark, Plain/Color, page/continuous (30.7s)
+  ✓   46 tests/floating.spec.ts:610:3 › citation card › the Research heading opens the card at the top right, clear of the page and the bars (6.1s)
+  ✓   47 tests/floating.spec.ts:643:3 › citation card › no drift: DOI -> preview -> Cite here stores what the panel stores (12.1s)
+  ✓   48 tests/floating.spec.ts:687:3 › citation card › Add another gives an empty lookup with focus (7.6s)
+  ✓   49 tests/floating.spec.ts:704:3 › citation card › a footnote number opens its card; Page edits the locator; Escape returns to the editor (7.9s)
+  ✓   50 tests/floating.spec.ts:728:3 › citation card › the card's link opens the full panel with the source expanded; its X closes it (6.3s)
+  ✓   51 tests/floating.spec.ts:742:3 › citation card › source and note rows in the sidebar open the full panel (7.6s)
+  ✓   52 tests/floating.spec.ts:751:3 › citation card › a narrow window falls back to the research panel (5.0s)
+  ✓   53 tests/floating.spec.ts:759:3 › citation card › narrowing the window while the card is open swaps it for the panel (5.8s)
+  ✓   54 tests/floating.spec.ts:890:3 › citation card › floating off: the research panel as before (9.4s)
+  ✓   55 tests/floating.spec.ts:898:3 › citation card › Reduce Motion: the card opens without a transition (11.3s)
+  ✓   56 tests/floating.spec.ts:908:3 › citation card › keyboard only: manual entry, Cite here, Add another, Escape returns focus (14.2s)
+  ✓   57 tests/floating.spec.ts:957:3 › citation card › focus mode: the card sits below the reveal band and the revealed toolbar does not cover it (8.4s)
+  ✓   58 tests/floating.spec.ts:977:3 › citation card › split view: the heading and a footnote number open the panel (8.3s)
+  ✓   59 tests/floating.spec.ts:1008:3 › citation card screenshots › card states in light/dark, Plain/Color (45.2s)
+  ✓   60 tests/floating.spec.ts:1075:5 › floating sidebar: zoomed continuous view › continuous view at 125 %: never over the text, same state resizing up and down (35.2s)
+  ✓   61 tests/floating.spec.ts:1075:5 › floating sidebar: zoomed continuous view › continuous view at 150 %: never over the text, same state resizing up and down (34.5s)
+  ✓   62 tests/hs4-sidebar-align.spec.ts:22:1 › docked sidebar title and search line up with the top bar and format bar (4.0s)
+  ✓   63 tests/hs4-sidebar-align.spec.ts:33:1 › narrow docked sidebar keeps the same lines (5.0s)
+  ✓   64 tests/hs4-sidebar-align.spec.ts:46:1 › floating sidebar title position is unchanged (3.2s)
+  ✓   65 tests/hs9-top-level-sections.spec.ts:47:1 › add, fill, rename, reload, read, export, move into, delete a top-level section (17.1s)
+  ✓   66 tests/hs9-top-level-sections.spec.ts:122:1 › rename Manuscript and restore the default; empty sidebar space and palette add a section (9.4s)
+  ✓   67 tests/hs9-top-level-sections.spec.ts:166:1 › the row More button shifts nothing and overlaps neither the title nor the split icon (3.5s)
+  ✓   68 tests/hs9-top-level-sections.spec.ts:193:1 › restoring a snapshot taken before a heading move: sidebar order equals Read and export order (6.7s)
+  ✓   69 tests/hs9-top-level-sections.spec.ts:231:1 › hovering a card with body text moves no other card (14.2s)
+  ✓   70 tests/layout-invariants.spec.ts:25:3 › sidebar (T2) › T2: title, search icon, heading icons, row icons and the add row share one left ink edge (4.5s)
+  ✓   71 tests/layout-invariants.spec.ts:44:3 › sidebar (T2) › T2: heading and row action icons are 24x24 slots in shared right-hand columns (3.7s)
+T2 positions {
+ "width": 270,
+ "title": 16,
+ "search": [
+  "16..32"
+ ],
+ "headingIcons": [
+  "16..32",
+  "16..32",
+  "16..32",
+  "16..32"
+ ],
+ "rowIcon": [
+  "16..32"
+ ],
+ "addRow": [
+  "16..32"
+ ],
+ "headingTrail": [
+  "189..205",
+  "213..229",
+  "238..252"
+ ],
+ "rowTrail": [
+  "189..205",
+  "213..229"
+ ],
+ "rail": [
+  "237..253"
+ ],
+ "heights": [
+  ".sidebar-title-row 40",
+  ".search 40",
+  ".group-heading 32",
+  ".entry-main 32",
+  ".add-top-section 32"
+ ]
+}
+  ✓   72 tests/layout-invariants.spec.ts:78:3 › sidebar (T2) › T2: report positions (3.8s)
+  ✓   73 tests/scrollspy.spec.ts:64:1 › (a) Read mode: the line follows the reading position; a line click eases there; Reduce Motion is instant (8.3s)
+  ✓   74 tests/scrollspy.spec.ts:118:1 › (b) Write mode: the open section's line is active; a section open beside is half-expanded (6.3s)
+  ✓   75 tests/scrollspy.spec.ts:144:1 › (c) hover or keyboard focus on a row expands its line; the keyboard change is not animated (7.7s)
+  ✓   76 tests/scrollspy.spec.ts:176:1 › (d) the lines hide with a hover-reveal sidebar (6.9s)
+  ✓   77 tests/scrollspy.spec.ts:195:1 › (e, f) a dragged row keeps the rail in row order; collapsing Manuscript removes the rail (6.7s)
+  ✓   78 tests/scrollspy.spec.ts:206:1 › (g) at the 190 px sidebar the heading and titles stay readable (labels fit or ellipsize) (5.7s)
+  ✓   79 tests/scrollspy.spec.ts:243:1 › (h) cards view draws no lines and no gutter (4.9s)
+  ✓   80 tests/scrollspy.spec.ts:256:5 › screens: plain light, single, split and Read (7.9s)
+  ✓   81 tests/scrollspy.spec.ts:256:5 › screens: plain dark, single, split and Read (8.8s)
+  ✓   82 tests/scrollspy.spec.ts:256:5 › screens: color light, single, split and Read (8.7s)
+  ✓   83 tests/scrollspy.spec.ts:256:5 › screens: color dark, single, split and Read (9.8s)
+  ✓   84 tests/scrollspy.spec.ts:346:1 › (i) Fragments and Research rows have lines with idle/open/active states and a 24 px gutter (9.7s)
+  ✓   85 tests/scrollspy.spec.ts:392:1 › (j) lines grow toward the pointer with a cosine falloff; keyboard focus magnifies at once (6.4s)
+  ✓   86 tests/scrollspy.spec.ts:444:1 › (p) hovering a row magnifies its line and neighbours as the pointer on the line does; leaving drops it (6.5s)
+  ✓   87 tests/scrollspy.spec.ts:470:1 › (q) Reduce Motion: hovering a row does not magnify its line (5.8s)
+  ✓   88 tests/scrollspy.spec.ts:488:1 › (k) Write mode: the active line fills as the open section or fragment scrolls (continuous and page view) (11.4s)
+  ✓   89 tests/scrollspy.spec.ts:526:1 › (l) Read mode: the active line fills through its section (7.8s)
+  ✓   90 tests/scrollspy.spec.ts:555:1 › (m) Reduce Motion: no magnify; hover and focus fall back to the half-length line (4.2s)
+  ✓   91 tests/scrollspy.spec.ts:576:1 › (n) cards view of Fragments and Research draws no lines and no gutter (4.2s)
+  ✓   92 tests/scrollspy.spec.ts:589:1 › (o) at the 190 px sidebar idle lines are unchanged and Fragments/Research labels stay readable (6.3s)
+  ✓   93 tests/scrollspy.spec.ts:646:1 › T7b: clicking the second line opens the second section; Enter and Space on a focused line do the same (8.6s)
+  ✓   94 tests/scrollspy.spec.ts:660:1 › T7b: hover or focus on a line shows no preview card (owner removed it 2026-11-03) (10.7s)
+  ✓   95 tests/scrollspy.spec.ts:675:1 › T7b: lines are evenly spaced (+/-1 px) in each group, single and split (9.0s)
+  ✓   96 tests/sidebar-context-menu.spec.ts:98:1 › right-click on a section opens the menu at the pointer; Escape returns focus to the row (2.8s)
+  ✓   97 tests/sidebar-context-menu.spec.ts:135:1 › Shift+F10 and the ContextMenu key open it on the focused row; arrows, Home/End and Enter work (3.6s)
+  ✓   98 tests/sidebar-context-menu.spec.ts:180:1 › Open, Open beside, Rename and Delete from a section and a fragment (7.8s)
+  ✓   99 tests/sidebar-context-menu.spec.ts:225:1 › group heading: Collapse/Expand, Move up, Move down (3.8s)
+  ✓  100 tests/sidebar-context-menu.spec.ts:253:1 › research rows: source, PDF, note and Bibliography items; moves are announced (7.8s)
+  ✓  101 tests/sidebar-context-menu.spec.ts:290:1 › the menu stays inside the window near its edges (3.0s)
+  ✓  102 tests/sidebar-context-menu.spec.ts:311:1 › a right-click in the editor gets no sidebar menu (2.9s)
+  ✓  103 tests/sidebar-context-menu.spec.ts:320:1 › Reduce Motion: a pointer-opened menu is instant (2.4s)
+  ✓  104 tests/sidebar-context-menu.spec.ts:356:3 › floating sidebar › floating: no separators above the bottom rows; the menu still opens at the pointer (2.8s)
+  ✓  105 tests/sidebar-context-menu.spec.ts:370:3 › floating sidebar › normal: the separators stay above Comments, History and Settings (2.8s)
+  ✓  106 tests/sidebar-context-menu.spec.ts:385:3 › floating sidebar, short window › the scrolling group list ends above the bottom rows; no row overlaps them (7.0s)
+  -  107 tests/sidebar-context-menu.spec.ts:420:5 › screenshots light plain: menu on a section and a group heading; floating without dividers
+  -  108 tests/sidebar-context-menu.spec.ts:420:5 › screenshots light color: menu on a section and a group heading; floating without dividers
+  -  109 tests/sidebar-context-menu.spec.ts:420:5 › screenshots dark plain: menu on a section and a group heading; floating without dividers
+  -  110 tests/sidebar-context-menu.spec.ts:420:5 › screenshots dark color: menu on a section and a group heading; floating without dividers
+  ✓  111 tests/sidebar-rename.spec.ts:22:1 › renaming from the sidebar title saves on blur and shows one name (3.8s)
+  ✓  112 tests/sidebar-rename.spec.ts:40:1 › Escape reverts the rename and returns focus to the title (2.8s)
+  ✓  113 tests/sidebar-rename.spec.ts:51:1 › Enter saves the rename and returns focus to the title (3.5s)
+  ✓  114 tests/sidebar-rename.spec.ts:62:1 › the breadcrumb shows only the section with correct semantics (4.1s)
+  ✓  115 tests/sidebar-search.spec.ts:31:1 › clear button is absent when empty and clears while the field keeps focus (4.6s)
+  ✓  116 tests/sidebar-search.spec.ts:47:1 › Cmd-K still focuses Find in project with no hint shown (3.1s)
+  ✓  117 tests/sidebar-search.spec.ts:56:1 › clear button is icon-only, flat, square, colour hover at the search end (2.7s)
+  ✓  118 tests/sidebar-search.spec.ts:81:1 › Escape clears a non-empty query without leaving the field; empty Escape is unchanged (2.3s)
+  ✓  119 tests/sidebar-search.spec.ts:94:1 › Escape on an empty field in the overlay sidebar still closes it (2.3s)
+  ✓  120 tests/sidebar-search.spec.ts:108:1 › fade uses opacity with the fast duration; Reduce Motion is instant (2.1s)
+  ✓  121 tests/sidebar-search.spec.ts:128:1 › floating sidebar: the search has no surface behind it (2.2s)
+  -  122 tests/sidebar-search.spec.ts:143:7 › screenshots light plain
+  -  123 tests/sidebar-search.spec.ts:143:7 › screenshots light plain floating
+  -  124 tests/sidebar-search.spec.ts:143:7 › screenshots light color
+  -  125 tests/sidebar-search.spec.ts:143:7 › screenshots light color floating
+  -  126 tests/sidebar-search.spec.ts:143:7 › screenshots dark plain
+  -  127 tests/sidebar-search.spec.ts:143:7 › screenshots dark plain floating
+  -  128 tests/sidebar-search.spec.ts:143:7 › screenshots dark color
+  -  129 tests/sidebar-search.spec.ts:143:7 › screenshots dark color floating
+  ✓  130 tests/sidebar-selection.spec.ts:61:1 › dragging across plain sidebar heading text does not select chrome (3.1s)
+  ✓  131 tests/sidebar-selection.spec.ts:79:1 › search, rename, editor, and prose preview text remain selectable (9.0s)
+  ✓  132 tests/sidebar-selection.spec.ts:167:1 › sidebar drag, resize, collapse, pin, and keyboard controls still work (6.1s)
+  ✓  133 tests/sidebar-selection.spec.ts:234:1 › at the 190 px minimum sidebar width every row stays on one line (2.5s)
+  ✓  134 tests/sidebar-selection.spec.ts:340:1 › bottom rows keep their fixed order and carry no hover actions (2.6s)
+  ✓  135 tests/sidebar-selection.spec.ts:370:1 › Option+Down on the last top group leaves the order and says it is already last (3.8s)
+  ✓  136 tests/sidebar-selection.spec.ts:386:1 › a hidden feature row leaves the sidebar, survives reload, and stays per project (5.0s)
+  ✓  137 tests/sidebar-selection.spec.ts:485:1 › W7 Plain: active heading is bold normal text; rows stay regular and reveal full colour (4.8s)
+  ✓  138 tests/sidebar-selection.spec.ts:553:3 › W7 Plain: nothing in the three sections is lit while Comments is on screen (3.3s)
+  ✓  139 tests/sidebar-selection.spec.ts:553:3 › W7 Plain: nothing in the three sections is lit while Read manuscript is on screen (3.7s)
+  ✓  140 tests/sidebar-selection.spec.ts:566:1 › W7 Plain: a clicked Bibliography row goes dim once the pointer leaves, and nothing in the three sections is lit (3.6s)
+  ✓  141 tests/sidebar-selection.spec.ts:581:1 › W7 resize handles stay unpainted on hover and retain keyboard focus cues (4.0s)
+  ✓  142 tests/sidebar-selection.spec.ts:622:5 › B1 plain light: split panes light their own sections; a source PDF lights Research (7.6s)
+  ✓  143 tests/sidebar-selection.spec.ts:622:5 › B1 plain dark: split panes light their own sections; a source PDF lights Research (8.2s)
+  ✓  144 tests/sidebar-selection.spec.ts:622:5 › B1 color light: split panes light their own sections; a source PDF lights Research (7.7s)
+  ✓  145 tests/sidebar-selection.spec.ts:622:5 › B1 color dark: split panes light their own sections; a source PDF lights Research (8.0s)
+  ✓  146 tests/sidebar-selection.spec.ts:695:1 › W7 T244: after the Manuscript heading, a fragment on screen leaves only Fragments bold (4.7s)
+  ✓  147 tests/sidebar-selection.spec.ts:769:5 › T6 plain @190px: heading actions in flow, no fill, clear of labels (2.3s)
+  ✓  148 tests/sidebar-selection.spec.ts:769:5 › T6 plain @240px: heading actions in flow, no fill, clear of labels (2.4s)
+  ✓  149 tests/sidebar-selection.spec.ts:769:5 › T6 plain @270px: heading actions in flow, no fill, clear of labels (2.8s)
+  ✓  150 tests/sidebar-selection.spec.ts:769:5 › T6 plain @390px: heading actions in flow, no fill, clear of labels (2.5s)
+  ✓  151 tests/sidebar-selection.spec.ts:769:5 › T6 color @190px: heading actions in flow, no fill, clear of labels (2.5s)
+  ✓  152 tests/sidebar-selection.spec.ts:769:5 › T6 color @240px: heading actions in flow, no fill, clear of labels (2.6s)
+  ✓  153 tests/sidebar-selection.spec.ts:769:5 › T6 color @270px: heading actions in flow, no fill, clear of labels (2.5s)
+  ✓  154 tests/sidebar-selection.spec.ts:769:5 › T6 color @390px: heading actions in flow, no fill, clear of labels (2.2s)
+  ✓  155 tests/sidebar-selection.spec.ts:809:3 › sidebar row and header geometry (W7 T247) › bottom rows sit evenly between their dividers and share one icon and label column (2.2s)
+  ✓  156 tests/sidebar-selection.spec.ts:850:3 › sidebar row and header geometry (W7 T247) › a bottom group's own list stacks below its heading, inside the sidebar (2.8s)
+  ✓  157 tests/sidebar-selection.spec.ts:873:3 › sidebar row and header geometry (W7 T247) › the split icon keeps one token gap from the rail in every list row (3.4s)
+  ✓  158 tests/sidebar-selection.spec.ts:919:3 › sidebar row and header geometry (W7 T247) › section chevrons share one right-hand column, stay rightmost, and ignore the revealed view and add buttons (2.4s)
+  ✓  159 tests/w9-cards.spec.ts:82:3 › cards fit the list, research cards are rows, and the open-beside icon is inset at 220 px (5.8s)
+  ✓  160 tests/w9-cards.spec.ts:82:3 › cards fit the list, research cards are rows, and the open-beside icon is inset at 254 px (5.4s)
+  ✓  161 tests/w9-cards.spec.ts:82:3 › cards fit the list, research cards are rows, and the open-beside icon is inset at 420 px (6.1s)
+  ✓  162 tests/w9-cards.spec.ts:173:1 › an empty card hides its boxes at rest and on hover, shows them when opened or focused, and a card with a synopsis always shows them (6.5s)
+
+
+  1) tests/alignment.spec.ts:254:1 › hit-area rule leaves absolutely placed buttons absolute ───────
+
+    Error: expect(received).toBeLessThanOrEqual(expected)
+
+    Expected: <= 6
+    Received:    9
+
+      270 |   expect(trash).not.toBeNull();
+      271 |   expect(trash!.position).toBe("absolute");
+    > 272 |   expect(trash!.top).toBeLessThanOrEqual(6);
+          |                      ^
+      273 |   expect(trash!.right).toBeLessThanOrEqual(6);
+      274 |
+      275 |   // The sidebar open-beside button only exists on rows with a source PDF, so
+        at /Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/tests/alignment.spec.ts:272:22
+
+    Error Context: test-results/T2/alignment-hit-area-rule-le-44edf-ely-placed-buttons-absolute/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/T2/alignment-hit-area-rule-le-44edf-ely-placed-buttons-absolute/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/T2/alignment-hit-area-rule-le-44edf-ely-placed-buttons-absolute/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  Slow test file: tests/floating.spec.ts (6.2m)
+  Consider running tests from slow files in parallel. See: https://playwright.dev/docs/test-parallel
+  1 failed
+    tests/alignment.spec.ts:254:1 › hit-area rule leaves absolutely placed buttons absolute ────────
+  12 skipped
+  149 passed (16.4m)

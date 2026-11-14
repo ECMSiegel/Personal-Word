@@ -1,0 +1,66 @@
+{
+ "menu": [
+  "Collapse",
+  "Move up",
+  "Move down",
+  "New section",
+  "Add header",
+  "Rename",
+  "Colour…",
+  "Delete"
+ ],
+ "highlight-before-enter": "CollapseMove upMove downNew sectionAdd headerRenameColour…Delete | Colour…",
+ "focusOnTrigger": true,
+ "kbd-after-choose": {
+  "options": 0,
+  "value": "Orange",
+  "focus": true
+ },
+ "mouse-after-choose": {
+  "options": 0,
+  "value": "Purple"
+ },
+ "click-name-text-options": 0,
+ "labelWrappedDropdownsHere": [],
+ "escape": {
+  "esc1": {
+   "options": 0,
+   "dialog": 1,
+   "focus": true
+  },
+  "esc2": {
+   "dialog": 0,
+   "focus": "group-title  | Part two"
+  }
+ },
+ "emptyMenu": {
+  "name": "Sidebar actions",
+  "items": [
+   "Add header"
+  ]
+ },
+ "builtins": {
+  "manuscript": [
+   "Collapse",
+   "Move up",
+   "Move down",
+   "New section",
+   "Add header",
+   "Rename"
+  ],
+  "fragments": [
+   "Collapse",
+   "Move up",
+   "Move down",
+   "Add header",
+   "Rename"
+  ],
+  "research": [
+   "Collapse",
+   "Move up",
+   "Move down",
+   "Add header",
+   "Rename"
+  ]
+ }
+}

@@ -3,7 +3,7 @@
   position: absolute;
   top: calc(100% + 2px);
   left: 0;
-  z-index: 40;
+  z-index: var(--layer-popover);
   box-sizing: border-box;
   background: var(--elevation-raised);
   border: 1px solid var(--line);
@@ -45,9 +45,19 @@
   transform: scale(0.99);
   transition: transform var(--duration-press) var(--ease-out);
 }
+/* A PopoverItem is a .row (height, inset and gap come from layout.css); only its text look lives here. */
+.popover-item {
+  width: 100%;
+  justify-content: flex-start;
+  font-size: var(--type-small);
+  white-space: nowrap;
+  text-align: left;
+}
+/* Rows sit flush with the menu edge, so the focus ring is drawn inside them. */
+.menu [data-popover-item]:focus-visible {
+  outline-offset: -2px;
+}
 .popover-shortcut {
-  margin-left: auto;
-  padding-left: var(--space-4);
   color: var(--muted);
   font-size: var(--type-small);
   white-space: nowrap;

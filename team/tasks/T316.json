@@ -1,0 +1,71 @@
+{
+  "id": "T316",
+  "title": "LP T12 -- Header colour swatches in every header's right-click menu",
+  "description": "Brief: docs/agent-work/2026-11-12-layout-primitives/BRIEF.md, then task T12 at the end of docs/agent-work/2026-11-12-layout-primitives/PLAN.md ('Follow-up tasks after the owner's hand test').",
+  "status": "done",
+  "owner": null,
+  "priority": 1,
+  "depends_on": [],
+  "files": [
+    "docs/agent-work/2026-11-12-layout-primitives/notes/T12.md",
+    "docs/agent-work/2026-11-12-layout-primitives/notes/T12-fail-first.txt",
+    "src/components/ContextMenu.tsx",
+    "src/settings/GeneralSettings.tsx",
+    "src/appearance.ts",
+    "tests/hs9-top-level-sections.spec.ts",
+    "tests/appearance.spec.ts",
+    "tests/sidebar-context-menu.spec.ts",
+    "src/model.ts",
+    "src/organization/groups.ts",
+    "src/organization/groups.test.ts",
+    "src/model.test.ts",
+    "src-tauri/src/store.rs",
+    "src/components/context-menu.css",
+    "docs/user-guide.md",
+    "AGENTS.md"
+  ],
+  "review_required": true,
+  "created_by": "agent-b823",
+  "created_at": "2026-11-14T02:11:01+00:00",
+  "claimed_at": "2026-11-14T02:11:47+00:00",
+  "updated_at": "2026-11-14T02:53:18+00:00",
+  "handoff": null,
+  "review": {
+    "by": "agent-6a55",
+    "at": "2026-11-14T02:53:18+00:00",
+    "verdict": "approved",
+    "note": "REVIEW-9.md: verified light/dark on Manuscript/Fragments/Research/custom: chips = icon colours, current outline visible incl. Yellow, click/Enter/Space apply+close+focus heading, Up/Down/Left/Right/Home/End/Escape/Tab, per project + tab switch + reload + legacy fallback, entry rows and cards follow, corner placement inside viewport, ordinary menus unchanged, Rust flatten keeps headerColours. Low only: swatch focus ring + current outline double frame (drop icon-grow on swatches), hover-item+Enter runs item while ring on swatch, hs9 colour tests rewrite notes PNGs each run, stale comment styles.css:2140. Runs: vitest 123 pass, tsc clean, invariants 18 pass, 10 specs 122 pass/4 skip."
+  },
+  "log": [
+    {
+      "at": "2026-11-14T02:11:01+00:00",
+      "agent": "agent-b823",
+      "event": "created",
+      "note": ""
+    },
+    {
+      "at": "2026-11-14T02:11:47+00:00",
+      "agent": "agent-9ace",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-11-14T02:11:47+00:00",
+      "agent": "agent-9ace",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-11-14T02:37:41+00:00",
+      "agent": "agent-9ace",
+      "event": "review requested",
+      "note": "Swatch row (8 .slot menuitemradio, role=group 'Colour') at the end of every header's menu in Color; per-project built-in colours Project.headerColours (+setHeaderColour, validation, store.rs fixture; cargo NOT run), custom via groups[].colour; tint follows open project; Colour… dialog and Settings Header colours row removed. ContextMenu gains kind:'swatches' items. Locked: 6 specs 54 pass/0 fail, invariants T12|T2|T4|T6 16 pass; vitest all 1314 pass + expected styles.css budget msg (118->115, my -3); tsc clean. Fail-first: unit only, no pre-change browser run. Shared files edited by scripted exact replacements: review should diff. Notes: notes/T12.md"
+    },
+    {
+      "at": "2026-11-14T02:53:18+00:00",
+      "agent": "agent-6a55",
+      "event": "approved",
+      "note": "REVIEW-9.md: verified light/dark on Manuscript/Fragments/Research/custom: chips = icon colours, current outline visible incl. Yellow, click/Enter/Space apply+close+focus heading, Up/Down/Left/Right/Home/End/Escape/Tab, per project + tab switch + reload + legacy fallback, entry rows and cards follow, corner placement inside viewport, ordinary menus unchanged, Rust flatten keeps headerColours. Low only: swatch focus ring + current outline double frame (drop icon-grow on swatches), hover-item+Enter runs item while ring on swatch, hs9 colour tests rewrite notes PNGs each run, stale comment styles.css:2140. Runs: vitest 123 pass, tsc clean, invariants 18 pass, 10 specs 122 pass/4 skip."
+    }
+  ]
+}

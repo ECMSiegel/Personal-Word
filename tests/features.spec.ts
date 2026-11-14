@@ -55,6 +55,7 @@ test("projects default startup, tabs, sidebar cards, and durable formatting", as
     .getByRole("button", { name: "Alpha", exact: true })
     .click();
   await expect(editor).toContainText("A paragraph to preserve.");
+  await page.locator('.sidebar-group[data-group="manuscript"] > .group-heading').hover();
   await page.getByRole("button", { name: "Show Manuscript cards" }).click();
   await expect(page.locator(".sidebar-group.cards-view")).toBeVisible();
   await page.reload();

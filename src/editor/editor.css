@@ -32,6 +32,8 @@
   text-decoration-color: var(--prose-long);
 }
 .prose-check-panel {
+  /* The panel now carries the padding the popover used to; keep the 260 px content width. */
+  box-sizing: content-box;
   min-width: 260px;
   max-width: min(420px, 80vw);
 }
@@ -40,27 +42,54 @@
   height: 14px;
 }
 .prose-issues {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
   max-height: 260px;
   overflow: auto;
 }
-.prose-issues .toolbar-text-button {
-  justify-content: flex-start;
-  height: auto;
-  min-height: 26px;
-  gap: 8px;
+/* Each issue is a .row button (not .toolbar-text-button, whose fixed 26px height clipped wrapped messages):
+   at least the panel's compact row height, growing with its message. Two classes beat
+   styles.css `.format-bar button` padding, which loads later. */
+.prose-issues .prose-issue-select {
+  padding: var(--space-1) var(--space-2);
+  border: 1px solid var(--line);
+  border-radius: 0;
+  background: transparent;
+  color: var(--text);
+  font: inherit;
   white-space: normal;
   text-align: left;
 }
-.prose-issues .toolbar-text-button span:last-child {
-  color: var(--muted);
+/* The excerpt takes at most half the button, breaks anywhere and shows at most three lines (a long-sentence
+   issue's excerpt is the whole sentence; choosing the issue selects all of it); the message takes the rest and
+   breaks inside a word only when that word alone is wider than the space left. The excerpt never shrinks below
+   its own text width (up to the 50% cap), so short excerpts keep whole words. */
+.prose-issue-select span:first-child {
+  flex: 0 0 auto;
+  max-width: 50%;
+  overflow-wrap: anywhere;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  overflow: hidden;
 }
-.prose-issue-row {
-  display: flex;
-  align-items: center;
-  gap: 4px;
+/* Opened from More, the panel takes the list's width instead of forcing it to scroll sideways. */
+.writer .toolbar-popover.is-more .prose-check-panel {
+  min-width: 0;
+}
+/* That list is narrow (220 px), so there each issue stacks its message under a full-width excerpt
+   instead of squeezing two columns. */
+.writer .toolbar-popover.is-more .prose-issue-select {
+  flex-direction: column;
+  align-items: stretch;
+  --gap: 0px;
+}
+.writer .toolbar-popover.is-more .prose-issue-select span:first-child {
+  max-width: none;
+}
+.prose-issue-select span:last-child {
+  flex: 1 1 0;
+  min-width: 0;
+  overflow-wrap: anywhere;
+  color: var(--muted);
 }
 .prose-issue-select {
   flex: 1;
@@ -101,17 +130,13 @@
 }
 .writer > .format-bar {
   position: relative;
-  z-index: 40;
-  display: flex;
+  z-index: var(--layer-bar);
   flex: 0 0 auto;
   flex-wrap: nowrap;
-  align-items: center;
-  gap: 0; /* icons only: every group that fits stays on the bar */
-  height: calc(var(--control-height) + 2 * var(--space-1));
+  /* .bar.bar-main.gap-0: 40 px tall, --edge-main inset. Groups abut; each group's
+     .bar-divider carries the space on both sides of a boundary. */
   min-width: 0;
-  box-sizing: border-box;
   margin: 0;
-  padding: 0 8px;
   top: auto;
   border-top: 0;
   border-bottom: 1px solid var(--line);
@@ -121,30 +146,15 @@
   font-family: var(--ui-font);
   font-size: var(--type-small);
 }
-.writer .format-bar .toolbar-group {
-  display: flex;
-  align-items: center;
-  gap: 2px;
-  flex: 0 0 auto;
-}
 .writer .format-bar .toolbar-group.is-end {
   margin-left: auto;
 }
-.writer .format-bar .toolbar-divider {
-  display: inline-block;
-  width: 1px;
-  height: 16px;
-  margin: 0 3px;
-  background: var(--line);
-  flex: 0 0 auto;
-}
+/* On the bar the button is also a .slot-toolbar (28 x --control-height); in More it is a row. */
 .writer .format-bar .toolbar-icon {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   flex: 0 0 auto;
-  width: 28px;
-  height: var(--control-height);
   margin: 0;
   padding: 0;
   border: 0;
@@ -193,15 +203,13 @@
    setup body: the More menu has no body wrapper, so its zoom, paragraph style and
    font dropdowns stay borderless. */
 .writer .format-bar .toolbar-popover-body .dropdown-button {
+  height: var(--row-height);
   border: 1px solid var(--line);
 }
+/* The scissor is a .slot-toolbar like the icons; its text label stays hidden. */
 .writer .format-bar .extract {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  height: var(--control-height);
   margin: 0;
-  padding: 0 8px;
+  padding: 0;
   border: 0;
   border-radius: 0;
   background: transparent;
@@ -239,12 +247,10 @@
   position: absolute;
   top: calc(100% + 6px);
   left: 0;
-  z-index: 40;
+  z-index: var(--layer-popover);
   display: flex;
   flex-direction: column;
-  gap: 10px;
   min-width: 232px;
-  padding: 12px;
   box-sizing: border-box;
   border-radius: 0;
   /* Popover paints the surface; nested menus may spill out of a panel. */
@@ -295,32 +301,19 @@
 }
 .writer .toolbar-popover.is-more .toolbar-icon {
   width: 100%;
+  height: var(--control-height);
   justify-content: flex-start;
   padding: 0 var(--space-2);
 }
-.writer .toolbar-popover.is-more .dropdown,
-.writer .toolbar-popover.is-more .toolbar-number {
+/* The More list's own controls only: a panel opened from More keeps its .row rhythm and trailing edge. */
+.writer .toolbar-popover.is-more :is(.dropdown, .toolbar-number):not(.panel *) {
   align-self: flex-start;
   margin: var(--space-1) var(--space-2);
 }
-.writer .toolbar-popover-body {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-.writer .toolbar-field {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-}
+/* Popover bodies are .panel and their lines .row (src/components/layout.css). */
 .writer .toolbar-field-title {
   color: var(--muted);
   font-size: var(--type-small);
-}
-.writer .toolbar-button-row {
-  display: flex;
-  gap: 4px;
 }
 .writer .toolbar-button-row .toolbar-text-button {
   flex: 1 1 auto;
@@ -895,30 +888,22 @@
 }
 
 /* Table controls button list */
+/* A .stack.gap-1 in the markup. */
 .writer .table-controls-grid {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
+  align-items: stretch;
 }
 .writer .table-menu-anchor {
   position: absolute;
-  z-index: 50;
+  z-index: var(--layer-popover);
   display: block;
   width: 0;
   height: 0;
 }
+/* A .menu of PopoverItem rows (src/components/layout.css). */
 .writer .table-context-menu {
   display: flex;
   flex-direction: column;
   min-width: 190px;
-  padding: 4px 0;
-}
-.writer .table-context-menu .popover-item {
-  justify-content: flex-start;
-  width: 100%;
-  padding: 6px 12px;
-  text-align: left;
-  font-size: var(--type-small);
 }
 .writer .table-context-menu .popover-item.is-danger {
   color: var(--danger, #c53030);

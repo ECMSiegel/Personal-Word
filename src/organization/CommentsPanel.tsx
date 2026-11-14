@@ -35,8 +35,8 @@ export function CommentsPanel({
   const visible = items.filter((annotation) => all || !annotation.resolved);
 
   return (
-    <section className="feature-panel">
-      <header>
+    <section className="stack gap-5 feature-panel">
+      <header className="cluster gap-4">
         <h1>Comments & tasks</h1>
         <button onClick={onAdd}>Add task</button>
       </header>
@@ -79,8 +79,8 @@ export function CommentsPanel({
         }
 
         return (
-          <article className="feature-item" key={annotation.id}>
-            <label>
+          <article className="stack gap-2 feature-item" key={annotation.id}>
+            <label className="cluster gap-2">
               <input
                 type="checkbox"
                 checked={annotation.resolved}
@@ -102,21 +102,23 @@ export function CommentsPanel({
               {anchorStatus === "ambiguous" ? " -- Ambiguous passage" : ""}
             </small>
             {annotation.quote && <blockquote>{annotation.quote}</blockquote>}
-            <button disabled={!canJump} onClick={() => onJump(current)}>
-              Go to passage
-            </button>
-            {entry && annotation.quote && !canJump && (
-              <button onClick={() => onReattach(annotation)}>
-                Reattach to selection
+            <div className="cluster gap-3">
+              <button disabled={!canJump} onClick={() => onJump(current)}>
+                Go to passage
               </button>
-            )}
-            <button
-              onClick={() =>
-                onChange(items.filter((item) => item.id !== annotation.id))
-              }
-            >
-              Delete
-            </button>
+              {entry && annotation.quote && !canJump && (
+                <button onClick={() => onReattach(annotation)}>
+                  Reattach to selection
+                </button>
+              )}
+              <button
+                onClick={() =>
+                  onChange(items.filter((item) => item.id !== annotation.id))
+                }
+              >
+                Delete
+              </button>
+            </div>
           </article>
         );
       })}

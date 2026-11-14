@@ -1,0 +1,61 @@
+{
+  "id": "T309",
+  "title": "LP T5 -- Projects page",
+  "description": "Brief: docs/agent-work/2026-11-12-layout-primitives/BRIEF.md, then task T5 of docs/agent-work/2026-11-12-layout-primitives/PLAN.md. Shared files are edited by owned selector/region only and registered on no task.",
+  "status": "done",
+  "owner": null,
+  "priority": 2,
+  "depends_on": [],
+  "files": [
+    "docs/agent-work/2026-11-12-layout-primitives/notes/T5.md",
+    "docs/agent-work/2026-11-12-layout-primitives/notes/T5-fail-first.txt",
+    "tests/w9-projects-page.spec.ts",
+    "tests/projects-screen.spec.ts",
+    "src/components/library.css",
+    "src/components/ProjectLibrary.tsx"
+  ],
+  "review_required": true,
+  "created_by": "agent-b823",
+  "created_at": "2026-11-12T22:13:37+00:00",
+  "claimed_at": "2026-11-12T22:33:47+00:00",
+  "updated_at": "2026-11-12T23:30:52+00:00",
+  "handoff": null,
+  "review": {
+    "by": "agent-99d3",
+    "at": "2026-11-12T23:30:52+00:00",
+    "verdict": "approved",
+    "note": "See docs/agent-work/2026-11-12-layout-primitives/REVIEW-2.md (T309). No damage from whole-file rewrite (braces balanced, no dup blocks, every removed decl owned or dead). .project-row .delete-entry margin:0 needed; padding:0 redundant; mobile --gap override is sanctioned. Low: row height still from button padding; card test checks only horizontal gap; accept T310's one-line cluster fix at ProjectLibrary.tsx:485."
+  },
+  "log": [
+    {
+      "at": "2026-11-12T22:13:37+00:00",
+      "agent": "agent-b823",
+      "event": "created",
+      "note": ""
+    },
+    {
+      "at": "2026-11-12T22:33:47+00:00",
+      "agent": "agent-b7ea",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-11-12T22:33:52+00:00",
+      "agent": "agent-b7ea",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-11-12T22:58:13+00:00",
+      "agent": "agent-b7ea",
+      "event": "review requested",
+      "note": "T5 Projects page: merged duplicate library/project selectors, toolbar .bar, slots, .row rows, card gap 16. Fail-first 3 failed -> 3 pass. Files: styles.css, library.css, ProjectLibrary.tsx, layout-invariants.spec.ts. Locked run: 71 passed 3 failed (T2/T6 others)."
+    },
+    {
+      "at": "2026-11-12T23:30:52+00:00",
+      "agent": "agent-99d3",
+      "event": "approved",
+      "note": "See docs/agent-work/2026-11-12-layout-primitives/REVIEW-2.md (T309). No damage from whole-file rewrite (braces balanced, no dup blocks, every removed decl owned or dead). .project-row .delete-entry margin:0 needed; padding:0 redundant; mobile --gap override is sanctioned. Low: row height still from button padding; card test checks only horizontal gap; accept T310's one-line cluster fix at ProjectLibrary.tsx:485."
+    }
+  ]
+}

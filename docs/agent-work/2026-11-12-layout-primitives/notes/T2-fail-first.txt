@@ -1,0 +1,116 @@
+
+Running 3 tests using 1 worker
+
+  ✘  1 tests/layout-invariants.spec.ts:25:3 › sidebar (T2) › T2: title, search icon, heading icons, row icons and the add row share one left ink edge (22.5s)
+  ✘  2 tests/layout-invariants.spec.ts:44:3 › sidebar (T2) › T2: heading and row action icons are 24x24 slots in shared right-hand columns (10.0s)
+T2 positions {
+ "width": 270,
+ "title": 20,
+ "search": [
+  "12..28"
+ ],
+ "headingIcons": [
+  "15..31",
+  "15..31",
+  "15..31",
+  "15..31"
+ ],
+ "rowIcon": [
+  "20..36"
+ ],
+ "addRow": [
+  "20..36"
+ ],
+ "headingTrail": [
+  "196..212",
+  "216..232",
+  "240..254"
+ ],
+ "rowTrail": [
+  "201..217",
+  "217..233"
+ ],
+ "rail": [
+  "241..257"
+ ],
+ "heights": [
+  ".sidebar-title-row 40",
+  ".search 40",
+  ".group-heading 24",
+  ".entry-main 33",
+  ".add-top-section 33"
+ ]
+}
+  ✓  3 tests/layout-invariants.spec.ts:78:3 › sidebar (T2) › T2: report positions (4.8s)
+
+
+  1) tests/layout-invariants.spec.ts:25:3 › sidebar (T2) › T2: title, search icon, heading icons, row icons and the add row share one left ink edge 
+
+    Error: left ink edges 20.0, 12.0, 15.0, 15.0, 15.0, 15.0, 20.0, 20.0
+
+    expect(received).toBeLessThanOrEqual(expected)
+
+    Expected: <= 1
+    Received:    8
+
+       at layout-helpers.ts:77
+
+      75 |   for (const item of items) edges.push((await ink(item))[side]);
+      76 |   const spread = Math.max(...edges) - Math.min(...edges);
+    > 77 |   expect(spread, `${side} ink edges ${edges.map((e) => e.toFixed(1)).join(", ")}`).toBeLessThanOrEqual(tol);
+         |                                                                                    ^
+      78 | }
+      79 |
+      80 | /** Rows in order: equal heights, equal gaps between neighbours, and no overlap, within `tol` px. */
+        at expectSharedEdge (/Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/tests/layout-helpers.ts:77:84)
+        at /Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/tests/layout-invariants.spec.ts:35:5
+
+    Error Context: test-results/T2/layout-invariants-sidebar--aa8f1-row-share-one-left-ink-edge/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/T2/layout-invariants-sidebar--aa8f1-row-share-one-left-ink-edge/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/T2/layout-invariants-sidebar--aa8f1-row-share-one-left-ink-edge/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/layout-invariants.spec.ts:44:3 › sidebar (T2) › T2: heading and row action icons are 24x24 slots in shared right-hand columns 
+
+    Error: expect(locator).toHaveClass(expected) failed
+
+    Locator: locator('.sidebar').locator('.sidebar-group[data-group="manuscript"] > .group-heading')
+    Expected pattern: /\brow\b/
+    Received string:  "group-heading"
+    Timeout: 5000ms
+
+    Call log:
+      - Expect "toHaveClass" locator('.sidebar').locator('.sidebar-group[data-group="manuscript"] > .group-heading') with timeout 5000ms
+      - waiting for locator('.sidebar').locator('.sidebar-group[data-group="manuscript"] > .group-heading')
+        14 × locator resolved to <div class="group-heading">…</div>
+           - unexpected value "group-heading"
+
+
+      48 |     await heading.hover();
+      49 |     // Heading: .row with .row-trail > .cluster.gap-0.flush-end of slots [view][+][chevron].
+    > 50 |     await expect(heading).toHaveClass(/\brow\b/);
+         |                           ^
+      51 |     const headingSlots = heading.locator(".row-trail > .cluster.gap-0.flush-end .slot");
+      52 |     await expect(headingSlots).toHaveCount(3);
+      53 |     await expectSlots(headingSlots, 24, 24);
+        at /Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/tests/layout-invariants.spec.ts:50:27
+
+    Error Context: test-results/T2/layout-invariants-sidebar--b19b0-n-shared-right-hand-columns/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/T2/layout-invariants-sidebar--b19b0-n-shared-right-hand-columns/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/T2/layout-invariants-sidebar--b19b0-n-shared-right-hand-columns/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2 failed
+    tests/layout-invariants.spec.ts:25:3 › sidebar (T2) › T2: title, search icon, heading icons, row icons and the add row share one left ink edge 
+    tests/layout-invariants.spec.ts:44:3 › sidebar (T2) › T2: heading and row action icons are 24x24 slots in shared right-hand columns 
+  1 passed (47.5s)

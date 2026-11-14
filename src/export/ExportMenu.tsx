@@ -107,7 +107,7 @@ export function ExportMenu({
         open={open}
         anchor={button}
         align="end"
-        className="export-menu"
+        className="export-menu menu"
         role="menu"
         label="Export"
         tabIndex={-1}
@@ -115,12 +115,10 @@ export function ExportMenu({
         onDismiss={() => onOpenChange(false)}
         onKeyDown={onKeyDown}
       >
-        <div className="export-menu-options">
           {FORMATS.map(({ format, label }) => (
             <PopoverItem
               key={format}
               role="menuitem"
-              className="export-menu-item"
               onClick={() =>
                 void choose(async () => {
                   const result = await exportProject(project, format);
@@ -137,23 +135,20 @@ export function ExportMenu({
           ))}
           <div
             role="separator"
-            className="export-menu-rule"
+            className="menu-rule"
           />
           <PopoverItem
             role="menuitem"
-            className="export-menu-item"
             onClick={() => void choose(onExportSettings)}
           >
             Export settings...
           </PopoverItem>
           <PopoverItem
             role="menuitem"
-            className="export-menu-item"
             onClick={() => void choose(onExportComplete)}
           >
             Complete project (.json)
           </PopoverItem>
-        </div>
       </Popover>
     </span>
   );

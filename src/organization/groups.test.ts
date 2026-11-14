@@ -12,6 +12,8 @@ import {
   normalized,
   renameGroup,
   reorderInGroup,
+  setGroupColour,
+  setHeaderColour,
   topGroupOrder,
 } from "./groups";
 
@@ -130,5 +132,40 @@ describe("top-level sections (HS9)", () => {
     expect("groupTitles" in p).toBe(false);
     p = renameGroup(renameGroup(p, "research", "Notes"), "research", "  ");
     expect(groupTitle(p, "research")).toBe("Research");
+  });
+
+  it("sets, keeps through rename and clears a header colour; an unknown colour is dropped on validation", () => {
+    let p = setGroupColour(seeded(), "g1", "purple");
+    expect(p.groups).toEqual([{ id: "g1", title: "Part two", colour: "purple" }]);
+    p = renameGroup(p, "g1", "Appendix");
+    expect(p.groups![0].colour).toBe("purple");
+    expect(setGroupColour(p, "manuscript", "red")).toBe(p);
+    expect(() => validateProject(structuredClone(p))).not.toThrow();
+    const bad = structuredClone(p) as Project;
+    (bad.groups![0] as { colour?: unknown }).colour = "chartreuse";
+    expect(() => validateProject(bad)).not.toThrow();
+    expect(bad.groups![0]).toEqual({ id: "g1", title: "Appendix" });
+    expect(setGroupColour(p, "g1", undefined).groups).toEqual([{ id: "g1", title: "Appendix" }]);
+  });
+
+  it("T12: sets and clears a built-in header's colour per project; custom ids are ignored; unknowns dropped on validation", () => {
+    const base = seeded();
+    let p = setHeaderColour(base, "fragments", "purple");
+    expect(p.headerColours).toEqual({ fragments: "purple" });
+    expect(base.headerColours).toBeUndefined();
+    p = setHeaderColour(p, "manuscript", "red");
+    expect(p.headerColours).toEqual({ fragments: "purple", manuscript: "red" });
+    expect(setHeaderColour(p, "g1", "teal")).toBe(p);
+    expect(() => validateProject(structuredClone(p))).not.toThrow();
+    const bad = structuredClone(p) as Project;
+    (bad as { headerColours?: unknown }).headerColours = { fragments: "chartreuse", research: "teal", read: "red" };
+    expect(() => validateProject(bad)).not.toThrow();
+    expect(bad.headerColours).toEqual({ research: "teal" });
+    const junk = structuredClone(p) as Project;
+    (junk as { headerColours?: unknown }).headerColours = ["red"];
+    expect(() => validateProject(junk)).not.toThrow();
+    expect(junk.headerColours).toBeUndefined();
+    p = setHeaderColour(setHeaderColour(p, "fragments", undefined), "manuscript", undefined);
+    expect(p.headerColours).toBeUndefined();
   });
 });

@@ -58,7 +58,7 @@ async function expectUiFont(page: Page, where: string, openFontMenu = false) {
       if (!ownText) continue;
       if (el.closest(exceptions)) continue;
       // An open font menu shows each choice in its own face as a preview, on purpose.
-      if (fontMenu && el.classList.contains("dropdown-option")) continue;
+      if (fontMenu && el.closest(".dropdown-option")) continue;
       const computed = getComputedStyle(el).fontFamily;
       if (!computed.replace(/"/g, "").startsWith(family)) {
         found.push(`${el.tagName.toLowerCase()}.${String(el.className)} "${(el.textContent ?? "").trim().slice(0, 40)}" -> ${computed}`);

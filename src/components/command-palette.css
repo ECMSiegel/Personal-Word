@@ -5,7 +5,8 @@
   position: fixed;
   top: 12vh;
   left: 50%;
-  z-index: 60;
+  z-index: var(--layer-overlay);
+  --edge: var(--space-3);
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
@@ -40,7 +41,6 @@
 }
 .command-palette-input {
   width: 100%;
-  padding: var(--space-3) var(--space-4);
   border: 0;
   border-bottom: 1px solid var(--line);
   border-radius: 0;
@@ -55,22 +55,16 @@
 .command-palette-list {
   min-height: 0;
   overflow-y: auto;
-  padding: var(--space-1) 0;
   overscroll-behavior: contain;
 }
 .command-palette-heading {
-  padding: var(--space-2) var(--space-4) var(--space-1);
+  padding: var(--space-2) var(--edge) var(--space-1);
   color: var(--muted);
   font-size: var(--type-small);
   font-weight: 600;
 }
 .command-palette-option {
-  display: flex;
-  align-items: center;
   justify-content: space-between;
-  gap: var(--space-4);
-  /* Wave 6 T1: equal left/right padding (label scales, row does not). */
-  padding: var(--space-2) var(--space-4) var(--space-2) var(--space-4);
   color: var(--text);
   cursor: default;
   --emph-origin: left center;
@@ -83,7 +77,6 @@
   overflow-wrap: anywhere;
 }
 .command-palette-hint {
-  flex: none;
   color: var(--muted);
   font-size: var(--type-small);
   white-space: nowrap;
@@ -92,6 +85,6 @@
   color: inherit;
 }
 .command-palette-empty {
-  padding: var(--space-3) var(--space-4);
+  padding: var(--space-3) var(--edge);
   color: var(--muted);
 }

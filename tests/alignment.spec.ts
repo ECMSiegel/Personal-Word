@@ -260,7 +260,8 @@ test("hit-area rule leaves absolutely placed buttons absolute", async ({ page })
     const del = row?.querySelector<HTMLElement>(".delete-entry");
     if (!row || !del) return null;
     const r = row.getBoundingClientRect();
-    const d = del.getBoundingClientRect();
+    // The icon (not the 24 px slot box) is what sits near the corner: ~13 px in.
+    const d = (del.querySelector("svg") ?? del).getBoundingClientRect();
     return {
       position: getComputedStyle(del).position,
       top: +(d.top - r.top).toFixed(1),
@@ -269,8 +270,8 @@ test("hit-area rule leaves absolutely placed buttons absolute", async ({ page })
   });
   expect(trash).not.toBeNull();
   expect(trash!.position).toBe("absolute");
-  expect(trash!.top).toBeLessThanOrEqual(6);
-  expect(trash!.right).toBeLessThanOrEqual(6);
+  expect(trash!.top).toBeLessThanOrEqual(14);
+  expect(trash!.right).toBeLessThanOrEqual(14);
 
   // The sidebar open-beside button only exists on rows with a source PDF, so
   // probe the stylesheet with a throwaway element in a real entry row.
@@ -279,8 +280,10 @@ test("hit-area rule leaves absolutely placed buttons absolute", async ({ page })
   const beside = await page.evaluate(() => {
     const row = document.querySelector<HTMLElement>(".entry-row");
     if (!row) return null;
-    const probe = document.createElement("button");
-    probe.className = "collection-open-beside";
+    // Layout primitives T2: the button is a .slot inside the absolutely placed .entry-trail.
+    const probe = document.createElement("div");
+    probe.className = "entry-trail row-trail cluster gap-0 flush-end";
+    probe.innerHTML = '<button class="collection-open-beside slot"></button>';
     row.appendChild(probe);
     const position = getComputedStyle(probe).position;
     probe.remove();

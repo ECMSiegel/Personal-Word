@@ -1,7 +1,6 @@
 .research-panel {
+  --edge: 0px;
   box-sizing: border-box;
-  display: grid;
-  gap: var(--space-4);
   min-width: 0;
   padding: 0 0 var(--space-5);
   font-family: var(--ui-font);
@@ -89,12 +88,13 @@
 }
 
 .research-tabs {
-  display: flex;
-  gap: var(--space-4);
   border-bottom: 1px solid var(--line);
 }
 .research-tabs button {
-  padding: var(--space-2) 0 var(--space-2);
+  align-self: stretch;
+  display: flex;
+  align-items: center;
+  padding: 0;
   color: var(--muted);
   border-bottom: 2px solid transparent;
   margin-bottom: -1px;
@@ -106,10 +106,6 @@
   border-bottom-color: var(--accent);
 }
 
-.research-add {
-  display: grid;
-  gap: var(--space-2);
-}
 .research-lookup {
   display: flex;
   flex-wrap: wrap;
@@ -165,20 +161,10 @@
   flex-wrap: wrap;
   gap: var(--space-1) var(--space-4);
 }
-.research-pdfs {
-  display: grid;
-  gap: var(--space-2);
-}
 .pdf-list {
-  display: grid;
-  gap: var(--space-2);
   margin: 0;
   padding: 0;
   list-style: none;
-}
-.pdf-item {
-  display: grid;
-  gap: var(--space-1);
 }
 .research-status {
   margin: 0;
@@ -218,10 +204,7 @@
   border-bottom: 0;
 }
 .research-panel button.source-toggle {
-  display: flex;
-  align-items: center;
   justify-content: space-between;
-  gap: var(--space-3);
   width: 100%;
   padding: var(--space-3) 0;
   color: var(--text);
@@ -256,8 +239,6 @@
 }
 
 .source-body {
-  display: grid;
-  gap: var(--space-4);
   padding: 0 0 var(--space-4);
 }
 .source-pdf-name {
@@ -301,10 +282,6 @@
 .research-fields > button {
   grid-column: 1 / -1;
 }
-.repeat-rules {
-  display: grid;
-  gap: var(--space-3);
-}
 .note-actions {
   margin-bottom: 0;
 }
@@ -314,10 +291,6 @@
   gap: var(--space-3);
 }
 
-.citation-previews {
-  display: grid;
-  gap: var(--space-3);
-}
 .preview,
 .cite-preview {
   display: grid;
@@ -331,11 +304,6 @@
   overflow-wrap: anywhere;
 }
 
-.linked,
-.research-group {
-  display: grid;
-  gap: var(--space-3);
-}
 .research-subhead {
   margin: 0;
   font-size: var(--type-small);
@@ -344,24 +312,15 @@
 }
 .linked-item,
 .footnote-item {
-  display: grid;
-  gap: var(--space-2);
   padding: var(--space-3) 0 var(--space-3) var(--space-3);
   border-left: 2px solid var(--selection);
 }
-.note-list {
-  display: grid;
-  gap: 0;
-}
 .note-item {
-  display: grid;
-  gap: var(--space-2);
   padding: 0;
   border-left: 0;
 }
 .note-item + .note-item {
   border-top: 1px solid var(--line);
-  margin-top: var(--space-5);
   padding-top: var(--space-5);
 }
 .note-row {
@@ -377,9 +336,6 @@
   gap: var(--space-3);
 }
 .check {
-  display: flex;
-  align-items: center;
-  gap: var(--space-2);
   font-size: var(--type-small);
   color: var(--text);
   cursor: default;
@@ -419,9 +375,8 @@ div.project-settings {
   line-height: 1.5;
   color: var(--text);
 }
-.project-settings .settings-field,
-.project-settings .settings-check {
-  margin: 0;
+.project-settings {
+  --edge: 0px;
 }
 .project-settings h1 {
   margin: 0;
@@ -429,9 +384,10 @@ div.project-settings {
   font-weight: 600;
   letter-spacing: -0.3px;
 }
+/* Layout primitives: .settings-section is a .stack.gap-4, .settings-form a .stack.gap-3,
+   .settings-field a .row.gap-3, .settings-checks a .stack.gap-2, .settings-check and
+   .settings-actions .cluster.gap-2 (classes in the JSX). */
 .project-settings .settings-section {
-  display: grid;
-  gap: var(--space-4);
   margin-top: var(--space-6);
   padding: var(--space-5) 0 0;
   border-top: 1px solid var(--line);
@@ -449,58 +405,55 @@ div.project-settings {
   line-height: 1.6;
   color: var(--muted);
 }
-.project-settings .settings-form {
-  display: grid;
-  gap: var(--space-3);
-}
-.project-settings .settings-field {
-  display: grid;
-  grid-template-columns: 180px minmax(0, 260px);
-  align-items: center;
-  gap: var(--space-3);
-}
+/* One label column: the label is a fixed 180 px; the control after it is at most 260 px. */
 .project-settings .settings-label {
+  flex: 0 0 180px;
   font-size: var(--type-small);
   color: var(--muted);
 }
 .project-settings .settings-field input[type="number"] {
   width: 72px;
-  padding: var(--space-2) var(--space-2);
+  padding-inline: var(--space-2);
   border: 1px solid var(--line);
   border-radius: 0;
   background: var(--paper);
   color: var(--text);
 }
+/* Dropdowns and the date field fill the 260 px control column, as the old grid did. */
+.project-settings .settings-field > :is(.dropdown, input:not([type="number"])) {
+  flex: 0 1 260px;
+  min-width: 0;
+}
 .project-settings .settings-field .dropdown {
   width: 100%;
 }
+/* Every control in a Settings row is one control height, so every row is 32. */
+.project-settings .settings-field > input,
+.project-settings .settings-field .dropdown-button,
+.project-settings .settings-button {
+  box-sizing: border-box;
+  min-height: var(--control-height);
+  padding-block: 0;
+}
 .project-settings .settings-field .dropdown-button {
-  padding: var(--space-2) var(--space-2);
+  padding-inline: var(--space-2);
   border: 1px solid var(--line);
 }
 .project-settings .settings-checks {
-  display: grid;
-  gap: var(--space-2);
-  justify-items: start;
+  align-items: flex-start;
 }
 .project-settings .settings-check {
-  display: flex;
-  align-items: center;
-  gap: var(--space-2);
   cursor: default;
 }
 .project-settings input[type="checkbox"] {
   margin: 0;
 }
 .project-settings .settings-actions {
-  display: flex;
   flex-wrap: wrap;
-  align-items: center;
-  gap: var(--space-2);
 }
 .project-settings .settings-button {
   justify-self: start;
-  padding: var(--space-2) var(--space-3);
+  padding-inline: var(--space-3);
   border: 1px solid var(--line);
   background: transparent;
   color: var(--text);
@@ -529,10 +482,6 @@ div.project-settings {
   color: var(--muted);
 }
 
-.template-picker {
-  display: grid;
-  gap: var(--space-4);
-}
 .template-list {
   display: grid;
 }
@@ -590,17 +539,9 @@ div.project-settings {
   margin: 0 0 var(--space-4);
 }
 .bibliography-controls {
-  display: flex;
-  align-items: center;
   flex-wrap: wrap;
-  gap: var(--space-4);
   margin-bottom: var(--space-5);
   font-size: var(--type-body);
-}
-.bibliography-controls label {
-  display: flex;
-  align-items: center;
-  gap: var(--space-2);
 }
 .bibliography-entries h2 {
   font-size: var(--type-large);
@@ -637,19 +578,10 @@ div.project-settings {
 .source-more > .research-fields > details {
   grid-column: 1 / -1;
 }
-.citation-zone,
-.used-in {
-  display: grid;
-  gap: var(--space-3);
-}
 .citation-rules {
   margin-top: var(--space-2);
 }
 .citation-rules > :not(summary) {
   margin-top: var(--space-2);
 }
-.footnote-where {
-  display: flex;
-  align-items: center;
-  gap: var(--space-3);
-}
+

@@ -1,0 +1,29 @@
+
+ RUN  v4.1.11 /Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor
+
+ ❯ src/organization/groups.test.ts (11 tests | 1 failed) 32ms
+     × T12: sets and clears a built-in header's colour per project; custom ids are ignored; unknowns dropped on validation 6ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/organization/groups.test.ts > top-level sections (HS9) > T12: sets and clears a built-in header's colour per project; custom ids are ignored; unknowns dropped on validation
+TypeError: setHeaderColour is not a function
+ ❯ src/organization/groups.test.ts:153:13
+    151|   it("T12: sets and clears a built-in header's colour per project; cus…
+    152|     const base = seeded();
+    153|     let p = setHeaderColour(base, "fragments", "purple");
+       |             ^
+    154|     expect(p.headerColours).toEqual({ fragments: "purple" });
+    155|     expect(base.headerColours).toBeUndefined();
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed | 1 passed (2)
+      Tests  1 failed | 76 passed (77)
+   Start at  21:19:36
+   Duration  832ms (transform 482ms, setup 0ms, import 960ms, tests 66ms, environment 0ms)
+
+
+== NOTE (T12 worker): the output above is the unit fail-first, run before any source change: setHeaderColour test fails (not exported), 1 failed / 76 passed. The model archive/header round-trip test passed before the change (unknown additive keys already survive the archive and save-queue header); the new validation of unknown keys/values is covered by the groups test.
+== The Playwright fail-first run was launched in the background but waited on the serial lock (T318 held it) and had not started when the implementation landed; it was cancelled, so there is NO pre-change browser run. The rewritten browser cases depend on DOM that did not exist before the change (role=group 'Colour', menuitemradio swatches, Project.headerColours), so they could not have passed against the old code, but this is reasoning, not a recorded run.

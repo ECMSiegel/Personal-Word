@@ -1,4 +1,5 @@
 import type { Entry, Project } from "../model";
+import type { Swatch } from "../appearance";
 
 /**
  * Top-level sidebar sections (HS9). Custom sections sit beside Manuscript and are part of the
@@ -86,6 +87,28 @@ export function renameGroup(p: Project, id: string, title: string): Project {
   const titles = name && name !== defaultGroupTitles[id] ? { ...rest, [id]: name } : rest;
   const { groupTitles: _gone, ...without } = p;
   return Object.keys(titles).length ? { ...without, groupTitles: titles } : without;
+}
+
+/** Sets or clears (undefined) a built-in header's colour in this project (T12); other ids are ignored. */
+export function setHeaderColour(p: Project, id: string, colour: Swatch | undefined): Project {
+  if (!(builtInGroups as readonly string[]).includes(id)) return p;
+  const { [id as BuiltInGroup]: _old, ...rest } = p.headerColours ?? {};
+  const next = colour ? { ...rest, [id]: colour } : rest;
+  const { headerColours: _gone, ...without } = p;
+  return Object.keys(next).length ? { ...without, headerColours: next } : without;
+}
+
+/** Sets or clears (undefined) a custom header's colour. Built-in headers use setHeaderColour. */
+export function setGroupColour(p: Project, id: string, colour: Swatch | undefined): Project {
+  if (!p.groups?.some((g) => g.id === id)) return p;
+  return {
+    ...p,
+    groups: p.groups.map((g) => {
+      if (g.id !== id) return g;
+      const { colour: _old, ...rest } = g;
+      return colour ? { ...rest, colour } : rest;
+    }),
+  };
 }
 
 /** Removes a custom section; its entries move to Manuscript (nothing is deleted). */

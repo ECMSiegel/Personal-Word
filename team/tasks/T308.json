@@ -1,0 +1,66 @@
+{
+  "id": "T308",
+  "title": "LP T4 -- Menus: popover shell, dropdown, context menu, export, New project, palette",
+  "description": "Brief: docs/agent-work/2026-11-12-layout-primitives/BRIEF.md, then task T4 of docs/agent-work/2026-11-12-layout-primitives/PLAN.md. Shared files are edited by owned selector/region only and registered on no task.",
+  "status": "done",
+  "owner": null,
+  "priority": 2,
+  "depends_on": [],
+  "files": [
+    "docs/agent-work/2026-11-12-layout-primitives/notes/T4.md",
+    "docs/agent-work/2026-11-12-layout-primitives/notes/T4-fail-first.txt",
+    "src/components/popover.css",
+    "src/components/dropdown.css",
+    "src/components/context-menu.css",
+    "src/components/command-palette.css",
+    "src/components/Popover.tsx",
+    "src/components/Dropdown.tsx",
+    "src/components/ContextMenu.tsx",
+    "src/components/CommandPalette.tsx",
+    "src/export/ExportMenu.tsx"
+  ],
+  "review_required": true,
+  "created_by": "agent-b823",
+  "created_at": "2026-11-12T22:13:36+00:00",
+  "claimed_at": "2026-11-12T22:34:02+00:00",
+  "updated_at": "2026-11-12T23:30:50+00:00",
+  "handoff": null,
+  "review": {
+    "by": "agent-99d3",
+    "at": "2026-11-12T23:30:50+00:00",
+    "verdict": "approved",
+    "note": "See docs/agent-work/2026-11-12-layout-primitives/REVIEW-2.md (T308). Real migration; DoD4 met in shots and measurements. Should-fix: tests/w9-fonts.spec.ts:61 use el.closest('.dropdown-option') (span.row-label inherits face; test not markup); widen 'every menu' inset/height test to all menus + palette case. Anchoring unchanged (zoom x move is T307; height +4 is T4 rows, T307 re-record). Palette input measures 37 not 40 (low)."
+  },
+  "log": [
+    {
+      "at": "2026-11-12T22:13:36+00:00",
+      "agent": "agent-b823",
+      "event": "created",
+      "note": ""
+    },
+    {
+      "at": "2026-11-12T22:34:02+00:00",
+      "agent": "agent-e085",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-11-12T22:34:03+00:00",
+      "agent": "agent-e085",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-11-12T22:46:41+00:00",
+      "agent": "agent-e085",
+      "event": "review requested",
+      "note": "Menus on .menu/.row/.menu-rule; fail-first 5 failed (notes/T4-fail-first.txt); after: T4 5/5 pass, 90 passed 1 failed (popover-bounds toolbar zoom x moved 22, toolbar anchor not mine). Budgets lowered cmd-palette 2, dropdown 3, popover 0. Files: Popover/Dropdown/ContextMenu/CommandPalette/ExportMenu/ProjectLibrary(create menu JSX), popover/dropdown/context-menu/command-palette/export-menu/library css, layout-invariants T4 block, layoutBudget."
+    },
+    {
+      "at": "2026-11-12T23:30:50+00:00",
+      "agent": "agent-99d3",
+      "event": "approved",
+      "note": "See docs/agent-work/2026-11-12-layout-primitives/REVIEW-2.md (T308). Real migration; DoD4 met in shots and measurements. Should-fix: tests/w9-fonts.spec.ts:61 use el.closest('.dropdown-option') (span.row-label inherits face; test not markup); widen 'every menu' inset/height test to all menus + palette case. Anchoring unchanged (zoom x move is T307; height +4 is T4 rows, T307 re-record). Palette input measures 37 not 40 (low)."
+    }
+  ]
+}

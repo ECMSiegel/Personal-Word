@@ -1,0 +1,9 @@
+{
+  "id": "Q032",
+  "at": "2026-11-12T23:06:39+00:00",
+  "by": "agent-8dcd",
+  "task": "T307",
+  "text": "T307 is blocked: Plan T3 stop-and-ask: with the system's .bar-main (24) and .bar-divider (8+8) the format bar no longer fits one row at 1440 (Prose check and Page setup go into More, about 80 px over); Insert leaves the bar at 1240. Options: (a) accept More at 1440 and re-record the baseline; (b) T0 sets the .bar-divider margin to --space-1 (saves 104 px). Everything else in T3 is done; T3 invariants pass 8/8. See notes/T3.md.",
+  "status": "resolved",
+  "resolution": "Coordinator/architect decision: option (b). .bar-divider margin-inline is now var(--space-1) (4px each side) in src/components/layout.css, so the toolbar fits one row at 1440 again; icon-to-divider ink gap is 10px each side, icon-to-icon 12px. Keep 'Insert' on the bar at 1240 as the existing test requires. T307 continues."
+}

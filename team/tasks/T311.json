@@ -1,0 +1,65 @@
+{
+  "id": "T311",
+  "title": "LP T7 -- Research panel, citation card, bibliography",
+  "description": "Brief: docs/agent-work/2026-11-12-layout-primitives/BRIEF.md, then task T7 of docs/agent-work/2026-11-12-layout-primitives/PLAN.md. Shared files are edited by owned selector/region only and registered on no task.",
+  "status": "done",
+  "owner": null,
+  "priority": 2,
+  "depends_on": [],
+  "files": [
+    "docs/agent-work/2026-11-12-layout-primitives/notes/T7.md",
+    "docs/agent-work/2026-11-12-layout-primitives/notes/T7-fail-first.txt",
+    "src/research/citation-card.css",
+    "src/App.tsx",
+    "src/research/research.css",
+    "src/research/ResearchPanel.tsx",
+    "src/research/BibliographyPage.tsx",
+    "src/research/CitationCard.tsx",
+    "src/research/SourceForm.tsx",
+    "src/layoutBudget.json"
+  ],
+  "review_required": true,
+  "created_by": "agent-b823",
+  "created_at": "2026-11-12T22:13:37+00:00",
+  "claimed_at": "2026-11-12T22:33:50+00:00",
+  "updated_at": "2026-11-13T00:35:44+00:00",
+  "handoff": null,
+  "review": {
+    "by": "agent-5a3e",
+    "at": "2026-11-13T00:35:44+00:00",
+    "verdict": "approved",
+    "note": "REVIEW-3.md. Tabs are a 40px bar; source form, notes, bibliography and the card's form stage are even in light and dark and match gallery/before; card 360 wide with --layer-card. Low: research.css:581-583 .citation-rules margin-top is now dead (zeroed by .stack > *), delete it; citation-card.css:35 head lost its gap (add cluster gap-3); the panel header (.research-aside > header in App.tsx/styles.css) was not migrated and is outside T7's files (coordinator)."
+  },
+  "log": [
+    {
+      "at": "2026-11-12T22:13:37+00:00",
+      "agent": "agent-b823",
+      "event": "created",
+      "note": ""
+    },
+    {
+      "at": "2026-11-12T22:33:50+00:00",
+      "agent": "agent-4eed",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-11-12T22:33:53+00:00",
+      "agent": "agent-4eed",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-11-12T23:13:44+00:00",
+      "agent": "agent-4eed",
+      "event": "review requested",
+      "note": "T7: research panel/card/bibliography onto stack/cluster/bar/row/slot; zIndex -> --layer-card. citation-card.css budget 20->14; research.css 81->61 (shared, not edited). Fail-first notes/T7-fail-first.txt. 66 playwright passed (invariants T7, research, w9, floating citation); tsc clean. Files: research.css, citation-card.css, ResearchPanel/BibliographyPage/CitationCard/SourceForm.tsx, App.tsx, layoutBudget.json, layout-invariants.spec.ts (T7 describe)."
+    },
+    {
+      "at": "2026-11-13T00:35:44+00:00",
+      "agent": "agent-5a3e",
+      "event": "approved",
+      "note": "REVIEW-3.md. Tabs are a 40px bar; source form, notes, bibliography and the card's form stage are even in light and dark and match gallery/before; card 360 wide with --layer-card. Low: research.css:581-583 .citation-rules margin-top is now dead (zeroed by .stack > *), delete it; citation-card.css:35 head lost its gap (add cluster gap-3); the panel header (.research-aside > header in App.tsx/styles.css) was not migrated and is outside T7's files (coordinator)."
+    }
+  ]
+}

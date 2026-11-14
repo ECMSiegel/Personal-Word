@@ -1,0 +1,2 @@
+1440 default sidebar: {"barWidth":1170,"avail":1122,"used":1101,"more":false,"hasProse":true,"hasSetup":true,"hasInsert":true}
+1240 sidebar 270: {"barWidth":970,"avail":922,"used":897,"more":true,"hasProse":false,"hasSetup":false,"hasInsert":true}

@@ -206,5 +206,5 @@ export function SourceForm({ source, patch, idPrefix, onError, onAttachPdf, onOp
           </details>
         </>}
       </>;
- return variant === "card" ? <div className="research-fields-source">{body}</div> : body;
+ return variant === "card" ? <div className="research-fields-source stack gap-3">{body}</div> : body;
 }

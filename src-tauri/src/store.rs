@@ -1931,8 +1931,10 @@ mod tests {
             serde_json::json!(["comments"]),
         );
         // HS9: custom top-level sections and an entry's section round-trip as additive metadata.
-        p.extra.insert("groups".into(), serde_json::json!([{"id":"g1","title":"Part two"}]));
+        p.extra.insert("groups".into(), serde_json::json!([{"id":"g1","title":"Part two","colour":"purple"}]));
         p.extra.insert("groupTitles".into(), serde_json::json!({"manuscript":"Chapters"}));
+        // T12: per-project built-in header colours are additive metadata too.
+        p.extra.insert("headerColours".into(), serde_json::json!({"fragments":"purple"}));
         p.entries[0].extra.insert("group".into(), serde_json::json!("g1"));
         p.entries[0]
             .extra

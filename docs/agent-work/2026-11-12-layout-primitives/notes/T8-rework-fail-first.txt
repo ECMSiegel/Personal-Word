@@ -1,0 +1,112 @@
+
+Running 9 tests using 1 worker
+
+[1/9] tests/layout-invariants.spec.ts:536:3 › comments, fragments, revisions (T8) › T8: comment items are evenly spaced with equal space above and below each divider
+  1) tests/layout-invariants.spec.ts:536:3 › comments, fragments, revisions (T8) › T8: comment items are evenly spaced with equal space above and below each divider 
+
+    Error: dividers [{"above":24,"below":32},{"above":24,"below":32},{"above":24,"below":32}]
+
+    expect(received).toBeLessThanOrEqual(expected)
+
+    Expected: <= 1
+    Received:    8
+
+      539 |     await expectEvenRows(items.filter({ hasText: /^(First|Second|Third) task/ }));
+      540 |     const d = await dividerSpacing(items);
+    > 541 |     for (const x of d) expect(Math.abs(x.above - x.below), `dividers ${JSON.stringify(d)}`).toBeLessThanOrEqual(1);
+          |                                                                                             ^
+      542 |   });
+      543 |
+      544 |   test("T8: fragment rows are even, dividers centred, and action icons are 24 x 24 slots sharing a right edge", async ({ page }) => {
+        at /Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/tests/layout-invariants.spec.ts:541:93
+
+    Error Context: test-results/T312/layout-invariants-comments-a1144-bove-and-below-each-divider/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/T312/layout-invariants-comments-a1144-bove-and-below-each-divider/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/T312/layout-invariants-comments-a1144-bove-and-below-each-divider/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+[2/9] tests/layout-invariants.spec.ts:544:3 › comments, fragments, revisions (T8) › T8: fragment rows are even, dividers centred, and action icons are 24 x 24 slots sharing a right edge
+  2) tests/layout-invariants.spec.ts:544:3 › comments, fragments, revisions (T8) › T8: fragment rows are even, dividers centred, and action icons are 24 x 24 slots sharing a right edge 
+
+    Error: locator('.fragment-library .fragment-icon').first() width 18
+
+    expect(received).toBeLessThanOrEqual(expected)
+
+    Expected: <= 0.5
+    Received:    6
+
+       at layout-helpers.ts:107
+
+      105 |     const b = await item.boundingBox();
+      106 |     if (!b) throw new Error(`expectSlots: ${item} is not visible`);
+    > 107 |     expect(Math.abs(b.width - w), `${item} width ${b.width}`).toBeLessThanOrEqual(0.5);
+          |                                                               ^
+      108 |     expect(Math.abs(b.height - h), `${item} height ${b.height}`).toBeLessThanOrEqual(0.5);
+      109 |   }
+      110 | }
+        at expectSlots (/Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/tests/layout-helpers.ts:107:63)
+        at /Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/tests/layout-invariants.spec.ts:550:5
+
+    Error Context: test-results/T312/layout-invariants-comments-bf228--slots-sharing-a-right-edge/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/T312/layout-invariants-comments-bf228--slots-sharing-a-right-edge/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/T312/layout-invariants-comments-bf228--slots-sharing-a-right-edge/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+[3/9] tests/layout-invariants.spec.ts:556:3 › comments, fragments, revisions (T8) › T8: revision-compare controls sit on one centre line, evenly spaced from their neighbours
+  3) tests/layout-invariants.spec.ts:556:3 › comments, fragments, revisions (T8) › T8: revision-compare controls sit on one centre line, evenly spaced from their neighbours 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: locator('.revision-comparison > .revision-change-controls.cluster')
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" locator('.revision-comparison > .revision-change-controls.cluster') with timeout 5000ms
+      - waiting for locator('.revision-comparison > .revision-change-controls.cluster')
+
+
+      557 |     await seedRevision(page);
+      558 |     const controls = page.locator(".revision-comparison > .revision-change-controls.cluster");
+    > 559 |     await expect(controls).toBeVisible();
+          |                            ^
+      560 |     const centres = await controls.locator("> *").evaluateAll((els) => els.map((e) => { const r = e.getBoundingClientRect(); return r.top + r.height / 2; }));
+      561 |     expect(Math.max(...centres) - Math.min(...centres), `centres ${centres.join(", ")}`).toBeLessThanOrEqual(1);
+      562 |     const gaps = await page.locator(".revision-comparison").evaluate((el) => {
+        at /Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/tests/layout-invariants.spec.ts:559:28
+
+    Error Context: test-results/T312/layout-invariants-comments-bf41a-paced-from-their-neighbours/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/T312/layout-invariants-comments-bf41a-paced-from-their-neighbours/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/T312/layout-invariants-comments-bf41a-paced-from-their-neighbours/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+[4/9] tests/layout-invariants.spec.ts:573:7 › comments, fragments, revisions (T8) › T8 screenshots › T8: comments light
+[5/9] tests/layout-invariants.spec.ts:578:7 › comments, fragments, revisions (T8) › T8 screenshots › T8: fragments light
+[6/9] tests/layout-invariants.spec.ts:585:7 › comments, fragments, revisions (T8) › T8 screenshots › T8: revision and read light
+[7/9] tests/layout-invariants.spec.ts:573:7 › comments, fragments, revisions (T8) › T8 screenshots › T8: comments dark
+[8/9] tests/layout-invariants.spec.ts:578:7 › comments, fragments, revisions (T8) › T8 screenshots › T8: fragments dark
+[9/9] tests/layout-invariants.spec.ts:585:7 › comments, fragments, revisions (T8) › T8 screenshots › T8: revision and read dark
+  3 failed
+    tests/layout-invariants.spec.ts:536:3 › comments, fragments, revisions (T8) › T8: comment items are evenly spaced with equal space above and below each divider 
+    tests/layout-invariants.spec.ts:544:3 › comments, fragments, revisions (T8) › T8: fragment rows are even, dividers centred, and action icons are 24 x 24 slots sharing a right edge 
+    tests/layout-invariants.spec.ts:556:3 › comments, fragments, revisions (T8) › T8: revision-compare controls sit on one centre line, evenly spaced from their neighbours 
+  6 skipped

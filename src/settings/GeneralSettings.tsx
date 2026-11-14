@@ -1,9 +1,7 @@
 import type { ReactNode } from "react";
-import { Dropdown } from "../components/Dropdown";
 import { Segmented } from "../components/Segmented";
 import { AppearanceSettings } from "./AppearanceSettings";
 import {
-  SWATCHES,
   type Appearance,
   type Palette,
   type Theme,
@@ -42,9 +40,9 @@ export function GeneralSettings({
 }) {
   return (
     <>
-      <section className="settings-section">
+      <section className="settings-section stack gap-4">
         <h2>General</h2>
-        <label className="settings-check">
+        <label className="settings-check cluster gap-2">
           <input
             type="checkbox"
             checked={restoreTabs}
@@ -52,8 +50,8 @@ export function GeneralSettings({
           />
           Restore open project tabs at launch
         </label>
-        <div className="settings-form">
-          <div className="settings-field">
+        <div className="settings-form stack gap-3">
+          <div className="settings-field row gap-3">
             <span className="settings-label">Appearance</span>
             <Segmented<Theme>
               label="Appearance"
@@ -66,7 +64,7 @@ export function GeneralSettings({
               onChange={(theme) => onAppearance({ ...appearance, theme })}
             />
           </div>
-          <div className="settings-field">
+          <div className="settings-field row gap-3">
             <span className="settings-label">Palette</span>
             <Segmented<Palette>
               label="Palette"
@@ -79,54 +77,9 @@ export function GeneralSettings({
             />
           </div>
           <AppearanceSettings />
-          {appearance.palette === "color" && (
-            <div className="settings-field settings-field--wide">
-              <span className="settings-label">Section colours</span>
-              <div className="section-swatches">
-                {(
-                  [
-                    ["manuscript", "Manuscript colour"],
-                    ["fragments", "Fragments colour"],
-                    ["research", "Research colour"],
-                  ] as const
-                ).map(([section, label]) => (
-                  <Dropdown
-                    key={section}
-                    label={label}
-                    width="100%"
-                    value={appearance.sections[section]}
-                    options={SWATCHES.map((swatch) => {
-                      const name =
-                        swatch[0].toUpperCase() + swatch.slice(1);
-                      return {
-                        value: swatch,
-                        label: name,
-                        render: (
-                          <span className="swatch-option">
-                            <span
-                              aria-hidden="true"
-                              className="swatch-chip"
-                              data-swatch={swatch}
-                            />
-                            {name}
-                          </span>
-                        ),
-                      };
-                    })}
-                    onChange={(swatch) =>
-                      onAppearance({
-                        ...appearance,
-                        sections: { ...appearance.sections, [section]: swatch },
-                      })
-                    }
-                  />
-                ))}
-              </div>
-            </div>
-          )}
         </div>
-        <div className="settings-form">
-          <div className="settings-field">
+        <div className="settings-form stack gap-3">
+          <div className="settings-field row gap-3">
             <span className="settings-label">Storage location</span>
             <button
               className="settings-button"
@@ -138,9 +91,9 @@ export function GeneralSettings({
           </div>
         </div>
       </section>
-      <section className="settings-section">
+      <section className="settings-section stack gap-4">
         <h2>Sidebar</h2>
-        <label className="settings-check">
+        <label className="settings-check cluster gap-2">
           <input
             type="checkbox"
             checked={hoverReveal}
@@ -148,7 +101,7 @@ export function GeneralSettings({
           />
           Reveal sidebar on hover
         </label>
-        <label className="settings-check">
+        <label className="settings-check cluster gap-2">
           <input
             type="checkbox"
             checked={floating}

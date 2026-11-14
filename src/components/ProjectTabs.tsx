@@ -14,7 +14,7 @@ export function ProjectTabs({
   onLibrary: () => void;
 }) {
   return (
-    <nav className="project-tabs" aria-label="Open projects">
+    <nav className="project-tabs bar bar-compact" aria-label="Open projects">
       <button onClick={onLibrary} className="tabs-library">
         Projects
       </button>

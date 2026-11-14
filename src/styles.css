@@ -50,6 +50,19 @@
   --elevation-raised: var(--paper);
   --shadow-raised: 0 6px 18px var(--shadow);
   --control-height: 32px;
+  /* Layout primitives (src/components/layout.css): bar, row and slot sizes, insets, layers. */
+  --bar-height: 40px;
+  --row-height: 32px;
+  --row-height-compact: 28px;
+  --slot: 24px;
+  --slot-toolbar-w: 28px;
+  --edge: var(--space-4);
+  --edge-main: var(--space-5);
+  --layer-card: 39;
+  --layer-bar: 40;
+  --layer-popover: 45;
+  --layer-overlay: 60;
+  --layer-modal: 70;
   --header-gap: var(--space-2);
   --icon-size: 16px;
   --icon-chevron: 14px;
@@ -186,39 +199,11 @@
   --danger: var(--danger-plain);
   --focus-ring: 2px solid var(--accent-plain);
 }
-/* Section colours, Settings > General (Color palette only). The row spans the
-   full field column and holds one dropdown per section; each option carries a
-   swatch chip drawn from the --swatch-* tokens. */
-.project-settings .settings-field.settings-field--wide {
-  grid-template-columns: 180px minmax(0, 1fr);
-}
-.section-swatches {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: var(--space-2);
+/* A wide Settings row (Appearance fonts) spans the full field column. */
+.project-settings .settings-field.settings-field--wide > .settings-label + * {
+  flex: 1 1 0;
   min-width: 0;
 }
-.swatch-option {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-2);
-}
-.swatch-chip {
-  display: inline-block;
-  flex: none;
-  width: var(--space-3);
-  height: var(--space-3);
-  border: 1px solid var(--line);
-  background: var(--swatch-blue);
-}
-.swatch-chip[data-swatch="red"] { background: var(--swatch-red); }
-.swatch-chip[data-swatch="orange"] { background: var(--swatch-orange); }
-.swatch-chip[data-swatch="yellow"] { background: var(--swatch-yellow); }
-.swatch-chip[data-swatch="green"] { background: var(--swatch-green); }
-.swatch-chip[data-swatch="teal"] { background: var(--swatch-teal); }
-.swatch-chip[data-swatch="blue"] { background: var(--swatch-blue); }
-.swatch-chip[data-swatch="indigo"] { background: var(--swatch-indigo); }
-.swatch-chip[data-swatch="purple"] { background: var(--swatch-purple); }
 :root {
   --ui-font: Futura, "Avenir Next", -apple-system, BlinkMacSystemFont, sans-serif;
   font-family: var(--ui-font);
@@ -593,7 +578,6 @@ p {
   border-right: 1px solid var(--line);
   display: flex;
   flex-direction: column;
-  padding: var(--space-4) var(--space-4) 0;
   -webkit-user-select: none;
   user-select: none;
 }
@@ -623,33 +607,14 @@ p {
   text-align: left;
   font-weight: 600;
   font-size: var(--type-large);
-  margin: var(--space-6) var(--space-1) 3px;
-  padding: var(--space-2);
+  padding: 0;
 }
 .project-switch span {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-.local-label {
-  display: flex;
-  align-items: center;
-  gap: var(--space-2);
-  font-size: var(--type-small);
-  color: var(--muted);
-  margin-left: var(--space-4);
-}
-.local-label span {
-  height: 5px;
-  width: 5px;
-  background: var(--muted);
-  border-radius: 50%;
-}
 .search {
-  display: flex;
-  align-items: center;
-  gap: var(--space-1);
-  margin: var(--space-5) var(--space-1) var(--space-5);
   color: var(--muted);
 }
 .search input {
@@ -670,7 +635,6 @@ p {
   grid-area: 1 / 1;
 }
 .search-clear {
-  padding: var(--space-1);
   opacity: 0;
   visibility: hidden;
   transition:
@@ -681,19 +645,14 @@ p {
   opacity: 1;
   visibility: visible;
 }
+/* Headings are .row (layout.css): label and icon at --edge, actions in
+   .row-trail > .cluster.gap-0.flush-end of .slot buttons. */
 .group-heading {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
   font-size: var(--type-small);
-  letter-spacing: 1.3px;
+  letter-spacing: 0;
   color: var(--text);
   font-weight: 600;
-  padding: 0 var(--space-3);
-  margin-bottom: var(--space-2);
-}
-.group-heading button {
-  padding: 3px;
+  margin-bottom: var(--space-1);
 }
 .entry-list {
   overflow: auto;
@@ -704,26 +663,23 @@ p {
   align-items: center;
   position: relative;
 }
-/* A PDF child of a source sits one step deeper: one --space-4 (16 px) past the
-   depth-0 label, since every row now starts with a 16 px icon. The base padding
-   comes from the later .entry-main rule (--space-2). */
+/* Rows are .row (layout.css). A PDF child of a source sits one --space-4 deeper. */
 .entry-row[data-depth="1"] .entry-main {
-  padding-left: calc(var(--space-2) + var(--space-4));
+  padding-inline-start: calc(var(--edge) + var(--space-4));
 }
-.entry-row.has-beside .entry-main,
-.entry-row:has(.reorder):is(:hover, :focus-within) .entry-main {
-  padding-right: 40px;
+/* The row's action slots (.entry-trail) sit over the row's end, under the heading's
+   [view][+] columns; while they show, the label leaves room for two slots. */
+.entry-list .entry-row.has-beside .entry-main,
+.entry-list .entry-row:has(.reorder):is(:hover, :focus-within) .entry-main {
+  padding-inline-end: calc(2 * var(--slot));
 }
-/* The glyph's right edge sits on the row's right edge (the 30 px box centred on a 16 px
-   glyph overhangs by 7 px), so every split icon keeps the same gap from the rail. */
-.collection-open-beside {
+.entry-trail {
   position: absolute;
-  right: -7px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 30px;
-  height: 30px;
+  top: 0;
+  right: 0;
+  bottom: 0;
+}
+.collection-open-beside {
   opacity: 0;
 }
 .entry-row:hover .collection-open-beside,
@@ -735,7 +691,6 @@ p {
 }
 .entry-main {
   width: 100%;
-  padding: var(--space-3) var(--space-3);
   justify-content: flex-start;
   text-align: left;
   font-size: var(--type-small);
@@ -755,18 +710,11 @@ p {
   color: var(--text);
 }
 .reorder {
-  display: flex;
   opacity: 0;
-  position: absolute;
-  right: 0;
 }
 .entry-row:hover .reorder,
 .entry-row:focus-within .reorder {
-  display: flex;
   opacity: 1;
-}
-.reorder button {
-  padding: var(--space-2) 0;
 }
 .read-button {
   font-size: var(--type-small);
@@ -784,24 +732,6 @@ p {
   color: var(--muted);
   padding: var(--space-2) var(--space-3);
 }
-.sidebar-bottom {
-  margin-top: auto;
-  border-top: 1px solid var(--line);
-  padding: var(--space-4) 0;
-}
-.sidebar-bottom > button {
-  font-size: var(--type-small);
-  justify-content: flex-start;
-  padding: var(--space-2) var(--space-3);
-  width: 100%;
-}
-.sidebar-bottom > div {
-  display: flex;
-  justify-content: space-between;
-  color: var(--muted);
-  font-size: var(--type-small);
-  padding: var(--space-4) var(--space-3) 0;
-}
 .workspace {
   flex: 1;
   min-width: 0;
@@ -812,27 +742,15 @@ p {
   overflow: clip;
 }
 .topbar {
-  height: 66px;
   flex-shrink: 0;
   border-bottom: 1px solid var(--line);
-  display: flex;
-  align-items: center;
   justify-content: space-between;
-  padding: 0 var(--space-5);
-  gap: var(--header-gap);
 }
-.topbar > div {
-  display: flex;
-  align-items: center;
-  gap: var(--header-gap);
+/* Height, side inset and gap come from .bar.bar-main. Only the title group gives way; the
+   status, Snapshot and export cluster keeps its size. */
+.topbar > div:first-child {
+  flex: 0 1 auto;
   min-width: 0;
-}
-/* The status, Snapshot and export group keeps its size; only the title gives way. */
-.topbar > div:last-child {
-  flex-shrink: 0;
-}
-.topbar button {
-  padding: var(--space-2);
 }
 .breadcrumb {
   display: inline-flex;
@@ -876,7 +794,7 @@ p {
   color: var(--muted);
   display: flex;
   align-items: center;
-  gap: var(--space-1);
+  gap: var(--space-2);
   white-space: nowrap;
 }
 .save-status.error {
@@ -890,7 +808,7 @@ p {
 }
 .snapshot-button {
   font-size: var(--type-small);
-  padding: var(--space-2);
+  padding: 0;
 }
 .editor-area {
   flex: 1;
@@ -922,13 +840,7 @@ p {
   flex: 1 1 0;
 }
 .split-pane-header {
-  display: flex;
-  align-items: center;
-  gap: var(--space-2);
-  box-sizing: border-box;
   flex: 0 0 auto;
-  height: var(--control-height);
-  padding: 0 var(--space-2) 0 var(--space-3);
   border-bottom: 1px solid var(--line);
   font-size: var(--type-small);
   color: var(--muted);
@@ -944,12 +856,6 @@ p {
   white-space: nowrap;
 }
 .split-close {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: var(--control-height);
-  height: calc(var(--control-height) - 1px);
-  padding: 0;
   color: var(--muted);
 }
 .pdf-pane-frame {
@@ -993,20 +899,6 @@ p {
   color: var(--muted);
   margin-top: var(--space-4);
 }
-.format-bar {
-  display: flex;
-  align-items: center;
-  gap: 2px;
-  padding: var(--space-2) 0;
-  border-top: 1px solid var(--line);
-  border-bottom: 1px solid var(--line);
-  margin: 0 var(--space-2) var(--space-5);
-  flex-wrap: wrap;
-  position: sticky;
-  top: 0;
-  background: var(--paper);
-  z-index: 1;
-}
 .format-bar button {
   padding: var(--space-2);
   color: var(--text);
@@ -1028,10 +920,6 @@ p {
 .pane-footer,
 .save-status {
   font-variant-numeric: tabular-nums;
-}
-.format-bar .extract {
-  margin-left: auto;
-  font-size: var(--type-small);
 }
 .writing-surface {
   font-family: Futura, "Avenir Next", sans-serif;
@@ -1076,26 +964,6 @@ p {
   border-top: 1px solid var(--muted);
   margin: 30px 0;
 }
-.statusbar {
-  height: 37px;
-  flex-shrink: 0;
-  border-top: 1px solid var(--line);
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 0 var(--space-5);
-  font-size: var(--type-small);
-  color: var(--muted);
-}
-.statusbar > div {
-  display: flex;
-  gap: var(--space-4);
-  align-items: center;
-}
-.statusbar button {
-  font-size: var(--type-small);
-  padding: var(--space-1);
-}
 .reattach-banner {
   border-top: 1px solid var(--line);
   margin-top: 36px;
@@ -1118,19 +986,11 @@ p {
 .focus .sidebar {
   display: none;
 }
-.primary {
-  background: var(--text);
-  color: var(--paper);
-  padding: var(--space-3) var(--space-4);
-  font-size: var(--type-small);
-}
-.primary:hover:not(:disabled) {
-  background: var(--text);
-}
 .library {
-  padding: 60px max(40px, calc((100vw - 800px) / 2));
+  padding: 44px max(40px, calc((100vw - 800px) / 2)) 60px;
   width: 100%;
   overflow: auto;
+  background: var(--paper);
 }
 .library .brand {
   padding: 0;
@@ -1142,30 +1002,9 @@ p {
   letter-spacing: 0;
   margin-left: var(--space-4);
 }
-.library-heading {
-  margin-top: 80px;
-}
 .library p {
   color: var(--muted);
   line-height: 1.8;
-}
-.project-list {
-  margin: 38px 0 var(--space-5);
-}
-.project-row {
-  display: flex;
-  align-items: center;
-  border-top: 1px solid var(--line);
-}
-.project-row > button:first-child {
-  padding: var(--space-4) 0;
-  flex: 1;
-  justify-content: flex-start;
-  border-radius: 0;
-  text-align: left;
-}
-.project-row > button:first-child > span:first-of-type {
-  flex: 1;
 }
 .delete-entry {
   padding: var(--space-2);
@@ -1225,7 +1064,6 @@ p {
   font-size: var(--type-body);
   line-height: 1.5;
   color: var(--text);
-  margin: -10px 0 var(--space-5);
 }
 .project-list strong,
 .project-list small {
@@ -1262,7 +1100,7 @@ p {
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 70;
+  z-index: var(--layer-modal);
   backdrop-filter: blur(3px);
 }
 .dialog {
@@ -1276,7 +1114,6 @@ p {
   font:
     var(--type-display) Futura,
     sans-serif;
-  margin: var(--space-5) 0 var(--space-5);
 }
 .dialog label {
   font-size: var(--type-small);
@@ -1285,15 +1122,12 @@ p {
 .dialog input:not([type="checkbox"]) {
   display: block;
   width: 100%;
-  margin: var(--space-2) 0 var(--space-6);
   font-size: var(--type-large);
   padding: var(--space-3);
 }
 .dialog-actions {
-  display: flex;
   flex-wrap: wrap;
   justify-content: flex-end;
-  gap: var(--space-4);
 }
 .dialog-actions > button {
   padding: var(--space-3) var(--space-4);
@@ -1313,7 +1147,7 @@ p {
   gap: var(--space-4);
   max-width: 85vw;
   font-size: var(--type-small);
-  z-index: 30;
+  z-index: var(--layer-bar);
   box-shadow: 0 5px 25px var(--shadow);
   overflow-wrap: anywhere;
 }
@@ -1327,6 +1161,7 @@ p {
   white-space: nowrap;
 }
 .versions {
+  --edge: 0px;
   width: 290px;
   padding: var(--space-5) var(--space-5);
   border-left: 1px solid var(--line);
@@ -1337,7 +1172,6 @@ p {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: var(--space-5);
 }
 .panel-heading h2 {
   font:
@@ -1348,7 +1182,6 @@ p {
 .version-tabs {
   display: flex;
   border-bottom: 1px solid var(--line);
-  margin-bottom: var(--space-4);
 }
 .version-tabs button {
   font-size: var(--type-small);
@@ -1364,7 +1197,7 @@ p {
   justify-content: flex-start;
   text-align: left;
   border-bottom: 1px solid var(--line);
-  padding: var(--space-4) 2px;
+  padding-block: var(--space-4);
 }
 .version-item strong,
 .version-item small {
@@ -1377,15 +1210,12 @@ p {
 .version-item small {
   font-size: var(--type-small);
   color: var(--muted);
-  margin-top: var(--space-1);
 }
 .preview-dialog {
   background: var(--paper);
   padding: var(--space-6);
   width: 720px;
   max-height: 85vh;
-  display: flex;
-  flex-direction: column;
 }
 .preview-dialog h2 {
   font:
@@ -1399,7 +1229,6 @@ p {
 }
 .preview-content {
   overflow: auto;
-  margin: var(--space-3) 0 var(--space-5);
   flex: 1;
 }
 /* Direct children only: the comparison's own column sections are not separate
@@ -1472,9 +1301,6 @@ p {
   .breadcrumb {
     max-width: 190px;
   }
-  .format-bar .extract span {
-    display: none;
-  }
   .versions {
     position: absolute;
     right: 0;
@@ -1541,10 +1367,11 @@ button[aria-pressed="true"],
   flex: 1;
   min-height: 0;
 }
-.project-tabs {
-  height: 34px;
-  min-height: 34px;
-  display: flex;
+/* .bar-compact supplies the 32 px height; the tabs touch (gap 0) and stretch to the full bar.
+   The doubled class beats the primitive's own gap and centring. */
+.project-tabs.bar {
+  --edge: 0px;
+  gap: 0;
   align-items: stretch;
   overflow-x: auto;
   border-bottom: 1px solid var(--line);
@@ -1553,7 +1380,8 @@ button[aria-pressed="true"],
 .project-tabs > button,
 .project-tab > button {
   font-size: var(--type-small);
-  padding: var(--space-2) var(--space-3);
+  padding-block: 0;
+  padding-inline: var(--space-3);
   white-space: nowrap;
 }
 .project-tab {
@@ -1589,12 +1417,12 @@ button[aria-pressed="true"],
 }
 .sidebar-shell.is-overlay {
   flex-basis: 0;
-  z-index: 60;
+  z-index: var(--layer-overlay);
 }
 .sidebar-shell .sidebar {
   width: var(--sidebar-width);
   height: 100%;
-  padding: var(--space-4) var(--space-3) 0;
+  padding-top: var(--space-4);
   position: relative;
   background: var(--surface);
   container-type: inline-size;
@@ -1634,20 +1462,12 @@ button[aria-pressed="true"],
   outline: var(--focus-ring);
   outline-offset: calc(var(--focus-offset) * -1);
 }
-.sidebar-title-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--space-1);
-  min-height: var(--control-height);
-}
-.sidebar-pin {
-  padding: var(--space-1);
-}
+/* Title row and search row are .bar (layout.css), docked and floating alike: the title
+   text and the search icon start at --edge. */
 .sidebar .project-switch {
   flex: 1;
+  align-self: stretch;
   min-width: 0;
-  margin: 0;
 }
 .project-title-input {
   border: 0;
@@ -1657,23 +1477,14 @@ button[aria-pressed="true"],
   font-size: var(--type-large);
   font-weight: 600;
 }
-.search {
-  margin: var(--space-3) 0 var(--space-4);
+.sidebar .search {
+  margin-bottom: var(--space-3);
 }
 /* HS4: docked sidebar only. The title row fills the same 40 px band as .topbar and the
    search row the same 40 px band as the format bar, content centred, no new border lines.
-   Floating and overlay sidebars keep their own spacing. */
+   Floating and overlay sidebars keep their top padding. */
 .sidebar-shell:not(.is-floating):not(.is-overlay) .sidebar {
   padding-top: 0;
-}
-.sidebar-shell:not(.is-floating):not(.is-overlay) .sidebar-title-row {
-  height: 40px;
-  min-height: 0;
-}
-.sidebar-shell:not(.is-floating):not(.is-overlay) .sidebar .search {
-  height: 40px;
-  margin-top: 0;
-  margin-bottom: var(--space-3);
 }
 .sidebar-groups {
   position: relative;
@@ -1693,15 +1504,8 @@ button[aria-pressed="true"],
   position: relative;
   margin-bottom: var(--space-4);
 }
-.group-heading {
-  padding: 0;
-  margin: 0 0 var(--space-1);
-  letter-spacing: 0;
-  font-size: var(--type-small);
-  gap: 3px;
-}
 .group-title {
-  padding: var(--space-2);
+  padding: var(--space-1) 0;
   justify-content: flex-start;
   text-align: left;
   font-weight: 500;
@@ -1749,9 +1553,6 @@ button[aria-pressed="true"],
   color: var(--text);
 }
 .group-actions {
-  display: flex;
-  flex-shrink: 0;
-  margin-left: auto;
   opacity: 0;
 }
 .sidebar-group:hover > .group-heading .group-actions,
@@ -1766,8 +1567,17 @@ button[aria-pressed="true"],
 .sidebar-group[data-group-kind="manuscript"]:not(:hover, :focus-within) > .group-heading .group-view-toggle {
   opacity: 0;
 }
-.group-actions button {
-  padding: var(--space-1) 2px;
+/* The view toggle takes no room at rest (the label gets it); it stays focusable, and
+   takes its 24 px slot the instant the group is hovered or holds focus. No width motion. */
+.sidebar-groups .group-view-toggle {
+  width: 0;
+  min-width: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+.sidebar-groups .sidebar-group:is(:hover, :has(:focus-visible)) > .group-heading .group-view-toggle {
+  width: var(--slot);
+  pointer-events: auto;
 }
 .entry-list {
   max-height: none;
@@ -1788,9 +1598,13 @@ button[aria-pressed="true"],
   gap: var(--space-2);
 }
 .entry-main {
-  padding: var(--space-2) var(--space-2);
-  min-height: 32px;
+  padding-block: 0;
   font-size: var(--type-small);
+}
+/* List rows end at the rail gutter (scrollspy.css), so their trail sits under the heading's
+   [view][+] slots; the gutter, not the row, holds the right --edge. */
+.list-view .entry-list .entry-main {
+  padding-inline-end: 0;
 }
 .entry-row.selected::before {
   content: none;
@@ -1798,6 +1612,7 @@ button[aria-pressed="true"],
 .cards-view .entry-list {
   display: grid;
   gap: var(--space-2);
+  padding-inline: var(--edge);
 }
 .cards-view .entry-row {
   border: 1px solid var(--line);
@@ -1888,36 +1703,21 @@ button[aria-pressed="true"],
 .focus .sidebar-shell {
   display: none;
 }
-.library {
-  padding-top: 44px;
-  background: var(--paper);
-}
-.library-heading {
-  margin-top: 48px;
-}
 .library-toolbar,
 .library-display {
-  display: flex;
-  align-items: center;
   justify-content: space-between;
-  gap: var(--header-gap);
+}
+/* The toolbar is a .bar with no side inset: it sits on the page's own margin. */
+.library-toolbar {
+  --edge: 0px;
 }
 .library-display {
   font-size: var(--type-small);
 }
-.library-display label {
-  display: flex;
-  align-items: center;
-  gap: var(--space-1);
-}
-.library-display > button {
-  padding: var(--space-2);
-}
-/* Header rows share one control height; their gaps come from --header-gap. */
-.topbar > div > button,
+/* Header rows share one control height; their gaps come from the bar and cluster. */
+.topbar > div > button:not(.slot),
 .library-toolbar > button,
 .library-toolbar > .create-project > button,
-.library-display > button,
 .library-display > label {
   min-height: var(--control-height);
 }
@@ -1927,6 +1727,7 @@ button[aria-pressed="true"],
 .primary {
   background: var(--accent);
   color: white;
+  padding: var(--space-3) var(--space-4);
   font-size: var(--type-small);
   font-weight: 500;
 }
@@ -1941,8 +1742,8 @@ button[aria-pressed="true"],
 .project-list {
   display: flex;
   flex-direction: column;
-  margin-top: var(--space-5);
-  gap: 0;
+  /* The rows' inset is the page margin, not --edge. */
+  --edge: 0px;
 }
 .project-row {
   border-top: 1px solid var(--line);
@@ -1953,6 +1754,9 @@ button[aria-pressed="true"],
   gap: var(--space-4);
   flex-direction: row;
   align-items: center;
+  justify-content: flex-start;
+  border-radius: 0;
+  text-align: left;
 }
 .project-list .project-name {
   font-size: var(--type-body);
@@ -1966,14 +1770,14 @@ button[aria-pressed="true"],
   display: flex;
   gap: var(--space-3);
   justify-content: flex-end;
-  flex: 0 0 auto;
+  flex: 1;
   font-size: var(--type-small);
   color: var(--muted);
 }
 .project-list--cards {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
-  gap: var(--space-3);
+  gap: var(--space-4);
 }
 .project-list--cards .project-row {
   position: relative;
@@ -1992,8 +1796,8 @@ button[aria-pressed="true"],
 }
 .project-list--cards .delete-entry {
   position: absolute;
-  right: 3px;
-  top: 4px;
+  right: var(--space-2);
+  top: var(--space-2);
 }
 .library-empty {
   font-size: var(--type-small);
@@ -2012,13 +1816,6 @@ button[aria-pressed="true"],
 .panel-heading h2,
 .preview-dialog h2 {
   font-family: var(--ui-font);
-}
-.statusbar {
-  border: 0;
-  background: var(--paper);
-}
-.statusbar > div > span:last-child {
-  display: none;
 }
 .proximity-nav {
   position: absolute;
@@ -2072,11 +1869,8 @@ button[aria-pressed="true"],
     max-width: 160px;
     gap: 3px !important;
   }
-  .library-toolbar {
-    gap: var(--space-2);
-  }
-  .library-display {
-    gap: var(--space-1);
+  .library-toolbar .library-display {
+    --gap: var(--space-1);
   }
   .manuscript-read {
     padding: 32px 24px 60px;
@@ -2100,12 +1894,15 @@ button[aria-pressed="true"],
   display: none;
 }
 /* The open-beside icon sits inside the card's top and right content edges. */
-.cards-view .reorder {
-  top: var(--space-3);
+.cards-view .entry-trail {
+  top: var(--space-2);
   right: var(--space-3);
+  bottom: auto;
 }
-.cards-view .reorder button {
-  padding: 0;
+/* A research card is one line: its open-beside slot is centred in it. */
+.cards-view[data-group="research"] .entry-trail {
+  top: 0;
+  bottom: 0;
 }
 /* HS9: while a card's icons show, only its one-line title makes room for them (More and
    open-beside), so the body text below never re-wraps and no card moves. The list row's
@@ -2114,11 +1911,7 @@ button[aria-pressed="true"],
   padding-right: var(--space-3);
 }
 .cards-view .entry-row:has(.entry-more):is(:hover, :focus-within) .entry-main > span {
-  padding-right: 36px;
-}
-/* A research card's open-beside icon sits inside the card, not 7 px past its edge. */
-.cards-view .collection-open-beside {
-  right: var(--space-2);
+  padding-right: calc(2 * var(--slot));
 }
 .entry-details {
   padding: 0 var(--space-2) var(--space-2);
@@ -2149,21 +1942,14 @@ button[aria-pressed="true"],
 }
 
 /* Compact chrome with comfortable controls. */
-.topbar {
-  height: 40px;
-  padding-inline: var(--space-5);
-}
 .editor-settings {
-  font-size: var(--type-small);
-}
-.group-heading {
   font-size: var(--type-small);
 }
 .sidebar-pin {
   opacity: 0;
 }
-.sidebar-title-row:hover > .sidebar-pin,
-.sidebar-title-row:focus-within > .sidebar-pin {
+.sidebar-title-row:hover .sidebar-pin,
+.sidebar-title-row:focus-within .sidebar-pin {
   opacity: 1;
 }
 
@@ -2186,6 +1972,10 @@ button[aria-pressed="true"],
 /* The sidebar clips overflow, so its focus ring sits inside the control. */
 .sidebar button:focus-visible {
   outline-offset: calc(var(--focus-offset) * -2);
+}
+/* The heading title has no inline padding, so its ring sits outside the glyphs. */
+.sidebar-groups .group-title:focus-visible {
+  outline-offset: calc(var(--focus-offset) * 2);
 }
 .sidebar .group-title:hover,
 .sidebar .entry-main:hover,
@@ -2214,6 +2004,7 @@ button[aria-pressed="true"],
   color: var(--danger);
 }
 .project-row .delete-entry {
+  margin-inline-start: 0;
   opacity: 0;
 }
 .project-row:hover .delete-entry,
@@ -2264,8 +2055,6 @@ button[aria-pressed="true"],
    section's chevron shares one right edge. Its box is always rendered, so toggles that
    reveal on hover never move it. */
 .group-chevron {
-  display: inline-flex;
-  flex-shrink: 0;
   color: var(--muted);
   transition: transform var(--duration-fast) var(--ease-out);
 }
@@ -2293,8 +2082,14 @@ button[aria-pressed="true"],
 }
 .sidebar-bottom-groups .group-heading {
   box-sizing: border-box;
-  min-height: var(--control-height);
   margin-bottom: 0;
+}
+/* Read, Comments and History: their dividers and labels both start at --edge. */
+.sidebar-bottom-groups .sidebar-group:not(:last-child) {
+  margin-inline: var(--edge);
+}
+.sidebar-bottom-groups .sidebar-group:not(:last-child) > .group-heading {
+  padding-inline: 0;
 }
 /* The last row (Settings) is the sidebar half of the bottom band: it runs to the
    window edge and matches .pane-footer (1px rule on top, --control-height in all),
@@ -2303,8 +2098,6 @@ button[aria-pressed="true"],
 .sidebar-bottom-groups .sidebar-group:last-child {
   box-sizing: border-box;
   min-height: var(--control-height);
-  margin: 0 calc(-1 * var(--space-3));
-  padding-inline: var(--space-3);
   display: flex;
   align-items: center;
 }
@@ -2344,6 +2137,15 @@ button[aria-pressed="true"],
 :root[data-palette="color"] .sidebar-group[data-group="research"] {
   --tint: var(--tint-research);
 }
+/* T9: a custom header's own colour (Project.groups[].colour), same swatches as Settings. */
+:root[data-palette="color"] .sidebar-group[data-tint="red"] { --tint: var(--swatch-red); }
+:root[data-palette="color"] .sidebar-group[data-tint="orange"] { --tint: var(--swatch-orange); }
+:root[data-palette="color"] .sidebar-group[data-tint="yellow"] { --tint: var(--swatch-yellow); }
+:root[data-palette="color"] .sidebar-group[data-tint="green"] { --tint: var(--swatch-green); }
+:root[data-palette="color"] .sidebar-group[data-tint="teal"] { --tint: var(--swatch-teal); }
+:root[data-palette="color"] .sidebar-group[data-tint="blue"] { --tint: var(--swatch-blue); }
+:root[data-palette="color"] .sidebar-group[data-tint="indigo"] { --tint: var(--swatch-indigo); }
+:root[data-palette="color"] .sidebar-group[data-tint="purple"] { --tint: var(--swatch-purple); }
 /* Bottom rows keep their own look (accent in Color); the three sections' headings stay text colour. */
 :root[data-palette="color"] .sidebar-bottom-groups .sidebar-group[data-group] .group-title.selected {
   color: var(--tint);

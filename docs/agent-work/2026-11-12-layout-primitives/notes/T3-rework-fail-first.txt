@@ -1,0 +1,223 @@
+
+Running 12 tests using 1 worker
+
+[1/12] tests/layout-invariants.spec.ts:144:3 › format bar and toolbar popovers (T3) › T3: each toolbar divider has equal space on both sides
+[2/12] tests/layout-invariants.spec.ts:162:3 › format bar and toolbar popovers (T3) › T3: toolbar icon buttons are 28 x 32 slots
+[3/12] tests/layout-invariants.spec.ts:167:3 › format bar and toolbar popovers (T3) › T3: the format bar's last icon ink sits --edge-main (24 px) from the bar's right edge
+[4/12] tests/layout-invariants.spec.ts:175:5 › format bar and toolbar popovers (T3) › T3: Prose check panel rows are even and share a trailing edge
+  1) tests/layout-invariants.spec.ts:175:5 › format bar and toolbar popovers (T3) › T3: Prose check panel rows are even and share a trailing edge 
+
+    Error: locator.evaluateAll: TypeError: Cannot read properties of null (reading 'getBoundingClientRect')
+        at eval (eval at evaluate (:370:30), <anonymous>:1:40)
+        at Array.map (<anonymous>)
+        at eval (eval at evaluate (:370:30), <anonymous>:1:12)
+        at UtilityScript.evaluate (<anonymous>:372:16)
+        at UtilityScript.<anonymous> (<anonymous>:1:44)
+        at eval (eval at evaluate (:370:30), <anonymous>:1:40)
+        at eval (eval at evaluate (:370:30), <anonymous>:1:12)
+        at UtilityScript.evaluate (<anonymous>:372:16)
+        at UtilityScript.<anonymous> (<anonymous>:1:44)
+        at /Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/tests/layout-invariants.spec.ts:184:33
+
+    Error Context: test-results/T307/layout-invariants-format-b-e0101-n-and-share-a-trailing-edge/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/T307/layout-invariants-format-b-e0101-n-and-share-a-trailing-edge/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/T307/layout-invariants-format-b-e0101-n-and-share-a-trailing-edge/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+[5/12] tests/layout-invariants.spec.ts:175:5 › format bar and toolbar popovers (T3) › T3: Line and paragraph spacing panel rows are even and share a trailing edge
+[6/12] tests/layout-invariants.spec.ts:175:5 › format bar and toolbar popovers (T3) › T3: Page setup panel rows are even and share a trailing edge
+[7/12] tests/layout-invariants.spec.ts:192:5 › format bar and toolbar popovers (T3) › T3: a Line and paragraph spacing panel opened from More matches the same panel opened from the bar
+  2) tests/layout-invariants.spec.ts:192:5 › format bar and toolbar popovers (T3) › T3: a Line and paragraph spacing panel opened from More matches the same panel opened from the bar 
+
+    Error: row heights 34, 34, 34
+
+    expect(received).toBeLessThanOrEqual(expected)
+
+    Expected: <= 0.5
+    Received:    6
+
+      200 |       await expectEvenRows(rows);
+      201 |       const heights = await rows.evaluateAll((els) => els.map((e) => e.getBoundingClientRect().height));
+    > 202 |       for (const h of heights) expect(Math.abs(h - 28), `row heights ${heights.join(", ")}`).toBeLessThanOrEqual(0.5);
+          |                                                                                              ^
+      203 |       const edge = await panel.evaluate((p) => p.getBoundingClientRect().right - parseFloat(getComputedStyle(p).paddingRight) - parseFloat(getComputedStyle(p).borderRightWidth));
+      204 |       const rights = await rows.evaluateAll((els) => els.map((e) => e.lastElementChild!.getBoundingClientRect().right));
+      205 |       for (const r of rights) expect(Math.abs(r - edge), `row ends ${rights.join(", ")} vs panel edge ${edge}`).toBeLessThanOrEqual(1);
+        at /Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/tests/layout-invariants.spec.ts:202:94
+
+    Error Context: test-results/T307/layout-invariants-format-b-0323a-e-panel-opened-from-the-bar/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/T307/layout-invariants-format-b-0323a-e-panel-opened-from-the-bar/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/T307/layout-invariants-format-b-0323a-e-panel-opened-from-the-bar/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+[8/12] tests/layout-invariants.spec.ts:192:5 › format bar and toolbar popovers (T3) › T3: a Page setup panel opened from More matches the same panel opened from the bar
+  3) tests/layout-invariants.spec.ts:192:5 › format bar and toolbar popovers (T3) › T3: a Page setup panel opened from More matches the same panel opened from the bar 
+
+    Error: row heights 36.0, 36.0, 28.0, 36.0
+
+    expect(received).toBeLessThanOrEqual(expected)
+
+    Expected: <= 1
+    Received:    8
+
+       at layout-helpers.ts:94
+
+      92 |   const gaps = boxes.slice(1).map((b, i) => b.y - (boxes[i].y + boxes[i].height));
+      93 |   const fmt = (list: number[]) => list.map((n) => n.toFixed(1)).join(", ");
+    > 94 |   expect(Math.max(...heights) - Math.min(...heights), `row heights ${fmt(heights)}`).toBeLessThanOrEqual(tol);
+         |                                                                                      ^
+      95 |   expect(Math.min(...gaps), `rows overlap: gaps ${fmt(gaps)}`).toBeGreaterThanOrEqual(-0.5);
+      96 |   expect(Math.max(...gaps) - Math.min(...gaps), `row gaps ${fmt(gaps)}`).toBeLessThanOrEqual(tol);
+      97 | }
+        at expectEvenRows (/Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/tests/layout-helpers.ts:94:86)
+        at /Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/tests/layout-invariants.spec.ts:200:7
+
+    Error Context: test-results/T307/layout-invariants-format-b-29693-e-panel-opened-from-the-bar/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/T307/layout-invariants-format-b-29693-e-panel-opened-from-the-bar/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/T307/layout-invariants-format-b-29693-e-panel-opened-from-the-bar/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+[9/12] tests/layout-invariants.spec.ts:210:3 › format bar and toolbar popovers (T3) › T3: prose issue rows contain their text
+  4) tests/layout-invariants.spec.ts:210:3 › format bar and toolbar popovers (T3) › T3: prose issue rows contain their text 
+
+    Error: message line counts NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN
+
+    expect(received).toBeGreaterThanOrEqual(expected)
+
+    Expected: >= 3
+    Received:    NaN
+
+      233 |       return { msgLines, spill, gaps, minH };
+      234 |     });
+    > 235 |     expect(Math.max(...m.msgLines), `message line counts ${m.msgLines}`).toBeGreaterThanOrEqual(3);
+          |                                                                          ^
+      236 |     expect(m.spill).toEqual([]);
+      237 |     expect(m.minH, "an issue row is at least the compact row height").toBeGreaterThanOrEqual(27.5);
+      238 |     for (const g of m.gaps) expect(Math.abs(g - 4), `row gaps ${m.gaps}`).toBeLessThanOrEqual(0.5);
+        at /Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/tests/layout-invariants.spec.ts:235:74
+
+    Error Context: test-results/T307/layout-invariants-format-b-3ac3f-sue-rows-contain-their-text/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/T307/layout-invariants-format-b-3ac3f-sue-rows-contain-their-text/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/T307/layout-invariants-format-b-3ac3f-sue-rows-contain-their-text/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+[10/12] tests/layout-invariants.spec.ts:242:3 › format bar and toolbar popovers (T3) › T3: focusing a checkbox row emphasises its label
+  5) tests/layout-invariants.spec.ts:242:3 › format bar and toolbar popovers (T3) › T3: focusing a checkbox row emphasises its label 
+
+    Error: label while its checkbox has keyboard focus
+
+    expect(received).not.toBe(expected) // Object.is equality
+
+    Expected: not "none"
+
+      252 |       await page.keyboard.press("Tab");
+      253 |       await expect(box).toBeFocused();
+    > 254 |       expect(await label.evaluate((e) => getComputedStyle(e).textShadow), "label while its checkbox has keyboard focus").not.toBe("none");
+          |                                                                                                                              ^
+      255 |       const after = (await box.boundingBox())!;
+      256 |       expect(Math.abs(after.x - before.x) + Math.abs(after.y - before.y), "nothing moves").toBeLessThanOrEqual(0.5);
+      257 |     };
+        at check (/Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/tests/layout-invariants.spec.ts:254:126)
+        at /Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/tests/layout-invariants.spec.ts:259:5
+
+    Error Context: test-results/T307/layout-invariants-format-b-50020-ox-row-emphasises-its-label/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/T307/layout-invariants-format-b-50020-ox-row-emphasises-its-label/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/T307/layout-invariants-format-b-50020-ox-row-emphasises-its-label/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+[11/12] tests/layout-invariants.spec.ts:268:3 › format bar and toolbar popovers (T3) › T3: a dropdown menu opened inside the Page setup panel keeps 32 px menu rows
+[12/12] tests/layout-invariants.spec.ts:356:8 › slots (T2, T3) › T2/T3: every .slot is 24 x 24 and every .slot-toolbar 28 x 32
+  5 failed
+    tests/layout-invariants.spec.ts:175:5 › format bar and toolbar popovers (T3) › T3: Prose check panel rows are even and share a trailing edge 
+    tests/layout-invariants.spec.ts:192:5 › format bar and toolbar popovers (T3) › T3: a Line and paragraph spacing panel opened from More matches the same panel opened from the bar 
+    tests/layout-invariants.spec.ts:192:5 › format bar and toolbar popovers (T3) › T3: a Page setup panel opened from More matches the same panel opened from the bar 
+    tests/layout-invariants.spec.ts:210:3 › format bar and toolbar popovers (T3) › T3: prose issue rows contain their text 
+    tests/layout-invariants.spec.ts:242:3 › format bar and toolbar popovers (T3) › T3: focusing a checkbox row emphasises its label 
+  1 skipped
+  6 passed (56.5s)
+
+--- Note (agent-73f2): two test bugs found in this run, fixed before implementing: the Prose check trailing-edge
+case read lastElementChild of the text-only summary row (null), and the 3-line count used lineHeight "normal" (NaN).
+Both fixed in the spec (filter rows with a child; count distinct line tops via Range.getClientRects). The three
+rework cases each failed on their real assertions or would on spill: More rows 34/36 not 28, label text-shadow none
+on keyboard focus. The "contain their text" case is re-confirmed failing in the after-run evidence below only if
+noted; see T3.md.
+
+--- Fail-first rerun of the two corrected cases (untouched source):
+
+Running 2 tests using 1 worker
+
+[1/2] tests/layout-invariants.spec.ts:175:5 › format bar and toolbar popovers (T3) › T3: Prose check panel rows are even and share a trailing edge
+[2/2] tests/layout-invariants.spec.ts:211:3 › format bar and toolbar popovers (T3) › T3: prose issue rows contain their text
+  1) tests/layout-invariants.spec.ts:211:3 › format bar and toolbar popovers (T3) › T3: prose issue rows contain their text 
+
+    Error: expect(received).toEqual(expected) // deep equality
+
+    - Expected  -  1
+    + Received  + 10
+
+    - Array []
+    + Array [
+    +   "was writtenPossible passive voice: 27>24",
+    +   "basicallyConsider removing “basically”: 35>24",
+    +   "reallyConsider removing “really”: 27>24",
+    +   "veryConsider removing “very”: 27>24",
+    +   "justConsider removing “just”: 27>24",
+    +   "quiteConsider removing “quite”: 27>24",
+    +   "actuallyConsider removing “actually”: 27>24",
+    +   "word0 word1 word2 word3 word4 word5 word6 word7 word8 word9 word10 word11 word12 word13 word14 word15 word16 word17 word18 word19 word20 word21 word22 word23 word24 word25 word26 word27 word28 word29 word30 word31 word32 word33 word34 word35 word36 word37 word38 word39 word40 word41 word42 word43 word44Long sentence: 45 words: 185>24",
+    + ]
+
+      236 |       await page.keyboard.press("Shift+Tab");
+      237 |       await page.keyboard.press("Tab");
+    > 238 |       await expect(box).toBeFocused();
+          |                     ^
+      239 |       expect(await label.evaluate((e) => getComputedStyle(e).textShadow), "label while its checkbox has keyboard focus").not.toBe("none");
+      240 |       const after = (await box.boundingBox())!;
+      241 |       expect(Math.abs(after.x - before.x) + Math.abs(after.y - before.y), "nothing moves").toBeLessThanOrEqual(0.5);
+        at /Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/tests/layout-invariants.spec.ts:238:21
+
+    Error Context: test-results/T307/layout-invariants-format-b-3ac3f-sue-rows-contain-their-text/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/T307/layout-invariants-format-b-3ac3f-sue-rows-contain-their-text/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/T307/layout-invariants-format-b-3ac3f-sue-rows-contain-their-text/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+  1 failed
+    tests/layout-invariants.spec.ts:211:3 › format bar and toolbar popovers (T3) › T3: prose issue rows contain their text 
+  1 passed (33.8s)

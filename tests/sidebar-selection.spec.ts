@@ -926,7 +926,8 @@ test.describe("sidebar row and header geometry (W7 T247)", () => {
           const toggles = Array.from(group.querySelectorAll(".group-actions button")).map((b) => b.getBoundingClientRect());
           return {
             id: group.getAttribute("data-group"),
-            lastChild: heading.lastElementChild?.className ?? "",
+            // Layout primitives T2: the chevron is the last slot of the heading's .row-trail cluster.
+            lastChild: heading.querySelector(":scope > .row-trail > .cluster")?.lastElementChild?.className ?? "",
             chevronRight: chevron ? chevron.right : null,
             chevronLeft: chevron ? chevron.left : null,
             toggleRights: toggles.map((t) => t.right),

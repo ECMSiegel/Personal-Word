@@ -1,0 +1,1019 @@
+{
+ "tab-light-190": [
+  {
+   "cls": "group-title ",
+   "name": "Manuscript",
+   "fv": true,
+   "outline": "solid 2px 4px",
+   "groupToggleW": 24
+  },
+  {
+   "cls": "group-view-toggle slot",
+   "name": "Show Manuscript cards",
+   "fv": true,
+   "outline": "solid 2px -2px",
+   "groupToggleW": 24
+  },
+  {
+   "cls": "group-add slot",
+   "name": "New section",
+   "fv": true,
+   "outline": "solid 2px -2px",
+   "groupToggleW": 24
+  },
+  {
+   "cls": "group-chevron slot",
+   "name": "Hide Manuscript",
+   "fv": true,
+   "outline": "solid 2px -2px",
+   "groupToggleW": 24
+  },
+  {
+   "cls": "entry-main row",
+   "name": "Opening",
+   "fv": true,
+   "outline": "solid 2px -2px",
+   "groupToggleW": 24
+  },
+  {
+   "cls": "icon-button icon-grow entry-more slot",
+   "name": "More actions for Opening",
+   "fv": true,
+   "outline": "solid 2px -2px",
+   "groupToggleW": 24
+  },
+  {
+   "cls": "open-beside slot",
+   "name": "Open Opening beside",
+   "fv": true,
+   "outline": "solid 2px -2px",
+   "groupToggleW": 24
+  },
+  {
+   "cls": "spy-line",
+   "name": "Go to Opening",
+   "fv": true,
+   "outline": "solid 2px 2px",
+   "groupToggleW": 24
+  },
+  {
+   "cls": "group-title ",
+   "name": "Fragments",
+   "fv": true,
+   "outline": "solid 2px 4px",
+   "groupToggleW": 24
+  },
+  {
+   "cls": "group-view-toggle slot",
+   "name": "Show Fragments cards",
+   "fv": true,
+   "outline": "solid 2px -2px",
+   "groupToggleW": 24
+  },
+  {
+   "cls": "group-add slot",
+   "name": "New fragment",
+   "fv": true,
+   "outline": "solid 2px -2px",
+   "groupToggleW": 24
+  },
+  {
+   "cls": "group-chevron slot",
+   "name": "Hide Fragments",
+   "fv": true,
+   "outline": "solid 2px -2px",
+   "groupToggleW": 24
+  }
+ ],
+ "sync-light-190": {
+  "before": 0,
+  "after": 24,
+  "focused": true
+ },
+ "shiftTab-light-190": "group-view-toggle slot",
+ "rings-light-190": [
+  {
+   "id": "manuscript",
+   "fv": true,
+   "outline": "solid 2px off 4px",
+   "ring": {
+    "l": 10,
+    "r": 111,
+    "t": 122,
+    "b": 158
+   },
+   "innerGapLeft": 4,
+   "innerGapRight": 4,
+   "ringOuterRight": 111,
+   "nextSlotLeft": 105,
+   "nextInkLeft": 109,
+   "ringToNextInk": -2,
+   "clips": [
+    {
+     "cls": "sidebar-groups",
+     "clipL": false,
+     "clipR": false,
+     "clipT": true,
+     "clipB": false
+    },
+    {
+     "cls": "app",
+     "clipL": false,
+     "clipR": false,
+     "clipT": false,
+     "clipB": false
+    },
+    {
+     "cls": "app-shell",
+     "clipL": false,
+     "clipR": false,
+     "clipT": false,
+     "clipB": false
+    }
+   ]
+  },
+  {
+   "id": "fragments",
+   "fv": true,
+   "outline": "solid 2px off 4px",
+   "ring": {
+    "l": 10,
+    "r": 106.265625,
+    "t": 206,
+    "b": 242
+   },
+   "innerGapLeft": 4,
+   "innerGapRight": 4,
+   "ringOuterRight": 106.3,
+   "nextSlotLeft": 105,
+   "nextInkLeft": 109,
+   "ringToNextInk": 2.7,
+   "clips": [
+    {
+     "cls": "sidebar-groups",
+     "clipL": false,
+     "clipR": false,
+     "clipT": false,
+     "clipB": false
+    },
+    {
+     "cls": "app",
+     "clipL": false,
+     "clipR": false,
+     "clipT": false,
+     "clipB": false
+    },
+    {
+     "cls": "app-shell",
+     "clipL": false,
+     "clipR": false,
+     "clipT": false,
+     "clipB": false
+    }
+   ]
+  },
+  {
+   "id": "research",
+   "fv": true,
+   "outline": "solid 2px off 4px",
+   "ring": {
+    "l": 10,
+    "r": 99.484375,
+    "t": 254,
+    "b": 290
+   },
+   "innerGapLeft": 4,
+   "innerGapRight": 4,
+   "ringOuterRight": 99.5,
+   "nextSlotLeft": 105,
+   "nextInkLeft": 109,
+   "ringToNextInk": 9.5,
+   "clips": [
+    {
+     "cls": "sidebar-groups",
+     "clipL": false,
+     "clipR": false,
+     "clipT": false,
+     "clipB": false
+    },
+    {
+     "cls": "app",
+     "clipL": false,
+     "clipR": false,
+     "clipT": false,
+     "clipB": false
+    },
+    {
+     "cls": "app-shell",
+     "clipL": false,
+     "clipR": false,
+     "clipT": false,
+     "clipB": false
+    }
+   ]
+  },
+  {
+   "id": "818bb89c-7ec2-4630-a17b-c76332bb34d6",
+   "fv": true,
+   "outline": "solid 2px off 4px",
+   "ring": {
+    "l": 10,
+    "r": 94.5625,
+    "t": 302,
+    "b": 338
+   },
+   "innerGapLeft": 4,
+   "innerGapRight": 4,
+   "ringOuterRight": 94.6,
+   "nextSlotLeft": 105,
+   "nextInkLeft": 109,
+   "ringToNextInk": 14.4,
+   "clips": [
+    {
+     "cls": "sidebar-groups",
+     "clipL": false,
+     "clipR": false,
+     "clipT": false,
+     "clipB": false
+    },
+    {
+     "cls": "app",
+     "clipL": false,
+     "clipR": false,
+     "clipT": false,
+     "clipB": false
+    },
+    {
+     "cls": "app-shell",
+     "clipL": false,
+     "clipR": false,
+     "clipT": false,
+     "clipB": false
+    }
+   ]
+  }
+ ],
+ "tab-light-270": [
+  {
+   "cls": "group-title ",
+   "name": "Manuscript",
+   "fv": true,
+   "outline": "solid 2px 4px",
+   "groupToggleW": 24
+  },
+  {
+   "cls": "group-view-toggle slot",
+   "name": "Show Manuscript cards",
+   "fv": true,
+   "outline": "solid 2px -2px",
+   "groupToggleW": 24
+  },
+  {
+   "cls": "group-add slot",
+   "name": "New section",
+   "fv": true,
+   "outline": "solid 2px -2px",
+   "groupToggleW": 24
+  },
+  {
+   "cls": "group-chevron slot",
+   "name": "Hide Manuscript",
+   "fv": true,
+   "outline": "solid 2px -2px",
+   "groupToggleW": 24
+  },
+  {
+   "cls": "entry-main row",
+   "name": "Opening",
+   "fv": true,
+   "outline": "solid 2px -2px",
+   "groupToggleW": 24
+  },
+  {
+   "cls": "icon-button icon-grow entry-more slot",
+   "name": "More actions for Opening",
+   "fv": true,
+   "outline": "solid 2px -2px",
+   "groupToggleW": 24
+  },
+  {
+   "cls": "open-beside slot",
+   "name": "Open Opening beside",
+   "fv": true,
+   "outline": "solid 2px -2px",
+   "groupToggleW": 24
+  },
+  {
+   "cls": "spy-line",
+   "name": "Go to Opening",
+   "fv": true,
+   "outline": "solid 2px 2px",
+   "groupToggleW": 24
+  },
+  {
+   "cls": "group-title ",
+   "name": "Fragments",
+   "fv": true,
+   "outline": "solid 2px 4px",
+   "groupToggleW": 24
+  },
+  {
+   "cls": "group-view-toggle slot",
+   "name": "Show Fragments cards",
+   "fv": true,
+   "outline": "solid 2px -2px",
+   "groupToggleW": 24
+  },
+  {
+   "cls": "group-add slot",
+   "name": "New fragment",
+   "fv": true,
+   "outline": "solid 2px -2px",
+   "groupToggleW": 24
+  },
+  {
+   "cls": "group-chevron slot",
+   "name": "Hide Fragments",
+   "fv": true,
+   "outline": "solid 2px -2px",
+   "groupToggleW": 24
+  }
+ ],
+ "sync-light-270": {
+  "before": 0,
+  "after": 24,
+  "focused": true
+ },
+ "shiftTab-light-270": "group-view-toggle slot",
+ "rings-light-270": [
+  {
+   "id": "manuscript",
+   "fv": true,
+   "outline": "solid 2px off 4px",
+   "ring": {
+    "l": 10,
+    "r": 122.609375,
+    "t": 122,
+    "b": 158
+   },
+   "innerGapLeft": 4,
+   "innerGapRight": 4,
+   "ringOuterRight": 122.6,
+   "nextSlotLeft": 185,
+   "nextInkLeft": 189,
+   "ringToNextInk": 66.4,
+   "clips": [
+    {
+     "cls": "sidebar-groups",
+     "clipL": false,
+     "clipR": false,
+     "clipT": true,
+     "clipB": false
+    },
+    {
+     "cls": "app",
+     "clipL": false,
+     "clipR": false,
+     "clipT": false,
+     "clipB": false
+    },
+    {
+     "cls": "app-shell",
+     "clipL": false,
+     "clipR": false,
+     "clipT": false,
+     "clipB": false
+    }
+   ]
+  },
+  {
+   "id": "fragments",
+   "fv": true,
+   "outline": "solid 2px off 4px",
+   "ring": {
+    "l": 10,
+    "r": 106.265625,
+    "t": 206,
+    "b": 242
+   },
+   "innerGapLeft": 4,
+   "innerGapRight": 4,
+   "ringOuterRight": 106.3,
+   "nextSlotLeft": 185,
+   "nextInkLeft": 189,
+   "ringToNextInk": 82.7,
+   "clips": [
+    {
+     "cls": "sidebar-groups",
+     "clipL": false,
+     "clipR": false,
+     "clipT": false,
+     "clipB": false
+    },
+    {
+     "cls": "app",
+     "clipL": false,
+     "clipR": false,
+     "clipT": false,
+     "clipB": false
+    },
+    {
+     "cls": "app-shell",
+     "clipL": false,
+     "clipR": false,
+     "clipT": false,
+     "clipB": false
+    }
+   ]
+  },
+  {
+   "id": "research",
+   "fv": true,
+   "outline": "solid 2px off 4px",
+   "ring": {
+    "l": 10,
+    "r": 99.484375,
+    "t": 254,
+    "b": 290
+   },
+   "innerGapLeft": 4,
+   "innerGapRight": 4,
+   "ringOuterRight": 99.5,
+   "nextSlotLeft": 185,
+   "nextInkLeft": 189,
+   "ringToNextInk": 89.5,
+   "clips": [
+    {
+     "cls": "sidebar-groups",
+     "clipL": false,
+     "clipR": false,
+     "clipT": false,
+     "clipB": false
+    },
+    {
+     "cls": "app",
+     "clipL": false,
+     "clipR": false,
+     "clipT": false,
+     "clipB": false
+    },
+    {
+     "cls": "app-shell",
+     "clipL": false,
+     "clipR": false,
+     "clipT": false,
+     "clipB": false
+    }
+   ]
+  },
+  {
+   "id": "818bb89c-7ec2-4630-a17b-c76332bb34d6",
+   "fv": true,
+   "outline": "solid 2px off 4px",
+   "ring": {
+    "l": 10,
+    "r": 94.5625,
+    "t": 302,
+    "b": 338
+   },
+   "innerGapLeft": 4,
+   "innerGapRight": 4,
+   "ringOuterRight": 94.6,
+   "nextSlotLeft": 185,
+   "nextInkLeft": 189,
+   "ringToNextInk": 94.4,
+   "clips": [
+    {
+     "cls": "sidebar-groups",
+     "clipL": false,
+     "clipR": false,
+     "clipT": false,
+     "clipB": false
+    },
+    {
+     "cls": "app",
+     "clipL": false,
+     "clipR": false,
+     "clipT": false,
+     "clipB": false
+    },
+    {
+     "cls": "app-shell",
+     "clipL": false,
+     "clipR": false,
+     "clipT": false,
+     "clipB": false
+    }
+   ]
+  }
+ ],
+ "tab-dark-190": [
+  {
+   "cls": "group-title ",
+   "name": "Manuscript",
+   "fv": true,
+   "outline": "solid 2px 4px",
+   "groupToggleW": 24
+  },
+  {
+   "cls": "group-view-toggle slot",
+   "name": "Show Manuscript cards",
+   "fv": true,
+   "outline": "solid 2px -2px",
+   "groupToggleW": 24
+  },
+  {
+   "cls": "group-add slot",
+   "name": "New section",
+   "fv": true,
+   "outline": "solid 2px -2px",
+   "groupToggleW": 24
+  },
+  {
+   "cls": "group-chevron slot",
+   "name": "Hide Manuscript",
+   "fv": true,
+   "outline": "solid 2px -2px",
+   "groupToggleW": 24
+  },
+  {
+   "cls": "entry-main row",
+   "name": "Opening",
+   "fv": true,
+   "outline": "solid 2px -2px",
+   "groupToggleW": 24
+  },
+  {
+   "cls": "icon-button icon-grow entry-more slot",
+   "name": "More actions for Opening",
+   "fv": true,
+   "outline": "solid 2px -2px",
+   "groupToggleW": 24
+  },
+  {
+   "cls": "open-beside slot",
+   "name": "Open Opening beside",
+   "fv": true,
+   "outline": "solid 2px -2px",
+   "groupToggleW": 24
+  },
+  {
+   "cls": "spy-line",
+   "name": "Go to Opening",
+   "fv": true,
+   "outline": "solid 2px 2px",
+   "groupToggleW": 24
+  },
+  {
+   "cls": "group-title ",
+   "name": "Fragments",
+   "fv": true,
+   "outline": "solid 2px 4px",
+   "groupToggleW": 24
+  },
+  {
+   "cls": "group-view-toggle slot",
+   "name": "Show Fragments cards",
+   "fv": true,
+   "outline": "solid 2px -2px",
+   "groupToggleW": 24
+  },
+  {
+   "cls": "group-add slot",
+   "name": "New fragment",
+   "fv": true,
+   "outline": "solid 2px -2px",
+   "groupToggleW": 24
+  },
+  {
+   "cls": "group-chevron slot",
+   "name": "Hide Fragments",
+   "fv": true,
+   "outline": "solid 2px -2px",
+   "groupToggleW": 24
+  }
+ ],
+ "sync-dark-190": {
+  "before": 0,
+  "after": 24,
+  "focused": true
+ },
+ "shiftTab-dark-190": "group-view-toggle slot",
+ "rings-dark-190": [
+  {
+   "id": "manuscript",
+   "fv": true,
+   "outline": "solid 2px off 4px",
+   "ring": {
+    "l": 10,
+    "r": 111,
+    "t": 122,
+    "b": 158
+   },
+   "innerGapLeft": 4,
+   "innerGapRight": 4,
+   "ringOuterRight": 111,
+   "nextSlotLeft": 105,
+   "nextInkLeft": 109,
+   "ringToNextInk": -2,
+   "clips": [
+    {
+     "cls": "sidebar-groups",
+     "clipL": false,
+     "clipR": false,
+     "clipT": true,
+     "clipB": false
+    },
+    {
+     "cls": "app",
+     "clipL": false,
+     "clipR": false,
+     "clipT": false,
+     "clipB": false
+    },
+    {
+     "cls": "app-shell",
+     "clipL": false,
+     "clipR": false,
+     "clipT": false,
+     "clipB": false
+    }
+   ]
+  },
+  {
+   "id": "fragments",
+   "fv": true,
+   "outline": "solid 2px off 4px",
+   "ring": {
+    "l": 10,
+    "r": 106.265625,
+    "t": 206,
+    "b": 242
+   },
+   "innerGapLeft": 4,
+   "innerGapRight": 4,
+   "ringOuterRight": 106.3,
+   "nextSlotLeft": 105,
+   "nextInkLeft": 109,
+   "ringToNextInk": 2.7,
+   "clips": [
+    {
+     "cls": "sidebar-groups",
+     "clipL": false,
+     "clipR": false,
+     "clipT": false,
+     "clipB": false
+    },
+    {
+     "cls": "app",
+     "clipL": false,
+     "clipR": false,
+     "clipT": false,
+     "clipB": false
+    },
+    {
+     "cls": "app-shell",
+     "clipL": false,
+     "clipR": false,
+     "clipT": false,
+     "clipB": false
+    }
+   ]
+  },
+  {
+   "id": "research",
+   "fv": true,
+   "outline": "solid 2px off 4px",
+   "ring": {
+    "l": 10,
+    "r": 99.484375,
+    "t": 254,
+    "b": 290
+   },
+   "innerGapLeft": 4,
+   "innerGapRight": 4,
+   "ringOuterRight": 99.5,
+   "nextSlotLeft": 105,
+   "nextInkLeft": 109,
+   "ringToNextInk": 9.5,
+   "clips": [
+    {
+     "cls": "sidebar-groups",
+     "clipL": false,
+     "clipR": false,
+     "clipT": false,
+     "clipB": false
+    },
+    {
+     "cls": "app",
+     "clipL": false,
+     "clipR": false,
+     "clipT": false,
+     "clipB": false
+    },
+    {
+     "cls": "app-shell",
+     "clipL": false,
+     "clipR": false,
+     "clipT": false,
+     "clipB": false
+    }
+   ]
+  },
+  {
+   "id": "818bb89c-7ec2-4630-a17b-c76332bb34d6",
+   "fv": true,
+   "outline": "solid 2px off 4px",
+   "ring": {
+    "l": 10,
+    "r": 94.5625,
+    "t": 302,
+    "b": 338
+   },
+   "innerGapLeft": 4,
+   "innerGapRight": 4,
+   "ringOuterRight": 94.6,
+   "nextSlotLeft": 105,
+   "nextInkLeft": 109,
+   "ringToNextInk": 14.4,
+   "clips": [
+    {
+     "cls": "sidebar-groups",
+     "clipL": false,
+     "clipR": false,
+     "clipT": false,
+     "clipB": false
+    },
+    {
+     "cls": "app",
+     "clipL": false,
+     "clipR": false,
+     "clipT": false,
+     "clipB": false
+    },
+    {
+     "cls": "app-shell",
+     "clipL": false,
+     "clipR": false,
+     "clipT": false,
+     "clipB": false
+    }
+   ]
+  }
+ ],
+ "tab-dark-270": [
+  {
+   "cls": "group-title ",
+   "name": "Manuscript",
+   "fv": true,
+   "outline": "solid 2px 4px",
+   "groupToggleW": 24
+  },
+  {
+   "cls": "group-view-toggle slot",
+   "name": "Show Manuscript cards",
+   "fv": true,
+   "outline": "solid 2px -2px",
+   "groupToggleW": 24
+  },
+  {
+   "cls": "group-add slot",
+   "name": "New section",
+   "fv": true,
+   "outline": "solid 2px -2px",
+   "groupToggleW": 24
+  },
+  {
+   "cls": "group-chevron slot",
+   "name": "Hide Manuscript",
+   "fv": true,
+   "outline": "solid 2px -2px",
+   "groupToggleW": 24
+  },
+  {
+   "cls": "entry-main row",
+   "name": "Opening",
+   "fv": true,
+   "outline": "solid 2px -2px",
+   "groupToggleW": 24
+  },
+  {
+   "cls": "icon-button icon-grow entry-more slot",
+   "name": "More actions for Opening",
+   "fv": true,
+   "outline": "solid 2px -2px",
+   "groupToggleW": 24
+  },
+  {
+   "cls": "open-beside slot",
+   "name": "Open Opening beside",
+   "fv": true,
+   "outline": "solid 2px -2px",
+   "groupToggleW": 24
+  },
+  {
+   "cls": "spy-line",
+   "name": "Go to Opening",
+   "fv": true,
+   "outline": "solid 2px 2px",
+   "groupToggleW": 24
+  },
+  {
+   "cls": "group-title ",
+   "name": "Fragments",
+   "fv": true,
+   "outline": "solid 2px 4px",
+   "groupToggleW": 24
+  },
+  {
+   "cls": "group-view-toggle slot",
+   "name": "Show Fragments cards",
+   "fv": true,
+   "outline": "solid 2px -2px",
+   "groupToggleW": 24
+  },
+  {
+   "cls": "group-add slot",
+   "name": "New fragment",
+   "fv": true,
+   "outline": "solid 2px -2px",
+   "groupToggleW": 24
+  },
+  {
+   "cls": "group-chevron slot",
+   "name": "Hide Fragments",
+   "fv": true,
+   "outline": "solid 2px -2px",
+   "groupToggleW": 24
+  }
+ ],
+ "sync-dark-270": {
+  "before": 0,
+  "after": 24,
+  "focused": true
+ },
+ "shiftTab-dark-270": "group-view-toggle slot",
+ "rings-dark-270": [
+  {
+   "id": "manuscript",
+   "fv": true,
+   "outline": "solid 2px off 4px",
+   "ring": {
+    "l": 10,
+    "r": 122.609375,
+    "t": 122,
+    "b": 158
+   },
+   "innerGapLeft": 4,
+   "innerGapRight": 4,
+   "ringOuterRight": 122.6,
+   "nextSlotLeft": 185,
+   "nextInkLeft": 189,
+   "ringToNextInk": 66.4,
+   "clips": [
+    {
+     "cls": "sidebar-groups",
+     "clipL": false,
+     "clipR": false,
+     "clipT": true,
+     "clipB": false
+    },
+    {
+     "cls": "app",
+     "clipL": false,
+     "clipR": false,
+     "clipT": false,
+     "clipB": false
+    },
+    {
+     "cls": "app-shell",
+     "clipL": false,
+     "clipR": false,
+     "clipT": false,
+     "clipB": false
+    }
+   ]
+  },
+  {
+   "id": "fragments",
+   "fv": true,
+   "outline": "solid 2px off 4px",
+   "ring": {
+    "l": 10,
+    "r": 106.265625,
+    "t": 206,
+    "b": 242
+   },
+   "innerGapLeft": 4,
+   "innerGapRight": 4,
+   "ringOuterRight": 106.3,
+   "nextSlotLeft": 185,
+   "nextInkLeft": 189,
+   "ringToNextInk": 82.7,
+   "clips": [
+    {
+     "cls": "sidebar-groups",
+     "clipL": false,
+     "clipR": false,
+     "clipT": false,
+     "clipB": false
+    },
+    {
+     "cls": "app",
+     "clipL": false,
+     "clipR": false,
+     "clipT": false,
+     "clipB": false
+    },
+    {
+     "cls": "app-shell",
+     "clipL": false,
+     "clipR": false,
+     "clipT": false,
+     "clipB": false
+    }
+   ]
+  },
+  {
+   "id": "research",
+   "fv": true,
+   "outline": "solid 2px off 4px",
+   "ring": {
+    "l": 10,
+    "r": 99.484375,
+    "t": 254,
+    "b": 290
+   },
+   "innerGapLeft": 4,
+   "innerGapRight": 4,
+   "ringOuterRight": 99.5,
+   "nextSlotLeft": 185,
+   "nextInkLeft": 189,
+   "ringToNextInk": 89.5,
+   "clips": [
+    {
+     "cls": "sidebar-groups",
+     "clipL": false,
+     "clipR": false,
+     "clipT": false,
+     "clipB": false
+    },
+    {
+     "cls": "app",
+     "clipL": false,
+     "clipR": false,
+     "clipT": false,
+     "clipB": false
+    },
+    {
+     "cls": "app-shell",
+     "clipL": false,
+     "clipR": false,
+     "clipT": false,
+     "clipB": false
+    }
+   ]
+  },
+  {
+   "id": "818bb89c-7ec2-4630-a17b-c76332bb34d6",
+   "fv": true,
+   "outline": "solid 2px off 4px",
+   "ring": {
+    "l": 10,
+    "r": 94.5625,
+    "t": 302,
+    "b": 338
+   },
+   "innerGapLeft": 4,
+   "innerGapRight": 4,
+   "ringOuterRight": 94.6,
+   "nextSlotLeft": 185,
+   "nextInkLeft": 189,
+   "ringToNextInk": 94.4,
+   "clips": [
+    {
+     "cls": "sidebar-groups",
+     "clipL": false,
+     "clipR": false,
+     "clipT": false,
+     "clipB": false
+    },
+    {
+     "cls": "app",
+     "clipL": false,
+     "clipR": false,
+     "clipT": false,
+     "clipB": false
+    },
+    {
+     "cls": "app-shell",
+     "clipL": false,
+     "clipR": false,
+     "clipT": false,
+     "clipB": false
+    }
+   ]
+  }
+ ],
+ "a11y-toggle-count-at-rest": 1
+}

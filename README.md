@@ -6,43 +6,68 @@ I wanted writing software built for writers, and the prominent options all had a
 
 [Download for Mac](https://github.com/ECMSiegel/Personal-Word/releases/latest) · [Getting started](#quick-start) · [User guide](docs/user-guide.md) · [Contribute](CONTRIBUTING.md)
 
-![Personal Word's writing workspace, with manuscript sections beside the draft](docs/evidence/readme/writing-light.png)
+![Two sections of one paper open side by side, with the sidebar on the left](docs/evidence/readme/split-light.png)
 
 ## Features
 
-**Built for long pieces, not single pages**
-- **Write in sections.** My manuscript is a list of sections in the sidebar. I open one at a time, reorder them by dragging, and never scroll through 80 pages to find a paragraph.
-- **Fragments.** When I cut a passage I am not sure about, it goes to Fragments instead of disappearing. I can put it back into a section later.
-- **Two things side by side.** I can open two sections, a fragment, or a source's PDF next to the draft, each in its own pane with its own page count and word count.
-- **Real pages when I want them.** Switch between continuous writing and page view, adjust indents with the ruler, and set paper size and margins. Footnotes appear below the page text. Editor pages and exported pagination use different layout engines, so page breaks can differ.
+### Two panes, side by side
+- **Split view.** Two sections open next to each other, each pane editing its own section and keeping its own footer with page count and word count.
+- **Open beside.** A section, a fragment or a source's PDF opens in a second pane from the **Open beside** button on its sidebar row, from its right-click menu, or with Cmd+click.
+- **A source beside the draft.** An attached or uploaded PDF reads in the right pane while the draft stays editable in the left.
+- **A fragment beside a section.** A fragment opens next to the section being written, ready to copy back.
+- **Adjustable divider.** Dragging the divider changes the split, and the ratio is remembered.
+- **Steady panes.** Opening or closing a split keeps the left pane's undo history and scroll position, and both panes line their pages up under matching title bars.
 
-**Research lives next to the writing**
-- **Sources in the same window.** I paste a DOI, ISBN or web address and Personal Word looks the source up. I can also enter it by hand or import from Zotero (CSL JSON or BibTeX).
-- **Chicago footnotes without the fuss.** "Cite here" drops a numbered footnote in the right Chicago 18 format. Later citations of the same source shorten automatically, and the bibliography builds itself.
+### Built for long pieces
+![The sidebar with coloured headers and the draft open in one pane](docs/evidence/readme/writing-light.png)
+- **Write in sections.** The manuscript is a list of sections in the sidebar. A section opens on its own, and dragging reorders it.
+- **Headers.** Manuscript, Fragments and Research are headers, and more can be added beside Manuscript (for example "Part two"). Sections inside a header stay part of the manuscript, so Read and exports follow the sidebar order.
+- **Fragments.** A passage cut from a section goes to Fragments instead of disappearing.
+- **Real pages when needed.** Page view stacks a section as pages, with indents on the ruler, paper size and margins, and footnotes below the page text. Editor pages and exported pagination use different layout engines, so page breaks can differ.
+
+### Research next to the writing
+![A source open in the research panel beside the draft](docs/evidence/readme/research-light.png)
+- **Sources in the same window.** A DOI, ISBN, PubMed link or web address is looked up for the source's details. Sources can also be entered by hand or imported from Zotero (CSL JSON or BibTeX).
+- **Chicago footnotes.** "Cite here" drops a numbered footnote in Chicago 18 form. Later citations of the same source shorten automatically, and the bibliography builds itself.
 - **Quotes with their page numbers.** "Capture quote" saves a passage with its page and inserts the quotation and the citation together.
-- **PDFs beside the draft.** Upload a standalone PDF or attach one to a source, then read it in the second pane while you write.
+- **PDFs.** A standalone PDF can be uploaded, or one attached to a source, then opened beside the draft.
 
-**Safe with my work**
-- **Saves as I type**, with crash recovery.
-- **Snapshots and history.** Before a big revision I take a snapshot. I can compare versions side by side and restore one section or a single paragraph.
-- **Mine, on my Mac.** No account, no subscription, no cloud. The only time it touches the internet is when I ask it to look up a citation.
+### Made to be adjusted
+![Settings, with appearance, palette, interface font and sidebar options](docs/evidence/readme/customise-light.png)
+
+**Look and feel**
+- **Interface font.** Any font installed on the Mac, or added from `.ttf` and `.otf` files, sets the font of the whole interface.
+- **Appearance.** System, Light or Dark; Cmd+Shift+L switches between Light and Dark.
+- **Palette.** Plain, or Color, which tints the sidebar icons and buttons without changing the document area.
+- **Headers.** Every header takes its own icon colour, per project, from a row of swatches in its right-click menu (Color palette). Headers can also be renamed and moved up or down, and added ones deleted.
+- **Sidebar.** Resizable and pinnable, with a list or card view for each group, optional reveal on hover, and an optional floating mode that places the sidebar and the citation card in the page margins when they are wide enough.
+- **Focus mode.** Dims everything but the current paragraph and hides the toolbar until it is needed.
+
+**The page**
+- **Page setup.** Paper size, page margins and page numbers, plus a top ruler and a side ruler that can each be switched on or off.
+- **Type and spacing.** Typeface, size, line spacing, space after paragraphs and zoom.
+- **Reading view.** Read manuscript has its own font, size and line spacing, separate from export formatting.
+- **Templates.** Blank, Chicago and Screenplay set the starting page layout.
+
+**Working habits**
+- **Goals.** A word goal for the manuscript, a daily goal and a deadline.
+- **Prose check.** An optional on-device check with a switch for each rule.
+- **Shortcuts.** Rebindable keyboard shortcuts, listed in Settings, and a command palette (Cmd+Shift+P) for finding any action.
+- **Launch.** Open project tabs can be restored at launch, or the app can open on the Projects screen.
+
+### Safe with the work
+- **Saves while typing**, with crash recovery.
+- **Snapshots and history.** A snapshot before a big revision can be compared side by side, and one section or a single paragraph restored.
+- **Local only.** No account, no subscription, no cloud. The only time it reaches the internet is a citation lookup; the optional Zotero refresh talks only to Zotero on the same Mac.
 - **Easy to get out.** Word (with real footnotes), PDF, Markdown and plain text exports, plus a full-project backup file.
 
-**Calm to write in**
-- A quiet, flat design that follows macOS light and dark mode, with a Plain or Color palette.
-- A command palette for finding actions, a resizable sidebar, and optional floating sidebar and citation card when the margins have room.
-- Focus mode dims everything but the paragraph I'm writing and hides the toolbar until I reach for it.
-- Word and daily goals with a deadline, an optional on-device prose check, and keyboard shortcuts I can change.
-
-| My sources beside the draft | Page view in dark mode |
-| --- | --- |
-| ![Research panel open beside the draft](docs/evidence/readme/research-light.png) | ![Page view in dark mode, two pages stacked](docs/evidence/readme/writing-dark.png) |
+![Page view in dark mode](docs/evidence/readme/writing-dark.png)
 
 ### Project library
 
-![Personal Word project library](docs/evidence/readme/projects-light.png)
+![The Projects screen listing three projects](docs/evidence/readme/projects-light.png)
 
-Keep separate writing projects together, then open the manuscript you want to work on.
+Separate writing projects live together on one screen, searchable and sortable, as a list or as cards.
 
 ## Quick start
 

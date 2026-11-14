@@ -1,0 +1,33 @@
+
+Running 27 tests using 1 worker
+
+  ✓   1 tests/appearance.spec.ts:3:1 › system appearance changes live and the writing area scrolls on its own (8.9s)
+  ✓   2 tests/appearance.spec.ts:62:1 › controls show hover, focus, pressed, disabled and selected states (5.9s)
+  ✓   3 tests/appearance.spec.ts:118:1 › choosing Dark under a light system sticks across a reload (3.7s)
+  ✓   4 tests/appearance.spec.ts:138:1 › choosing Light under a dark system overrides the system (2.7s)
+  ✓   5 tests/appearance.spec.ts:147:1 › choosing System again follows the operating system live (2.7s)
+  ✓   6 tests/appearance.spec.ts:161:1 › Cmd/Ctrl+Shift+L flips between Light and Dark on the Projects screen (1.2s)
+  ✓   7 tests/appearance.spec.ts:171:1 › the Appearance row has no caption and its buttons use arrow keys (3.6s)
+  ✓   8 tests/appearance.spec.ts:196:1 › a segmented choice is weight and colour, not a fill, and Home/End jump the ends (3.6s)
+  ✓   9 tests/appearance.spec.ts:239:1 › Plain palette keeps today's blue primary button (2.1s)
+  ✓  10 tests/appearance.spec.ts:250:1 › the Palette row sits under Appearance with no caption and Plain selected (3.4s)
+  ✓  11 tests/appearance.spec.ts:263:1 › Color palette tints the interface in light and keeps the document colours (10.9s)
+  ✓  12 tests/appearance.spec.ts:331:1 › Color palette fills primary buttons blue and destructive confirms red (5.7s)
+  ✓  13 tests/appearance.spec.ts:353:1 › Color palette in dark uses the dark tints (8.6s)
+  ✓  14 tests/appearance.spec.ts:377:1 › Choosing Plain again restores Plain selected text color (4.8s)
+  ✓  15 tests/appearance.spec.ts:392:1 › a selected entry is regular and its section title is bold in the text colour; no highlight box shows (W7) (4.6s)
+  ✓  16 tests/appearance.spec.ts:417:3 › section swatches persist and Plain hides them in light (9.3s)
+  ✓  17 tests/appearance.spec.ts:417:3 › section swatches persist and Plain hides them in dark (6.8s)
+  ✓  18 tests/appearance.spec.ts:463:3 › icon buttons recolour on hover, focus and press (light) (3.9s)
+  ✓  19 tests/appearance.spec.ts:463:3 › icon buttons recolour on hover, focus and press (dark) (6.1s)
+  ✓  20 tests/appearance.spec.ts:515:1 › floating sidebar and research: off by default, sits under the hover row, toggles and survives a reload (4.6s)
+  ✓  21 tests/appearance.spec.ts:549:1 › settings has a centered column and a dedicated Sidebar section (2.7s)
+  ✓  22 tests/hs9-top-level-sections.spec.ts:47:1 › add, fill, rename, reload, read, export, move into, delete a top-level section (13.7s)
+  ✓  23 tests/hs9-top-level-sections.spec.ts:122:1 › rename Manuscript and restore the default; empty sidebar space and palette add a section (6.2s)
+  ✓  24 tests/hs9-top-level-sections.spec.ts:166:1 › the row More button shifts nothing and overlaps neither the title nor the split icon (3.4s)
+  ✓  25 tests/hs9-top-level-sections.spec.ts:193:1 › restoring a snapshot taken before a heading move: sidebar order equals Read and export order (7.2s)
+  ✓  26 tests/hs9-top-level-sections.spec.ts:231:1 › hovering a card with body text moves no other card (12.6s)
+  ✓  27 tests/hs9-top-level-sections.spec.ts:260:1 › a custom header's colour is set from its menu, survives a reload and shows on its icon (6.9s)
+
+  27 passed (2.7m)
+FINISHED

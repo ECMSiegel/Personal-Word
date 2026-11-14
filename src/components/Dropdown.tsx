@@ -185,14 +185,14 @@ export function Dropdown<T extends string>({
         highlight={itemRank}
         onKeyDown={onMenuKeyDown}
         ref={menu}
-        className="dropdown-menu"
+        className="dropdown-menu menu"
       >
         {options.map((option, index) =>
           option.kind === "separator" ? (
             <div
               key={option.value + index}
               role="separator"
-              className="dropdown-separator"
+              className="dropdown-separator menu-rule"
             />
           ) : option.kind === "heading" ? (
             <div
@@ -212,21 +212,26 @@ export function Dropdown<T extends string>({
             aria-selected={option.value === value}
             aria-disabled={option.disabled || undefined}
             className={
-              "dropdown-option" +
+              "dropdown-option row" +
               (index === highlight ? " is-highlighted" : "") +
               (option.value === value ? " is-current" : "")
             }
             style={option.style}
             onPointerEnter={() => !option.disabled && setHighlight(index)}
             onPointerDown={(event) => event.preventDefault()}
-            onClick={() => choose(index)}
+            onClick={(event) => {
+              // A wrapping <label> forwards an unprevented click to its first
+              // control, the trigger, which would reopen the list.
+              event.preventDefault();
+              choose(index);
+            }}
           >
             <span className="dropdown-check" aria-hidden="true">
               {option.value === value && <Check size={16} />}
             </span>
-            {option.render ?? option.label}
+            <span className="row-label">{option.render ?? option.label}</span>
             {option.shortcut && (
-              <span className="popover-shortcut" aria-hidden="true">
+              <span className="popover-shortcut row-trail" aria-hidden="true">
                 {option.shortcut}
               </span>
             )}

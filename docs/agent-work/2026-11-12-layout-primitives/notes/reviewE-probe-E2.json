@@ -1,0 +1,52 @@
+{
+ "fragments": {
+  "spot": {
+   "x": 105,
+   "y": 212,
+   "width": 24,
+   "height": 24
+  },
+  "labelEnd": 100.265625,
+  "enter": [
+   "0",
+   "24"
+  ],
+  "labelEndRest": [
+   "0",
+   "24"
+  ],
+  "leave": [
+   "24",
+   "0"
+  ],
+  "leaveDown": [
+   "24",
+   "0"
+  ]
+ },
+ "manuscript": {
+  "spot": {
+   "x": 105,
+   "y": 128,
+   "width": 24,
+   "height": 24
+  },
+  "labelEnd": 116.609375,
+  "enter": [
+   "0",
+   "24"
+  ],
+  "labelEndRest": [
+   "0",
+   "24"
+  ],
+  "leave": [
+   "24",
+   "0"
+  ],
+  "leaveDown": [
+   "24",
+   "0"
+  ]
+ }
+}

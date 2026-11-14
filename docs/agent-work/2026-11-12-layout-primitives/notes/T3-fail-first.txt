@@ -1,0 +1,202 @@
+
+Running 7 tests using 1 worker
+
+[1/7] tests/layout-invariants.spec.ts:139:3 › format bar and toolbar popovers (T3) › T3: each toolbar divider has equal space on both sides
+  1) tests/layout-invariants.spec.ts:139:3 › format bar and toolbar popovers (T3) › T3: each toolbar divider has equal space on both sides 
+
+    Error: expect(received).toBeGreaterThan(expected)
+
+    Expected: > 0
+    Received:   0
+
+      140 |     await openProjectWithEntry(page, "Layout invariants");
+      141 |     const dividers = formatBar(page).locator(".bar-divider:visible");
+    > 142 |     expect(await dividers.count()).toBeGreaterThan(0);
+          |                                    ^
+      143 |     for (const divider of await dividers.all()) {
+      144 |       const sides = await divider.evaluate((d) => {
+      145 |         const r = d.getBoundingClientRect();
+        at /Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/tests/layout-invariants.spec.ts:142:36
+
+    Error Context: test-results/T3/layout-invariants-format-b-f21f6-s-equal-space-on-both-sides/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/T3/layout-invariants-format-b-f21f6-s-equal-space-on-both-sides/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/T3/layout-invariants-format-b-f21f6-s-equal-space-on-both-sides/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+[2/7] tests/layout-invariants.spec.ts:154:3 › format bar and toolbar popovers (T3) › T3: toolbar icon buttons are 28 x 32 slots
+  2) tests/layout-invariants.spec.ts:154:3 › format bar and toolbar popovers (T3) › T3: toolbar icon buttons are 28 x 32 slots 
+
+    Error: expectSlots matched nothing
+
+    expect(received).toBeGreaterThan(expected)
+
+    Expected: > 0
+    Received:   0
+
+       at layout-helpers.ts:102
+
+      100 | export async function expectSlots(locators: Many, w: number, h: number) {
+      101 |   const items = await each(locators);
+    > 102 |   expect(items.length, "expectSlots matched nothing").toBeGreaterThan(0);
+          |                                                       ^
+      103 |   await settled(items[0].page());
+      104 |   for (const item of items) {
+      105 |     const b = await item.boundingBox();
+        at expectSlots (/Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/tests/layout-helpers.ts:102:55)
+        at /Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/tests/layout-invariants.spec.ts:156:5
+
+    Error Context: test-results/T3/layout-invariants-format-b-1a459-n-buttons-are-28-x-32-slots/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/T3/layout-invariants-format-b-1a459-n-buttons-are-28-x-32-slots/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/T3/layout-invariants-format-b-1a459-n-buttons-are-28-x-32-slots/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+[3/7] tests/layout-invariants.spec.ts:159:3 › format bar and toolbar popovers (T3) › T3: the format bar's last icon ink sits --edge-main (24 px) from the bar's right edge
+  3) tests/layout-invariants.spec.ts:159:3 › format bar and toolbar popovers (T3) › T3: the format bar's last icon ink sits --edge-main (24 px) from the bar's right edge 
+
+    Error: {"bar":{"x":270,"y":72,"width":1170,"height":40},"last":{"left":1380,"right":1426,"top":83.5,"bottom":99.5}}
+
+    expect(received).toBeLessThanOrEqual(expected)
+
+    Expected: <= 1
+    Received:    10
+
+      161 |     const bar = (await formatBar(page).boundingBox())!;
+      162 |     const last = await ink(formatBar(page).locator(".toolbar-group.is-end"));
+    > 163 |     expect(Math.abs(bar.x + bar.width - 24 - last.right), JSON.stringify({ bar, last })).toBeLessThanOrEqual(1);
+          |                                                                                          ^
+      164 |   });
+      165 |
+      166 |   for (const name of ["Prose check", "Line and paragraph spacing", "Page setup"]) {
+        at /Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/tests/layout-invariants.spec.ts:163:90
+
+    Error Context: test-results/T3/layout-invariants-format-b-ffc19-x-from-the-bar-s-right-edge/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/T3/layout-invariants-format-b-ffc19-x-from-the-bar-s-right-edge/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/T3/layout-invariants-format-b-ffc19-x-from-the-bar-s-right-edge/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+[4/7] tests/layout-invariants.spec.ts:167:5 › format bar and toolbar popovers (T3) › T3: Prose check panel rows are even and share a trailing edge
+  4) tests/layout-invariants.spec.ts:167:5 › format bar and toolbar popovers (T3) › T3: Prose check panel rows are even and share a trailing edge 
+
+    Error: expectEvenRows needs at least two rows
+
+    expect(received).toBeGreaterThanOrEqual(expected)
+
+    Expected: >= 2
+    Received:    0
+
+       at layout-helpers.ts:83
+
+      81 | export async function expectEvenRows(rows: Many, tol = 1) {
+      82 |   const items = await each(rows);
+    > 83 |   expect(items.length, "expectEvenRows needs at least two rows").toBeGreaterThanOrEqual(2);
+         |                                                                  ^
+      84 |   await settled(items[0].page());
+      85 |   const boxes: { y: number; height: number }[] = [];
+      86 |   for (const item of items) {
+        at expectEvenRows (/Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/tests/layout-helpers.ts:83:66)
+        at /Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/tests/layout-invariants.spec.ts:174:7
+
+    Error Context: test-results/T3/layout-invariants-format-b-e0101-n-and-share-a-trailing-edge/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/T3/layout-invariants-format-b-e0101-n-and-share-a-trailing-edge/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/T3/layout-invariants-format-b-e0101-n-and-share-a-trailing-edge/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+[5/7] tests/layout-invariants.spec.ts:167:5 › format bar and toolbar popovers (T3) › T3: Line and paragraph spacing panel rows are even and share a trailing edge
+  5) tests/layout-invariants.spec.ts:167:5 › format bar and toolbar popovers (T3) › T3: Line and paragraph spacing panel rows are even and share a trailing edge 
+
+    Error: expectEvenRows needs at least two rows
+
+    expect(received).toBeGreaterThanOrEqual(expected)
+
+    Expected: >= 2
+    Received:    0
+
+       at layout-helpers.ts:83
+
+      81 | export async function expectEvenRows(rows: Many, tol = 1) {
+      82 |   const items = await each(rows);
+    > 83 |   expect(items.length, "expectEvenRows needs at least two rows").toBeGreaterThanOrEqual(2);
+         |                                                                  ^
+      84 |   await settled(items[0].page());
+      85 |   const boxes: { y: number; height: number }[] = [];
+      86 |   for (const item of items) {
+        at expectEvenRows (/Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/tests/layout-helpers.ts:83:66)
+        at /Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/tests/layout-invariants.spec.ts:174:7
+
+    Error Context: test-results/T3/layout-invariants-format-b-6807f-n-and-share-a-trailing-edge/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/T3/layout-invariants-format-b-6807f-n-and-share-a-trailing-edge/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/T3/layout-invariants-format-b-6807f-n-and-share-a-trailing-edge/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+[6/7] tests/layout-invariants.spec.ts:167:5 › format bar and toolbar popovers (T3) › T3: Page setup panel rows are even and share a trailing edge
+  6) tests/layout-invariants.spec.ts:167:5 › format bar and toolbar popovers (T3) › T3: Page setup panel rows are even and share a trailing edge 
+
+    Error: expectEvenRows needs at least two rows
+
+    expect(received).toBeGreaterThanOrEqual(expected)
+
+    Expected: >= 2
+    Received:    0
+
+       at layout-helpers.ts:83
+
+      81 | export async function expectEvenRows(rows: Many, tol = 1) {
+      82 |   const items = await each(rows);
+    > 83 |   expect(items.length, "expectEvenRows needs at least two rows").toBeGreaterThanOrEqual(2);
+         |                                                                  ^
+      84 |   await settled(items[0].page());
+      85 |   const boxes: { y: number; height: number }[] = [];
+      86 |   for (const item of items) {
+        at expectEvenRows (/Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/tests/layout-helpers.ts:83:66)
+        at /Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/tests/layout-invariants.spec.ts:174:7
+
+    Error Context: test-results/T3/layout-invariants-format-b-ed794-n-and-share-a-trailing-edge/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/T3/layout-invariants-format-b-ed794-n-and-share-a-trailing-edge/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/T3/layout-invariants-format-b-ed794-n-and-share-a-trailing-edge/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+[7/7] tests/layout-invariants.spec.ts:254:8 › slots (T2, T3) › T2/T3: every .slot is 24 x 24 and every .slot-toolbar 28 x 32
+  6 failed
+    tests/layout-invariants.spec.ts:139:3 › format bar and toolbar popovers (T3) › T3: each toolbar divider has equal space on both sides 
+    tests/layout-invariants.spec.ts:154:3 › format bar and toolbar popovers (T3) › T3: toolbar icon buttons are 28 x 32 slots 
+    tests/layout-invariants.spec.ts:159:3 › format bar and toolbar popovers (T3) › T3: the format bar's last icon ink sits --edge-main (24 px) from the bar's right edge 
+    tests/layout-invariants.spec.ts:167:5 › format bar and toolbar popovers (T3) › T3: Prose check panel rows are even and share a trailing edge 
+    tests/layout-invariants.spec.ts:167:5 › format bar and toolbar popovers (T3) › T3: Line and paragraph spacing panel rows are even and share a trailing edge 
+    tests/layout-invariants.spec.ts:167:5 › format bar and toolbar popovers (T3) › T3: Page setup panel rows are even and share a trailing edge 
+  1 skipped

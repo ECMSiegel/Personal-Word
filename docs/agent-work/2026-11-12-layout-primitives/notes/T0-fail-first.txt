@@ -1,0 +1,173 @@
+# T0 fail-first: layoutPrimitives.test.ts BEFORE tokens, layout.css, z-index tokens and budget file (Thu Nov 12 17:18:19 EST 2026)
+
+ RUN  v4.1.11 /Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor
+
+ ❯ src/layoutPrimitives.test.ts (3 tests | 3 failed) 58ms
+     × (a) hand-written spacing per CSS file equals src/layoutBudget.json 33ms
+     × (b) every z-index of 10 or more is a --layer-* token 21ms
+     × (c) layout.css takes sizes from tokens only 2ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/layoutPrimitives.test.ts > layout primitives guard > (a) hand-written spacing per CSS file equals src/layoutBudget.json
+Error: src/layoutBudget.json is missing. Current counts (one file per line):
+{
+  "src/components/command-palette.css": 6,
+  "src/components/context-menu.css": 0,
+  "src/components/drag-reorder.css": 1,
+  "src/components/drop-target.css": 1,
+  "src/components/dropdown.css": 8,
+  "src/components/floating.css": 1,
+  "src/components/icon-magnify.css": 0,
+  "src/components/library.css": 16,
+  "src/components/pane-footer.css": 5,
+  "src/components/popover.css": 2,
+  "src/components/prose-issues.css": 1,
+  "src/components/scroll-fade.css": 0,
+  "src/components/scrollspy.css": 3,
+  "src/components/segmented.css": 1,
+  "src/components/split.css": 0,
+  "src/editor/editor.css": 70,
+  "src/editor/toolbar-motion.css": 4,
+  "src/export/export-menu.css": 4,
+  "src/organization/fragments.css": 13,
+  "src/organization/organization.css": 26,
+  "src/research/citation-card.css": 20,
+  "src/research/research.css": 81,
+  "src/settings/appearance-settings.css": 5,
+  "src/settings/settings-nav.css": 3,
+  "src/settings/shortcuts-settings.css": 4,
+  "src/styles.css": 189
+}
+
+ ❯ src/layoutPrimitives.test.ts:123:13
+    121|           .join(",\n") +
+    122|         "\n}\n";
+    123|       throw new Error(`${BUDGET_FILE} is missing. Current counts (one …
+       |             ^
+    124|     }
+    125|     const budget = JSON.parse(readFileSync(budgetPath, "utf8")) as Rec…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/3]⎯
+
+ FAIL  src/layoutPrimitives.test.ts > layout primitives guard > (b) every z-index of 10 or more is a --layer-* token
+AssertionError: expected [ …(12) ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "src/components/command-palette.css: .command-palette { z-index: 60 }",
++   "src/components/context-menu.css: .dropdown-menu.context-menu { z-index: 70 }",
++   "src/components/dropdown.css: .dropdown-menu { z-index: 40 }",
++   "src/components/popover.css: .popover { z-index: 40 }",
++   "src/editor/editor.css: .writer > .format-bar { z-index: 40 }",
++   "src/editor/editor.css: .writer .toolbar-popover { z-index: 40 }",
++   "src/editor/editor.css: .writer .table-menu-anchor { z-index: 50 }",
++   "src/editor/toolbar-motion.css: .writer > .format-bar[data-focus-hidden] { z-index: 40 }",
++   "src/export/export-menu.css: .export-menu.popover { z-index: 41 }",
++   "src/styles.css: .modal-backdrop { z-index: 70 }",
++   "src/styles.css: .notice,
++ .error-banner { z-index: 30 }",
++   "src/styles.css: .sidebar-shell.is-overlay { z-index: 60 }",
++ ]
+
+ ❯ src/layoutPrimitives.test.ts:150:17
+    148|       }
+    149|     }
+    150|     expect(bad).toEqual([]);
+       |                 ^
+    151|   });
+    152|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/3]⎯
+
+ FAIL  src/layoutPrimitives.test.ts > layout primitives guard > (c) layout.css takes sizes from tokens only
+Error: ENOENT: no such file or directory, open '/Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/src/components/layout.css'
+ ❯ src/layoutPrimitives.test.ts:155:35
+    153|   it("(c) layout.css takes sizes from tokens only", () => {
+    154|     const bad: string[] = [];
+    155|     for (const rule of parseRules(readFileSync(join(ROOT, LAYOUT), "ut…
+       |                                   ^
+    156|       for (const d of declarations(rule.body)) {
+    157|         for (const m of d.value.matchAll(/(-?\d*\.?\d+)px/g)) {
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/3]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  3 failed (3)
+   Start at  17:18:21
+   Duration  334ms (transform 51ms, setup 0ms, import 68ms, tests 58ms, environment 0ms)
+
+
+# Doctored run (after tokens, layout.css, z-index tokens, budget generated): popover.css budget 2->1 and a scratch '.t0-scratch-zindex { z-index: 12 }' appended to split.css
+
+ RUN  v4.1.11 /Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor
+
+ ❯ src/layoutPrimitives.test.ts (3 tests | 2 failed) 56ms
+     × (a) hand-written spacing per CSS file equals src/layoutBudget.json 31ms
+     × (b) every z-index of 10 or more is a --layer-* token 21ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/layoutPrimitives.test.ts > layout primitives guard > (a) hand-written spacing per CSS file equals src/layoutBudget.json
+AssertionError: expected [ Array(1) ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "src/components/popover.css: 2 spacing declarations, budget 1 -- use the layout primitives instead",
++ ]
+
+ ❯ src/layoutPrimitives.test.ts:135:22
+    133|       if (!(file in counts)) problems.push(`${file}: in the budget but…
+    134|     }
+    135|     expect(problems).toEqual([]);
+       |                      ^
+    136|   });
+    137|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  src/layoutPrimitives.test.ts > layout primitives guard > (b) every z-index of 10 or more is a --layer-* token
+AssertionError: expected [ Array(1) ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "src/components/split.css: .t0-scratch-zindex { z-index: 12 }",
++ ]
+
+ ❯ src/layoutPrimitives.test.ts:150:17
+    148|       }
+    149|     }
+    150|     expect(bad).toEqual([]);
+       |                 ^
+    151|   });
+    152|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 1 passed (3)
+   Start at  17:19:25
+   Duration  422ms (transform 56ms, setup 0ms, import 71ms, tests 56ms, environment 0ms)
+
+
+# Undoctored run
+
+ RUN  v4.1.11 /Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor
+
+
+ Test Files  1 passed (1)
+      Tests  3 passed (3)
+   Start at  17:19:26
+   Duration  385ms (transform 58ms, setup 0ms, import 78ms, tests 48ms, environment 0ms)
+

@@ -348,12 +348,12 @@ export function PopoverItem({
     <button
       type="button"
       {...rest}
-      className={"popover-item" + (className ? " " + className : "")}
+      className={"popover-item row" + (className ? " " + className : "")}
       data-popover-item=""
     >
-      {children}
+      <span className="row-label">{children}</span>
       {shortcut && (
-        <span className="popover-shortcut" aria-hidden="true">
+        <span className="popover-shortcut row-trail" aria-hidden="true">
           {shortcut}
         </span>
       )}

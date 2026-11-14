@@ -49,7 +49,7 @@ test("add, fill, rename, reload, read, export, move into, delete a top-level sec
   await editor(page).fill("Opening body");
 
   // Add a top-level section with the visible control; its "+" is always shown.
-  await page.getByRole("button", { name: "New top-level section", exact: true }).click();
+  await page.getByRole("button", { name: "Add header", exact: true }).click();
   await nameIt(page, "Part two");
   await expect(custom(page).locator(".group-title")).toHaveText("Part two");
   await expect(custom(page).getByRole("button", { name: "New section in Part two" })).toBeVisible();
@@ -110,13 +110,13 @@ test("add, fill, rename, reload, read, export, move into, delete a top-level sec
   await item(page, "Delete").click();
   const dialog = page.getByRole("dialog");
   await expect(dialog).toContainText("Its entries move to Manuscript");
-  await dialog.getByRole("button", { name: "Delete section" }).click();
+  await dialog.getByRole("button", { name: "Delete header" }).click();
   await expect(custom(page)).toHaveCount(0);
   // The section sat above Manuscript, so its entries keep their place: first.
   expect(await rows(manuscript(page))).toEqual(["Alpha", "Beta", "Gamma", "Opening"]);
   await saved(page);
   await page.getByRole("button", { name: "Snapshots & history", exact: true }).click();
-  await expect(page.locator(".versions").getByRole("button", { name: /Before deleting section “Appendix”/ })).toBeVisible();
+  await expect(page.locator(".versions").getByRole("button", { name: /Before deleting header “Appendix”/ })).toBeVisible();
 });
 
 test("rename Manuscript and restore the default; empty sidebar space and palette add a section", async ({ page }) => {
@@ -124,7 +124,7 @@ test("rename Manuscript and restore the default; empty sidebar space and palette
   const title = manuscript(page).locator(".group-title");
   await title.click({ button: "right" });
   expect(await menu(page).getByRole("menuitem").allTextContents()).toEqual([
-    "Collapse", "Move up", "Move down", "New section", "New top-level section", "Rename",
+    "Collapse", "Move up", "Move down", "New section", "Add header", "Rename",
   ]);
   await item(page, "Rename").click();
   await nameIt(page, "Chapters");
@@ -139,7 +139,7 @@ test("rename Manuscript and restore the default; empty sidebar space and palette
   await nameIt(page, "Chapters");
   await title.click({ button: "right" });
   expect(await menu(page).getByRole("menuitem").allTextContents()).toEqual([
-    "Collapse", "Move up", "Move down", "New section", "New top-level section", "Rename", "Reset name",
+    "Collapse", "Move up", "Move down", "New section", "Add header", "Rename", "Reset name",
   ]);
   await item(page, "Reset name").click();
   await expect(title).toHaveText("Manuscript");
@@ -151,13 +151,13 @@ test("rename Manuscript and restore the default; empty sidebar space and palette
   const groups = page.locator(".sidebar-groups");
   const box = (await groups.boundingBox())!;
   await page.mouse.click(box.x + 20, box.y + box.height - 4, { button: "right" });
-  await item(page, "New top-level section").click();
+  await item(page, "Add header").click();
   await nameIt(page, "From space");
   await expect(custom(page).locator(".group-title")).toHaveText("From space");
 
   // Command palette.
   await page.keyboard.press("ControlOrMeta+Shift+p");
-  await page.keyboard.type("New top-level section");
+  await page.keyboard.type("Add header");
   await page.keyboard.press("Enter");
   await nameIt(page, "From palette");
   await expect(custom(page).locator(".group-title")).toHaveText(["From space", "From palette"]);
@@ -168,6 +168,7 @@ test("the row More button shifts nothing and overlaps neither the title nor the 
   await page.getByRole("button", { name: "New section", exact: true }).click();
   await nameIt(page, "Second section with a rather long title that runs on");
   for (const view of ["list", "cards"]) {
+    if (view === "cards") await manuscript(page).locator(":scope > .group-heading").hover();
     if (view === "cards") await manuscript(page).getByRole("button", { name: "Show Manuscript cards" }).click();
     const rowsHere = manuscript(page).locator(".entry-row");
     const first = rowsHere.nth(0);
@@ -193,7 +194,7 @@ test("the row More button shifts nothing and overlaps neither the title nor the 
 test("restoring a snapshot taken before a heading move: sidebar order equals Read and export order", async ({ page }) => {
   await createProject(page, "Restore order");
   await editor(page).fill("Opening body");
-  await page.getByRole("button", { name: "New top-level section", exact: true }).click();
+  await page.getByRole("button", { name: "Add header", exact: true }).click();
   await nameIt(page, "Part two");
   await custom(page).getByRole("button", { name: "New section in Part two" }).click();
   await nameIt(page, "Alpha");
@@ -238,6 +239,7 @@ test("hovering a card with body text moves no other card", async ({ page }) => {
     await editor(page).fill(words(n));
   }
   await saved(page);
+  await manuscript(page).locator(":scope > .group-heading").hover();
   await manuscript(page).getByRole("button", { name: "Show Manuscript cards" }).click();
   const cards = manuscript(page).locator(".entry-row");
   const count = await cards.count();
@@ -254,4 +256,137 @@ test("hovering a card with body text moves no other card", async ({ page }) => {
     await expect(cards.nth(i).getByRole("button", { name: /^More actions for / })).toBeVisible();
     expect(await gap(), `hovering card ${i + 1} moves the next card`).toEqual(before);
   }
+});
+
+// T12: every header's colour is a row of eight swatches at the end of its right-click menu (Color
+// palette only). Built-in headers store theirs per project (Project.headerColours); custom headers
+// in Project.groups[].colour. The app-wide appearance value is only a legacy fallback, never written.
+const swatchRow = (page: Page) => menu(page).getByRole("group", { name: "Colour", exact: true });
+const swatch = (page: Page, name: string) => swatchRow(page).getByRole("menuitemradio", { name, exact: true });
+const T12_NOTES = "docs/agent-work/2026-11-12-layout-primitives/notes";
+const colourAppearance = (sections: Record<string, string>) => {
+  const value = JSON.stringify({ theme: "system", palette: "color", sections });
+  return (page: Page) => page.addInitScript((v) => localStorage.setItem("folio.workspace.appearance", v), value);
+};
+async function swatchColour(page: Page, name: string) {
+  return page.evaluate((n) => {
+    const probe = document.createElement("i");
+    probe.style.color = `var(--swatch-${n})`;
+    document.body.append(probe);
+    const c = getComputedStyle(probe).color;
+    probe.remove();
+    return c;
+  }, name);
+}
+async function settledMenu(page: Page) {
+  await expect(menu(page)).toBeVisible();
+  await menu(page).evaluate(async (el) => {
+    await Promise.all(el.getAnimations().map((a) => a.finished));
+  });
+}
+
+test("a custom header's colour is picked from its menu by mouse and keyboard and survives a reload", async ({ page }) => {
+  await page.emulateMedia({ colorScheme: "light" });
+  await colourAppearance({ manuscript: "blue", fragments: "green", research: "orange" })(page);
+  await createProject(page, "Header colour");
+  await page.getByRole("button", { name: "Add header", exact: true }).click();
+  await expect(page.getByRole("dialog")).toContainText("New header");
+  await nameIt(page, "Part two");
+  // Unset: it shows Manuscript's colour, and Manuscript's swatch is the marked one.
+  await custom(page).locator(".group-title").click({ button: "right" });
+  expect(await menu(page).getByRole("menuitem").allTextContents()).toEqual([
+    "Collapse", "Move up", "Move down", "New section", "Add header", "Rename", "Delete",
+  ]);
+  await expect(swatchRow(page).getByRole("menuitemradio")).toHaveCount(8);
+  expect(await swatchRow(page).getByRole("menuitemradio").evaluateAll((els) => els.map((el) => el.getAttribute("aria-label"))))
+    .toEqual(["Red", "Orange", "Yellow", "Green", "Teal", "Blue", "Indigo", "Purple"]);
+  await expect(swatch(page, "Blue")).toHaveAttribute("aria-checked", "true");
+  await expect(swatch(page, "Purple")).toHaveAttribute("aria-checked", "false");
+  await settledMenu(page);
+  await page.screenshot({ path: `${T12_NOTES}/T12-custom-menu-light.png`, clip: { x: 0, y: 0, width: 520, height: 680 } });
+  await page.emulateMedia({ colorScheme: "dark" });
+  await page.screenshot({ path: `${T12_NOTES}/T12-custom-menu-dark.png`, clip: { x: 0, y: 0, width: 520, height: 680 } });
+  await page.emulateMedia({ colorScheme: "light" });
+  // The swatch square is the colour the icon is drawn in.
+  const purple = await swatchColour(page, "purple");
+  await expect(swatch(page, "Purple").locator(".swatch-chip")).toHaveCSS("background-color", purple);
+  // Mouse: applies at once, closes the menu, focus back on the heading.
+  await swatch(page, "Purple").click();
+  await expect(menu(page)).toHaveCount(0);
+  await expect(custom(page).locator(".group-title")).toBeFocused();
+  await expect(custom(page)).toHaveAttribute("data-tint", "purple");
+  await expect(custom(page).locator(".group-title svg").first()).toHaveCSS("color", purple);
+  await saved(page);
+  await page.reload();
+  await expect(custom(page)).toHaveAttribute("data-tint", "purple");
+  await expect(custom(page).locator(".group-title svg").first()).toHaveCSS("color", purple);
+  // Keyboard: Shift+F10, the row is one stop in the Up/Down order, Right x2 wraps Purple -> Red -> Orange.
+  await custom(page).locator(".group-title").focus();
+  await page.keyboard.press("Shift+F10");
+  await expect(menu(page)).toBeVisible();
+  await page.keyboard.press("End");
+  await expect(swatch(page, "Purple")).toBeFocused();
+  await page.keyboard.press("ArrowUp");
+  await expect(menu(page)).toBeFocused();
+  await page.keyboard.press("ArrowDown");
+  await expect(swatch(page, "Purple")).toBeFocused();
+  await page.keyboard.press("ArrowRight");
+  await expect(swatch(page, "Red")).toBeFocused();
+  await page.keyboard.press("ArrowRight");
+  await expect(swatch(page, "Orange")).toBeFocused();
+  await page.keyboard.press("Enter");
+  await expect(menu(page)).toHaveCount(0);
+  await expect(custom(page).locator(".group-title")).toBeFocused();
+  await expect(custom(page)).toHaveAttribute("data-tint", "orange");
+  await expect(custom(page).locator(".group-title svg").first()).toHaveCSS("color", await swatchColour(page, "orange"));
+});
+
+test("a built-in header's colour is per project, follows the tab and falls back to the app-wide value", async ({ page }) => {
+  await page.emulateMedia({ colorScheme: "light" });
+  // Legacy app-wide value: Fragments teal. A project with no headerColours shows it.
+  await colourAppearance({ manuscript: "blue", fragments: "teal", research: "orange" })(page);
+  await createProject(page, "Colour A");
+  const fragments = page.locator('.sidebar-groups [data-group="fragments"]');
+  const teal = await swatchColour(page, "teal");
+  const purple = await swatchColour(page, "purple");
+  await expect(fragments.locator(".group-title svg").first()).toHaveCSS("color", teal);
+  await fragments.locator(".group-title").click({ button: "right" });
+  await expect(swatch(page, "Teal")).toHaveAttribute("aria-checked", "true");
+  await settledMenu(page);
+  await page.screenshot({ path: `${T12_NOTES}/T12-builtin-menu-light.png`, clip: { x: 0, y: 0, width: 520, height: 560 } });
+  await page.emulateMedia({ colorScheme: "dark" });
+  await page.screenshot({ path: `${T12_NOTES}/T12-builtin-menu-dark.png`, clip: { x: 0, y: 0, width: 520, height: 560 } });
+  await page.emulateMedia({ colorScheme: "light" });
+  await swatch(page, "Purple").click();
+  await expect(menu(page)).toHaveCount(0);
+  await expect(fragments.locator(".group-title")).toBeFocused();
+  await expect(fragments.locator(".group-title svg").first()).toHaveCSS("color", purple);
+  // Nothing writes the app-wide value any more.
+  const stored = JSON.parse((await page.evaluate(() => localStorage.getItem("folio.workspace.appearance")))!);
+  expect(stored.sections).toEqual({ manuscript: "blue", fragments: "teal", research: "orange" });
+  await saved(page);
+  await page.reload();
+  await expect(fragments.locator(".group-title svg").first()).toHaveCSS("color", purple);
+  // Project B keeps the legacy colour; switching tabs switches the tint.
+  await page.getByRole("button", { name: "Projects", exact: true }).click();
+  await page.getByRole("button", { name: "Start new project" }).click();
+  await page.getByRole("button", { name: "Blank", exact: true }).click();
+  await page.getByLabel("Project title").fill("Colour B");
+  await page.getByRole("button", { name: "Save", exact: true }).click();
+  await expect(editor(page)).toBeVisible();
+  await expect(fragments.locator(".group-title svg").first()).toHaveCSS("color", teal);
+  const tabs = page.locator(".project-tabs");
+  await tabs.getByRole("button", { name: "Colour A", exact: true }).click();
+  await expect(fragments.locator(".group-title svg").first()).toHaveCSS("color", purple);
+  await tabs.getByRole("button", { name: "Colour B", exact: true }).click();
+  await expect(fragments.locator(".group-title svg").first()).toHaveCSS("color", teal);
+});
+
+test("Plain palette: no colour row and no rule in a header's menu", async ({ page }) => {
+  await createProject(page, "Plain header menu");
+  await manuscript(page).locator(".group-title").click({ button: "right" });
+  await expect(menu(page)).toBeVisible();
+  await expect(swatchRow(page)).toHaveCount(0);
+  await expect(menu(page).locator(".menu-rule")).toHaveCount(0);
+  await expect(menu(page).getByRole("menuitemradio")).toHaveCount(0);
 });

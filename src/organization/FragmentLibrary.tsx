@@ -69,8 +69,8 @@ export function FragmentLibrary({
   );
   const count = `${rows.length} ${rows.length === 1 ? "fragment" : "fragments"}`;
   return (
-    <section className="fragment-library">
-      <div className="fragment-controls">
+    <section className="stack gap-3 fragment-library">
+      <div className="cluster gap-3 fragment-controls">
         <input
           className="fragment-search"
           aria-label="Search fragments"
@@ -78,7 +78,7 @@ export function FragmentLibrary({
           value={query}
           onChange={(e) => setQuery(e.target.value)}
         />
-        <label className="fragment-across">
+        <label className="cluster gap-2 fragment-across">
           <input
             type="checkbox"
             checked={across}
@@ -174,12 +174,12 @@ function FragmentItem({
     if (tags.join(",") !== (entry.tags ?? []).join(",")) onTags(entry.id, tags);
   };
   return (
-    <article className="fragment-item">
-      <div className="fragment-head">
-        <h2>{entry.title}</h2>
+    <article className="stack gap-2 fragment-item">
+      <div className="row fragment-head">
+        <h2 className="row-label">{entry.title}</h2>
         <button
           type="button"
-          className="fragment-icon"
+          className="slot row-trail fragment-icon"
           aria-expanded={open}
           aria-label={(open ? "Collapse " : "Expand ") + entry.title}
           onClick={onToggle}
@@ -227,7 +227,7 @@ function FragmentItem({
       )}
       {current ? (
         <>
-          <div className="fragment-actions">
+          <div className="row gap-3 fragment-actions">
             {onInsert && (
               <button
                 type="button"
@@ -271,7 +271,7 @@ function FragmentItem({
             {onDelete && (
               <button
                 type="button"
-                className="fragment-icon fragment-danger"
+                className="slot row-trail fragment-icon fragment-danger"
                 aria-label={`Delete ${entry.title}`}
                 title="Delete fragment"
                 onClick={() => onDelete(entry)}
@@ -280,7 +280,7 @@ function FragmentItem({
               </button>
             )}
           </div>
-          <label className="fragment-tags">
+          <label className="cluster gap-2 fragment-tags">
             <span>Tags</span>
             <input
               key={(entry.tags ?? []).join(",")}
@@ -291,7 +291,7 @@ function FragmentItem({
           </label>
         </>
       ) : (
-        <div className="fragment-actions">
+        <div className="row gap-3 fragment-actions">
           <button
             type="button"
             className="fragment-link"

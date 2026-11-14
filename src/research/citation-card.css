@@ -36,8 +36,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: var(--space-3);
-  padding: var(--space-3) var(--space-4) 0;
+  padding: var(--space-3) var(--edge) 0;
 }
 .citation-card-title {
   margin: 0;
@@ -45,8 +44,6 @@
   font-weight: 600;
 }
 .citation-card-head .icon-button {
-  display: inline-flex;
-  padding: var(--space-1);
   background: none;
   border: 0;
   border-radius: 0;
@@ -55,20 +52,12 @@
 .citation-card-body {
   min-height: 0;
   overflow-y: auto;
-  padding: var(--space-3) var(--space-4);
-}
-.citation-card-section {
-  display: grid;
-  gap: var(--space-3);
+  padding: var(--space-3) var(--edge);
 }
 .citation-card-source {
   margin: 0;
   font-weight: 600;
   overflow-wrap: anywhere;
-}
-.citation-card-previews {
-  display: grid;
-  gap: var(--space-3);
 }
 .citation-card-foot .citation-card-actions {
   padding-bottom: var(--space-1);
@@ -141,10 +130,6 @@
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: var(--space-3);
 }
-.citation-card .research-fields-source {
-  display: grid;
-  gap: var(--space-3);
-}
 .citation-card .research-hint,
 .citation-card .field-help {
   margin: 0;
@@ -176,10 +161,7 @@
   font-size: var(--type-body);
 }
 .citation-card-foot {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-1);
-  padding: var(--space-2) var(--space-4) var(--space-3);
+  padding: var(--space-2) var(--edge) var(--space-3);
   border-top: 1px solid var(--line);
 }
 .citation-card-status {

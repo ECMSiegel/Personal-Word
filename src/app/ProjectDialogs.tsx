@@ -28,7 +28,7 @@ export function ModalFrame({ title, busy = false, onCancel, children }: { title:
     document.addEventListener("keydown", onKey);
     return () => document.removeEventListener("keydown", onKey);
   }, []);
-  return <div className="modal-backdrop"><div className="dialog" ref={box} role="dialog" aria-modal="true" aria-labelledby={label} tabIndex={-1}
+  return <div className="modal-backdrop"><div className="dialog stack gap-5" ref={box} role="dialog" aria-modal="true" aria-labelledby={label} tabIndex={-1}
     onKeyDown={(event) => {
       if (event.key === "Escape") { event.preventDefault(); event.stopPropagation(); if (!busy) onCancel(); }
       if (event.key !== "Tab") return;
@@ -49,13 +49,13 @@ export function ProjectDialogs({ name, choice, busy, setName, setChoice, setBusy
 }) {
   return <>
     {name && <ModalFrame key="name" title={name.title} busy={busy} onCancel={() => setName(null)}>
-      <form onSubmit={(e) => { e.preventDefault(); if (!name.value.trim() || busy) return; setBusy(true); void run(async () => { await name.action(name.value.trim()); setName(null); }).finally(() => setBusy(false)); }}>
-        <label>{name.label}<input value={name.value} onChange={(e) => setName({ ...name, value: e.target.value })} /></label>
-        <div className="dialog-actions"><button type="button" disabled={busy} onClick={() => setName(null)}>Cancel</button><button className="primary" type="submit" disabled={!name.value.trim() || busy}>{busy ? "Saving…" : "Save"}</button></div>
+      <form className="stack gap-5" onSubmit={(e) => { e.preventDefault(); if (!name.value.trim() || busy) return; setBusy(true); void run(async () => { await name.action(name.value.trim()); setName(null); }).finally(() => setBusy(false)); }}>
+        <label className="stack gap-2">{name.label}<input value={name.value} onChange={(e) => setName({ ...name, value: e.target.value })} /></label>
+        <div className="dialog-actions cluster gap-4"><button type="button" disabled={busy} onClick={() => setName(null)}>Cancel</button><button className="primary" type="submit" disabled={!name.value.trim() || busy}>{busy ? "Saving…" : "Save"}</button></div>
       </form>
     </ModalFrame>}
     {choice && <ModalFrame key="choice" title={choice.title} busy={busy} onCancel={() => setChoice(null)}>
-      <p className="dialog-body">{choice.body}</p><div className="dialog-actions"><button type="button" disabled={busy} onClick={() => setChoice(null)}>Cancel</button>
+      <p className="dialog-body">{choice.body}</p><div className="dialog-actions cluster gap-4"><button type="button" disabled={busy} onClick={() => setChoice(null)}>Cancel</button>
         {choice.actions.map((a) => <button key={a.label} type="button" className={a.primary ? "primary" + (a.destructive ? " destructive" : "") : ""} disabled={busy} onClick={() => { setBusy(true); void run(async () => { await a.run(); if (!a.keep) setChoice(null); }).finally(() => setBusy(false)); }}>{a.label}</button>)}
       </div>
     </ModalFrame>}

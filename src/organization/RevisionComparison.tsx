@@ -51,7 +51,7 @@ export function RevisionComparison({
   const snapshotExcerpt = excerpt(old, passageLocation.snapshotBlock, passageLocation.snapshotOffset);
   const currentExcerpt = excerpt(live, passageLocation.currentBlock, passageLocation.currentOffset);
   return (
-    <div className="revision-comparison">
+    <div className="stack gap-3 revision-comparison">
       <label>
         Compare section{" "}
         <Dropdown
@@ -64,12 +64,12 @@ export function RevisionComparison({
       {old && (
         <>
           {diff?.oversized ? (
-            <div className="revision-oversized">
+            <div className="stack gap-3 revision-oversized">
               <p role="status" className="revision-summary">{diff.summary}</p>
               {!selectingPassage ? (
                 <button type="button" onClick={() => { setSelectingPassage(true); setPassageDiff(null); }}>Compare selected passage</button>
               ) : (
-                <div className="revision-selected-passage">
+                <div className="stack gap-3 revision-selected-passage">
                   <p>Choose a paragraph and character offset from each version. Compare at most 4,000 characters at a time. This read-only comparison cannot restore text.</p>
                   <div className="revision-selection-locations">
                     <label>Snapshot paragraph<input type="number" min={1} max={old.content.content?.length ?? 1} value={passageLocation.snapshotBlock + 1} onChange={(event) => setPassageLocation((value) => ({ ...value, snapshotBlock: Math.max(0, Number(event.target.value) - 1), snapshotOffset: 0 }))} /></label>
@@ -84,7 +84,7 @@ export function RevisionComparison({
                   <button type="button" disabled={snapshotExcerpt === null || currentExcerpt === null} onClick={() => { setPassageTexts({ snapshot: snapshotExcerpt ?? "", current: currentExcerpt ?? "" }); setPassageDiff(null); }}>Use these passages</button>
                   <label>Snapshot passage<textarea aria-label="Snapshot passage" readOnly maxLength={4000} value={passageTexts.snapshot} /></label>
                   <label>Current passage<textarea aria-label="Current passage" readOnly maxLength={4000} value={passageTexts.current} /></label>
-                  <div className="revision-change-controls">
+                  <div className="cluster gap-3 revision-change-controls">
                     <button type="button" onClick={compareSelectedPassage} disabled={!passageTexts.snapshot.trim() || !passageTexts.current.trim()}>Compare selected passage</button>
                     <button type="button" onClick={() => { setSelectingPassage(false); setPassageDiff(null); }}>Cancel</button>
                   </div>
@@ -102,7 +102,7 @@ export function RevisionComparison({
             </div>
           ) : (
             <>
-              <div className="revision-change-controls" aria-label="Comparison navigation">
+              <div className="cluster gap-3 revision-change-controls" aria-label="Comparison navigation">
                 <button type="button" onClick={() => moveChange(-1)} disabled={!changes.length}>Previous change</button>
                 <span aria-live="polite">{changes.length ? `Change ${Math.min(changeCursor + 1, changes.length)} of ${changes.length}` : "No changes"}</span>
                 <button type="button" onClick={() => moveChange(1)} disabled={!changes.length}>Next change</button>

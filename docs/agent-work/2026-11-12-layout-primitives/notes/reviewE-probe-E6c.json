@@ -1,0 +1,27 @@
+{
+ "wrapped-on-screen-read": [
+  "Font"
+ ],
+ "readerFont": {
+  "wrappedInLabel": 1,
+  "picked": "System sans",
+  "optionsAfterMouse": 4,
+  "valueAfterMouse": "System sans",
+  "optionsAfterKeyboard": 0
+ },
+ "wrapped-on-screen-settings": [
+  "Export typeface",
+  "Line spacing",
+  "Page number position"
+ ],
+ "wrapped-on-screen-projects": [
+  "Sort projects"
+ ],
+ "projectsSort": {
+  "wrappedInLabel": 1,
+  "picked": "Added",
+  "optionsAfterMouse": 3,
+  "valueAfterMouse": "Added",
+  "optionsAfterKeyboard": 0
+ }
+}

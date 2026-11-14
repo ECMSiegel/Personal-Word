@@ -1,0 +1,74 @@
+
+Running 2 tests using 1 worker
+
+  ✘  1 tests/layout-invariants.spec.ts:296:3 › research panel and citation card (T7) › T7: research tabs are a 40 px bar; source rows are even; sources start at the tab edge (11.1s)
+  ✘  2 tests/layout-invariants.spec.ts:319:3 › research panel and citation card (T7) › T7: citation card text starts at one edge and the close icon ends at the matching edge (3.2s)
+
+
+  1) tests/layout-invariants.spec.ts:296:3 › research panel and citation card (T7) › T7: research tabs are a 40 px bar; source rows are even; sources start at the tab edge 
+
+    Error: expect(locator).toHaveClass(expected) failed
+
+    Locator: locator('.research-panel').locator('.research-tabs')
+    Expected pattern: /\bbar\b/
+    Received string:  "research-tabs"
+    Timeout: 5000ms
+
+    Call log:
+      - Expect "toHaveClass" locator('.research-panel').locator('.research-tabs') with timeout 5000ms
+      - waiting for locator('.research-panel').locator('.research-tabs')
+        14 × locator resolved to <nav class="research-tabs" aria-label="Research sections">…</nav>
+           - unexpected value "research-tabs"
+
+
+      300 |     await expect(panel).toBeVisible();
+      301 |     const tabs = panel.locator(".research-tabs");
+    > 302 |     await expect(tabs).toHaveClass(/\bbar\b/);
+          |                        ^
+      303 |     expect((await tabs.boundingBox())!.height).toBeCloseTo(40, 0);
+      304 |     for (let i = 0; i < 3; i++) {
+      305 |       await page.getByRole("button", { name: "Enter manually" }).click();
+        at /Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/tests/layout-invariants.spec.ts:302:24
+
+    Error Context: test-results/T311/layout-invariants-research-4403e-urces-start-at-the-tab-edge/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/T311/layout-invariants-research-4403e-urces-start-at-the-tab-edge/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/T311/layout-invariants-research-4403e-urces-start-at-the-tab-edge/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/layout-invariants.spec.ts:319:3 › research panel and citation card (T7) › T7: citation card text starts at one edge and the close icon ends at the matching edge 
+
+    Error: close icon inset
+
+    expect(received).toBeLessThanOrEqual(expected)
+
+    Expected: <= 1
+    Received:    4
+
+      338 |     const left = (await ink(card.locator(".citation-card-title"))).left;
+      339 |     // Equal insets: title ink from the card's left edge, close icon ink from its right edge.
+    > 340 |     expect(Math.abs((box.x + box.width - close.right) - (left - box.x)), "close icon inset").toBeLessThanOrEqual(1);
+          |                                                                                              ^
+      341 |   });
+      342 | });
+      343 |
+        at /Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/tests/layout-invariants.spec.ts:340:94
+
+    Error Context: test-results/T311/layout-invariants-research-7f6f3-n-ends-at-the-matching-edge/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/T311/layout-invariants-research-7f6f3-n-ends-at-the-matching-edge/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/T311/layout-invariants-research-7f6f3-n-ends-at-the-matching-edge/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2 failed
+    tests/layout-invariants.spec.ts:296:3 › research panel and citation card (T7) › T7: research tabs are a 40 px bar; source rows are even; sources start at the tab edge 
+    tests/layout-invariants.spec.ts:319:3 › research panel and citation card (T7) › T7: citation card text starts at one edge and the close icon ends at the matching edge 
+DONE

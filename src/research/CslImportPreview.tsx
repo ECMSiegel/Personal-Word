@@ -101,6 +101,6 @@ export function CslImportPreview({ result, busy = false, onCancel, onAdd }: {
       </li>;
     })}</ol>
     {pages > 1 && <nav aria-label="Source preview pages"><button disabled={busy || page === 0} onClick={() => setPage((n) => n - 1)}>Previous sources</button><span>Page {page + 1} of {pages}</span><button disabled={busy || page + 1 === pages} onClick={() => setPage((n) => n + 1)}>Next sources</button></nav>}
-    <div className="dialog-actions"><button type="button" disabled={busy} onClick={onCancel}>Cancel</button><button type="button" className="primary" disabled={busy || (count === 0 && chosenUpdates.length === 0)} onClick={() => onAdd(result.sources.filter((_, index) => selected[index]), chosenUpdates)}>{busy ? "Applying…" : Object.keys(updates).length ? "Apply source choices" : "Add sources"}</button></div>
+    <div className="dialog-actions cluster gap-4"><button type="button" disabled={busy} onClick={onCancel}>Cancel</button><button type="button" className="primary" disabled={busy || (count === 0 && chosenUpdates.length === 0)} onClick={() => onAdd(result.sources.filter((_, index) => selected[index]), chosenUpdates)}>{busy ? "Applying…" : Object.keys(updates).length ? "Apply source choices" : "Add sources"}</button></div>
   </ModalFrame>;
 }

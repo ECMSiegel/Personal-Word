@@ -49,7 +49,7 @@ export function ExportPanel({
   }
   return (
     <section
-      className="research-panel settings-section"
+      className="research-panel settings-section stack gap-4"
       aria-label="Export document"
     >
       <h2>Export document</h2>
@@ -70,8 +70,8 @@ export function ExportPanel({
       </p>
       {onSettingsChange && (
         <>
-          <div className="settings-form">
-            <label className="settings-field">
+          <div className="settings-form stack gap-3">
+            <label className="settings-field row gap-3">
               <span className="settings-label">Export typeface</span>
               <Dropdown
                 label="Export typeface"
@@ -84,7 +84,7 @@ export function ExportPanel({
                 ]}
               />
             </label>
-            <label className="settings-field">
+            <label className="settings-field row gap-3">
               <span className="settings-label">Font size</span>
               <input
                 type="number"
@@ -102,7 +102,7 @@ export function ExportPanel({
                 }
               />
             </label>
-            <label className="settings-field">
+            <label className="settings-field row gap-3">
               <span className="settings-label">Line spacing</span>
               <Dropdown
                 label="Line spacing"
@@ -117,7 +117,7 @@ export function ExportPanel({
                 ]}
               />
             </label>
-            <label className="settings-field">
+            <label className="settings-field row gap-3">
               <span className="settings-label">Margins (inches)</span>
               <input
                 type="number"
@@ -137,10 +137,10 @@ export function ExportPanel({
               />
             </label>
           </div>
-          <div className="settings-checks">
+          <div className="settings-checks stack gap-2">
             {(["firstLineIndent", "bibliography", "pageNumbers"] as const).map(
               (key) => (
-                <label className="settings-check" key={key}>
+                <label className="settings-check cluster gap-2" key={key}>
                   <input
                     type="checkbox"
                     checked={s[key]}
@@ -158,8 +158,8 @@ export function ExportPanel({
             )}
           </div>
           {s.pageNumbers && (
-            <div className="settings-form">
-              <label className="settings-field">
+            <div className="settings-form stack gap-3">
+              <label className="settings-field row gap-3">
                 <span className="settings-label">Page number position</span>
                 <Dropdown
                   label="Page number position"
@@ -174,7 +174,7 @@ export function ExportPanel({
           )}
         </>
       )}
-      <div className="settings-actions">
+      <div className="settings-actions cluster gap-2">
         <button
           className="settings-button"
           disabled={busy}

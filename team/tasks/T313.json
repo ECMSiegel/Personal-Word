@@ -1,0 +1,99 @@
+{
+  "id": "T313",
+  "title": "LP T9 -- Header naming and per-header colour",
+  "description": "Brief: docs/agent-work/2026-11-12-layout-primitives/BRIEF.md, then task T9 of docs/agent-work/2026-11-12-layout-primitives/PLAN.md. Shared files are edited by owned selector/region only and registered on no task.",
+  "status": "done",
+  "owner": null,
+  "priority": 2,
+  "depends_on": [],
+  "files": [
+    "docs/agent-work/2026-11-12-layout-primitives/notes/T9.md",
+    "docs/agent-work/2026-11-12-layout-primitives/notes/T9-fail-first.txt",
+    "src/organization/groups.ts",
+    "src/organization/groups.test.ts",
+    "src/model.ts",
+    "src/model.test.ts",
+    "tests/hs9-top-level-sections.spec.ts",
+    "docs/user-guide.md",
+    "src/appearance.ts",
+    "docs/design-system.md",
+    "tests/appearance.spec.ts",
+    "tests/layout-invariants.spec.ts",
+    "tests/layout-gallery.spec.ts",
+    "src-tauri/src/store.rs",
+    "src/styles.css",
+    "src/components/ProjectSidebar.tsx"
+  ],
+  "review_required": true,
+  "created_by": "agent-b823",
+  "created_at": "2026-11-12T22:13:38+00:00",
+  "claimed_at": "2026-11-13T01:11:40+00:00",
+  "updated_at": "2026-11-13T02:24:50+00:00",
+  "handoff": {
+    "by": "agent-bf08",
+    "at": "2026-11-13T01:10:49+00:00",
+    "text": "REVIEW-5.md. Everything else works (strings, data, archive/snapshot round-trip, data-tint, literal swatch colours light/dark incl. rows and cards, plain line, keyboard Shift+F10 path, Escape, focus return). 1) should-fix src/App.tsx:3217: the Colour dialog's Dropdown sits inside <label className=\"stack gap-2\">; Dropdown's list renders inline inside it, so clicking an option is forwarded by the label to the trigger and the list reopens over the dialog (reviewD-header-dialog-*.png, T9-dialog-light.png). Fix: <div className=\"stack gap-2\"><span>{groupTitle(project, colourGroup)}</span><Dropdown .../></div>, and in hs9 colour test add expect(page.getByRole(\"option\")).toHaveCount(0) after choosing Purple. 2) low ProjectSidebar.tsx:1217 menu label 'Sections actions' -> 'Sidebar actions'. cargo test still unrun."
+  },
+  "review": {
+    "by": "agent-eb72",
+    "at": "2026-11-13T02:24:50+00:00",
+    "verdict": "approved",
+    "note": "REVIEW-6.md. Mouse and keyboard choice both leave the list closed with the value shown (Purple / Orange), Dropdown named 'Colour', Escape closes list then dialog with focus back on the Part two heading, 'Sidebar actions' menu, no Colour... on built-ins; hs9+appearance pass. Same pre-existing label-wrapped Dropdown bug reproduced (mouse choice reopens list) at RevisionComparison.tsx:55/57, ExportPanel.tsx:74/76, :105/107, :162/164, App.tsx:2693/2695 (Read font), ProjectLibrary.tsx:313/315 (Sort): coordinator one-pass fix label->div/span. cargo test still unrun."
+  },
+  "log": [
+    {
+      "at": "2026-11-12T22:13:38+00:00",
+      "agent": "agent-b823",
+      "event": "created",
+      "note": ""
+    },
+    {
+      "at": "2026-11-12T23:47:51+00:00",
+      "agent": "agent-4f8f",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-11-12T23:47:51+00:00",
+      "agent": "agent-4f8f",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-11-13T00:37:05+00:00",
+      "agent": "agent-4f8f",
+      "event": "review requested",
+      "note": "Headers naming + per-header colour. Fail-first: notes/T9-fail-first.txt (4 failed before). After: hs9+appearance+layout-invariants T6 subset 12 passed; vitest groups/model/palette pass; tsc clean. cargo test NOT run (needed: store.rs fixture line now has colour). Files: model.ts, groups.ts(+test), model.test.ts, ProjectSidebar.tsx, App.tsx, styles.css (data-tint rules), GeneralSettings.tsx label, hs9/appearance/layout-invariants/layout-gallery specs, docs."
+    },
+    {
+      "at": "2026-11-13T01:10:49+00:00",
+      "agent": "agent-bf08",
+      "event": "rejected",
+      "note": "REVIEW-5.md. Everything else works (strings, data, archive/snapshot round-trip, data-tint, literal swatch colours light/dark incl. rows and cards, plain line, keyboard Shift+F10 path, Escape, focus return). 1) should-fix src/App.tsx:3217: the Colour dialog's Dropdown sits inside <label className=\"stack gap-2\">; Dropdown's list renders inline inside it, so clicking an option is forwarded by the label to the trigger and the list reopens over the dialog (reviewD-header-dialog-*.png, T9-dialog-light.png). Fix: <div className=\"stack gap-2\"><span>{groupTitle(project, colourGroup)}</span><Dropdown .../></div>, and in hs9 colour test add expect(page.getByRole(\"option\")).toHaveCount(0) after choosing Purple. 2) low ProjectSidebar.tsx:1217 menu label 'Sections actions' -> 'Sidebar actions'. cargo test still unrun."
+    },
+    {
+      "at": "2026-11-13T01:11:40+00:00",
+      "agent": "agent-bcf1",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-11-13T01:11:41+00:00",
+      "agent": "agent-bcf1",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-11-13T01:28:25+00:00",
+      "agent": "agent-bcf1",
+      "event": "review requested",
+      "note": "Rework: colour dialog <label> -> <div className=stack gap-2> + <span> title (src/App.tsx colour dialog only); Dropdown keeps aria-label Colour. Cause confirmed (inline list inside label). Fail-first: hs9 colour test with expect(option).toHaveCount(0) failed 'resolved to 9 elements' (notes/T9-rework-fail-first.txt). After: hs9+appearance 27 passed (notes/T9-rework-final.txt). tsc see board. Low: 'Sections actions' -> 'Sidebar actions' (ProjectSidebar.tsx). Light/dark screenshots notes/T9-dialog-light.png/-dark.png looked at: list closed, Purple shown. notes/T9.md finished. cargo test still NOT run. Pre-existing same label pattern at RevisionComparison.tsx:55 left."
+    },
+    {
+      "at": "2026-11-13T02:24:50+00:00",
+      "agent": "agent-eb72",
+      "event": "approved",
+      "note": "REVIEW-6.md. Mouse and keyboard choice both leave the list closed with the value shown (Purple / Orange), Dropdown named 'Colour', Escape closes list then dialog with focus back on the Part two heading, 'Sidebar actions' menu, no Colour... on built-ins; hs9+appearance pass. Same pre-existing label-wrapped Dropdown bug reproduced (mouse choice reopens list) at RevisionComparison.tsx:55/57, ExportPanel.tsx:74/76, :105/107, :162/164, App.tsx:2693/2695 (Read font), ProjectLibrary.tsx:313/315 (Sort): coordinator one-pass fix label->div/span. cargo test still unrun."
+    }
+  ]
+}

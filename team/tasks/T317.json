@@ -1,0 +1,60 @@
+{
+  "id": "T317",
+  "title": "LP T13 -- Projects page trash icon alignment",
+  "description": "Brief: docs/agent-work/2026-11-12-layout-primitives/BRIEF.md, then task T13 at the end of docs/agent-work/2026-11-12-layout-primitives/PLAN.md ('Follow-up tasks after the owner's hand test').",
+  "status": "done",
+  "owner": null,
+  "priority": 1,
+  "depends_on": [],
+  "files": [
+    "docs/agent-work/2026-11-12-layout-primitives/notes/T13.md",
+    "docs/agent-work/2026-11-12-layout-primitives/notes/T13-fail-first.txt",
+    "src/components/library.css",
+    "src/components/ProjectLibrary.tsx",
+    "src/styles.css"
+  ],
+  "review_required": true,
+  "created_by": "agent-b823",
+  "created_at": "2026-11-14T02:11:01+00:00",
+  "claimed_at": "2026-11-14T02:11:47+00:00",
+  "updated_at": "2026-11-14T02:53:19+00:00",
+  "handoff": null,
+  "review": {
+    "by": "agent-6a55",
+    "at": "2026-11-14T02:53:19+00:00",
+    "verdict": "approved",
+    "note": "REVIEW-9.md: list trash ink centre 0.25px from dates, ink right 1.5px inside rule end and 0.5px from gear, gap 18px, identical light/dark, hover/focus, 1440/900; cards insets 13/13. Change correct and harmless, but nothing was misaligned before either in Chromium: owner's complaint likely NOT addressed (WebKit? focus ring stops 12px short of trash?) -- ask owner for a crop. Pre-existing should-fix: card view long title overflows the card and runs under the trash (styles.css cards button align-items)."
+  },
+  "log": [
+    {
+      "at": "2026-11-14T02:11:01+00:00",
+      "agent": "agent-b823",
+      "event": "created",
+      "note": ""
+    },
+    {
+      "at": "2026-11-14T02:11:47+00:00",
+      "agent": "agent-6f0d",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-11-14T02:11:48+00:00",
+      "agent": "agent-6f0d",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-11-14T02:34:14+00:00",
+      "agent": "agent-6f0d",
+      "event": "review requested",
+      "note": "Measured trash/title/gear already aligned within 1px; both icon inks sat 4px inside rule end. flush-end on gear cluster and row trash (ProjectLibrary.tsx:272,375), removed padding/margin zeroing in styles.css .project-row .delete-entry, cards keep margin 0 (library.css). Tests: 2 new T13 in layout-invariants, fail-first notes/T13-fail-first.txt; final 7 passed + 65 passed. Notes in notes/T13.md"
+    },
+    {
+      "at": "2026-11-14T02:53:19+00:00",
+      "agent": "agent-6a55",
+      "event": "approved",
+      "note": "REVIEW-9.md: list trash ink centre 0.25px from dates, ink right 1.5px inside rule end and 0.5px from gear, gap 18px, identical light/dark, hover/focus, 1440/900; cards insets 13/13. Change correct and harmless, but nothing was misaligned before either in Chromium: owner's complaint likely NOT addressed (WebKit? focus ring stops 12px short of trash?) -- ask owner for a crop. Pre-existing should-fix: card view long title overflows the card and runs under the trash (styles.css cards button align-items)."
+    }
+  ]
+}

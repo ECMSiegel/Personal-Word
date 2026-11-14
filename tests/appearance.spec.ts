@@ -414,34 +414,32 @@ for (const mode of [
   { name: "light", colorScheme: "light" as const, purple: "rgb(154, 40, 212)", plain: "rgb(36, 36, 40)" },
   { name: "dark", colorScheme: "dark" as const, purple: "rgb(202, 117, 244)", plain: "rgb(237, 237, 240)" },
 ]) {
-  test(`section swatches persist and Plain hides them in ${mode.name}`, async ({ page }) => {
+  test(`header colours come from the header menu, persist per project and Plain hides them in ${mode.name}`, async ({ page }) => {
     await page.emulateMedia({ colorScheme: mode.colorScheme });
     await openProject(page, `Section swatches ${mode.name}`);
     await choosePalette(page, "Color");
-    const settings = page.locator(".project-settings");
-    await expect(settings.getByText("Section colours", { exact: true })).toBeVisible();
-    const generalLabels = await settings.locator(".settings-section").first().locator(".settings-label").allTextContents();
-    const paletteIndex = generalLabels.indexOf("Palette");
-    const sectionColoursIndex = generalLabels.indexOf("Section colours");
-    expect(paletteIndex).toBeGreaterThanOrEqual(0);
-    expect(sectionColoursIndex).toBeGreaterThan(paletteIndex);
-    const sectionRow = settings.locator(".settings-field").filter({ hasText: "Section colours" });
-    await expect(sectionRow.locator(".settings-help")).toHaveCount(0);
-    const manuscriptColour = page.getByRole("button", { name: "Manuscript colour" });
-    await manuscriptColour.click();
-    await page.getByRole("option", { name: "Purple" }).click();
+    // T12: Settings no longer has a Header colours row; the colours live in each header's menu.
+    await expect(page.locator(".project-settings").getByText("Header colours", { exact: true })).toHaveCount(0);
+    const heading = page.locator('.sidebar-group[data-group="manuscript"] .group-title');
+    await heading.click({ button: "right" });
+    await page.getByRole("menu").getByRole("group", { name: "Colour" }).getByRole("menuitemradio", { name: "Purple", exact: true }).click();
+    await expect(page.getByRole("menu")).toHaveCount(0);
     await expect(page.locator("html")).toHaveAttribute("data-tint-manuscript", "purple");
-    await expect(page.locator('.sidebar-group[data-group="manuscript"] .group-title svg').first()).toHaveCSS("color", mode.purple);
+    await expect(heading.locator("svg").first()).toHaveCSS("color", mode.purple);
+    // Stored in the project, not app-wide.
     const saved = JSON.parse((await page.evaluate((key) => localStorage.getItem(key), KEY))!);
-    expect(saved.sections).toEqual({ manuscript: "purple", fragments: "green", research: "orange" });
+    expect(saved.sections).toEqual({ manuscript: "blue", fragments: "green", research: "orange" });
+    await expect(page.getByText("Saved", { exact: true })).toBeVisible({ timeout: 10_000 });
 
     await page.reload();
+    await page.locator(".project-row").filter({ hasText: `Section swatches ${mode.name}` }).getByRole("button").first().click();
     await expect(page.locator("html")).toHaveAttribute("data-tint-manuscript", "purple");
-    await openProject(page, `Section swatches reload ${mode.name}`);
-    await expect(page.locator('.sidebar-group[data-group="manuscript"] .group-title svg').first()).toHaveCSS("color", mode.purple);
+    await expect(heading.locator("svg").first()).toHaveCSS("color", mode.purple);
     await choosePalette(page, "Plain");
-    await expect(page.getByText("Section colours", { exact: true })).toHaveCount(0);
-    await expect(page.locator('.sidebar-group[data-group="manuscript"] .group-title svg').first()).toHaveCSS("color", mode.plain);
+    await expect(heading.locator("svg").first()).toHaveCSS("color", mode.plain);
+    await heading.click({ button: "right" });
+    await expect(page.getByRole("menu")).toBeVisible();
+    await expect(page.getByRole("menu").getByRole("menuitemradio")).toHaveCount(0);
   });
 }
 

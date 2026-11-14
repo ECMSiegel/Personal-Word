@@ -157,7 +157,11 @@ describe("design tokens", () => {
     expect(styles).toMatch(/\.primary:active:not\(:disabled\)/);
     const dropdown = read("src/components/dropdown.css");
     expect(dropdown).toMatch(/\.dropdown-button:active:not\(:disabled\)/);
-    const editorLines = read("src/editor/editor.css").split("\n").slice(149, 200).join("\n");
+    // The format bar's press and focus recipe, found by selector (not by line number).
+    const editorLines = cssRules(read("src/editor/editor.css"))
+      .filter((r) => r.selector.includes(".format-bar"))
+      .map((r) => `${r.selector} { ${r.body} }`)
+      .join("\n");
     expect(editorLines).toMatch(/:active:not\(:disabled\)/);
     const stale = /outline:\s*[12]px solid var\(--accent\)/;
     expect(styles).not.toMatch(stale);
@@ -225,7 +229,7 @@ describe("design tokens", () => {
       body
         .split(";")
         .map((part) => part.split(":")[0].trim())
-        .filter((prop) => prop.startsWith("--") && !/^--(type|space|ease|duration|focus|pressed|disabled|elevation|shadow-raised|control|header|icon|emph)/.test(prop))
+        .filter((prop) => prop.startsWith("--") && !/^--(type|space|ease|duration|focus|pressed|disabled|elevation|shadow-raised|control|header|icon|emph|bar-height|row-height|slot|edge|layer)/.test(prop))
         .sort();
     const lightNames = names(find(":root")!.body);
     const darkNames = names(find(':root[data-theme="dark"]')!.body);

@@ -1,0 +1,217 @@
+
+Running 4 tests using 1 worker
+
+T6 settings rows [{"name":"Appearance","h":32,"labelX":543,"controlX":735,"controlW":174.1875,"gapAbove":null},{"name":"Palette","h":32,"labelX":543,"controlX":735,"controlW":113.15625,"gapAbove":12},{"name":"Interface font","h":37.5,"labelX":543,"controlX":735,"controlW":432,"gapAbove":12},{"name":"Storage location","h":32,"labelX":543,"controlX":735,"controlW":88.890625,"gapAbove":null},{"name":"(no label) Total word goal","h":37.5,"labelX":null,"controlX":735,"controlW":72,"gapAbove":null},{"name":"(no label) Daily word goal","h":37.5,"labelX":null,"controlX":735,"controlW":72,"gapAbove":12},{"name":"Goal scope","h":37.5,"labelX":543,"controlX":735,"controlW":260,"gapAbove":12},{"name":"Goal day","h":37.5,"labelX":543,"controlX":735,"controlW":260,"gapAbove":12},{"name":"(no label) Deadline","h":39.5,"labelX":null,"controlX":735,"controlW":260,"gapAbove":12},{"name":"Export typeface","h":36.84375,"labelX":543,"controlX":735,"controlW":260,"gapAbove":null},{"name":"Font size","h":36.84375,"labelX":543,"controlX":735,"controlW":72,"gapAbove":12},{"name":"Line spacing","h":36.84375,"labelX":543,"controlX":735,"controlW":260,"gapAbove":12},{"name":"Margins (inches)","h":36.84375,"labelX":543,"controlX":735,"controlW":72,"gapAbove":12},{"name":"Page number position","h":36.84375,"labelX":543,"controlX":735,"controlW":260,"gapAbove":null}]
+  ✘  1 tests/layout-invariants.spec.ts:258:3 › dialogs, forms, Settings, versions (T6) › T6: every Settings row is 32 tall, 12 apart, with one label column and one control column (9.4s)
+  ✘  2 tests/layout-invariants.spec.ts:298:3 › dialogs, forms, Settings, versions (T6) › T6: Capture quote, Import preview and Projects Settings keep their buttons 16 apart at the right (5.9s)
+  ✘  3 tests/layout-invariants.spec.ts:326:3 › dialogs, forms, Settings, versions (T6) › T6: a versions row's title and date are 4 px apart (5.8s)
+  ✘  4 tests/layout-invariants.spec.ts:339:3 › dialogs, forms, Settings, versions (T6) › T6: a dialog is a 24 px stack inside 32 px padding, with its actions at the end (1.5m)
+
+
+  1) tests/layout-invariants.spec.ts:258:3 › dialogs, forms, Settings, versions (T6) › T6: every Settings row is 32 tall, 12 apart, with one label column and one control column 
+
+    Error: rows not 32 tall, without a .settings-label, or not 12 below the previous row
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  -  1
+    + Received  + 90
+
+    - Array []
+    + Array [
+    +   Object {
+    +     "controlW": 432,
+    +     "controlX": 735,
+    +     "gapAbove": 12,
+    +     "h": 37.5,
+    +     "labelX": 543,
+    +     "name": "Interface font",
+    +   },
+    +   Object {
+    +     "controlW": 72,
+    +     "controlX": 735,
+    +     "gapAbove": null,
+    +     "h": 37.5,
+    +     "labelX": NaN,
+    +     "name": "(no label) Total word goal",
+    +   },
+    +   Object {
+    +     "controlW": 72,
+    +     "controlX": 735,
+    +     "gapAbove": 12,
+    +     "h": 37.5,
+    +     "labelX": NaN,
+    +     "name": "(no label) Daily word goal",
+    +   },
+    +   Object {
+    +     "controlW": 260,
+    +     "controlX": 735,
+    +     "gapAbove": 12,
+    +     "h": 37.5,
+    +     "labelX": 543,
+    +     "name": "Goal scope",
+    +   },
+    +   Object {
+    +     "controlW": 260,
+    +     "controlX": 735,
+    +     "gapAbove": 12,
+    +     "h": 37.5,
+    +     "labelX": 543,
+    +     "name": "Goal day",
+    +   },
+    +   Object {
+    +     "controlW": 260,
+    +     "controlX": 735,
+    +     "gapAbove": 12,
+    +     "h": 39.5,
+    +     "labelX": NaN,
+    +     "name": "(no label) Deadline",
+    +   },
+    +   Object {
+    +     "controlW": 260,
+    +     "controlX": 735,
+    +     "gapAbove": null,
+    +     "h": 36.84375,
+    +     "labelX": 543,
+    +     "name": "Export typeface",
+    +   },
+    +   Object {
+    +     "controlW": 72,
+    +     "controlX": 735,
+    +     "gapAbove": 12,
+    +     "h": 36.84375,
+    +     "labelX": 543,
+    +     "name": "Font size",
+    +   },
+    +   Object {
+    +     "controlW": 260,
+    +     "controlX": 735,
+    +     "gapAbove": 12,
+    +     "h": 36.84375,
+    +     "labelX": 543,
+    +     "name": "Line spacing",
+    +   },
+    +   Object {
+    +     "controlW": 72,
+    +     "controlX": 735,
+    +     "gapAbove": 12,
+    +     "h": 36.84375,
+    +     "labelX": 543,
+    +     "name": "Margins (inches)",
+    +   },
+    +   Object {
+    +     "controlW": 260,
+    +     "controlX": 735,
+    +     "gapAbove": null,
+    +     "h": 36.84375,
+    +     "labelX": 543,
+    +     "name": "Page number position",
+    +   },
+    + ]
+
+      271 |     expect(rows.length).toBeGreaterThanOrEqual(10);
+      272 |     const bad = rows.filter((r) => Math.abs(r.h - 32) > 1 || Number.isNaN(r.labelX) || (r.gapAbove !== null && Math.abs(r.gapAbove - 12) > 1));
+    > 273 |     expect(bad, "rows not 32 tall, without a .settings-label, or not 12 below the previous row").toEqual([]);
+          |                                                                                                  ^
+      274 |     const spread = (xs: number[]) => Math.max(...xs) - Math.min(...xs);
+      275 |     expect(spread(rows.map((r) => r.labelX)), "label column").toBeLessThanOrEqual(1);
+      276 |     expect(spread(rows.map((r) => r.controlX)), "control column").toBeLessThanOrEqual(1);
+        at /Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/tests/layout-invariants.spec.ts:273:98
+
+    Error Context: test-results/T310/layout-invariants-dialogs--16300-lumn-and-one-control-column/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/T310/layout-invariants-dialogs--16300-lumn-and-one-control-column/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/T310/layout-invariants-dialogs--16300-lumn-and-one-control-column/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/layout-invariants.spec.ts:298:3 › dialogs, forms, Settings, versions (T6) › T6: Capture quote, Import preview and Projects Settings keep their buttons 16 apart at the right 
+
+    Error: Projects Settings: actions display
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: "flex"
+    Received: "block"
+
+      291 |       };
+      292 |     });
+    > 293 |     expect(s.display, `${label}: actions display`).toBe("flex");
+          |                                                    ^
+      294 |     for (const g of s.gaps) expect(Math.abs(g - 16), `${label}: button gaps ${s.gaps.join(", ")}`).toBeLessThanOrEqual(1);
+      295 |     expect(Math.abs(s.right), `${label}: last button ${s.right} px from the right content edge`).toBeLessThanOrEqual(1);
+      296 |   }
+        at expectActionsAtEnd (/Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/tests/layout-invariants.spec.ts:293:52)
+        at /Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/tests/layout-invariants.spec.ts:302:5
+
+    Error Context: test-results/T310/layout-invariants-dialogs--58474-ttons-16-apart-at-the-right/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/T310/layout-invariants-dialogs--58474-ttons-16-apart-at-the-right/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/T310/layout-invariants-dialogs--58474-ttons-16-apart-at-the-right/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) tests/layout-invariants.spec.ts:326:3 › dialogs, forms, Settings, versions (T6) › T6: a versions row's title and date are 4 px apart 
+
+    Error: title to date: 0
+
+    expect(received).toBeLessThanOrEqual(expected)
+
+    Expected: <= 1
+    Received:    4
+
+      334 |     await expect(item).toBeVisible();
+      335 |     const gap = await item.evaluate((el) => el.querySelector("small")!.getBoundingClientRect().top - el.querySelector("strong")!.getBoundingClientRect().bottom);
+    > 336 |     expect(Math.abs(gap - 4), `title to date: ${gap}`).toBeLessThanOrEqual(1);
+          |                                                        ^
+      337 |   });
+      338 |
+      339 |   test("T6: a dialog is a 24 px stack inside 32 px padding, with its actions at the end", async ({ page }) => {
+        at /Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/tests/layout-invariants.spec.ts:336:56
+
+    Error Context: test-results/T310/layout-invariants-dialogs--496ac-tle-and-date-are-4-px-apart/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/T310/layout-invariants-dialogs--496ac-tle-and-date-are-4-px-apart/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/T310/layout-invariants-dialogs--496ac-tle-and-date-are-4-px-apart/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) tests/layout-invariants.spec.ts:339:3 › dialogs, forms, Settings, versions (T6) › T6: a dialog is a 24 px stack inside 32 px padding, with its actions at the end 
+
+    Test timeout of 90000ms exceeded.
+
+    Error: locator.click: Target page, context or browser has been closed
+
+      339 |   test("T6: a dialog is a 24 px stack inside 32 px padding, with its actions at the end", async ({ page }) => {
+      340 |     await withCustomHeader(page).catch(() => undefined);
+    > 341 |     await page.getByRole("button", { name: "Add header", exact: true }).click();
+          |                                                                         ^
+      342 |     const dialog = page.getByRole("dialog");
+      343 |     await expect(dialog).toBeVisible();
+      344 |     const s = await dialog.evaluate((el) => {
+        at /Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/tests/layout-invariants.spec.ts:341:73
+
+    Error Context: test-results/T310/layout-invariants-dialogs--dd29b-with-its-actions-at-the-end/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/T310/layout-invariants-dialogs--dd29b-with-its-actions-at-the-end/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/T310/layout-invariants-dialogs--dd29b-with-its-actions-at-the-end/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4 failed
+    tests/layout-invariants.spec.ts:258:3 › dialogs, forms, Settings, versions (T6) › T6: every Settings row is 32 tall, 12 apart, with one label column and one control column 
+    tests/layout-invariants.spec.ts:298:3 › dialogs, forms, Settings, versions (T6) › T6: Capture quote, Import preview and Projects Settings keep their buttons 16 apart at the right 
+    tests/layout-invariants.spec.ts:326:3 › dialogs, forms, Settings, versions (T6) › T6: a versions row's title and date are 4 px apart 
+    tests/layout-invariants.spec.ts:339:3 › dialogs, forms, Settings, versions (T6) › T6: a dialog is a 24 px stack inside 32 px padding, with its actions at the end 

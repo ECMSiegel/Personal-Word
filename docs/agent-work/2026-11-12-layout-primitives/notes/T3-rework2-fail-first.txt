@@ -1,0 +1,73 @@
+
+Running 2 tests using 1 worker
+
+[1/2] tests/layout-invariants.spec.ts:230:3 › format bar and toolbar popovers (T3) › T3: prose issue rows contain their text
+  1) tests/layout-invariants.spec.ts:230:3 › format bar and toolbar popovers (T3) › T3: prose issue rows contain their text 
+
+    Error: text lines outside their issue button
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 1
+    + Received  + 5
+
+    - Array []
+    + Array [
+    +   "Long sentence: 45 words: 1440..1466 x 730..745 in 1288..1457 x 726..959",
+    +   "Long sentence: 45 words: 1440..1491 x 745..760 in 1288..1457 x 726..959",
+    +   "Long sentence: 45 words: 1440..1473 x 775..790 in 1288..1457 x 726..959",
+    + ]
+
+      276 |     expect(m.spill).toEqual([]);
+      277 |     expect(m.longRow, "the long-sentence issue is listed").toBe(true);
+    > 278 |     expect(m.outside, "text lines outside their issue button").toEqual([]);
+          |                                                                ^
+      279 |     expect(m.sideways, "issue buttons or rows wider than their box").toEqual([]);
+      280 |     expect(m.minH, "an issue row is at least the compact row height").toBeGreaterThanOrEqual(27.5);
+      281 |     for (const g of m.gaps) expect(Math.abs(g - 4), `row gaps ${m.gaps}`).toBeLessThanOrEqual(0.5);
+        at /Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/tests/layout-invariants.spec.ts:278:64
+
+    Error Context: test-results/T307/layout-invariants-format-b-3ac3f-sue-rows-contain-their-text/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/T307/layout-invariants-format-b-3ac3f-sue-rows-contain-their-text/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/T307/layout-invariants-format-b-3ac3f-sue-rows-contain-their-text/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+[2/2] tests/layout-invariants.spec.ts:285:3 › format bar and toolbar popovers (T3) › T3: Prose check opened from More keeps 28 px rule rows that do not move on hover or focus
+  2) tests/layout-invariants.spec.ts:285:3 › format bar and toolbar popovers (T3) › T3: Prose check opened from More keeps 28 px rule rows that do not move on hover or focus 
+
+    Error: row 0 hover: checkbox 0 moved [829,419.5,843] -> [841,419.5,855]
+
+    expect(received).toBeLessThanOrEqual(expected)
+
+    Expected: <= 0.5
+    Received:    12
+
+      316 |         for (let j = 0; j < 5; j++)
+      317 |           for (let k = 0; k < 3; k++)
+    > 318 |             expect(Math.abs(now[j][k] - rest[j][k]), `row ${i} ${label}: checkbox ${j} moved ${JSON.stringify(rest[j])} -> ${JSON.stringify(now[j])}`).toBeLessThanOrEqual(0.5);
+          |                                                                                                                                                        ^
+      319 |     }
+      320 |   });
+      321 |
+        at /Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/tests/layout-invariants.spec.ts:318:152
+
+    Error Context: test-results/T307/layout-invariants-format-b-7b086--not-move-on-hover-or-focus/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/T307/layout-invariants-format-b-7b086--not-move-on-hover-or-focus/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/T307/layout-invariants-format-b-7b086--not-move-on-hover-or-focus/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+  2 failed
+    tests/layout-invariants.spec.ts:230:3 › format bar and toolbar popovers (T3) › T3: prose issue rows contain their text 
+    tests/layout-invariants.spec.ts:285:3 › format bar and toolbar popovers (T3) › T3: Prose check opened from More keeps 28 px rule rows that do not move on hover or focus 

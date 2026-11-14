@@ -1,0 +1,60 @@
+{
+  "id": "T305",
+  "title": "LP T1 -- App chrome bars: tabs, top bar, split header, pane footer",
+  "description": "Brief: docs/agent-work/2026-11-12-layout-primitives/BRIEF.md, then task T1 of docs/agent-work/2026-11-12-layout-primitives/PLAN.md. Shared files are edited by owned selector/region only and registered on no task.",
+  "status": "done",
+  "owner": null,
+  "priority": 2,
+  "depends_on": [],
+  "files": [
+    "docs/agent-work/2026-11-12-layout-primitives/notes/T1.md",
+    "docs/agent-work/2026-11-12-layout-primitives/notes/T1-fail-first.txt",
+    "src/components/pane-footer.css",
+    "src/components/ProjectTabs.tsx",
+    "src/components/PaneFooter.tsx"
+  ],
+  "review_required": true,
+  "created_by": "agent-b823",
+  "created_at": "2026-11-12T22:13:36+00:00",
+  "claimed_at": "2026-11-12T22:33:50+00:00",
+  "updated_at": "2026-11-13T01:13:36+00:00",
+  "handoff": null,
+  "review": {
+    "by": "agent-a0e7",
+    "at": "2026-11-13T01:13:36+00:00",
+    "verdict": "approved",
+    "note": "APPROVE, see REVIEW-4.md (T305).\n\n- t305a.log: 37/37 passed, with hs4 already at 128/188.\n- My T1 invariants pass.\n- Measured at 1440 and at 1240 with a 270 sidebar, light and dark: Saved, Snapshot and Export are 16/16 apart; the top bar and the format bar both end their last ink 24 px from the right; both bars are 40 tall; Snapshot and Export are 32 px-high hit targets; split headers and footers are 32 with 24 px insets.\n- The two-class rules are justified by load order.\n- Low: a wrapped footer was not exercised (from CSS it is no worse than before). The left edges of the top bar and format bar are as before."
+  },
+  "log": [
+    {
+      "at": "2026-11-12T22:13:36+00:00",
+      "agent": "agent-b823",
+      "event": "created",
+      "note": ""
+    },
+    {
+      "at": "2026-11-12T22:33:50+00:00",
+      "agent": "agent-fdf3",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-11-12T22:33:51+00:00",
+      "agent": "agent-fdf3",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-11-12T23:58:33+00:00",
+      "agent": "agent-fdf3",
+      "event": "review requested",
+      "note": "T1 chrome bars migrated (topbar.bar.bar-main + clusters, split header/pane footer bar-compact bar-main, tabs .project-tabs.bar.bar-compact; dead .statusbar and 66px topbar deleted). Fail-first notes/T305-fail-first.txt 3 failed; after: 3 T1 invariants pass (locked, port 1452), screenshots looked at. pane-footer budget 5->4; styles.css 189->171 counted, not edited. NOT VERIFIED: hs4/split-view/w9-export/hs1-export specs: locked run queued in background, log in scratchpad t305a.log; floating constants 130/190 untouched. See notes/T305.md"
+    },
+    {
+      "at": "2026-11-13T01:13:36+00:00",
+      "agent": "agent-a0e7",
+      "event": "approved",
+      "note": "APPROVE, see REVIEW-4.md (T305).\n\n- t305a.log: 37/37 passed, with hs4 already at 128/188.\n- My T1 invariants pass.\n- Measured at 1440 and at 1240 with a 270 sidebar, light and dark: Saved, Snapshot and Export are 16/16 apart; the top bar and the format bar both end their last ink 24 px from the right; both bars are 40 tall; Snapshot and Export are 32 px-high hit targets; split headers and footers are 32 with 24 px insets.\n- The two-class rules are justified by load order.\n- Low: a wrapped footer was not exercised (from CSS it is no worse than before). The left edges of the top bar and format bar are as before."
+    }
+  ]
+}

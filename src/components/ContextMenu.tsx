@@ -1,13 +1,33 @@
-import { useEffect, useId, useLayoutEffect, useRef, useState, type KeyboardEvent } from "react";
+import { Fragment, useEffect, useId, useLayoutEffect, useRef, useState, type KeyboardEvent } from "react";
+import "./popover.css";
 import "./dropdown.css";
 import "./context-menu.css";
 
-export type ContextMenuItem = {
+export type ContextMenuItem =
+  | {
+      kind?: undefined;
+      label: string;
+      run: () => void;
+      disabled?: boolean;
+      /** Destructive: drawn in --danger. */
+      danger?: boolean;
+    }
+  | ContextMenuSwatches;
+
+/**
+ * A custom row (T12): a rule, then one row of square colour swatches. The row is one stop in the
+ * Up/Down order; Left/Right move among the swatches (roving tabindex, wraps), Home/End go to the
+ * first/last, Enter/Space pick. Picking closes the menu and returns focus like any item.
+ */
+export type ContextMenuSwatches = {
+  kind: "swatches";
   label: string;
-  run: () => void;
-  disabled?: boolean;
-  /** Destructive: drawn in --danger. */
-  danger?: boolean;
+  /** The id of the marked (current) option. */
+  value: string;
+  /** `colour` is any CSS colour, e.g. `var(--swatch-purple)`. */
+  options: { id: string; label: string; colour: string }[];
+  onPick: (id: string) => void;
+  disabled?: undefined;
 };
 
 /** Window margin the menu keeps on every side. */
@@ -43,6 +63,25 @@ export function ContextMenu({
   const enabled = items.map((it, i) => (it.disabled ? -1 : i)).filter((i) => i >= 0);
   const [highlight, setHighlight] = useState(viaKeyboard ? (enabled[0] ?? -1) : -1);
   const [shown, setShown] = useState(viaKeyboard);
+  // The active swatch of each swatch row (roving tabindex), starting on its current value.
+  const [swatchAt, setSwatchAt] = useState<Record<number, number>>(() =>
+    Object.fromEntries(
+      items.flatMap((it, i) =>
+        it.kind === "swatches" ? [[i, Math.max(0, it.options.findIndex((o) => o.id === it.value))]] : [],
+      ),
+    ),
+  );
+  const swatchButtons = useRef<Record<string, HTMLButtonElement | null>>({});
+  /** Moves the highlight; DOM focus follows into a swatch row and back to the menu. */
+  const highlightAt = (index: number, swatch = swatchAt[index]) => {
+    setHighlight(index);
+    if (items[index]?.kind === "swatches") swatchButtons.current[`${index}:${swatch}`]?.focus();
+    else if (menu.current && menu.current !== document.activeElement) menu.current.focus({ preventScroll: true });
+  };
+  const moveSwatch = (index: number, to: number) => {
+    setSwatchAt((s) => ({ ...s, [index]: to }));
+    swatchButtons.current[`${index}:${to}`]?.focus();
+  };
 
   // Place at (x, y), flipped up/left and clamped inside the window, then
   // converted from viewport to containing-block coordinates.
@@ -100,11 +139,14 @@ export function ContextMenu({
     };
   }, [onClose]);
 
-  const choose = (index: number) => {
+  const choose = (index: number, swatch = swatchAt[index]) => {
     const it = items[index];
     if (!it || it.disabled) return;
     onClose(true);
-    it.run();
+    if (it.kind === "swatches") {
+      const option = it.options[swatch];
+      if (option) it.onPick(option.id);
+    } else it.run();
   };
   const step = (delta: 1 | -1) => {
     if (!enabled.length) return;
@@ -115,13 +157,20 @@ export function ContextMenu({
           ? enabled[0]
           : enabled[enabled.length - 1]
         : enabled[Math.max(0, Math.min(enabled.length - 1, at + delta))];
-    setHighlight(next);
+    highlightAt(next);
   };
   const onKeyDown = (e: KeyboardEvent) => {
-    if (e.key === "ArrowDown") step(1);
+    const row = items[highlight];
+    const count = row?.kind === "swatches" ? row.options.length : 0;
+    const at = swatchAt[highlight] ?? 0;
+    if (count && e.key === "ArrowRight") moveSwatch(highlight, (at + 1) % count);
+    else if (count && e.key === "ArrowLeft") moveSwatch(highlight, (at - 1 + count) % count);
+    else if (count && e.key === "Home") moveSwatch(highlight, 0);
+    else if (count && e.key === "End") moveSwatch(highlight, count - 1);
+    else if (e.key === "ArrowDown") step(1);
     else if (e.key === "ArrowUp") step(-1);
-    else if (e.key === "Home") setHighlight(enabled[0] ?? -1);
-    else if (e.key === "End") setHighlight(enabled.at(-1) ?? -1);
+    else if (e.key === "Home") highlightAt(enabled[0] ?? -1);
+    else if (e.key === "End") highlightAt(enabled.at(-1) ?? -1);
     else if (e.key === "Enter" || e.key === " ") choose(highlight);
     else if (e.key === "Escape") onClose(true);
     else if (e.key === "Tab") {
@@ -137,17 +186,48 @@ export function ContextMenu({
   return (
     <div
       ref={menu}
-      className="dropdown-menu context-menu"
+      className="popover dropdown-menu context-menu menu"
       role="menu"
       aria-label={label}
       tabIndex={-1}
-      aria-activedescendant={highlight >= 0 ? `${id}-${highlight}` : undefined}
+      aria-activedescendant={highlight >= 0 && items[highlight]?.kind !== "swatches" ? `${id}-${highlight}` : undefined}
       data-animate={viaKeyboard || window.matchMedia("(prefers-reduced-motion: reduce)").matches ? undefined : ""}
       data-shown={shown ? "" : undefined}
       onKeyDown={onKeyDown}
       onContextMenu={(e) => e.preventDefault()}
     >
-      {items.map((it, index) => (
+      {items.map((it, index) =>
+        it.kind === "swatches" ? (
+          <Fragment key={it.label}>
+            <div className="menu-rule" role="separator" />
+            <div
+              role="group"
+              aria-label={it.label}
+              className="context-menu-swatches row"
+              onPointerDown={(e) => e.preventDefault()}
+            >
+              <div className="cluster gap-0 flush-start">
+                {it.options.map((o, n) => (
+                  <button
+                    key={o.id}
+                    ref={(el) => {
+                      swatchButtons.current[`${index}:${n}`] = el;
+                    }}
+                    type="button"
+                    role="menuitemradio"
+                    aria-checked={o.id === it.value}
+                    aria-label={o.label}
+                    tabIndex={n === (swatchAt[index] ?? 0) ? 0 : -1}
+                    className="context-menu-swatch slot icon-grow"
+                    onClick={() => choose(index, n)}
+                  >
+                    <span aria-hidden="true" className="swatch-chip" style={{ background: o.colour }} />
+                  </button>
+                ))}
+              </div>
+            </div>
+          </Fragment>
+        ) : (
         <div
           key={it.label}
           id={`${id}-${index}`}
@@ -155,14 +235,15 @@ export function ContextMenu({
           aria-disabled={it.disabled || undefined}
           data-highlighted={index === highlight ? "" : undefined}
           data-danger={it.danger ? "" : undefined}
-          className="dropdown-option context-menu-item"
+          className="dropdown-option context-menu-item row"
           onPointerEnter={() => !it.disabled && setHighlight(index)}
           onPointerDown={(e) => e.preventDefault()}
           onClick={() => choose(index)}
         >
-          {it.label}
+          <span className="row-label">{it.label}</span>
         </div>
-      ))}
+        ),
+      )}
     </div>
   );
 }

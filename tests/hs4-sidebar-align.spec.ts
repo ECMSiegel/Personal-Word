@@ -59,5 +59,7 @@ test("floating sidebar title position is unchanged", async ({ page }) => {
   expect(s).toBeCloseTo(FLOAT_SEARCH_Y, 0);
 });
 
-const FLOAT_TITLE_TOP = 130; // recorded before the HS4 fix
-const FLOAT_SEARCH_Y = 190; // recorded before the HS4 fix
+// Recorded before the HS4 fix (130 / 190); 2 px higher since layout-primitives T1 made the
+// project tabs 32 px (were 34). T2 keeps the title top and the search centre (two 40 px bars).
+const FLOAT_TITLE_TOP = 128;
+const FLOAT_SEARCH_Y = 188;

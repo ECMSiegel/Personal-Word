@@ -332,7 +332,7 @@ it("validates top-level section fields and keeps them through the archive and sa
   const base = newProject("Sections");
   const grouped = {
     ...base,
-    groups: [{ id: "g1", title: "Part two" }],
+    groups: [{ id: "g1", title: "Part two", colour: "purple" as const }],
     groupTitles: { manuscript: "Chapters" },
     entries: [{ ...base.entries[0], group: "g1" }],
   };
@@ -351,4 +351,13 @@ it("validates top-level section fields and keeps them through the archive and sa
   const header = JSON.parse(JSON.stringify(headerOf(grouped as never)));
   expect(header.groups).toEqual(grouped.groups);
   expect(header.groupTitles).toEqual(grouped.groupTitles);
+});
+
+// T12: built-in header colours are per-project additive metadata.
+it("keeps headerColours through validation, the archive and the save-queue header", async () => {
+  const coloured = { ...newProject("Colours"), headerColours: { fragments: "purple" as const, research: "teal" as const } };
+  expect(() => validateProject(structuredClone(coloured))).not.toThrow();
+  const { project } = await readProjectArchive(await createProjectArchive(coloured as never, async () => { throw new Error("no assets"); }));
+  expect(project.headerColours).toEqual(coloured.headerColours);
+  expect(JSON.parse(JSON.stringify(headerOf(coloured as never))).headerColours).toEqual(coloured.headerColours);
 });

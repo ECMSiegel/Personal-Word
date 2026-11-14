@@ -41,31 +41,18 @@
   overflow: hidden;
   text-overflow: ellipsis;
 }
+/* The surface (position, layer, border, overflow) is the .popover shell; the context menu adds it too. */
 .dropdown-menu {
-  position: absolute;
-  top: calc(100% + 2px);
-  left: 0;
-  z-index: 40;
   width: max-content;
   min-width: max(100%, 150px);
   max-width: min(320px, calc(100vw - 16px));
   max-height: min(320px, calc(100vh - 16px));
-  box-sizing: border-box;
-  overflow: auto;
-  padding: var(--space-1) 0;
   background: var(--elevation-raised);
-  border: 1px solid var(--line);
-  border-radius: 0;
   box-shadow: var(--shadow-raised);
   font-family: var(--ui-font);
   font-size: var(--type-small);
-  overscroll-behavior: contain;
 }
 .dropdown-option {
-  display: flex;
-  align-items: center;
-  gap: var(--space-2);
-  padding: var(--space-2) var(--space-4) var(--space-2) var(--space-2);
   white-space: normal;
   overflow-wrap: anywhere;
   cursor: default;
@@ -83,15 +70,10 @@
   color: var(--accent);
 }
 .dropdown-heading {
-  padding: var(--space-2) var(--space-2) var(--space-1);
+  padding: var(--space-2) var(--edge) var(--space-1);
   color: var(--muted);
   font-size: var(--type-small);
   letter-spacing: 0.04em;
   text-transform: uppercase;
   cursor: default;
-}
-.dropdown-separator {
-  height: 1px;
-  margin: var(--space-1) 0;
-  background: var(--line);
 }

@@ -135,11 +135,11 @@ export function CitationCard({
     >
       <header className="citation-card-head">
         <h2 className="citation-card-title">{heading}</h2>
-        <button type="button" className="icon-button" aria-label="Close citation card" title="Close" onClick={onClose}><X size={16} aria-hidden="true" /></button>
+        <button type="button" className="icon-button slot flush-end" aria-label="Close citation card" title="Close" onClick={onClose}><X size={16} aria-hidden="true" /></button>
       </header>
       <div className="citation-card-body" ref={body}>
         {stage === "new" && (
-          <div className="citation-card-section">
+          <div className="citation-card-section stack gap-3">
             <div className="field">
               <label htmlFor="citation-card-lookup">DOI, ISBN or web address</label>
               <input
@@ -151,16 +151,16 @@ export function CitationCard({
           </div>
         )}
         {stage === "preview" && source && (
-          <div className="citation-card-section">
+          <div className="citation-card-section stack gap-3">
             <SourceForm source={source} patch={(value) => onChange(patchSource(latest.current, source.id, value))} idPrefix={`card-${source.id}`} onError={notify} variant="card" />
-            <div className="citation-card-previews">
+            <div className="citation-card-previews stack gap-3">
               <Preview label="Note" parts={citationParts(source, "full")} />
               <Preview label="Bibliography" parts={citationParts(source, "bibliography")} />
             </div>
           </div>
         )}
         {stage === "cited" && footnote && (
-          <div className="citation-card-section">
+          <div className="citation-card-section stack gap-3">
             {source && <p className="citation-card-source">{source.title.trim() || "Untitled source"}</p>}
             {footnote.sourceId ? (
               <>
@@ -190,7 +190,7 @@ export function CitationCard({
           </div>
         )}
       </div>
-      <footer className="citation-card-foot">
+      <footer className="citation-card-foot stack gap-1">
         {stage === "new" && (
           <div className="citation-card-actions">
             <button type="button" disabled={lookup.busy || !lookup.input.trim()} onClick={() => void runLookup()}>Look up</button>

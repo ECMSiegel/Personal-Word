@@ -1,0 +1,352 @@
+{
+ "floating-class": "sidebar-shell is-pinned is-floating is-revealed",
+ "floating-rest": [
+  {
+   "id": "manuscript",
+   "text": "Manuscript",
+   "need": 77,
+   "have": 77,
+   "weight": "700",
+   "headingH": 32,
+   "label": {
+    "l": 40,
+    "r": 116.6,
+    "w": 76.6
+   },
+   "toggle": {
+    "l": 210,
+    "r": 210,
+    "w": 0
+   },
+   "toggleStyle": {
+    "bl": "0px",
+    "br": "0px",
+    "pl": "0px",
+    "ov": "hidden",
+    "pe": "none",
+    "tr": "all 0s",
+    "actionsOp": "1",
+    "tOp": "0"
+   },
+   "toggleSvg": {
+    "l": 202,
+    "w": 16
+   },
+   "add": {
+    "l": 210,
+    "r": 234,
+    "w": 24
+   },
+   "chev": {
+    "l": 234,
+    "r": 258,
+    "w": 24
+   },
+   "active": "toolbar-icon slot-toolbar"
+  },
+  {
+   "id": "fragments",
+   "text": "Fragments",
+   "need": 60,
+   "have": 60,
+   "weight": "500",
+   "headingH": 32,
+   "label": {
+    "l": 40,
+    "r": 100.3,
+    "w": 60.3
+   },
+   "toggle": {
+    "l": 210,
+    "r": 210,
+    "w": 0
+   },
+   "toggleStyle": {
+    "bl": "0px",
+    "br": "0px",
+    "pl": "0px",
+    "ov": "hidden",
+    "pe": "none",
+    "tr": "all 0s",
+    "actionsOp": "0",
+    "tOp": "1"
+   },
+   "toggleSvg": {
+    "l": 202,
+    "w": 16
+   },
+   "add": {
+    "l": 210,
+    "r": 234,
+    "w": 24
+   },
+   "chev": {
+    "l": 234,
+    "r": 258,
+    "w": 24
+   },
+   "active": "toolbar-icon slot-toolbar"
+  },
+  {
+   "id": "research",
+   "text": "Research",
+   "need": 53,
+   "have": 53,
+   "weight": "500",
+   "headingH": 32,
+   "label": {
+    "l": 40,
+    "r": 93.5,
+    "w": 53.5
+   },
+   "toggle": {
+    "l": 210,
+    "r": 210,
+    "w": 0
+   },
+   "toggleStyle": {
+    "bl": "0px",
+    "br": "0px",
+    "pl": "0px",
+    "ov": "hidden",
+    "pe": "none",
+    "tr": "all 0s",
+    "actionsOp": "0",
+    "tOp": "1"
+   },
+   "toggleSvg": {
+    "l": 202,
+    "w": 16
+   },
+   "add": {
+    "l": 210,
+    "r": 234,
+    "w": 24
+   },
+   "chev": {
+    "l": 234,
+    "r": 258,
+    "w": 24
+   },
+   "active": "toolbar-icon slot-toolbar"
+  }
+ ],
+ "floating-hot-fragments": {
+  "id": "fragments",
+  "text": "Fragments",
+  "need": 60,
+  "have": 60,
+  "weight": "500",
+  "headingH": 32,
+  "label": {
+   "l": 40,
+   "r": 100.3,
+   "w": 60.3
+  },
+  "toggle": {
+   "l": 186,
+   "r": 210,
+   "w": 24
+  },
+  "toggleStyle": {
+   "bl": "0px",
+   "br": "0px",
+   "pl": "0px",
+   "ov": "hidden",
+   "pe": "auto",
+   "tr": "all 0s",
+   "actionsOp": "1",
+   "tOp": "1"
+  },
+  "toggleSvg": {
+   "l": 190,
+   "w": 16
+  },
+  "add": {
+   "l": 210,
+   "r": 234,
+   "w": 24
+  },
+  "chev": {
+   "l": 234,
+   "r": 258,
+   "w": 24
+  },
+  "active": "toolbar-icon slot-toolbar"
+ },
+ "overlay-class": "sidebar-shell is-overlay is-revealed",
+ "overlay-rest": [
+  {
+   "id": "manuscript",
+   "text": "Manuscript",
+   "need": 77,
+   "have": 77,
+   "weight": "700",
+   "headingH": 32,
+   "label": {
+    "l": 40,
+    "r": 116.6,
+    "w": 76.6
+   },
+   "toggle": {
+    "l": 209,
+    "r": 209,
+    "w": 0
+   },
+   "toggleStyle": {
+    "bl": "0px",
+    "br": "0px",
+    "pl": "0px",
+    "ov": "hidden",
+    "pe": "none",
+    "tr": "all 0s",
+    "actionsOp": "1",
+    "tOp": "0"
+   },
+   "toggleSvg": {
+    "l": 201,
+    "w": 16
+   },
+   "add": {
+    "l": 209,
+    "r": 233,
+    "w": 24
+   },
+   "chev": {
+    "l": 233,
+    "r": 257,
+    "w": 24
+   },
+   "active": ""
+  },
+  {
+   "id": "fragments",
+   "text": "Fragments",
+   "need": 60,
+   "have": 60,
+   "weight": "500",
+   "headingH": 32,
+   "label": {
+    "l": 40,
+    "r": 100.3,
+    "w": 60.3
+   },
+   "toggle": {
+    "l": 209,
+    "r": 209,
+    "w": 0
+   },
+   "toggleStyle": {
+    "bl": "0px",
+    "br": "0px",
+    "pl": "0px",
+    "ov": "hidden",
+    "pe": "none",
+    "tr": "all 0s",
+    "actionsOp": "0",
+    "tOp": "1"
+   },
+   "toggleSvg": {
+    "l": 201,
+    "w": 16
+   },
+   "add": {
+    "l": 209,
+    "r": 233,
+    "w": 24
+   },
+   "chev": {
+    "l": 233,
+    "r": 257,
+    "w": 24
+   },
+   "active": ""
+  },
+  {
+   "id": "research",
+   "text": "Research",
+   "need": 53,
+   "have": 53,
+   "weight": "500",
+   "headingH": 32,
+   "label": {
+    "l": 40,
+    "r": 93.5,
+    "w": 53.5
+   },
+   "toggle": {
+    "l": 209,
+    "r": 209,
+    "w": 0
+   },
+   "toggleStyle": {
+    "bl": "0px",
+    "br": "0px",
+    "pl": "0px",
+    "ov": "hidden",
+    "pe": "none",
+    "tr": "all 0s",
+    "actionsOp": "0",
+    "tOp": "1"
+   },
+   "toggleSvg": {
+    "l": 201,
+    "w": 16
+   },
+   "add": {
+    "l": 209,
+    "r": 233,
+    "w": 24
+   },
+   "chev": {
+    "l": 233,
+    "r": 257,
+    "w": 24
+   },
+   "active": ""
+  }
+ ],
+ "overlay-hot-fragments": {
+  "id": "fragments",
+  "text": "Fragments",
+  "need": 60,
+  "have": 60,
+  "weight": "500",
+  "headingH": 32,
+  "label": {
+   "l": 40,
+   "r": 100.3,
+   "w": 60.3
+  },
+  "toggle": {
+   "l": 185,
+   "r": 209,
+   "w": 24
+  },
+  "toggleStyle": {
+   "bl": "0px",
+   "br": "0px",
+   "pl": "0px",
+   "ov": "hidden",
+   "pe": "auto",
+   "tr": "all 0s",
+   "actionsOp": "1",
+   "tOp": "1"
+  },
+  "toggleSvg": {
+   "l": 189,
+   "w": 16
+  },
+  "add": {
+   "l": 209,
+   "r": 233,
+   "w": 24
+  },
+  "chev": {
+   "l": 233,
+   "r": 257,
+   "w": 24
+  },
+  "active": ""
+ }
+}

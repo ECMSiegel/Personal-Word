@@ -14,12 +14,13 @@
 /* The list/cards class sits on the group section (.list-view / .cards-view), not on
    .entry-list; cards view draws no rail and keeps its full width. The gutter is the longest
    line plus one --space-2 gap (UI wave 7 T247), so a row's split icon, which sits on the row's
-   right edge, always keeps that gap from the rail. The list is the rail's positioning box. */
+   right edge, always keeps that gap from the rail. The rail ends on the sidebar's right --edge,
+   under the headings' chevron column (layout-primitives T2). The list is the rail's positioning box. */
 .sidebar-group:is([data-group="manuscript"], [data-group-kind="manuscript"], [data-group="fragments"], [data-group="research"]).list-view
   .entry-list {
   --rail-line: 16px;
   position: relative;
-  padding-right: calc(var(--rail-line) + var(--space-2));
+  padding-right: calc(var(--edge) + var(--rail-line) + var(--space-2));
 }
 
 /* One rail per group: lines stacked from the vertical centre of the list, equal pitch
@@ -28,7 +29,7 @@
 .spy-rail {
   position: absolute;
   top: 0;
-  right: 0;
+  right: var(--edge);
   bottom: 0;
   width: 14px;
   display: flex;

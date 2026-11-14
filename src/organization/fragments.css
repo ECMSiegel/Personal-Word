@@ -1,15 +1,14 @@
+/* Spacing comes from the layout primitives on the markup (FragmentLibrary.tsx): the library is a
+   .stack.gap-3, controls/across/tags are clusters, the head and actions are rows, icons are slots.
+   Rows here sit on the panel's own edge, so their inline edge is 0. */
 .fragment-library {
-  display: flex;
-  flex-direction: column;
+  --edge: 0px;
   font-family: var(--ui-font);
   font-size: 13px;
   color: var(--text);
 }
 .fragment-controls {
-  display: flex;
-  align-items: center;
   flex-wrap: wrap;
-  gap: 12px;
 }
 .fragment-library input[type="text"],
 .fragment-library input:not([type]),
@@ -20,16 +19,13 @@
   color: var(--text);
   font: inherit;
   font-size: 13px;
-  padding: 6px 8px;
+  padding: var(--space-2);
   min-width: 0;
 }
 .fragment-search {
   flex: 1 1 160px;
 }
 .fragment-across {
-  display: flex;
-  align-items: center;
-  gap: 6px;
   font-size: 12px;
   color: var(--muted);
   white-space: nowrap;
@@ -38,34 +34,23 @@
   margin: 0;
 }
 .fragment-count {
-  margin: 10px 0 0;
   font-size: var(--type-small);
   color: var(--muted);
 }
 .fragment-empty {
-  margin: 16px 0;
   color: var(--muted);
   line-height: 1.5;
 }
+/* Only bottom padding: the library's gap is the space below each divider, so it is equal on both sides. */
 .fragment-item {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
   border-bottom: 1px solid var(--line);
-  padding: 12px 0;
-}
-.fragment-head {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 8px;
+  padding-bottom: var(--space-3);
 }
 .fragment-head h2 {
   margin: 0;
   font-size: 13px;
   font-weight: 600;
   line-height: 1.4;
-  min-width: 0;
   overflow-wrap: anywhere;
 }
 .fragment-meta {
@@ -74,7 +59,6 @@
   color: var(--muted);
 }
 .fragment-note {
-  margin: 0;
   font-size: var(--type-small);
   color: var(--muted);
 }
@@ -111,10 +95,7 @@
   outline-offset: 4px;
 }
 .fragment-actions {
-  display: flex;
   flex-wrap: wrap;
-  align-items: center;
-  gap: 12px;
 }
 .fragment-link {
   padding: 0;
@@ -127,17 +108,16 @@
   text-align: left;
   cursor: pointer;
 }
+/* "Show all" sits on the text's left edge instead of stretching across the item. */
+.fragment-item > .fragment-link {
+  align-self: flex-start;
+}
 .fragment-link:disabled {
   color: var(--muted);
   cursor: default;
   text-decoration: none;
 }
 .fragment-icon {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  flex: 0 0 auto;
-  padding: 2px;
   border: 0;
   border-radius: 0;
   background: none;
@@ -153,9 +133,6 @@
   color: var(--danger);
 }
 .fragment-tags {
-  display: flex;
-  align-items: center;
-  gap: 8px;
   font-size: 12px;
   color: var(--muted);
 }

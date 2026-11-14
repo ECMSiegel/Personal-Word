@@ -1222,7 +1222,7 @@ export function Writer({
         {visibleLabel(label)}
       </span>
       {inMore && hints[label] && (
-        <span className="popover-shortcut" aria-hidden="true">
+        <span className="popover-shortcut row-trail" aria-hidden="true">
           {hints[label]}
         </span>
       )}
@@ -1240,7 +1240,7 @@ export function Writer({
     <button
       key={t.label}
       type="button"
-      className="toolbar-icon"
+      className={inMore ? "toolbar-icon" : "toolbar-icon slot-toolbar"}
       {...popoverItem(inMore)}
       title={t.label}
       aria-label={t.label}
@@ -1260,13 +1260,15 @@ export function Writer({
   const groupBody = (id: ToolbarGroup, inMore = false): ReactNode => {
     const mp = popoverItem(inMore);
     const lab = (label: string) => toolbarLabel(label, inMore);
+    // On the bar an icon button is a 28 x 32 slot; in More it is a labelled row.
+    const ic = inMore ? "toolbar-icon" : "toolbar-icon slot-toolbar";
     switch (id) {
       case "history":
         return (
           <>
             <button
               type="button"
-              className="toolbar-icon"
+              className={ic}
               {...mp}
               title="Undo"
               aria-label="Undo"
@@ -1281,7 +1283,7 @@ export function Writer({
             </button>
             <button
               type="button"
-              className="toolbar-icon"
+              className={ic}
               {...mp}
               title="Redo"
               aria-label="Redo"
@@ -1420,7 +1422,7 @@ export function Writer({
           <>
             <button
               type="button"
-              className="toolbar-icon"
+              className={ic}
               {...mp}
               title="Decrease font size"
               aria-label="Decrease font size"
@@ -1443,7 +1445,7 @@ export function Writer({
             />
             <button
               type="button"
-              className="toolbar-icon"
+              className={ic}
               {...mp}
               title="Increase font size"
               aria-label="Increase font size"
@@ -1464,7 +1466,7 @@ export function Writer({
           <>
             <button
               type="button"
-              className="toolbar-icon"
+              className={ic}
               {...mp}
               title="Add link"
               aria-label="Add link"
@@ -1480,7 +1482,7 @@ export function Writer({
             {editor.isActive("link") && (
               <button
                 type="button"
-                className="toolbar-icon"
+                className={ic}
                 {...mp}
                 title="Remove link"
                 aria-label="Remove link"
@@ -1511,7 +1513,7 @@ export function Writer({
               <button
                 ref={imageButtonRef}
                 type="button"
-                className="toolbar-icon"
+                className={ic}
                 {...mp}
                 title="Insert image"
                 aria-label="Insert image"
@@ -1537,11 +1539,11 @@ export function Writer({
                   }
                 }}
               >
-                <div className="toolbar-popover-body">
+                <div className="toolbar-popover-body panel">
                   <span className="toolbar-field-title">
                     {pendingFile?.name}
                   </span>
-                  <div className="toolbar-field">
+                  <div className="row">
                     <span>Alt text</span>
                     <input
                       ref={altInputRef}
@@ -1559,13 +1561,8 @@ export function Writer({
                       }}
                     />
                   </div>
-                  <div
-                    style={{
-                      display: "flex",
-                      gap: "8px",
-                      justifyContent: "flex-end",
-                    }}
-                  >
+                  <div className="row">
+                    <span className="row-trail gap-2">
                     <button
                       type="button"
                       className="toolbar-text-button"
@@ -1581,6 +1578,7 @@ export function Writer({
                     >
                       {isInsertingImage ? "Inserting..." : "Insert"}
                     </button>
+                    </span>
                   </div>
                 </div>
               </Popover>
@@ -1589,7 +1587,7 @@ export function Writer({
             {!tableActive ? (
               <button
                 type="button"
-                className="toolbar-icon"
+                className={ic}
                 {...mp}
                 title="Insert table"
                 aria-label="Insert table"
@@ -1620,9 +1618,9 @@ export function Writer({
                   panelTriggers.current.table = el;
                 }}
               >
-                <div className="toolbar-popover-body">
+                <div className="toolbar-popover-body panel">
                   <span className="toolbar-field-title">Table controls</span>
-                  <div className="table-controls-grid">
+                  <div className="table-controls-grid stack gap-1">
                     <button
                       type="button"
                       className="toolbar-text-button"
@@ -1689,7 +1687,7 @@ export function Writer({
           <>
             <button
               type="button"
-              className="toolbar-icon"
+              className={ic}
               {...mp}
               title="Decrease indent"
               aria-label="Decrease indent"
@@ -1703,7 +1701,7 @@ export function Writer({
             </button>
             <button
               type="button"
-              className="toolbar-icon"
+              className={ic}
               {...mp}
               title="Increase indent"
               aria-label="Increase indent"
@@ -1731,7 +1729,7 @@ export function Writer({
               panelTriggers.current.spacing = el;
             }}
           >
-            <div className="toolbar-popover-body">
+            <div className="toolbar-popover-body panel">
               <span className="toolbar-field-title">Line spacing</span>
               <div className="toolbar-presets">
                 {LINE_PRESETS.map((preset) => (
@@ -1747,8 +1745,9 @@ export function Writer({
                   </button>
                 ))}
               </div>
-              <div className="toolbar-field">
-                <span>Custom</span>
+              <div className="row">
+                <span className="row-label">Custom</span>
+                <span className="row-trail">
                 <NumberInput
                   label="Custom line spacing"
                   value={line}
@@ -1758,9 +1757,11 @@ export function Writer({
                   width={64}
                   onCommit={(n) => setParagraphFormat("lineHeight", String(n))}
                 />
+                </span>
               </div>
-              <div className="toolbar-field">
-                <span>Space before</span>
+              <div className="row">
+                <span className="row-label">Space before</span>
+                <span className="row-trail">
                 <NumberInput
                   label="Space before, points"
                   value={parseFloat(paragraphAttrs.spaceBefore ?? "0") || 0}
@@ -1770,9 +1771,11 @@ export function Writer({
                   width={64}
                   onCommit={(n) => setParagraphFormat("spaceBefore", `${n}pt`)}
                 />
+                </span>
               </div>
-              <div className="toolbar-field">
-                <span>Space after</span>
+              <div className="row">
+                <span className="row-label">Space after</span>
+                <span className="row-trail">
                 <NumberInput
                   label="Space after, points"
                   value={parseFloat(paragraphAttrs.spaceAfter ?? "0") || 0}
@@ -1782,6 +1785,7 @@ export function Writer({
                   width={64}
                   onCommit={(n) => setParagraphFormat("spaceAfter", `${n}pt`)}
                 />
+                </span>
               </div>
             </div>
           </PanelButton>
@@ -1791,7 +1795,7 @@ export function Writer({
           <>
             <button
               type="button"
-              className="toolbar-icon"
+              className={ic}
               {...mp}
               title={layout.mode === "pages" ? "Page view" : "Continuous view"}
               aria-label="Page view"
@@ -1816,7 +1820,7 @@ export function Writer({
           <>
             <button
               type="button"
-              className="toolbar-icon"
+              className={ic}
               {...mp}
               title="Focus mode"
               aria-label="Focus mode"
@@ -1838,9 +1842,9 @@ export function Writer({
                 panelTriggers.current.aids = el;
               }}
             >
-              <div className="toolbar-popover-body prose-check-panel">
-                <label className="toolbar-field">
-                  <span>On</span>
+              <div className="toolbar-popover-body panel prose-check-panel">
+                <label className="row">
+                  <span className="row-label">On</span>
                   <input
                     type="checkbox"
                     checked={proseCheck}
@@ -1899,9 +1903,10 @@ export function Writer({
               panelTriggers.current.setup = el;
             }}
           >
-            <div className="toolbar-popover-body">
-              <div className="toolbar-field">
-                <span>Paper</span>
+            <div className="toolbar-popover-body panel">
+              <div className="row">
+                <span className="row-label">Paper</span>
+                <span className="row-trail">
                 <Dropdown
                   value={layout.paper}
                   options={[
@@ -1914,9 +1919,11 @@ export function Writer({
                   label="Paper size"
                   width={112}
                 />
+                </span>
               </div>
-              <div className="toolbar-field">
-                <span>Margins</span>
+              <div className="row">
+                <span className="row-label">Margins</span>
+                <span className="row-trail">
                 <Dropdown
                   value={String(layout.margin)}
                   options={withCurrent(
@@ -1936,11 +1943,12 @@ export function Writer({
                   label="Page margins"
                   width={112}
                 />
+                </span>
               </div>
               {onDocumentSettingsChange && (
                 <>
-                  <label className="toolbar-field">
-                    <span>Page numbers</span>
+                  <label className="row">
+                    <span className="row-label">Page numbers</span>
                     <input
                       type="checkbox"
                       checked={
@@ -1956,8 +1964,9 @@ export function Writer({
                   </label>
                   {exportSettings(documentSettings)
                     .pageNumbers && (
-                    <div className="toolbar-field">
-                      <span>Position</span>
+                    <div className="row">
+                      <span className="row-label">Position</span>
+                      <span className="row-trail">
                       <Dropdown
                         value={
                           documentSettings?.pageNumberPosition ??
@@ -1970,6 +1979,7 @@ export function Writer({
                         label="Page number position"
                         width={112}
                       />
+                      </span>
                     </div>
                   )}
                   <span className="toolbar-field-title">
@@ -1977,7 +1987,7 @@ export function Writer({
                   </span>
                 </>
               )}
-              <div className="toolbar-button-row">
+              <div className="toolbar-button-row cluster">
                 <button
                   type="button"
                   className="toolbar-text-button"
@@ -2041,7 +2051,7 @@ export function Writer({
           <>
             <button
               type="button"
-              className="toolbar-icon"
+              className={ic}
               {...mp}
               title="Comment on selection"
               aria-label="Comment on selection"
@@ -2060,7 +2070,7 @@ export function Writer({
             {item.kind === "section" && (
               <button
                 type="button"
-                className="toolbar-icon extract"
+                className={ic + " extract"}
                 aria-label="Keep as fragment"
                 disabled={paragraphRange(editor.state) === null}
                 title="Move selection to Fragments (⌘⇧X)"
@@ -2084,8 +2094,8 @@ export function Writer({
     <span
       key={id}
       className={
-        "toolbar-group" +
-        (id === "right" ? " is-end" : "") +
+        "toolbar-group cluster gap-0" +
+        (id === "right" ? " is-end flush-end" : "") +
         (inMore ? " in-more" : "")
       }
       ref={
@@ -2097,14 +2107,14 @@ export function Writer({
       }
     >
       {!inMore && id !== "history" && id !== "right" && (
-        <span className="toolbar-divider" aria-hidden="true" />
+        <span className="bar-divider" aria-hidden="true" />
       )}
       {groupBody(id, inMore)}
     </span>
   );
   const bar = showToolbar ? (
     <div
-      className="format-bar"
+      className="format-bar bar bar-main gap-0"
       role="toolbar"
       aria-label="Formatting"
       ref={setBar}

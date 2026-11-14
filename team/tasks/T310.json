@@ -1,0 +1,94 @@
+{
+  "id": "T310",
+  "title": "LP T6 -- Dialogs, forms, Settings, versions panel",
+  "description": "Brief: docs/agent-work/2026-11-12-layout-primitives/BRIEF.md, then task T6 of docs/agent-work/2026-11-12-layout-primitives/PLAN.md. Shared files are edited by owned selector/region only and registered on no task.",
+  "status": "done",
+  "owner": null,
+  "priority": 2,
+  "depends_on": [],
+  "files": [
+    "docs/agent-work/2026-11-12-layout-primitives/notes/T6.md",
+    "docs/agent-work/2026-11-12-layout-primitives/notes/T6-fail-first.txt",
+    "src/settings",
+    "src/components/segmented.css",
+    "src/app/ProjectDialogs.tsx",
+    "src/import/ImportPreview.tsx",
+    "src/research/CaptureQuote.tsx",
+    "src/research/CslImportPreview.tsx",
+    "src/components/ProjectLibrary.tsx",
+    "src/export/ExportPanel.tsx",
+    "src/research/TemplatePicker.tsx"
+  ],
+  "review_required": true,
+  "created_by": "agent-b823",
+  "created_at": "2026-11-12T22:13:37+00:00",
+  "claimed_at": "2026-11-12T23:32:15+00:00",
+  "updated_at": "2026-11-13T01:13:36+00:00",
+  "handoff": {
+    "by": "agent-99d3",
+    "at": "2026-11-12T23:30:48+00:00",
+    "text": "See docs/agent-work/2026-11-12-layout-primitives/REVIEW-2.md (T310). 1) BLOCKER src/styles.css:1156 .dialog-actions lost display:flex+gap but CaptureQuote.tsx:38, CslImportPreview.tsx:104, ProjectLibrary.tsx:485 were not given 'cluster gap-4' -> buttons flush-left, 0 gap (measured). Fix: add 'cluster gap-4' to those three (coordinate T311/T309) or restore display:flex;gap on .dialog-actions. 2) ImportPreview.tsx:55 label needs 'stack gap-2' (Project title touches input). 3) App.tsx version-item inner span -> 'stack gap-1' (title/date gap 0). 4) research.css:415 .settings-field grid overrides .row; convert settings-form->.stack.gap-3, settings-field->.row.gap-3 with label flex 0 0 180px, settings-checks->.stack.gap-2, settings-check/.settings-actions->.cluster.gap-2, settings-section->.stack.gap-4; delete dead organization.css:161 padding. 5) settings-button and settings-field .dropdown-button: min-height var(--control-height); padding-block 0 (Interface font row still 37.5). 6) layout-invariants.spec.ts:304 filter narrowed: assert every General .settings-field; add dialog-actions cases."
+  },
+  "review": {
+    "by": "agent-a0e7",
+    "at": "2026-11-13T01:13:36+00:00",
+    "verdict": "approved",
+    "note": "APPROVE, see REVIEW-4.md (T310).\n\n- All six REVIEW-2 findings are fixed. The Zotero preview was opened in the browser: actions are flex, 16 apart, at the right.\n- 14 Settings rows, all 32, on a 180+12 label column; controls unchanged (174/113/432/89/72/260).\n- w9-settings-nav, of5-settings, hs3-checkbox and rich-import all passed in my locked run. The T6 invariants pass.\n- tsc is clean. No damage found in App.tsx, research.css or layout-invariants.spec.ts.\n- Low: the Shortcuts \"Insert page break\" glyph sits in the Change column (pre-existing)."
+  },
+  "log": [
+    {
+      "at": "2026-11-12T22:13:37+00:00",
+      "agent": "agent-b823",
+      "event": "created",
+      "note": ""
+    },
+    {
+      "at": "2026-11-12T22:33:53+00:00",
+      "agent": "agent-1861",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-11-12T22:33:55+00:00",
+      "agent": "agent-1861",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-11-12T23:07:40+00:00",
+      "agent": "agent-1861",
+      "event": "review requested",
+      "note": "T6 dialogs/settings/versions on stack/row/cluster primitives; styles.css -8 spacing decls; fail-first 2 failed -> 2 passed (layout-invariants -g T6); related settings specs passed (14/15 before test fix); tsc clean. See notes/T6.md"
+    },
+    {
+      "at": "2026-11-12T23:30:48+00:00",
+      "agent": "agent-99d3",
+      "event": "rejected",
+      "note": "See docs/agent-work/2026-11-12-layout-primitives/REVIEW-2.md (T310). 1) BLOCKER src/styles.css:1156 .dialog-actions lost display:flex+gap but CaptureQuote.tsx:38, CslImportPreview.tsx:104, ProjectLibrary.tsx:485 were not given 'cluster gap-4' -> buttons flush-left, 0 gap (measured). Fix: add 'cluster gap-4' to those three (coordinate T311/T309) or restore display:flex;gap on .dialog-actions. 2) ImportPreview.tsx:55 label needs 'stack gap-2' (Project title touches input). 3) App.tsx version-item inner span -> 'stack gap-1' (title/date gap 0). 4) research.css:415 .settings-field grid overrides .row; convert settings-form->.stack.gap-3, settings-field->.row.gap-3 with label flex 0 0 180px, settings-checks->.stack.gap-2, settings-check/.settings-actions->.cluster.gap-2, settings-section->.stack.gap-4; delete dead organization.css:161 padding. 5) settings-button and settings-field .dropdown-button: min-height var(--control-height); padding-block 0 (Interface font row still 37.5). 6) layout-invariants.spec.ts:304 filter narrowed: assert every General .settings-field; add dialog-actions cases."
+    },
+    {
+      "at": "2026-11-12T23:32:15+00:00",
+      "agent": "agent-027c",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-11-12T23:32:16+00:00",
+      "agent": "agent-027c",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-11-13T00:11:28+00:00",
+      "agent": "agent-027c",
+      "event": "review requested",
+      "note": "Rework of REVIEW-2 T310 findings 1-6: dialog-actions cluster gap-4 on CaptureQuote/CslImportPreview/ProjectLibrary; Import label stack gap-2; versions span stack gap-1; Settings on stack/row/cluster (research.css grid+gaps deleted, label flex 0 0 180px, controls 260), organization.css dead project-settings rules deleted; controls min-height control-height padding-block 0 (all 14 Settings rows 32). Tests: layout-invariants T6 describe widened (all rows, 3 dialogs' actions, import label gap, versions gap), T6_SHOTS removed. Fail-first notes/T6-rework-fail-first.txt 4 failed; after notes/T6-rework-after.txt 6 passed. tsc clean; layoutPrimitives only shared-budget 'lower' messages. Notes: notes/T6.md (rework section). Zotero dialog unverified in browser."
+    },
+    {
+      "at": "2026-11-13T01:13:36+00:00",
+      "agent": "agent-a0e7",
+      "event": "approved",
+      "note": "APPROVE, see REVIEW-4.md (T310).\n\n- All six REVIEW-2 findings are fixed. The Zotero preview was opened in the browser: actions are flex, 16 apart, at the right.\n- 14 Settings rows, all 32, on a 180+12 label column; controls unchanged (174/113/432/89/72/260).\n- w9-settings-nav, of5-settings, hs3-checkbox and rich-import all passed in my locked run. The T6 invariants pass.\n- tsc is clean. No damage found in App.tsx, research.css or layout-invariants.spec.ts.\n- Low: the Shortcuts \"Insert page break\" glyph sits in the Change column (pre-existing)."
+    }
+  ]
+}

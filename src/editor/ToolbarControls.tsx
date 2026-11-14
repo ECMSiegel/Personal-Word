@@ -91,7 +91,7 @@ export function PanelButton({
             (buttonRef as { current: HTMLButtonElement | null }).current = el;
         }}
         type="button"
-        className="toolbar-icon"
+        className={inMore ? "toolbar-icon" : "toolbar-icon slot-toolbar"}
         aria-label={label}
         title={label}
         aria-haspopup="dialog"

@@ -158,7 +158,7 @@ export function CommandPalette({ open, commands, onClose, animateIn = false }: C
     >
       <input
         ref={input}
-        className="command-palette-input"
+        className="command-palette-input bar"
         type="text"
         role="combobox"
         aria-label="Search commands"
@@ -172,7 +172,7 @@ export function CommandPalette({ open, commands, onClose, animateIn = false }: C
         value={query}
         onChange={(e) => { setQuery(e.target.value); setActive(0); }}
       />
-      <div ref={list} id={listId} className="command-palette-list" role="listbox" aria-label="Commands">
+      <div ref={list} id={listId} className="command-palette-list menu" role="listbox" aria-label="Commands">
         {groups.map((g, gi) => (
           <div key={g.group} role="group" aria-labelledby={`${uid}-g-${gi}`} className="command-palette-group">
             <div id={`${uid}-g-${gi}`} className="command-palette-heading">{g.group}</div>
@@ -184,13 +184,13 @@ export function CommandPalette({ open, commands, onClose, animateIn = false }: C
                   id={optionId(i)}
                   role="option"
                   aria-selected={i === activeIndex}
-                  className={`command-palette-option${i === activeIndex ? " is-highlighted" : ""} emph-row`}
+                  className={`command-palette-option row${i === activeIndex ? " is-highlighted" : ""} emph-row`}
                   onMouseMove={() => { if (i !== activeIndex) setActive(i); }}
                   onMouseDown={(e) => e.preventDefault()}
                   onClick={() => finish(c)}
                 >
-                  <span className="command-palette-label emph-label">{c.label}</span>
-                  {c.hint ? <span className="command-palette-hint">{c.hint}</span> : null}
+                  <span className="command-palette-label row-label emph-label">{c.label}</span>
+                  {c.hint ? <span className="command-palette-hint row-trail">{c.hint}</span> : null}
                 </div>
               );
             })}

@@ -1,0 +1,55 @@
+
+Running 1 test using 1 worker
+
+  ✘  1 tests/layout-invariants.spec.ts:78:3 › sidebar (T2) › T2: no heading label is truncated at 190px (10.5s)
+
+
+  1) tests/layout-invariants.spec.ts:78:3 › sidebar (T2) › T2: no heading label is truncated at 190px 
+
+    Error: after clicking a row: Manuscript: needs 77, has 65
+
+    expect(received).toBeLessThanOrEqual(expected)
+
+    Expected: <= 65
+    Received:    77
+
+      90 |       const texts = labels.map((l) => l.text);
+      91 |       for (const t of ["Manuscript", "Fragments", "Research", "Part two"]) expect(texts, "headings present").toContain(t);
+    > 92 |       for (const l of labels) expect.soft(l.need, `${when}: ${l.text}: needs ${l.need}, has ${l.have}`).toBeLessThanOrEqual(l.have);
+         |                                                                                                         ^
+      93 |     };
+      94 |     await measure("at rest");
+      95 |     // Ordinary mouse clicks leave focus inside the group (no keyboard focus): nothing may reveal the toggle.
+        at measure (/Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/tests/layout-invariants.spec.ts:92:105)
+        at /Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/tests/layout-invariants.spec.ts:97:5
+
+    Error: after clicking the heading: Manuscript: needs 77, has 65
+
+    expect(received).toBeLessThanOrEqual(expected)
+
+    Expected: <= 65
+    Received:    77
+
+      90 |       const texts = labels.map((l) => l.text);
+      91 |       for (const t of ["Manuscript", "Fragments", "Research", "Part two"]) expect(texts, "headings present").toContain(t);
+    > 92 |       for (const l of labels) expect.soft(l.need, `${when}: ${l.text}: needs ${l.need}, has ${l.have}`).toBeLessThanOrEqual(l.have);
+         |                                                                                                         ^
+      93 |     };
+      94 |     await measure("at rest");
+      95 |     // Ordinary mouse clicks leave focus inside the group (no keyboard focus): nothing may reveal the toggle.
+        at measure (/Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/tests/layout-invariants.spec.ts:92:105)
+        at /Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/tests/layout-invariants.spec.ts:99:5
+
+    Error Context: test-results/T306/layout-invariants-sidebar--9fcd3-label-is-truncated-at-190px/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/T306/layout-invariants-sidebar--9fcd3-label-is-truncated-at-190px/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/T306/layout-invariants-sidebar--9fcd3-label-is-truncated-at-190px/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/layout-invariants.spec.ts:78:3 › sidebar (T2) › T2: no heading label is truncated at 190px 
+FINISHED

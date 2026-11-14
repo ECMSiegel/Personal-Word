@@ -1,0 +1,183 @@
+
+Running 75 tests using 1 worker
+
+  ✘   1 tests/layout-invariants.spec.ts:25:3 › sidebar (T2) › T2: title, search icon, heading icons, row icons and the add row share one left ink edge (11.5s)
+  ✘   2 tests/layout-invariants.spec.ts:44:3 › sidebar (T2) › T2: heading and row action icons are 24x24 slots in shared right-hand columns (15.0s)
+  ✓   3 tests/layout-invariants.spec.ts:148:3 › format bar and toolbar popovers (T3) › T3: each toolbar divider has equal space on both sides (5.5s)
+  ✓   4 tests/layout-invariants.spec.ts:166:3 › format bar and toolbar popovers (T3) › T3: toolbar icon buttons are 28 x 32 slots (4.8s)
+  ✓   5 tests/layout-invariants.spec.ts:171:3 › format bar and toolbar popovers (T3) › T3: the format bar's last icon ink sits --edge-main (24 px) from the bar's right edge (4.4s)
+  ✓   6 tests/layout-invariants.spec.ts:179:5 › format bar and toolbar popovers (T3) › T3: Prose check panel rows are even and share a trailing edge (6.2s)
+  ✓   7 tests/layout-invariants.spec.ts:179:5 › format bar and toolbar popovers (T3) › T3: Line and paragraph spacing panel rows are even and share a trailing edge (4.1s)
+  ✓   8 tests/layout-invariants.spec.ts:179:5 › format bar and toolbar popovers (T3) › T3: Page setup panel rows are even and share a trailing edge (4.0s)
+  ✓   9 tests/layout-invariants.spec.ts:198:3 › format bar and toolbar popovers (T3) › T3: a dropdown menu opened inside the Page setup panel keeps 32 px menu rows (4.3s)
+  ✓  10 tests/layout-invariants.spec.ts:245:3 › menus (T4) › T4: New project menu rows are even and share a label edge (2.0s)
+  ✓  11 tests/layout-invariants.spec.ts:252:3 › menus (T4) › T4: Export menu rows are even and share a label edge (4.5s)
+  ✓  12 tests/layout-invariants.spec.ts:259:3 › menus (T4) › T4: a dropdown's rows are even and share a label edge (3.6s)
+  ✓  13 tests/layout-invariants.spec.ts:266:3 › menus (T4) › T4: a context menu's rows are even and share a label edge (4.0s)
+  ✓  14 tests/layout-invariants.spec.ts:272:3 › menus (T4) › T4: every menu uses one row height and one left inset (2.9s)
+  -  15 tests/layout-invariants.spec.ts:286:8 › slots (T2, T3) › T2/T3: every .slot is 24 x 24 and every .slot-toolbar 28 x 32
+  ✘  16 tests/layout-invariants.spec.ts:295:3 › dialogs, forms, Settings, versions (T6) › T6: Settings rows are even and share a label edge and a control edge (5.6s)
+  ✓  17 tests/layout-invariants.spec.ts:328:3 › research panel and citation card (T7) › T7: research tabs are a 40 px bar; source rows are even; sources start at the tab edge (7.4s)
+  ✓  18 tests/layout-invariants.spec.ts:355:3 › research panel and citation card (T7) › T7: citation card text starts at one edge and the close icon ends at the matching edge (5.0s)
+  ✓  19 tests/layout-invariants.spec.ts:399:3 › Projects page (T5) › T5: the toolbar controls share one centre line and its icon buttons are 24 x 24 slots (5.8s)
+  ✓  20 tests/layout-invariants.spec.ts:423:3 › Projects page (T5) › T5: list rows are even, their trash slots are 24 x 24 and share a right edge (5.4s)
+  ✓  21 tests/layout-invariants.spec.ts:433:3 › Projects page (T5) › T5: cards sit in a grid with a 16 px gap both ways (5.2s)
+  ✓  22 tests/projects-screen.spec.ts:20:1 › search expands from the magnifier, filters by title, and Escape collapses (6.4s)
+  ✓  23 tests/projects-screen.spec.ts:50:1 › open search field stays right of the create button at 850x600 (6.5s)
+  ✓  24 tests/projects-screen.spec.ts:61:1 › search works from the keyboard alone (5.7s)
+  ✓  25 tests/projects-screen.spec.ts:78:1 › search box is square and has no motion under reduced motion (4.2s)
+  ✓  26 tests/projects-screen.spec.ts:90:1 › search box reveals by clip-path by default (4.7s)
+  ✓  27 tests/projects-screen.spec.ts:102:1 › closed search slot shows no field border above the magnifier (5.2s)
+  ✓  28 tests/projects-screen.spec.ts:135:1 › open search input text clears the left border (5.4s)
+  ✓  29 tests/projects-screen.spec.ts:154:1 › create button opens a panel listing every template, then the two file actions (1.3s)
+  ✓  30 tests/projects-screen.spec.ts:164:1 › the create menu covers the button and grows out of it (1.7s)
+  ✓  31 tests/projects-screen.spec.ts:192:1 › the create menu collapses with a morph on close, and instantly under reduced motion (2.1s)
+  ✓  32 tests/projects-screen.spec.ts:204:1 › Escape closes the panel and returns focus to the create button (1.5s)
+  ✓  33 tests/projects-screen.spec.ts:212:1 › tabbing out of the create panel dismisses it (1.3s)
+  ✓  34 tests/projects-screen.spec.ts:219:1 › Escape on the focused create trigger closes the open panel (1.2s)
+  ✓  35 tests/projects-screen.spec.ts:232:1 › clicking outside closes the panel (1.3s)
+  ✓  36 tests/projects-screen.spec.ts:240:1 › the Projects screen has no heading: the button sits left, the controls right (1.1s)
+  ✓  37 tests/projects-screen.spec.ts:256:1 › create panel works from the keyboard alone (1.2s)
+  ✓  38 tests/projects-screen.spec.ts:280:1 › Import a file opens the writing picker and a chosen file reaches the import preview (1.7s)
+  ✓  39 tests/projects-screen.spec.ts:291:1 › Recover from a project.json file opens the project.json picker (1.6s)
+  ✓  40 tests/projects-screen.spec.ts:300:1 › the two old import links are gone but both pickers stay mounted (1.0s)
+  ✓  41 tests/projects-screen.spec.ts:311:1 › create menu is square and opens with a morph by default (1.3s)
+  ✓  42 tests/projects-screen.spec.ts:321:1 › create menu has no motion under reduced motion (1.3s)
+  ✓  43 tests/projects-screen.spec.ts:336:5 › create panel items are full-contrast text at once (light/plain) (1.9s)
+  ✓  44 tests/projects-screen.spec.ts:336:5 › create panel items are full-contrast text at once (light/plain, reduced motion) (1.7s)
+  ✓  45 tests/projects-screen.spec.ts:336:5 › create panel items are full-contrast text at once (light/color) (2.0s)
+  ✓  46 tests/projects-screen.spec.ts:336:5 › create panel items are full-contrast text at once (light/color, reduced motion) (1.7s)
+  ✓  47 tests/projects-screen.spec.ts:336:5 › create panel items are full-contrast text at once (dark/plain) (1.7s)
+  ✓  48 tests/projects-screen.spec.ts:336:5 › create panel items are full-contrast text at once (dark/plain, reduced motion) (1.7s)
+  ✓  49 tests/projects-screen.spec.ts:336:5 › create panel items are full-contrast text at once (dark/color) (2.0s)
+  ✓  50 tests/projects-screen.spec.ts:336:5 › create panel items are full-contrast text at once (dark/color, reduced motion) (2.0s)
+  ✓  51 tests/projects-screen.spec.ts:389:1 › dropping a Markdown file outlines the project list only and opens the import preview; Cancel creates nothing (1.5s)
+  ✓  52 tests/projects-screen.spec.ts:416:1 › the drop outline does not flicker over children and clears on dragleave (1.1s)
+  ✓  53 tests/projects-screen.spec.ts:430:1 › a file dropped outside the Projects list does not make the browser open it (1.0s)
+  ✓  54 tests/projects-screen.spec.ts:442:1 › a dropped PDF shows a clear error and opens nothing (1.2s)
+  ✓  55 tests/projects-screen.spec.ts:451:1 › dropping two files asks for one at a time (1.2s)
+  ✓  56 tests/projects-screen.spec.ts:458:1 › a dropped Markdown file over 5 MB is refused by the existing import limit (1.2s)
+  ✓  57 tests/projects-screen.spec.ts:465:1 › a drop while the new-project name dialog is open opens nothing (2.1s)
+  ✓  58 tests/projects-screen.spec.ts:477:1 › the trash icon never overlaps the dates when a project row is hovered (5.8s)
+  ✓  59 tests/projects-screen.spec.ts:497:1 › the Projects toolbar stays put as projects are added (no vertical re-centring) (5.0s)
+  ✓  60 tests/projects-screen.spec.ts:511:1 › a project saved from the hidden Story template still opens (3.3s)
+  ✓  61 tests/projects-screen.spec.ts:533:1 › the gear opens Settings from the Projects screen; Dark applies at once and survives a reload (2.3s)
+  ✓  62 tests/projects-screen.spec.ts:564:1 › the Projects-screen Settings dialog shows the floating row and it toggles the preference (1.5s)
+  ✓  63 tests/projects-screen.spec.ts:587:3 › a project row label does not grow on hover (4.9s)
+  ✓  64 tests/projects-screen.spec.ts:587:3 › a project row label does not grow under Reduce Motion (4.4s)
+  ✓  65 tests/w9-projects-page.spec.ts:33:1 › the toolbar holds Start, Import writing, the search, Sort, reverse, the view toggle and the gear (4.3s)
+  ✓  66 tests/w9-projects-page.spec.ts:50:1 › Sort sits on the same toolbar row as Start new project (4.6s)
+  ✓  67 tests/w9-projects-page.spec.ts:59:1 › Sort, reverse and the view toggle are icon-sized toolbar buttons with no text stroke on hover (5.1s)
+  ✓  68 tests/w9-projects-page.spec.ts:75:1 › row titles are 15 px and first; Edited is normal colour, Added is muted; cards keep the order (5.0s)
+  ✓  69 tests/w9-projects-page.spec.ts:99:1 › sort, direction and view survive a reload (7.0s)
+  ✓  70 tests/w9-projects-page.spec.ts:118:1 › bad saved library preferences fall back to the defaults (1.1s)
+  ✓  71 tests/w9-projects-page.spec.ts:125:1 › the page's icon buttons carry icon-grow and the arrow sits in a span (4.7s)
+  ✓  72 tests/w9-projects-page.spec.ts:136:1 › with no projects the list area offers one sentence and text controls, no illustration (1.5s)
+  ✓  73 tests/w9-projects-page.spec.ts:160:1 › an empty search keeps 'No matching projects.' and not the empty-state block (4.9s)
+  ✓  74 tests/zz-t5-scratch.spec.ts:16:1 › dump (7.4s)
+  ✓  75 tests/zz-t5-scratch.spec.ts:41:1 › shots (6.0s)
+
+
+  1) tests/layout-invariants.spec.ts:25:3 › sidebar (T2) › T2: title, search icon, heading icons, row icons and the add row share one left ink edge 
+
+    Error: left ink edges 20.0, 12.0, 15.0, 15.0, 15.0, 15.0, 20.0, 20.0
+
+    expect(received).toBeLessThanOrEqual(expected)
+
+    Expected: <= 1
+    Received:    8
+
+       at layout-helpers.ts:77
+
+      75 |   for (const item of items) edges.push((await ink(item))[side]);
+      76 |   const spread = Math.max(...edges) - Math.min(...edges);
+    > 77 |   expect(spread, `${side} ink edges ${edges.map((e) => e.toFixed(1)).join(", ")}`).toBeLessThanOrEqual(tol);
+         |                                                                                    ^
+      78 | }
+      79 |
+      80 | /** Rows in order: equal heights, equal gaps between neighbours, and no overlap, within `tol` px. */
+        at expectSharedEdge (/Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/tests/layout-helpers.ts:77:84)
+        at /Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/tests/layout-invariants.spec.ts:35:5
+
+    Error Context: test-results/T309/layout-invariants-sidebar--aa8f1-row-share-one-left-ink-edge/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/T309/layout-invariants-sidebar--aa8f1-row-share-one-left-ink-edge/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/T309/layout-invariants-sidebar--aa8f1-row-share-one-left-ink-edge/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/layout-invariants.spec.ts:44:3 › sidebar (T2) › T2: heading and row action icons are 24x24 slots in shared right-hand columns 
+
+    Error: expect(locator).toHaveClass(expected) failed
+
+    Locator: locator('.sidebar').locator('.sidebar-group[data-group="manuscript"] > .group-heading')
+    Expected pattern: /\brow\b/
+    Received string:  "group-heading"
+    Timeout: 5000ms
+
+    Call log:
+      - Expect "toHaveClass" locator('.sidebar').locator('.sidebar-group[data-group="manuscript"] > .group-heading') with timeout 5000ms
+      - waiting for locator('.sidebar').locator('.sidebar-group[data-group="manuscript"] > .group-heading')
+        14 × locator resolved to <div class="group-heading">…</div>
+           - unexpected value "group-heading"
+
+
+      48 |     await heading.hover();
+      49 |     // Heading: .row with .row-trail > .cluster.gap-0.flush-end of slots [view][+][chevron].
+    > 50 |     await expect(heading).toHaveClass(/\brow\b/);
+         |                           ^
+      51 |     const headingSlots = heading.locator(".row-trail > .cluster.gap-0.flush-end .slot");
+      52 |     await expect(headingSlots).toHaveCount(3);
+      53 |     await expectSlots(headingSlots, 24, 24);
+        at /Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/tests/layout-invariants.spec.ts:50:27
+
+    Error Context: test-results/T309/layout-invariants-sidebar--b19b0-n-shared-right-hand-columns/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/T309/layout-invariants-sidebar--b19b0-n-shared-right-hand-columns/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/T309/layout-invariants-sidebar--b19b0-n-shared-right-hand-columns/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) tests/layout-invariants.spec.ts:295:3 › dialogs, forms, Settings, versions (T6) › T6: Settings rows are even and share a label edge and a control edge 
+
+    Error: row heights 32.0, 32.0, 37.5, 37.5, 37.5, 37.5, 39.5, 36.8, 36.8, 36.8, 36.8
+
+    expect(received).toBeLessThanOrEqual(expected)
+
+    Expected: <= 1
+    Received:    7.5
+
+       at layout-helpers.ts:94
+
+      92 |   const gaps = boxes.slice(1).map((b, i) => b.y - (boxes[i].y + boxes[i].height));
+      93 |   const fmt = (list: number[]) => list.map((n) => n.toFixed(1)).join(", ");
+    > 94 |   expect(Math.max(...heights) - Math.min(...heights), `row heights ${fmt(heights)}`).toBeLessThanOrEqual(tol);
+         |                                                                                      ^
+      95 |   expect(Math.min(...gaps), `rows overlap: gaps ${fmt(gaps)}`).toBeGreaterThanOrEqual(-0.5);
+      96 |   expect(Math.max(...gaps) - Math.min(...gaps), `row gaps ${fmt(gaps)}`).toBeLessThanOrEqual(tol);
+      97 | }
+        at expectEvenRows (/Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/tests/layout-helpers.ts:94:86)
+        at /Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/tests/layout-invariants.spec.ts:301:5
+
+    Error Context: test-results/T309/layout-invariants-dialogs--449d6-bel-edge-and-a-control-edge/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/T309/layout-invariants-dialogs--449d6-bel-edge-and-a-control-edge/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/T309/layout-invariants-dialogs--449d6-bel-edge-and-a-control-edge/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3 failed
+    tests/layout-invariants.spec.ts:25:3 › sidebar (T2) › T2: title, search icon, heading icons, row icons and the add row share one left ink edge 
+    tests/layout-invariants.spec.ts:44:3 › sidebar (T2) › T2: heading and row action icons are 24x24 slots in shared right-hand columns 
+    tests/layout-invariants.spec.ts:295:3 › dialogs, forms, Settings, versions (T6) › T6: Settings rows are even and share a label edge and a control edge 
+  1 skipped
+  71 passed (4.9m)

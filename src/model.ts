@@ -3,6 +3,7 @@ import { documentExtensions } from "./editor/extensions";
 import { MAX_PAGE_GAP, type PageLayout } from "./editor/formatting";
 import type { ResearchData, DocumentSettings } from "./research/types";
 import { sourceKinds, emptyResearch } from "./research/types";
+import { SWATCHES, type Swatch } from "./appearance";
 const documentSchema = getSchema(documentExtensions());
 export type Entry = {
   id: string;
@@ -44,9 +45,11 @@ export type Project = {
   /** Bottom sidebar features switched off for this project; additive metadata. */
   sidebarHidden?: string[];
   /** Custom top-level sidebar sections beside Manuscript (HS9); additive metadata. */
-  groups?: { id: string; title: string }[];
+  groups?: { id: string; title: string; /** Sidebar icon colour in the Color palette; unset = Manuscript's. */ colour?: Swatch }[];
   /** Owner's names for the built-in headings ("manuscript" | "fragments" | "research"). */
   groupTitles?: Record<string, string>;
+  /** Per-project icon colours of the built-in headers (T12); unset = the app-wide legacy value. */
+  headerColours?: { manuscript?: Swatch; fragments?: Swatch; research?: Swatch };
   annotations?: Annotation[];
   goals?: { totalWords?: number; dailyWords?: number; deadline?: string; scope?: "manuscript" | "manuscript-and-fragments"; dayMode?: "local" | "utc" };
 };
@@ -262,11 +265,15 @@ export function validateProject(value: unknown): asserts value is Project {
           !g || typeof g !== "object" || typeof g.id !== "string" || !g.id ||
           ["manuscript", "fragments", "research"].includes(g.id) || seen.has(g.id) ||
           typeof g.title !== "string" || !g.title.trim();
-        if (!bad) seen.add(g.id);
+        if (!bad) {
+          seen.add(g.id);
+          // An unknown colour is dropped, never rejected: it is only a tint.
+          if (g.colour !== undefined && !SWATCHES.includes(g.colour)) delete g.colour;
+        }
         return bad;
       })
     )
-      throw new Error("Invalid top-level sections.");
+      throw new Error("Invalid headers.");
   }
   if (
     p.groupTitles !== undefined &&
@@ -274,7 +281,19 @@ export function validateProject(value: unknown): asserts value is Project {
       Object.entries(p.groupTitles).some(([key, title]) =>
         !["manuscript", "fragments", "research"].includes(key) || typeof title !== "string" || !title.trim()))
   )
-    throw new Error("Invalid top-level section names.");
+    throw new Error("Invalid header names.");
+  // T12: an unknown key or colour is dropped, never rejected: it is only a tint.
+  if (p.headerColours !== undefined) {
+    const raw: unknown = p.headerColours;
+    const kept: NonNullable<Project["headerColours"]> = {};
+    if (raw && typeof raw === "object" && !Array.isArray(raw))
+      for (const key of ["manuscript", "fragments", "research"] as const) {
+        const colour = (raw as Record<string, unknown>)[key];
+        if (SWATCHES.includes(colour as Swatch)) kept[key] = colour as Swatch;
+      }
+    if (Object.keys(kept).length) p.headerColours = kept;
+    else delete p.headerColours;
+  }
   const ids = new Set<string>();
   for (const e of p.entries) {
     if (

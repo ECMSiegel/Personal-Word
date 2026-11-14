@@ -1,0 +1,64 @@
+{
+  "id": "T304",
+  "title": "LP T0 -- Foundation: tokens, primitives, layer scale, guard tests, before gallery",
+  "description": "Brief: docs/agent-work/2026-11-12-layout-primitives/BRIEF.md, then task T0 of docs/agent-work/2026-11-12-layout-primitives/PLAN.md. Shared files are edited by owned selector/region only and registered on no task.",
+  "status": "done",
+  "owner": null,
+  "priority": 1,
+  "depends_on": [],
+  "files": [
+    "docs/agent-work/2026-11-12-layout-primitives/notes/T0.md",
+    "docs/agent-work/2026-11-12-layout-primitives/notes/T0-fail-first.txt",
+    "src/components/layout.css",
+    "src/layoutPrimitives.test.ts",
+    "tests/layout-helpers.ts",
+    "tests/layout-gallery.spec.ts",
+    "src/designTokens.test.ts",
+    "AGENTS.md",
+    "docs/agent-work/2026-11-12-layout-primitives/gallery/before"
+  ],
+  "review_required": true,
+  "created_by": "agent-b823",
+  "created_at": "2026-11-12T22:13:35+00:00",
+  "claimed_at": "2026-11-12T22:14:09+00:00",
+  "updated_at": "2026-11-12T22:41:48+00:00",
+  "handoff": null,
+  "review": {
+    "by": "agent-6efd",
+    "at": "2026-11-12T22:41:48+00:00",
+    "verdict": "approved",
+    "note": "APPROVE. Full: docs/agent-work/2026-11-12-layout-primitives/REVIEW-1.md. URGENT for workers: (1) CSS order is the reverse of design-system.md: main.tsx:3 imports App before styles.css/layout.css, so nearly every component CSS loads BEFORE layout.css (confirmed in the dist bundle: .writer>.format-bar at 1663, .dropdown-menu at 19744 < :root at 54324). layout.css therefore WINS single-class ties against component CSS and styles.css. Exceptions that load after it: prose-issues.css (T3), icon-magnify, appearance-settings, side-ruler. Delete old declarations (a leftover block padding makes rows taller); two-class rules (.writer > .format-bar, .writer .toolbar-popover) still beat primitives; single-class overrides of a primitive lose silently. Fix the design-system.md sentence. (2) layout.css:108-112 .panel --row-height:28 inherits into in-place dropdown menus (Dropdown.tsx:188, absolute) inside Page setup's panel, giving 28px menu rows (DoD 4). Proposed amendment to The system: add '--row-height: var(--control-height);' to .menu. (2b) .gap-N does nothing on .bar/.row (hard-coded gap space-2), so bar + divider = 16px per side, not 8. T3 overrides with .writer > .format-bar{gap:0}; others: use a .cluster.gap-N child. Low: chevron 14px sits 1px inside .flush-end edge (T2 column check at tolerance; compare slot boxes); ink() ignores input/select/checkbox (add a border-box fallback); budget: substring doc-selector skip and new-file loophole; error banner 30->40 now paints over the citation card (39)."
+  },
+  "log": [
+    {
+      "at": "2026-11-12T22:13:35+00:00",
+      "agent": "agent-b823",
+      "event": "created",
+      "note": ""
+    },
+    {
+      "at": "2026-11-12T22:14:09+00:00",
+      "agent": "agent-1ae3",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-11-12T22:14:09+00:00",
+      "agent": "agent-1ae3",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-11-12T22:32:00+00:00",
+      "agent": "agent-1ae3",
+      "event": "review requested",
+      "note": "Tokens + src/components/layout.css (imported after styles.css in main.tsx), 11 z-index -> --layer-* plus export-menu 41 rule deleted, src/layoutPrimitives.test.ts + src/layoutBudget.json (total 465), tests/layout-helpers.ts, tests/layout-invariants.spec.ts (15 fixme), tests/layout-gallery.spec.ts; designTokens parity regex extended; design-system.md 'Layout primitives' + toolbar sentence; AGENTS.md line. Fail-first: 3 failed before; doctored budget and scratch z-index 12 fail; undone 3 pass. vitest 4 files 39 passed; tsc clean; locked hs1/popover-bounds/floating/invariants all pass (15 skipped); gallery 50 PNGs in gallery/before. One interpretation: test (c) allows 0px and 1px anywhere, 16px only in .bar-divider. App.tsx inline zIndex 39 left literal. Notes: notes/T0.md"
+    },
+    {
+      "at": "2026-11-12T22:41:48+00:00",
+      "agent": "agent-6efd",
+      "event": "approved",
+      "note": "APPROVE. Full: docs/agent-work/2026-11-12-layout-primitives/REVIEW-1.md. URGENT for workers: (1) CSS order is the reverse of design-system.md: main.tsx:3 imports App before styles.css/layout.css, so nearly every component CSS loads BEFORE layout.css (confirmed in the dist bundle: .writer>.format-bar at 1663, .dropdown-menu at 19744 < :root at 54324). layout.css therefore WINS single-class ties against component CSS and styles.css. Exceptions that load after it: prose-issues.css (T3), icon-magnify, appearance-settings, side-ruler. Delete old declarations (a leftover block padding makes rows taller); two-class rules (.writer > .format-bar, .writer .toolbar-popover) still beat primitives; single-class overrides of a primitive lose silently. Fix the design-system.md sentence. (2) layout.css:108-112 .panel --row-height:28 inherits into in-place dropdown menus (Dropdown.tsx:188, absolute) inside Page setup's panel, giving 28px menu rows (DoD 4). Proposed amendment to The system: add '--row-height: var(--control-height);' to .menu. (2b) .gap-N does nothing on .bar/.row (hard-coded gap space-2), so bar + divider = 16px per side, not 8. T3 overrides with .writer > .format-bar{gap:0}; others: use a .cluster.gap-N child. Low: chevron 14px sits 1px inside .flush-end edge (T2 column check at tolerance; compare slot boxes); ink() ignores input/select/checkbox (add a border-box fallback); budget: substring doc-selector skip and new-file loophole; error banner 30->40 now paints over the citation card (39)."
+    }
+  ]
+}

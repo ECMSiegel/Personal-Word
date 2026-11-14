@@ -1,0 +1,11 @@
+
+Running 4 tests using 1 worker
+
+  ✓  1 tests/layout-invariants.spec.ts:295:3 › dialogs, forms, Settings, versions (T6) › T6: Settings rows are even and share a label edge and a control edge (5.4s)
+  ✓  2 tests/layout-invariants.spec.ts:308:3 › dialogs, forms, Settings, versions (T6) › T6: a dialog is a 24 px stack inside 32 px padding, with its actions at the end (5.0s)
+  -  3 tests/layout-invariants.spec.ts:448:5 › T6 screenshots › T6: surfaces light
+  -  4 tests/layout-invariants.spec.ts:448:5 › T6 screenshots › T6: surfaces dark
+
+  2 skipped
+  2 passed (13.4s)
+finished

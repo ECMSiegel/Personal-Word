@@ -1,0 +1,60 @@
+{
+  "id": "T315",
+  "title": "LP T11 -- Final validation: one 24x32 slot; comments.spec:36 intermittent",
+  "description": "Brief: docs/agent-work/2026-11-12-layout-primitives/BRIEF.md. Full built-app e2e: 661 passed, 2 failed (test-results/lp-validation/e2e.log).",
+  "status": "done",
+  "owner": null,
+  "priority": 1,
+  "depends_on": [],
+  "files": [
+    "docs/agent-work/2026-11-12-layout-primitives/notes/T11.md",
+    "docs/agent-work/2026-11-12-layout-primitives/notes/T11-fail-first.txt",
+    "tests/comments.spec.ts",
+    "src/styles.css",
+    "tests/layout-invariants.spec.ts"
+  ],
+  "review_required": true,
+  "created_by": "agent-b823",
+  "created_at": "2026-11-13T03:37:22+00:00",
+  "claimed_at": "2026-11-13T03:37:40+00:00",
+  "updated_at": "2026-11-13T03:50:34+00:00",
+  "handoff": null,
+  "review": {
+    "by": "agent-b823",
+    "at": "2026-11-13T03:50:34+00:00",
+    "verdict": "approved",
+    "note": "Coordinator review (one-selector change): .topbar > div > button:not(.slot) stops the 32px min-height applying to the Toggle sidebar slot; slot is 24x24, invariant covers Projects page, cards view and split. comments.spec:36 not reproduced in 20 runs; left as a known intermittent (blind key presses after Reattach)."
+  },
+  "log": [
+    {
+      "at": "2026-11-13T03:37:22+00:00",
+      "agent": "agent-b823",
+      "event": "created",
+      "note": ""
+    },
+    {
+      "at": "2026-11-13T03:37:40+00:00",
+      "agent": "agent-e725",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-11-13T03:37:40+00:00",
+      "agent": "agent-e725",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-11-13T03:50:16+00:00",
+      "agent": "agent-e725",
+      "event": "review requested",
+      "note": "Toggle sidebar slot 24x32 fixed by .topbar > div > button:not(.slot) in styles.css; new T11 slots test; comments.spec not reproduced in 20 runs, no change; 113 passed 0 failed; tsc clean. See notes/T11.md"
+    },
+    {
+      "at": "2026-11-13T03:50:34+00:00",
+      "agent": "agent-b823",
+      "event": "approved",
+      "note": "Coordinator review (one-selector change): .topbar > div > button:not(.slot) stops the 32px min-height applying to the Toggle sidebar slot; slot is 24x24, invariant covers Projects page, cards view and split. comments.spec:36 not reproduced in 20 runs; left as a known intermittent (blind key presses after Reattach)."
+    }
+  ]
+}

@@ -1,0 +1,59 @@
+{
+  "id": "T314",
+  "title": "LP T10 -- Dropdown inside a label re-opens after a mouse pick (six sites)",
+  "description": "Brief: docs/agent-work/2026-11-12-layout-primitives/BRIEF.md. Findings: docs/agent-work/2026-11-12-layout-primitives/REVIEW-6.md (label-wrapped Dropdown list). Fix once in the Dropdown component.",
+  "status": "done",
+  "owner": null,
+  "priority": 1,
+  "depends_on": [],
+  "files": [
+    "docs/agent-work/2026-11-12-layout-primitives/notes/T10.md",
+    "docs/agent-work/2026-11-12-layout-primitives/notes/T10-fail-first.txt",
+    "tests/t10-dropdown-label.spec.ts",
+    "src/components/Dropdown.tsx"
+  ],
+  "review_required": true,
+  "created_by": "agent-b823",
+  "created_at": "2026-11-13T02:25:21+00:00",
+  "claimed_at": "2026-11-13T02:26:11+00:00",
+  "updated_at": "2026-11-13T03:07:49+00:00",
+  "handoff": null,
+  "review": {
+    "by": "agent-382a",
+    "at": "2026-11-13T03:07:49+00:00",
+    "verdict": "approved",
+    "note": "REVIEW-8.md. PRE-EXISTING confirmed at 1361f1e (Dropdown option onClick without preventDefault, Popover not portalled, labels already at all six sites). Dropdown.tsx:222-227 preventDefault cancels only the label activation; choose() unchanged; render options are spans; ContextMenu has its own handlers; one trigger click per mouse pick. Browser: Sort, Read Font, Export typeface/Line spacing/Page number position, Compare section, Header colour, Page setup Paper/Margins all 0 options after 700 ms, value applied, focus on trigger; font-family closes too (focus to editor by its onChange, pre-existing). t10 spec built-app safe and passes. Low: a click on list padding in a label-wrapped list still reaches the label (closes the list only)."
+  },
+  "log": [
+    {
+      "at": "2026-11-13T02:25:21+00:00",
+      "agent": "agent-b823",
+      "event": "created",
+      "note": ""
+    },
+    {
+      "at": "2026-11-13T02:26:11+00:00",
+      "agent": "agent-9fe7",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-11-13T02:26:11+00:00",
+      "agent": "agent-9fe7",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-11-13T02:44:11+00:00",
+      "agent": "agent-9fe7",
+      "event": "review requested",
+      "note": "Dropdown option onClick now preventDefault (src/components/Dropdown.tsx), stops label re-activating trigger. PRE-EXISTING (options were divs w/o preventDefault at 1361f1e). Fail-first notes/T10-fail-first.txt: 3 mouse tests failed, keyboard passed. After: 8 specs 70 passed, tsc -b clean. Notes: notes/T10.md"
+    },
+    {
+      "at": "2026-11-13T03:07:49+00:00",
+      "agent": "agent-382a",
+      "event": "approved",
+      "note": "REVIEW-8.md. PRE-EXISTING confirmed at 1361f1e (Dropdown option onClick without preventDefault, Popover not portalled, labels already at all six sites). Dropdown.tsx:222-227 preventDefault cancels only the label activation; choose() unchanged; render options are spans; ContextMenu has its own handlers; one trigger click per mouse pick. Browser: Sort, Read Font, Export typeface/Line spacing/Page number position, Compare section, Header colour, Page setup Paper/Margins all 0 options after 700 ms, value applied, focus on trigger; font-family closes too (focus to editor by its onChange, pre-existing). t10 spec built-app safe and passes. Low: a click on list padding in a label-wrapped list still reaches the label (closes the list only)."
+    }
+  ]
+}

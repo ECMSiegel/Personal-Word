@@ -1,0 +1,46 @@
+
+Running 36 tests using 1 worker
+
+[1/36] tests/assets.spec.ts:30:1 › table insertion creates a 3x3 table with header row and places focus in the first cell
+[2/36] tests/assets.spec.ts:56:1 › editing text inside cells across multiple rows and columns updates table contents
+[3/36] tests/assets.spec.ts:120:1 › keyboard navigation traverses table cells forward with Tab and backward with Shift-Tab across row boundaries
+[4/36] tests/assets.spec.ts:161:1 › table manipulation controls insert and delete rows, columns, toggle header row, and delete table
+[5/36] tests/assets.spec.ts:219:1 › table persists across reload in preview storage and remains editable
+[6/36] tests/assets.spec.ts:281:1 › ReadDocument renders table faithfully in Reading View
+[7/36] tests/assets.spec.ts:323:1 › ReadDocument renders image with alt text fallback in Reading View
+[8/36] tests/assets.spec.ts:383:1 › image toolbar action inserts image with alt text and displays image figure in editor
+[9/36] tests/assets.spec.ts:419:1 › stored image displays after leaving, reopening, and reloading its project
+[10/36] tests/comments.spec.ts:36:1 › comment anchors retain the second duplicate, detach on deletion, and reattach by selection
+[11/36] tests/comments.spec.ts:117:1 › multi-paragraph captured quote keeps the citation in its last paragraph across one undo/redo
+[12/36] tests/fragments-panel.spec.ts:37:1 › fragments panel shows the whole fragment, a count, and search
+[13/36] tests/fragments-panel.spec.ts:68:1 › empty library explains how to make a fragment
+[14/36] tests/fragments-panel.spec.ts:77:1 › more than three fragments start collapsed and Show all expands one
+[15/36] tests/fragments-panel.spec.ts:106:1 › insert at cursor puts the whole fragment into the main editor (needs App wiring)
+[16/36] tests/fragments-panel.spec.ts:122:1 › inline edits in the panel are saved to the fragment (needs App wiring)
+[17/36] tests/fragments-panel.spec.ts:142:1 › an unsplit fragment opens in the editor without a restore strip
+[18/36] tests/layout-invariants.spec.ts:537:3 › comments, fragments, revisions (T8) › T8: comment items are evenly spaced with equal space above and below each divider
+[19/36] tests/layout-invariants.spec.ts:545:3 › comments, fragments, revisions (T8) › T8: fragment rows are even, dividers centred, and action icons are 24 x 24 slots sharing a right edge
+[20/36] tests/layout-invariants.spec.ts:557:3 › comments, fragments, revisions (T8) › T8: revision-compare controls sit on one centre line, evenly spaced from their neighbours
+[21/36] tests/layout-invariants.spec.ts:574:7 › comments, fragments, revisions (T8) › T8 screenshots › T8: comments light
+[22/36] tests/layout-invariants.spec.ts:579:7 › comments, fragments, revisions (T8) › T8 screenshots › T8: fragments light
+[23/36] tests/layout-invariants.spec.ts:586:7 › comments, fragments, revisions (T8) › T8 screenshots › T8: revision and read light
+[24/36] tests/layout-invariants.spec.ts:574:7 › comments, fragments, revisions (T8) › T8 screenshots › T8: comments dark
+[25/36] tests/layout-invariants.spec.ts:579:7 › comments, fragments, revisions (T8) › T8 screenshots › T8: fragments dark
+[26/36] tests/layout-invariants.spec.ts:586:7 › comments, fragments, revisions (T8) › T8 screenshots › T8: revision and read dark
+[27/36] tests/of1-text-notes.spec.ts:14:1 › Text-only notes live on the Notes tab, not the Sources tab
+[28/36] tests/of1-text-notes.spec.ts:91:1 › Delete in a section that is not open: confirm, cancel, snapshot, renumber, reload
+[29/36] tests/of1-text-notes.spec.ts:133:1 › Delete while the section is open in the editor removes the marker and survives the next save
+[30/36] tests/of1-text-notes.spec.ts:152:1 › a cited footnote's action row says exactly Unlink source (no stray index)
+[31/36] tests/of2-fragment-title.spec.ts:58:3 › OF2 floating title › the title sits in the same place in a section and in a fragment
+tests/of2-fragment-title.spec.ts:58:3 › OF2 floating title › the title sits in the same place in a section and in a fragment
+OF2 section {"bgBehindTitle":"rgb(245, 245, 247)","bgBelowSearch":"rgb(245, 245, 247)","titleX":0,"titleY":128,"sidebarTop":112,"sidebarLeft":0,"originShown":false}
+
+OF2 fragment {"bgBehindTitle":"rgb(245, 245, 247)","bgBelowSearch":"rgb(245, 245, 247)","titleX":0,"titleY":128,"sidebarTop":112,"sidebarLeft":0,"originShown":true}
+
+[32/36] tests/revisions.spec.ts:23:1 › word comparison labels changes, navigates them, and restores a changed rich-text paragraph safely
+[33/36] tests/revisions.spec.ts:55:1 › does not offer a guessed paragraph restore when inserted and edited blocks are ambiguous
+[34/36] tests/revisions.spec.ts:72:1 › oversized comparisons offer a bounded, cancellable selected-passage view
+[35/36] tests/revisions.spec.ts:93:1 › refuses a corrupted safety snapshot and keeps current prose unchanged
+[36/36] tests/revisions.spec.ts:120:1 › snapshot page: the restore-section button, its help text and the compare control share one left text edge
+  36 passed (4.9m)
+exit 0

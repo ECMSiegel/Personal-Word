@@ -1,0 +1,95 @@
+
+Running 3 tests using 1 worker
+
+  ✘  1 tests/layout-invariants.spec.ts:57:3 › app chrome bars (T1) › T1: the last ink of the top bar and of the format bar share one right edge (7.9s)
+  ✘  2 tests/layout-invariants.spec.ts:64:3 › app chrome bars (T1) › T1: Saved, Snapshot and Export are evenly spaced (4.5s)
+  ✘  3 tests/layout-invariants.spec.ts:75:3 › app chrome bars (T1) › T1: every .bar is 40 px tall, every .bar-compact 32 px (4.2s)
+
+
+  1) tests/layout-invariants.spec.ts:57:3 › app chrome bars (T1) › T1: the last ink of the top bar and of the format bar share one right edge 
+
+    Error: right ink edges 1408.0, 1426.0
+
+    expect(received).toBeLessThanOrEqual(expected)
+
+    Expected: <= 1
+    Received:    18
+
+       at layout-helpers.ts:77
+
+      75 |   for (const item of items) edges.push((await ink(item))[side]);
+      76 |   const spread = Math.max(...edges) - Math.min(...edges);
+    > 77 |   expect(spread, `${side} ink edges ${edges.map((e) => e.toFixed(1)).join(", ")}`).toBeLessThanOrEqual(tol);
+         |                                                                                    ^
+      78 | }
+      79 |
+      80 | /** Rows in order: equal heights, equal gaps between neighbours, and no overlap, within `tol` px. */
+        at expectSharedEdge (/Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/tests/layout-helpers.ts:77:84)
+        at /Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/tests/layout-invariants.spec.ts:61:5
+
+    Error Context: test-results/T305/layout-invariants-app-chro-17053-at-bar-share-one-right-edge/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/T305/layout-invariants-app-chro-17053-at-bar-share-one-right-edge/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/T305/layout-invariants-app-chro-17053-at-bar-share-one-right-edge/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/layout-invariants.spec.ts:64:3 › app chrome bars (T1) › T1: Saved, Snapshot and Export are evenly spaced 
+
+    Error: expect(received).toBeGreaterThanOrEqual(expected)
+
+    Expected: >= 3
+    Received:    0
+
+      68 |     const inks = [];
+      69 |     for (const item of await items.all()) inks.push(await ink(item));
+    > 70 |     expect(inks.length).toBeGreaterThanOrEqual(3);
+         |                         ^
+      71 |     const gaps = inks.slice(1).map((b, i) => b.left - inks[i].right);
+      72 |     expect(Math.max(...gaps) - Math.min(...gaps), `gaps ${gaps.join(", ")}`).toBeLessThanOrEqual(1);
+      73 |   });
+        at /Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/tests/layout-invariants.spec.ts:70:25
+
+    Error Context: test-results/T305/layout-invariants-app-chro-4ca96-nd-Export-are-evenly-spaced/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/T305/layout-invariants-app-chro-4ca96-nd-Export-are-evenly-spaced/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/T305/layout-invariants-app-chro-4ca96-nd-Export-are-evenly-spaced/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) tests/layout-invariants.spec.ts:75:3 › app chrome bars (T1) › T1: every .bar is 40 px tall, every .bar-compact 32 px 
+
+    Error: expect(received).toBeGreaterThan(expected)
+
+    Expected: > 0
+    Received:   0
+
+      78 |       els.map((e) => ({ compact: e.classList.contains("bar-compact"), h: e.getBoundingClientRect().height })),
+      79 |     );
+    > 80 |     expect(heights.length).toBeGreaterThan(0);
+         |                            ^
+      81 |     for (const { compact, h } of heights) expect(Math.abs(h - (compact ? 32 : 40))).toBeLessThanOrEqual(0.5);
+      82 |   });
+      83 | });
+        at /Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/tests/layout-invariants.spec.ts:80:28
+
+    Error Context: test-results/T305/layout-invariants-app-chro-cd48f-all-every-bar-compact-32-px/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/T305/layout-invariants-app-chro-cd48f-all-every-bar-compact-32-px/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/T305/layout-invariants-app-chro-cd48f-all-every-bar-compact-32-px/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3 failed
+    tests/layout-invariants.spec.ts:57:3 › app chrome bars (T1) › T1: the last ink of the top bar and of the format bar share one right edge 
+    tests/layout-invariants.spec.ts:64:3 › app chrome bars (T1) › T1: Saved, Snapshot and Export are evenly spaced 
+    tests/layout-invariants.spec.ts:75:3 › app chrome bars (T1) › T1: every .bar is 40 px tall, every .bar-compact 32 px 

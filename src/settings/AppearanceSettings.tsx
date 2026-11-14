@@ -49,7 +49,7 @@ export function AppearanceSettings(): JSX.Element | null {
     } catch (cause) { setError(cause instanceof Error ? cause.message : "Could not remove that font"); }
   };
 
-  return <div className="settings-field settings-field--wide appearance-fonts">
+  return <div className="settings-field settings-field--wide appearance-fonts row gap-3">
     <span className="settings-label">Interface font</span>
     <div className="appearance-fonts__row">
       <Dropdown label="Interface font" value={current} options={options} onChange={setInterfaceFont} className="appearance-fonts__menu" />

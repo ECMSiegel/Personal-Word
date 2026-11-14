@@ -1,5 +1,9 @@
+/* A .row.gap-3: the font list and any error wrap onto their own full-width lines. */
 .appearance-fonts {
-  grid-column: 1 / -1;
+  flex-wrap: wrap;
+}
+.appearance-fonts > :is(.appearance-fonts__list, .appearance-fonts__error) {
+  flex: 1 0 100%;
 }
 
 .appearance-fonts__row {
@@ -34,7 +38,6 @@
 .appearance-fonts__list {
   display: grid;
   gap: var(--space-2);
-  grid-column: 1 / -1;
   list-style: none;
   margin: var(--space-3) 0 0;
   padding: 0;

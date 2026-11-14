@@ -1,0 +1,139 @@
+{
+  "id": "T306",
+  "title": "LP T2 -- Sidebar: title, search, headings, rows, cards, bottom rows",
+  "description": "Brief: docs/agent-work/2026-11-12-layout-primitives/BRIEF.md, then task T2 of docs/agent-work/2026-11-12-layout-primitives/PLAN.md. Shared files are edited by owned selector/region only and registered on no task.",
+  "status": "done",
+  "owner": null,
+  "priority": 2,
+  "depends_on": [],
+  "files": [
+    "docs/agent-work/2026-11-12-layout-primitives/notes/T2.md",
+    "docs/agent-work/2026-11-12-layout-primitives/notes/T2-fail-first.txt",
+    "src/components/floating.css",
+    "src/components/scrollspy.css",
+    "src/components/drag-reorder.css",
+    "tests/alignment.spec.ts",
+    "tests/hs4-sidebar-align.spec.ts",
+    "tests/scrollspy.spec.ts",
+    "tests/sidebar-selection.spec.ts",
+    "tests/sidebar-context-menu.spec.ts",
+    "tests/features.spec.ts",
+    "tests/popover-bounds.spec.ts",
+    "tests/hs9-top-level-sections.spec.ts",
+    "tests/layout-gallery.spec.ts"
+  ],
+  "review_required": true,
+  "created_by": "agent-b823",
+  "created_at": "2026-11-12T22:13:36+00:00",
+  "claimed_at": "2026-11-13T02:26:07+00:00",
+  "updated_at": "2026-11-13T03:07:49+00:00",
+  "handoff": {
+    "by": "agent-eb72",
+    "at": "2026-11-13T02:24:50+00:00",
+    "text": "REVIEW-6.md. Rework mechanism is sound (rest-after-blur labels fit 77/77 etc at 190 light+dark, nothing moves on hover, no flicker, Tab/Shift+Tab reach toggle, floating/overlay same, columns hold hovered, trash svg<=14 and Add header test legit). 1) SHOULD-FIX src/styles.css:1607 reveal keyed on :focus-within: after a normal mouse click on a section row or heading title focus stays in the group, so at 190 with pointer away bold Manuscript is 77/65 truncated (Fragments 73/65 after clicking its title); reviewE-190-after-click-row.png. Fix: ':is(:hover, :focus-within)' -> ':is(:hover, :has(:focus-visible))' in that rule (pattern at styles.css:1581); extend layout-invariants 'no heading label is truncated at 190px' to mouse-click the first Manuscript row and park the pointer WITHOUT blurring; if programmatic .focus() tests stop matching :focus-visible, reach by keyboard (focus search, Tab). 2) SHOULD-FIX styles.css:2006-2008 outline-offset var(--space-1): the first heading's ring top is clipped by .sidebar-groups (overflow hidden/auto, styles.css:1518-1525), reviewE-ring-manuscript-190-light.png/-270-dark.png show 3 sides. Fix: outline-offset calc(var(--focus-offset) * 2) or padding-block-start var(--space-1) on .sidebar-groups (take 4px back from search margin); assert the first title's ring rect lies inside .sidebar-groups. 3) MUST-DO test repair (behaviour accepted: toggle clickable only when heading hovered/focused): hover/focus the group heading before clicking the view toggle in tests/features.spec.ts:58 (times out), tests/popover-bounds.spec.ts:169 (times out), tests/hs9-top-level-sections.spec.ts:241 (times out) and :171 (fragile), tests/layout-gallery.spec.ts:76 (drop force:true, it would press the + at x=129). These files are not T306's: coordinator assigns. Low: Manuscript fits at 190 with 0px slack (check WebKit)."
+  },
+  "review": {
+    "by": "agent-382a",
+    "at": "2026-11-13T03:07:49+00:00",
+    "verdict": "approved",
+    "note": "REVIEW-8.md. Rework 3 verified (Chromium): styles.css:1607 :has(:focus-visible) -- mouse clicks on row, Manuscript/Fragments title, Manuscript and Fragments [+] (dialog cancelled by mouse) leave every toggle 0 and every label whole at 190 (Manuscript 77/77). Click then Shift/ArrowRight: toggle appears, nothing else moves (labels, +, chevrons, rows identical). Keyboard: Tab title->toggle (Enter/Space flip view)->[+] (toggle stays 24, opacity 1)->Shift+Tab back. Ring (styles.css:2006-2008, 2px offset) inside .sidebar-groups on all 4 sides, 2px clear of icon and last glyph, Manuscript/Fragments/Research, 190/270, light/dark. Five spec edits only add a heading hover / drop force: legitimate. T2 invariants 4 pass/1 skip. Low: at 190 the kbd-focused Manuscript ring meets the revealed toggle's svg box (gap 0, ink not touched)."
+  },
+  "log": [
+    {
+      "at": "2026-11-12T22:13:36+00:00",
+      "agent": "agent-b823",
+      "event": "created",
+      "note": ""
+    },
+    {
+      "at": "2026-11-12T22:33:58+00:00",
+      "agent": "agent-7fd1",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-11-12T22:34:01+00:00",
+      "agent": "agent-7fd1",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-11-12T23:46:24+00:00",
+      "agent": "agent-7fd1",
+      "event": "review requested",
+      "note": "Sidebar on primitives. Files: src/components/ProjectSidebar.tsx (classes/wrappers only: title+search .bar, headings .group-heading.row with .row-trail > .cluster.gap-0.flush-end [.group-actions.cluster.gap-0 > view.slot, add.slot] + chevron.slot; rows .entry-main.row + .entry-trail slot clusters; add row .entry-main.row.add-top-section), src/styles.css (my selectors: net -31 counted decls, 34 removed/3 added), src/components/scrollspy.css (gutter = --edge+24, rail right --edge), tests: layout-invariants T2 describe (2 cases un-fixmed), alignment/scrollspy/sidebar-selection/sidebar-context-menu/hs4 expectation updates (see notes/T2.md). Left edge 20/12/15/20/20 -> all 16; heading trail [view][+][chev] ink 196/216/240 -> 189/213/238 (24 px pitch), row [More][split] 201/217 -> 189/213 (under view/+). Fail-first notes/T2-fail-first.txt (2 failed). Final locked run notes/T2-final.txt: 149 passed, 1 failed (alignment.spec:254 Projects-page card trash top 9>6 = T5 surface, not sidebar), 12 skipped. vitest layoutPrimitives+hoverEmphasis: only shared-file 'lower the budget' lines; tsc clean. OPEN: Q031 -- plan says row icons under heading's LAST two slots; rail gutter owns that column, so I put them under [view][+]; reviewer/owner decide."
+    },
+    {
+      "at": "2026-11-13T00:35:43+00:00",
+      "agent": "agent-5a3e",
+      "event": "rejected",
+      "note": "REVIEW-3.md. 1) BLOCKER src/styles.css (.group-heading.row + 3 reserved 24px slots): at the 190px SIDEBAR_MIN heading labels are cut at rest -- Manuscript 66/57, Fragments 60/57, 'Part two' 60/57 (scrollWidth/clientWidth; notes/reviewB-190-rest.png). Old room was ~64 px (inferred from HEAD css), so Fragments/custom headers fitted before. This trips plan T2's stop rule (must ask). Recommended fix (a): add '.sidebar-groups .group-heading.row { gap: 0 }' (room 65). Alternative (b), owner's call: absolute heading .row-trail with .group-title padding-inline-end var(--slot) at rest / 2*slot for manuscript-kind / 3*slot on hover+focus-within. Either way add a T2 invariant: at width 190 every at-rest .sidebar-groups .group-label has scrollWidth<=clientWidth. 2) SHOULD-FIX styles.css:1536 .group-title lost its 8px inline padding, so the inset focus ring (styles.css:1990-1992) cuts the heading icon and last glyph (reviewB-focus-heading-zoom.png). Fix: '.sidebar-groups .group-title:focus-visible { outline-offset: var(--space-1); }'. 3) SHOULD-FIX tests/alignment.spec.ts:258-273 (T309 trash, a file you own): the icon ink is 13 from top/right, unchanged from before (~12-13); the <=6 box limit is stale. Measure the svg instead: inkTop<=14 and inkRight<=14. Low: alignment.spec:281-290 probe can't fail (assert the inner button's right edge too); un-fixme the T2/T3 slot case (layout-invariants:249). Accepted as is: Q031 columns, kbd menu at x=8 (same 8px offset as before), and the scrollspy/selection/hs4 128/188 expectation changes. Left edge at 16 verified docked/floating/overlay/190/cards, light and dark."
+    },
+    {
+      "at": "2026-11-13T00:37:06+00:00",
+      "agent": "agent-482e",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-11-13T00:37:07+00:00",
+      "agent": "agent-482e",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-11-13T01:28:39+00:00",
+      "agent": "agent-482e",
+      "event": "handoff",
+      "note": "Rework partly done, STOPPED per brief: Manuscript heading still truncated at 190px. Done: gap-0 on div.group-heading.row (ProjectSidebar.tsx), .sidebar-groups .group-title:focus-visible outline-offset var(--space-1) (styles.css, ring now outside glyphs, light+dark screenshots notes/T2-rework-focus-*.png), alignment.spec trash now measures svg <=14, sidebar-context-menu.spec 'Add header' (built-in Manuscript menu has no Colour), new test 'T2: no heading label is truncated at 190px' (fail-first notes/T2-rework-fail-first.txt: Manuscript needs 77 has 57). After fix label room 57 -> 65: Fragments, Research, Part two fit; Manuscript needs 77 (bold, selected) has 65 = 12px SHORT (review measured 66 needed; bold selected state needs 77). Locked runs notes/T2-rework-final.txt and T2-rework-labels.txt: layout-invariants T2: 3 passed 1 failed (only the new truncation test, Manuscript); alignment, sidebar-selection, hs4, floating, drag-reorder, sidebar-context-menu, hs9: 117 passed 4 skipped 0 failed. Needs coordinator decision: review option (b) or shrink/other; I did not shrink slots or fonts."
+    },
+    {
+      "at": "2026-11-13T01:29:21+00:00",
+      "agent": "agent-06f9",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-11-13T01:29:22+00:00",
+      "agent": "agent-06f9",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-11-13T01:39:17+00:00",
+      "agent": "agent-06f9",
+      "event": "review requested",
+      "note": "Rework: gap-0 on heading row; view toggle width 0 at rest (focusable, instant) and 24px on group hover/focus-within; focus ring offset; alignment trash svg<=14; sidebar-context-menu Add header; 2 invariants (truncation @190 incl. bold Manuscript, fail-first notes/T2-rework-fail-first.txt; hover stability + keyboard toggle). Locked: invariants T2 4 passed; 8 specs 82 passed; vitest only shared-file budget msgs; tsc clean. Files: src/styles.css, src/components/ProjectSidebar.tsx (one class), tests/layout-invariants, alignment, sidebar-context-menu, notes/T2.md"
+    },
+    {
+      "at": "2026-11-13T02:24:50+00:00",
+      "agent": "agent-eb72",
+      "event": "rejected",
+      "note": "REVIEW-6.md. Rework mechanism is sound (rest-after-blur labels fit 77/77 etc at 190 light+dark, nothing moves on hover, no flicker, Tab/Shift+Tab reach toggle, floating/overlay same, columns hold hovered, trash svg<=14 and Add header test legit). 1) SHOULD-FIX src/styles.css:1607 reveal keyed on :focus-within: after a normal mouse click on a section row or heading title focus stays in the group, so at 190 with pointer away bold Manuscript is 77/65 truncated (Fragments 73/65 after clicking its title); reviewE-190-after-click-row.png. Fix: ':is(:hover, :focus-within)' -> ':is(:hover, :has(:focus-visible))' in that rule (pattern at styles.css:1581); extend layout-invariants 'no heading label is truncated at 190px' to mouse-click the first Manuscript row and park the pointer WITHOUT blurring; if programmatic .focus() tests stop matching :focus-visible, reach by keyboard (focus search, Tab). 2) SHOULD-FIX styles.css:2006-2008 outline-offset var(--space-1): the first heading's ring top is clipped by .sidebar-groups (overflow hidden/auto, styles.css:1518-1525), reviewE-ring-manuscript-190-light.png/-270-dark.png show 3 sides. Fix: outline-offset calc(var(--focus-offset) * 2) or padding-block-start var(--space-1) on .sidebar-groups (take 4px back from search margin); assert the first title's ring rect lies inside .sidebar-groups. 3) MUST-DO test repair (behaviour accepted: toggle clickable only when heading hovered/focused): hover/focus the group heading before clicking the view toggle in tests/features.spec.ts:58 (times out), tests/popover-bounds.spec.ts:169 (times out), tests/hs9-top-level-sections.spec.ts:241 (times out) and :171 (fragile), tests/layout-gallery.spec.ts:76 (drop force:true, it would press the + at x=129). These files are not T306's: coordinator assigns. Low: Manuscript fits at 190 with 0px slack (check WebKit)."
+    },
+    {
+      "at": "2026-11-13T02:26:07+00:00",
+      "agent": "agent-493d",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-11-13T02:26:07+00:00",
+      "agent": "agent-493d",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-11-13T02:39:20+00:00",
+      "agent": "agent-493d",
+      "event": "review requested",
+      "note": "Rework 3: toggle reveal :is(:hover,:has(:focus-visible)); focus ring offset 2*focus-offset; truncation invariant extended with row/heading clicks (fail-first notes/T2-rework3-fail-first.txt); hover added before toggle click in features, popover-bounds, hs9 (x2), layout-gallery. Locked: invariants T2 4 passed; 8 specs 73 passed; vitest 24 passed; tsc clean. Screenshots notes/T2-rework3-*.png"
+    },
+    {
+      "at": "2026-11-13T03:07:49+00:00",
+      "agent": "agent-382a",
+      "event": "approved",
+      "note": "REVIEW-8.md. Rework 3 verified (Chromium): styles.css:1607 :has(:focus-visible) -- mouse clicks on row, Manuscript/Fragments title, Manuscript and Fragments [+] (dialog cancelled by mouse) leave every toggle 0 and every label whole at 190 (Manuscript 77/77). Click then Shift/ArrowRight: toggle appears, nothing else moves (labels, +, chevrons, rows identical). Keyboard: Tab title->toggle (Enter/Space flip view)->[+] (toggle stays 24, opacity 1)->Shift+Tab back. Ring (styles.css:2006-2008, 2px offset) inside .sidebar-groups on all 4 sides, 2px clear of icon and last glyph, Manuscript/Fragments/Research, 190/270, light/dark. Five spec edits only add a heading hover / drop force: legitimate. T2 invariants 4 pass/1 skip. Low: at 190 the kbd-focused Manuscript ring meets the revealed toggle's svg box (gap 0, ink not touched)."
+    }
+  ]
+}

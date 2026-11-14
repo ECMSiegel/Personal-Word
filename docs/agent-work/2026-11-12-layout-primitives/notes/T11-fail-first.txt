@@ -1,0 +1,61 @@
+
+Running 7 tests using 1 worker
+
+  ✓  1 tests/layout-invariants.spec.ts:44:3 › sidebar (T2) › T2: heading and row action icons are 24x24 slots in shared right-hand columns (1.9s)
+  ✓  2 tests/layout-invariants.spec.ts:189:3 › format bar and toolbar popovers (T3) › T3: toolbar icon buttons are 28 x 32 slots (1.5s)
+  ✘  3 tests/layout-invariants.spec.ts:453:3 › slots (T2, T3) › T2/T3: every .slot is 24 x 24 and every .slot-toolbar 28 x 32 (1.8s)
+  ✘  4 tests/layout-invariants.spec.ts:472:3 › slots (T2, T3) › T11: slots stay 24 x 24 on the Projects page, in cards view and with a split open (1.5m)
+  ✓  5 tests/layout-invariants.spec.ts:663:3 › Projects page (T5) › T5: the toolbar controls share one centre line and its icon buttons are 24 x 24 slots (2.3s)
+  ✓  6 tests/layout-invariants.spec.ts:687:3 › Projects page (T5) › T5: list rows are even, their trash slots are 24 x 24 and share a right edge (2.3s)
+  ✓  7 tests/layout-invariants.spec.ts:777:3 › comments, fragments, revisions (T8) › T8: fragment rows are even, dividers centred, and action icons are 24 x 24 slots sharing a right edge (2.0s)
+
+
+  1) tests/layout-invariants.spec.ts:453:3 › slots (T2, T3) › T2/T3: every .slot is 24 x 24 and every .slot-toolbar 28 x 32 
+
+    Error: locator('.slot:not(.slot-toolbar):visible').nth(12) height 32
+
+    expect(received).toBeLessThanOrEqual(expected)
+
+    Expected: <= 0.5
+    Received:    8
+
+       at layout-helpers.ts:108
+
+      106 |     if (!b) throw new Error(`expectSlots: ${item} is not visible`);
+      107 |     expect(Math.abs(b.width - w), `${item} width ${b.width}`).toBeLessThanOrEqual(0.5);
+    > 108 |     expect(Math.abs(b.height - h), `${item} height ${b.height}`).toBeLessThanOrEqual(0.5);
+          |                                                                  ^
+      109 |   }
+      110 | }
+      111 |
+        at expectSlots (/Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/tests/layout-helpers.ts:108:66)
+        at /Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/tests/layout-invariants.spec.ts:456:5
+
+    Error Context: test-results/T315/layout-invariants-slots-T2-76c55--every-slot-toolbar-28-x-32/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/T315/layout-invariants-slots-T2-76c55--every-slot-toolbar-28-x-32/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/T315/layout-invariants-slots-T2-76c55--every-slot-toolbar-28-x-32/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/layout-invariants.spec.ts:472:3 › slots (T2, T3) › T11: slots stay 24 x 24 on the Projects page, in cards view and with a split open 
+
+    Test timeout of 90000ms exceeded.
+
+    Error Context: test-results/T315/layout-invariants-slots-T2-d1fbd--view-and-with-a-split-open/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/T315/layout-invariants-slots-T2-d1fbd--view-and-with-a-split-open/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/T315/layout-invariants-slots-T2-d1fbd--view-and-with-a-split-open/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2 failed
+    tests/layout-invariants.spec.ts:453:3 › slots (T2, T3) › T2/T3: every .slot is 24 x 24 and every .slot-toolbar 28 x 32 
+    tests/layout-invariants.spec.ts:472:3 › slots (T2, T3) › T11: slots stay 24 x 24 on the Projects page, in cards view and with a split open 
+  5 passed (1.8m)

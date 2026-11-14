@@ -1,0 +1,143 @@
+/* Layout primitives (plan: docs/agent-work/2026-11-12-layout-primitives/PLAN.md, "The system").
+   Every bar, list row, menu, panel and icon button takes its spacing from these classes; sizes come
+   only from the tokens on :root in src/styles.css. Rules of use: a component never sets margin on
+   itself (the parent's gap spaces children); text and icon ink start at --edge; any z-index of 10 or
+   more is a --layer-* token. See docs/design-system.md, "Layout primitives". */
+
+/* --gap is read only by the element that sets it, so a nested .cluster or .stack keeps its own
+   default instead of inheriting its parent's .gap-N. */
+@property --gap {
+  syntax: "*";
+  inherits: false;
+}
+
+/* Bars */
+.bar {
+  display: flex;
+  align-items: center;
+  box-sizing: border-box;
+  height: var(--bar-height);
+  padding-inline: var(--edge);
+  gap: var(--gap, var(--space-2));
+}
+.bar-compact {
+  height: var(--control-height);
+}
+.bar-main {
+  --edge: var(--edge-main);
+}
+.bar-divider {
+  flex: none;
+  width: 1px;
+  height: 16px;
+  margin-inline: var(--space-1);
+  background: var(--line);
+}
+
+/* Stacks and clusters */
+.stack,
+.panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap, var(--space-2));
+}
+.stack > *,
+.panel > * {
+  margin-block: 0;
+}
+.cluster,
+.row-trail {
+  display: flex;
+  align-items: center;
+  gap: var(--gap, var(--space-1));
+  flex: none;
+}
+.gap-0 {
+  --gap: 0px;
+}
+.gap-1 {
+  --gap: var(--space-1);
+}
+.gap-2 {
+  --gap: var(--space-2);
+}
+.gap-3 {
+  --gap: var(--space-3);
+}
+.gap-4 {
+  --gap: var(--space-4);
+}
+.gap-5 {
+  --gap: var(--space-5);
+}
+.gap-6 {
+  --gap: var(--space-6);
+}
+
+/* Rows */
+.row {
+  display: flex;
+  align-items: center;
+  min-height: var(--row-height);
+  padding-inline: var(--edge);
+  gap: var(--gap, var(--space-2));
+}
+.row-label {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+.row-trail {
+  margin-inline-start: auto;
+}
+.row-value {
+  text-align: end;
+  font-variant-numeric: tabular-nums;
+  min-width: var(--value-width, 3ch);
+}
+
+/* Menus and panels */
+.menu {
+  /* A menu opened from inside a .panel must not inherit the panel's compact rows. */
+  --row-height: var(--control-height);
+  padding-block: var(--space-1);
+  --edge: var(--space-3);
+}
+.menu-rule {
+  height: 1px;
+  margin-block: var(--space-1);
+  background: var(--line);
+}
+.panel {
+  padding: var(--space-3);
+  --edge: 0px;
+  --row-height: var(--row-height-compact);
+}
+
+/* Icon-button slots */
+.slot,
+.slot-toolbar {
+  display: inline-grid;
+  place-items: center;
+  width: var(--slot);
+  height: var(--slot);
+  padding: 0;
+  flex: none;
+}
+.slot-toolbar {
+  width: var(--slot-toolbar-w);
+  height: var(--control-height);
+}
+
+/* A cluster of slots whose icon ink, not the slot box, sits on the edge. */
+.flush-end {
+  margin-inline-end: calc((var(--slot) - var(--icon-size)) / -2);
+}
+.flush-start {
+  margin-inline-start: calc((var(--slot) - var(--icon-size)) / -2);
+}
+.flush-end:has(> .slot-toolbar) {
+  margin-inline-end: calc((var(--slot-toolbar-w) - var(--icon-size)) / -2);
+}
+.flush-start:has(> .slot-toolbar) {
+  margin-inline-start: calc((var(--slot-toolbar-w) - var(--icon-size)) / -2);
+}

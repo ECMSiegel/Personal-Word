@@ -1,0 +1,55 @@
+
+Running 15 tests using 1 worker
+
+  ✓   1 tests/hs3-checkbox.spec.ts:42:1 › checkboxes in Settings (General and Export) are square 14px boxes that fill with the accent (6.4s)
+  ✓   2 tests/hs3-checkbox.spec.ts:69:1 › checkboxes in the Projects-screen Settings dialog are square too (3.5s)
+  ✘   3 tests/layout-invariants.spec.ts:295:3 › dialogs, forms, Settings, versions (T6) › T6: Settings rows are even and share a label edge and a control edge (3.2s)
+  ✓   4 tests/layout-invariants.spec.ts:308:3 › dialogs, forms, Settings, versions (T6) › T6: a dialog is a 24 px stack inside 32 px padding, with its actions at the end (2.7s)
+  ✓   5 tests/layout-invariants.spec.ts:448:5 › T6 screenshots › T6: surfaces light (2.4s)
+  ✓   6 tests/layout-invariants.spec.ts:448:5 › T6 screenshots › T6: surfaces dark (2.2s)
+  ✓   7 tests/of5-settings.spec.ts:34:1 › the hidden font file input stays hidden and Add font matches project Settings (2.4s)
+  ✓   8 tests/of5-settings.spec.ts:47:1 › Add font sits on the Interface font row, to its right, in the project Settings (1.9s)
+  ✓   9 tests/of5-settings.spec.ts:52:1 › Add font sits on the Interface font row, to its right, in the Projects dialog (854ms)
+  ✓  10 tests/of5-settings.spec.ts:57:1 › project Settings shows exactly one rule between the section strip and General (1.7s)
+  ✓  11 tests/of5-settings.spec.ts:102:1 › Remove font button is the danger colour in both Settings places (2.7s)
+  ✓  12 tests/w9-settings-nav.spec.ts:23:1 › the strip lists every section in order and stays at the top while scrolling (1.7s)
+  ✓  13 tests/w9-settings-nav.spec.ts:42:1 › clicking a link brings that heading just under the strip and marks it (1.9s)
+  ✓  14 tests/w9-settings-nav.spec.ts:78:1 › links work from the keyboard and scroll instantly (1.8s)
+  ✓  15 tests/w9-settings-nav.spec.ts:100:1 › scrollToSettingsSection works in the same tick that opens Settings (2.2s)
+
+
+  1) tests/layout-invariants.spec.ts:295:3 › dialogs, forms, Settings, versions (T6) › T6: Settings rows are even and share a label edge and a control edge 
+
+    Error: row gaps 12.0, 65.5
+
+    expect(received).toBeLessThanOrEqual(expected)
+
+    Expected: <= 1
+    Received:    53.5
+
+       at layout-helpers.ts:96
+
+      94 |   expect(Math.max(...heights) - Math.min(...heights), `row heights ${fmt(heights)}`).toBeLessThanOrEqual(tol);
+      95 |   expect(Math.min(...gaps), `rows overlap: gaps ${fmt(gaps)}`).toBeGreaterThanOrEqual(-0.5);
+    > 96 |   expect(Math.max(...gaps) - Math.min(...gaps), `row gaps ${fmt(gaps)}`).toBeLessThanOrEqual(tol);
+         |                                                                          ^
+      97 | }
+      98 |
+      99 | /** Every given element is a `w` x `h` box (border box, within 0.5 px). */
+        at expectEvenRows (/Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/tests/layout-helpers.ts:96:74)
+        at /Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/tests/layout-invariants.spec.ts:301:5
+
+    Error Context: test-results/T310/layout-invariants-dialogs--449d6-bel-edge-and-a-control-edge/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/T310/layout-invariants-dialogs--449d6-bel-edge-and-a-control-edge/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/T310/layout-invariants-dialogs--449d6-bel-edge-and-a-control-edge/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/layout-invariants.spec.ts:295:3 › dialogs, forms, Settings, versions (T6) › T6: Settings rows are even and share a label edge and a control edge 
+  14 passed (43.1s)
+finished

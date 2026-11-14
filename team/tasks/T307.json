@@ -1,0 +1,145 @@
+{
+  "id": "T307",
+  "title": "LP T3 -- Format bar and toolbar popovers",
+  "description": "Brief: docs/agent-work/2026-11-12-layout-primitives/BRIEF.md, then task T3 of docs/agent-work/2026-11-12-layout-primitives/PLAN.md. Shared files are edited by owned selector/region only and registered on no task.",
+  "status": "done",
+  "owner": null,
+  "priority": 2,
+  "depends_on": [],
+  "files": [
+    "docs/agent-work/2026-11-12-layout-primitives/notes/T3.md",
+    "docs/agent-work/2026-11-12-layout-primitives/notes/T3-fail-first.txt",
+    "src/components/prose-issues.css",
+    "src/editor/toolbar-motion.css",
+    "src/components/ProseIssues.tsx",
+    "src/editor/ToolbarControls.tsx",
+    "src/editor/TableContextMenu.tsx",
+    "tests/fixtures/popover-baseline-rects.json",
+    "tests/hs2-spacing.spec.ts",
+    "tests/w9-prose-menu.spec.ts",
+    "tests/editor-toolbar.spec.ts",
+    "src/designTokens.test.ts",
+    "docs/agent-work/2026-11-12-layout-primitives/notes/T3-rework-fail-first.txt",
+    "docs/agent-work/2026-11-12-layout-primitives/notes/T3-rework2-fail-first.txt"
+  ],
+  "review_required": true,
+  "created_by": "agent-b823",
+  "created_at": "2026-11-12T22:13:36+00:00",
+  "claimed_at": "2026-11-13T02:23:35+00:00",
+  "updated_at": "2026-11-13T03:07:50+00:00",
+  "handoff": {
+    "by": "agent-abe7",
+    "at": "2026-11-13T02:22:30+00:00",
+    "text": "REVIEW-7.md. REVIEW-4 F2/F3/F4 fixed and measured; F1 fixed except: 1) BLOCKER (introduced by the rework) src/editor/editor.css:61-65 .prose-issue-select span:last-child {flex:1 1 auto; min-width:0} lets the whole-sentence excerpt crush a Long sentence message to 9.3 px; its words spill 34 px past the button's right border (button scrollWidth-clientWidth=34, Range rects outside, light+dark). Fix: delete min-width:0 (and the flex line) from that rule, or cap the excerpt (.prose-issue-select span:first-child {max-width:50%; overflow-wrap:anywhere}). Extend tests/layout-invariants.spec.ts 'T3: prose issue rows contain their text' to require every span Range rect inside the button padding box on all 4 sides and scrollWidth<=clientWidth on button and row; show it failing first (the 45-word sentence is already seeded); light/dark shots of that row. 2) Show Prose check opened from More at 1000 px: hover/focus a rule row, checkbox does not move (T3.md recorded a 12 px move there earlier; nobody checked it). Low, optional: focus rings clipped by the .prose-issues scroller (pre-existing); checkbox ring 1 px from the count (gap-1; gap-2 clears it); issue button lacks the z-index:1 that .toolbar-text-button gets on focus. Accepted: Dismiss once as text. Runs: T3 invariants 11 pass/1 skip; acceptance 9 specs all pass (70 pass, 1 fail = my throwaway)."
+  },
+  "review": {
+    "by": "agent-382a",
+    "at": "2026-11-13T03:07:50+00:00",
+    "verdict": "approved",
+    "note": "REVIEW-8.md. Rework 2 verified, light+dark, 16 seeded issues incl. 52/54-word sentences: excerpt <=50%, clamped to 3 lines with ellipsis, message takes the rest; every text line inside its button on 4 sides, scrollWidth 0 on buttons/rows, no Dismiss overlap, gaps 4 at top and scrolled, Dismiss baseline delta 0; long issue selects the whole 275-char sentence; Dismiss once removes one. From More at 1000: no sideways scroll, 16/16 stacked, contained, rule rows 28 and still (invariant passes); no mid-word break with seeded messages, an over-wide word breaking inside the box is acceptable. Count 8 px from its checkbox, checkboxes share right edge 1547. Writer.tsx mtime predates the rework, 10/14 counts. Invariant checks 4 sides + scrollWidth (fail-first shown). T3 invariants 12 pass/1 skip; acceptance specs all pass."
+  },
+  "log": [
+    {
+      "at": "2026-11-12T22:13:36+00:00",
+      "agent": "agent-b823",
+      "event": "created",
+      "note": ""
+    },
+    {
+      "at": "2026-11-12T22:33:47+00:00",
+      "agent": "agent-8dcd",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-11-12T22:33:48+00:00",
+      "agent": "agent-8dcd",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-11-12T23:06:39+00:00",
+      "agent": "agent-8dcd",
+      "event": "blocked",
+      "note": "Q032: Plan T3 stop-and-ask: with the system's .bar-main (24) and .bar-divider (8+8) the format bar no longer fits one row at 1440 (Prose check and Page setup go into More, about 80 px over); Insert leaves the bar at 1240. Options: (a) accept More at 1440 and re-record the baseline; (b) T0 sets the .bar-divider margin to --space-1 (saves 104 px). Everything else in T3 is done; T3 invariants pass 8/8. See notes/T3.md."
+    },
+    {
+      "at": "2026-11-12T23:06:46+00:00",
+      "agent": "agent-8dcd",
+      "event": "handoff",
+      "note": "Blocked on Q032 (toolbar fit at 1440). Done: format bar uses .bar.bar-main.gap-0, groups .cluster.gap-0, .bar-divider, .slot-toolbar, .flush-end; panels/rows in every toolbar popover; Prose check rows; table context menu uses .menu; dead .format-bar copies deleted; designTokens slice replaced; prose-issues budget 0. Next, once answered: (1) if (b), T0 changes .bar-divider and the 1440 fit returns; if (a), update the design-system width table and the editor-toolbar 1240 expectation. (2) Re-record tests/fixtures/popover-baseline-rects.json (old and new values are in notes/T3.md). (3) Rerun the acceptance list; the More shortcut row-trail fix and the w9-prose hover failure (12 px, cause unknown) both still need a run. Shared slots (T2, T3) case still fixme."
+    },
+    {
+      "at": "2026-11-12T23:07:42+00:00",
+      "agent": "agent-8222",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-11-12T23:07:43+00:00",
+      "agent": "agent-8222",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-11-13T00:33:49+00:00",
+      "agent": "agent-8222",
+      "event": "review requested",
+      "note": "Format bar is .bar.bar-main.gap-0 with .cluster.gap-0 groups, .bar-divider, .slot-toolbar icons and a .flush-end end group. Every toolbar popover body is .panel with .row lines. Prose check: identical rows. Table context menu is .menu. Dead .format-bar copies in styles.css deleted. Fit is back: 1101 of 1122 px at 1440, and Insert stays on the bar at 1240. Fail-first: 6/6 T3 invariants failed before the change. Run 3: 58 passed, 1 failed (stale baseline). Re-recorded baseline, then run 5: 9/9 passed. tsc clean. Budget: prose-issues 1->0, editor.css -16, styles.css -3. Notes in notes/T3.md."
+    },
+    {
+      "at": "2026-11-13T01:13:35+00:00",
+      "agent": "agent-a0e7",
+      "event": "rejected",
+      "note": "REVIEW-4.md (T307).\n\nWhat is fine: probes a-f pass (handlers untouched, dividers right, fixture right, panel menus 32, scratch spec gone), and the T3 invariants plus the acceptance list all pass.\n\nFindings to fix:\n1) BLOCKER: Prose check with issues listed. Issue rows overflow their 26 px buttons. src/editor/editor.css:48 .prose-issues .toolbar-text-button {height:auto} loses to the later .writer .toolbar-text-button {height:26px} at :297-298. Pre-existing, but in T3's owned selectors and in DoD 5. Fix: selector .writer .prose-issues .toolbar-text-button with height:auto; min-height:var(--row-height); padding-block:var(--space-1). Re-shoot Prose check with issues, light and dark. Evidence: notes/reviewC-pop-prose-issues-light.png.\n2) should-fix: panels opened inside More get rows 34, not 28, and lose the shared right edge. Cause: editor.css:278-282 (the .is-more .dropdown / .toolbar-number margin) also matches controls inside nested .panel rows. Fix: scope it to .is-more .toolbar-group > .dropdown / > .toolbar-number, or add .writer .toolbar-popover.is-more .panel :is(.dropdown,.toolbar-number){margin:0}. Add an invariant that opens Line spacing from More at 1000 px and runs expectEvenRows. Evidence: notes/reviewC-more-line-light.png.\n3) should-fix (from CSS): keyboard focus no longer emphasises the checkbox rows (On, the 4 rules, Page numbers). The shared rule needs label:has(> input:focus-visible), but the checkbox now sits inside span.row-trail (ProseIssues.tsx:41-45, Writer.tsx:1847, :1952-1955). Fix: keep the checkbox a direct child of the label (only the count in .row-trail), and add a Tab-focus text-shadow assertion to w9-prose-menu.\n4) Run tests/tables-context.spec.ts: the table menu changed and nobody ran it.\n\nLow notes (no rework needed): presets and table buttons are 26 tall; plan step 5 deviation not recorded; table-menu-over-bar overlap still unconfirmed."
+    },
+    {
+      "at": "2026-11-13T01:14:32+00:00",
+      "agent": "agent-73f2",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-11-13T01:14:33+00:00",
+      "agent": "agent-73f2",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-11-13T01:51:27+00:00",
+      "agent": "agent-73f2",
+      "event": "review requested",
+      "note": "Rework of REVIEW-4. (1) Issue rows: div.row.gap-1 > button.row.prose-issue-select (no longer .toolbar-text-button); old .prose-issues .toolbar-text-button and .prose-issue-row rules deleted; rows flex:none, baseline-aligned; 3-line message contained. Dismiss stays text, not a .slot (wording). (2) More margin rule scoped :not(.panel *): nested Line spacing/Page setup rows 28, shared edge. (3) Checkbox direct child of label.row (On, 4 rules, Page numbers); shared rule untouched; focus emphasis measured. (4) tables-context 3/3; table-menu no-flip is pre-existing (placement code untouched). Tests: 4 new T3 invariants, fail-first in notes/T3-rework-fail-first.txt. Final: T3 12 pass/1 skip; acceptance 68 pass/1 fail (popover-bounds cards-view, T2 sidebar surface, timeout). vitest pass except expected shared budget lines; tsc clean. Writer.tsx focus counts 10/14. Baseline fixture unchanged. Notes: notes/T3.md 'Rework'."
+    },
+    {
+      "at": "2026-11-13T02:22:30+00:00",
+      "agent": "agent-abe7",
+      "event": "rejected",
+      "note": "REVIEW-7.md. REVIEW-4 F2/F3/F4 fixed and measured; F1 fixed except: 1) BLOCKER (introduced by the rework) src/editor/editor.css:61-65 .prose-issue-select span:last-child {flex:1 1 auto; min-width:0} lets the whole-sentence excerpt crush a Long sentence message to 9.3 px; its words spill 34 px past the button's right border (button scrollWidth-clientWidth=34, Range rects outside, light+dark). Fix: delete min-width:0 (and the flex line) from that rule, or cap the excerpt (.prose-issue-select span:first-child {max-width:50%; overflow-wrap:anywhere}). Extend tests/layout-invariants.spec.ts 'T3: prose issue rows contain their text' to require every span Range rect inside the button padding box on all 4 sides and scrollWidth<=clientWidth on button and row; show it failing first (the 45-word sentence is already seeded); light/dark shots of that row. 2) Show Prose check opened from More at 1000 px: hover/focus a rule row, checkbox does not move (T3.md recorded a 12 px move there earlier; nobody checked it). Low, optional: focus rings clipped by the .prose-issues scroller (pre-existing); checkbox ring 1 px from the count (gap-1; gap-2 clears it); issue button lacks the z-index:1 that .toolbar-text-button gets on focus. Accepted: Dismiss once as text. Runs: T3 invariants 11 pass/1 skip; acceptance 9 specs all pass (70 pass, 1 fail = my throwaway)."
+    },
+    {
+      "at": "2026-11-13T02:23:35+00:00",
+      "agent": "agent-9667",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-11-13T02:23:36+00:00",
+      "agent": "agent-9667",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-11-13T02:50:09+00:00",
+      "agent": "agent-9667",
+      "event": "review requested",
+      "note": "Rework 2 (REVIEW-7). Long-sentence spill fixed: excerpt capped at 50% and clamped to 3 lines, message flex 1 1 0 with overflow-wrap anywhere; in More the issue stacks. The invariant now checks all four sides plus scrollWidth (fail-first in notes/T3-rework2-fail-first.txt). Prose check from More: the panel min-width forced sideways scroll, so checkboxes jumped 12 px on focus; fixed with min-width:0 in More; new invariant (28 px rows, one column, no move). Count-to-checkbox gap is now the 8 px token. Final: T3 12 pass/1 skip, acceptance 45/45, vitest 19/19, tsc clean, Writer counts 10/14. Notes: T3.md 'Rework 2'."
+    },
+    {
+      "at": "2026-11-13T03:07:50+00:00",
+      "agent": "agent-382a",
+      "event": "approved",
+      "note": "REVIEW-8.md. Rework 2 verified, light+dark, 16 seeded issues incl. 52/54-word sentences: excerpt <=50%, clamped to 3 lines with ellipsis, message takes the rest; every text line inside its button on 4 sides, scrollWidth 0 on buttons/rows, no Dismiss overlap, gaps 4 at top and scrolled, Dismiss baseline delta 0; long issue selects the whole 275-char sentence; Dismiss once removes one. From More at 1000: no sideways scroll, 16/16 stacked, contained, rule rows 28 and still (invariant passes); no mid-word break with seeded messages, an over-wide word breaking inside the box is acceptable. Count 8 px from its checkbox, checkboxes share right edge 1547. Writer.tsx mtime predates the rework, 10/14 counts. Invariant checks 4 sides + scrollWidth (fail-first shown). T3 invariants 12 pass/1 skip; acceptance specs all pass."
+    }
+  ]
+}

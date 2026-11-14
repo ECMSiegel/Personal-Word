@@ -38,7 +38,7 @@ export function TableContextMenu({
         role="menu"
         label="Table actions"
         tabIndex={-1}
-        className="table-context-menu"
+        className="table-context-menu menu"
         onDismiss={close}
         onKeyDown={(event) => {
           if (event.key === "ArrowDown" || event.key === "ArrowUp") {

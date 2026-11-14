@@ -2,6 +2,7 @@ import React from "react";
 import ReactDOM from "react-dom/client";
 import App from "./App";
 import "./styles.css";
+import "./components/layout.css";
 import "./components/icon-magnify.css";
 import "./components/prose-issues.css";
 import "./settings/appearance-settings.css";

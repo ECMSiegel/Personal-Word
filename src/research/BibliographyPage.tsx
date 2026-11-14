@@ -28,14 +28,14 @@ export function BibliographyPage({
   return (
     <section className="bibliography-page" aria-label="Bibliography">
       <h1>Bibliography</h1>
-      <div className="bibliography-controls">
+      <div className="bibliography-controls cluster gap-4">
         <Dropdown
           label="Bibliography order"
           value={settings?.bibliographyOrder ?? "author"}
           options={ORDERS}
           onChange={(bibliographyOrder) => onChange({ bibliographyOrder })}
         />
-        <label>
+        <label className="cluster gap-2">
           <input
             type="checkbox"
             checked={(settings?.bibliographyScope ?? "cited") === "all"}

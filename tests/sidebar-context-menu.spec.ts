@@ -143,7 +143,8 @@ test("Shift+F10 and the ContextMenu key open it on the focused row; arrows, Home
   // Keyboard open: at the row's left-bottom, instant (no fade).
   const rowBox = (await row.boundingBox())!;
   const box = await menuBox(page);
-  expect(Math.abs(box.left - rowBox.x)).toBeLessThanOrEqual(1.5);
+  // Layout primitives T2: rows now start at the window edge (x 0); the menu keeps its 8 px window margin.
+  expect(Math.abs(box.left - Math.max(rowBox.x, 8))).toBeLessThanOrEqual(1.5);
   expect(Math.abs(box.top - (rowBox.y + rowBox.height))).toBeLessThanOrEqual(1.5);
   await expect(menu(page)).not.toHaveAttribute("data-animate", "");
   await expect(menu(page)).toBeFocused();
@@ -224,7 +225,9 @@ test("Open, Open beside, Rename and Delete from a section and a fragment", async
 test("group heading: Collapse/Expand, Move up, Move down", async ({ page }) => {
   await createProject(page, "Group menu");
   await rightClick(page, heading(page, "manuscript"));
-  expect(await itemNames(page)).toEqual(["Collapse", "Move up", "Move down", "New section", "New top-level section", "Rename"]);
+  expect(await itemNames(page)).toEqual(["Collapse", "Move up", "Move down", "New section", "Add header", "Rename"]);
+  // T12: Plain palette has no colour row.
+  await expect(menu(page).getByRole("menuitemradio")).toHaveCount(0);
   await expect(item(page, "Move up")).toHaveAttribute("aria-disabled", "true");
   await item(page, "Collapse").click();
   await expect(page.locator('[data-group="manuscript"]')).toHaveClass(/is-collapsed/);
@@ -247,6 +250,26 @@ test("group heading: Collapse/Expand, Move up, Move down", async ({ page }) => {
   // Bottom rows (Read, Comments, History, Settings) keep the browser's default: no menu.
   await rightClick(page, page.locator(".sidebar-bottom-groups .group-title").first());
   await expect(menu(page)).toHaveCount(0);
+});
+
+test("T12: in Color, every built-in heading menu ends with a rule and one colour row after its items", async ({ page }) => {
+  await page.addInitScript(() =>
+    localStorage.setItem("folio.workspace.appearance", JSON.stringify({ theme: "system", palette: "color" })));
+  await createProject(page, "Group colour menu");
+  for (const [group, current] of [["manuscript", "Blue"], ["fragments", "Green"], ["research", "Orange"]] as const) {
+    await rightClick(page, heading(page, group));
+    const names = await itemNames(page);
+    expect(names.slice(0, 3)).toEqual(["Collapse", "Move up", "Move down"]);
+    const kids = await menu(page).evaluate((el) =>
+      [...el.children].map((k) => (k.classList.contains("menu-rule") ? "rule" : k.getAttribute("role") ?? "?")));
+    expect(kids.slice(-2)).toEqual(["rule", "group"]);
+    expect(kids.filter((k) => k === "menuitem")).toHaveLength(names.length);
+    const radios = menu(page).getByRole("group", { name: "Colour" }).getByRole("menuitemradio");
+    await expect(radios).toHaveCount(8);
+    await expect(radios.and(page.locator('[aria-checked="true"]'))).toHaveAccessibleName(current);
+    await page.keyboard.press("Escape");
+    await expect(menu(page)).toHaveCount(0);
+  }
 });
 
 test("research rows: source, PDF, note and Bibliography items; moves are announced", async ({ page }) => {

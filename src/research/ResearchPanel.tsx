@@ -188,13 +188,13 @@ export function ResearchPanel({
     const where = footnoteLocations?.get(note.id);
     const parts = footnoteParts(note, data, context?.form, context?.locator);
     return (
-      <div className="footnote-item" key={note.id}>
+      <div className="footnote-item stack gap-2" key={note.id}>
         <span className="field-label">
           Footnote
           {note.text.trim() ? ` -- ${firstWords(note.text)}` : ""}
         </span>
         {where && (
-          <div className="footnote-where">
+          <div className="footnote-where cluster gap-3">
             <span className="research-hint">in {where!.title}</span>
             {onGoToFootnote && <button type="button" onClick={() => onGoToFootnote(note.id)}>Go to</button>}
           </div>
@@ -258,7 +258,7 @@ export function ResearchPanel({
   };
 
   const renderQuote = (note: ResearchNote) => (
-    <div className="linked-item" key={note.id}>
+    <div className="linked-item stack gap-2" key={note.id}>
       <div className="field">
         <span className="field-label">Kind</span>
         <Dropdown<ResearchNote["kind"]>
@@ -307,11 +307,11 @@ export function ResearchPanel({
       const footnotes = data.footnotes.filter((f) => f.sourceId === source.id);
     const quotes = data.notes.filter((n) => n.sourceId === source.id);
     return (
-      <div className="source-body" id={`${source.id}-panel`}>
+      <div className="source-body stack gap-4" id={`${source.id}-panel`}>
         <SourceForm source={source} patch={patch} idPrefix={source.id} onError={notify} onAttachPdf={onAttachPdf} onOpenPdf={onOpenPdf}>
-          <section className="citation-zone" aria-label="Citation">
+          <section className="citation-zone stack gap-3" aria-label="Citation">
             <h4 className="research-subhead">Citation</h4>
-            <div className="citation-previews">
+            <div className="citation-previews stack gap-3">
               <Preview label="Note" parts={citationParts(source, "full")} />
               <Preview
                 label="Shortened note"
@@ -344,15 +344,15 @@ export function ResearchPanel({
             </div>
           </section>
         </SourceForm>
-        <section className="used-in" aria-label="Used in">
+        <section className="used-in stack gap-3" aria-label="Used in">
           <h4 className="research-subhead">Used in</h4>
           <p className="research-hint">{plural(footnotes.length, "footnote")}, {plural(quotes.length, "quote")}</p>
         {quotes.length > 0 && (
-          <section className="linked" aria-label="Quotes from this source">
+          <section className="linked stack gap-3" aria-label="Quotes from this source">
             {quotes.map(renderQuote)}
           </section>
         )}
-        <section className="linked" aria-label="Footnotes from this source">
+        <section className="linked stack gap-3" aria-label="Footnotes from this source">
           {footnotes.length === 0 && (
             <p className="research-hint">
               No footnotes cite this source yet. Use Cite here.
@@ -379,11 +379,11 @@ export function ResearchPanel({
 
   return (
     <section
-      className="research-panel"
+      className="research-panel stack gap-4"
       aria-label="Research workspace"
       ref={panel}
     >
-      <nav className="research-tabs" aria-label="Research sections">
+      <nav className="research-tabs bar gap-4" aria-label="Research sections">
         {(
           [
             ["sources", "Sources"],
@@ -443,7 +443,7 @@ export function ResearchPanel({
               }
             }}
           />
-          <div className="research-add">
+          <div className="research-add stack gap-2">
             <div className="research-lookup" style={{ position: "relative" }}>
               <input
                 type="text"
@@ -595,11 +595,11 @@ export function ResearchPanel({
             {status.text}
           </p>
           {(data.pdfs ?? []).length > 0 && (
-            <section className="research-pdfs">
+            <section className="research-pdfs stack gap-2">
               <h3 className="research-subhead">PDFs</h3>
-              <ul className="pdf-list" aria-label="PDFs">
+              <ul className="pdf-list stack gap-2" aria-label="PDFs">
                 {(data.pdfs ?? []).map((pdf) => (
-                  <li className="pdf-item" key={pdf.id}>
+                  <li className="pdf-item stack gap-1" key={pdf.id}>
                     <span className="source-pdf-name">{pdf.name}</span>
                     <span className="item-actions">
                       <button type="button" onClick={() => onOpenPdf?.(pdf.id)}>Open beside</button>
@@ -624,7 +624,7 @@ export function ResearchPanel({
                 <li className="source-item" key={source.id}>
                   <button
                     type="button"
-                    className="source-toggle"
+                    className="source-toggle row"
                     aria-expanded={open}
                     aria-controls={`${source.id}-panel`}
                     onClick={() => setOpenId(open ? null : source.id)}
@@ -649,7 +649,7 @@ export function ResearchPanel({
           <details className="citation-rules">
             <summary>Citation rules</summary>
             {!data.citationPolicy && (
-              <label className="check">
+              <label className="check cluster gap-2">
                 <input
                   type="checkbox"
                   checked={data.autoShortNotes ?? false}
@@ -658,7 +658,7 @@ export function ResearchPanel({
                 Shorten repeat citations automatically
               </label>
             )}
-            <label className="check">
+            <label className="check cluster gap-2">
               <input
                 type="checkbox"
                 checked={Boolean(data.citationPolicy)}
@@ -670,7 +670,7 @@ export function ResearchPanel({
               Use repeat citation rules
             </label>
             {data.citationPolicy && (
-              <div className="repeat-rules">
+              <div className="repeat-rules stack gap-3">
                 <div className="field">
                   <span className="field-label">Full citation again</span>
                   <Dropdown<CitationPolicy["scope"]>
@@ -746,9 +746,9 @@ export function ResearchPanel({
             <p className="research-hint">No notes yet.</p>
           )}
           {looseNotes.length > 0 && (
-            <div className="note-list">
+            <div className="note-list stack gap-5">
               {looseNotes.map((note) => (
-                <div className="note-item" key={note.id}>
+                <div className="note-item stack gap-2" key={note.id}>
                   <div className="field">
                     <label htmlFor={`note-${note.id}-text`}>Note</label>
                     <textarea
@@ -793,7 +793,7 @@ export function ResearchPanel({
               ))}
             </div>
           )}
-          <section className="research-group">
+          <section className="research-group stack gap-3">
             <h3 className="research-subhead">Text-only notes</h3>
             <div className="research-actions">
               <button

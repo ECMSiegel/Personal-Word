@@ -1,0 +1,9 @@
+{
+  "id": "Q031",
+  "at": "2026-11-12T22:43:31+00:00",
+  "by": "agent-7fd1",
+  "task": "T306",
+  "text": "T2 plan step 4 says the entry-row [More][Open beside] sit under the heading's LAST two slots ([+][chevron]). In list view each row ends 24 px early for the line rail (16 px line + 8 px gap = exactly one slot), so the rail occupies the chevron column. Default I am building: rows' [More][Open beside] under the heading's [view][+], chevron column above the rail; all chevrons stay in one column. Literal plan would need the rail moved or the row icons over the rail. OK to keep the default?",
+  "status": "resolved",
+  "resolution": "Coordinator/architect decision: accept the worker's layout. Entry-row [More][Open beside] sit under the heading's [view][+]; the chevron column is shared with the line rail. The plan's 'under the last two' wording is superseded; the T2 invariant as written stands."
+}

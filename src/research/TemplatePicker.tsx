@@ -13,7 +13,7 @@ export function TemplatePicker({
 }) {
   return (
     <section
-      className="template-picker settings-section"
+      className="template-picker settings-section stack gap-4"
       aria-label="Writing templates"
     >
       <h2>Templates</h2>

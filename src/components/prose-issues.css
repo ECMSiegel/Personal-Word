@@ -1,16 +1,24 @@
-/* Prose check rule rows: label, count, checkbox on one grid so every checkbox shares a right edge.
-   The browser's default checkbox margin (4px left, 3px right) would push the boxes off that edge. */
+/* Prose check rows ("On" and the four rules) are label.row with the checkbox as the label's last, direct
+   child (the shared hover/focus rule in styles.css emphasises a label through `label:has(> input:focus-visible)`),
+   so every checkbox shares the panel's right edge. The browser's default checkbox margin (4px left, 3px right)
+   would push the boxes off that edge. */
 .prose-check-panel input[type="checkbox"] {
   margin: 0;
 }
-.prose-check-panel .prose-issues-panel .prose-rule {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto 14px;
-  align-items: center;
-  column-gap: 12px;
-}
 .prose-check-panel .prose-issues-panel .prose-rule-count {
   color: var(--muted);
-  font-variant-numeric: tabular-nums;
-  text-align: right;
+}
+/* While analysing (or unavailable) the issues list is empty; it must not add a stack gap. */
+.prose-check-panel .prose-issues:empty {
+  display: none;
+}
+/* Issue rows grow with their message: the excerpt, the message's first line and "Dismiss once" share a
+   baseline (this file loads after layout.css, so it wins the tie with .row's align-items). The list is a
+   height-capped scrolling stack: rows must not shrink below their content. */
+.prose-check-panel .prose-issue-row {
+  flex: none;
+}
+.prose-check-panel .prose-issue-row,
+.prose-check-panel .prose-issue-select {
+  align-items: baseline;
 }

@@ -1,0 +1,106 @@
+
+Running 4 tests using 1 worker
+
+  ✘  1 tests/layout-invariants.spec.ts:358:3 › Projects page (T5) › T5: the toolbar controls share one centre line and its icon buttons are 24 x 24 slots (6.0s)
+  ✘  2 tests/layout-invariants.spec.ts:382:3 › Projects page (T5) › T5: list rows are even, their trash slots are 24 x 24 and share a right edge (4.8s)
+  ✘  3 tests/layout-invariants.spec.ts:390:3 › Projects page (T5) › T5: cards sit in a grid with a 16 px gap both ways (3.3s)
+  ✓  4 tests/zz-t5-scratch.spec.ts:16:1 › dump (5.4s)
+
+
+  1) tests/layout-invariants.spec.ts:358:3 › Projects page (T5) › T5: the toolbar controls share one centre line and its icon buttons are 24 x 24 slots 
+
+    Error: locator('.library-toolbar').getByRole('button', { name: 'Reverse project sort order' }).first() width 25.375
+
+    expect(received).toBeLessThanOrEqual(expected)
+
+    Expected: <= 0.5
+    Received:    1.375
+
+       at layout-helpers.ts:107
+
+      105 |     const b = await item.boundingBox();
+      106 |     if (!b) throw new Error(`expectSlots: ${item} is not visible`);
+    > 107 |     expect(Math.abs(b.width - w), `${item} width ${b.width}`).toBeLessThanOrEqual(0.5);
+          |                                                               ^
+      108 |     expect(Math.abs(b.height - h), `${item} height ${b.height}`).toBeLessThanOrEqual(0.5);
+      109 |   }
+      110 | }
+        at expectSlots (/Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/tests/layout-helpers.ts:107:63)
+        at /Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/tests/layout-invariants.spec.ts:366:5
+
+    Error Context: test-results/T309/layout-invariants-Projects-b2286-n-buttons-are-24-x-24-slots/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/T309/layout-invariants-Projects-b2286-n-buttons-are-24-x-24-slots/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/T309/layout-invariants-Projects-b2286-n-buttons-are-24-x-24-slots/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/layout-invariants.spec.ts:382:3 › Projects page (T5) › T5: list rows are even, their trash slots are 24 x 24 and share a right edge 
+
+    Error: locator('.project-row .delete-entry').first() width 32
+
+    expect(received).toBeLessThanOrEqual(expected)
+
+    Expected: <= 0.5
+    Received:    8
+
+       at layout-helpers.ts:107
+
+      105 |     const b = await item.boundingBox();
+      106 |     if (!b) throw new Error(`expectSlots: ${item} is not visible`);
+    > 107 |     expect(Math.abs(b.width - w), `${item} width ${b.width}`).toBeLessThanOrEqual(0.5);
+          |                                                               ^
+      108 |     expect(Math.abs(b.height - h), `${item} height ${b.height}`).toBeLessThanOrEqual(0.5);
+      109 |   }
+      110 | }
+        at expectSlots (/Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/tests/layout-helpers.ts:107:63)
+        at /Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/tests/layout-invariants.spec.ts:386:5
+
+    Error Context: test-results/T309/layout-invariants-Projects-2b5d7-x-24-and-share-a-right-edge/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/T309/layout-invariants-Projects-2b5d7-x-24-and-share-a-right-edge/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/T309/layout-invariants-Projects-2b5d7-x-24-and-share-a-right-edge/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) tests/layout-invariants.spec.ts:390:3 › Projects page (T5) › T5: cards sit in a grid with a 16 px gap both ways 
+
+    Error: expect(received).toBeCloseTo(expected, precision)
+
+    Expected: 16
+    Received: 12
+
+    Expected precision:    0
+    Expected difference: < 0.5
+    Received difference:   4
+
+      395 |     );
+      396 |     expect(cards).toHaveLength(3);
+    > 397 |     expect(cards[1].x - cards[0].right).toBeCloseTo(16, 0);
+          |                                         ^
+      398 |     expect(cards[2].x - cards[1].right).toBeCloseTo(16, 0);
+      399 |   });
+      400 | });
+        at /Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/tests/layout-invariants.spec.ts:397:41
+
+    Error Context: test-results/T309/layout-invariants-Projects-1ad64--with-a-16-px-gap-both-ways/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/T309/layout-invariants-Projects-1ad64--with-a-16-px-gap-both-ways/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/T309/layout-invariants-Projects-1ad64--with-a-16-px-gap-both-ways/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3 failed
+    tests/layout-invariants.spec.ts:358:3 › Projects page (T5) › T5: the toolbar controls share one centre line and its icon buttons are 24 x 24 slots 
+    tests/layout-invariants.spec.ts:382:3 › Projects page (T5) › T5: list rows are even, their trash slots are 24 x 24 and share a right edge 
+    tests/layout-invariants.spec.ts:390:3 › Projects page (T5) › T5: cards sit in a grid with a 16 px gap both ways 
+  1 passed (25.7s)

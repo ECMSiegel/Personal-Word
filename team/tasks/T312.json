@@ -1,0 +1,90 @@
+{
+  "id": "T312",
+  "title": "LP T8 -- Comments, fragments, revisions",
+  "description": "Brief: docs/agent-work/2026-11-12-layout-primitives/BRIEF.md, then task T8 of docs/agent-work/2026-11-12-layout-primitives/PLAN.md. Shared files are edited by owned selector/region only and registered on no task.",
+  "status": "done",
+  "owner": null,
+  "priority": 2,
+  "depends_on": [],
+  "files": [
+    "docs/agent-work/2026-11-12-layout-primitives/notes/T8.md",
+    "docs/agent-work/2026-11-12-layout-primitives/notes/T8-fail-first.txt",
+    "src/organization/fragments.css",
+    "src/organization/CommentsPanel.tsx",
+    "src/organization/FragmentLibrary.tsx",
+    "src/organization/FragmentEditor.tsx",
+    "src/organization/RevisionComparison.tsx"
+  ],
+  "review_required": true,
+  "created_by": "agent-b823",
+  "created_at": "2026-11-12T22:13:37+00:00",
+  "claimed_at": "2026-11-12T23:32:14+00:00",
+  "updated_at": "2026-11-13T01:10:49+00:00",
+  "handoff": {
+    "by": "agent-99d3",
+    "at": "2026-11-12T23:30:49+00:00",
+    "text": "See docs/agent-work/2026-11-12-layout-primitives/REVIEW-2.md (T312). 1) Tokens swapped, nothing migrated (26->26, 13->13). 2) CommentsPanel.tsx:38 .stack makes dividers 24 above/32 below: wrap items in 'stack gap-0', section 'stack gap-5'. 3) fragments.css:113 gap is dead: .row (loads later) wins -> links 12->8; use 'row gap-3' and delete display/align/gap. 4) .fragment-head (fragments.css:57) is not the of2 title band: make it .row with h2.row-label + chevron .slot in .row-trail. 5) Map: .fragment-library->.stack.gap-3 (delete count/empty margins :40,:45); .fragment-controls->.cluster.gap-3; .fragment-across->.cluster.gap-2; .fragment-item->.stack.gap-2; .fragment-icon->.slot; .fragment-tags->.cluster.gap-2; organization.css:6 header/.feature-controls->.cluster.gap-4; .feature-item->.stack.gap-2 (delete small margin :24, buttons in .cluster.gap-3); .reader-options->.cluster.gap-3 (delete margin), label->.cluster.gap-2; .revision-change-controls->.cluster.gap-3 (delete margin). Lower fragments.css budget; take light/dark shots."
+  },
+  "review": {
+    "by": "agent-bf08",
+    "at": "2026-11-13T01:10:49+00:00",
+    "verdict": "approved",
+    "note": "REVIEW-5.md. Real migration: fragments.css 13->4, organization.css 26->14 (all 14 are T8's; coordinator sets budget 14). REVIEW-2 points 1-5 fixed; comment dividers 24/24 and fragment 12/12 measured, also first/last/single/empty. of2, comments, of1, assets, fragments-panel, revisions, T8 invariants pass (51 passed in locked run). Low: fragment-head chevron centred on wrapped titles; checkbox centred on wrapped comment; link button padding 0; oversized-view buttons 6px off text edge (pre-existing). SWEPT: spacing sweep passes both files; font-size sweep fails 13 declarations (listed in REVIEW-5)."
+  },
+  "log": [
+    {
+      "at": "2026-11-12T22:13:37+00:00",
+      "agent": "agent-b823",
+      "event": "created",
+      "note": ""
+    },
+    {
+      "at": "2026-11-12T22:33:44+00:00",
+      "agent": "agent-c240",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-11-12T22:33:46+00:00",
+      "agent": "agent-c240",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-11-12T22:38:10+00:00",
+      "agent": "agent-c240",
+      "event": "review requested",
+      "note": "Tokenised spacing in organization.css/fragments.css, stack on comments panel, row on fragment-actions. Fail-first n/a. layoutPrimitives vitest 3 pass; playwright comments/of1/of2/assets 16 passed. Step 3 skipped: designTokens.test.ts refused (T304). No screenshots."
+    },
+    {
+      "at": "2026-11-12T23:30:49+00:00",
+      "agent": "agent-99d3",
+      "event": "rejected",
+      "note": "See docs/agent-work/2026-11-12-layout-primitives/REVIEW-2.md (T312). 1) Tokens swapped, nothing migrated (26->26, 13->13). 2) CommentsPanel.tsx:38 .stack makes dividers 24 above/32 below: wrap items in 'stack gap-0', section 'stack gap-5'. 3) fragments.css:113 gap is dead: .row (loads later) wins -> links 12->8; use 'row gap-3' and delete display/align/gap. 4) .fragment-head (fragments.css:57) is not the of2 title band: make it .row with h2.row-label + chevron .slot in .row-trail. 5) Map: .fragment-library->.stack.gap-3 (delete count/empty margins :40,:45); .fragment-controls->.cluster.gap-3; .fragment-across->.cluster.gap-2; .fragment-item->.stack.gap-2; .fragment-icon->.slot; .fragment-tags->.cluster.gap-2; organization.css:6 header/.feature-controls->.cluster.gap-4; .feature-item->.stack.gap-2 (delete small margin :24, buttons in .cluster.gap-3); .reader-options->.cluster.gap-3 (delete margin), label->.cluster.gap-2; .revision-change-controls->.cluster.gap-3 (delete margin). Lower fragments.css budget; take light/dark shots."
+    },
+    {
+      "at": "2026-11-12T23:32:14+00:00",
+      "agent": "agent-e1d3",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-11-12T23:32:15+00:00",
+      "agent": "agent-e1d3",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-11-13T00:42:04+00:00",
+      "agent": "agent-e1d3",
+      "event": "review requested",
+      "note": "Rework per REVIEW-2. Comments panel, comment items, revision comparison (+oversized/selected passage), reader options and fragment library (head row + chevron/trash slots in row-trail, actions row gap-3, controls/across/tags clusters, item stack) now take spacing from .stack/.row/.cluster/.slot; per-component declarations deleted. Dividers equal (items pad only below; parent gap above): comments 24/24, fragments 12/12. Counts: fragments.css 13->4 (budget lowered), organization.css 26->15 (mine 24->13; now 14 after T310). Files: src/organization/{organization,fragments}.css, CommentsPanel.tsx, FragmentLibrary.tsx, RevisionComparison.tsx, App.tsx reader-options classNames only (4 lines), layoutBudget.json fragments key, tests/layout-invariants.spec.ts T8 describe. Fail-first notes/T8-rework-fail-first.txt 3 failed; after/final locked runs (invariants T8 + comments, of1, of2, assets, fragments-panel, revisions) 36 passed each. tsc clean; layoutPrimitives only flags shared-file budgets. designTokens.test.ts SWEPT not extended: files add refused (T307 holds it). Screenshots notes/T8-*.png light+dark. Details notes/T8.md."
+    },
+    {
+      "at": "2026-11-13T01:10:49+00:00",
+      "agent": "agent-bf08",
+      "event": "approved",
+      "note": "REVIEW-5.md. Real migration: fragments.css 13->4, organization.css 26->14 (all 14 are T8's; coordinator sets budget 14). REVIEW-2 points 1-5 fixed; comment dividers 24/24 and fragment 12/12 measured, also first/last/single/empty. of2, comments, of1, assets, fragments-panel, revisions, T8 invariants pass (51 passed in locked run). Low: fragment-head chevron centred on wrapped titles; checkbox centred on wrapped comment; link button padding 0; oversized-view buttons 6px off text edge (pre-existing). SWEPT: spacing sweep passes both files; font-size sweep fails 13 declarations (listed in REVIEW-5)."
+    }
+  ]
+}

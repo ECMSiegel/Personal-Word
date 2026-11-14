@@ -193,7 +193,7 @@ export function ProjectLibrary({
       aria-label="Projects"
     >
       <div className="brand">Personal Word</div>
-      <div className="library-toolbar">
+      <div className="library-toolbar bar">
         <div
           className="create-project"
           onKeyDown={(e) => {
@@ -224,6 +224,7 @@ export function ProjectLibrary({
             morph="anchor"
             highlight="follow"
             role="group"
+            className="menu"
             id="create-panel"
             label="Start new project"
             onDismiss={() => setCreating(false)}
@@ -241,7 +242,7 @@ export function ProjectLibrary({
                 {label}
               </PopoverItem>
             ))}
-            <div className="create-rule" role="separator" />
+            <div className="menu-rule" role="separator" />
             <PopoverItem
               onClick={() => {
                 setCreating(false);
@@ -268,7 +269,7 @@ export function ProjectLibrary({
         >
           Import writing
         </button>
-        <div className="library-display">
+        <div className="library-display cluster gap-2 flush-end">
           <div className="library-search" data-open={searching || undefined}>
             <div className="library-search-field">
               <button
@@ -309,7 +310,7 @@ export function ProjectLibrary({
               />
             </div>
           </div>
-          <label>
+          <label className="cluster">
             Sort{" "}
             <Dropdown
               label="Sort projects"
@@ -324,7 +325,7 @@ export function ProjectLibrary({
           </label>
           <button
             type="button"
-            className="icon-button icon-grow"
+            className="icon-button icon-grow slot"
             aria-label="Reverse project sort order"
             onClick={() => changePrefs({ reverse: !reverse })}
           >
@@ -332,7 +333,7 @@ export function ProjectLibrary({
           </button>
           <button
             type="button"
-            className="icon-button icon-grow"
+            className="icon-button icon-grow slot"
             aria-label={
               view === "list" ? "Show project cards" : "Show project list"
             }
@@ -343,7 +344,7 @@ export function ProjectLibrary({
           {settings && (
             <button
               type="button"
-              className="library-settings icon-grow"
+              className="library-settings icon-grow slot"
               aria-label="Settings"
               title="Settings"
               onClick={() => setSettingsOpen(true)}
@@ -362,8 +363,8 @@ export function ProjectLibrary({
       >
       <div className={"project-list project-list--" + view}>
         {sorted.map((p) => (
-          <div className="project-row" key={p.id}>
-            <button className="emph-row" onClick={() => onOpen(p.id)}>
+          <div className="project-row row" key={p.id}>
+            <button className="emph-row row-label" onClick={() => onOpen(p.id)}>
               <strong className="project-name emph-label">{p.title}</strong>
               <span className="project-dates">
                 <span className="project-edited">Edited {date(p.updatedAt)}</span>
@@ -371,7 +372,7 @@ export function ProjectLibrary({
               </span>
             </button>
             <button
-              className="delete-entry icon-grow"
+              className="delete-entry icon-grow slot flush-end"
               aria-label={"Delete project " + p.title}
               title="Delete project"
               onClick={() => onDelete(p)}
@@ -481,7 +482,7 @@ export function ProjectLibrary({
           <div className="project-settings library-settings-body">
             {settings}
           </div>
-          <div className="dialog-actions">
+          <div className="dialog-actions cluster gap-4">
             <button type="button" onClick={() => setSettingsOpen(false)}>
               Close
             </button>

@@ -22,6 +22,7 @@ export function ImportPreview({
   return (
     <ModalFrame title="Import writing" busy={busy} onCancel={onCancel}>
       <form
+        className="stack gap-5"
         onSubmit={(e) => {
           e.preventDefault();
           if (title.trim() && !busy) onImport(title.trim());
@@ -32,7 +33,7 @@ export function ImportPreview({
           original file stays unchanged.
         </p>
         {"counts" in preview && counts && (
-          <div className="import-counts-bar" aria-label="Document contents" style={{ display: "flex", gap: "8px", margin: "8px 0" }}>
+          <div className="import-counts-bar cluster gap-2" aria-label="Document contents">
             <span className="count-pill">{counts.paragraphs} paragraphs</span>
             {counts.images > 0 && (
               <span className="count-pill">
@@ -51,7 +52,7 @@ export function ImportPreview({
             )}
           </div>
         )}
-        <label>
+        <label className="stack gap-2">
           Project title
           <input value={title} onChange={(e) => setTitle(e.target.value)} />
         </label>
@@ -68,7 +69,7 @@ export function ImportPreview({
             ? "\n[Preview shortened; all writing will be imported.]"
             : ""}
         </pre>
-        <div className="dialog-actions">
+        <div className="dialog-actions cluster gap-4">
           <button type="button" disabled={busy} onClick={onCancel}>
             Cancel
           </button>
@@ -103,7 +104,7 @@ export function ImportBusy({
         {filename} -- reading and parsing the file. Nothing is saved until you
         review and confirm the import.
       </p>
-      <div className="dialog-actions">
+      <div className="dialog-actions cluster gap-4">
         <button type="button" onClick={onCancel} autoFocus>
           Cancel import
         </button>

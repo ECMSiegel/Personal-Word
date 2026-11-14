@@ -245,10 +245,10 @@ test("(h) cards view draws no lines and no gutter", async ({ page }) => {
   await page.locator('.sidebar-group[data-group="manuscript"] .group-heading').hover();
   await page.getByRole("button", { name: "Show Manuscript cards" }).click();
   await expect(page.locator('[data-group="manuscript"] .spy-line')).toHaveCount(0);
-  await expect(page.locator('.sidebar-group[data-group="manuscript"] .entry-list')).toHaveCSS("padding-right", "0px");
+  await expect(page.locator('.sidebar-group[data-group="manuscript"] .entry-list')).toHaveCSS("padding-right", "16px"); // T2: the card list's --edge, no gutter
   await page.getByRole("button", { name: "Show Manuscript list" }).click();
   await expect(page.locator('[data-group="manuscript"] .spy-line')).toHaveCount(SECTIONS.length + 1);
-  await expect(page.locator('.sidebar-group[data-group="manuscript"] .entry-list')).toHaveCSS("padding-right", "24px");
+  await expect(page.locator('.sidebar-group[data-group="manuscript"] .entry-list')).toHaveCSS("padding-right", "40px"); // T2: --edge + 24 px gutter
 });
 
 for (const palette of ["plain", "color"] as const)
@@ -353,7 +353,7 @@ test("(i) Fragments and Research rows have lines with idle/open/active states an
     const n = await rows.count();
     expect(n, group + " rows").toBeGreaterThan(1);
     await expect(page.locator(`.sidebar-group[data-group="${group}"] .spy-rail > button.spy-line`), `${group} lines`).toHaveCount(n);
-    await expect(page.locator(`.sidebar-group[data-group="${group}"] .entry-list`)).toHaveCSS("padding-right", "24px");
+    await expect(page.locator(`.sidebar-group[data-group="${group}"] .entry-list`)).toHaveCSS("padding-right", "40px"); // T2: --edge + 24 px gutter
   }
   const fragLine = (t: string) => railLine(page, "fragments", t);
   const resLine = (t: string) => railLine(page, "research", t === "Alpha source" ? "Ames -- Alpha source (2020)" : t);
@@ -582,7 +582,7 @@ test("(n) cards view of Fragments and Research draws no lines and no gutter", as
     await page.locator(`.sidebar-group[data-group="${group}"] .group-heading`).hover();
     await page.getByRole("button", { name: `Show ${label} cards` }).click();
     await expect(page.locator(`.sidebar-group[data-group="${group}"] .spy-line`)).toHaveCount(0);
-    await expect(page.locator(`.sidebar-group[data-group="${group}"] .entry-list`)).toHaveCSS("padding-right", "0px");
+    await expect(page.locator(`.sidebar-group[data-group="${group}"] .entry-list`)).toHaveCSS("padding-right", "16px"); // T2: the card list's --edge, no gutter
   }
 });
 

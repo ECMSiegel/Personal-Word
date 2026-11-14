@@ -1,0 +1,139 @@
+
+Running 6 tests using 1 worker
+
+[1/6] tests/hs9-top-level-sections.spec.ts:47:1 › add, fill, rename, reload, read, export, move into, delete a top-level section
+  1) tests/hs9-top-level-sections.spec.ts:47:1 › add, fill, rename, reload, read, export, move into, delete a top-level section 
+
+    Test timeout of 90000ms exceeded.
+
+    Error: locator.click: Test timeout of 90000ms exceeded.
+    Call log:
+      - waiting for getByRole('button', { name: 'Add header', exact: true })
+
+
+      50 |
+      51 |   // Add a top-level section with the visible control; its "+" is always shown.
+    > 52 |   await page.getByRole("button", { name: "Add header", exact: true }).click();
+         |                                                                       ^
+      53 |   await nameIt(page, "Part two");
+      54 |   await expect(custom(page).locator(".group-title")).toHaveText("Part two");
+      55 |   await expect(custom(page).getByRole("button", { name: "New section in Part two" })).toBeVisible();
+        at /Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/tests/hs9-top-level-sections.spec.ts:52:71
+
+    Error Context: test-results/T313/hs9-top-level-sections-add-44e5e--delete-a-top-level-section/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/T313/hs9-top-level-sections-add-44e5e--delete-a-top-level-section/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/T313/hs9-top-level-sections-add-44e5e--delete-a-top-level-section/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+[2/6] tests/hs9-top-level-sections.spec.ts:122:1 › rename Manuscript and restore the default; empty sidebar space and palette add a section
+  2) tests/hs9-top-level-sections.spec.ts:122:1 › rename Manuscript and restore the default; empty sidebar space and palette add a section 
+
+    Error: expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 1
+    + Received  + 1
+
+      Array [
+        "Collapse",
+        "Move up",
+        "Move down",
+        "New section",
+    -   "Add header",
+    +   "New top-level section",
+        "Rename",
+      ]
+
+      124 |   const title = manuscript(page).locator(".group-title");
+      125 |   await title.click({ button: "right" });
+    > 126 |   expect(await menu(page).getByRole("menuitem").allTextContents()).toEqual([
+          |                                                                    ^
+      127 |     "Collapse", "Move up", "Move down", "New section", "Add header", "Rename",
+      128 |   ]);
+      129 |   await item(page, "Rename").click();
+        at /Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/tests/hs9-top-level-sections.spec.ts:126:68
+
+    Error Context: test-results/T313/hs9-top-level-sections-ren-0fc46-e-and-palette-add-a-section/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/T313/hs9-top-level-sections-ren-0fc46-e-and-palette-add-a-section/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/T313/hs9-top-level-sections-ren-0fc46-e-and-palette-add-a-section/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+[3/6] tests/hs9-top-level-sections.spec.ts:166:1 › the row More button shifts nothing and overlaps neither the title nor the split icon
+[4/6] tests/hs9-top-level-sections.spec.ts:193:1 › restoring a snapshot taken before a heading move: sidebar order equals Read and export order
+  3) tests/hs9-top-level-sections.spec.ts:193:1 › restoring a snapshot taken before a heading move: sidebar order equals Read and export order 
+
+    Test timeout of 90000ms exceeded.
+
+    Error: locator.click: Test timeout of 90000ms exceeded.
+    Call log:
+      - waiting for getByRole('button', { name: 'Add header', exact: true })
+
+
+      194 |   await createProject(page, "Restore order");
+      195 |   await editor(page).fill("Opening body");
+    > 196 |   await page.getByRole("button", { name: "Add header", exact: true }).click();
+          |                                                                       ^
+      197 |   await nameIt(page, "Part two");
+      198 |   await custom(page).getByRole("button", { name: "New section in Part two" }).click();
+      199 |   await nameIt(page, "Alpha");
+        at /Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/tests/hs9-top-level-sections.spec.ts:196:71
+
+    Error Context: test-results/T313/hs9-top-level-sections-res-48499-quals-Read-and-export-order/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/T313/hs9-top-level-sections-res-48499-quals-Read-and-export-order/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/T313/hs9-top-level-sections-res-48499-quals-Read-and-export-order/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+[5/6] tests/hs9-top-level-sections.spec.ts:231:1 › hovering a card with body text moves no other card
+[6/6] tests/hs9-top-level-sections.spec.ts:260:1 › a custom header's colour is set from its menu, survives a reload and shows on its icon
+  4) tests/hs9-top-level-sections.spec.ts:260:1 › a custom header's colour is set from its menu, survives a reload and shows on its icon 
+
+    Test timeout of 90000ms exceeded.
+
+    Error: locator.click: Test timeout of 90000ms exceeded.
+    Call log:
+      - waiting for getByRole('button', { name: 'Add header', exact: true })
+
+
+      262 |     localStorage.setItem("folio.workspace.appearance", JSON.stringify({ theme: "light", palette: "color", sections: { manuscript: "blue", fragments: "green", research: "orange" } })));
+      263 |   await createProject(page, "Header colour");
+    > 264 |   await page.getByRole("button", { name: "Add header", exact: true }).click();
+          |                                                                       ^
+      265 |   await expect(page.getByRole("dialog")).toContainText("New header");
+      266 |   await nameIt(page, "Part two");
+      267 |   await custom(page).locator(".group-title").click({ button: "right" });
+        at /Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/tests/hs9-top-level-sections.spec.ts:264:71
+
+    Error Context: test-results/T313/hs9-top-level-sections-a-c-c9d6e-eload-and-shows-on-its-icon/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/T313/hs9-top-level-sections-a-c-c9d6e-eload-and-shows-on-its-icon/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/T313/hs9-top-level-sections-a-c-c9d6e-eload-and-shows-on-its-icon/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+  4 failed
+    tests/hs9-top-level-sections.spec.ts:47:1 › add, fill, rename, reload, read, export, move into, delete a top-level section 
+    tests/hs9-top-level-sections.spec.ts:122:1 › rename Manuscript and restore the default; empty sidebar space and palette add a section 
+    tests/hs9-top-level-sections.spec.ts:193:1 › restoring a snapshot taken before a heading move: sidebar order equals Read and export order 
+    tests/hs9-top-level-sections.spec.ts:260:1 › a custom header's colour is set from its menu, survives a reload and shows on its icon 
+  2 passed (5.2m)

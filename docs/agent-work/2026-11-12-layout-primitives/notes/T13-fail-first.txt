@@ -1,0 +1,38 @@
+
+Running 2 tests using 1 worker
+
+  ✘  1 tests/layout-invariants.spec.ts:718:3 › Projects page (T5) › T13: list trash is centred on its row, its ink ends on the rule and the gear's ink, the dates never move (9.1s)
+  ✓  2 tests/layout-invariants.spec.ts:739:3 › Projects page (T5) › T13: card trash has equal top and right insets (5.0s)
+
+
+  1) tests/layout-invariants.spec.ts:718:3 › Projects page (T5) › T13: list trash is centred on its row, its ink ends on the rule and the gear's ink, the dates never move 
+
+    Error: trash ink right vs rule end
+
+    expect(received).toBeLessThanOrEqual(expected)
+
+    Expected: <= 1
+    Received:    4
+
+      732 |     expect(Math.abs(t.y + t.height / 2 - (title.top + title.bottom) / 2), "trash vs title centre y").toBeLessThanOrEqual(1);
+      733 |     expect(Math.abs(t.x + t.width - gear.right), "trash ink right vs gear ink right").toBeLessThanOrEqual(1);
+    > 734 |     expect(Math.abs(t.x + t.width - (r.x + r.width)), "trash ink right vs rule end").toBeLessThanOrEqual(1);
+          |                                                                                      ^
+      735 |     const slot = (await trash.boundingBox())!;
+      736 |     expect(slot.x - (after.x + after.width), "dates to slot gap").toBeCloseTo(12, 0);
+      737 |   });
+        at /Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/tests/layout-invariants.spec.ts:734:86
+
+    Error Context: test-results/T317/layout-invariants-Projects-b9e32--s-ink-the-dates-never-move/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/T317/layout-invariants-Projects-b9e32--s-ink-the-dates-never-move/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/T317/layout-invariants-Projects-b9e32--s-ink-the-dates-never-move/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/layout-invariants.spec.ts:718:3 › Projects page (T5) › T13: list trash is centred on its row, its ink ends on the rule and the gear's ink, the dates never move 
+  1 passed (21.2s)

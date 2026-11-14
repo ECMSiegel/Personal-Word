@@ -1,0 +1,181 @@
+
+Running 5 tests using 1 worker
+
+  ✘  1 tests/layout-invariants.spec.ts:152:3 › menus (T4) › T4: New project menu rows are even and share a label edge (7.4s)
+  ✘  2 tests/layout-invariants.spec.ts:159:3 › menus (T4) › T4: Export menu rows are even and share a label edge (7.6s)
+  ✘  3 tests/layout-invariants.spec.ts:166:3 › menus (T4) › T4: a dropdown's rows are even and share a label edge (8.8s)
+  ✘  4 tests/layout-invariants.spec.ts:173:3 › menus (T4) › T4: a context menu's rows are even and share a label edge (8.3s)
+  ✘  5 tests/layout-invariants.spec.ts:179:3 › menus (T4) › T4: every menu uses one row height and one left inset (1.5m)
+
+
+  1) tests/layout-invariants.spec.ts:152:3 › menus (T4) › T4: New project menu rows are even and share a label edge 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: locator('.menu:visible').last().locator(':scope > .row').first()
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" locator('.menu:visible').last().locator(':scope > .row').first() with timeout 5000ms
+      - waiting for locator('.menu:visible').last().locator(':scope > .row').first()
+
+
+      123 |       await expectEvenRows(rows);
+      124 |       await expectSharedEdge(page, rows.locator(".row-trail"), "right");
+    > 125 |     });
+          |        ^
+      126 |   }
+      127 | });
+      128 |
+        at checkMenu (/Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/tests/layout-invariants.spec.ts:125:32)
+        at /Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/tests/layout-invariants.spec.ts:155:27
+
+    Error Context: test-results/T308/layout-invariants-menus-T4-debbe-even-and-share-a-label-edge/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/T308/layout-invariants-menus-T4-debbe-even-and-share-a-label-edge/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/T308/layout-invariants-menus-T4-debbe-even-and-share-a-label-edge/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/layout-invariants.spec.ts:159:3 › menus (T4) › T4: Export menu rows are even and share a label edge 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: locator('.menu:visible').last().locator(':scope > .row').first()
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" locator('.menu:visible').last().locator(':scope > .row').first() with timeout 5000ms
+      - waiting for locator('.menu:visible').last().locator(':scope > .row').first()
+
+
+      123 |       await expectEvenRows(rows);
+      124 |       await expectSharedEdge(page, rows.locator(".row-trail"), "right");
+    > 125 |     });
+          |        ^
+      126 |   }
+      127 | });
+      128 |
+        at checkMenu (/Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/tests/layout-invariants.spec.ts:125:32)
+        at /Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/tests/layout-invariants.spec.ts:162:27
+
+    Error Context: test-results/T308/layout-invariants-menus-T4-c6da9-even-and-share-a-label-edge/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/T308/layout-invariants-menus-T4-c6da9-even-and-share-a-label-edge/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/T308/layout-invariants-menus-T4-c6da9-even-and-share-a-label-edge/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) tests/layout-invariants.spec.ts:166:3 › menus (T4) › T4: a dropdown's rows are even and share a label edge 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: locator('.menu:visible').last().locator(':scope > .row').first()
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" locator('.menu:visible').last().locator(':scope > .row').first() with timeout 5000ms
+      - waiting for locator('.menu:visible').last().locator(':scope > .row').first()
+
+
+      123 |       await expectEvenRows(rows);
+      124 |       await expectSharedEdge(page, rows.locator(".row-trail"), "right");
+    > 125 |     });
+          |        ^
+      126 |   }
+      127 | });
+      128 |
+        at checkMenu (/Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/tests/layout-invariants.spec.ts:125:32)
+        at /Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/tests/layout-invariants.spec.ts:170:11
+
+    Error Context: test-results/T308/layout-invariants-menus-T4-d9d28-even-and-share-a-label-edge/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/T308/layout-invariants-menus-T4-d9d28-even-and-share-a-label-edge/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/T308/layout-invariants-menus-T4-d9d28-even-and-share-a-label-edge/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) tests/layout-invariants.spec.ts:173:3 › menus (T4) › T4: a context menu's rows are even and share a label edge 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: locator('.menu:visible').last().locator(':scope > .row').first()
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" locator('.menu:visible').last().locator(':scope > .row').first() with timeout 5000ms
+      - waiting for locator('.menu:visible').last().locator(':scope > .row').first()
+
+
+      123 |       const rows = panel.locator(":scope > .row, :scope > .stack > .row");
+      124 |       await expectEvenRows(rows);
+    > 125 |       await expectSharedEdge(page, rows.locator(".row-trail"), "right");
+          |                                ^
+      126 |     });
+      127 |   }
+      128 | });
+        at checkMenu (/Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/tests/layout-invariants.spec.ts:125:32)
+        at /Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/tests/layout-invariants.spec.ts:176:11
+
+    Error Context: test-results/T308/layout-invariants-menus-T4-d1c6f-even-and-share-a-label-edge/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/T308/layout-invariants-menus-T4-d1c6f-even-and-share-a-label-edge/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/T308/layout-invariants-menus-T4-d1c6f-even-and-share-a-label-edge/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  5) tests/layout-invariants.spec.ts:179:3 › menus (T4) › T4: every menu uses one row height and one left inset 
+
+    Test timeout of 90000ms exceeded.
+
+    Error: locator.evaluate: Test timeout of 90000ms exceeded.
+    Call log:
+      - waiting for locator('.menu:visible').last()
+
+
+      181 |   // Rows are the menu's direct .row children; a .menu-rule may sit between groups of rows, so rows are
+      182 |   // checked per group, and every rule must have the same space above and below it.
+    > 183 |   async function checkMenu(page: Page) {
+          |                                         ^
+      184 |     const menu = page.locator(".menu:visible").last();
+      185 |     const rows = menu.locator(":scope > .row");
+      186 |     await expect(rows.first()).toBeVisible();
+        at inset (/Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/tests/layout-invariants.spec.ts:183:44)
+        at /Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/tests/layout-invariants.spec.ts:187:32
+
+    Error Context: test-results/T308/layout-invariants-menus-T4-aa666-w-height-and-one-left-inset/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/T308/layout-invariants-menus-T4-aa666-w-height-and-one-left-inset/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/T308/layout-invariants-menus-T4-aa666-w-height-and-one-left-inset/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  5 failed
+    tests/layout-invariants.spec.ts:152:3 › menus (T4) › T4: New project menu rows are even and share a label edge 
+    tests/layout-invariants.spec.ts:159:3 › menus (T4) › T4: Export menu rows are even and share a label edge 
+    tests/layout-invariants.spec.ts:166:3 › menus (T4) › T4: a dropdown's rows are even and share a label edge 
+    tests/layout-invariants.spec.ts:173:3 › menus (T4) › T4: a context menu's rows are even and share a label edge 
+    tests/layout-invariants.spec.ts:179:3 › menus (T4) › T4: every menu uses one row height and one left inset 

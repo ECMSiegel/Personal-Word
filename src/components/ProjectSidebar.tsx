@@ -24,7 +24,8 @@ import type { ResearchNote } from "../research/types";
 import type { PaneContent } from "../split";
 import { readSidebarPreferences, writeSidebarPreferences } from "../sidebarPreferences";
 import { Dropdown } from "./Dropdown";
-import { ContextMenu, type ContextMenuItem } from "./ContextMenu";
+import { ContextMenu, type ContextMenuItem, type ContextMenuSwatches } from "./ContextMenu";
+import { SWATCHES, type SectionColours, type Swatch } from "../appearance";
 import { keyboardMove } from "./dragReorder";
 import { useDragReorder } from "./useDragReorder";
 import { groupOf, groupTitle, isManuscriptGroup, manuscriptGroupOrder, topGroupOrder } from "../organization/groups";
@@ -64,6 +65,11 @@ type Props = {
   onRenameGroup?: (id: string) => void;
   /** Drops a built-in heading's custom name (shown only while it has one). */
   onResetGroupName?: (id: string) => void;
+  /** The open project's effective built-in header colours; set only in the Color palette, where
+   *  every header's menu ends with a colour row (T12). */
+  headerColours?: SectionColours;
+  /** Picks a header's colour: a built-in id or a custom header id. */
+  onHeaderColour?: (id: string, colour: Swatch) => void;
   onDeleteGroup?: (id: string) => void;
   /** Moves a section entry into another manuscript-type top-level section. */
   onMoveToGroup?: (entryId: string, groupId: string) => void;
@@ -160,6 +166,24 @@ function DragScope<T>({
 }) {
   const drag = useDragReorder({ items, onReorder });
   return <>{children(drag)}</>;
+}
+
+/** T12: the colour row at the end of a header's menu. A custom header with no colour of its own
+ *  shows (and marks) the project's Manuscript colour. */
+function headerColourRow(
+  id: string,
+  colours: SectionColours,
+  pick: (id: string, colour: Swatch) => void,
+  own?: Swatch,
+): ContextMenuSwatches {
+  const builtIn = id === "manuscript" || id === "fragments" || id === "research";
+  return {
+    kind: "swatches",
+    label: "Colour",
+    value: builtIn ? colours[id] : (own ?? colours.manuscript),
+    options: SWATCHES.map((s) => ({ id: s, label: s[0].toUpperCase() + s.slice(1), colour: `var(--swatch-${s})` })),
+    onPick: (colour) => pick(id, colour as Swatch),
+  };
 }
 
 export function ProjectSidebar(props: Props) {
@@ -568,7 +592,7 @@ export function ProjectSidebar(props: Props) {
       }
     >
       <button
-        className="entry-main"
+        className="entry-main row"
         data-row-id={item.id}
         {...(group === "research"
           ? menuProps(
@@ -593,15 +617,17 @@ export function ProjectSidebar(props: Props) {
         )}
       </button>
       {item.beside && props.onOpenBeside && (
-        <button
-          className="collection-open-beside"
-          type="button"
-          aria-label={`Open ${item.title} beside`}
-          title="Open beside"
-          onClick={() => props.onOpenBeside?.(item.beside!)}
-        >
-          <Columns2 size={16} />
-        </button>
+        <div className="entry-trail row-trail cluster gap-0 flush-end">
+          <button
+            className="collection-open-beside slot"
+            type="button"
+            aria-label={`Open ${item.title} beside`}
+            title="Open beside"
+            onClick={() => props.onOpenBeside?.(item.beside!)}
+          >
+            <Columns2 size={16} />
+          </button>
+        </div>
       )}
     </div>
     );
@@ -740,7 +766,7 @@ export function ProjectSidebar(props: Props) {
                 )}
               >
                 <button
-                  className="entry-main"
+                  className="entry-main row"
                   data-row-id={e.id}
                   onClick={(event) =>
                     onSelect(e.id, event.metaKey || event.ctrlKey)
@@ -772,9 +798,9 @@ export function ProjectSidebar(props: Props) {
                 {/* The row buttons' own wrapper (kept as .reorder: its hover reveal and specs
                     predate the arrows' removal). HS9: "More" opens the row menu (Rename etc.); it is drawn
                     left of the split icon and comes before it in Tab order. */}
-                <div className="reorder">
+                <div className="reorder entry-trail row-trail cluster gap-0 flush-end">
                   <button
-                    className="icon-button icon-grow entry-more"
+                    className="icon-button icon-grow entry-more slot"
                     aria-label={"More actions for " + e.title}
                     title="More actions"
                     onClick={(event) => {
@@ -786,7 +812,7 @@ export function ProjectSidebar(props: Props) {
                   </button>
                   {props.onOpenBeside && (
                     <button
-                      className="open-beside"
+                      className="open-beside slot"
                       aria-label={"Open " + e.title + " beside"}
                       title="Open beside"
                       onClick={() =>
@@ -840,6 +866,7 @@ export function ProjectSidebar(props: Props) {
         }
         data-group={id}
         data-group-kind={ms ? "manuscript" : undefined}
+        data-tint={custom ? project.groups?.find((g) => g.id === id)?.colour : undefined}
         data-open={open ? "" : undefined}
         key={id}
         {...dragGroup}
@@ -857,7 +884,7 @@ export function ProjectSidebar(props: Props) {
             : undefined
         }
       >
-        <div className="group-heading">
+        <div className="group-heading row gap-0">
           <button
             className={
               "group-title " + (titleSelected ? "selected" : "")
@@ -875,13 +902,16 @@ export function ProjectSidebar(props: Props) {
                     },
                     ...moveItems(id, labelOf(id), topOrder, topOrder, moveGroup),
                     ...(ms ? [{ label: "New section", run: () => onAdd("section", id) }] : []),
-                    ...(props.onAddGroup ? [{ label: "New top-level section", run: props.onAddGroup }] : []),
+                    ...(props.onAddGroup ? [{ label: "Add header", run: props.onAddGroup }] : []),
                     ...(props.onRenameGroup ? [{ label: "Rename", run: () => props.onRenameGroup?.(id) }] : []),
                     ...(props.onResetGroupName && !custom && project.groupTitles?.[id] !== undefined
                       ? [{ label: "Reset name", run: () => props.onResetGroupName?.(id) }]
                       : []),
                     ...(custom && props.onDeleteGroup
                       ? [{ label: "Delete", danger: true, run: () => props.onDeleteGroup?.(id) }]
+                      : []),
+                    ...(props.headerColours && props.onHeaderColour
+                      ? [headerColourRow(id, props.headerColours, props.onHeaderColour, project.groups?.find((g) => g.id === id)?.colour)]
                       : []),
                   ],
                   (e) => chord(e, id, labelOf(id), topOrder, topOrder, moveGroup),
@@ -897,11 +927,13 @@ export function ProjectSidebar(props: Props) {
             <span className="group-label">{labelOf(id)}</span>
           </button>
           {isTop(id) && (
-            <div className="group-actions">
+            <div className="row-trail">
+            <div className="cluster gap-0 flush-end">
+            <div className="group-actions cluster gap-0">
             {collection && (
               <>
                 <button
-                  className="group-view-toggle"
+                  className="group-view-toggle slot"
                   aria-label={
                     views[id]
                       ? "Show " + labelOf(id) + " list"
@@ -912,7 +944,7 @@ export function ProjectSidebar(props: Props) {
                   {views[id] ? <List size={16} /> : <Layers size={16} />}
                 </button>
                 <button
-                  className="group-add"
+                  className="group-add slot"
                   aria-label={
                     "New " +
                     (custom
@@ -939,10 +971,8 @@ export function ProjectSidebar(props: Props) {
               </>
             )}
           </div>
-          )}
-          {isTop(id) && (
             <button
-              className="group-chevron"
+              className="group-chevron slot"
               aria-label={(collapsed[id] ? "Show " : "Hide ") + labelOf(id)}
               aria-expanded={!collapsed[id]}
               data-collapsed={collapsed[id] ? "true" : undefined}
@@ -950,6 +980,8 @@ export function ProjectSidebar(props: Props) {
             >
               <ChevronDown size={14} />
             </button>
+            </div>
+            </div>
           )}
         </div>
         {collection && !collapsed[id] && (
@@ -1104,7 +1136,7 @@ export function ProjectSidebar(props: Props) {
           }
         }}
       >
-        <div className="sidebar-title-row">
+        <div className="sidebar-title-row bar">
           {editingTitle ? (
             <input
               className="project-switch project-title-input"
@@ -1146,16 +1178,18 @@ export function ProjectSidebar(props: Props) {
               <span>{project.title}</span>
             </button>
           )}
-          <button
-            className="sidebar-pin"
-            aria-label={prefs.pinned ? "Unpin sidebar" : "Pin sidebar"}
-            aria-pressed={prefs.pinned}
-            onClick={() => setPrefs((p) => ({ ...p, pinned: !p.pinned }))}
-          >
-            {prefs.pinned ? <PinOff size={16} /> : <Pin size={16} />}
-          </button>
+          <span className="cluster gap-0 flush-end">
+            <button
+              className="sidebar-pin slot"
+              aria-label={prefs.pinned ? "Unpin sidebar" : "Pin sidebar"}
+              aria-pressed={prefs.pinned}
+              onClick={() => setPrefs((p) => ({ ...p, pinned: !p.pinned }))}
+            >
+              {prefs.pinned ? <PinOff size={16} /> : <Pin size={16} />}
+            </button>
+          </span>
         </div>
-        <div className="search">
+        <div className="search bar gap-1">
           <Search size={16} />
           <input
             aria-label="Search project"
@@ -1171,10 +1205,10 @@ export function ProjectSidebar(props: Props) {
               }
             }}
           />
-          <span className="search-end">
+          <span className="search-end flush-end">
             <button
               type="button"
-              className="icon-button search-clear"
+              className="icon-button search-clear slot"
               aria-label="Clear search"
               data-shown={query ? "1" : undefined}
               tabIndex={query ? 0 : -1}
@@ -1194,7 +1228,7 @@ export function ProjectSidebar(props: Props) {
           className="sidebar-groups"
           ref={groupsContainer}
           onContextMenu={(e) => {
-            // Empty space below and between the sections (HS9): New top-level section.
+            // Empty space below and between the sections (HS9): Add header.
             if (!props.onAddGroup || (e.target instanceof Element && e.target.closest(".sidebar-group, button")))
               return;
             e.preventDefault();
@@ -1202,8 +1236,8 @@ export function ProjectSidebar(props: Props) {
               x: e.clientX,
               y: e.clientY,
               rowId: "",
-              label: "Sections actions",
-              items: [{ label: "New top-level section", run: props.onAddGroup }],
+              label: "Sidebar actions",
+              items: [{ label: "Add header", run: props.onAddGroup }],
               viaKeyboard: false,
             });
           }}
@@ -1212,9 +1246,9 @@ export function ProjectSidebar(props: Props) {
             .filter(isTop)
             .map((id) => group(id, order.indexOf(id)))}
           {props.onAddGroup && (
-            <button className="entry-main add-top-section" type="button" onClick={props.onAddGroup}>
+            <button className="entry-main row add-top-section" type="button" onClick={props.onAddGroup}>
               <Plus size={16} />
-              <span>New top-level section</span>
+              <span>Add header</span>
             </button>
           )}
         </div>

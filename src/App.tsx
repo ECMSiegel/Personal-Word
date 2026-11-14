@@ -64,7 +64,7 @@ import { createProjectIndex } from "./derived/projectIndex";
 import { footnoteLocations } from "./derived/footnoteLocations";
 import { removeFootnoteMarkers, removeTextOnlyFootnote } from "./research/removeFootnote";
 import { applyRestorePatch, type RestorePatch } from "./organization/revisionDiff";
-import { addGroup, addSectionEntry, deleteGroup, groupTitle, moveEntryToGroup, normalized, renameGroup, reorderInGroup } from "./organization/groups";
+import { addGroup, addSectionEntry, deleteGroup, groupTitle, moveEntryToGroup, normalized, renameGroup, reorderInGroup, setGroupColour, setHeaderColour } from "./organization/groups";
 import { ProjectLibrary } from "./components/ProjectLibrary";
 import { ProjectSidebar } from "./components/ProjectSidebar";
 import { moveWithin, reorderKind } from "./components/dragReorder";
@@ -72,6 +72,7 @@ import { ReadDocument } from "./components/ReadDocument";
 import { Dropdown } from "./components/Dropdown";
 import {
   applyAppearance,
+  type Swatch,
   nextTheme,
   readAppearance,
   writeAppearance,
@@ -334,7 +335,6 @@ export default function App() {
   }, [reader]);
   const [appearance, setAppearance] = useState(() => readAppearance(localStorage));
   useEffect(() => {
-    applyAppearance(document.documentElement, appearance);
     writeAppearance(localStorage, appearance);
     if (!desktop) return;
     // The Mac title bar follows the choice; System hands control back to macOS.
@@ -345,6 +345,16 @@ export default function App() {
       .catch(() => {});
   }, [appearance]);
   const [project, setProject] = useState<Project | null>(null);
+  // Header tints follow the open project (T12): its own built-in header colours, else the
+  // app-wide legacy value, which nothing writes any more.
+  const headerColours = project?.headerColours;
+  const effectiveSections = useMemo(
+    () => ({ ...appearance.sections, ...headerColours }),
+    [appearance.sections, headerColours],
+  );
+  useEffect(() => {
+    applyAppearance(document.documentElement, { ...appearance, sections: effectiveSections });
+  }, [appearance, effectiveSections]);
   const projectIndex = useRef(createProjectIndex());
   const projectSummary = useMemo(() => project ? projectIndex.current.update(null, project) : null, [project]);
   const [shortcuts, setShortcuts] = useState(() => readShortcuts(localStorage));
@@ -1183,31 +1193,34 @@ export default function App() {
   const reorder = (id: string, to: number) => mutate((p) => reorderInGroup(p, id, to));
   const addTopSection = () =>
     setNameDialog({
-      title: "New top-level section",
+      title: "New header",
       label: "Title",
       value: "",
       action: (title) => mutate((p) => addGroup(p, title)),
     });
   const renameTopSection = (id: string) =>
     setNameDialog({
-      title: "Rename section heading",
+      title: "Rename header",
       label: "Title",
       value: groupTitle(current.current!, id),
       action: (title) => mutate((p) => renameGroup(p, id, title)),
     });
+  const colourHeader = (id: string, colour: Swatch) =>
+    // Each helper ignores the other's ids: built-in headers -> headerColours, custom -> groups[].colour.
+    mutate((p) => setGroupColour(setHeaderColour(p, id, colour), id, colour));
   const deleteTopSection = (id: string) => {
     const name = groupTitle(current.current!, id);
     setChoice({
-      title: `Delete section “${name}”?`,
+      title: `Delete header “${name}”?`,
       body: `Its entries move to ${groupTitle(current.current!, "manuscript")}; nothing in them is deleted. A safety snapshot is kept first, so you can bring it back from Snapshots & history.`,
       actions: [
         {
-          label: "Delete section",
+          label: "Delete header",
           primary: true,
           destructive: true,
           run: async () => {
             await queue.flush();
-            await storage.snapshot(current.current!.id, `Before deleting section “${name}”`);
+            await storage.snapshot(current.current!.id, `Before deleting header “${name}”`);
             mutate((p) => deleteGroup(p, id));
             setNotice(`“${name}” deleted. Its entries are in ${groupTitle(current.current!, "manuscript")}.`);
           },
@@ -2157,7 +2170,7 @@ export default function App() {
       run: () => { runAppAction(a.id); },
     })),
     { id: "new-fragment", label: "New fragment", group: "Actions", run: () => add("fragment") },
-    { id: "new-top-section", label: "New top-level section", group: "Actions", run: addTopSection },
+    { id: "new-top-section", label: "Add header", group: "Actions", run: addTopSection },
     ...project.order.flatMap((id) => {
       const e = project.entries.find((x) => x.id === id);
       return e ? [{ id: "entry:" + e.id, label: "Go to " + e.title, group: "Sections", run: () => selectEntry(e.id) }] : [];
@@ -2210,7 +2223,7 @@ export default function App() {
   const projectSidebarExtras = project ? (
     <>
       {([ ["read", "Show Read manuscript"], ["comments", "Show Comments"], ["history", "Show Snapshots & history"] ] as const).map(([id, label]) => (
-        <label className="settings-check" key={id}>
+        <label className="settings-check cluster gap-2" key={id}>
           <input
             type="checkbox"
             checked={!(project.sidebarHidden ?? []).includes(id)}
@@ -2257,7 +2270,7 @@ export default function App() {
       onShowPath={setNotice}
       sidebarExtras={sidebarExtras}
     >
-      <section className="settings-section">
+      <section className="settings-section stack gap-4">
         <ShortcutsSettings overrides={shortcuts} onChange={changeShortcuts} />
       </section>
     </GeneralSettings>
@@ -2454,6 +2467,8 @@ export default function App() {
               onAddGroup={addTopSection}
               onRenameGroup={renameTopSection}
               onResetGroupName={(id) => mutate((p) => renameGroup(p, id, ""))}
+              headerColours={appearance.palette === "color" ? effectiveSections : undefined}
+              onHeaderColour={colourHeader}
               onDeleteGroup={deleteTopSection}
               onMoveToGroup={(entryId, groupId) => mutate((p) => moveEntryToGroup(p, entryId, groupId))}
               onReorderFragment={reorderFragment}
@@ -2465,9 +2480,10 @@ export default function App() {
               onVersions={() => showVersions()}
             />
             <main className="workspace" aria-busy={busy} ref={workspaceRef}>
-              <header className="topbar">
-                <div>
+              <header className="topbar bar bar-main">
+                <div className="cluster gap-2">
                   <button
+                    className="slot"
                     aria-label="Toggle sidebar"
                     title="Toggle sidebar (⌘\\)"
                     onClick={() =>
@@ -2509,7 +2525,7 @@ export default function App() {
                     </ol>
                   </nav>
                 </div>
-                <div>
+                <div className="cluster gap-4">
                   <span className={"save-status " + status.state}>
                     {status.state === "saved" ? (
                       <Check size={16} />
@@ -2573,18 +2589,18 @@ export default function App() {
                   <h1>Project settings</h1>
                   <SettingsNav />
                   {generalSettings(projectSidebarExtras)}
-                  <section className="settings-section">
+                  <section className="settings-section stack gap-4">
                     <h2>Goals</h2>
-                    <div className="settings-form">
-                      <label className="settings-field">Total word goal
+                    <div className="settings-form stack gap-3">
+                      <label className="settings-field row gap-3"><span className="settings-label">Total word goal</span>
                         <input type="number" min="1" step="1" value={project.goals?.totalWords ?? ""}
                           onChange={(event) => patchGoal("totalWords", event.target.value)} />
                       </label>
-                      <label className="settings-field">Daily word goal
+                      <label className="settings-field row gap-3"><span className="settings-label">Daily word goal</span>
                         <input type="number" min="1" step="1" value={project.goals?.dailyWords ?? ""}
                           onChange={(event) => patchGoal("dailyWords", event.target.value)} />
                       </label>
-                      <div className="settings-field">
+                      <div className="settings-field row gap-3">
                         <span className="settings-label">Goal scope</span>
                         <Dropdown
                           label="Goal scope"
@@ -2596,7 +2612,7 @@ export default function App() {
                           onChange={(value) => patchGoalPreference("scope", value)}
                         />
                       </div>
-                      <div className="settings-field">
+                      <div className="settings-field row gap-3">
                         <span className="settings-label">Goal day</span>
                         <Dropdown
                           label="Goal day"
@@ -2608,7 +2624,7 @@ export default function App() {
                           onChange={(value) => patchGoalPreference("dayMode", value)}
                         />
                       </div>
-                      <label className="settings-field">Deadline
+                      <label className="settings-field row gap-3"><span className="settings-label">Deadline</span>
                         <input type="date" value={project.goals?.deadline ?? ""}
                           onChange={(event) => patchGoal("deadline", event.target.value)} />
                       </label>
@@ -2680,11 +2696,11 @@ export default function App() {
               ) : mode === "read" ? (
                 <div className="manuscript-read">
                   <div
-                    className="reader-options"
+                    className="cluster gap-3 reader-options"
                     role="toolbar"
                     aria-label="Reading display"
                   >
-                    <label>
+                    <label className="cluster gap-2">
                       Font
                       <Dropdown
                         label="Font"
@@ -2704,7 +2720,7 @@ export default function App() {
                         ]}
                       />
                     </label>
-                    <label>
+                    <label className="cluster gap-2">
                       Size
                       <input
                         aria-label="Reading font size"
@@ -2717,7 +2733,7 @@ export default function App() {
                         }
                       />
                     </label>
-                    <label>
+                    <label className="cluster gap-2">
                       Line spacing
                       <input
                         aria-label="Reading line spacing"
@@ -2871,7 +2887,7 @@ export default function App() {
                           }
                         >
                           {split && splitLeft && (
-                            <div className="split-pane-header">
+                            <div className="split-pane-header bar bar-compact bar-main">
                               <span className="split-pane-title">{splitLeft.title}</span>
                               {splitLeft.origin && (
                                 <span className="split-pane-origin">
@@ -2902,7 +2918,7 @@ export default function App() {
                           onPointerDownCapture={() => changeSplit(focusSide(split, "right"))}
                           onFocusCapture={() => changeSplit(focusSide(split, "right"))}
                         >
-                          <div className="split-pane-header">
+                          <div className="split-pane-header bar bar-compact bar-main">
                             <span className="split-pane-title">{split.right.kind === "entry"
                               ? splitRight?.title
                               : splitPdfSource?.pdf?.name ?? "PDF"}</span>
@@ -2912,14 +2928,16 @@ export default function App() {
                                 {new Date(splitRight.origin.removedAt).toLocaleDateString()}
                               </span>
                             )}
-                            <button
-                              className="split-close"
-                              aria-label="Close right pane"
-                              title="Close right pane"
-                              onClick={closeSplit}
-                            >
-                              <X size={16} />
-                            </button>
+                            <span className="cluster flush-end">
+                              <button
+                                className="split-close slot"
+                                aria-label="Close right pane"
+                                title="Close right pane"
+                                onClick={closeSplit}
+                              >
+                                <X size={16} />
+                              </button>
+                            </span>
                           </div>
                           {split.right.kind === "entry"
                             ? splitRight && (
@@ -2959,7 +2977,7 @@ export default function App() {
                 <div
                   ref={cardBox}
                   className="citation-card-float"
-                  style={{ position: "absolute", right: FLOAT_GAP, zIndex: 39 }}
+                  style={{ position: "absolute", right: FLOAT_GAP, zIndex: "var(--layer-card)" }}
                 >
                   <CitationCard
                     key={cardEpoch}
@@ -3089,7 +3107,7 @@ export default function App() {
               </aside>
             )}
             {versions && (
-              <aside className="versions">
+              <aside className="versions stack gap-4">
                 <div className="panel-heading">
                   <h2>Versions</h2>
                   <button
@@ -3133,9 +3151,10 @@ export default function App() {
                       : "Keep a version before taking a new direction."}
                   </p>
                 )}
+                <div className="stack gap-0">
                 {versions.map((v) => (
                   <button
-                    className="version-item"
+                    className="version-item row"
                     key={v.id}
                     onClick={() =>
                       void run(async () => {
@@ -3147,12 +3166,13 @@ export default function App() {
                     }
                   >
                     <History size={16} />
-                    <span>
+                    <span className="stack gap-1">
                       <strong>{v.name}</strong>
                       <small>{new Date(v.createdAt).toLocaleString()}</small>
                     </span>
                   </button>
                 ))}
+                </div>
               </aside>
             )}
           </>
@@ -3217,7 +3237,7 @@ export default function App() {
         />}
         {preview && (
           <div className="modal-backdrop">
-            <div className="preview-dialog">
+            <div className="preview-dialog stack gap-4">
               <div className="panel-heading">
                 <button onClick={() => setPreview(null)}>
                   <ArrowLeft size={16} /> Back

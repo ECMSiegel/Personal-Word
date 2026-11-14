@@ -5,10 +5,9 @@
    emphasis rule in styles.css; no fill. A keyboard open has no data-animate
    and so appears at once; Reduce Motion drops the transition. */
 .dropdown-menu.context-menu {
-  position: absolute;
   top: 0;
   left: 0;
-  z-index: 70;
+  z-index: var(--layer-modal);
   min-width: 160px;
 }
 .context-menu-item[data-danger] {
@@ -28,4 +27,19 @@
   .context-menu[data-animate] {
     transition: none;
   }
+}
+/* Colour row (T12): eight square swatches in .slot buttons; the marked one has a 1px outline in
+   the text colour, no fill change. Hover/focus magnify through icon-magnify.css (.icon-grow). */
+.context-menu-swatch {
+  border: 0;
+  background: transparent;
+}
+.context-menu-swatch .swatch-chip {
+  display: inline-block;
+  width: var(--icon-size);
+  aspect-ratio: 1;
+}
+.context-menu-swatch[aria-checked="true"] .swatch-chip {
+  outline: 1px solid var(--text);
+  outline-offset: 2px;
 }

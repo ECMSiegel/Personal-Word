@@ -1,0 +1,28 @@
+{
+ "wrapped-on-screen": [
+  "Export typeface",
+  "Line spacing",
+  "Page number position"
+ ],
+ "exportTypeface": {
+  "wrappedInLabel": 1,
+  "picked": "Sans (Arial in Word, Noto Sans in PDF)",
+  "optionsAfterMouse": 3,
+  "valueAfterMouse": "Sans (Arial in Word, Noto Sans in PDF)",
+  "optionsAfterKeyboard": 0
+ },
+ "lineSpacing": {
+  "wrappedInLabel": 1,
+  "picked": "1.5",
+  "optionsAfterMouse": 3,
+  "valueAfterMouse": "1.5",
+  "optionsAfterKeyboard": 0
+ },
+ "pageNumberPosition": {
+  "wrappedInLabel": 1,
+  "picked": "Top center",
+  "optionsAfterMouse": 6,
+  "valueAfterMouse": "Top center",
+  "optionsAfterKeyboard": 0
+ }
+}
