@@ -2,7 +2,7 @@
 
 **Free, open-source writing software for writers.** Organize a book, build a paper around your sources, and take your draft all the way to Word or PDF — on your own Mac.
 
-I wanted writing software built for writers, and the prominent options all had a cost barrier. I built Personal Word to make a focused writing workspace freely available. No subscription or account: the source is here to inspect, change, and share under the GPL.
+I wanted writing software built for writing. Docs excels in collaborative environments, but stopped meeting my needs for long term projects. The other prominent options had a prominent cost barrier. I built Personal Word to make a focused writing workspace freely available. Personal Word is easy to personalize; change the interface based to help with your goals, not mine. No subscription or account: the source is here to inspect, change, and share under the GPL.
 
 [Download for Mac](https://github.com/ECMSiegel/Personal-Word/releases/latest) · [Getting started](#quick-start) · [User guide](docs/user-guide.md) · [Contribute](CONTRIBUTING.md)
 
@@ -34,14 +34,13 @@ I wanted writing software built for writers, and the prominent options all had a
 
 ### Made to be adjusted
 ![Settings, with appearance, palette, interface font and sidebar options](docs/evidence/readme/customise-light.png)
-
-**Look and feel**
+- **Highly Customizable.** Change the interface font, colors, spacing, and organization according to your needs, instead of being locked in to what works for me.
 - **Interface font.** Any font installed on the Mac, or added from `.ttf` and `.otf` files, sets the font of the whole interface.
 - **Appearance.** System, Light or Dark; Cmd+Shift+L switches between Light and Dark.
 - **Palette.** Plain, or Color, which tints the sidebar icons and buttons without changing the document area.
 - **Headers.** Every header takes its own icon colour, per project, from a row of swatches in its right-click menu (Color palette). Headers can also be renamed and moved up or down, and added ones deleted.
 - **Sidebar.** Resizable and pinnable, with a list or card view for each group, optional reveal on hover, and an optional floating mode that places the sidebar and the citation card in the page margins when they are wide enough.
-- **Focus mode.** Dims everything but the current paragraph and hides the toolbar until it is needed.
+- **Toggle-able focus mode.** Dims everything but the current paragraph and hides the toolbar until it is needed.
 
 **The page**
 - **Page setup.** Paper size, page margins and page numbers, plus a top ruler and a side ruler that can each be switched on or off.
