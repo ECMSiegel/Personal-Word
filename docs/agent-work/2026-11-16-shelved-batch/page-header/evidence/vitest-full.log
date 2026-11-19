@@ -1,0 +1,231 @@
+
+ RUN  v4.1.11 /Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor
+
+ ❯ src/fonts/fontInfo.test.ts (2 tests | 1 failed) 6587ms
+     × reads family and style metadata for the available Trebuchet fixtures 6578ms
+ ❯ src/fonts/store.test.ts (2 tests | 1 failed) 6224ms
+     × rejects a renamed non-font file with the parser error 6208ms
+ ❯ src/adversarial-wp3-exports.test.ts (29 tests | 4 failed) 29051ms
+       × exports clean document with 0 assets across docx, pdf, markdown, plain 7566ms
+       × exports document with exactly 1 asset across docx, pdf, markdown, plain 6018ms
+       × stress tests document with 50 distinct assets across sections, tables, and quotes 6521ms
+       × ASYMMETRY DISCOVERY: documentBlocks (DOCX/PDF) excludes fragments, but textExport includes them 5086ms
+ ❯ src/export/pdf-fonts.test.ts (4 tests | 3 failed) 22406ms
+     × embeds one custom font for an applied font-family run 7080ms
+     × keeps the existing PDF output when the font source null 5904ms
+     × keeps the existing PDF output when the font source rejects 5262ms
+ ❯ src/export/multiparagraphNote.test.ts (7 tests | 3 failed) 48350ms
+   × a note with only single newlines is one paragraph in DOCX and PDF, joined by spaces 6077ms
+   × PDF exports a three-paragraph note without the shaping refusal, in order, one block each 7224ms
+   × PDF keeps the multi-paragraph note on the page it is cited on and counts its height 7572ms
+ ❯ src/export/pageNumbers.test.ts (14 tests | 2 failed) 64581ms
+   × top-center: PDF number sits in the top margin, centred 5684ms
+   × absent position draws exactly as bottom-right (old projects unchanged) 7020ms
+ ❯ src/export/document.test.ts (33 tests | 2 failed) 79942ms
+   × creates PDF pages with explicit page breaks and bibliography 5726ms
+   × embeds bundled fonts for Latin extended, Greek, and Cyrillic PDF text 5783ms
+
+⎯⎯⎯⎯⎯⎯ Failed Tests 16 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/adversarial-wp3-exports.test.ts > Adversarial WP3 — Export Asset Resolution & Resolver Lifecycle > 2. Document Scale Stress Testing (0 Assets, 1 Asset, 50 Assets) > exports clean document with 0 assets across docx, pdf, markdown, plain
+Error: Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ src/adversarial-wp3-exports.test.ts:231:5
+    229|   // =================================================================…
+    230|   describe("2. Document Scale Stress Testing (0 Assets, 1 Asset, 50 As…
+    231|     it("exports clean document with 0 assets across docx, pdf, markdow…
+       |     ^
+    232|       const p = newProject("Zero Assets Document");
+    233|       p.entries[0].content = {
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/16]⎯
+
+ FAIL  src/adversarial-wp3-exports.test.ts > Adversarial WP3 — Export Asset Resolution & Resolver Lifecycle > 2. Document Scale Stress Testing (0 Assets, 1 Asset, 50 Assets) > exports document with exactly 1 asset across docx, pdf, markdown, plain
+Error: Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ src/adversarial-wp3-exports.test.ts:267:5
+    265|     });
+    266|
+    267|     it("exports document with exactly 1 asset across docx, pdf, markdo…
+       |     ^
+    268|       const p = newProject("Single Asset Document");
+    269|       const asset = await createPendingAsset(tinyPng);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/16]⎯
+
+ FAIL  src/adversarial-wp3-exports.test.ts > Adversarial WP3 — Export Asset Resolution & Resolver Lifecycle > 2. Document Scale Stress Testing (0 Assets, 1 Asset, 50 Assets) > stress tests document with 50 distinct assets across sections, tables, and quotes
+Error: Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ src/adversarial-wp3-exports.test.ts:308:5
+    306|     });
+    307|
+    308|     it("stress tests document with 50 distinct assets across sections,…
+       |     ^
+    309|       const startTime = performance.now();
+    310|       const p = newProject("Fifty Assets Mega Project");
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/16]⎯
+
+ FAIL  src/adversarial-wp3-exports.test.ts > Adversarial WP3 — Export Asset Resolution & Resolver Lifecycle > 2. Document Scale Stress Testing (0 Assets, 1 Asset, 50 Assets) > ASYMMETRY DISCOVERY: documentBlocks (DOCX/PDF) excludes fragments, but textExport includes them
+Error: Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ src/adversarial-wp3-exports.test.ts:397:5
+    395|     });
+    396|
+    397|     it("ASYMMETRY DISCOVERY: documentBlocks (DOCX/PDF) excludes fragme…
+       |     ^
+    398|       const p = newProject("Fragment Asymmetry Project");
+    399|       const asset = await createPendingAsset(tinyPng);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/16]⎯
+
+ FAIL  src/export/document.test.ts > creates PDF pages with explicit page breaks and bibliography
+Error: Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ src/export/document.test.ts:210:1
+    208|   ).toEqual([80, 75]);
+    209| });
+    210| it("creates PDF pages with explicit page breaks and bibliography", asy…
+       | ^
+    211|   const blob = await exportPdf(fixture());
+    212|   const pdf = await PDFDocument.load(await blob.arrayBuffer());
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/16]⎯
+
+ FAIL  src/export/document.test.ts > embeds bundled fonts for Latin extended, Greek, and Cyrillic PDF text
+Error: Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ src/export/document.test.ts:216:1
+    214| });
+    215|
+    216| it("embeds bundled fonts for Latin extended, Greek, and Cyrillic PDF t…
+       | ^
+    217|   const p = fixture();
+    218|   p.entries[0].content = {
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/16]⎯
+
+ FAIL  src/export/multiparagraphNote.test.ts > a note with only single newlines is one paragraph in DOCX and PDF, joined by spaces
+Error: Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ src/export/multiparagraphNote.test.ts:91:1
+     89| });
+     90|
+     91| it("a note with only single newlines is one paragraph in DOCX and PDF,…
+       | ^
+     92|   const p = project({ n: { text: "Line one\nline two\r\nline three" } …
+     93|   const ps = paragraphs(footnoteBody(await noteXml(p), 1));
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/16]⎯
+
+ FAIL  src/export/multiparagraphNote.test.ts > PDF exports a three-paragraph note without the shaping refusal, in order, one block each
+Error: Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ src/export/multiparagraphNote.test.ts:102:1
+    100| });
+    101|
+    102| it("PDF exports a three-paragraph note without the shaping refusal, in…
+       | ^
+    103|   spyDrawText();
+    104|   const blob = await exportPdf(project({ n: { text: THREE } }));
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/16]⎯
+
+ FAIL  src/export/multiparagraphNote.test.ts > PDF keeps the multi-paragraph note on the page it is cited on and counts its height
+Error: Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ src/export/multiparagraphNote.test.ts:121:1
+    119| });
+    120|
+    121| it("PDF keeps the multi-paragraph note on the page it is cited on and …
+       | ^
+    122|   const p = project({ n: { text: THREE } });
+    123|   const withNote = await PDFDocument.load(await (await exportPdf(p)).a…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/16]⎯
+
+ FAIL  src/export/pageNumbers.test.ts > top-center: PDF number sits in the top margin, centred
+Error: Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ src/export/pageNumbers.test.ts:63:1
+     61| }
+     62|
+     63| it("top-center: PDF number sits in the top margin, centred", async () …
+       | ^
+     64|   const { draws, width, height } = await pdfNumberDraw(
+     65|     project("top-center"),
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[10/16]⎯
+
+ FAIL  src/export/pageNumbers.test.ts > absent position draws exactly as bottom-right (old projects unchanged)
+Error: Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ src/export/pageNumbers.test.ts:73:1
+     71| });
+     72|
+     73| it("absent position draws exactly as bottom-right (old projects unchan…
+       | ^
+     74|   const a = await pdfNumberDraw(project(), 0);
+     75|   const b = await pdfNumberDraw(project("bottom-right"), 0);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[11/16]⎯
+
+ FAIL  src/export/pdf-fonts.test.ts > PDF document fonts > embeds one custom font for an applied font-family run
+Error: Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ src/export/pdf-fonts.test.ts:90:3
+     88|
+     89| describe("PDF document fonts", () => {
+     90|   it("embeds one custom font for an applied font-family run", async ()…
+       |   ^
+     91|     const withFont = project("BA");
+     92|     withFont.entries[0].content.content![0].content = [
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[12/16]⎯
+
+ FAIL  src/export/pdf-fonts.test.ts > PDF document fonts > keeps the existing PDF output when the font source null
+ FAIL  src/export/pdf-fonts.test.ts > PDF document fonts > keeps the existing PDF output when the font source rejects
+Error: Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ src/export/pdf-fonts.test.ts:144:39
+    142|   });
+    143|
+    144|   it.each(["null", "rejects"] as const)(
+       |                                       ^
+    145|     "keeps the existing PDF output when the font source %s",
+    146|     async (outcome) => {
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[13/16]⎯
+
+ FAIL  src/fonts/fontInfo.test.ts > readFontInfo > reads family and style metadata for the available Trebuchet fixtures
+Error: Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ src/fonts/fontInfo.test.ts:8:3
+      6|
+      7| describe("readFontInfo", () => {
+      8|   it("reads family and style metadata for the available Trebuchet fixt…
+       |   ^
+      9|     const paths = ["Trebuchet MS.ttf", "Trebuchet MS Bold.ttf", "Trebu…
+     10|     const files = await Promise.all(paths.map((path) => readFile(`${ro…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[14/16]⎯
+
+ FAIL  src/fonts/store.test.ts > addUserFont validation > rejects a renamed non-font file with the parser error
+Error: Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ src/fonts/store.test.ts:10:3
+      8|   });
+      9|
+     10|   it("rejects a renamed non-font file with the parser error", async ()…
+       |   ^
+     11|     const file = new File(["not a font"], "fake.ttf");
+     12|     await expect(addUserFont(file)).rejects.toThrow("That file is not …
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[15/16]⎯
+
+
+ Test Files  7 failed | 85 passed (92)
+      Tests  16 failed | 1318 passed (1334)
+   Start at  02:11:29
+   Duration  301.73s (transform 237.53s, setup 0ms, import 802.01s, tests 414.75s, environment 488ms)
+

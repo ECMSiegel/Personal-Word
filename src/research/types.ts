@@ -92,6 +92,10 @@ export type DocumentSettings = {
   bibliography: boolean;
   pageNumbers: boolean;
   pageNumberPosition?: PageNumberPosition;
+  /** Running line drawn before the page number in the same corner ("Siegel"). */
+  pageHeaderText?: string;
+  /** Page one shows no page header or number (page two still reads 2). */
+  pageFirstDifferent?: boolean;
   bibliographyOrder?: "author" | "cited" | "type";
   bibliographyScope?: "cited" | "all";
 };

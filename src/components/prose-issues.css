@@ -22,3 +22,9 @@
 .prose-check-panel .prose-issue-select {
   align-items: baseline;
 }
+/* Keyboard focus rings sit inside the two issue buttons: the list scrolls, and a ring drawn outside a
+   button flush with its edge is clipped. */
+.prose-check-panel .prose-issue-select:focus-visible,
+.prose-check-panel .prose-issue-dismiss:focus-visible {
+  outline-offset: -3px;
+}

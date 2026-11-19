@@ -84,6 +84,10 @@ pub struct Summary {
     pub id: String,
     pub title: String,
     pub updated_at: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub word_count: Option<u64>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub section_count: Option<u64>,
 }
 #[derive(Serialize)]
 #[serde(rename_all = "camelCase")]
@@ -210,11 +214,16 @@ impl Store {
             if Uuid::parse_str(&id).is_err() || !item.path().is_dir() {
                 continue;
             }
-            match self
-                .connect(&id, false)
-                .and_then(|db| read_header(&db, &id))
-            {
-                Ok(h) => projects.push(Summary {
+            match self.connect(&id, false).and_then(|db| {
+                // One read transaction, so the header and the counts come from the same revision.
+                let db = db.unchecked_transaction().map_err(err)?;
+                let h = read_header(&db, &id)?;
+                let counts = manuscript_counts(&db, &h);
+                Ok((h, counts))
+            }) {
+                Ok((h, counts)) => projects.push(Summary {
+                    word_count: counts.map(|c| c.0),
+                    section_count: counts.map(|c| c.1),
                     created_at: h.created_at,
                     id: h.id,
                     title: h.title,
@@ -673,6 +682,36 @@ impl Store {
             .collect::<Result<_>>()?;
         Project::assemble(serde_json::from_str(&header).map_err(err)?, entries)
     }
+}
+/// Words and sections in the manuscript (entries of kind "section" named by the header).
+/// None when the entries cannot be read: the project still lists, just without counts.
+fn manuscript_counts(db: &Connection, h: &Header) -> Option<(u64, u64)> {
+    let ids: HashSet<&str> = h.entry_ids.iter().map(String::as_str).collect();
+    let mut q = db
+        .prepare("SELECT id,data FROM entries WHERE kind='section'")
+        .ok()?;
+    let rows = q
+        .query_map([], |r| Ok((r.get::<_, String>(0)?, r.get::<_, String>(1)?)))
+        .ok()?;
+    let (mut words, mut sections) = (0, 0);
+    for row in rows {
+        let (id, data) = row.ok()?;
+        if !ids.contains(id.as_str()) {
+            continue;
+        }
+        let entry: Value = serde_json::from_str(&data).ok()?;
+        sections += 1;
+        words += js_word_count(entry.get("text").and_then(Value::as_str).unwrap_or(""));
+    }
+    Some((words, sections))
+}
+/// The same rule as `words()` in src/model.ts: runs of JavaScript whitespace separate words.
+fn js_word_count(text: &str) -> u64 {
+    let is_space = |c: char| {
+        matches!(c, '\t' | '\n' | '\u{b}' | '\u{c}' | '\r' | ' ' | '\u{a0}' | '\u{1680}'
+            | '\u{2000}'..='\u{200a}' | '\u{2028}' | '\u{2029}' | '\u{202f}' | '\u{205f}' | '\u{3000}' | '\u{feff}')
+    };
+    text.split(is_space).filter(|w| !w.is_empty()).count() as u64
 }
 fn read_header(db: &Connection, id: &str) -> Result<Header> {
     let data: String = db
@@ -1860,6 +1899,40 @@ mod tests {
         store.save(&p).unwrap();
         let mut fresh = Store::new(t.path().into()).unwrap();
         assert_eq!(fresh.load(&p.id).unwrap(), p);
+    }
+    #[test]
+    fn list_counts_words_and_sections_from_the_manuscript_entries() {
+        let t = tempfile::tempdir().unwrap();
+        let mut store = Store::new(t.path().into()).unwrap();
+        let mut p = project();
+        // Same sample text and same answer (5) as `words()` in src/projectCounts.test.ts;
+        // the non-breaking space and the ideographic space separate words in both.
+        p.entries[0].text = "  one two\u{a0}three\n\nfour\u{3000}five  ".into();
+        let second = section("alpha beta");
+        p.order.push(second.id.clone());
+        p.entries.push(second);
+        let mut note = section("not counted at all");
+        note.kind = "fragment".into();
+        p.entries.push(note);
+        store.save(&p).unwrap();
+        let listed = store.list().unwrap();
+        let s = &listed.projects[0];
+        assert_eq!((s.word_count, s.section_count), (Some(7), Some(2)));
+        let json = serde_json::to_value(s).unwrap();
+        assert_eq!((json["wordCount"].as_u64(), json["sectionCount"].as_u64()), (Some(7), Some(2)));
+        assert!(listed.damaged.is_empty());
+    }
+    #[test]
+    fn list_counts_zero_for_a_project_with_no_sections() {
+        let t = tempfile::tempdir().unwrap();
+        let mut store = Store::new(t.path().into()).unwrap();
+        let mut p = project();
+        p.order.clear();
+        p.entries[0].kind = "fragment".into();
+        p.entries[0].text = "only a fragment".into();
+        store.save(&p).unwrap();
+        let s = &store.list().unwrap().projects[0];
+        assert_eq!((s.word_count, s.section_count), (Some(0), Some(0)));
     }
     #[test]
     fn sparse_metadata_survives_history_mirrors_and_restart() {

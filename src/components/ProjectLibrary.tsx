@@ -368,6 +368,16 @@ export function ProjectLibrary({
               <strong className="project-name emph-label">{p.title}</strong>
               <span className="project-dates">
                 <span className="project-edited">Edited {date(p.updatedAt)}</span>
+                {p.wordCount !== undefined && (
+                  <span className="project-words">
+                    {p.wordCount.toLocaleString("en-US")} {p.wordCount === 1 ? "word" : "words"}
+                  </span>
+                )}
+                {p.sectionCount !== undefined && (
+                  <span className="project-sections">
+                    {p.sectionCount} {p.sectionCount === 1 ? "section" : "sections"}
+                  </span>
+                )}
                 <span>Added {date(added(p))}</span>
               </span>
             </button>

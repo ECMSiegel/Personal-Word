@@ -91,6 +91,8 @@ import { useFootnoteLayout } from "./editor/useFootnoteLayout";
 import { Dropdown, type DropdownOption } from "./components/Dropdown";
 import { ProseIssues } from "./components/ProseIssues";
 import { SideRuler } from "./editor/SideRuler";
+import { PageLabels } from "./editor/PageLabels";
+import { PageHeaderRows } from "./editor/PageHeaderRows";
 import { blankPageClick } from "./editor/blankClick";
 import { editorSettings, exportSettings } from "./research/documentSettingsDefaults";
 import {
@@ -229,6 +231,7 @@ export function Writer({
   onComment,
   onSelectionChange,
   documentSettings,
+  templateId,
   footnoteNumbers,
   footnotes,
   onFootnote,
@@ -251,6 +254,7 @@ export function Writer({
   showToolbar?: boolean;
   editorLabel?: string;
   documentSettings?: Partial<DocumentSettings>;
+  templateId?: string;
   footnoteNumbers?: Record<string, number>;
   footnotes?: FootnoteNote[];
   onFootnote?: (id: string) => void;
@@ -1962,8 +1966,12 @@ export function Writer({
                       }
                     />
                   </label>
-                  {exportSettings(documentSettings)
-                    .pageNumbers && (
+                  <PageHeaderRows
+                    settings={exportSettings(documentSettings)}
+                    onChange={onDocumentSettingsChange}
+                  />
+                  {(exportSettings(documentSettings).pageNumbers ||
+                    !!exportSettings(documentSettings).pageHeaderText?.trim()) && (
                     <div className="row">
                       <span className="row-label">Position</span>
                       <span className="row-trail">
@@ -2275,6 +2283,15 @@ export function Writer({
                   style={{ top: page * (geometry.height + geometry.gap) }}
                 />
               ))}
+            {layout.mode === "pages" && (
+              <PageLabels
+                pages={pages}
+                geometry={geometry}
+                margin={shownMargin}
+                settings={exportSettings(documentSettings)}
+                templateId={templateId}
+              />
+            )}
             {layout.mode === "pages" &&
               sideRulerShown &&
               !focusMode &&

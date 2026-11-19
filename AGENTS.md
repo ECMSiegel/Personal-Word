@@ -30,6 +30,7 @@ Personal Word is a Mac-first Tauri 2 app with React, TypeScript, Tiptap, and Rus
 
 ## Verification and delivery
 - Run npm run build, npm test, npm run test:e2e, and native cargo tests for affected persistence. Review actual light/dark screenshots and exported artifacts.
+- Small fixes run only the spec files they touch or could affect. The full browser suite runs once per batch, before a commit or a rebuilt app, not after every repair (owner, 2026-11-16). It runs three tests at a time (`workers: 3` in playwright.config.ts); a test that fails only there is re-run alone before anyone calls it a regression.
 - Check native WebKit behavior for editor/layout changes; Chromium results alone are not proof of macOS rendering.
 - Editable page view and PDF/Word pagination currently use different layout engines. Do not promise exact page parity.
 - Rebuild with npm run tauri build before offering a new app. Report the resulting Personal Word.app path; never point to an old Folio.app as the new build.

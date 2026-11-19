@@ -9,7 +9,7 @@ const command = isPreview
 export default defineConfig({
   testDir: "./tests",
   timeout: 90000,
-  workers: 1,
+  workers: 3,
   retries: 0,
   fullyParallel: false,
   use: {

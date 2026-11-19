@@ -24,6 +24,7 @@ import {
   type Inline,
 } from "./document";
 import { defaultFontSource, type ExportFontSource } from "./fontSource";
+import { pageLabelPosition } from "./pageLabel";
 
 // A run's font as Word is told it (first family, quotes stripped).
 const runFont = (fontFamily?: string) =>
@@ -250,16 +251,24 @@ export async function exportDocx(
       }),
     });
   };
-  const numberAtTop = (s.pageNumberPosition ?? "bottom-right").startsWith("top");
-  const numberAlignment = (s.pageNumberPosition ?? "bottom-right").endsWith("left")
+  const labelPosition = pageLabelPosition(s);
+  const numberAtTop = labelPosition.startsWith("top");
+  const numberAlignment = labelPosition.endsWith("left")
     ? AlignmentType.LEFT
-    : (s.pageNumberPosition ?? "bottom-right").endsWith("center")
+    : labelPosition.endsWith("center")
       ? AlignmentType.CENTER
       : AlignmentType.RIGHT;
+  const headerText = (s.pageHeaderText ?? "").trim();
+  const showLabel = s.pageNumbers || !!headerText;
   const numberParagraph = () =>
     new Paragraph({
       alignment: numberAlignment,
-      children: [new TextRun({ children: [PageNumber.CURRENT] })],
+      children: [
+        ...(headerText
+          ? [new TextRun({ text: s.pageNumbers ? headerText + " " : headerText })]
+          : []),
+        ...(s.pageNumbers ? [new TextRun({ children: [PageNumber.CURRENT] })] : []),
+      ],
     });
   const numberFooter = new Footer({ children: [numberParagraph()] });
   const numberHeader = new Header({ children: [numberParagraph()] });
@@ -329,7 +338,7 @@ export async function exportDocx(
     sections: [
       {
         properties: {
-          titlePage: project.templateId === "chicago",
+          titlePage: project.templateId === "chicago" || !!s.pageFirstDifferent,
           page: {
             pageNumbers: { start: project.templateId === "chicago" ? 0 : 1 },
             size:
@@ -344,8 +353,8 @@ export async function exportDocx(
             },
           },
         },
-        footers: s.pageNumbers && !numberAtTop ? { default: numberFooter } : undefined,
-        headers: s.pageNumbers && numberAtTop ? { default: numberHeader } : undefined,
+        footers: showLabel && !numberAtTop ? { default: numberFooter } : undefined,
+        headers: showLabel && numberAtTop ? { default: numberHeader } : undefined,
         children: [
           ...d.blocks.map((b) => blockToDocx(b, false)),
           ...(d.bibliography.length

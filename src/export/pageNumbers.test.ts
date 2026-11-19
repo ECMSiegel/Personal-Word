@@ -146,3 +146,83 @@ it("pageNumberPosition round-trips through project validation and JSON", () => {
   const old = JSON.parse(JSON.stringify(project()));
   expect("pageNumberPosition" in old.documentSettings).toBe(false);
 });
+
+function withHeader(
+  position: PageNumberPosition | undefined,
+  extra: { pageHeaderText?: string; pageFirstDifferent?: boolean; pageNumbers?: boolean },
+  template?: string,
+) {
+  const p = project(position, template);
+  p.documentSettings = { ...p.documentSettings!, ...extra };
+  return p;
+}
+
+it("page header text: PDF draws 'Siegel 2' on page two, true right-aligned, top right", async () => {
+  const p = withHeader("top-right", { pageHeaderText: "Siegel" });
+  const second = await pdfNumberDraw(p, 1);
+  const last = second.draws[second.draws.length - 1];
+  expect(last.y).toBeGreaterThan(second.height - 72);
+  // Measured width, not the old fixed 10: "Siegel 2" is far wider than one digit.
+  expect(last.x).toBeLessThan(second.width - 72 - 20);
+  expect(last.x).toBeGreaterThan(second.width - 72 - 80);
+  const base = await pdfNumberDraw(project("top-right"), 1);
+  expect(second.text).not.toBe(base.text);
+}, 30000);
+
+it("page header text: different first page leaves PDF page one without a label", async () => {
+  const plain = await pdfNumberDraw(project("top-right"), 0);
+  const first = await pdfNumberDraw(
+    withHeader("top-right", { pageHeaderText: "Siegel", pageFirstDifferent: true }),
+    0,
+  );
+  expect(first.draws.length).toBe(plain.draws.length - 1);
+  const second = await pdfNumberDraw(
+    withHeader("top-right", { pageHeaderText: "Siegel", pageFirstDifferent: true }),
+    1,
+  );
+  expect(second.draws.length).toBeGreaterThan(0);
+}, 30000);
+
+it("page header text: text with numbers off still draws on every page", async () => {
+  const off = await pdfNumberDraw(project("top-right"), 0);
+  const p = withHeader("top-right", { pageHeaderText: "Siegel", pageNumbers: false });
+  const first = await pdfNumberDraw(p, 0);
+  expect(first.draws.length).toBe(off.draws.length);
+}, 30000);
+
+it("page header text: Word header holds 'Siegel ' and a PAGE field; titlePg when first page differs", async () => {
+  const withText = await docxParts(withHeader("top-right", { pageHeaderText: "Siegel" }));
+  expect(withText.headers.join("")).toMatch(/Siegel /);
+  expect(withText.headers.join("")).toMatch(/PAGE/);
+  expect(withText.headers.join("")).toMatch(/w:jc w:val="right"/);
+  expect(withText.document).toMatch(/<w:titlePg w:val="false"\/>/);
+  const diff = await docxParts(
+    withHeader("top-right", { pageHeaderText: "Siegel", pageFirstDifferent: true }),
+  );
+  expect(diff.document).not.toMatch(/<w:titlePg w:val="false"\/>/);
+  expect(diff.document).toMatch(/<w:titlePg\b/);
+  const textOnly = await docxParts(
+    withHeader("bottom-right", { pageHeaderText: "Siegel", pageNumbers: false }),
+  );
+  expect(textOnly.footers.join("")).toMatch(/Siegel/);
+  expect(textOnly.footers.join("")).not.toMatch(/PAGE/);
+});
+
+it("neither new setting: Word XML is the same as before", async () => {
+  const a = await docxParts(project("top-right"));
+  const b = await docxParts(
+    withHeader("top-right", { pageHeaderText: "", pageFirstDifferent: false }),
+  );
+  expect(b.headers).toEqual(a.headers);
+  expect(b.footers).toEqual(a.footers);
+  expect(b.document).toBe(a.document);
+});
+
+it("page header text: Cyrillic and Greek text is drawn with a covering font", async () => {
+  const p = withHeader("top-left", { pageHeaderText: "Сигел Σίγελ" });
+  const second = await pdfNumberDraw(p, 1);
+  // Latin, Greek and Cyrillic subsets are separate fonts, so the label is several draws.
+  const labelDraws = second.draws.filter((d) => d.y > second.height - 72);
+  expect(labelDraws.length).toBeGreaterThanOrEqual(2);
+  expect(labelDraws[0].x).toBe(72);
+}, 30000);

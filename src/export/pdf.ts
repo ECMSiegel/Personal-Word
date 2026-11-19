@@ -24,6 +24,7 @@ import {
 } from "./fonts";
 import { defaultFontSource, type ExportFontSource } from "./fontSource";
 import { primaryFamily } from "../fonts/names";
+import { pageLabel, pageLabelPosition } from "./pageLabel";
 type Line = {
   runs: Inline[];
   height: number;
@@ -224,10 +225,16 @@ export async function exportPdf(
     ),
     ...segment({ text: "Bibliography", bold: true }, false),
   ];
+  const headerText = (s.pageHeaderText ?? "").trim();
+  // Header text goes through the same shard selection as body text; its glyphs
+  // (plus digits, space and "...") are embedded up front. Number-only labels skip this.
+  const headerRuns = headerText
+    ? segment({ text: headerText + " 0123456789..." }, false)
+    : [];
   const usedKeys = [
     ...new Set<PdfFontKey>([
       `${family}:regular:latin`,
-      ...allRuns
+      ...[...allRuns, ...headerRuns]
         .map((r) => r.fontFamily)
         .filter((key): key is PdfFontKey => !!key),
     ]),
@@ -591,22 +598,44 @@ export async function exportPdf(
         ny -= 4;
       }
     }
-    if (s.pageNumbers && !(project.templateId === "chicago" && index === 0)) {
-      const label = String(project.templateId === "chicago" ? index : index + 1);
-      const numberFont = embeddedFonts.values().next().value!;
-      const position = s.pageNumberPosition ?? "bottom-right";
-      const numberWidth = numberFont.widthOfTextAtSize(label, 10);
-      const numberX = position.endsWith("left")
-        ? margin
-        : position.endsWith("center")
-          ? paperWidth / 2 - numberWidth / 2
-          : paperWidth - margin - 10;
-      page.drawText(label, {
-        x: numberX,
-        y: position.startsWith("top") ? paperHeight - margin / 2 - 10 : margin / 2,
-        size: 10,
-        font: numberFont,
-      });
+    const pageText = pageLabel(s, project.templateId, index);
+    if (pageText !== null) {
+      const position = pageLabelPosition(s);
+      const room = paperWidth - 2 * margin;
+      const y = position.startsWith("top") ? paperHeight - margin / 2 - 10 : margin / 2;
+      const placeX = (labelWidth: number) =>
+        position.endsWith("left")
+          ? margin
+          : position.endsWith("center")
+            ? paperWidth / 2 - labelWidth / 2
+            : paperWidth - margin - (headerText ? labelWidth : 10);
+      const tail = s.pageNumbers ? " " + pageText.split(" ").pop() : "";
+      let head = pageText.slice(0, pageText.length - tail.length);
+      let label = pageText;
+      const chunksOf = (text: string) => (headerText ? segment({ text }, false) : []);
+      const widthOf = (text: string) =>
+        headerText
+          ? chunksOf(text).reduce((w, c) => w + font(c).widthOfTextAtSize(c.text, 10), 0)
+          : embeddedFonts.values().next().value!.widthOfTextAtSize(text, 10);
+      while (head.length > 1 && widthOf(label) > room) {
+        head = head.slice(0, -1);
+        label = head.trimEnd() + "..." + tail;
+      }
+      if (headerText) {
+        let x = placeX(widthOf(label));
+        for (const c of chunksOf(label)) {
+          page.drawText(c.text, { x, y, size: 10, font: font(c) });
+          x += font(c).widthOfTextAtSize(c.text, 10);
+        }
+      } else {
+        const numberFont = embeddedFonts.values().next().value!;
+        page.drawText(label, {
+          x: placeX(numberFont.widthOfTextAtSize(label, 10)),
+          y,
+          size: 10,
+          font: numberFont,
+        });
+      }
     }
   });
   return new Blob([new Uint8Array(await pdf.save())], {

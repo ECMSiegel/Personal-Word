@@ -1,6 +1,9 @@
-import { useRef, type ReactElement } from "react";
+import { useCallback, useRef, type ReactElement } from "react";
 import type { Editor } from "@tiptap/react";
 import { Popover, PopoverItem } from "../components/Popover";
+
+/** Window margin the menu keeps on every side (same as ContextMenu). */
+const MARGIN = 8;
 
 export function TableContextMenu({
   editor,
@@ -12,6 +15,29 @@ export function TableContextMenu({
   onClose: () => void;
 }): ReactElement | null {
   const anchor = useRef<HTMLSpanElement>(null);
+  // Popover only measures when it is already mounted, and this menu mounts open, so it never
+  // flips here. Once the menu is in the page, shift it (a CSS translate, which nothing else
+  // here uses) so it opens upward / leftward when it would run past the window, and stays inside.
+  const x = at?.x;
+  const y = at?.y;
+  const keepInWindow = useCallback(
+    (menu: HTMLDivElement | null) => {
+      if (!menu) return;
+      menu.style.translate = "";
+      const r = menu.getBoundingClientRect();
+      const vw = window.innerWidth;
+      const vh = window.innerHeight;
+      let left = r.left;
+      let top = r.top;
+      if (r.right > vw - MARGIN) left = r.left - r.width;
+      if (r.bottom > vh - MARGIN) top = r.top - r.height - 2;
+      left = Math.max(MARGIN, Math.min(left, vw - MARGIN - r.width));
+      top = Math.max(MARGIN, Math.min(top, vh - MARGIN - r.height));
+      if (left !== r.left || top !== r.top) menu.style.translate = `${left - r.left}px ${top - r.top}px`;
+    },
+    // A new click point is a new placement.
+    [x, y],
+  );
   if (!at) return null;
 
   const close = () => {
@@ -32,6 +58,7 @@ export function TableContextMenu({
     >
       <Popover
         open
+        ref={keepInWindow}
         anchor={anchor}
         morph="edge"
         highlight="follow"

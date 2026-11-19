@@ -75,3 +75,46 @@ test("the status line is one short line and pagination is hidden on one page", a
   await expect(page.getByRole("button", { name: "Previous issue page" })).toHaveCount(0);
   await expect(page.getByRole("button", { name: "Next issue page" })).toHaveCount(0);
 });
+
+for (const scheme of ["light", "dark"] as const) {
+  test(`issue list focus rings are not clipped by the scroller (${scheme})`, async ({ page }) => {
+    await page.emulateMedia({ colorScheme: scheme });
+    const issues = await openProseCheck(page);
+    const scroller = issues.locator(".prose-issues");
+    const targets = [
+      issues.locator(".prose-issue-select").first(),
+      issues.locator(".prose-issue-dismiss").first(),
+    ];
+    for (const target of targets) {
+      // Arrive by keyboard, so the ring is the :focus-visible one (a scripted focus after a click is not).
+      await target.focus();
+      await page.keyboard.press("Shift+Tab");
+      await page.keyboard.press("Tab");
+      await expect(target).toBeFocused();
+      expect(await target.evaluate((el) => el.matches(":focus-visible"))).toBe(true);
+      // Outline box = the element's border box grown by outline-offset + outline-width.
+      const { ring, view } = await target.evaluate((el) => {
+        const style = getComputedStyle(el);
+        const grow = parseFloat(style.outlineOffset) + parseFloat(style.outlineWidth);
+        const rect = el.getBoundingClientRect();
+        const box = el.closest(".prose-issues")!;
+        const scroll = box.getBoundingClientRect();
+        return {
+          ring: { left: rect.left - grow, top: rect.top - grow, right: rect.right + grow, bottom: rect.bottom + grow },
+          // The scroller's visible client rect: its border box minus borders and scrollbars.
+          view: {
+            left: scroll.left + box.clientLeft,
+            top: scroll.top + box.clientTop,
+            right: scroll.left + box.clientLeft + box.clientWidth,
+            bottom: scroll.top + box.clientTop + box.clientHeight,
+          },
+        };
+      });
+      await expect(scroller).toBeVisible();
+      expect(ring.left).toBeGreaterThanOrEqual(view.left - 0.01);
+      expect(ring.top).toBeGreaterThanOrEqual(view.top - 0.01);
+      expect(ring.right).toBeLessThanOrEqual(view.right + 0.01);
+      expect(ring.bottom).toBeLessThanOrEqual(view.bottom + 0.01);
+    }
+  });
+}

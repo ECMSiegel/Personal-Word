@@ -1787,7 +1787,11 @@ button[aria-pressed="true"],
   min-height: 115px;
   padding: var(--space-5) var(--space-5) var(--space-5) var(--space-4);
   flex-direction: column;
-  align-items: flex-start;
+  align-items: stretch;
+}
+/* The trash button sits in the card's top-right corner: stop the title short of it. */
+.project-list--cards .project-name {
+  max-width: calc(100% - var(--space-5));
 }
 .project-list--cards .project-dates {
   flex-wrap: wrap;

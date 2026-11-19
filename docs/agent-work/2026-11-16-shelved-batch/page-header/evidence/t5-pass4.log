@@ -1,0 +1,14 @@
+
+Running 8 tests using 1 worker
+
+  ✓  1 tests/sb-page-header.spec.ts:96:1 › (a) text plus number in Top right on every page, inside the top margin (6.5s)
+  ✓  2 tests/sb-page-header.spec.ts:109:1 › (b) each corner lands in the matching band and side (9.0s)
+  ✓  3 tests/sb-page-header.spec.ts:133:1 › (c) Different first page: nothing on page one, Siegel 2 on page two (4.4s)
+  ✓  4 tests/sb-page-header.spec.ts:141:1 › (d) numbers off, text on: the text alone on every page (4.6s)
+  ✓  5 tests/sb-page-header.spec.ts:149:1 › (e) continuous view shows no labels (4.8s)
+  ✓  6 tests/sb-page-header.spec.ts:158:1 › (f) a click on a label keeps editor focus and the label moves no text (4.9s)
+  ✓  7 tests/sb-page-header.spec.ts:187:1 › (g) text and checkbox survive a reload (6.2s)
+  ✓  8 tests/sb-page-header.spec.ts:198:1 › (h) Chicago: page one blank, page two reads 1 (2.8s)
+
+  8 passed (45.3s)
+EXIT 0

@@ -614,6 +614,14 @@
   background: var(--paper);
   pointer-events: none;
 }
+/* Page header text and number (PageLabels.tsx): top, left, right and transform are inline. */
+.is-paged .page-label {
+  position: absolute;
+  pointer-events: none;
+  font-size: var(--type-small);
+  color: var(--muted);
+  white-space: nowrap;
+}
 .is-paged .writing-surface {
   /* Positioned and its own formatting context, so block offsets are measured
      from the page's text area and the first block's margin stays inside it. */
@@ -668,7 +676,8 @@
     height: auto;
   }
   .page-spacer,
-  .page-sheet {
+  .page-sheet,
+  .page-label {
     display: none !important;
   }
   .manual-page-break {

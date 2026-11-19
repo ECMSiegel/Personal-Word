@@ -157,7 +157,34 @@ export function ExportPanel({
               ),
             )}
           </div>
-          {s.pageNumbers && (
+          <div className="settings-form stack gap-3">
+            <label className="settings-field row gap-3">
+              <span className="settings-label">Page header text</span>
+              <input
+                type="text"
+                aria-label="Page header text"
+                placeholder="Siegel"
+                maxLength={60}
+                value={s.pageHeaderText ?? ""}
+                onChange={(e) =>
+                  onSettingsChange({ ...s, pageHeaderText: e.target.value })
+                }
+              />
+            </label>
+          </div>
+          <div className="settings-checks stack gap-2">
+            <label className="settings-check cluster gap-2">
+              <input
+                type="checkbox"
+                checked={!!s.pageFirstDifferent}
+                onChange={(e) =>
+                  onSettingsChange({ ...s, pageFirstDifferent: e.target.checked })
+                }
+              />
+              Different first page
+            </label>
+          </div>
+          {(s.pageNumbers || !!s.pageHeaderText?.trim()) && (
             <div className="settings-form stack gap-3">
               <label className="settings-field row gap-3">
                 <span className="settings-label">Page number position</span>

@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
+import { useNewFragmentRow } from "../research/snipMotion";
 import {
   Book,
   BookMarked,
@@ -83,6 +84,8 @@ type Props = {
   onReorder: (id: string, to: number) => void;
   /** Moves a fragment to position `to` among all fragments. */
   onReorderFragment?: (id: string, to: number) => void;
+  /** The fragment just kept by a pointer click: its row (or the collapsed heading) slides in once. */
+  newFragmentId?: string;
   /** Moves a research source or note to position `to` in its own list. */
   onReorderResearch?: (list: "sources" | "notes", id: string, to: number) => void;
   onRead: () => void;
@@ -273,6 +276,7 @@ export function ProjectSidebar(props: Props) {
   useEffect(() => setCollapsed({}), [project.id]);
   const [localOrder, setLocalOrder] = useState(workspaceGroups);
   const aside = useRef<HTMLElement>(null);
+  useNewFragmentRow(aside, props.newFragmentId);
   useEffect(() => {
     // Spread the stored value first so fields this component does not own
     // (the floating switch) survive its writes.

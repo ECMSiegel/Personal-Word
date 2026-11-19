@@ -74,6 +74,8 @@ export type Annotation = {
 };
 export type Summary = Pick<Project, "id" | "title" | "updatedAt"> & {
   createdAt?: string;
+  wordCount?: number;
+  sectionCount?: number;
 };
 export type Version = { id: string; name: string; createdAt: string };
 export const now = () => new Date().toISOString();

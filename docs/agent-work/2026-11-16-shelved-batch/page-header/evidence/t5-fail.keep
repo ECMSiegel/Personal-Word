@@ -1,0 +1,187 @@
+
+Running 8 tests using 1 worker
+
+  ✘  1 tests/sb-page-header.spec.ts:92:1 › (a) text plus number in Top right on every page, inside the top margin (1.5m)
+  ✘  2 tests/sb-page-header.spec.ts:105:1 › (b) each corner lands in the matching band and side (1.5m)
+  ✘  3 tests/sb-page-header.spec.ts:129:1 › (c) Different first page: nothing on page one, Siegel 2 on page two (1.5m)
+  ✘  4 tests/sb-page-header.spec.ts:137:1 › (d) numbers off, text on: the text alone on every page (1.5m)
+  ✘  5 tests/sb-page-header.spec.ts:145:1 › (e) continuous view shows no labels (1.5m)
+  ✘  6 tests/sb-page-header.spec.ts:154:1 › (f) a click on a label keeps editor focus and the label moves no text (1.5m)
+  ✘  7 tests/sb-page-header.spec.ts:171:1 › (g) text and checkbox survive a reload (1.5m)
+  ✘  8 tests/sb-page-header.spec.ts:182:1 › (h) Chicago: page one blank, page two reads 1 (9.3s)
+
+
+  1) tests/sb-page-header.spec.ts:92:1 › (a) text plus number in Top right on every page, inside the top margin 
+
+    Test timeout of 90000ms exceeded.
+
+    Error: locator.fill: Test timeout of 90000ms exceeded.
+    Call log:
+      - waiting for getByRole('dialog', { name: 'Page setup' }).getByRole('textbox', { name: 'Page header text' })
+
+
+      35 |   if (o.text !== undefined) {
+      36 |     const field = dialog.getByRole("textbox", { name: "Page header text" });
+    > 37 |     await field.fill(o.text);
+         |                 ^
+      38 |     await field.press("Enter");
+      39 |   }
+      40 |   if (o.position) {
+        at configure (/Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/tests/sb-page-header.spec.ts:37:17)
+        at /Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/tests/sb-page-header.spec.ts:94:3
+
+    Error Context: test-results/sb-page-header/sb-page-header--a-text-plu-9eeca--page-inside-the-top-margin/error-context.md
+
+  2) tests/sb-page-header.spec.ts:105:1 › (b) each corner lands in the matching band and side ──────
+
+    Test timeout of 90000ms exceeded.
+
+    Error: locator.fill: Test timeout of 90000ms exceeded.
+    Call log:
+      - waiting for getByRole('dialog', { name: 'Page setup' }).getByRole('textbox', { name: 'Page header text' })
+
+
+      35 |   if (o.text !== undefined) {
+      36 |     const field = dialog.getByRole("textbox", { name: "Page header text" });
+    > 37 |     await field.fill(o.text);
+         |                 ^
+      38 |     await field.press("Enter");
+      39 |   }
+      40 |   if (o.position) {
+        at configure (/Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/tests/sb-page-header.spec.ts:37:17)
+        at /Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/tests/sb-page-header.spec.ts:107:3
+
+    Error Context: test-results/sb-page-header/sb-page-header--b-each-cor-786ea--the-matching-band-and-side/error-context.md
+
+  3) tests/sb-page-header.spec.ts:129:1 › (c) Different first page: nothing on page one, Siegel 2 on page two 
+
+    Test timeout of 90000ms exceeded.
+
+    Error: locator.fill: Test timeout of 90000ms exceeded.
+    Call log:
+      - waiting for getByRole('dialog', { name: 'Page setup' }).getByRole('textbox', { name: 'Page header text' })
+
+
+      35 |   if (o.text !== undefined) {
+      36 |     const field = dialog.getByRole("textbox", { name: "Page header text" });
+    > 37 |     await field.fill(o.text);
+         |                 ^
+      38 |     await field.press("Enter");
+      39 |   }
+      40 |   if (o.position) {
+        at configure (/Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/tests/sb-page-header.spec.ts:37:17)
+        at /Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/tests/sb-page-header.spec.ts:131:3
+
+    Error Context: test-results/sb-page-header/sb-page-header--c-Differen-5b28b-ge-one-Siegel-2-on-page-two/error-context.md
+
+  4) tests/sb-page-header.spec.ts:137:1 › (d) numbers off, text on: the text alone on every page ───
+
+    Test timeout of 90000ms exceeded.
+
+    Error: locator.fill: Test timeout of 90000ms exceeded.
+    Call log:
+      - waiting for getByRole('dialog', { name: 'Page setup' }).getByRole('textbox', { name: 'Page header text' })
+
+
+      35 |   if (o.text !== undefined) {
+      36 |     const field = dialog.getByRole("textbox", { name: "Page header text" });
+    > 37 |     await field.fill(o.text);
+         |                 ^
+      38 |     await field.press("Enter");
+      39 |   }
+      40 |   if (o.position) {
+        at configure (/Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/tests/sb-page-header.spec.ts:37:17)
+        at /Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/tests/sb-page-header.spec.ts:139:3
+
+    Error Context: test-results/sb-page-header/sb-page-header--d-numbers--56655-he-text-alone-on-every-page/error-context.md
+
+  5) tests/sb-page-header.spec.ts:145:1 › (e) continuous view shows no labels ──────────────────────
+
+    Test timeout of 90000ms exceeded.
+
+    Error: locator.fill: Test timeout of 90000ms exceeded.
+    Call log:
+      - waiting for getByRole('dialog', { name: 'Page setup' }).getByRole('textbox', { name: 'Page header text' })
+
+
+      35 |   if (o.text !== undefined) {
+      36 |     const field = dialog.getByRole("textbox", { name: "Page header text" });
+    > 37 |     await field.fill(o.text);
+         |                 ^
+      38 |     await field.press("Enter");
+      39 |   }
+      40 |   if (o.position) {
+        at configure (/Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/tests/sb-page-header.spec.ts:37:17)
+        at /Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/tests/sb-page-header.spec.ts:147:3
+
+    Error Context: test-results/sb-page-header/sb-page-header--e-continuous-view-shows-no-labels/error-context.md
+
+  6) tests/sb-page-header.spec.ts:154:1 › (f) a click on a label keeps editor focus and the label moves no text 
+
+    Test timeout of 90000ms exceeded.
+
+    Error: locator.fill: Test timeout of 90000ms exceeded.
+    Call log:
+      - waiting for getByRole('dialog', { name: 'Page setup' }).getByRole('textbox', { name: 'Page header text' })
+
+
+      35 |   if (o.text !== undefined) {
+      36 |     const field = dialog.getByRole("textbox", { name: "Page header text" });
+    > 37 |     await field.fill(o.text);
+         |                 ^
+      38 |     await field.press("Enter");
+      39 |   }
+      40 |   if (o.position) {
+        at configure (/Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/tests/sb-page-header.spec.ts:37:17)
+        at /Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/tests/sb-page-header.spec.ts:160:3
+
+    Error Context: test-results/sb-page-header/sb-page-header--f-a-click--41b1c-and-the-label-moves-no-text/error-context.md
+
+  7) tests/sb-page-header.spec.ts:171:1 › (g) text and checkbox survive a reload ───────────────────
+
+    Test timeout of 90000ms exceeded.
+
+    Error: locator.fill: Test timeout of 90000ms exceeded.
+    Call log:
+      - waiting for getByRole('dialog', { name: 'Page setup' }).getByRole('textbox', { name: 'Page header text' })
+
+
+      35 |   if (o.text !== undefined) {
+      36 |     const field = dialog.getByRole("textbox", { name: "Page header text" });
+    > 37 |     await field.fill(o.text);
+         |                 ^
+      38 |     await field.press("Enter");
+      39 |   }
+      40 |   if (o.position) {
+        at configure (/Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/tests/sb-page-header.spec.ts:37:17)
+        at /Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/tests/sb-page-header.spec.ts:173:3
+
+    Error Context: test-results/sb-page-header/sb-page-header--g-text-and-checkbox-survive-a-reload/error-context.md
+
+  8) tests/sb-page-header.spec.ts:182:1 › (h) Chicago: page one blank, page two reads 1 ────────────
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: "1"
+    Received: undefined
+
+      194 |   const got = await labels(page);
+      195 |   expect(got.some((l) => l.page === 0)).toBe(false);
+    > 196 |   expect(got.find((l) => l.page === 1)?.text).toBe("1");
+          |                                               ^
+      197 | });
+      198 |
+        at /Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor/tests/sb-page-header.spec.ts:196:47
+
+    Error Context: test-results/sb-page-header/sb-page-header--h-Chicago-page-one-blank-page-two-reads-1/error-context.md
+
+  8 failed
+    tests/sb-page-header.spec.ts:92:1 › (a) text plus number in Top right on every page, inside the top margin 
+    tests/sb-page-header.spec.ts:105:1 › (b) each corner lands in the matching band and side ───────
+    tests/sb-page-header.spec.ts:129:1 › (c) Different first page: nothing on page one, Siegel 2 on page two 
+    tests/sb-page-header.spec.ts:137:1 › (d) numbers off, text on: the text alone on every page ────
+    tests/sb-page-header.spec.ts:145:1 › (e) continuous view shows no labels ───────────────────────
+    tests/sb-page-header.spec.ts:154:1 › (f) a click on a label keeps editor focus and the label moves no text 
+    tests/sb-page-header.spec.ts:171:1 › (g) text and checkbox survive a reload ────────────────────
+    tests/sb-page-header.spec.ts:182:1 › (h) Chicago: page one blank, page two reads 1 ─────────────
+EXIT 1

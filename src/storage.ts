@@ -6,6 +6,7 @@ import {
   validateProject,
 } from "./model";
 import { type Change, headerOf } from "./save-queue";
+import { projectCounts } from "./projectCounts";
 import { type AssetMeta, type PendingAsset } from "./assets/types";
 import {
   browserAssetStore,
@@ -43,11 +44,12 @@ export const storage = {
     const projects = Object.keys(localStorage)
       .filter((k) => k.startsWith(prefix + "project."))
       .map((k) => JSON.parse(localStorage.getItem(k)!) as Project)
-      .map(({ id, title, createdAt, updatedAt }) => ({
-        id,
-        title,
-        createdAt,
-        updatedAt,
+      .map((project) => ({
+        id: project.id,
+        title: project.title,
+        createdAt: project.createdAt,
+        updatedAt: project.updatedAt,
+        ...projectCounts(project),
       }))
       .sort((a, b) => b.updatedAt.localeCompare(a.updatedAt));
     return { projects, damaged: [] };

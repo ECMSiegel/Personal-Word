@@ -80,7 +80,7 @@ test("row titles are 15 px and first; Edited is normal colour, Added is muted; c
     const row = page.locator(".project-row").first();
     const name = row.locator(".project-name");
     const edited = row.locator(".project-dates > span").nth(0);
-    const added = row.locator(".project-dates > span").nth(1);
+    const added = row.locator(".project-dates > span").filter({ hasText: /^Added/ });
     await expect(edited).toHaveText(/^Edited \S/);
     await expect(added).toHaveText(/^Added \S/);
     expect(await name.evaluate((el) => getComputedStyle(el).fontSize)).toBe("15px");
@@ -163,4 +163,82 @@ test("an empty search keeps 'No matching projects.' and not the empty-state bloc
   await page.getByRole("searchbox", { name: "Filter projects by title" }).fill("zzz");
   await expect(page.getByText("No matching projects.")).toBeVisible();
   await expect(page.locator(".library-empty-actions")).toHaveCount(0);
+});
+
+test("in cards view a very long title stays inside its card and clear of the trash button", async ({ page }) => {
+  await page.goto("/");
+  await createProject(page, "Short one");
+  await createProject(page, "Long title ".repeat(10).trim());
+  await page.getByRole("button", { name: "Show project cards" }).click();
+  const card = page.locator(".project-row").filter({ hasText: "Long title" });
+  await card.hover();
+  const name = (await card.locator(".project-name").boundingBox())!;
+  const box = (await card.boundingBox())!;
+  const trash = (await card.locator(".delete-entry").boundingBox())!;
+  expect(name.x + name.width).toBeLessThanOrEqual(box.x + box.width);
+  const overlapsTrash = name.x < trash.x + trash.width && name.x + name.width > trash.x && name.y < trash.y + trash.height && name.y + name.height > trash.y;
+  expect(overlapsTrash).toBe(false);
+});
+
+test("each project shows its word and section counts between Edited and Added, in list and cards", async ({ page }) => {
+  await page.goto("/");
+  const id = "22222222-2222-4222-8222-222222222222";
+  await page.evaluate((id) => {
+    const words = (n: number) => Array.from({ length: n }, (_, i) => "w" + i).join(" ");
+    const section = (n: number, i: number) => ({
+      id: `33333333-3333-4333-8333-33333333333${i}`,
+      kind: "section",
+      title: "S" + i,
+      content: { type: "doc", content: [{ type: "paragraph" }] },
+      text: words(n),
+      updatedAt: "2026-11-01T00:00:00.000Z",
+      origin: null,
+    });
+    const entries = [section(1000, 1), section(150, 2), section(50, 3)];
+    localStorage.setItem(
+      "folio.preview.project." + id,
+      JSON.stringify({
+        id,
+        title: "Counted project",
+        createdAt: "2026-11-01T00:00:00.000Z",
+        updatedAt: "2026-11-04T00:00:00.000Z",
+        revision: 1,
+        order: entries.map((e) => e.id),
+        entries,
+      }),
+    );
+  }, id);
+  await page.reload();
+  for (const view of ["list", "cards"] as const) {
+    if (view === "cards") await page.getByRole("button", { name: "Show project cards" }).click();
+    const dates = page.locator(".project-row", { hasText: "Counted project" }).locator(".project-dates > span");
+    await expect(dates).toHaveCount(4);
+    await expect(dates.nth(0)).toHaveText(/^Edited \S/);
+    await expect(dates.nth(1)).toHaveText("1,200 words");
+    await expect(dates.nth(2)).toHaveText("3 sections");
+    await expect(dates.nth(3)).toHaveText(/^Added \S/);
+  }
+});
+
+test("in cards view the counts line stays inside the card and clear of the trash button", async ({ page }) => {
+  await page.goto("/");
+  await createProject(page, "Long title ".repeat(10).trim());
+  await page.getByRole("button", { name: "Show project cards" }).click();
+  const card = page.locator(".project-row").first();
+  await card.hover();
+  const box = (await card.boundingBox())!;
+  const trash = (await card.locator(".delete-entry").boundingBox())!;
+  const dates = await card.locator(".project-dates > span").evaluateAll((els) =>
+    els.map((el) => {
+      const r = el.getBoundingClientRect();
+      return { x: r.x, y: r.y, w: r.width, h: r.height };
+    }),
+  );
+  expect(dates).toHaveLength(4);
+  for (const d of dates) {
+    expect(d.x + d.w).toBeLessThanOrEqual(box.x + box.width);
+    expect(d.y + d.h).toBeLessThanOrEqual(box.y + box.height);
+    const overlaps = d.x < trash.x + trash.width && d.x + d.w > trash.x && d.y < trash.y + trash.height && d.y + d.h > trash.y;
+    expect(overlaps).toBe(false);
+  }
 });

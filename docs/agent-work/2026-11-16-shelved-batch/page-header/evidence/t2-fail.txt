@@ -1,0 +1,10 @@
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 4 ⎯⎯⎯⎯⎯⎯⎯
+ FAIL  src/export/pageNumbers.test.ts > page header text: PDF draws 'Siegel 2' on page two, true right-aligned, top right
+AssertionError: expected 530 to be less than 520
+ FAIL  src/export/pageNumbers.test.ts > page header text: different first page leaves PDF page one without a label
+AssertionError: expected 6 to be 5 // Object.is equality
+ FAIL  src/export/pageNumbers.test.ts > page header text: text with numbers off still draws on every page
+AssertionError: expected 5 to be 6 // Object.is equality
+ FAIL  src/export/pageNumbers.test.ts > page header text: Word header holds 'Siegel ' and a PAGE field; titlePg when first page differs
+AssertionError: expected '<?xml version="1.0" encoding="UTF-8"?…' to match /Siegel /
+      Tests  4 failed | 10 passed (14)

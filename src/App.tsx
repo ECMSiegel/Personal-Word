@@ -120,6 +120,8 @@ import type { PendingAsset } from "./assets/types";
 import { createProjectArchive, readProjectArchive } from "./projectArchive";
 import { SettingsNav, scrollToSettingsSection } from "./settings/SettingsNav";
 import { useResearchAsideEntrance } from "./research/asideMotion";
+import { useProjectSwapMotion } from "./research/pageMotion";
+import { turnScissors } from "./research/snipMotion";
 
 function readPreference<T>(key: string, fallback: T): T {
   try {
@@ -1244,6 +1246,8 @@ export default function App() {
             : { ...r, notes: moveWithin(r.notes, at(r.notes), to) },
       };
     });
+  // The fragment the last pointer click on the scissors made; its sidebar row slides in once.
+  const [newFragmentId, setNewFragmentId] = useState<string>();
   const extract = (editor: Editor) => {
     const p = current.current;
     // Only the editor that shows the active entry may write it.
@@ -1297,6 +1301,12 @@ export default function App() {
     setNotice(
       "Selection kept in Fragments. Its original section and position are remembered.",
     );
+    // A pointer click shows where the snip went; the shortcut stays still.
+    if (pointerInput.current) {
+      const button = document.activeElement?.closest(".extract") ?? document.querySelector(".extract");
+      turnScissors(button?.querySelector("svg") ?? null);
+      setNewFragmentId(fragment.id);
+    }
   };
   const appendFragment = (fragment: Entry, target: string, open = true) => {
     const editor = mode === "write" ? editorFor(target) : null;
@@ -1873,6 +1883,7 @@ export default function App() {
         resolveAsset={resolveAsset}
         onInsertImage={onInsertImage}
         documentSettings={project.documentSettings}
+        templateId={project.templateId}
         footnoteNumbers={footnoteNumbers}
         footnotes={(project.research?.footnotes ?? [])
           .filter((n) => footnoteNumbers[n.id])
@@ -2140,6 +2151,7 @@ export default function App() {
   }, []);
   const researchAside = useRef<HTMLElement>(null);
   useResearchAsideEntrance(researchAside, destination === "research" && !showCard, () => pointerInput.current);
+  useProjectSwapMotion(!!project, () => pointerInput.current);
   const openCard = (footnoteId?: string) => {
     cardReturn.current = document.activeElement;
     setCardAnimate(pointerInput.current);
@@ -2339,6 +2351,7 @@ export default function App() {
           <>
             <ProjectSidebar
               key={project.id}
+              newFragmentId={newFragmentId}
               project={project}
               activeDestination={destination}
               openIds={openIds}

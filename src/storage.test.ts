@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import { invoke } from "@tauri-apps/api/core";
 import { storage, setDesktopForTesting } from "./storage";
 import { browserAssetStore, createPendingAsset, fromBase64, sha256Hex, toBase64 } from "./assets/assets";
-import { newProject, textOf, type Project } from "./model";
+import { entry, newProject, textOf, type Project } from "./model";
 import { headerOf } from "./save-queue";
 import { createProjectArchive, readProjectArchive } from "./projectArchive";
 import betaFixture from "../tests/fixtures/beta-synthetic-project.json";
@@ -189,6 +189,27 @@ describe("storage adapter - browser preview", () => {
     (globalThis as any).indexedDB = fakeIndexedDB();
     idbData.clear();
     vi.clearAllMocks();
+  });
+
+  it("lists word and section counts for manuscript sections only", async () => {
+    // The shared fake storage cannot be enumerated; list() needs Object.keys(localStorage).
+    const ls = createMemoryStorage();
+    const set = ls.setItem;
+    ls.setItem = (k, v) => {
+      set(k, v);
+      (ls as any)[k] = v;
+    };
+    (globalThis as any).localStorage = ls;
+    const p = newProject("Counted");
+    const frag = { ...entry("fragment", "Note"), text: "not counted at all" };
+    const counted = {
+      ...p,
+      order: p.order,
+      entries: [{ ...p.entries[0], text: "one two three" }, frag],
+    };
+    await storage.save({ header: headerOf(counted), entries: counted.entries, baseRevision: null });
+    const { projects } = await storage.list();
+    expect(projects[0]).toMatchObject({ wordCount: 3, sectionCount: 1 });
   });
 
   it("stages assets into browserAssetStore and returns metadata", async () => {
