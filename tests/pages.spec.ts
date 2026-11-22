@@ -61,11 +61,14 @@ async function seed(page: Page) {
   await expect(page.getByRole("textbox", { name: "Writing editor", exact: true })).toBeVisible();
 }
 
-async function togglePageView(page: Page) {
-  const button = page.getByRole("button", { name: "Page view", exact: true });
-  if (!(await button.count()))
+async function setPageView(page: Page, on: boolean) {
+  // New projects open in Page view, so state the wanted view instead of clicking blindly.
+  let button = page.getByRole("button", { name: "Page view", exact: true });
+  if (!(await button.count())) {
     await page.getByRole("button", { name: "More formatting" }).click();
-  await button.click();
+    button = page.getByRole("button", { name: "Page view", exact: true });
+  }
+  if ((await button.getAttribute("aria-pressed")) !== String(on)) await button.click();
   await page.keyboard.press("Escape");
 }
 
@@ -245,7 +248,7 @@ test.describe("vertical page view", () => {
     await create(page, "Vertical pages");
     await seed(page);
     const editor = page.getByRole("textbox", { name: "Writing editor", exact: true });
-    await togglePageView(page);
+    await setPageView(page, true);
     await expect(page.locator(".editor-viewport")).toHaveClass(/is-paged/);
     await settle(page);
     // The owner's report: page view scrolled sideways. Nothing may.
@@ -378,7 +381,7 @@ test.describe("vertical page view", () => {
     expect((await measure(editor)).spacers).toBe(g.spacers);
 
     // Back to continuous view: no spacers remain.
-    await togglePageView(page);
+    await setPageView(page, false);
     await expect(page.locator(".editor-viewport")).toHaveClass(/is-continuous/);
     await expect(page.locator(".page-spacer")).toHaveCount(0);
   });
@@ -388,7 +391,7 @@ test.describe("vertical page view", () => {
     await create(page, "Rewrap pages");
     await seed(page);
     const editor = page.getByRole("textbox", { name: "Writing editor", exact: true });
-    await togglePageView(page);
+    await setPageView(page, true);
     await expect.poll(async () => (await measure(editor)).inline).toBeGreaterThan(10);
     await settle(page);
     // Right edge of the last text line above the first spacer inside a paragraph,
@@ -447,7 +450,7 @@ test.describe("vertical page view", () => {
     await create(page, "Page break pages");
     const editor = page.getByRole("textbox", { name: "Writing editor", exact: true });
     await editor.fill("First page text.");
-    await togglePageView(page);
+    await setPageView(page, true);
     await expect(page.getByLabel("Page count")).toContainText("of 1");
     await editor.press("End");
     await editor.press("Shift+Enter");
@@ -465,7 +468,7 @@ test.describe("vertical page view", () => {
     await create(page, "Reduced motion pages");
     await seed(page);
     const editor = page.getByRole("textbox", { name: "Writing editor", exact: true });
-    await togglePageView(page);
+    await setPageView(page, true);
     await expect.poll(async () => (await measure(editor)).spacers).toBeGreaterThan(40);
     const g = await measure(editor);
     expect(g.viewport.scroll).toBe(g.viewport.client);
@@ -477,7 +480,7 @@ test.describe("vertical page view", () => {
     await create(page, "Composition pages");
     const editor = page.getByRole("textbox", { name: "Writing editor", exact: true });
     await editor.fill("Short.");
-    await togglePageView(page);
+    await setPageView(page, true);
     await settle(page);
     await expect(page.locator(".page-spacer")).toHaveCount(0);
     // Start a composition, then grow the document past a page while it lasts.
@@ -518,7 +521,7 @@ test.describe("page view in a split pane", () => {
     await rows.filter({ hasText: /^Opening/ }).click();
     await rows.filter({ hasText: /^Second/ }).click({ modifiers: ["ControlOrMeta"] });
     await expect(page.locator(".split-pane")).toHaveCount(2);
-    await togglePageView(page);
+    await setPageView(page, true);
     const left = page.getByRole("textbox", { name: "Writing editor", exact: true });
     const right = page.getByRole("textbox", { name: "Writing editor, right pane" });
     await settle(page);

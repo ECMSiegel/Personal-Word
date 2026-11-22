@@ -31,6 +31,21 @@
 [data-drag-edge="bottom"]::after {
   bottom: 0;
 }
+/* Horizontal lists (project tabs): the drop line is a vertical 2 px edge. */
+[data-drag-axis="x"] [data-drag-edge]::after {
+  top: 0;
+  bottom: 0;
+  left: auto;
+  right: auto;
+  width: 2px;
+  block-size: 100%;
+}
+[data-drag-axis="x"] [data-drag-edge="top"]::after {
+  left: 0;
+}
+[data-drag-axis="x"] [data-drag-edge="bottom"]::after {
+  right: 0;
+}
 @media (prefers-reduced-motion: reduce) {
   [data-drag-state] {
     transition: none;

@@ -1,0 +1,29 @@
+{
+  "id": "T342",
+  "title": "OB8 -- Eyes-on review of the outline with screenshots",
+  "description": "OPUS ONLY. Follow task OB8 in docs/agent-work/2026-11-22-projects-outline/PLAN.md. No source edits.",
+  "status": "available",
+  "owner": null,
+  "priority": 2,
+  "depends_on": [
+    "T341"
+  ],
+  "files": [
+    "docs/agent-work/2026-11-22-projects-outline/reviews/REVIEW-1.md"
+  ],
+  "review_required": false,
+  "created_by": "agent-4969",
+  "created_at": "2026-11-22T23:33:39+00:00",
+  "claimed_at": null,
+  "updated_at": "2026-11-22T23:33:39+00:00",
+  "handoff": null,
+  "review": null,
+  "log": [
+    {
+      "at": "2026-11-22T23:33:39+00:00",
+      "agent": "agent-4969",
+      "event": "created",
+      "note": ""
+    }
+  ]
+}

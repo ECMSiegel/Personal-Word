@@ -1,4 +1,5 @@
 import { test, expect } from "@playwright/test";
+import { setPageView } from "./pages-helpers";
 
 async function create(page: any, title: string) {
   await page.getByRole("button", { name: "Start new project" }).click();
@@ -200,11 +201,8 @@ test.describe("revealed focus-mode toolbar never covers text (X1b)", () => {
       const editor = page.getByRole("textbox", { name: "Writing editor" });
       await editor.click();
       await editor.pressSequentially("Quiet words at the very top");
-      if (mode === "page view") {
-        await page.getByRole("button", { name: "Page view", exact: true }).click();
-        await page.keyboard.press("Escape");
-        await editor.click();
-      }
+      await setPageView(page, mode === "page view");
+      await editor.click();
       const firstLineTop = () =>
         page.evaluate(() => {
           const p = document.querySelector(".writing-surface p")!;
@@ -243,8 +241,7 @@ test.describe("focus mode in page view: the reserved toolbar band is desk (X1c)"
         const editor = page.getByRole("textbox", { name: "Writing editor" });
         await editor.click();
         await editor.pressSequentially("Desk words");
-        await page.getByRole("button", { name: "Page view", exact: true }).click();
-        await page.keyboard.press("Escape");
+        await setPageView(page, true);
         await editor.click();
         const paperTop = () => page.evaluate(() => document.querySelector(".editor-paper")!.getBoundingClientRect().top);
         const normalPaper = await paperTop();

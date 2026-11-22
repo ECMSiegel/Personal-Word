@@ -122,8 +122,12 @@ export function useReadSpy(
       const atBottom = scroller.scrollTop + scroller.clientHeight >= scroller.scrollHeight - 50;
       const index = activeIndex(tops, scroller.clientHeight, atBottom);
       const box = boxes[index];
+      // A section runs from its anchor to the next section's anchor (the last: to the end of the
+      // scroller's content). In page view the anchor is only the title, not the whole section.
+      const nextTop = index + 1 < ids.length ? tops[index + 1] : scroller.scrollHeight - scroller.scrollTop;
+      const height = Number.isFinite(nextTop) ? nextTop - tops[index] : box?.height ?? 0;
       const progress = box
-        ? sectionProgress(tops[index], box.height, scroller.clientHeight, atBottom && index === ids.length - 1)
+        ? sectionProgress(tops[index], height, scroller.clientHeight, atBottom && index === ids.length - 1)
         : 0;
       const next = ids[index];
       setActive((prev) =>

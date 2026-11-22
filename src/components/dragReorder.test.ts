@@ -221,3 +221,27 @@ describe("keyboardMove", () => {
     expect(keyboardMove(key("ArrowDown", { altKey: true, ctrlKey: true }))).toBe(0);
   });
 });
+
+describe("horizontal axis (project tabs)", () => {
+  const lefts = [0, 100, 220];
+  const widths = [100, 120, 80];
+  it("insertionIndex works on lefts and widths", () => {
+    expect(insertionIndex(10, lefts, widths)).toBe(0);
+    expect(insertionIndex(300, lefts, widths)).toBe(2);
+  });
+  it("keyboardMove maps Option+Left/Right on x and ignores Up/Down", () => {
+    const k = (key: string) => ({ key, altKey: true, metaKey: false, ctrlKey: false, shiftKey: false });
+    expect(keyboardMove(k("ArrowLeft"), "x")).toBe(-1);
+    expect(keyboardMove(k("ArrowRight"), "x")).toBe(1);
+    expect(keyboardMove(k("ArrowUp"), "x")).toBe(0);
+    expect(keyboardMove(k("ArrowLeft"))).toBe(0);
+  });
+  it("byPointer reaches slot 0 with a wide lifted row, which the centre rule cannot", () => {
+    const byCentre = new DragController(5, () => {});
+    byCentre.down(300, 2, [0, 60, 120], [60, 60, 200]);
+    expect(byCentre.move(0)!.to).toBe(2);
+    const byPointer = new DragController(5, () => {}, true);
+    byPointer.down(300, 2, [0, 60, 120], [60, 60, 200]);
+    expect(byPointer.move(5)!.to).toBe(0);
+  });
+});

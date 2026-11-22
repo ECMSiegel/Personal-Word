@@ -1,5 +1,5 @@
 import { test, expect, type Page } from "@playwright/test";
-import { togglePageView } from "./pages-helpers";
+import { setPageView } from "./pages-helpers";
 
 // README screenshots (board task T318). Only runs with README_SHOTS=1:
 //   README_SHOTS=1 PLAYWRIGHT_PORT=<port> npx playwright test tests/readme-shots.spec.ts --output test-results/T318
@@ -259,11 +259,11 @@ test.describe("README screenshots", () => {
     // Page view in dark mode.
     await groupTitle(page, "Research").click();
     await openRow(page, "Introduction");
-    await togglePageView(page);
+    await setPageView(page, true);
     await page.emulateMedia({ colorScheme: "dark" });
     await shot(page, "writing-dark");
     await page.emulateMedia({ colorScheme: "light" });
-    await togglePageView(page);
+    await setPageView(page, false);
 
     // Settings, General: appearance, palette, interface font and sidebar options.
     await page.getByRole("button", { name: "Settings", exact: true }).click();

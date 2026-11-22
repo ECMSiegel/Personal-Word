@@ -18,6 +18,7 @@ Addendum 2026-10-25 (owner approved, UI polish): also execute `docs/agent-work/2
 Addendum 2026-10-26 (owner approved, UI wave 2): also execute `docs/agent-work/2026-10-26-ui-wave-2/PLAN.md` tasks U1-U21 (board T098-T118) and its Validation list, one board task each, with its files, fail-first checks, acceptance commands and the seven answered open questions; U1-U14 and U16-U21 run as a serial chain, U15 and U17 may run alongside.
 Addendum 2026-10-28 (owner approved, UI wave 3): also execute `docs/agent-work/2026-10-28-ui-wave-3/PLAN.md` tasks E1-E3, A1-A5, S1-S3, N1-N4, D1-D2, P1-P2, K2 and V (board T131-T151), one board task each, with its files, fail-first checks and acceptance commands; lanes run in parallel and the board file-overlap check is the only sequencing inside a lane.
 Addendum 2026-11-02 (owner approved, UI wave 6): also execute `docs/agent-work/2026-11-02-ui-wave-6/PLAN.md` tasks T1-T6, T7a, T7b, V, F and R (board titles start "W6"), one board task each, with its files, fail-first checks and acceptance commands; lanes run in parallel, and the shared files `src/styles.css`, `src/App.tsx`, `tests/split-view.spec.ts` and `tests/hover-emphasis.spec.ts` are owned by region per decision "W6 shared-file regions", not registered.
+Addendum 2026-11-18 (owner approved, folders batch): also execute `docs/agent-work/2026-11-18-folders-batch/PLAN.md` tasks FB1-FB14 (board titles start "FB"; ID map in that folder's `BOARD-MAP.md`), one board task each, with its files, interfaces, fail-first checks and acceptance commands; chains FB1 -> FB2 -> FB4 -> FB5 and FB9 -> FB10 are serial, FB13 runs after FB1-FB12, FB14 last; the shared files named in decision "Folders batch (2026-11-18) added to the plan" are region-edit-only and not registered.
 
 ## Non-goals
 No signing or distribution work, publishing or pushing, new packages, unrelated redesign, or changes to real user data. Layout implementation beyond WP8 is conditional on WP8 passing its feasibility check; follow its stop rules if the probe fails.
@@ -74,6 +75,7 @@ Run expensive builds, Playwright, cargo, and native checks one at a time, in the
 - [ ] UI wave 6 plan (docs/agent-work/2026-11-02-ui-wave-6/PLAN.md) is done with independent reviews, its final check V has run (native screens on an unlocked screen, screenshots viewed), a Fable review passed with repairs re-run, and the owner hand checks are prepared with status CLAIMED.
 - [ ] UI wave 7 (docs/agent-work/2026-11-04-ui-wave-7/REQUEST.md): sidebar hierarchy, resize edges, floating small try, ruler and top gap, CI diagnosed, lanes A-C reviewed, final check V run, owner hand checks prepared.
 - [ ] UI wave 9 plan (docs/agent-work/2026-11-10-ui-wave-9/PLAN.md, owner approved 2026-11-10; board titles start "W9") is done with independent reviews, its Validation list has run, and the owner hand checks are prepared with status CLAIMED. Owner-approved exception to "no new packages": objc2-core-text declared as a direct dependency (already locked, no downloads).
+- [x] Folders batch plan (docs/agent-work/2026-11-18-folders-batch/PLAN.md, owner approved 2026-11-18; board titles start "FB") is done with independent reviews, its final validation FB14 has run, and the owner hand checks are prepared with status CLAIMED.
 
 ## Milestones
 1. Reconcile the current working tree and existing implementation/review reports before assigning remaining work.
@@ -82,3 +84,7 @@ Run expensive builds, Playwright, cargo, and native checks one at a time, in the
 4. Run WP8 feasibility; continue with WP9-WP10 only if it passes, then complete review gate C or document the prescribed stop outcome.
 5. Complete WP11 final durability/evidence work and review gate D; prepare the fresh normal app and owner real-use test checklist.
 6. Cheap fixes (2026-10-25 addendum): T1-T8 of the cheap-fixes plan, then its validation list and evidence regeneration.
+
+## Addendum 2026-11-22 -- Projects page outline rebuild
+The owner hand-tested the folders batch ("the folders work") and asked for a ground-up rebuild of the Projects page as one outline list. Plan: `docs/agent-work/2026-11-22-projects-outline/PLAN.md` (tasks OB1-OB9 = T335-T343, map in BOARD-MAP.md beside it). Card view on the Projects page is removed; the sidebar's cards stay.
+- [ ] Projects outline rebuild done (OB1-OB9 approved, app rebuilt, owner hand test pending)

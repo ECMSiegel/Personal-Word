@@ -209,6 +209,16 @@
   padding: var(--space-3) 0;
   color: var(--text);
 }
+.research-panel button.research-collapse-toggle {
+  color: var(--muted);
+  font-size: var(--type-small);
+  padding: 0;
+  justify-self: start;
+}
+.research-panel .research-subhead > button.research-collapse-toggle {
+  color: inherit;
+  font-size: inherit;
+}
 .source-text {
   display: grid;
   gap: 2px;
@@ -224,16 +234,19 @@
   font-size: var(--type-small);
   color: var(--muted);
 }
-.source-toggle svg {
+.source-toggle svg,
+.research-collapse-toggle svg {
   flex: 0 0 auto;
   color: var(--muted);
   transition: transform var(--duration-fast) var(--ease-out);
 }
-.source-toggle[aria-expanded="true"] svg {
+.source-toggle[aria-expanded="true"] svg,
+.research-collapse-toggle[aria-expanded="true"] svg {
   transform: rotate(90deg);
 }
 @media (prefers-reduced-motion: reduce) {
-  .source-toggle svg {
+  .source-toggle svg,
+  .research-collapse-toggle svg {
     transition: none;
   }
 }
@@ -584,4 +597,3 @@ div.project-settings {
 .citation-rules > :not(summary) {
   margin-top: var(--space-2);
 }
-

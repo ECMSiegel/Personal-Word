@@ -73,6 +73,7 @@ Added 2026-11-12 (layout-primitives plan, task T0; [plan](agent-work/2026-11-12-
 | `.row-label` | the row's growing, shrinkable label |
 | `.row-trail` | a cluster pushed to the row's end |
 | `.row-value` | right-aligned tabular figures, at least `--value-width` (default 3ch) |
+| `.indent` | a nested block whose content starts one `--slot` in (start side only); nested `.indent`s add up -- a folder's body on the Projects page (FB5) |
 | `.menu` | list surface: `--space-1` block padding, `--edge` 12 px for its rows |
 | `.menu-rule` | 1 px `--line` with `--space-1` above and below |
 | `.panel` | form-like popover body: a stack with `--space-3` padding, `--edge` 0, rows at `--row-height-compact` |
@@ -267,7 +268,7 @@ The sidebar minimum is 190 px. Group labels (Manuscript, Fragments, Research) an
 
 ## Rules
 
-- Keep flat, restrained surfaces and square corners. No decorative folders, quills, curved connectors, slogans or heavy footer strips.
+- Keep flat, restrained surfaces and square corners. No decorative quills (the only folder icons are the working ones on the Projects page, owner approved 2026-11-18), curved connectors, slogans or heavy footer strips.
 - Sidebar selection is weight and colour, never a fill: the lit section heading is bold in `--text`, rows are dim until hovered, focused or open and never bold (see Sidebar selection).
 - Hover and keyboard focus on text controls use the one shared text emphasis; toolbar icons use the dock. No second hover weight, scale or stroke rule (see States).
 - Do not add helper captions under controls. Use placeholders, existing error messages, or keyboard-reachable tooltips with `title`, `aria-describedby` and a focus-visible tip. Preserve the browser-only storage notice and the research file error messages.

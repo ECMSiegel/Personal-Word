@@ -72,6 +72,14 @@ fn list_projects(state: tauri::State<State>) -> Result<Listing, String> {
     state.0.lock().map_err(|e| e.to_string())?.list()
 }
 #[tauri::command]
+fn read_library(state: tauri::State<State>) -> Result<Option<String>, String> {
+    state.0.lock().map_err(|e| e.to_string())?.read_library()
+}
+#[tauri::command]
+fn write_library(data: String, state: tauri::State<State>) -> Result<(), String> {
+    state.0.lock().map_err(|e| e.to_string())?.write_library(&data)
+}
+#[tauri::command]
 fn delete_project(id: String, state: tauri::State<State>) -> Result<(), String> {
     state.0.lock().map_err(|e| e.to_string())?.delete(&id)
 }
@@ -238,6 +246,8 @@ pub fn run() {
     #[cfg(feature = "native-smoke")]
     let builder = smoke::configure(builder).invoke_handler(tauri::generate_handler![
         list_projects,
+        read_library,
+        write_library,
         load_project,
         save_changes,
         flush_mirrors,
@@ -279,6 +289,8 @@ pub fn run() {
     #[cfg(not(feature = "native-smoke"))]
     let builder = builder.invoke_handler(tauri::generate_handler![
         list_projects,
+        read_library,
+        write_library,
         load_project,
         save_changes,
         flush_mirrors,

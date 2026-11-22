@@ -3,6 +3,7 @@
 // the untouched tree and writes the table. H2-H4 add the real assertions on top of crawlControls.
 import { expect, test, type Locator, type Page } from "@playwright/test";
 import { writeFileSync, mkdirSync } from "node:fs";
+import { setPageView } from "./pages-helpers";
 import { crawlControls, focusSample, hoverSample, type Control, type HoverSample } from "./hover-helpers";
 
 const OUT = process.env.HOVER_OUT ?? "node_modules/.cache/personal-word-beta/ui4-h1";
@@ -181,9 +182,9 @@ test("hover inventory: crawl controls across screens", async ({ page }) => {
     await record(page, "Writing (sections in sidebar)");
   });
   await step("page view", async () => {
-    await page.getByRole("button", { name: "Page view" }).first().click({ timeout: 5000 });
+    await setPageView(page, true);
     await record(page, "Writing (page view)");
-    await page.getByRole("button", { name: "Page view" }).first().click({ timeout: 5000 }); // back to continuous
+    await setPageView(page, false); // back to continuous
   });
   await step("page setup", async () => {
     await page.getByRole("button", { name: /Page setup/ }).first().click({ timeout: 5000 });

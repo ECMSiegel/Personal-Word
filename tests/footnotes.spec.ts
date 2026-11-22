@@ -1,10 +1,13 @@
 import { test, expect } from "@playwright/test";
+import { setPageView } from "./pages-helpers";
 
 async function create(page: any, title: string, template = "Blank") {
   await page.getByRole("button", { name: "Start new project" }).click();
   await page.getByRole("button", { name: template, exact: true }).click();
   await page.getByLabel("Project title").fill(title);
   await page.getByRole("button", { name: "Save", exact: true }).click();
+  // These specs were written for continuous view; new projects now open paged, so state the view.
+  await setPageView(page, false);
 }
 
 async function toolbarButton(page: any, name: string) {
@@ -234,7 +237,7 @@ test("footnote text appears at the bottom of the page and is editable there", as
   await page.getByLabel("Footnote 1 text").press("Escape");
   await expect(area).toContainText("Edited note.");
 
-  await (await toolbarButton(page, "Page view")).click();
+  await setPageView(page, true);
   const block = page
     .locator(".page-footnotes")
     .filter({ hasText: "Edited note." });

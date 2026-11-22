@@ -2,7 +2,7 @@
 // The hook in useDragReorder.ts wires this to pointer events; nothing here touches the DOM.
 import type { Entry } from "../model";
 
-/** Index a row dragged to `pointerY` would land at: the number of row midpoints above it, clamped to the list. */
+/** Index a row dragged to `pointerY` (any axis: pass x with row lefts and widths) would land at: the number of row midpoints above it, clamped to the list. */
 export function insertionIndex(pointerY: number, rowTops: number[], rowHeights: number[]): number {
   const n = Math.min(rowTops.length, rowHeights.length);
   if (n === 0) return 0;
@@ -38,10 +38,14 @@ export function reorderKind(entries: Entry[], kind: Entry["kind"], id: string, t
   return out;
 }
 
-/** Option+Up is -1, Option+Down is 1; any other key, or another modifier with Option, is 0. */
-export function keyboardMove(e: { key: string; altKey: boolean; metaKey: boolean; ctrlKey: boolean; shiftKey: boolean }): -1 | 0 | 1 {
+/** Option+Up is -1, Option+Down is 1 (Option+Left / Option+Right for axis "x"); any other key, or another modifier with Option, is 0. */
+export function keyboardMove(
+  e: { key: string; altKey: boolean; metaKey: boolean; ctrlKey: boolean; shiftKey: boolean },
+  axis: "x" | "y" = "y",
+): -1 | 0 | 1 {
   if (!e.altKey || e.metaKey || e.ctrlKey || e.shiftKey) return 0;
-  return e.key === "ArrowUp" ? -1 : e.key === "ArrowDown" ? 1 : 0;
+  const [back, forward] = axis === "x" ? ["ArrowLeft", "ArrowRight"] : ["ArrowUp", "ArrowDown"];
+  return e.key === back ? -1 : e.key === forward ? 1 : 0;
 }
 
 /** Limits the lifted row's offset so it never leaves the list's top or bottom edge. */
@@ -79,6 +83,8 @@ export class DragController {
   constructor(
     private readonly threshold: number,
     private readonly onReorder: (from: number, to: number) => void,
+    /** Pick the slot from the pointer itself, not the lifted row's centre: rows of unequal width (tabs) could never reach slot 0 otherwise. */
+    private readonly byPointer = false,
   ) {}
 
   down(pointerY: number, from: number, rowTops: number[], rowHeights: number[]): void {
@@ -100,7 +106,7 @@ export class DragController {
     const raw = pointerY - p.startY;
     if (!this.active && Math.abs(raw) < this.threshold) return null;
     const dy = clampOffset(raw, p.from, p.tops, p.heights);
-    const center = p.tops[p.from] + p.heights[p.from] / 2 + dy;
+    const center = this.byPointer ? pointerY : p.tops[p.from] + p.heights[p.from] / 2 + dy;
     this.active = { from: p.from, to: insertionIndex(center, p.tops, p.heights), dy };
     return this.active;
   }

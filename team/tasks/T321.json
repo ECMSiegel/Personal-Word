@@ -1,0 +1,62 @@
+{
+  "id": "T321",
+  "title": "FB3 -- Build the library store: folders model, library.json, storage methods",
+  "description": "Brief: read docs/agent-work/2026-11-18-folders-batch/PLAN.md sections 'Rules in force', 'Common commands', 'Notes for the implementer', then task FB3 only; its Interfaces names are contracts. Model: Sonnet. What: Pure folders module with the exact signatures in the plan, Rust read_library/write_library (both handler lists), storage.readLibrary/writeLibrary. Verify: folders and storage unit tests pass; cargo test --offline passes with the new library tests. Write notes to docs/agent-work/2026-11-18-folders-batch/notes/FB3.md with fail-first and passing output. Shared files (styles.css, App.tsx, ProjectSidebar.tsx, layoutBudget.json) are edited by small region with the Edit tool and are not registered. Do not commit.",
+  "status": "done",
+  "owner": null,
+  "priority": 1,
+  "depends_on": [],
+  "files": [
+    "src/library/folders.ts",
+    "src/library/folders.test.ts",
+    "src/storage.ts",
+    "src/storage.test.ts",
+    "src-tauri/src/lib.rs",
+    "src-tauri/src/store.rs",
+    "docs/agent-work/2026-11-18-folders-batch/notes/FB3.md"
+  ],
+  "review_required": true,
+  "created_by": "agent-4969",
+  "created_at": "2026-11-19T03:58:24+00:00",
+  "claimed_at": "2026-11-19T04:49:09+00:00",
+  "updated_at": "2026-11-19T06:03:46+00:00",
+  "handoff": null,
+  "review": {
+    "by": "agent-4a97",
+    "at": "2026-11-19T06:03:46+00:00",
+    "verdict": "approved",
+    "note": "Approved. vitest folders+storage 33 passed; cargo test 75 passed/0 failed; tsc clean. Contract matches (moveProject rebuilds from shownIds; folders:<parent> keys; readLibrary null only when missing, rejects on bad JSON; Rust backup + invalid-JSON refusal; both handler lists). Low only, see docs/agent-work/2026-11-18-folders-batch/reviews/REVIEW-1.md: deleteFolder stores 'root' in placement; 3 cargo tests not 4; no corrupt-file test; parseLibrary all-or-nothing is a data-loss risk for FB4 (coordinator note)."
+  },
+  "log": [
+    {
+      "at": "2026-11-19T03:58:24+00:00",
+      "agent": "agent-4969",
+      "event": "created",
+      "note": ""
+    },
+    {
+      "at": "2026-11-19T04:49:09+00:00",
+      "agent": "agent-5116",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-11-19T04:49:16+00:00",
+      "agent": "agent-5116",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-11-19T04:57:26+00:00",
+      "agent": "agent-5116",
+      "event": "review requested",
+      "note": "Implemented FB3 library model, storage adapter, and Rust persistence/IPC; fail-first evidence and passing commands are recorded in docs/agent-work/2026-11-18-folders-batch/notes/FB3.md. Verified: 33 targeted Vitest tests, npx tsc -b, cargo test --offline library (3 passed), full cargo test --offline (75 passed, 1 ignored), and git diff --check. Automated tests only; no native app or real projects opened."
+    },
+    {
+      "at": "2026-11-19T06:03:46+00:00",
+      "agent": "agent-4a97",
+      "event": "approved",
+      "note": "Approved. vitest folders+storage 33 passed; cargo test 75 passed/0 failed; tsc clean. Contract matches (moveProject rebuilds from shownIds; folders:<parent> keys; readLibrary null only when missing, rejects on bad JSON; Rust backup + invalid-JSON refusal; both handler lists). Low only, see docs/agent-work/2026-11-18-folders-batch/reviews/REVIEW-1.md: deleteFolder stores 'root' in placement; 3 cargo tests not 4; no corrupt-file test; parseLibrary all-or-nothing is a data-loss risk for FB4 (coordinator note)."
+    }
+  ]
+}

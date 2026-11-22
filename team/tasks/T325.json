@@ -1,0 +1,60 @@
+{
+  "id": "T325",
+  "title": "FB7 -- Remove the Siegel placeholder from Page header text",
+  "description": "Brief: read docs/agent-work/2026-11-18-folders-batch/PLAN.md sections 'Rules in force', 'Common commands', 'Notes for the implementer', then task FB7 only; its Interfaces names are contracts. Model: Sonnet. What: Delete both placeholders and the comment example; assert no placeholder. Verify: grep finds no placeholder=\"Siegel\" in src; tests/sb-page-header.spec.ts passes. Write notes to docs/agent-work/2026-11-18-folders-batch/notes/FB7.md with fail-first and passing output. Shared files (styles.css, App.tsx, ProjectSidebar.tsx, layoutBudget.json) are edited by small region with the Edit tool and are not registered. Do not commit.",
+  "status": "done",
+  "owner": null,
+  "priority": 2,
+  "depends_on": [],
+  "files": [
+    "src/export/ExportPanel.tsx",
+    "src/editor/PageHeaderRows.tsx",
+    "src/research/types.ts",
+    "tests/sb-page-header.spec.ts",
+    "docs/agent-work/2026-11-18-folders-batch/notes/FB7.md"
+  ],
+  "review_required": true,
+  "created_by": "agent-4969",
+  "created_at": "2026-11-19T03:58:25+00:00",
+  "claimed_at": "2026-11-19T04:49:31+00:00",
+  "updated_at": "2026-11-19T04:55:05+00:00",
+  "handoff": null,
+  "review": {
+    "by": "agent-4969",
+    "at": "2026-11-19T04:55:05+00:00",
+    "verdict": "approved",
+    "note": "Coordinator review: diff is exactly the two placeholder removals, the comment example and one new assertion; grep finds no placeholder=\"Siegel\" in src; fail-first and 9/9 pass recorded in notes/FB7.md. Trivial change, reviewed by the coordinator while the Opus slot is on FB12."
+  },
+  "log": [
+    {
+      "at": "2026-11-19T03:58:25+00:00",
+      "agent": "agent-4969",
+      "event": "created",
+      "note": ""
+    },
+    {
+      "at": "2026-11-19T04:49:31+00:00",
+      "agent": "agent-86d7",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-11-19T04:49:32+00:00",
+      "agent": "agent-86d7",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-11-19T04:54:36+00:00",
+      "agent": "agent-86d7",
+      "event": "review requested",
+      "note": "Removed both Siegel placeholders, updated the type comment, and added a regression test for both fields. Fail-first evidence: tests/sb-page-header.spec.ts failed on the existing Page setup placeholder. Verification: focused regression test 1 passed; full tests/sb-page-header.spec.ts 9 passed; grep found no placeholder=\"Siegel\" in src. Evidence recorded in docs/agent-work/2026-11-18-folders-batch/notes/FB7.md."
+    },
+    {
+      "at": "2026-11-19T04:55:05+00:00",
+      "agent": "agent-4969",
+      "event": "approved",
+      "note": "Coordinator review: diff is exactly the two placeholder removals, the comment example and one new assertion; grep finds no placeholder=\"Siegel\" in src; fail-first and 9/9 pass recorded in notes/FB7.md. Trivial change, reviewed by the coordinator while the Opus slot is on FB12."
+    }
+  ]
+}

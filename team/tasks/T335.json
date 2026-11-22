@@ -1,0 +1,32 @@
+{
+  "id": "T335",
+  "title": "OB1 -- Build the outline model (pure): combined order, placeBeside, pins, prefs, buildOutline",
+  "description": "Sonnet. Follow task OB1 in docs/agent-work/2026-11-22-projects-outline/PLAN.md exactly, including the Decisions section. Unit tests fail first. No UI.",
+  "status": "available",
+  "owner": null,
+  "priority": 1,
+  "depends_on": [],
+  "files": [
+    "src/library/folders.ts",
+    "src/library/folders.test.ts",
+    "src/libraryPreferences.ts",
+    "src/libraryPreferences.test.ts",
+    "src/library/outline.ts",
+    "src/library/outline.test.ts"
+  ],
+  "review_required": true,
+  "created_by": "agent-4969",
+  "created_at": "2026-11-22T23:33:20+00:00",
+  "claimed_at": null,
+  "updated_at": "2026-11-22T23:33:20+00:00",
+  "handoff": null,
+  "review": null,
+  "log": [
+    {
+      "at": "2026-11-22T23:33:20+00:00",
+      "agent": "agent-4969",
+      "event": "created",
+      "note": ""
+    }
+  ]
+}

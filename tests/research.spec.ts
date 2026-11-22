@@ -1,4 +1,5 @@
 import { test, expect, type Page } from "@playwright/test";
+import { setPageView } from "./pages-helpers";
 
 const crossrefWork = {
   status: "ok",
@@ -23,6 +24,8 @@ async function create(page: Page, title: string, template = "Blank") {
   await page.getByRole("button", { name: template, exact: true }).click();
   await page.getByLabel("Project title").fill(title);
   await page.getByRole("button", { name: "Save", exact: true }).click();
+  // These specs were written for continuous view; new projects now open paged, so state the view.
+  await setPageView(page, false);
 }
 
 // Wave 9: the repeat-citation checkboxes sit in the collapsed "Citation rules" row.
@@ -326,6 +329,10 @@ test("opt-in Ibid. rules reach the page notes and research preview, persist, and
 });
 
 test("citation rules agree across page notes, preview and reader through section scope, reorder and reload", async ({ page }) => {
+  // This test reads the continuous Read/Bibliography markup (FB12 made page view the default).
+  await page.addInitScript(() =>
+    localStorage.setItem("personal-word.reader", JSON.stringify({ font: "var(--ui-font)", size: 18, spacing: 1.6, paged: false })),
+  );
   await page.addInitScript(() => localStorage.setItem("personal-word.restoreTabs", "true"));
   await page.goto("/");
   await create(page, "Citation rule renderers");
@@ -438,6 +445,10 @@ test("helper captions are gone; hints live in placeholder and a keyboard-reachab
 test("Research sidebar lists Bibliography and sources; the Bibliography page orders, persists, matches Markdown and opens sources", async ({
   page,
 }) => {
+  // This test reads the continuous Read/Bibliography markup (FB12 made page view the default).
+  await page.addInitScript(() =>
+    localStorage.setItem("personal-word.reader", JSON.stringify({ font: "var(--ui-font)", size: 18, spacing: 1.6, paged: false })),
+  );
   await page.goto("/");
   await create(page, "Bibliography page");
   const editor = page.getByRole("textbox", { name: "Writing editor" });

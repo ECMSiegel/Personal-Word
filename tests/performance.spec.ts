@@ -1,4 +1,5 @@
 import { test, expect } from "@playwright/test";
+import { setPageView } from "./pages-helpers";
 
 async function create(page: any, title: string, advanceClock = 0) {
   await page.goto("/");
@@ -192,10 +193,7 @@ test("page view on a 90-page section meets the synthetic input budget", async ({
   await page.reload();
   const editor=page.getByRole("textbox",{name:"Writing editor",exact:true});
   await expect(editor).toBeVisible();
-  const toggle=page.getByRole("button",{name:"Page view",exact:true});
-  if(!(await toggle.count()))await page.getByRole("button",{name:"More formatting"}).click();
-  await toggle.click();
-  await page.keyboard.press("Escape");
+  await setPageView(page,true);
   await expect.poll(()=>page.locator(".page-spacer").count()).toBeGreaterThan(40);
   const sample=async(where:"start"|"middle")=>{
     await editor.evaluate((element:any,where:string)=>{

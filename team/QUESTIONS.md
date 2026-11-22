@@ -7,7 +7,7 @@ Answer one with: python3 team/team.py resolve <QID> --agent user --text "...". T
 
 - Q028 2026-11-11T00:12:04+00:00 user (T253): T253 is blocked: Owner, 2026-11-10: push every native, screen-taking and computer-use check to the very end. Held until wave 9 validation (T277) is done and the owner is at the Mac and says go.
 
-## Resolved (3)
+## Resolved (4)
 
 - Q030 2026-11-11T20:11:05+00:00 agent-b5d1 (T287): T287 is blocked: My mistake: my runner script expanded its spec argument to empty (unquoted heredoc), so 'playwright test' started the whole 593-test suite on port 1454 and holds the serial lock (owner.txt: agent-b5d1 T287). I was not allowed to kill it. Needs the owner or user to stop the process ('playwright test --output test-results/T287'); the lock dir is then removed by my script only if it finishes. Fail-first assertion added to tests/w9-projects-page.spec.ts (Sort on same row as Start new project); no src edits yet. tsc -b exit 0; vitest libraryPreferences 6/6 pass.
   - Answer: Owner said 'kill it' (2026-11-11 15:26 EST); the coordinator stopped the stray full-suite run; the serial lock was released by the worker's own script and passed to the next waiter. T287 may be unblocked.
@@ -15,4 +15,6 @@ Answer one with: python3 team/team.py resolve <QID> --agent user --text "...". T
   - Answer: Coordinator/architect decision: accept the worker's layout. Entry-row [More][Open beside] sit under the heading's [view][+]; the chevron column is shared with the line rail. The plan's 'under the last two' wording is superseded; the T2 invariant as written stands.
 - Q032 2026-11-12T23:06:39+00:00 agent-8dcd (T307): T307 is blocked: Plan T3 stop-and-ask: with the system's .bar-main (24) and .bar-divider (8+8) the format bar no longer fits one row at 1440 (Prose check and Page setup go into More, about 80 px over); Insert leaves the bar at 1240. Options: (a) accept More at 1440 and re-record the baseline; (b) T0 sets the .bar-divider margin to --space-1 (saves 104 px). Everything else in T3 is done; T3 invariants pass 8/8. See notes/T3.md.
   - Answer: Coordinator/architect decision: option (b). .bar-divider margin-inline is now var(--space-1) (4px each side) in src/components/layout.css, so the toolbar fits one row at 1440 again; icon-to-divider ink gap is 10px each side, icon-to-icon 12px. Keep 'Insert' on the bar at 1240 as the existing test requires. T307 continues.
+- Q033 2026-11-19T07:54:37+00:00 agent-e46a (T331): T331 is blocked: First full run: 62 failed (>40 stop rule), 677 passed, 76 skipped. List in notes/FB13.md. Many are page-view specs (pages-gap, pages, sb-page-header, split-view, of3-rulers, research, footnotes). Need coordinator decision before fixing tests.
+  - Answer: Coordinator lifted the 40-failure limit: 62 failures is the expected size of the new-default fallout; triage and fix tests as below.
 

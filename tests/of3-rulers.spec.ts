@@ -1,5 +1,5 @@
 import { expect, test, type Page } from "@playwright/test";
-import { create, dense, seedBlocks, setZoom, togglePageView } from "./pages-helpers";
+import { create, dense, seedBlocks, setZoom, setPageView } from "./pages-helpers";
 
 // OF3: rulers sit outside the sheet in page view, grey outside the margins, two separate toggles.
 
@@ -50,7 +50,7 @@ test.use({ viewport: { width: 1440, height: 900 } });
 
 test("page view: neither ruler touches any sheet at rest; the top ruler stays pinned and the caret clears it", async ({ page }) => {
   await create(page, "OF3 outside");
-  await togglePageView(page);
+  await setPageView(page, true);
   await seedBlocks(page, dense(40));
   await setToggle(page, TOP, true);
   await setToggle(page, SIDE, true);
@@ -107,7 +107,7 @@ for (const mode of ["pages", "continuous"] as const) {
   for (const zoom of [75, 100, 150]) {
     test(`top ruler greys outside the margins: ${mode} at ${zoom}%`, async ({ page }) => {
       await create(page, `OF3 bands ${mode} ${zoom}`);
-      if (mode === "pages") await togglePageView(page);
+      await setPageView(page, mode === "pages");
       await setZoom(page, zoom);
       await setToggle(page, TOP, true);
       const m = await page.evaluate(() => {
@@ -141,7 +141,7 @@ for (const mode of ["pages", "continuous"] as const) {
 
 test("each ruler toggles alone and each choice survives a reload", async ({ page }) => {
   await create(page, "OF3 toggles");
-  await togglePageView(page);
+  await setPageView(page, true);
   const top = page.locator(".document-ruler");
   const side = page.locator(".side-ruler");
 
@@ -173,7 +173,7 @@ test("each ruler toggles alone and each choice survives a reload", async ({ page
 
 test("the old single preference turns both rulers on, and they then split", async ({ page }) => {
   await create(page, "OF3 migrate");
-  await togglePageView(page);
+  await setPageView(page, true);
   await page.evaluate(() => {
     localStorage.setItem("folio.workspace.ruler", "true");
     localStorage.removeItem("folio.workspace.side-ruler");
@@ -193,7 +193,7 @@ test("the old single preference turns both rulers on, and they then split", asyn
 
 test("page view: a click on the strip's grey end leaves the caret and the scroll alone", async ({ page }) => {
   await create(page, "OF3 strip click");
-  await togglePageView(page);
+  await setPageView(page, true);
   await seedBlocks(page, dense(60));
   await setToggle(page, TOP, true);
   const scroller = page.locator(".writer-scroll").first();
@@ -228,7 +228,7 @@ test("page view with a floating sidebar: the sidebar and the citation card paint
     localStorage.setItem("folio.workspace.sidebar", JSON.stringify({ width: 270, pinned: true, hover: true, floating: true }));
   });
   await create(page, "Probe");
-  await togglePageView(page);
+  await setPageView(page, true);
   await seedBlocks(page, dense(40));
   await setToggle(page, TOP, true);
   await expect(page.locator(".sidebar-shell.is-floating")).toBeVisible();

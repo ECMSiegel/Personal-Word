@@ -1,0 +1,40 @@
+{
+  "id": "T341",
+  "title": "OB7 -- Sweep the old specs and update the docs",
+  "description": "Sonnet. Follow task OB7 in docs/agent-work/2026-11-22-projects-outline/PLAN.md exactly. Owns tests/layout-invariants.spec.ts for this batch.",
+  "status": "available",
+  "owner": null,
+  "priority": 2,
+  "depends_on": [
+    "T340"
+  ],
+  "files": [
+    "tests/layout-invariants.spec.ts",
+    "tests/w9-cards.spec.ts",
+    "tests/fb-projects-meta.spec.ts",
+    "tests/fb-folders.spec.ts",
+    "tests/w9-projects-page.spec.ts",
+    "tests/projects-screen.spec.ts",
+    "tests/alignment.spec.ts",
+    "tests/layout-gallery.spec.ts",
+    "tests/drag-reorder.spec.ts",
+    "AGENTS.md",
+    "docs/design-system.md",
+    "docs/architecture.md"
+  ],
+  "review_required": true,
+  "created_by": "agent-4969",
+  "created_at": "2026-11-22T23:33:39+00:00",
+  "claimed_at": null,
+  "updated_at": "2026-11-22T23:33:39+00:00",
+  "handoff": null,
+  "review": null,
+  "log": [
+    {
+      "at": "2026-11-22T23:33:39+00:00",
+      "agent": "agent-4969",
+      "event": "created",
+      "note": ""
+    }
+  ]
+}

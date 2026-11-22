@@ -1,0 +1,69 @@
+{
+  "id": "T326",
+  "title": "FB8 -- Add Delete source to the sidebar right-click menu",
+  "description": "Brief: read docs/agent-work/2026-11-18-folders-batch/PLAN.md sections 'Rules in force', 'Common commands', 'Notes for the implementer', then task FB8 only; its Interfaces names are contracts. Model: Sonnet. What: Source rows get Delete source: refusal when linked, otherwise confirm, flush, safety snapshot, delete. Verify: tests/sidebar-context-menu.spec.ts and tests/research.spec.ts pass. Write notes to docs/agent-work/2026-11-18-folders-batch/notes/FB8.md with fail-first and passing output. Shared files (styles.css, App.tsx, ProjectSidebar.tsx, layoutBudget.json) are edited by small region with the Edit tool and are not registered. Do not commit.",
+  "status": "done",
+  "owner": null,
+  "priority": 2,
+  "depends_on": [],
+  "files": [
+    "tests/sidebar-context-menu.spec.ts",
+    "docs/agent-work/2026-11-18-folders-batch/notes/FB8.md"
+  ],
+  "review_required": true,
+  "created_by": "agent-4969",
+  "created_at": "2026-11-19T03:58:25+00:00",
+  "claimed_at": "2026-11-19T06:57:13+00:00",
+  "updated_at": "2026-11-19T06:59:29+00:00",
+  "handoff": null,
+  "review": {
+    "by": "agent-4969",
+    "at": "2026-11-19T06:59:29+00:00",
+    "verdict": "approved",
+    "note": "Coordinator review (Opus slot on FB5): deleteSource follows the remove() pattern (refusal string, destructive confirm, flush, re-check, 'Before deleting source' snapshot, mutate); menu item only on source rows; new test covers refusal, confirm, delete and the snapshot entry; 33 passed after takeover. Not checked in native WebKit."
+  },
+  "log": [
+    {
+      "at": "2026-11-19T03:58:25+00:00",
+      "agent": "agent-4969",
+      "event": "created",
+      "note": ""
+    },
+    {
+      "at": "2026-11-19T04:49:42+00:00",
+      "agent": "agent-b5cd",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-11-19T04:49:48+00:00",
+      "agent": "agent-b5cd",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-11-19T06:57:13+00:00",
+      "agent": "agent-3d55",
+      "event": "reclaimed from agent-b5cd",
+      "note": ""
+    },
+    {
+      "at": "2026-11-19T06:57:16+00:00",
+      "agent": "agent-3d55",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-11-19T06:59:14+00:00",
+      "agent": "agent-3d55",
+      "event": "review requested",
+      "note": "FB8 verified and finished after takeover; see notes/FB8.md"
+    },
+    {
+      "at": "2026-11-19T06:59:29+00:00",
+      "agent": "agent-4969",
+      "event": "approved",
+      "note": "Coordinator review (Opus slot on FB5): deleteSource follows the remove() pattern (refusal string, destructive confirm, flush, re-check, 'Before deleting source' snapshot, mutate); menu item only on source rows; new test covers refusal, confirm, delete and the snapshot entry; 33 passed after takeover. Not checked in native WebKit."
+    }
+  ]
+}

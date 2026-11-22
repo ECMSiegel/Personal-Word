@@ -1,4 +1,5 @@
 import { test, expect } from "@playwright/test";
+import { setPageView } from "./pages-helpers";
 import JSZip from "jszip";
 
 async function createBlankProject(page: any, title: string) {
@@ -31,7 +32,7 @@ test("Shift+Enter inserts an exported page break while Cmd+Enter stays soft", as
   await expect(editor.locator(":scope > p").first()).toHaveText("Before the break.");
   await expect(editor.locator(":scope > p").last()).toHaveText("After the break.");
 
-  await (await toolbarButton(page, "Page view")).click();
+  await setPageView(page, true);
   await expect(page.getByLabel("Page count")).toContainText("2");
 
   await editor.locator(":scope > p").last().click();
@@ -78,7 +79,7 @@ for (const [name, markdown] of [
       editor.locator("br:not(.ProseMirror-trailingBreak)"),
     ).toHaveCount(1);
 
-    await (await toolbarButton(page, "Page view")).click();
+    await setPageView(page, true);
     await expect(page.getByLabel("Page count")).toContainText("1");
 
     await page.locator(".group-title").filter({ hasText: /^Settings$/ }).click();

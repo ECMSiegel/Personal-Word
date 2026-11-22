@@ -95,6 +95,12 @@
   min-width: var(--value-width, 3ch);
 }
 
+/* A nested block (a folder's body on the Projects page): its content starts one slot in from its
+   parent's, so each nesting level adds one slot. */
+.indent {
+  padding-inline-start: var(--slot);
+}
+
 /* Menus and panels */
 .menu {
   /* A menu opened from inside a .panel must not inherit the panel's compact rows. */

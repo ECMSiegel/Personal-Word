@@ -160,6 +160,29 @@ export function indentKeys(
           isScreenplay()
             ? false
             : handleIndent(this.editor, -1, documentIndent()),
+        Backspace: () => {
+          if (isScreenplay()) return false;
+          const { selection } = this.editor.state;
+          const { $from } = selection;
+          if (
+            !selection.empty ||
+            $from.parentOffset !== 0 ||
+            !BLOCKS.includes($from.parent.type.name)
+          ) {
+            return false;
+          }
+          for (let depth = 1; depth <= $from.depth; depth += 1) {
+            if ($from.node(depth).type.name === "listItem") return false;
+          }
+          const attrs = $from.parent.attrs as Attrs;
+          const hasLeftIndent = parseInches(attrs.indentLeft) > 0;
+          const hasFirstLineIndent =
+            attrs.firstLineIndent !== null &&
+            attrs.firstLineIndent !== undefined &&
+            parseInches(attrs.firstLineIndent) > 0;
+          if (!hasLeftIndent && !hasFirstLineIndent) return false;
+          return handleIndent(this.editor, -1, documentIndent());
+        },
       };
     },
   });

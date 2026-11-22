@@ -1,4 +1,5 @@
 import { test, expect, type Page } from "@playwright/test";
+import { setPageView } from "./pages-helpers";
 import fs from "fs";
 import path from "path";
 import { createHash } from "crypto";
@@ -94,6 +95,8 @@ async function buildRichProject(page: Page) {
   await expect(dialog).toBeVisible();
   await dialog.getByRole("button", { name: "Import" }).click();
   await expect(dialog).toHaveCount(0);
+  // Imported writing now opens paged; this test inserts at visual line ends, so use continuous view.
+  await setPageView(page, false);
 
   const editor = page.getByRole("textbox", { name: "Writing editor" });
   await expect(editor).toBeVisible();

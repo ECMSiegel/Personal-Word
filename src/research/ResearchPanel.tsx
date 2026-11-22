@@ -5,6 +5,8 @@ import { firstWords, kindLabels, sourceSummary, addCitation, addManualSource, pa
 export { sourceSummary } from "./citationActions";
 import { ChevronRight } from "lucide-react";
 import { Dropdown, type DropdownOption } from "../components/Dropdown";
+import { keyboardMove } from "../components/dragReorder";
+import { useDragReorder } from "../components/useDragReorder";
 import {
   bibliography,
   citationGuidance,
@@ -27,8 +29,10 @@ import {
   type Source,
 } from "./types";
 import "./research.css";
+import "../components/drag-reorder.css";
 import "../components/scroll-fade.css";
 import { watchScrollFade } from "../components/scrollFade";
+import { readCollapsed, writeCollapsed, type ResearchCollapseState } from "./collapsePreferences";
 
 export type ResearchTab = "sources" | "notes";
 const emptyResearchData: ResearchData = { sources: [], notes: [], footnotes: [] };
@@ -62,6 +66,7 @@ export function ResearchPanel({
   footnoteLocations,
   onGoToFootnote,
   onDeleteTextOnlyFootnote,
+  onReorderSources,
 }: {
   data?: ResearchData;
   onChange: (data: ResearchData) => void;
@@ -84,10 +89,18 @@ export function ResearchPanel({
   onGoToFootnote?: (footnoteId: string) => void;
   /** Asks, then deletes a text-only footnote with its marker in the document. */
   onDeleteTextOnlyFootnote?: (footnoteId: string) => void;
+  onReorderSources?: (id: string, toIndex: number) => void;
 }) {
   const [tab, setTab] = useState<ResearchTab>(
     initialTab === "notes" ? "notes" : "sources",
   );
+  const [collapsed, setCollapsed] = useState<ResearchCollapseState>(() => {
+    try {
+      return readCollapsed(window.localStorage);
+    } catch {
+      return { note: false, short: false, bibliography: false, usedIn: false };
+    }
+  });
   const [openId, setOpenId] = useState<string | null>(null);
   const [pendingFocus, setPendingFocus] = useState<string | null>(null);
   const [captureSourceId, setCaptureSourceId] = useState<string | undefined>();
@@ -99,9 +112,12 @@ export function ResearchPanel({
   const [zoteroConnected, setZoteroConnected] = useState(false);
   const [zoteroLoading, setZoteroLoading] = useState(false);
   const [zoteroMessage, setZoteroMessage] = useState<string>("");
+  const [sourceAnnouncement, setSourceAnnouncement] = useState("");
   const importFile = useRef<HTMLInputElement>(null);
   const pdfFile = useRef<HTMLInputElement>(null);
   const panel = useRef<HTMLElement>(null);
+  const sourceAnnouncementFrame = useRef(0);
+  const pendingSourceFocus = useRef<string | null>(null);
   // The panel scrolls inside its host `.research-aside` (App.tsx), so the fade goes on that.
   useEffect(() => {
     const scroller = panel.current?.closest<HTMLElement>(".research-aside");
@@ -109,6 +125,14 @@ export function ResearchPanel({
   }, []);
   const latest = useRef(data);
   latest.current = data;
+  const sourceIds = data.sources.map((source) => source.id);
+  const sourceDrag = useDragReorder({
+    items: data.sources,
+    onReorder: (from, to) => {
+      const source = data.sources[from];
+      if (source) onReorderSources?.(source.id, to);
+    },
+  });
   const lookup = useLookup(latest, onChange);
   const { input, setInput, busy, status, notify, run: runLookup } = lookup;
 
@@ -144,11 +168,52 @@ export function ResearchPanel({
     setPendingFocus(null);
   }, [pendingFocus, tab, openId, data]);
 
+  useEffect(() => {
+    const id = pendingSourceFocus.current;
+    if (!id) return;
+    pendingSourceFocus.current = null;
+    panel.current
+      ?.querySelector<HTMLButtonElement>(`button.source-toggle.row[aria-controls="${CSS.escape(id + "-panel")}"]`)
+      ?.focus();
+  });
+
+  useEffect(() => () => cancelAnimationFrame(sourceAnnouncementFrame.current), []);
+
 
   const patchSource = (id: string, patch: Partial<Source>) => onChange(patchSourceData(data, id, patch));
   const patchNote = (id: string, patch: Partial<ResearchNote>) => onChange(patchResearchNote(data, id, patch));
   const patchFootnote = (id: string, patch: Partial<Footnote>) => onChange(patchFootnoteData(data, id, patch));
   const deleteNote = (id: string) => onChange({ ...data, notes: data.notes.filter((n) => n.id !== id) });
+
+  const toggleCollapsed = (key: keyof ResearchCollapseState) => {
+    const next = { ...collapsed, [key]: !collapsed[key] };
+    setCollapsed(next);
+    try {
+      writeCollapsed(window.localStorage, next);
+    } catch {
+      // Storage can be unavailable; the preference still works for this session.
+    }
+  };
+
+  const announceSourceMove = (text: string) => {
+    cancelAnimationFrame(sourceAnnouncementFrame.current);
+    setSourceAnnouncement("");
+    sourceAnnouncementFrame.current = requestAnimationFrame(() => setSourceAnnouncement(text));
+  };
+
+  const moveSourceBy = (direction: -1 | 1, id: string, title: string) => {
+    if (!onReorderSources) return;
+    const index = sourceIds.indexOf(id);
+    const nextId = sourceIds[index + direction];
+    if (nextId === undefined) {
+      announceSourceMove(`${title} is already ${direction < 0 ? "first" : "last"}`);
+      return;
+    }
+    const to = sourceIds.indexOf(nextId);
+    onReorderSources(id, to);
+    pendingSourceFocus.current = id;
+    announceSourceMove(`Moved ${title} to position ${to + 1} of ${sourceIds.length}`);
+  };
 
   const lookupSource = async () => {
     const id = await runLookup();
@@ -312,14 +377,23 @@ export function ResearchPanel({
           <section className="citation-zone stack gap-3" aria-label="Citation">
             <h4 className="research-subhead">Citation</h4>
             <div className="citation-previews stack gap-3">
-              <Preview label="Note" parts={citationParts(source, "full")} />
+              <Preview
+                label="Note"
+                parts={citationParts(source, "full")}
+                collapsed={collapsed.note}
+                onToggle={() => toggleCollapsed("note")}
+              />
               <Preview
                 label="Shortened note"
                 parts={citationParts(source, "short")}
+                collapsed={collapsed.short}
+                onToggle={() => toggleCollapsed("short")}
               />
               <Preview
                 label="Bibliography"
                 parts={citationParts(source, "bibliography")}
+                collapsed={collapsed.bibliography}
+                onToggle={() => toggleCollapsed("bibliography")}
               />
             </div>
             <div className="source-actions">
@@ -345,21 +419,33 @@ export function ResearchPanel({
           </section>
         </SourceForm>
         <section className="used-in stack gap-3" aria-label="Used in">
-          <h4 className="research-subhead">Used in</h4>
-          <p className="research-hint">{plural(footnotes.length, "footnote")}, {plural(quotes.length, "quote")}</p>
-        {quotes.length > 0 && (
-          <section className="linked stack gap-3" aria-label="Quotes from this source">
-            {quotes.map(renderQuote)}
-          </section>
-        )}
-        <section className="linked stack gap-3" aria-label="Footnotes from this source">
-          {footnotes.length === 0 && (
-            <p className="research-hint">
-              No footnotes cite this source yet. Use Cite here.
-            </p>
-          )}
-          {footnotes.map((note) => renderFootnote(note))}
-        </section>
+          <h4 className="research-subhead">
+            <button
+              type="button"
+              className="research-collapse-toggle cluster gap-1"
+              aria-expanded={!collapsed.usedIn}
+              onClick={() => toggleCollapsed("usedIn")}
+            >
+              <span>Used in</span>
+              <ChevronRight size={14} aria-hidden="true" />
+            </button>
+          </h4>
+          {!collapsed.usedIn && <>
+            <p className="research-hint">{plural(footnotes.length, "footnote")}, {plural(quotes.length, "quote")}</p>
+            {quotes.length > 0 && (
+              <section className="linked stack gap-3" aria-label="Quotes from this source">
+                {quotes.map(renderQuote)}
+              </section>
+            )}
+            <section className="linked stack gap-3" aria-label="Footnotes from this source">
+              {footnotes.length === 0 && (
+                <p className="research-hint">
+                  No footnotes cite this source yet. Use Cite here.
+                </p>
+              )}
+              {footnotes.map((note) => renderFootnote(note))}
+            </section>
+          </>}
         </section>
       </div>
     );
@@ -617,17 +703,33 @@ export function ResearchPanel({
             </section>
           )}
           <ul className="source-list">
-            {data.sources.map((source) => {
+            {data.sources.map((source, index) => {
               const open = openId === source.id;
               const counts = sourceNotes(source);
+              const drag = sourceDrag.rowProps(index);
               return (
-                <li className="source-item" key={source.id}>
+                <li
+                  className="source-item"
+                  key={source.id}
+                  {...drag}
+                  onPointerDown={(event) => {
+                    const target = event.target;
+                    if (!onReorderSources || !(target instanceof Element) || !target.closest("button.source-toggle.row[aria-controls]")) return;
+                    drag.onPointerDown(event);
+                  }}
+                >
                   <button
                     type="button"
                     className="source-toggle row"
                     aria-expanded={open}
                     aria-controls={`${source.id}-panel`}
                     onClick={() => setOpenId(open ? null : source.id)}
+                    onKeyDown={(event) => {
+                      const direction = keyboardMove(event);
+                      if (!direction || !onReorderSources) return;
+                      event.preventDefault();
+                      moveSourceBy(direction, source.id, sourceSummary(source));
+                    }}
                   >
                     <span className="source-text">
                       <span className="source-title">
@@ -646,6 +748,9 @@ export function ResearchPanel({
               );
             })}
           </ul>
+          <div className="visually-hidden source-reorder-status" role="status" aria-live="polite">
+            {sourceAnnouncement}
+          </div>
           <details className="citation-rules">
             <summary>Citation rules</summary>
             {!data.citationPolicy && (

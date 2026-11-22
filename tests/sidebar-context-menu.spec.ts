@@ -282,7 +282,7 @@ test("research rows: source, PDF, note and Bibliography items; moves are announc
   await expect(page.locator('.sidebar [data-group="research"] .entry-row.selected')).toContainText("Bibliography");
 
   await rightClick(page, mainRow(page, "research", "Alpha source"));
-  expect(await itemNames(page)).toEqual(["Open", "Move up", "Move down"]);
+  expect(await itemNames(page)).toEqual(["Open", "Move up", "Move down", "Delete source"]);
   await expect(item(page, "Move up")).toHaveAttribute("aria-disabled", "true");
   await item(page, "Move down").click();
   const research = await rowTitles(page, "research");
@@ -307,6 +307,50 @@ test("research rows: source, PDF, note and Bibliography items; moves are announc
   await rightClick(page, mainRow(page, "research", "Note one"));
   await item(page, "Open").click();
   await expect(page.locator(".research-panel")).toBeVisible();
+});
+
+test("Delete source confirms, snapshots, and refuses while a footnote is linked", async ({ page }) => {
+  await createProject(page, "Delete research source");
+  await seedResearch(page);
+
+  const editor = page.getByRole("textbox", { name: "Writing editor" });
+  await editor.fill("Evidence here.");
+  await page.locator(".research-tabs").getByRole("button", { name: "Sources", exact: true }).click();
+  const alpha = page.locator(".source-item").filter({ hasText: "Alpha source" });
+  const alphaToggle = alpha.locator("button.source-toggle[aria-controls]");
+  if ((await alphaToggle.getAttribute("aria-expanded")) !== "true") await alphaToggle.click();
+  await alpha.getByRole("button", { name: "Cite here", exact: true }).click();
+  await expect(editor.locator("[data-footnote-id]")).toHaveCount(1);
+
+  await rightClick(page, mainRow(page, "research", "Alpha source"));
+  await item(page, "Delete source").click();
+  await expect(page.locator(".error-banner")).toContainText(/footnote|quote/i);
+  await expect(mainRow(page, "research", "Alpha source")).toBeVisible();
+  await expect(page.getByRole("dialog")).toHaveCount(0);
+
+  await rightClick(page, mainRow(page, "research", "Beta source"));
+  expect(await itemNames(page)).toEqual(["Open", "Move up", "Move down", "Delete source"]);
+  await item(page, "Delete source").click();
+  await expect(page.getByRole("dialog")).toContainText('Delete source “Beta source”?');
+  await page.getByRole("dialog").getByRole("button", { name: "Delete source", exact: true }).click();
+  await expect(mainRow(page, "research", "Beta source")).toHaveCount(0);
+  await page.getByRole("button", { name: "Snapshots & history", exact: true }).click();
+  await expect(page.locator(".versions").getByRole("button", { name: /Before deleting source “Beta source”/ })).toBeVisible();
+});
+
+test("Delete source closes a pane showing that source's PDF", async ({ page }) => {
+  await createProject(page, "Delete source with PDF open");
+  await seedResearch(page);
+  await rightClick(page, mainRow(page, "research", "alpha.pdf"));
+  await item(page, "Open beside").click();
+  await expect(page.locator(".split-pane")).toHaveCount(2);
+
+  await rightClick(page, mainRow(page, "research", "Alpha source"));
+  await item(page, "Delete source").click();
+  await page.getByRole("dialog").getByRole("button", { name: "Delete source", exact: true }).click();
+  await expect(mainRow(page, "research", "Alpha source")).toHaveCount(0);
+  await expect(page.locator(".split-pane")).toHaveCount(1);
+  await expect(page.getByText("This PDF is not stored in this project.")).toHaveCount(0);
 });
 
 test("the menu stays inside the window near its edges", async ({ page }) => {

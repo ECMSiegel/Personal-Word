@@ -19,6 +19,13 @@ describe("floating margin fit", () => {
     const root = { querySelector: (selector: string) => selector === ".manuscript-read .read-prose" ? prose : null } as unknown as ParentNode;
     expect(documentEdges(root, { mode: "read", paged: false, split: false })?.left).toBe(120);
   });
+  it("measures the sheet, not the text column, when Read is in page view", () => {
+    const sheet = { getBoundingClientRect: () => ({ left: 142, right: 958, top: 70, bottom: 900 }) };
+    const prose = { getBoundingClientRect: () => ({ left: 238, right: 862, top: 70, bottom: 900 }) };
+    const root = { querySelector: (selector: string) =>
+      selector === ".manuscript-read .editor-paper" ? sheet : selector === ".manuscript-read .read-prose" ? prose : null } as unknown as ParentNode;
+    expect(documentEdges(root, { mode: "read", paged: false, split: false })?.left).toBe(142);
+  });
   it("defines the reveal band from CSS variables and accepts a chosen sidebar width", () => {
     expect(FOCUS_REVEAL_BAND).toBe("calc(var(--control-height) + 2 * var(--space-1))");
     expect(marginFit("left", 312, 200)).toEqual({ fits: true, width: 200 });

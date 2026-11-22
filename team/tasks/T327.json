@@ -1,0 +1,64 @@
+{
+  "id": "T327",
+  "title": "FB9 -- Add collapse arrows to the research bar notes and Used in",
+  "description": "Brief: read docs/agent-work/2026-11-18-folders-batch/PLAN.md sections 'Rules in force', 'Common commands', 'Notes for the implementer', then task FB9 only; its Interfaces names are contracts. Model: Sonnet. What: Small grey chevron buttons collapse Note, Shortened note, Bibliography and Used in; state remembered app-wide. Verify: collapsePreferences unit test and fb-research-collapse, w9-research-panel, w9-used-in, research specs pass. Write notes to docs/agent-work/2026-11-18-folders-batch/notes/FB9.md with fail-first and passing output. Shared files (styles.css, App.tsx, ProjectSidebar.tsx, layoutBudget.json) are edited by small region with the Edit tool and are not registered. Do not commit.",
+  "status": "done",
+  "owner": null,
+  "priority": 2,
+  "depends_on": [],
+  "files": [
+    "src/research/ResearchPanel.tsx",
+    "src/research/Cite.tsx",
+    "src/research/research.css",
+    "src/research/collapsePreferences.ts",
+    "src/research/collapsePreferences.test.ts",
+    "tests/fb-research-collapse.spec.ts",
+    "tests/w9-research-panel.spec.ts",
+    "tests/w9-used-in.spec.ts",
+    "docs/agent-work/2026-11-18-folders-batch/notes/FB9.md"
+  ],
+  "review_required": true,
+  "created_by": "agent-4969",
+  "created_at": "2026-11-19T03:58:26+00:00",
+  "claimed_at": "2026-11-19T04:50:14+00:00",
+  "updated_at": "2026-11-19T05:48:44+00:00",
+  "handoff": null,
+  "review": {
+    "by": "agent-4969",
+    "at": "2026-11-19T05:48:44+00:00",
+    "verdict": "approved",
+    "note": "Coordinator review: Preview is unchanged without the new props (Cite dialog safe), four toggles with aria-expanded, state in personal-word.researchCollapsed with validated read; chevron reuses the source-toggle rotate rule incl. reduced motion; fail-first and built-preview passes recorded in notes/FB9.md. Not seen by eye or in native WebKit."
+  },
+  "log": [
+    {
+      "at": "2026-11-19T03:58:26+00:00",
+      "agent": "agent-4969",
+      "event": "created",
+      "note": ""
+    },
+    {
+      "at": "2026-11-19T04:50:14+00:00",
+      "agent": "agent-d0b3",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-11-19T04:50:15+00:00",
+      "agent": "agent-d0b3",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-11-19T05:48:12+00:00",
+      "agent": "agent-d0b3",
+      "event": "review requested",
+      "note": "Implemented FB9. Added app-wide collapse preferences and keyboard-operable chevrons for Note, Shortened note, Bibliography and Used in; Preview without props keeps the citation-card markup. Fail-first: built preview before wiring controls failed at the missing Note toggle as expected. Final checks: npx tsc -b passed; vitest collapsePreferences + hoverEmphasis + layoutPrimitives: 3 files / 16 tests passed; final built-preview focused Playwright run for fb-research-collapse.spec.ts and w9-research-panel.spec.ts: 2 passed. In the earlier 4-spec built-preview run, research.spec.ts and w9-used-in.spec.ts passed (24/26 overall; the two failures were fixed and rerun). Evidence and all intermediate failures are recorded in docs/agent-work/2026-11-18-folders-batch/notes/FB9.md. Chromium only; no native WebKit or owner real-use confirmation."
+    },
+    {
+      "at": "2026-11-19T05:48:44+00:00",
+      "agent": "agent-4969",
+      "event": "approved",
+      "note": "Coordinator review: Preview is unchanged without the new props (Cite dialog safe), four toggles with aria-expanded, state in personal-word.researchCollapsed with validated read; chevron reuses the source-toggle rotate rule incl. reduced motion; fail-first and built-preview passes recorded in notes/FB9.md. Not seen by eye or in native WebKit."
+    }
+  ]
+}

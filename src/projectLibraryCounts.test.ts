@@ -32,9 +32,11 @@ const base = { title: "Essay", createdAt: "2026-11-01T00:00:00.000Z", updatedAt:
 const id = "11111111-1111-4111-8111-111111111111";
 
 describe("project row counts", () => {
-  it("shows words and sections between Edited and Added", () => {
+  it("renders edited, added, words and sections in that DOM order", () => {
     const out = html([{ ...base, id, wordCount: 12400, sectionCount: 6 }]);
-    expect(out).toMatch(/Edited[^<]*<\/span><span class="project-words">12,400 words<\/span><span class="project-sections">6 sections<\/span><span>Added/);
+    expect(out).toMatch(
+      /<span class="project-edited">Edited [^<]*<\/span><span class="project-added">Added [^<]*<\/span><span class="project-words">12,400 words<\/span><span class="project-sections">6 sections<\/span>/,
+    );
   });
   it("uses singular forms", () => {
     const out = html([{ ...base, id, wordCount: 1, sectionCount: 1 }]);

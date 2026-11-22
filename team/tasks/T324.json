@@ -1,0 +1,59 @@
+{
+  "id": "T324",
+  "title": "FB6 -- Make Backspace remove a Tab indent",
+  "description": "Brief: read docs/agent-work/2026-11-18-folders-batch/PLAN.md sections 'Rules in force', 'Common commands', 'Notes for the implementer', then task FB6 only; its Interfaces names are contracts. Model: Sonnet. What: Backspace at the start of an indented paragraph removes the indent before joining paragraphs. Verify: src/editor/indent.test.ts and tests/ci-indent.spec.ts pass. Write notes to docs/agent-work/2026-11-18-folders-batch/notes/FB6.md with fail-first and passing output. Shared files (styles.css, App.tsx, ProjectSidebar.tsx, layoutBudget.json) are edited by small region with the Edit tool and are not registered. Do not commit.",
+  "status": "done",
+  "owner": null,
+  "priority": 2,
+  "depends_on": [],
+  "files": [
+    "src/editor/indent.ts",
+    "src/editor/indent.test.ts",
+    "tests/ci-indent.spec.ts",
+    "docs/agent-work/2026-11-18-folders-batch/notes/FB6.md"
+  ],
+  "review_required": true,
+  "created_by": "agent-4969",
+  "created_at": "2026-11-19T03:58:25+00:00",
+  "claimed_at": "2026-11-19T04:49:29+00:00",
+  "updated_at": "2026-11-19T05:03:44+00:00",
+  "handoff": null,
+  "review": {
+    "by": "agent-4969",
+    "at": "2026-11-19T05:03:44+00:00",
+    "verdict": "approved",
+    "note": "Coordinator review: Backspace handler is guarded exactly as FB6 specifies (non-screenplay, empty caret at offset 0, paragraph/heading, not in a list item, explicit positive indent) and otherwise returns false; reuses the Shift-Tab path. Unit 12/12, browser 6/6 against the built preview, fail-first recorded in notes/FB6.md. Native WebKit not checked."
+  },
+  "log": [
+    {
+      "at": "2026-11-19T03:58:25+00:00",
+      "agent": "agent-4969",
+      "event": "created",
+      "note": ""
+    },
+    {
+      "at": "2026-11-19T04:49:29+00:00",
+      "agent": "agent-17fc",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-11-19T04:49:39+00:00",
+      "agent": "agent-17fc",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-11-19T05:02:45+00:00",
+      "agent": "agent-17fc",
+      "event": "review requested",
+      "note": "Implemented Backspace indent removal. Fail-first: new unit cases in \n RUN  v4.1.11 /Users/ethansiegel/Local Projects/VC Projects/Project 13 - Word Processor\n\n\n Test Files  1 passed (1)\n      Tests  12 passed (12)\n   Start at  00:02:44\n   Duration  736ms (transform 142ms, setup 0ms, import 290ms, tests 36ms, environment 0ms) failed before implementation (5 failed, expected missing Backspace behavior). Pass: unit 12/12, npm run build, and built Chromium preview tests/ci-indent.spec.ts 6/6; details in docs/agent-work/2026-11-18-folders-batch/notes/FB6.md."
+    },
+    {
+      "at": "2026-11-19T05:03:44+00:00",
+      "agent": "agent-4969",
+      "event": "approved",
+      "note": "Coordinator review: Backspace handler is guarded exactly as FB6 specifies (non-screenplay, empty caret at offset 0, paragraph/heading, not in a list item, explicit positive indent) and otherwise returns false; reuses the Shift-Tab path. Unit 12/12, browser 6/6 against the built preview, fail-first recorded in notes/FB6.md. Native WebKit not checked."
+    }
+  ]
+}

@@ -1,10 +1,22 @@
 import { test, expect, type Page } from "@playwright/test";
-import { create, dense, seedBlocks, select, settle, togglePageView } from "./pages-helpers";
+import { create, dense, seedBlocks, select, settle, setPageView } from "./pages-helpers";
 
 // Page header text, corner placement and "Different first page" (page-header plan T1-T5).
 // On-screen labels are `.page-label` (data-page = 0-based page index, data-position).
 
 test.use({ viewport: { width: 1280, height: 900 } });
+
+test("Page header text fields have no personal-name placeholder", async ({ page }) => {
+  await create(page, "Page header placeholder");
+
+  const setup = await openSetup(page);
+  await expect(setup.getByRole("textbox", { name: "Page header text" })).not.toHaveAttribute("placeholder");
+  await page.keyboard.press("Escape");
+
+  await page.locator(".topbar").getByRole("button", { name: "Export", exact: true }).click();
+  await page.getByRole("menu", { name: "Export" }).getByRole("menuitem", { name: "Export settings..." }).click();
+  await expect(page.getByRole("textbox", { name: "Page header text" })).not.toHaveAttribute("placeholder");
+});
 
 const editorOf = (page: Page) =>
   page.getByRole("textbox", { name: "Writing editor", exact: true });
@@ -57,7 +69,7 @@ async function configure(
 async function threePages(page: Page, title: string) {
   await create(page, title);
   await seedBlocks(page, dense(30));
-  await togglePageView(page);
+  await setPageView(page, true);
   await expect.poll(() => page.locator(".page-sheet").count()).toBeGreaterThanOrEqual(3);
   await settle(page);
 }
@@ -150,7 +162,7 @@ test("(e) continuous view shows no labels", async ({ page }) => {
   await threePages(page, "Header e");
   await configure(page, { numbers: true, text: "Siegel", position: "Top right" });
   expect((await labels(page)).length).toBeGreaterThan(0);
-  await togglePageView(page);
+  await setPageView(page, false);
   await settle(page);
   await expect(page.locator(".page-label")).toHaveCount(0);
 });
@@ -203,7 +215,7 @@ test("(h) Chicago: page one blank, page two reads 1", async ({ page }) => {
     localStorage.setItem(key, JSON.stringify(p));
   });
   await seedBlocks(page, dense(30));
-  await togglePageView(page);
+  await setPageView(page, true);
   await expect.poll(() => page.locator(".page-sheet").count()).toBeGreaterThanOrEqual(2);
   await settle(page);
   const got = await labels(page);

@@ -1,4 +1,5 @@
 import { test, expect } from "@playwright/test";
+import { setPageView } from "./pages-helpers";
 
 async function createProject(page: any, title: string, template: string) {
   await page.addInitScript(() =>
@@ -10,6 +11,8 @@ async function createProject(page: any, title: string, template: string) {
   await page.getByLabel("Project title").fill(title);
   await page.getByRole("button", { name: "Save", exact: true }).click();
   await expect(page.getByText("Saved", { exact: true })).toBeVisible();
+  // These specs were written for continuous view; new projects now open paged, so state the view.
+  await setPageView(page, template === "Chicago");
 }
 
 // Arm the observer before input and inspect completion only after the entire
@@ -168,6 +171,39 @@ test("Screenplay Tab keeps cycling paragraph styles", async ({ page }) => {
   );
 });
 
+test("Backspace at the start of a Tab-indented paragraph removes the indent first", async ({
+  page,
+}) => {
+  await createProject(page, "Backspace indentation", "Blank");
+  const editor = page.getByRole("textbox", { name: "Writing editor" });
+  await editor.locator("p").first().click();
+  await editor.pressSequentially("First line.");
+  await editor.press("Enter");
+  await editor.press("Tab");
+  await editor.pressSequentially("Indented");
+  const indented = editor.locator("p").nth(1);
+  await expect(indented).toHaveAttribute("style", /text-indent: 0\.5in/);
+
+  await editor.press("Home");
+  await expect
+    .poll(() =>
+      editor.evaluate((element: any) => ({
+        offset: element.editor.state.selection.$from.parentOffset,
+        empty: element.editor.state.selection.empty,
+      })),
+    )
+    .toEqual({ offset: 0, empty: true });
+  await editor.press("Backspace");
+
+  await expect(editor.locator("p")).toHaveCount(2);
+  await expect(indented).toHaveText("Indented");
+  await expect(indented).not.toHaveAttribute("style", /text-indent: 0\.5in/);
+
+  await editor.press("Backspace");
+  await expect(editor.locator("p")).toHaveCount(1);
+  await expect(editor).toContainText("First line.Indented");
+});
+
 async function enterEditorByKeyboard(page: any, editor: any) {
   // Start outside the editor; only actual Tab input enters its contenteditable.
   await page.getByRole("button", { name: "Bold (⌘B)", exact: true }).focus();
@@ -278,4 +314,3 @@ test("Keyboard focus: Chicago inherited indent uses left indent and survives und
     /margin-left: 0\.5in/,
   );
 });
-

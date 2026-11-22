@@ -1,0 +1,29 @@
+{
+  "id": "T343",
+  "title": "OB9 -- Final validation and rebuild (do not launch)",
+  "description": "Sonnet. Follow task OB9 in docs/agent-work/2026-11-22-projects-outline/PLAN.md and its Validation list.",
+  "status": "available",
+  "owner": null,
+  "priority": 2,
+  "depends_on": [
+    "T342"
+  ],
+  "files": [
+    "docs/agent-work/2026-11-22-projects-outline/VALIDATION.md"
+  ],
+  "review_required": true,
+  "created_by": "agent-4969",
+  "created_at": "2026-11-22T23:33:39+00:00",
+  "claimed_at": null,
+  "updated_at": "2026-11-22T23:33:39+00:00",
+  "handoff": null,
+  "review": null,
+  "log": [
+    {
+      "at": "2026-11-22T23:33:39+00:00",
+      "agent": "agent-4969",
+      "event": "created",
+      "note": ""
+    }
+  ]
+}

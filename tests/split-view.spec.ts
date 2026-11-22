@@ -1,4 +1,5 @@
 import { test, expect, type Page } from "@playwright/test";
+import { setPageView } from "./pages-helpers";
 
 async function createProject(page: Page, title: string) {
   await page.getByRole("button", { name: "Start new project" }).click();
@@ -8,6 +9,8 @@ async function createProject(page: Page, title: string) {
   await expect(
     page.getByRole("textbox", { name: "Writing editor", exact: true }),
   ).toBeVisible();
+  // These specs were written for continuous view; new projects now open paged, so state the view.
+  await setPageView(page, false);
 }
 
 async function addSection(page: Page, title: string) {
@@ -584,6 +587,7 @@ test("split view: both panes' first text lines start at the same y in continuous
     .getByRole("button", { name: "Open Kept fragment body beside" })
     .click();
   await expect(page.locator(".split-pane")).toHaveCount(2);
+  await setPageView(page, false); // first measurement is continuous view
   const tops = () =>
     page.evaluate(() =>
       Array.from(document.querySelectorAll(".split-pane .ProseMirror")).map(
@@ -592,7 +596,7 @@ test("split view: both panes' first text lines start at the same y in continuous
     );
   const [leftTop, rightTop] = await tops();
   expect(Math.abs(leftTop - rightTop)).toBeLessThanOrEqual(1);
-  await page.getByRole("button", { name: "Page view", exact: true }).click();
+  await setPageView(page, true);
   await expect(
     page.locator('.split-pane[data-side="left"] .editor-viewport'),
   ).toHaveClass(/is-paged/);
@@ -608,7 +612,7 @@ test("split view: the footer page status follows the focused pane at once", asyn
   await addSection(page, "Two");
   await row(page, "Opening").click();
   await leftEditor(page).fill(longBody);
-  await page.getByRole("button", { name: "Page view", exact: true }).click();
+  await setPageView(page, true);
   await expect(
     page.locator('.split-pane[data-side="left"] .editor-viewport'),
   ).toHaveClass(/is-paged/);
@@ -808,7 +812,7 @@ test("split view: each pane has its own footer with its own page status and word
   await addSection(page, "Two");
   await row(page, "Opening").click();
   await leftEditor(page).fill(longBody);
-  await page.getByRole("button", { name: "Page view", exact: true }).click();
+  await setPageView(page, true);
   await row(page, "Two").click({ modifiers: ["ControlOrMeta"] });
   await expect(page.locator(".split-pane")).toHaveCount(2);
   await rightEditor(page).fill("Short right text");

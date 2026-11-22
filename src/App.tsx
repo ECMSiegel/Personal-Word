@@ -63,14 +63,19 @@ import { goalStatus, goalWords, goalDate, goalBaselineKey } from "./goals";
 import { createProjectIndex } from "./derived/projectIndex";
 import { footnoteLocations } from "./derived/footnoteLocations";
 import { removeFootnoteMarkers, removeTextOnlyFootnote } from "./research/removeFootnote";
+import { removeSource } from "./research/citationActions";
 import { applyRestorePatch, type RestorePatch } from "./organization/revisionDiff";
 import { addGroup, addSectionEntry, deleteGroup, groupTitle, moveEntryToGroup, normalized, renameGroup, reorderInGroup, setGroupColour, setHeaderColour } from "./organization/groups";
 import { ProjectLibrary } from "./components/ProjectLibrary";
 import { ProjectSidebar } from "./components/ProjectSidebar";
-import { moveWithin, reorderKind } from "./components/dragReorder";
+import { moveWithin, reorder as reorderList, reorderKind } from "./components/dragReorder";
 import { ReadDocument } from "./components/ReadDocument";
+import { PagedSheet } from "./components/PagedSheet";
+import { defaultPageLayout } from "./editor/formatting";
 import { Dropdown } from "./components/Dropdown";
+import { fileProject, parseLibrary } from "./library/folders";
 import {
+  SWATCHES,
   applyAppearance,
   type Swatch,
   nextTheme,
@@ -313,15 +318,16 @@ export default function App() {
     >
   >({});
   const [reader, setReader] = useState(() => {
-    const saved = readPreference("personal-word.reader", {
-      font: "var(--ui-font)",
-      size: 18,
-      spacing: 1.6,
-    });
+    const saved = readPreference<{ font: string; size: number; spacing: number; paged?: boolean }>(
+      "personal-word.reader",
+      { font: "var(--ui-font)", size: 18, spacing: 1.6 },
+    );
+    // Page view (Read and Bibliography) is on unless it was turned off.
+    const paged = saved.paged !== false;
     // The old "Futura / Avenir" default now means the interface font.
     return saved.font === "Futura, Avenir, sans-serif"
-      ? { ...saved, font: "var(--ui-font)" }
-      : saved;
+      ? { ...saved, paged, font: "var(--ui-font)" }
+      : { ...saved, paged };
   });
   useEffect(() => {
     localStorage.setItem("personal-word.tabs", JSON.stringify(tabs));
@@ -1230,6 +1236,51 @@ export default function App() {
       ],
     });
   };
+  const deleteSource = (id: string) => {
+    const source = current.current?.research?.sources.find((item) => item.id === id);
+    const research = current.current?.research;
+    if (!source || !research) return;
+    const result = removeSource(research, id);
+    if ("error" in result) {
+      setError(result.error);
+      return;
+    }
+    setChoice({
+      title: `Delete source “${source.title || "Untitled source"}”?`,
+      body: "A safety snapshot is kept first, so you can bring it back from Snapshots & history.",
+      actions: [
+        {
+          label: "Delete source",
+          primary: true,
+          destructive: true,
+          run: async () => {
+            await queue.flush();
+            const latest = current.current?.research;
+            const fresh = latest && removeSource(latest, id);
+            if (!fresh) return;
+            if ("error" in fresh) {
+              setError(fresh.error);
+              return;
+            }
+            await storage.snapshot(
+              current.current!.id,
+              `Before deleting source “${source.title || "Untitled source"}”`,
+            );
+            mutate((p) => ({ ...p, research: fresh.data }));
+            // A pane showing the deleted source's PDF closes, as remove() does for an entry.
+            const after = current.current!;
+            const pruned = prune(
+              splitRef.current,
+              after.entries.map((x) => x.id),
+              researchPdfHolderIds(after),
+            );
+            splitRef.current = pruned;
+            setSplit(pruned);
+          },
+        },
+      ],
+    });
+  };
   // Fragments have no order array: their order is their place in `entries` (saved as the header's entryIds).
   const reorderFragment = (id: string, to: number) =>
     mutate((p) => ({ ...p, entries: reorderKind(p.entries, "fragment", id, to) }));
@@ -1440,7 +1491,7 @@ export default function App() {
     a.click();
     setTimeout(() => URL.revokeObjectURL(url), 1000);
   };
-  const create = (templateId = "blank") =>
+  const create = (templateId = "blank", folderId?: string) =>
     setNameDialog({
       title: "A new writing project",
       label: "Project title",
@@ -1486,7 +1537,7 @@ export default function App() {
           p.entries[0].text = textOf(p.entries[0].content);
         }
         p.pageLayout = {
-          mode: template.id === "chicago" ? "pages" : "continuous",
+          mode: "pages",
           paper: "letter",
           margin: template.settings.marginInches * 96,
           zoom: 100,
@@ -1500,6 +1551,15 @@ export default function App() {
         setMode("write");
         localStorage.setItem("folio.lastProject", p.id);
         await queue.flush();
+        // FB4 "New project here": file it in the folder. A library that cannot be read is
+        // never written over, and a failure here never undoes the new project.
+        if (folderId)
+          try {
+            const library = parseLibrary(await storage.readLibrary());
+            await storage.writeLibrary(fileProject(library, p.id, folderId));
+          } catch {
+            setError("Folders could not be saved.");
+          }
       },
     });
   const importProject = async (file: File) => {
@@ -1550,6 +1610,13 @@ export default function App() {
   const confirmImport = async (title: string) => {
     if (!importPreview) return;
     const imported = { ...importPreview.project, title };
+    if (!imported.pageLayout)
+      imported.pageLayout = {
+        mode: "pages",
+        paper: "letter",
+        margin: (imported.documentSettings?.marginInches ?? 1) * 96,
+        zoom: 100,
+      };
     await queue.flush();
     const assets = ("assets" in importPreview && Array.isArray(importPreview.assets)) ? importPreview.assets : [];
     await storage.createProjectWithAssets(imported, assets);
@@ -2294,6 +2361,7 @@ export default function App() {
         activeId={project?.id ?? ""}
         onSelect={(id) => void run(() => open(id))}
         onLibrary={goLibrary}
+        onReorder={(from, to) => setTabs((t) => reorderList(t, from, to))}
         onClose={(id) =>
           void run(async () => {
             await queue.flush();
@@ -2318,6 +2386,15 @@ export default function App() {
               name: t.name,
             }))}
             onCreate={create}
+            colours={
+              appearance.palette === "color"
+                ? SWATCHES.map((s) => ({
+                    id: s,
+                    label: s[0].toUpperCase() + s.slice(1),
+                    colour: `var(--swatch-${s})`,
+                  }))
+                : undefined
+            }
             onOpen={(id) => void run(() => open(id))}
             onDelete={removeProject}
             onImport={(file) => void run(() => importProject(file))}
@@ -2476,6 +2553,7 @@ export default function App() {
               }}
               onRename={rename}
               onDelete={remove}
+              onDeleteSource={deleteSource}
               onReorder={reorder}
               onAddGroup={addTopSection}
               onRenameGroup={renameTopSection}
@@ -2680,6 +2758,12 @@ export default function App() {
                 <BibliographyPage
                   items={bibliography}
                   settings={project.documentSettings}
+                  paged={reader.paged}
+                  onPagedChange={(paged) => setReader({ ...reader, paged })}
+                  layout={project.pageLayout ?? { ...defaultPageLayout, mode: "pages" }}
+                  pageSettings={exportSettings(project.documentSettings)}
+                  templateId={project.templateId}
+                  revision={`${project.id}|${project.revision}`}
                   onChange={(patch) =>
                     mutate((p) => ({
                       ...p,
@@ -2707,7 +2791,18 @@ export default function App() {
                   }}
                 />
               ) : mode === "read" ? (
-                <div className="manuscript-read">
+                <div
+                  className={"manuscript-read" + (reader.paged ? " is-page-view" : "")}
+                  style={
+                    reader.paged
+                      ? ({
+                          "--document-font": reader.font,
+                          "--document-size": `${reader.size}px`,
+                          "--document-line": reader.spacing,
+                        } as CSSProperties)
+                      : undefined
+                  }
+                >
                   <div
                     className="cluster gap-3 reader-options"
                     role="toolbar"
@@ -2766,7 +2861,103 @@ export default function App() {
                         }
                       />
                     </label>
+                    <button
+                      type="button"
+                      aria-pressed={reader.paged}
+                      onClick={() => setReader({ ...reader, paged: !reader.paged })}
+                    >
+                      Page view
+                    </button>
                   </div>
+                  {reader.paged ? (
+                    <>
+                      <div className="eyebrow">MANUSCRIPT -- READ ONLY</div>
+                      <button
+                        className="text-button"
+                        onClick={() =>
+                          download(
+                            project.title + ".txt",
+                            sections
+                              .map((e) => e.title + "\n\n" + e.text)
+                              .join("\n\n"),
+                            "text/plain",
+                          )
+                        }
+                      >
+                        Export plain text <Download size={16} />
+                      </button>
+                      {/* Every block is a direct child of the sheet's surface, so pages can break between them. */}
+                      <PagedSheet
+                        layout={project.pageLayout ?? { ...defaultPageLayout, mode: "pages" }}
+                        settings={exportSettings(project.documentSettings)}
+                        templateId={project.templateId}
+                        contentKey={`${project.id}|${project.revision}|${reader.font}|${reader.size}|${reader.spacing}`}
+                        className="read-prose"
+                      >
+                        <h1>{project.title}</h1>
+                        {sections.flatMap((e) => [
+                          <button
+                            key={e.id + ":title"}
+                            id={"read-" + e.id}
+                            className="read-title"
+                            onClick={() => {
+                              openEntry(e.id);
+                              setMode("write");
+                            }}
+                          >
+                            {e.title} <span>↗</span>
+                          </button>,
+                          e.text ? (
+                            <ReadDocument
+                              key={e.id}
+                              content={e.content}
+                              numbers={footnoteNumbers}
+                              resolveAsset={resolveAsset}
+                            />
+                          ) : (
+                            <p key={e.id}>This section is waiting for words.</p>
+                          ),
+                        ])}
+                        {project.research &&
+                          Object.keys(footnoteNumbers).length > 0 && [
+                            <h2 key="notes" className="reader-heading">Notes</h2>,
+                            ...Object.entries(footnoteNumbers).map(([id, number]) => {
+                              const note = project.research!.footnotes.find(
+                                (n) => n.id === id,
+                              );
+                              return (
+                                <p key={id}>
+                                  <sup>{number}</sup>{" "}
+                                  {note
+                                    ? footnoteText(note, project.research!, citationContext[note.id]?.form, citationContext[note.id]?.locator)
+                                    : "Missing note"}
+                                </p>
+                              );
+                            }),
+                          ]}
+                        {project.documentSettings?.bibliography !== false &&
+                          bibliography.some((b) => !b.heading) && [
+                            <h2 key="bibliography" className="reader-heading">Bibliography</h2>,
+                            ...bibliography.map((b) =>
+                              b.heading ? (
+                                <h3 key={b.id}>{b.text}</h3>
+                              ) : (
+                                <p key={b.id} className="reader-entry">
+                                  {b.parts.map((part, index) =>
+                                    part.italic ? (
+                                      <em key={index}>{part.text}</em>
+                                    ) : (
+                                      <span key={index}>{part.text}</span>
+                                    ),
+                                  )}
+                                </p>
+                              ),
+                            ),
+                          ]}
+                      </PagedSheet>
+                    </>
+                  ) : (
+                  <>
                   <div className="eyebrow">
                     CONTINUOUS MANUSCRIPT -- READ ONLY
                   </div>
@@ -2856,6 +3047,8 @@ export default function App() {
                         )}
                       </section>
                     )}
+                  </>
+                  )}
                 </div>
               ) : item ? (
                 <div className={"editor-area" + (split && splitLeft ? " is-split" : "")}>
@@ -3113,6 +3306,7 @@ export default function App() {
                   onOpenPdf={openPdfBeside}
                   data={project.research}
                   onChange={(research) => mutate((p) => ({ ...p, research }))}
+                  onReorderSources={(id, to) => reorderResearch("sources", id, to)}
                   onInsertFootnote={
                     editorRef.current ? insertFootnote : undefined
                   }

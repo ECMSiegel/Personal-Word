@@ -1,5 +1,5 @@
 import { test, expect, type Locator, type Page } from "@playwright/test";
-import { create, para, seedBlocks, select, togglePageView } from "./pages-helpers";
+import { create, para, seedBlocks, select, setPageView } from "./pages-helpers";
 
 const editorOf = (page: Page) => page.getByRole("textbox", { name: "Writing editor", exact: true });
 
@@ -44,7 +44,7 @@ for (const mode of ["continuous", "page"] as const) {
     await page.setViewportSize({ width: 1280, height: 900 });
     await create(page, `Blank click ${mode}`);
     await seedBlocks(page, [para("First line"), para("Second line"), para("Third line")]);
-    if (mode === "page") await togglePageView(page);
+    await setPageView(page, mode === "page");
     const editor = editorOf(page);
     await expect(editor).toBeVisible();
 

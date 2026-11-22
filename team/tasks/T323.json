@@ -1,0 +1,98 @@
+{
+  "id": "T323",
+  "title": "FB5 -- Add custom order: Move up/down, dragging, auto-switch to Custom",
+  "description": "Brief: read docs/agent-work/2026-11-18-folders-batch/PLAN.md sections 'Rules in force', 'Common commands', 'Notes for the implementer', then task FB5 only; its Interfaces names are contracts. Model: Opus. What: Any hand reorder switches the sort to Custom; Move up/down, Option+arrows and pointer dragging for projects and folders, drop onto a folder heading files a project; reordering is off during search. Verify: libraryDrag unit test and tests/fb-folder-order.spec.ts pass. Write notes to docs/agent-work/2026-11-18-folders-batch/notes/FB5.md with fail-first and passing output. Shared files (styles.css, App.tsx, ProjectSidebar.tsx, layoutBudget.json) are edited by small region with the Edit tool and are not registered. Do not commit.",
+  "status": "done",
+  "owner": null,
+  "priority": 1,
+  "depends_on": [
+    "T322"
+  ],
+  "files": [
+    "src/components/ProjectLibrary.tsx",
+    "src/library/LibraryFolders.tsx",
+    "src/library/useLibraryDrag.ts",
+    "src/library/libraryDrag.ts",
+    "src/library/libraryDrag.test.ts",
+    "src/library/folders.css",
+    "tests/fb-folder-order.spec.ts",
+    "docs/agent-work/2026-11-18-folders-batch/notes/FB5.md",
+    "src/library/folders.ts",
+    "src/library/folders.test.ts",
+    "src/library/useLibrary.ts",
+    "tests/fb-folders.spec.ts",
+    "src/components/layout.css"
+  ],
+  "review_required": true,
+  "created_by": "agent-4969",
+  "created_at": "2026-11-19T03:58:24+00:00",
+  "claimed_at": "2026-11-19T07:37:38+00:00",
+  "updated_at": "2026-11-19T07:41:34+00:00",
+  "handoff": {
+    "by": "agent-68d0",
+    "at": "2026-11-19T07:37:03+00:00",
+    "text": "REVIEW-3 (docs/agent-work/2026-11-18-folders-batch/reviews/REVIEW-3.md). Custom order itself is sound: tsc clean; vitest 46 passed; the 6 Projects specs 84 passed 2 skipped; layout-invariants Projects|T5 7 passed. One medium: choosing \"Move to folder...\" on a row/card partly hidden by main.library (1280x560, cards, real mouse by coordinates) closes the destination menu on the first try -- ContextMenu.choose calls onClose(true) before run(); ProjectLibrary closeMenu (line 165) restores focus with a plain .focus(), which scrolls the row into view (scrollTop 0->5) and the new menu closes on that scroll. A second try works. Patching focus to preventScroll fixes it (probe). The fb-folders 1280x900 viewport hides this. Fixes: (1) ProjectLibrary.tsx closeMenu: tree.current?.querySelector<HTMLElement>(selector)?.focus({ preventScroll: true }) (or skip the restore when the chosen item reopens the Move to folder menu). (2) tests/fb-folders.spec.ts: put the default viewport back on \"Move to folder files a project...\" and add a regression that at 1280x560 in card view right-clicks a card partly below the fold by mouse coordinates, clicks \"Move to folder...\" by coordinates, and expects the destination rows visible; show it failing on the current tree first. Lows (drop-into appends last, no drag to empty top level, a move under another sort replaces that container hand order, narrow-window card widths) are owner decisions, not required."
+  },
+  "review": {
+    "by": "agent-4969",
+    "at": "2026-11-19T07:41:34+00:00",
+    "verdict": "approved",
+    "note": "Coordinator re-review of the REVIEW-3 repair: closeMenu restores focus with preventScroll; the 1280x900 override is gone and a 1280x560 short-window regression test was shown failing first; heading drops now file first like Move to folder. tsc clean, 24 unit and 68 browser tests passed after the repair. The Opus review (REVIEW-3.md) found nothing else above low."
+  },
+  "log": [
+    {
+      "at": "2026-11-19T03:58:24+00:00",
+      "agent": "agent-4969",
+      "event": "created",
+      "note": ""
+    },
+    {
+      "at": "2026-11-19T06:56:54+00:00",
+      "agent": "agent-acbd",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-11-19T06:56:54+00:00",
+      "agent": "agent-acbd",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-11-19T07:24:24+00:00",
+      "agent": "agent-acbd",
+      "event": "review requested",
+      "note": "FB5 built: Move up/down + Option+arrows + pointer drag (projects, folders, drop-into-folder), auto-switch to Custom, off during search; follow-ups a (.indent primitive, nested card cap), b (container closing rule), c (LibraryVersionError = read error). Notes: docs/agent-work/2026-11-18-folders-batch/notes/FB5.md"
+    },
+    {
+      "at": "2026-11-19T07:37:03+00:00",
+      "agent": "agent-68d0",
+      "event": "rejected",
+      "note": "REVIEW-3 (docs/agent-work/2026-11-18-folders-batch/reviews/REVIEW-3.md). Custom order itself is sound: tsc clean; vitest 46 passed; the 6 Projects specs 84 passed 2 skipped; layout-invariants Projects|T5 7 passed. One medium: choosing \"Move to folder...\" on a row/card partly hidden by main.library (1280x560, cards, real mouse by coordinates) closes the destination menu on the first try -- ContextMenu.choose calls onClose(true) before run(); ProjectLibrary closeMenu (line 165) restores focus with a plain .focus(), which scrolls the row into view (scrollTop 0->5) and the new menu closes on that scroll. A second try works. Patching focus to preventScroll fixes it (probe). The fb-folders 1280x900 viewport hides this. Fixes: (1) ProjectLibrary.tsx closeMenu: tree.current?.querySelector<HTMLElement>(selector)?.focus({ preventScroll: true }) (or skip the restore when the chosen item reopens the Move to folder menu). (2) tests/fb-folders.spec.ts: put the default viewport back on \"Move to folder files a project...\" and add a regression that at 1280x560 in card view right-clicks a card partly below the fold by mouse coordinates, clicks \"Move to folder...\" by coordinates, and expects the destination rows visible; show it failing on the current tree first. Lows (drop-into appends last, no drag to empty top level, a move under another sort replaces that container hand order, narrow-window card widths) are owner decisions, not required."
+    },
+    {
+      "at": "2026-11-19T07:37:38+00:00",
+      "agent": "agent-2fc2",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-11-19T07:37:38+00:00",
+      "agent": "agent-2fc2",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-11-19T07:41:22+00:00",
+      "agent": "agent-2fc2",
+      "event": "review requested",
+      "note": "Repaired REVIEW-3 fixes 1-2 and made heading drops file first; see notes/FB5.md 'Review repair'"
+    },
+    {
+      "at": "2026-11-19T07:41:34+00:00",
+      "agent": "agent-4969",
+      "event": "approved",
+      "note": "Coordinator re-review of the REVIEW-3 repair: closeMenu restores focus with preventScroll; the 1280x900 override is gone and a 1280x560 short-window regression test was shown failing first; heading drops now file first like Move to folder. tsc clean, 24 unit and 68 browser tests passed after the repair. The Opus review (REVIEW-3.md) found nothing else above low."
+    }
+  ]
+}

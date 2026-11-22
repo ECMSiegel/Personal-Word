@@ -6,7 +6,12 @@ import {
 } from "./libraryPreferences";
 
 const store = (value: string | null) => ({ getItem: () => value });
-const defaults = { sort: "edited", reverse: false, view: "list" };
+const defaults = {
+  sort: "edited",
+  fallbackSort: "edited",
+  reverse: false,
+  view: "list",
+};
 
 describe("library preferences", () => {
   it("uses the historical key", () => {
@@ -17,11 +22,19 @@ describe("library preferences", () => {
   });
   it("reads saved values", () => {
     const raw = JSON.stringify({ sort: "name", reverse: true, view: "cards" });
-    expect(readLibraryPreferences(store(raw))).toEqual({ sort: "name", reverse: true, view: "cards" });
+    expect(readLibraryPreferences(store(raw))).toEqual({ ...defaults, sort: "name", reverse: true, view: "cards" });
+  });
+  it("reads a saved Custom sort and the sort it falls back to", () => {
+    const raw = JSON.stringify({ sort: "custom", fallbackSort: "added", reverse: false, view: "list" });
+    expect(readLibraryPreferences(store(raw))).toEqual({ ...defaults, sort: "custom", fallbackSort: "added" });
   });
   it("falls back per field for bad values", () => {
     const raw = JSON.stringify({ sort: "size", reverse: "yes", view: "cards" });
     expect(readLibraryPreferences(store(raw))).toEqual({ ...defaults, view: "cards" });
+  });
+  it("treats Custom as no fallback sort", () => {
+    const raw = JSON.stringify({ sort: "name", fallbackSort: "custom", reverse: false, view: "list" });
+    expect(readLibraryPreferences(store(raw))).toEqual({ ...defaults, sort: "name" });
   });
   it("survives unparseable, non-object and throwing storage", () => {
     expect(readLibraryPreferences(store("{nope"))).toEqual(defaults);
@@ -31,8 +44,8 @@ describe("library preferences", () => {
   });
   it("writes JSON under the key and swallows storage errors", () => {
     let wrote: [string, string] | null = null;
-    writeLibraryPreferences({ setItem: (k, v) => { wrote = [k, v]; } }, { sort: "added", reverse: true, view: "list" });
-    expect(wrote).toEqual([LIBRARY_KEY, JSON.stringify({ sort: "added", reverse: true, view: "list" })]);
+    writeLibraryPreferences({ setItem: (k, v) => { wrote = [k, v]; } }, { sort: "added", fallbackSort: "edited", reverse: true, view: "list" });
+    expect(wrote).toEqual([LIBRARY_KEY, JSON.stringify({ sort: "added", fallbackSort: "edited", reverse: true, view: "list" })]);
     expect(() => writeLibraryPreferences({ setItem: () => { throw new Error("full"); } }, { ...defaults } as never)).not.toThrow();
   });
 });

@@ -1,4 +1,5 @@
 import { test, expect, type Locator, type Page } from "@playwright/test";
+import { setPageView } from "./pages-helpers";
 
 // UI wave 4 R1: scrollspy line column in the sidebar's Manuscript rows
 // (docs/agent-work/2026-10-28-ui-wave-4/PLAN.md, R1 and Approach item 8).
@@ -62,6 +63,10 @@ test.beforeEach(async ({ page }) => {
 });
 
 test("(a) Read mode: the line follows the reading position; a line click eases there; Reduce Motion is instant", async ({ page }) => {
+  // This test reads the continuous Read markup (one section element per section) (FB12 made page view the default).
+  await page.addInitScript(() =>
+    localStorage.setItem("personal-word.reader", JSON.stringify({ font: "var(--ui-font)", size: 18, spacing: 1.6, paged: false })),
+  );
   await seed(page, "Spy read", 600);
   await page.locator(".group-title").filter({ hasText: /^Read manuscript$/ }).click();
   const scroller = page.locator(".manuscript-read");
@@ -487,6 +492,7 @@ const scrollTo = (page: Page, where: "top" | "middle" | "bottom") =>
 
 test("(k) Write mode: the active line fills as the open section or fragment scrolls (continuous and page view)", async ({ page }) => {
   await seed(page, "Spy progress write", 600);
+  await setPageView(page, false); // first half is continuous view
   await row(page, "Beta part").locator(".entry-main").click();
   await page.mouse.move(900, 500);
   expect(await writeScroller(page).evaluate((el) => el.scrollHeight > el.clientHeight * 2)).toBe(true);
@@ -504,9 +510,7 @@ test("(k) Write mode: the active line fills as the open section or fragment scro
   await page.locator(".sidebar").screenshot({ path: test.info().outputPath("spy-progress-write-middle.png") });
 
   // Page view: the same scroller, the same fill.
-  const pageView = page.getByRole("button", { name: "Page view", exact: true });
-  if (!(await pageView.count())) await page.getByRole("button", { name: "More formatting" }).click();
-  await pageView.first().click();
+  await setPageView(page, true);
   await expect(page.locator(".editor-viewport")).toHaveClass(/is-paged/);
   await scrollTo(page, "top");
   await expect.poll(() => remainder(line(page, "Beta part"))).toBeCloseTo(1, 2);
@@ -524,6 +528,10 @@ test("(k) Write mode: the active line fills as the open section or fragment scro
 });
 
 test("(l) Read mode: the active line fills through its section", async ({ page }) => {
+  // This test reads the continuous Read markup (one section element per section) (FB12 made page view the default).
+  await page.addInitScript(() =>
+    localStorage.setItem("personal-word.reader", JSON.stringify({ font: "var(--ui-font)", size: 18, spacing: 1.6, paged: false })),
+  );
   await seed(page, "Spy progress read", 600);
   await page.locator(".group-title").filter({ hasText: /^Read manuscript$/ }).click();
   const scroller = page.locator(".manuscript-read");
@@ -550,6 +558,30 @@ test("(l) Read mode: the active line fills through its section", async ({ page }
   await scroller.evaluate((el) => (el.scrollTop = el.scrollHeight));
   await expect(line(page, "Delta part")).toHaveAttribute("data-state", "active");
   await expect.poll(() => remainder(line(page, "Delta part"))).toBeCloseTo(0, 2);
+});
+
+test("(l2) Read page view: progress moves smoothly through a section, not 0 -> 1 at the title", async ({ page }) => {
+  await seed(page, "Spy progress read pages", 600);
+  await page.locator(".group-title").filter({ hasText: /^Read manuscript$/ }).click();
+  const scroller = page.locator(".manuscript-read");
+  await expect(scroller).toBeVisible();
+  await expect(page.locator(".manuscript-read.is-page-view .page-sheet").first()).toBeVisible();
+  await page.mouse.move(900, 500);
+  // Put the one-third line a fraction of the way between Beta's and Gamma's title anchors.
+  const place = (fraction: number) =>
+    scroller.evaluate((sc, f) => {
+      const a = [...sc.querySelectorAll("[id^='read-']")];
+      const base = sc.getBoundingClientRect().top;
+      const at = (name: string) => a.find((n) => n.textContent?.includes(name))!.getBoundingClientRect().top - base;
+      const t1 = at("Beta part");
+      const t2 = at("Gamma part");
+      sc.scrollTop += t1 + (t2 - t1) * f - sc.clientHeight / 3;
+    }, fraction);
+  await place(0.5);
+  await expect(line(page, "Beta part")).toHaveAttribute("data-state", "active");
+  await expect.poll(() => remainder(line(page, "Beta part"))).toBeCloseTo(0.5, 1);
+  await place(0.25);
+  await expect.poll(() => remainder(line(page, "Beta part"))).toBeCloseTo(0.75, 1);
 });
 
 test("(m) Reduce Motion: no magnify; hover and focus fall back to the half-length line", async ({ page }) => {

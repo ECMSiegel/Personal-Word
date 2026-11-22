@@ -1,4 +1,5 @@
 import { test, expect } from "@playwright/test";
+import { setPageView } from "./pages-helpers";
 
 async function create(page: any, title: string) {
   await page.getByRole("button", { name: "Start new project" }).click();
@@ -95,6 +96,7 @@ test("page layout measurement preserves the editor element and undo history", as
 }) => {
   await page.goto("/");
   await create(page, "Editor identity");
+  await setPageView(page, false); // this test switches continuous -> page view
   const editor = page.getByRole("textbox", { name: "Writing editor" });
   const originalElement = await editor.elementHandle();
   await editor.fill("Undo remains available.");
@@ -104,9 +106,7 @@ test("page layout measurement preserves the editor element and undo history", as
   await editor.press("End");
   await editor.pressSequentially(" after layout change");
 
-  const pageView = await ensureToolbarControl(page, "Page view");
-  await pageView.click();
-  await page.keyboard.press("Escape");
+  await setPageView(page, true);
   await expect(page.locator(".editor-viewport")).toHaveClass(/is-paged/);
   await expect.poll(() => originalElement!.evaluate((node) => node.isConnected)).toBe(true);
 
@@ -132,9 +132,7 @@ test("an overlong page footnote offers a keyboard-operated continuous view", asy
   );
   await page.getByRole("button", { name: "Close research", exact: true }).click();
 
-  const pageView = await ensureToolbarControl(page, "Page view");
-  await pageView.click();
-  await page.keyboard.press("Escape");
+  await setPageView(page, true);
   const fallback = page.getByRole("button", {
     name: "Switch to continuous view",
   });

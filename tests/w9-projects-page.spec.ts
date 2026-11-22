@@ -36,14 +36,15 @@ test("the toolbar holds Start, Import writing, the search, Sort, reverse, the vi
   const names = await toolbar
     .locator("button")
     .evaluateAll((els) => els.map((el) => el.getAttribute("aria-label") ?? el.textContent!.trim()));
-  expect(names).toHaveLength(7);
+  expect(names).toHaveLength(8);
   expect(names[0]).toContain("Start new project");
   expect(names[1]).toMatch(/^Import writing/);
   expect(names[2]).toBe("Search projects");
   expect(names[3]).toBe("Sort projects");
   expect(names[4]).toBe("Reverse project sort order");
-  expect(names[5]).toBe("Show project cards");
-  expect(names[6]).toBe("Settings");
+  expect(names[5]).toBe("New folder");
+  expect(names[6]).toBe("Show project cards");
+  expect(names[7]).toBe("Settings");
   await expect(page.locator(".library-caption")).toHaveCount(0);
 });
 
@@ -107,7 +108,7 @@ test("sort, direction and view survive a reload", async ({ page }) => {
   await expect(page.locator(".project-list--cards")).toBeVisible();
   await expect
     .poll(() => page.evaluate(() => JSON.parse(localStorage.getItem("folio.workspace.library") ?? "{}")))
-    .toEqual({ sort: "name", reverse: true, view: "cards" });
+    .toEqual({ sort: "name", fallbackSort: "edited", reverse: true, view: "cards" });
   await page.reload();
   await expect(page.locator(".project-list--cards")).toBeVisible();
   await expect(page.getByRole("button", { name: "Show project list" })).toBeVisible();
@@ -124,7 +125,7 @@ test("bad saved library preferences fall back to the defaults", async ({ page })
 
 test("the page's icon buttons carry icon-grow and the arrow sits in a span", async ({ page }) => {
   await seed(page);
-  for (const name of ["Search projects", "Reverse project sort order", "Show project cards", "Settings"]) {
+  for (const name of ["Search projects", "Reverse project sort order", "New folder", "Show project cards", "Settings"]) {
     await expect(page.getByRole("button", { name, exact: true })).toHaveClass(/\bicon-grow\b/);
   }
   await expect(page.getByRole("button", { name: "Reverse project sort order" }).locator(":scope > span")).toHaveCount(1);
@@ -180,7 +181,7 @@ test("in cards view a very long title stays inside its card and clear of the tra
   expect(overlapsTrash).toBe(false);
 });
 
-test("each project shows its word and section counts between Edited and Added, in list and cards", async ({ page }) => {
+test("each project shows its word and section counts beside Edited and Added, in list and cards", async ({ page }) => {
   await page.goto("/");
   const id = "22222222-2222-4222-8222-222222222222";
   await page.evaluate((id) => {
@@ -211,12 +212,29 @@ test("each project shows its word and section counts between Edited and Added, i
   await page.reload();
   for (const view of ["list", "cards"] as const) {
     if (view === "cards") await page.getByRole("button", { name: "Show project cards" }).click();
-    const dates = page.locator(".project-row", { hasText: "Counted project" }).locator(".project-dates > span");
-    await expect(dates).toHaveCount(4);
-    await expect(dates.nth(0)).toHaveText(/^Edited \S/);
-    await expect(dates.nth(1)).toHaveText("1,200 words");
-    await expect(dates.nth(2)).toHaveText("3 sections");
-    await expect(dates.nth(3)).toHaveText(/^Added \S/);
+    const row = page.locator(".project-row", { hasText: "Counted project" });
+    await expect(row.locator(".project-edited")).toHaveText(/^Edited \S/);
+    await expect(row.locator(".project-added")).toHaveText(/^Added \S/);
+    await expect(row.locator(".project-words")).toHaveText("1,200 words");
+    await expect(row.locator(".project-sections")).toHaveText("3 sections");
+    const at = async (selector: string) => (await row.locator(selector).boundingBox())!;
+    const edited = await at(".project-edited");
+    const added = await at(".project-added");
+    const words = await at(".project-words");
+    const sections = await at(".project-sections");
+    if (view === "list") {
+      // Four columns; the visual order is edited, words, sections, added (the DOM order differs).
+      expect(words.x).toBeGreaterThan(edited.x);
+      expect(sections.x).toBeGreaterThan(words.x);
+      expect(added.x).toBeGreaterThan(sections.x);
+      expect(Math.abs(added.y - edited.y)).toBeLessThanOrEqual(1);
+    } else {
+      // Two columns of two lines: edited over added, words over sections.
+      expect(Math.abs(added.x - edited.x)).toBeLessThanOrEqual(1);
+      expect(added.y).toBeGreaterThan(edited.y);
+      expect(Math.abs(sections.x - words.x)).toBeLessThanOrEqual(1);
+      expect(sections.y).toBeGreaterThan(words.y);
+    }
   }
 });
 

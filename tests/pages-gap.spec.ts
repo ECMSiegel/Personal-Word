@@ -10,7 +10,7 @@ import {
   select,
   setZoom,
   settle,
-  togglePageView,
+  setPageView,
   type Invariant,
 } from "./pages-helpers";
 
@@ -89,7 +89,7 @@ const describe = (r: Invariant) =>
 async function open(page: Page, title: string, blocks: unknown[], zoom = 100) {
   await create(page, title);
   await seedBlocks(page, blocks);
-  await togglePageView(page);
+  await setPageView(page, true);
   await expect(page.locator(".editor-viewport")).toHaveClass(/is-paged/);
   if (zoom !== 100) await setZoom(page, zoom);
   await settle(page);

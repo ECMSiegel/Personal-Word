@@ -1,6 +1,6 @@
 import { test, expect, type Page } from "@playwright/test";
 import { ink, openProjectWithEntry } from "./layout-helpers";
-import { togglePageView } from "./pages-helpers";
+import { setPageView } from "./pages-helpers";
 
 // Layout-primitives screenshot gallery (plan T0 step 6). Only runs with GALLERY=1:
 //   GALLERY=1 PLAYWRIGHT_PORT=<port> npx playwright test tests/layout-gallery.spec.ts --output test-results/<T>
@@ -229,7 +229,7 @@ const SURFACES: Surface[] = [
         localStorage.setItem("folio.workspace.sidebar", JSON.stringify({ ...saved, floating: true }));
       });
       await richProject(page);
-      await togglePageView(page);
+      await setPageView(page, true);
       await expect(page.locator(".sidebar-shell")).toHaveClass(/is-floating/);
     },
   },

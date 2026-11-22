@@ -1,0 +1,115 @@
+{
+  "id": "T330",
+  "title": "FB12 -- Build real page view for Read and Bibliography",
+  "description": "Brief: read docs/agent-work/2026-11-18-folders-batch/PLAN.md sections 'Rules in force', 'Common commands', 'Notes for the implementer', then task FB12 only; its Interfaces names are contracts. Model: Opus. What: Static-DOM paginator feeding planPages, PagedSheet component, Page view toggle (default on) for Read and Bibliography. Verify: staticPagination unit test, tests/fb-paged-read.spec.ts and the nine Read/Bibliography specs named in the task pass; light and dark screenshots viewed. Write notes to docs/agent-work/2026-11-18-folders-batch/notes/FB12.md with fail-first and passing output. Shared files (styles.css, App.tsx, ProjectSidebar.tsx, layoutBudget.json) are edited by small region with the Edit tool and are not registered. Do not commit.",
+  "status": "done",
+  "owner": null,
+  "priority": 1,
+  "depends_on": [],
+  "files": [
+    "src/editor/staticPagination.ts",
+    "src/editor/staticPagination.test.ts",
+    "src/editor/pagination.ts",
+    "src/components/PagedSheet.tsx",
+    "src/components/paged-sheet.css",
+    "src/research/BibliographyPage.tsx",
+    "tests/fb-paged-read.spec.ts",
+    "docs/agent-work/2026-11-18-folders-batch/notes/FB12.md",
+    "tests/research.spec.ts",
+    "tests/scrollspy.spec.ts",
+    "tests/floating.spec.ts",
+    "src/components/floating.ts",
+    "src/components/floating.test.ts",
+    "src/components/scrollspy.ts"
+  ],
+  "review_required": true,
+  "created_by": "agent-4969",
+  "created_at": "2026-11-19T03:58:27+00:00",
+  "claimed_at": "2026-11-19T06:04:50+00:00",
+  "updated_at": "2026-11-19T06:56:13+00:00",
+  "handoff": {
+    "by": "agent-4a97",
+    "at": "2026-11-19T06:03:46+00:00",
+    "text": "Rejected (checks pass: vitest 39, playwright 92+46, tsc clean; screenshots fine). See docs/agent-work/2026-11-18-folders-batch/reviews/REVIEW-1.md. Fix: 1) HIGH src/components/floating.ts documentEdges: in Read page view measure .manuscript-read .editor-paper (sheet) like Writer's paged path, not .read-prose; at 1100x900 the floating sidebar (0-206px) currently sits over the sheet (left 142), the reader toolbar and the eyebrow; Writer page view falls back at 1100. Add a page-view floating test (clear of .page-sheet at 1600, fallback/clear at 1100), fail-first. 2) MEDIUM src/components/scrollspy.ts useReadSpy: section height = next read- anchor top minus this one (last: scroller content end); in page view progress now jumps 0->1.000 at the title. Add a page-view mid-section progress test (0<p<1), fail-first. Both files are unowned: register with files add."
+  },
+  "review": {
+    "by": "agent-e4cf",
+    "at": "2026-11-19T06:56:13+00:00",
+    "verdict": "approved",
+    "note": "REVIEW-2 re-review: REVIEW-1 findings 1 (floating over sheet) and 2 (Read spy 0->1) fixed; 94 passed (fb-paged-read, floating, scrollspy, research, pages); probe 1040-1600 plus Page view toggling shows no overlap. Lows only."
+  },
+  "log": [
+    {
+      "at": "2026-11-19T03:58:27+00:00",
+      "agent": "agent-4969",
+      "event": "created",
+      "note": ""
+    },
+    {
+      "at": "2026-11-19T04:49:27+00:00",
+      "agent": "agent-d0b3",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-11-19T04:49:27+00:00",
+      "agent": "agent-d0b3",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-11-19T04:49:54+00:00",
+      "agent": "agent-d0b3",
+      "event": "handoff",
+      "note": "Stopped before implementation: coordinator instruction #65 reserves FB12 for an Opus-class worker, and this session is not that worker. No code/tests changed. Next concrete action: claim the highest-priority eligible task from next. src/editor/staticPagination.ts: clean; src/editor/staticPagination.test.ts: clean; src/editor/pagination.ts: clean; src/components/PagedSheet.tsx: clean; src/components/paged-sheet.css: clean; src/research/BibliographyPage.tsx: clean; tests/fb-paged-read.spec.ts: clean; docs/agent-work/2026-11-18-folders-batch/notes/FB12.md: clean"
+    },
+    {
+      "at": "2026-11-19T04:50:42+00:00",
+      "agent": "agent-06f5",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-11-19T04:50:44+00:00",
+      "agent": "agent-06f5",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-11-19T05:41:12+00:00",
+      "agent": "agent-06f5",
+      "event": "review requested",
+      "note": "Built static-DOM paginator (staticPagination.ts) + PagedSheet; Read and Bibliography get real pages with a shared Page view toggle (default on, personal-word.reader.paged); mid-paragraph splits work (no fallback); 5 shared tests seeded paged:false.\nNotes: docs/agent-work/2026-11-18-folders-batch/notes/FB12.md"
+    },
+    {
+      "at": "2026-11-19T06:03:46+00:00",
+      "agent": "agent-4a97",
+      "event": "rejected",
+      "note": "Rejected (checks pass: vitest 39, playwright 92+46, tsc clean; screenshots fine). See docs/agent-work/2026-11-18-folders-batch/reviews/REVIEW-1.md. Fix: 1) HIGH src/components/floating.ts documentEdges: in Read page view measure .manuscript-read .editor-paper (sheet) like Writer's paged path, not .read-prose; at 1100x900 the floating sidebar (0-206px) currently sits over the sheet (left 142), the reader toolbar and the eyebrow; Writer page view falls back at 1100. Add a page-view floating test (clear of .page-sheet at 1600, fallback/clear at 1100), fail-first. 2) MEDIUM src/components/scrollspy.ts useReadSpy: section height = next read- anchor top minus this one (last: scroller content end); in page view progress now jumps 0->1.000 at the title. Add a page-view mid-section progress test (0<p<1), fail-first. Both files are unowned: register with files add."
+    },
+    {
+      "at": "2026-11-19T06:04:50+00:00",
+      "agent": "agent-cd69",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-11-19T06:04:50+00:00",
+      "agent": "agent-cd69",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-11-19T06:17:47+00:00",
+      "agent": "agent-cd69",
+      "event": "review requested",
+      "note": "Repaired REVIEW-1 findings 1 and 2; see notes/FB12.md 'Review repair'"
+    },
+    {
+      "at": "2026-11-19T06:56:13+00:00",
+      "agent": "agent-e4cf",
+      "event": "approved",
+      "note": "REVIEW-2 re-review: REVIEW-1 findings 1 (floating over sheet) and 2 (Read spy 0->1) fixed; 94 passed (fb-paged-read, floating, scrollspy, research, pages); probe 1040-1600 plus Page view toggling shows no overlap. Lows only."
+    }
+  ]
+}

@@ -236,6 +236,28 @@ impl Store {
         damaged.sort();
         Ok(Listing { projects, damaged })
     }
+    pub fn read_library(&self) -> Result<Option<String>> {
+        let path = self.root.join("library.json");
+        match fs::read_to_string(&path) {
+            Ok(data) => {
+                serde_json::from_str::<Value>(&data).map_err(err)?;
+                Ok(Some(data))
+            }
+            Err(error) if error.kind() == std::io::ErrorKind::NotFound => Ok(None),
+            Err(error) => Err(err(error)),
+        }
+    }
+    pub fn write_library(&self, data: &str) -> Result<()> {
+        if data.len() > 1_048_576 {
+            return Err("Library data exceeds the 1 MB limit".into());
+        }
+        serde_json::from_str::<Value>(data).map_err(err)?;
+        let path = self.root.join("library.json");
+        if path.exists() {
+            fs::copy(&path, self.root.join("library.backup.json")).map_err(err)?;
+        }
+        atomic(&path, data.as_bytes())
+    }
     pub fn delete(&mut self, id: &str) -> Result<()> {
         let dir = self.dir(id)?;
         if !dir.is_dir() {
@@ -1283,6 +1305,40 @@ mod tests {
                 extra: Default::default(),
             }],
         }
+    }
+    #[test]
+    fn library_file_round_trips_and_is_not_a_project() {
+        let t = tempfile::tempdir().unwrap();
+        let mut s = Store::new(t.path().into()).unwrap();
+        let p = project();
+        s.save(&p).unwrap();
+        assert_eq!(s.read_library().unwrap(), None);
+        let original = r#"{"version":1,"folders":[],"placement":{},"order":{}}"#;
+        s.write_library(original).unwrap();
+        assert_eq!(s.read_library().unwrap().as_deref(), Some(original));
+        assert_eq!(s.list().unwrap().projects.len(), 1);
+    }
+    #[test]
+    fn invalid_library_write_preserves_existing_file() {
+        let t = tempfile::tempdir().unwrap();
+        let s = Store::new(t.path().into()).unwrap();
+        let original = r#"{"version":1}"#;
+        s.write_library(original).unwrap();
+        assert!(s.write_library("{").is_err());
+        assert_eq!(s.read_library().unwrap().as_deref(), Some(original));
+        assert!(s.write_library(&" ".repeat(1_048_577)).is_err());
+        assert_eq!(s.read_library().unwrap().as_deref(), Some(original));
+    }
+    #[test]
+    fn second_library_write_keeps_a_backup_of_the_first() {
+        let t = tempfile::tempdir().unwrap();
+        let s = Store::new(t.path().into()).unwrap();
+        let first = r#"{"version":1,"folders":[]}"#;
+        let second = r#"{"version":1,"folders":[{"id":"f"}]}"#;
+        s.write_library(first).unwrap();
+        s.write_library(second).unwrap();
+        assert_eq!(s.read_library().unwrap().as_deref(), Some(second));
+        assert_eq!(fs::read_to_string(t.path().join("library.backup.json")).unwrap(), first);
     }
     fn section(text: &str) -> Entry {
         Entry {

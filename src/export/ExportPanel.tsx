@@ -163,7 +163,6 @@ export function ExportPanel({
               <input
                 type="text"
                 aria-label="Page header text"
-                placeholder="Siegel"
                 maxLength={60}
                 value={s.pageHeaderText ?? ""}
                 onChange={(e) =>

@@ -1,0 +1,38 @@
+/* Page view for Read and Bibliography (PagedSheet.tsx). The sheets, labels and
+   spacers reuse the editor's .is-paged rules (editor.css); these rules only fit
+   the read-only content to that surface. Spacing here is document typography
+   (selectors under .editor-paper or .manuscript-read). */
+
+/* The pane is the grey desk the sheets sit on. */
+.manuscript-read.is-page-view,
+.bibliography-page.is-page-view {
+  background: var(--surface, var(--line));
+}
+/* The 710 px reading column widens to the sheet plus the desk's 16 px sides. */
+.manuscript-read.is-page-view {
+  padding-inline: max(var(--space-4), calc((100% - var(--page-width, 816px) - 32px) / 2));
+}
+.bibliography-page.is-page-view {
+  padding-inline: 0;
+}
+
+/* Read: paragraphs keep their gaps; section titles are blocks with the space
+   a section had above it; bibliography entries keep their hanging indent. */
+.editor-paper .writing-surface.read-prose p {
+  margin: 1em 0;
+}
+.editor-paper .writing-surface .read-title {
+  display: block;
+  margin-top: 45px;
+}
+.editor-paper .writing-surface .reader-heading {
+  margin-top: 45px;
+}
+.editor-paper .writing-surface .reader-entry,
+.editor-paper .writing-surface.bibliography-entries p {
+  padding-left: 2em;
+  text-indent: -2em;
+}
+.editor-paper .writing-surface.bibliography-entries p {
+  margin: 0 0 var(--space-3);
+}

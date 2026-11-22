@@ -1,0 +1,92 @@
+{
+  "id": "T334",
+  "title": "FB16 -- Repair REVIEW-5: Projects meta at narrow widths and sort menu alignment",
+  "description": "Fix the FB1 and FB2 findings in docs/agent-work/2026-11-18-folders-batch/reviews/REVIEW-5.md exactly as listed there; fail-first for each; notes in docs/agent-work/2026-11-18-folders-batch/notes/FB16.md. Verify: fb-projects-meta, fb-sort-menu, fb-folders, fb-folder-order, w9-projects-page, projects-screen, popover-bounds, t10-dropdown-label specs pass. Shared styles.css by small region.",
+  "status": "done",
+  "owner": null,
+  "priority": 1,
+  "depends_on": [],
+  "files": [
+    "src/components/Dropdown.tsx",
+    "src/components/dropdown.css",
+    "src/components/Popover.tsx",
+    "src/components/popover.css",
+    "src/components/library.css",
+    "src/library/folders.css",
+    "tests/fb-projects-meta.spec.ts",
+    "tests/fb-sort-menu.spec.ts",
+    "docs/agent-work/2026-11-18-folders-batch/notes/FB16.md"
+  ],
+  "review_required": true,
+  "created_by": "agent-4969",
+  "created_at": "2026-11-19T09:06:55+00:00",
+  "claimed_at": "2026-11-19T09:34:01+00:00",
+  "updated_at": "2026-11-19T09:43:31+00:00",
+  "handoff": {
+    "by": "agent-4969",
+    "at": "2026-11-19T09:26:42+00:00",
+    "text": "Coordinator: the 264 px card minimum drops the Projects page from three cards per row to two at the normal page width and breaks layout-invariants T5 (which is right). Go back to minmax(256px,1fr) and a 256 nested cap; make the meta fit a 256 px card with nowrap, an 8 px column gap and a measured counts track. Do not edit tests/layout-invariants.spec.ts. Everything else stays."
+  },
+  "review": {
+    "by": "agent-0f14",
+    "at": "2026-11-19T09:43:31+00:00",
+    "verdict": "approved",
+    "note": "REVIEW-6: FB1 #1-3 and FB2 #1-2 gone; 3 cards/row at 1440; worst-case date+999,999 words no wrap/clip 600-1440 incl folders; sort menu text exact, keyboard open/pick/Escape returns focus, clamps top (scrolled) and bottom. Lows: list words track 0.6px over 7em, <=700 gap 7.3px via old 3px !important, menu 1px over tab strip."
+  },
+  "log": [
+    {
+      "at": "2026-11-19T09:06:55+00:00",
+      "agent": "agent-4969",
+      "event": "created",
+      "note": ""
+    },
+    {
+      "at": "2026-11-19T09:07:36+00:00",
+      "agent": "agent-8ab0",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-11-19T09:07:36+00:00",
+      "agent": "agent-8ab0",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-11-19T09:26:09+00:00",
+      "agent": "agent-8ab0",
+      "event": "review requested",
+      "note": "FB1/FB2 fixed, 99 acceptance specs pass; layout-invariants T5 card-gap test needs 1 test edit (3rd card wraps now). notes/FB16.md"
+    },
+    {
+      "at": "2026-11-19T09:26:42+00:00",
+      "agent": "agent-4969",
+      "event": "rejected",
+      "note": "Coordinator: the 264 px card minimum drops the Projects page from three cards per row to two at the normal page width and breaks layout-invariants T5 (which is right). Go back to minmax(256px,1fr) and a 256 nested cap; make the meta fit a 256 px card with nowrap, an 8 px column gap and a measured counts track. Do not edit tests/layout-invariants.spec.ts. Everything else stays."
+    },
+    {
+      "at": "2026-11-19T09:34:01+00:00",
+      "agent": "agent-f28b",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-11-19T09:34:02+00:00",
+      "agent": "agent-f28b",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-11-19T09:34:02+00:00",
+      "agent": "agent-f28b",
+      "event": "review requested",
+      "note": "revised: 256px cards (coordinator decision), all green; notes/FB16.md"
+    },
+    {
+      "at": "2026-11-19T09:43:31+00:00",
+      "agent": "agent-0f14",
+      "event": "approved",
+      "note": "REVIEW-6: FB1 #1-3 and FB2 #1-2 gone; 3 cards/row at 1440; worst-case date+999,999 words no wrap/clip 600-1440 incl folders; sort menu text exact, keyboard open/pick/Escape returns focus, clamps top (scrolled) and bottom. Lows: list words track 0.6px over 7em, <=700 gap 7.3px via old 3px !important, menu 1px over tab strip."
+    }
+  ]
+}

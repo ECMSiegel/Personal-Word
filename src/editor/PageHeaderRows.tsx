@@ -16,7 +16,6 @@ export function PageHeaderRows({ settings, onChange }: Props) {
             type="text"
             className="toolbar-input"
             aria-label="Page header text"
-            placeholder="Siegel"
             maxLength={60}
             value={settings.pageHeaderText ?? ""}
             onChange={(e) => onChange({ pageHeaderText: e.target.value })}

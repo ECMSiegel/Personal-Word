@@ -101,13 +101,19 @@ function columnGrowth(doc: HTMLElement, host: Element, ctx: FloatContext, width:
   return { colMax, pad: hostPad + (paper.getBoundingClientRect().width - width) * k };
 }
 
+/** Read's measured column: the sheet (.editor-paper) in page view, else the text column. */
+function readColumn(root: ParentNode) {
+  return root.querySelector<HTMLElement>(".manuscript-read .editor-paper")
+    ?? root.querySelector<HTMLElement>(".manuscript-read .read-prose");
+}
+
 /** Measured elements: .editor-paper (paged), .writing-surface (continuous),
  * .read-prose (ReadDocument text column, App.tsx:2424) inside .manuscript-read (the reading area,
  * whose top is Read's top edge), .format-bar and .pane-footer. */
 export function documentEdges(root: ParentNode, ctx: FloatContext) {
   if (ctx.split || ctx.documentOnScreen === false) return null;
   const doc = ctx.mode === "read"
-    ? root.querySelector<HTMLElement>(".manuscript-read .read-prose")
+    ? readColumn(root)
     : root.querySelector<HTMLElement>(ctx.paged ? ".editor-paper" : ".writing-surface");
   if (!doc) return null;
   const r = doc.getBoundingClientRect();
@@ -189,7 +195,7 @@ export function useMarginFit(
     const schedule = () => { if (!frame) frame = requestAnimationFrame(measure); };
     const observer = new ResizeObserver(schedule);
     observer.observe(host);
-    const target = host.querySelector(ctx.mode === "read" ? ".manuscript-read .read-prose" : ctx.paged ? ".editor-paper" : ".writing-surface");
+    const target = ctx.mode === "read" ? readColumn(host) : host.querySelector(ctx.paged ? ".editor-paper" : ".writing-surface");
     if (target) observer.observe(target);
     window.addEventListener("resize", schedule);
     measure();

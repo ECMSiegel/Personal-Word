@@ -81,6 +81,8 @@ type Props = {
   onRename: (e: Entry) => void;
   /** The row menu's Delete: App's confirm and safety snapshot. */
   onDelete?: (e: Entry) => void;
+  /** Deletes an unlinked research source after confirmation and a safety snapshot. */
+  onDeleteSource?: (id: string) => void;
   onReorder: (id: string, to: number) => void;
   /** Moves a fragment to position `to` among all fragments. */
   onReorderFragment?: (id: string, to: number) => void;
@@ -608,6 +610,9 @@ export function ProjectSidebar(props: Props) {
                   ? [{ label: "Open beside", run: () => props.onOpenBeside?.(item.beside!) }]
                   : []),
                 ...(moves?.() ?? []),
+                ...(group === "research" && item.id !== "bibliography" && !item.beside && !item.detail && props.onDeleteSource
+                  ? [{ label: "Delete source", danger: true, run: () => props.onDeleteSource?.(item.id) }]
+                  : []),
               ],
               onKeyDown,
             )

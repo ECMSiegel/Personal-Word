@@ -8,7 +8,7 @@ import {
   seedBlocks,
   setZoom,
   settle,
-  togglePageView,
+  setPageView,
 } from "./pages-helpers";
 
 // Owner report (wave 4 item 1, 1.png): below 100 % zoom the page breaks look
@@ -27,7 +27,7 @@ test.describe("page view at every toolbar zoom", () => {
     // twelve pages of long paragraphs.
     await seedBlocks(page, [...ownerShape(1), ...dense(90)]);
     const editor = page.getByRole("textbox", { name: "Writing editor", exact: true });
-    await togglePageView(page);
+    await setPageView(page, true);
     await expect.poll(async () => (await measurePages(editor)).spacers).toBeGreaterThan(10);
     await settle(page);
     const base = await measurePages(editor);

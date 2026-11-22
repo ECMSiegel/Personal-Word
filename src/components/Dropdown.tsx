@@ -1,4 +1,5 @@
 import {
+  useCallback,
   useEffect,
   useLayoutEffect,
   useId,
@@ -40,6 +41,8 @@ export function Dropdown<T extends string>({
   width,
   disabled,
   title,
+  cover,
+  plain,
 }: {
   value: T;
   options: DropdownOption<T>[];
@@ -51,6 +54,11 @@ export function Dropdown<T extends string>({
   width?: number | string;
   disabled?: boolean;
   title?: string;
+  /** The menu sits on the trigger (same top-left corner) and is as wide as the wider of the
+   * two; the trigger's own label is what you read at rest. */
+  cover?: boolean;
+  /** No tick column: the current row is shown by weight alone. */
+  plain?: boolean;
 }) {
   const [open, setOpen] = useState(false);
   const [highlight, setHighlight] = useState(0);
@@ -77,6 +85,31 @@ export function Dropdown<T extends string>({
       ?.querySelector<HTMLElement>(`[data-index="${highlight}"]`)
       ?.scrollIntoView({ block: "nearest" });
   }, [open, highlight]);
+
+  // Cover: place the menu like a macOS pop-up button, so the current row's text sits on the
+  // trigger's own text. Near a window edge the menu is kept inside it (8 px) instead.
+  const coverOffset = useCallback((popup: HTMLElement, trigger: HTMLElement) => {
+    const textBox = (el: Element | null) => {
+      if (!el) return null;
+      const range = document.createRange();
+      range.selectNodeContents(el);
+      return range.getBoundingClientRect();
+    };
+    const from = textBox(trigger.querySelector(".dropdown-value"));
+    const to = textBox(popup.querySelector(".dropdown-option.is-current .row-label"));
+    if (!from || !to) return { x: 0, y: 0 };
+    let x = from.left - to.left;
+    let y = (from.top + from.bottom) / 2 - (to.top + to.bottom) / 2;
+    const box = popup.getBoundingClientRect(); // measured with the menu's top-left on the trigger's
+    const room = 8;
+    const bottom = box.bottom + y;
+    if (bottom > window.innerHeight - room) y -= bottom - (window.innerHeight - room);
+    if (box.top + y < room) y += room - (box.top + y);
+    const left = box.left + x;
+    if (left < room) x += room - left;
+    else if (box.right + x > window.innerWidth - room) x -= box.right + x - (window.innerWidth - room);
+    return { x, y };
+  }, []);
 
   const openMenu = () => {
     if (disabled) return;
@@ -177,6 +210,8 @@ export function Dropdown<T extends string>({
         open={open}
         anchor={button}
         onDismiss={() => setOpen(false)}
+        morph={cover ? "anchor" : "edge"}
+        anchorOffset={cover ? coverOffset : undefined}
         role="listbox"
         id={id}
         label={label}
@@ -185,7 +220,7 @@ export function Dropdown<T extends string>({
         highlight={itemRank}
         onKeyDown={onMenuKeyDown}
         ref={menu}
-        className="dropdown-menu menu"
+        className={"dropdown-menu menu" + (cover ? " dropdown-menu-cover" : "")}
       >
         {options.map((option, index) =>
           option.kind === "separator" ? (
@@ -226,9 +261,11 @@ export function Dropdown<T extends string>({
               choose(index);
             }}
           >
-            <span className="dropdown-check" aria-hidden="true">
-              {option.value === value && <Check size={16} />}
-            </span>
+            {!plain && (
+              <span className="dropdown-check" aria-hidden="true">
+                {option.value === value && <Check size={16} />}
+              </span>
+            )}
             <span className="row-label">{option.render ?? option.label}</span>
             {option.shortcut && (
               <span className="popover-shortcut row-trail" aria-hidden="true">

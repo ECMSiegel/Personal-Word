@@ -84,7 +84,7 @@ test("(d) opening the Sort dropdown animates only allowed properties and marks o
   const opacities = await listbox
     .locator("[data-popover-item]")
     .evaluateAll((els) => els.map((el) => getComputedStyle(el).opacity));
-  expect(opacities.length).toBe(3);
+  expect(opacities.length).toBe(4); // Custom was added to the Sort list (FB2)
   expect(opacities.filter((o) => o !== "1")).toEqual([]);
 });
 

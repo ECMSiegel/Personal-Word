@@ -17,6 +17,7 @@ import {
   verifyPendingAsset,
 } from "./assets/assets";
 import { type PendingPdf, inspectPdf, verifyPendingPdf } from "./assets/pdf";
+import type { LibraryState } from "./library/folders";
 export let desktop = isTauri();
 export function setDesktopForTesting(val: boolean) {
   desktop = val;
@@ -39,6 +40,15 @@ async function requireBrowserAssets(project: Project): Promise<void> {
 }
 export type Listing = { projects: Summary[]; damaged: string[] };
 export const storage = {
+  async readLibrary(): Promise<unknown> {
+    if (!desktop) return read<unknown | null>("library", null);
+    const data = await invoke<string | null>("read_library");
+    return data === null ? null : JSON.parse(data);
+  },
+  async writeLibrary(state: LibraryState): Promise<void> {
+    if (desktop) return invoke("write_library", { data: JSON.stringify(state) });
+    write("library", state);
+  },
   async list(): Promise<Listing> {
     if (desktop) return invoke("list_projects");
     const projects = Object.keys(localStorage)

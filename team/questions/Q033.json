@@ -1,0 +1,9 @@
+{
+  "id": "Q033",
+  "at": "2026-11-19T07:54:37+00:00",
+  "by": "agent-e46a",
+  "task": "T331",
+  "text": "T331 is blocked: First full run: 62 failed (>40 stop rule), 677 passed, 76 skipped. List in notes/FB13.md. Many are page-view specs (pages-gap, pages, sb-page-header, split-view, of3-rulers, research, footnotes). Need coordinator decision before fixing tests.",
+  "status": "resolved",
+  "resolution": "Coordinator lifted the 40-failure limit: 62 failures is the expected size of the new-default fallout; triage and fix tests as below."
+}

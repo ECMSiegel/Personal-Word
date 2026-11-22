@@ -1,4 +1,5 @@
 import { test, expect } from "@playwright/test";
+import { setPageView } from "./pages-helpers";
 async function create(page: any, title: string, template = "Blank") {
   await page.getByRole("button", { name: "Start new project" }).click();
   await page.getByRole("button", { name: template, exact: true }).click();
@@ -129,7 +130,7 @@ test("page layout stacks long paragraphs vertically and preserves undo and forma
   await (await toolbarButton(page, "Line and paragraph spacing")).click();
   await page.getByRole("button", { name: "Double", exact: true }).click();
   await page.keyboard.press("Escape");
-  await (await toolbarButton(page, "Page view")).click();
+  await setPageView(page, true);
   await expect(page.getByLabel("Page count")).toContainText(/of [2-9]/);
   // Pages stack vertically: one paragraph taller than a page runs down across
   // the gap (it is never split into columns), and nothing scrolls sideways.
@@ -145,12 +146,12 @@ test("page layout stacks long paragraphs vertically and preserves undo and forma
   expect(
     await editor.locator("p").first().evaluate((el) => el.getClientRects().length),
   ).toBe(1);
-  await (await toolbarButton(page, "Page view")).click();
+  await setPageView(page, false);
   await editor.fill("Before");
   await page.waitForTimeout(600);
   await editor.press("End");
   await page.keyboard.insertText(" added");
-  await (await toolbarButton(page, "Page view")).click();
+  await setPageView(page, true);
   await page.getByRole("button", { name: "Undo", exact: true }).click();
   await expect(editor).toHaveText("Before");
   await page.screenshot({ path: "test-results/personal-word-pages.png" });
@@ -201,4 +202,22 @@ test("Settings Goals pickers use the interface font and square corners", async (
     expect(style.font, `${name} font`).toBe(ui);
     expect(style.radius, `${name} corners`).toBe("0px");
   }
+});
+
+test("a new project opens in Page view; a stored project with no page layout stays continuous", async ({ page }) => {
+  await page.goto("/");
+  await create(page, "Opens in pages");
+  await expect(page.getByText("Saved", { exact: true })).toBeVisible();
+  await expect(await toolbarButton(page, "Page view")).toHaveAttribute("aria-pressed", "true");
+  await page.evaluate(() => {
+    const key = Object.keys(localStorage).find((k) => k.startsWith("folio.preview.project."))!;
+    const p = JSON.parse(localStorage.getItem(key)!);
+    delete p.pageLayout;
+    localStorage.setItem(key, JSON.stringify(p));
+    localStorage.setItem("personal-word.restoreTabs", "true");
+    localStorage.setItem("folio.lastProject", p.id);
+  });
+  await page.reload();
+  await expect(page.getByRole("textbox", { name: "Writing editor", exact: true })).toBeVisible();
+  await expect(await toolbarButton(page, "Page view")).toHaveAttribute("aria-pressed", "false");
 });

@@ -1,4 +1,5 @@
 import { test, expect, type Page } from "@playwright/test";
+import { setPageView } from "./pages-helpers";
 
 async function create(page: Page, title: string, template = "Blank") {
   await page.getByRole("button", { name: "Start new project" }).click();
@@ -8,6 +9,8 @@ async function create(page: Page, title: string, template = "Blank") {
   await expect(
     page.getByRole("textbox", { name: "Writing editor" }),
   ).toBeVisible();
+  // These specs were written for continuous view; new projects now open paged, so state the view.
+  await setPageView(page, template === "Chicago");
 }
 
 test.beforeEach(async ({ page }) => {

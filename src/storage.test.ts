@@ -180,6 +180,21 @@ describe("storage adapter - desktop native", () => {
       "A project with this identity already exists; nothing was replaced."
     );
   });
+
+  it("reads and writes the native library JSON through IPC", async () => {
+    const library = { version: 1 as const, folders: [], placement: {}, order: {} };
+    vi.mocked(invoke).mockResolvedValueOnce(JSON.stringify(library)).mockResolvedValueOnce(undefined);
+    expect(await storage.readLibrary()).toEqual(library);
+    await storage.writeLibrary(library);
+    expect(invoke).toHaveBeenNthCalledWith(1, "read_library");
+    expect(invoke).toHaveBeenNthCalledWith(2, "write_library", { data: JSON.stringify(library) });
+  });
+
+  it("preserves missing native library as null and rejects malformed JSON", async () => {
+    vi.mocked(invoke).mockResolvedValueOnce(null).mockResolvedValueOnce("{");
+    expect(await storage.readLibrary()).toBeNull();
+    await expect(storage.readLibrary()).rejects.toThrow();
+  });
 });
 
 describe("storage adapter - browser preview", () => {
@@ -210,6 +225,14 @@ describe("storage adapter - browser preview", () => {
     await storage.save({ header: headerOf(counted), entries: counted.entries, baseRevision: null });
     const { projects } = await storage.list();
     expect(projects[0]).toMatchObject({ wordCount: 3, sectionCount: 1 });
+  });
+
+  it("reads and writes the browser library under its separate preview key", async () => {
+    const library = { version: 1 as const, folders: [], placement: {}, order: {} };
+    await storage.writeLibrary(library);
+    expect(await storage.readLibrary()).toEqual(library);
+    expect(localStorage.getItem("folio.preview.library")).toBe(JSON.stringify(library));
+    expect(invoke).not.toHaveBeenCalled();
   });
 
   it("stages assets into browserAssetStore and returns metadata", async () => {

@@ -58,6 +58,13 @@
   cursor: default;
   color: var(--text);
 }
+/* Cover style (Projects Sort): width is the wider of the trigger and the longest row, with no
+   150 px floor, so a short trigger does not leave the menu hanging past it. */
+.dropdown-menu.dropdown-menu-cover {
+  min-width: 100%;
+  /* Row text starts where the trigger's text does: the trigger pads by --space-2, the menu has a 1 px border. */
+  --edge: calc(var(--space-2) - 1px);
+}
 .dropdown-option.is-current {
   font-weight: 600;
 }

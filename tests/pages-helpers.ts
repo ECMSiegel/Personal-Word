@@ -75,6 +75,21 @@ export async function togglePageView(page: Page) {
   await page.keyboard.press("Escape");
 }
 
+/** Sets Page view on or off: reads aria-pressed first and clicks only if it differs (new projects open paged). */
+export async function setPageView(page: Page, on: boolean) {
+  await expect(page.getByRole("textbox", { name: "Writing editor", exact: true }).first()).toBeVisible();
+  let button = page.getByRole("button", { name: "Page view", exact: true });
+  const inMore = !(await button.count());
+  if (inMore) await page.getByRole("button", { name: "More formatting" }).click();
+  button = page.getByRole("button", { name: "Page view", exact: true });
+  if ((await button.getAttribute("aria-pressed")) !== String(on)) await button.click();
+  if (inMore) {
+    await page.keyboard.press("Escape");
+    await expect(page.getByRole("button", { name: "Page view", exact: true })).toHaveCount(0);
+  }
+  await expect(page.locator(on ? ".is-paged" : ".is-continuous").first()).toBeVisible();
+}
+
 /** Picks a toolbar zoom (50, 75, 100, 125, 150) through the "Editor zoom" dropdown. */
 export async function setZoom(page: Page, percent: number) {
   let trigger = page.getByRole("button", { name: "Editor zoom", exact: true });

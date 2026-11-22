@@ -20,6 +20,9 @@ export type PopoverProps = {
   onDismiss?: () => void;
   align?: "start" | "end";
   morph?: "edge" | "anchor";
+  /** morph="anchor" only: where to put the popup, as an offset (px) from the anchor's top-left, so a
+   * chosen row can sit on the anchor's own text. Absent: the popup's top-left is the anchor's. */
+  anchorOffset?: (popup: HTMLElement, trigger: HTMLElement) => { x: number; y: number };
   highlight?: number | null | "follow";
   role?: string;
   id?: string;
@@ -135,6 +138,7 @@ export function Popover({
   onDismiss,
   align = "start",
   morph = "edge",
+  anchorOffset,
   highlight = null,
   role,
   id,
@@ -149,7 +153,7 @@ export function Popover({
   const el = useRef<HTMLDivElement | null>(null);
   const [place, setPlace] = useState({ end: false, up: false });
   const up = useRef(false);
-  const anchorSize = useRef({ w: 0, h: 0 });
+  const anchorSize = useRef({ w: 0, h: 0, x: 0, y: 0 });
 
   const setRef = useCallback(
     (node: HTMLDivElement | null) => {
@@ -168,7 +172,15 @@ export function Popover({
     if (!open || !popup || !trigger) return;
     if (morph === "anchor") {
       const r = trigger.getBoundingClientRect();
-      anchorSize.current = { w: r.width, h: r.height };
+      popup.style.left = "";
+      popup.style.top = "";
+      const o = anchorOffset?.(popup, trigger) ?? { x: 0, y: 0 };
+      if (o.x || o.y) {
+        popup.style.left = `${o.x}px`;
+        popup.style.top = `${o.y}px`;
+      }
+      // The reveal starts as the anchor's own box, wherever the popup now sits around it.
+      anchorSize.current = { w: r.width, h: r.height, x: Math.max(0, -o.x), y: Math.max(0, -o.y) };
       return;
     }
     const boundary = nearestScrollBoundary(popup);
@@ -231,13 +243,13 @@ export function Popover({
       window.removeEventListener("resize", schedule);
       boundary?.removeEventListener("scroll", schedule);
     };
-  }, [open, align, morph, anchor]);
+  }, [open, align, morph, anchor, anchorOffset]);
 
   const hidden = useCallback(
     (): Keyframe =>
       morph === "anchor"
         ? {
-            clipPath: `inset(0 calc(100% - ${anchorSize.current.w}px) calc(100% - ${anchorSize.current.h}px) 0)`,
+            clipPath: `inset(${anchorSize.current.y}px calc(100% - ${anchorSize.current.x + anchorSize.current.w}px) calc(100% - ${anchorSize.current.y + anchorSize.current.h}px) ${anchorSize.current.x}px)`,
           }
         : { opacity: 0, clipPath: up.current ? "inset(100% 0 0 0)" : "inset(0 0 100% 0)" },
     [morph],

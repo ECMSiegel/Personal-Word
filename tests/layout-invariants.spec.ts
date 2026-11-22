@@ -1,6 +1,6 @@
 import { test, expect, type Locator, type Page } from "@playwright/test";
 import { expectEvenRows, expectSharedEdge, expectSlots, ink, openProjectWithEntry } from "./layout-helpers";
-import { settle, togglePageView } from "./pages-helpers";
+import { settle, setPageView } from "./pages-helpers";
 
 // Layout invariants (plan T0, docs/agent-work/2026-11-12-layout-primitives/PLAN.md, "The system").
 // They assert relationships -- shared edges, slot sizes, even rows -- not recorded pixels.
@@ -630,7 +630,7 @@ test.describe("research panel and citation card (T7)", () => {
       localStorage.setItem("folio.workspace.sidebar", JSON.stringify({ floating: true }));
     });
     await openProjectWithEntry(page, "Layout card");
-    await togglePageView(page);
+    await setPageView(page, true);
     await page.locator(".group-title").filter({ hasText: /^Research$/ }).click();
     const card = page.locator(".citation-card");
     await expect(card).toBeVisible();
@@ -680,7 +680,7 @@ test.describe("Projects page (T5)", () => {
       toolbar.getByRole("button", { name: "Start new project" }),
       toolbar.getByRole("button", { name: /^Import writing/ }),
       toolbar.locator(".library-search"),
-      toolbar.locator(".library-display label"),
+      toolbar.locator(".library-display .dropdown-button"),
       ...icons,
     ];
     const centres: number[] = [];
@@ -719,7 +719,8 @@ test.describe("Projects page (T5)", () => {
     await seedProjects(page);
     const row = page.locator(".project-row").first();
     const trash = row.locator(".delete-entry");
-    const added = row.locator(".project-dates > span").last();
+    // The rightmost dates cell in list view is Added (visual order: edited, words, sections, added).
+    const added = row.locator(".project-dates .project-added");
     await page.mouse.move(0, 0);
     const before = (await added.boundingBox())!;
     await row.hover();

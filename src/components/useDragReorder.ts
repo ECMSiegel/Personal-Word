@@ -6,7 +6,7 @@ import type { DragSnapshot } from "./dragReorder";
 type Options<T> = {
   items: readonly T[];
   onReorder: (from: number, to: number) => void;
-  axis?: "y";
+  axis?: "x" | "y";
   /** Pixels of travel before a press becomes a drag (smaller moves stay clicks). */
   threshold?: number;
 };
@@ -29,12 +29,13 @@ type RowProps = {
  * Escape or pointercancel cancels. Keyboard reordering stays on the caller (the existing move buttons), and the
  * click that ends a real drag is swallowed so the row's own action does not fire.
  */
-export function useDragReorder<T>({ items, onReorder, threshold = 5 }: Options<T>) {
+export function useDragReorder<T>({ items, onReorder, axis = "y", threshold = 5 }: Options<T>) {
+  const horizontal = axis === "x";
   const [snap, setSnap] = useState<DragSnapshot | null>(null);
   const heights = useRef<number[]>([]);
   const onReorderRef = useRef(onReorder);
   onReorderRef.current = onReorder;
-  const controller = useMemo(() => new DragController(threshold, (f, t) => onReorderRef.current(f, t)), [threshold]);
+  const controller = useMemo(() => new DragController(threshold, (f, t) => onReorderRef.current(f, t), horizontal), [threshold, horizontal]);
   const captured = useRef<{ el: HTMLElement; id: number } | null>(null);
 
   const release = useCallback(() => {
@@ -70,7 +71,7 @@ export function useDragReorder<T>({ items, onReorder, threshold = 5 }: Options<T
     const rows = Array.from(parent.querySelectorAll<HTMLElement>(":scope > [data-drag-index]"));
     if (rows.length !== items.length) return;
     const rects = rows.map((r) => r.getBoundingClientRect());
-    heights.current = rects.map((r) => r.height);
+    heights.current = rects.map((r) => (horizontal ? r.width : r.height));
     // A release outside the row never reaches the row's onPointerUp: disarm on any window release too.
     const disarm = () => {
       window.removeEventListener("pointerup", disarm, true);
@@ -79,11 +80,11 @@ export function useDragReorder<T>({ items, onReorder, threshold = 5 }: Options<T
     };
     window.addEventListener("pointerup", disarm, true);
     window.addEventListener("pointercancel", disarm, true);
-    controller.down(e.clientY, index, rects.map((r) => r.top), heights.current);
+    controller.down(horizontal ? e.clientX : e.clientY, index, rects.map((r) => (horizontal ? r.left : r.top)), heights.current);
   };
 
   const onPointerMove = (e: ReactPointerEvent<HTMLElement>) => {
-    const s = controller.move(e.clientY, e.buttons);
+    const s = controller.move(horizontal ? e.clientX : e.clientY, e.buttons);
     if (!s) {
       if (e.buttons === 0 && snap) cancel();
       return;
@@ -117,11 +118,11 @@ export function useDragReorder<T>({ items, onReorder, threshold = 5 }: Options<T
     };
     if (!snap) return base;
     if (index === snap.from) {
-      return { ...base, style: { transform: `translateY(${snap.dy}px)` }, "data-drag-state": "lifted" };
+      return { ...base, style: { transform: `translate${horizontal ? "X" : "Y"}(${snap.dy}px)` }, "data-drag-state": "lifted" };
     }
     const shift = shiftFor(index, snap.from, snap.to, heights.current);
     const edge = dropEdge(snap.from, snap.to);
-    const out: RowProps = { ...base, style: { transform: `translateY(${shift}px)` }, "data-drag-state": "shifted" };
+    const out: RowProps = { ...base, style: { transform: `translate${horizontal ? "X" : "Y"}(${shift}px)` }, "data-drag-state": "shifted" };
     if (edge && edge.index === index) out["data-drag-edge"] = edge.edge;
     return out;
   };

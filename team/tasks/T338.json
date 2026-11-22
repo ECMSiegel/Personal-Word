@@ -1,0 +1,33 @@
+{
+  "id": "T338",
+  "title": "OB4 -- Wire the sort menu and column chooser into the Projects page",
+  "description": "Sonnet. Follow task OB4 in docs/agent-work/2026-11-22-projects-outline/PLAN.md exactly.",
+  "status": "available",
+  "owner": null,
+  "priority": 2,
+  "depends_on": [
+    "T336",
+    "T337"
+  ],
+  "files": [
+    "src/components/ProjectLibrary.tsx",
+    "tests/ob-sort-menu.spec.ts",
+    "tests/fb-sort-menu.spec.ts",
+    "tests/t10-dropdown-label.spec.ts"
+  ],
+  "review_required": true,
+  "created_by": "agent-4969",
+  "created_at": "2026-11-22T23:33:38+00:00",
+  "claimed_at": null,
+  "updated_at": "2026-11-22T23:33:38+00:00",
+  "handoff": null,
+  "review": null,
+  "log": [
+    {
+      "at": "2026-11-22T23:33:38+00:00",
+      "agent": "agent-4969",
+      "event": "created",
+      "note": ""
+    }
+  ]
+}

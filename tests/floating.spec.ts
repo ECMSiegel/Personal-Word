@@ -423,6 +423,10 @@ test.describe("floating sidebar: Read manuscript", () => {
   test.use({ viewport: { width: 1600, height: 900 } });
 
   test("starts at the top of the reading area, shows the Manuscript heading, clear of the text, stays put on scroll", async ({ page }, testInfo) => {
+    // This test reads the continuous Read markup (one .read-prose per section) (FB12 made page view the default).
+    await page.addInitScript(() =>
+      localStorage.setItem("personal-word.reader", JSON.stringify({ font: "var(--ui-font)", size: 18, spacing: 1.6, paged: false })),
+    );
     await seedFloating(page, true);
     await openReader(page, "Floating read");
     await expect(shell(page)).toHaveClass(/is-floating/);
@@ -454,6 +458,27 @@ test.describe("floating sidebar: Read manuscript", () => {
     expect(after.bottom).toBeCloseTo(side.bottom, 0);
     await expect(heading).toBeVisible();
     await page.screenshot({ path: testInfo.outputPath("read-after-scroll.png") });
+  });
+
+  test("page view (the default): clear of every sheet at 1600; at 1100 it falls back or is clear", async ({ page }) => {
+    await seedFloating(page, true);
+    await openReader(page, "Floating read pages");
+    await expect(page.locator(".manuscript-read.is-page-view .page-sheet").first()).toBeVisible();
+    await expect(shell(page)).toHaveClass(/is-floating/);
+    const sheets = async () => page.locator(".manuscript-read .page-sheet").evaluateAll((els) =>
+      els.map((el) => { const r = el.getBoundingClientRect(); return { left: r.left, right: r.right, top: r.top, bottom: r.bottom }; }));
+    let side = await rect(page, "aside.sidebar");
+    for (const b of await sheets()) {
+      expect(side.right + GAP, `sidebar right ${side.right} vs sheet left ${b.left}`).toBeLessThanOrEqual(b.left + 0.5);
+    }
+    await page.setViewportSize({ width: 1100, height: 900 });
+    await settle(page);
+    if (await shell(page).evaluate((el) => el.classList.contains("is-floating"))) {
+      side = await rect(page, "aside.sidebar");
+      for (const b of await sheets()) expect(intersects(side, { ...b, top: -1e6, bottom: 1e6 })).toBe(false);
+    } else {
+      await expect(sidebar(page)).not.toHaveCSS("background-color", TRANSPARENT);
+    }
   });
 
   test("a narrow window falls back to the normal panel", async ({ page }) => {

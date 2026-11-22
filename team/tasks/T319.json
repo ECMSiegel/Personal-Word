@@ -1,0 +1,61 @@
+{
+  "id": "T319",
+  "title": "FB1 -- Fix Projects meta layout: columns in list, two-by-two in cards",
+  "description": "Brief: read docs/agent-work/2026-11-18-folders-batch/PLAN.md sections 'Rules in force', 'Common commands', 'Notes for the implementer', then task FB1 only; its Interfaces names are contracts. Model: Sonnet. What: List rows get four fixed aligned columns; cards show Edited over Added on the left and words over sections on the right. Verify: tests/fb-projects-meta.spec.ts, w9-projects-page and projects-screen specs pass. Write notes to docs/agent-work/2026-11-18-folders-batch/notes/FB1.md with fail-first and passing output. Shared files (styles.css, App.tsx, ProjectSidebar.tsx, layoutBudget.json) are edited by small region with the Edit tool and are not registered. Do not commit.",
+  "status": "done",
+  "owner": null,
+  "priority": 1,
+  "depends_on": [],
+  "files": [
+    "src/components/ProjectLibrary.tsx",
+    "src/components/library.css",
+    "tests/w9-projects-page.spec.ts",
+    "tests/fb-projects-meta.spec.ts",
+    "docs/agent-work/2026-11-18-folders-batch/notes/FB1.md",
+    "src/projectLibraryCounts.test.ts"
+  ],
+  "review_required": true,
+  "created_by": "agent-4969",
+  "created_at": "2026-11-19T03:58:23+00:00",
+  "claimed_at": "2026-11-19T04:48:57+00:00",
+  "updated_at": "2026-11-19T05:22:30+00:00",
+  "handoff": null,
+  "review": {
+    "by": "agent-4969",
+    "at": "2026-11-19T05:22:30+00:00",
+    "verdict": "approved",
+    "note": "Coordinator review (critical path, Opus slot busy on FB12): DOM order and classes match the FB1 interface (edited, added, words, sections); list uses four fixed tracks placed per class, cards a 1fr + 7.5em two-row grid; budget unchanged; fail-first and 57 passed recorded in notes/FB1.md. Not yet seen by eye or in native WebKit; the no-counts case is only reachable natively."
+  },
+  "log": [
+    {
+      "at": "2026-11-19T03:58:23+00:00",
+      "agent": "agent-4969",
+      "event": "created",
+      "note": ""
+    },
+    {
+      "at": "2026-11-19T04:48:57+00:00",
+      "agent": "agent-2f5c",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-11-19T04:48:57+00:00",
+      "agent": "agent-2f5c",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-11-19T05:21:46+00:00",
+      "agent": "agent-2f5c",
+      "event": "review requested",
+      "note": "FB1 done. Notes + fail-first and passing output: docs/agent-work/2026-11-18-folders-batch/notes/FB1.md. Markup: project-dates now edited, added(.project-added), words, sections. CSS (3 regions of styles.css): list = four fixed grid columns 10.5em 7em 7em 10.5em, nowrap, right-aligned, per-class grid-column placement; cards = grid-auto-flow column, rows auto auto, columns 1fr 7.5em (Edited over Added, words over sections), flex-wrap and both !importants removed; <=700px stacks to two lines. Tests: new tests/fb-projects-meta.spec.ts; w9 counts case asserts visual order; src/projectLibraryCounts.test.ts registered and updated; layout-invariants.spec.ts region edit (:last-child -> .project-added). Verified: 57 passed across fb-projects-meta + w9-projects-page + projects-screen (one pre-existing drop-outline race failed in that run, passed alone); layout-invariants -g 'Projects page' 6 passed; vitest projectLibraryCounts + layoutPrimitives 6 passed. tsc -b currently fails only on FB3's src/storage.test.ts. Not verified: no-counts case (browser preview always has counts), native WebKit. src/components/ProjectLibrary.tsx: uncommitted edits; src/styles.css: uncommitted edits; src/components/library.css: clean; tests/fb-projects-meta.spec.ts: uncommitted edits; tests/w9-projects-page.spec.ts: uncommitted edits; src/projectLibraryCounts.test.ts: uncommitted edits; tests/layout-invariants.spec.ts: uncommitted edits; docs/agent-work/2026-11-18-folders-batch/notes/FB1.md: uncommitted edits"
+    },
+    {
+      "at": "2026-11-19T05:22:30+00:00",
+      "agent": "agent-4969",
+      "event": "approved",
+      "note": "Coordinator review (critical path, Opus slot busy on FB12): DOM order and classes match the FB1 interface (edited, added, words, sections); list uses four fixed tracks placed per class, cards a 1fr + 7.5em two-row grid; budget unchanged; fail-first and 57 passed recorded in notes/FB1.md. Not yet seen by eye or in native WebKit; the no-counts case is only reachable natively."
+    }
+  ]
+}

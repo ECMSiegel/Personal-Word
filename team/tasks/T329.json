@@ -1,0 +1,62 @@
+{
+  "id": "T329",
+  "title": "FB11 -- Make project tabs draggable",
+  "description": "Brief: read docs/agent-work/2026-11-18-folders-batch/PLAN.md sections 'Rules in force', 'Common commands', 'Notes for the implementer', then task FB11 only; its Interfaces names are contracts. Model: Sonnet. What: x-axis support in the drag hook; tabs reorder by drag and Option+Left/Right. Verify: dragReorder unit test and tests/fb-tab-drag.spec.ts, drag-reorder, features specs pass. Write notes to docs/agent-work/2026-11-18-folders-batch/notes/FB11.md with fail-first and passing output. Shared files (styles.css, App.tsx, ProjectSidebar.tsx, layoutBudget.json) are edited by small region with the Edit tool and are not registered. Do not commit.",
+  "status": "done",
+  "owner": null,
+  "priority": 2,
+  "depends_on": [],
+  "files": [
+    "src/components/dragReorder.ts",
+    "src/components/dragReorder.test.ts",
+    "src/components/useDragReorder.ts",
+    "src/components/drag-reorder.css",
+    "src/components/ProjectTabs.tsx",
+    "tests/fb-tab-drag.spec.ts",
+    "docs/agent-work/2026-11-18-folders-batch/notes/FB11.md"
+  ],
+  "review_required": true,
+  "created_by": "agent-4969",
+  "created_at": "2026-11-19T03:58:27+00:00",
+  "claimed_at": "2026-11-19T04:50:43+00:00",
+  "updated_at": "2026-11-19T06:03:46+00:00",
+  "handoff": null,
+  "review": {
+    "by": "agent-4a97",
+    "at": "2026-11-19T06:03:46+00:00",
+    "verdict": "approved",
+    "note": "Approved. vitest dragReorder 34 passed; playwright fb-tab-drag+drag-reorder+features 25 passed; tsc clean. y-axis default unchanged; keyboard + live region + focus kept. Low, see docs/agent-work/2026-11-18-folders-batch/reviews/REVIEW-1.md: drag-reorder.css uses block-size to avoid the height budget guard (coordinator decision); announcement wording differs from sidebar."
+  },
+  "log": [
+    {
+      "at": "2026-11-19T03:58:27+00:00",
+      "agent": "agent-4969",
+      "event": "created",
+      "note": ""
+    },
+    {
+      "at": "2026-11-19T04:50:43+00:00",
+      "agent": "agent-3091",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-11-19T04:50:47+00:00",
+      "agent": "agent-3091",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-11-19T04:59:41+00:00",
+      "agent": "agent-3091",
+      "event": "review requested",
+      "note": "Tabs drag (x axis in hook, byPointer) + Option+Left/Right; notes docs/agent-work/2026-11-18-folders-batch/notes/FB11.md"
+    },
+    {
+      "at": "2026-11-19T06:03:46+00:00",
+      "agent": "agent-4a97",
+      "event": "approved",
+      "note": "Approved. vitest dragReorder 34 passed; playwright fb-tab-drag+drag-reorder+features 25 passed; tsc clean. y-axis default unchanged; keyboard + live region + focus kept. Low, see docs/agent-work/2026-11-18-folders-batch/reviews/REVIEW-1.md: drag-reorder.css uses block-size to avoid the height budget guard (coordinator decision); announcement wording differs from sidebar."
+    }
+  ]
+}

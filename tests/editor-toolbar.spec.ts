@@ -1,10 +1,13 @@
 import { test, expect } from "@playwright/test";
+import { setPageView } from "./pages-helpers";
 
 async function create(page: any, title: string, template = "Blank") {
   await page.getByRole("button", { name: "Start new project" }).click();
   await page.getByRole("button", { name: template, exact: true }).click();
   await page.getByLabel("Project title").fill(title);
   await page.getByRole("button", { name: "Save", exact: true }).click();
+  // These specs were written for continuous view; new projects now open paged, so state the view.
+  await setPageView(page, false);
 }
 
 test.use({ viewport: { width: 1280, height: 800 } });
@@ -329,6 +332,14 @@ test("scissor uses the cursor paragraph and keeps dock geometry fixed", async ({
       button.getBoundingClientRect().left + button.getBoundingClientRect().width / 2,
     ]),
   }));
+  // The toolbar re-measures its overflow after the view switch in create(); wait until the item list stops changing.
+  let lastLabels = "";
+  await expect.poll(async () => {
+    const now = (await geometry()).centers.map(([label]) => label).join("|");
+    const stable = now === lastLabels;
+    lastLabels = now;
+    return stable;
+  }, { intervals: [300] }).toBe(true);
   const atRest = await geometry();
   const scissorSvgAtRest = (await scissor.locator("svg").boundingBox())!.width;
   await scissor.hover();

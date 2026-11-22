@@ -1,0 +1,70 @@
+{
+  "id": "T322",
+  "title": "FB4 -- Add folders to the Projects page",
+  "description": "Brief: read docs/agent-work/2026-11-18-folders-batch/PLAN.md sections 'Rules in force', 'Common commands', 'Notes for the implementer', then task FB4 only; its Interfaces names are contracts. Model: Opus. What: Inline collapsible folder headings in list and card view, New folder button, right-click menus for folders and projects, inline rename, colours, Move to folder, delete folder, flat search, New project here. Verify: tests/fb-folders.spec.ts and the existing Projects-page specs pass. Write notes to docs/agent-work/2026-11-18-folders-batch/notes/FB4.md with fail-first and passing output. Shared files (styles.css, App.tsx, ProjectSidebar.tsx, layoutBudget.json) are edited by small region with the Edit tool and are not registered. Do not commit.",
+  "status": "done",
+  "owner": null,
+  "priority": 1,
+  "depends_on": [
+    "T320",
+    "T321"
+  ],
+  "files": [
+    "src/components/ProjectLibrary.tsx",
+    "src/library/useLibrary.ts",
+    "src/library/LibraryFolders.tsx",
+    "src/library/folders.css",
+    "src/components/library.css",
+    "tests/fb-folders.spec.ts",
+    "tests/w9-projects-page.spec.ts",
+    "tests/projects-screen.spec.ts",
+    "tests/alignment.spec.ts",
+    "docs/agent-work/2026-11-18-folders-batch/notes/FB4.md",
+    "src/library/folders.ts",
+    "src/library/folders.test.ts"
+  ],
+  "review_required": true,
+  "created_by": "agent-4969",
+  "created_at": "2026-11-19T03:58:24+00:00",
+  "claimed_at": "2026-11-19T06:04:49+00:00",
+  "updated_at": "2026-11-19T06:56:12+00:00",
+  "handoff": null,
+  "review": {
+    "by": "agent-e4cf",
+    "at": "2026-11-19T06:56:12+00:00",
+    "verdict": "approved",
+    "note": "REVIEW-2: 91 browser tests passed (fb-folders, projects-screen, w9-projects-page, fb-projects-meta, fb-sort-menu, sb-motion-projects, alignment); vitest 64 passed; tsc clean. No high/medium findings. Lows: grouping ambiguity (owner decision), last-row band, wrong-shaped library loads as empty. FB5 notes in REVIEW-2."
+  },
+  "log": [
+    {
+      "at": "2026-11-19T03:58:24+00:00",
+      "agent": "agent-4969",
+      "event": "created",
+      "note": ""
+    },
+    {
+      "at": "2026-11-19T06:04:49+00:00",
+      "agent": "agent-c096",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-11-19T06:04:50+00:00",
+      "agent": "agent-c096",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-11-19T06:37:04+00:00",
+      "agent": "agent-c096",
+      "event": "review requested",
+      "note": "Folders on the Projects page: New folder button, inline collapsible headings (list+cards), folder/project right-click menus (Move up/down present but disabled for FB5), inline rename, Color swatches, Move to folder, delete folder, flat search with paths, New project here (App.create files it). useLibrary never writes after a failed read. FB3 extras: parseLibrary drops only bad folder entries; deleteFolder removes top-level placements. Notes: docs/agent-work/2026-11-18-folders-batch/notes/FB4.md"
+    },
+    {
+      "at": "2026-11-19T06:56:12+00:00",
+      "agent": "agent-e4cf",
+      "event": "approved",
+      "note": "REVIEW-2: 91 browser tests passed (fb-folders, projects-screen, w9-projects-page, fb-projects-meta, fb-sort-menu, sb-motion-projects, alignment); vitest 64 passed; tsc clean. No high/medium findings. Lows: grouping ambiguity (owner decision), last-row band, wrong-shaped library loads as empty. FB5 notes in REVIEW-2."
+    }
+  ]
+}

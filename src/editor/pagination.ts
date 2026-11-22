@@ -266,7 +266,7 @@ export function planPages(
  * a glyph box of each other share a line, so a raised footnote number stays on
  * its line.
  */
-function glyphLines(el: HTMLElement, natural: (y: number) => number) {
+export function glyphLines(el: HTMLElement, natural: (y: number) => number) {
   const rects: { top: number; bottom: number; height: number }[] = [];
   const range = document.createRange();
   const walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT);

@@ -1767,16 +1767,40 @@ button[aria-pressed="true"],
   white-space: nowrap;
 }
 .project-row > button:first-child > .project-dates {
-  display: flex;
+  display: grid;
   gap: var(--space-3);
   justify-content: flex-end;
   flex: 1;
   font-size: var(--type-small);
   color: var(--muted);
 }
+/* List: four fixed columns. The DOM order is edited, added, words, sections; each span keeps
+   its own column on every row whether or not the project has counts, so nothing shifts. */
+.project-list--list .project-row > button:first-child > .project-dates {
+  grid-template-columns: 10.5em 7em 7em 10.5em;
+  grid-template-rows: auto;
+  white-space: nowrap;
+  text-align: right;
+}
+.project-list--list .project-dates .project-edited {
+  grid-row: 1;
+  grid-column: 1;
+}
+.project-list--list .project-dates .project-words {
+  grid-row: 1;
+  grid-column: 2;
+}
+.project-list--list .project-dates .project-sections {
+  grid-row: 1;
+  grid-column: 3;
+}
+.project-list--list .project-dates .project-added {
+  grid-row: 1;
+  grid-column: 4;
+}
 .project-list--cards {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(256px, 1fr));
   gap: var(--space-4);
 }
 .project-list--cards .project-row {
@@ -1793,10 +1817,16 @@ button[aria-pressed="true"],
 .project-list--cards .project-name {
   max-width: calc(100% - var(--space-5));
 }
-.project-list--cards .project-dates {
-  flex-wrap: wrap;
-  justify-content: flex-start !important;
-  gap: var(--space-1) !important;
+/* Cards: two columns of two lines -- Edited over Added, words over sections -- with the
+   right track a fixed width so every card starts its numbers in the same place. */
+.project-list--cards .project-row > button:first-child > .project-dates {
+  grid-auto-flow: column;
+  grid-template-rows: auto auto;
+  grid-template-columns: 1fr 7.25em;
+  justify-content: flex-start;
+  gap: var(--space-1) var(--space-2);
+  white-space: nowrap;
+  text-align: left;
 }
 .project-list--cards .delete-entry {
   position: absolute;
@@ -1869,9 +1899,35 @@ button[aria-pressed="true"],
     padding: var(--space-6) var(--space-5);
   }
   .project-dates {
-    flex-wrap: wrap;
-    max-width: 160px;
     gap: 3px !important;
+  }
+  /* Narrow windows: the four columns stack to two lines in both views. */
+  .project-list--list .project-row > button:first-child > .project-dates,
+  .project-list--cards .project-row > button:first-child > .project-dates {
+    grid-template-columns: 10.5em 7.5em;
+    grid-template-rows: auto auto;
+    white-space: nowrap;
+    text-align: left;
+  }
+  .project-list--list .project-dates .project-edited,
+  .project-list--cards .project-dates .project-edited {
+    grid-row: 1;
+    grid-column: 1;
+  }
+  .project-list--list .project-dates .project-words,
+  .project-list--cards .project-dates .project-words {
+    grid-row: 1;
+    grid-column: 2;
+  }
+  .project-list--list .project-dates .project-added,
+  .project-list--cards .project-dates .project-added {
+    grid-row: 2;
+    grid-column: 1;
+  }
+  .project-list--list .project-dates .project-sections,
+  .project-list--cards .project-dates .project-sections {
+    grid-row: 2;
+    grid-column: 2;
   }
   .library-toolbar .library-display {
     --gap: var(--space-1);

@@ -1,4 +1,5 @@
 import { expect, test, type Locator, type Page } from "@playwright/test";
+import { setPageView } from "./pages-helpers";
 
 async function create(page: Page, title: string) {
   await page.getByRole("button", { name: "Start new project" }).click();
@@ -131,7 +132,7 @@ test("multi-paragraph captured quote keeps the citation in its last paragraph ac
   const firstParagraph = Array.from({ length: 51 }, (_, index) => `Opening${index}`).join(" ");
   const finalParagraph = Array.from({ length: 51 }, (_, index) => `Ending${index}`).join(" ");
   await page.getByLabel("Quotation").fill(`${firstParagraph}\n\n${finalParagraph}`);
-  await page.getByLabel("Page").fill("48");
+  await page.getByLabel("Page", { exact: true }).fill("48");
   await page.getByRole("button", { name: "Save and insert" }).click();
 
   const quote = editor.locator("blockquote");
