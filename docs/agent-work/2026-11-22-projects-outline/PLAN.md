@@ -129,11 +129,20 @@ Rejected: patching the nested containers (each fix so far has produced another a
 - Stop and ask if: removing the cover dropdown here leaves `cover`/`plain` unused anywhere (report it; do not remove the props).
 - Default if unanswered: leave the unused props in place and note it.
 
+### OB5a -- Write the pure drop rules for the outline -- Sonnet (after OB1, alongside OB2)
+- Files: create `src/library/outlineDrag.ts`, `src/library/outlineDrag.test.ts`. Touch nothing else (the old `libraryDrag.ts` must keep compiling until OB5 swaps it out).
+- Interfaces: uses `ItemKey`. Provides `type RowRect = {key: ItemKey; kind: "folder" | "project"; container: string; depth: number; expandedWithRows: boolean; pinnedTop: boolean; ancestors: string[]; rect: {left: number; top: number; width: number; height: number}}`; `type Drop` exactly as in OB5; `outlineDropTarget(point: {x: number; y: number}, rects: RowRect[], dragged: ItemKey, listBottom: number): Drop | null`.
+- Steps: implement Decision 10 as a pure function (no DOM); a point below `listBottom` is `{kind: "end"}`; a folder never targets itself or a row whose `ancestors` include it; `pinnedTop` rows give only "into" (folders) or null. One unit test per zone and per refusal, written first.
+- Acceptance check: `npx vitest run src/library/outlineDrag.test.ts` -> all pass.
+- Fail-first: tests written before the function.
+- Stop and ask if: Decision 10 leaves a point with two possible answers.
+- Default if unanswered: none -- must ask.
+
 ### OB5 -- Rebuild dragging and Move up/down on the flat list -- Opus (after OB4; both edit ProjectLibrary.tsx)
 - Files: modify `src/library/libraryDrag.ts`, `src/library/libraryDrag.test.ts`, `src/library/useLibraryDrag.ts`, `src/components/ProjectLibrary.tsx` (`applyDrop`, `stepBy`, `stepProject`, `stepFolder`, `stepItems`, `toCustom` only), `src/library/outline.css` (drop line and into-state only); create `tests/ob-drag.spec.ts`; modify `tests/fb-folder-order.spec.ts`.
 - Interfaces: uses `placeBeside`, `fileProject`, `moveFolder`, `siblings`, `ItemKey`. Provides `type Drop = {kind: "before" | "after"; key: ItemKey; container: string} | {kind: "into"; folder: string} | {kind: "end"}` and `dropTarget(point, rects, dragged): Drop | null` with no `view` parameter.
 - Steps:
-  1. Rewrite the pure hit test to Decision 10, measuring `.outline-row` elements by `data-kind`, `data-container`, `data-depth` and expanded state; add the blank-area "end" target; forbid a folder into its own subtree; pinned top rows are neither draggable nor before/after targets (a pinned folder still accepts "into").
+  1. Use `outlineDropTarget` from OB5a (delete `libraryDrag.ts` and its test once nothing imports them); the hook measures `.outline-row` elements by `data-kind`, `data-container`, `data-depth` and expanded state; add the blank-area "end" target; forbid a folder into its own subtree; pinned top rows are neither draggable nor before/after targets (a pinned folder still accepts "into").
   2. `applyDrop`: before/after -> if the row changes container, `fileProject` or `moveFolder` first, then `placeBeside` in the target container with the on-screen siblings; into -> file or move, then `placeBeside(..., neighbour = first sibling, "before")`; end -> top level, `placeBeside(..., null, "after")`. Always switch to Custom. Never rebuild another container's order.
   3. Move up/down and Option+arrows use `placeBeside` with the previous or next on-screen sibling; under "Folders on top" a project cannot step above a folder (announce "already first").
   4. Unit tests for every zone in Decision 10. Spec: owner rule A end to end (set a custom order, switch to Name, drag one row, reload, the other rows keep the custom order); rule B; drag a project into a collapsed folder, out to the blank area, and a folder into a folder; Escape cancels; the click after a drag opens nothing; dragging is off while searching.
@@ -183,6 +192,9 @@ Rejected: patching the nested containers (each fix so far has produced another a
 - Fail-first: n/a.
 - Stop and ask if: any Validation line fails.
 - Default if unanswered: none.
+
+### OB7a -- Docs early -- Haiku or Sonnet (after OB1, alongside OB2)
+- Does step 3 of OB7 from the Decisions section; OB7 re-checks the wording against what was built. Files: `AGENTS.md`, `docs/design-system.md`, `docs/architecture.md`. Acceptance check: `grep -n "subfolders come first" AGENTS.md` -> no match. Fail-first: the grep matches today. Stop and ask if: a Decision contradicts another AGENTS.md rule. Default: none.
 
 ## Validation (after all tasks, in order)
 1. `npx tsc --noEmit` -> clean.

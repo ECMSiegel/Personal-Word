@@ -1,0 +1,30 @@
+{
+  "id": "T344",
+  "title": "OB5a -- Write the pure drop rules for the outline (new file, unit-tested)",
+  "description": "Sonnet. Follow task OB5a in docs/agent-work/2026-11-22-projects-outline/PLAN.md (Decision 10). New files only; do not touch libraryDrag.ts or any component. Runs alongside OB2.",
+  "status": "available",
+  "owner": null,
+  "priority": 2,
+  "depends_on": [
+    "T335"
+  ],
+  "files": [
+    "src/library/outlineDrag.ts",
+    "src/library/outlineDrag.test.ts"
+  ],
+  "review_required": true,
+  "created_by": "agent-4969",
+  "created_at": "2026-11-22T23:35:57+00:00",
+  "claimed_at": null,
+  "updated_at": "2026-11-22T23:35:57+00:00",
+  "handoff": null,
+  "review": null,
+  "log": [
+    {
+      "at": "2026-11-22T23:35:57+00:00",
+      "agent": "agent-4969",
+      "event": "created",
+      "note": ""
+    }
+  ]
+}

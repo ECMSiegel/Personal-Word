@@ -7,10 +7,12 @@
 | OB3 | T337 | Sonnet | T335 | Build the sort menu and column chooser (components only) |
 | OB4 | T338 | Sonnet | T336, T337 | Wire the sort menu and column chooser into the page |
 | OB5 | T339 | Opus | T338 | Rebuild dragging and Move up/down (after OB4: both edit ProjectLibrary.tsx) |
+| OB5a | T344 | Sonnet | T335 | Pure drop rules in a new file (alongside OB2) |
+| OB7a | T345 | Haiku | T335 | Docs early (alongside OB2) |
 | OB6 | T340 | Sonnet | T339 | Pins -- HELD until the owner answers plan question 1 |
 | OB7 | T341 | Sonnet | T340 | Sweep the old specs and update the docs |
 | OB8 | T342 | Opus | T341 | Eyes-on review with screenshots |
 | OB9 | T343 | Sonnet | T342 | Final validation and rebuild |
 
-Parallel points: OB2 (Opus) and OB3 (Sonnet) run together after OB1. Everything else is a chain because the tasks share ProjectLibrary.tsx.
+Parallel points: after OB1, four run together: OB2 (Opus), OB3 and OB5a (Sonnet), OB7a (Haiku). Everything else is a chain because the tasks share ProjectLibrary.tsx.
 Not started: the owner has not asked for workers to be deployed. Open questions 1-5 in PLAN.md wait on him.
