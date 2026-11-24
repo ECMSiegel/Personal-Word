@@ -1,0 +1,99 @@
+{
+  "id": "T346",
+  "title": "OB10 -- Repair REVIEW-1: pins (B1, B3, S1), sort menu scroll (B2), column chooser checks (S2), header hit area (S3), lows L1 L2 L3 L5 L7",
+  "description": "Sonnet. Fix exactly the findings named, as REVIEW-1.md recommends. docs/agent-work/2026-11-22-projects-outline/reviews/REVIEW-1.md",
+  "status": "done",
+  "owner": null,
+  "priority": 1,
+  "depends_on": [],
+  "files": [
+    "src/library/Outline.tsx",
+    "src/library/outline.css",
+    "src/library/SortMenu.tsx",
+    "src/library/columnMenu.ts",
+    "src/library/columnMenu.test.ts",
+    "src/components/ContextMenu.tsx",
+    "src/components/ProjectLibrary.tsx",
+    "src/App.tsx",
+    "tests/ob-pins.spec.ts",
+    "tests/ob-sort-menu.spec.ts",
+    "tests/ob-outline.spec.ts",
+    "src/library/pins.ts",
+    "src/library/pins.test.ts",
+    "src/library/LibraryFolders.tsx",
+    "tests/ob-drag.spec.ts",
+    "src/styles.css"
+  ],
+  "review_required": true,
+  "created_by": "agent-4969",
+  "created_at": "2026-11-23T01:55:48+00:00",
+  "claimed_at": "2026-11-23T02:29:06+00:00",
+  "updated_at": "2026-11-23T02:43:47+00:00",
+  "handoff": {
+    "by": "agent-74f5",
+    "at": "2026-11-23T02:28:20+00:00",
+    "text": "REVIEW-2 (docs/agent-work/2026-11-22-projects-outline/reviews/REVIEW-2.md): all REVIEW-1 findings fixed and layout unchanged, but N1 blocker: pinItem drops every project pin as 'stale' when the project list is empty (first moments after launch); reproduced in preview (pin a folder with listing empty -> p:Alpha removed from library.json). Repair: App passes a 'listed' flag, project pins never stale until it is true; compute stale inside run at click time. Should-fix S-new-1: header focus ring now spans the whole cell (338x40 on Name) and touches the label; ring the label only or negative outline-offset. Everything else approved."
+  },
+  "review": {
+    "by": "agent-4969",
+    "at": "2026-11-23T02:43:47+00:00",
+    "verdict": "approved",
+    "note": "Coordinator: read pins.ts and the guard in ProjectLibrary.tsx (listed flag + non-empty listing, stale list computed at click time); looked at the header focus-ring screenshot (hugs the label). REVIEW-2's other items were already confirmed fixed by the reviewer."
+  },
+  "log": [
+    {
+      "at": "2026-11-23T01:55:48+00:00",
+      "agent": "agent-4969",
+      "event": "created",
+      "note": ""
+    },
+    {
+      "at": "2026-11-23T01:56:13+00:00",
+      "agent": "agent-7081",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-11-23T01:56:13+00:00",
+      "agent": "agent-7081",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-11-23T02:18:40+00:00",
+      "agent": "agent-7081",
+      "event": "review requested",
+      "note": "OB10: B1 B2 B3 S1 S2 S3 L1 L2 L3 L5 L7 fixed; notes/OB10.md; tsc clean, vitest 1442 pass, browser 126 passed 12 skipped (ob10-final.log). Also extended shared emphasis selector in styles.css to menuitemradio/menuitemcheckbox (needed for motion (g))."
+    },
+    {
+      "at": "2026-11-23T02:28:20+00:00",
+      "agent": "agent-74f5",
+      "event": "rejected",
+      "note": "REVIEW-2 (docs/agent-work/2026-11-22-projects-outline/reviews/REVIEW-2.md): all REVIEW-1 findings fixed and layout unchanged, but N1 blocker: pinItem drops every project pin as 'stale' when the project list is empty (first moments after launch); reproduced in preview (pin a folder with listing empty -> p:Alpha removed from library.json). Repair: App passes a 'listed' flag, project pins never stale until it is true; compute stale inside run at click time. Should-fix S-new-1: header focus ring now spans the whole cell (338x40 on Name) and touches the label; ring the label only or negative outline-offset. Everything else approved."
+    },
+    {
+      "at": "2026-11-23T02:29:06+00:00",
+      "agent": "agent-e167",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-11-23T02:29:06+00:00",
+      "agent": "agent-e167",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-11-23T02:43:23+00:00",
+      "agent": "agent-e167",
+      "event": "review requested",
+      "note": "OB10b: N1 listed guard (flag + non-empty) with click-time stale; header focus ring on label span; sort menu scrolls to top/bottom on Home/End. tsc 0, vitest 1446, 8 browser specs pass. REVIEW-2 repairs."
+    },
+    {
+      "at": "2026-11-23T02:43:47+00:00",
+      "agent": "agent-4969",
+      "event": "approved",
+      "note": "Coordinator: read pins.ts and the guard in ProjectLibrary.tsx (listed flag + non-empty listing, stale list computed at click time); looked at the header focus-ring screenshot (hugs the label). REVIEW-2's other items were already confirmed fixed by the reviewer."
+    }
+  ]
+}

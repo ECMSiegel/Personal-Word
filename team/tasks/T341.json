@@ -2,7 +2,7 @@
   "id": "T341",
   "title": "OB7 -- Sweep the old specs and update the docs",
   "description": "Sonnet. Follow task OB7 in docs/agent-work/2026-11-22-projects-outline/PLAN.md exactly. Owns tests/layout-invariants.spec.ts for this batch.",
-  "status": "available",
+  "status": "done",
   "owner": null,
   "priority": 2,
   "depends_on": [
@@ -25,16 +25,45 @@
   "review_required": true,
   "created_by": "agent-4969",
   "created_at": "2026-11-22T23:33:39+00:00",
-  "claimed_at": null,
-  "updated_at": "2026-11-22T23:33:39+00:00",
+  "claimed_at": "2026-11-23T00:41:37+00:00",
+  "updated_at": "2026-11-23T01:36:47+00:00",
   "handoff": null,
-  "review": null,
+  "review": {
+    "by": "agent-4969",
+    "at": "2026-11-23T01:36:47+00:00",
+    "verdict": "approved",
+    "note": "Coordinator: sweep accepted (run 2: 782 passed, 2 failed). Open items go to the repair task after OB8: SortMenu does not scroll its highlighted row into view (motion.spec g, real regression); folder rows not staggered on return to Projects; performance:171 timing passed alone."
+  },
   "log": [
     {
       "at": "2026-11-22T23:33:39+00:00",
       "agent": "agent-4969",
       "event": "created",
       "note": ""
+    },
+    {
+      "at": "2026-11-23T00:41:37+00:00",
+      "agent": "agent-5c63",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-11-23T00:41:37+00:00",
+      "agent": "agent-5c63",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-11-23T01:36:02+00:00",
+      "agent": "agent-5c63",
+      "event": "review requested",
+      "note": "Full run1 39 failed -> all (a)/(b) except motion(g) real SortMenu keyboard scroll regression (c, test unchanged) and perf:171 timing flake; run2 782 passed, 2 failed (motion g, perf:171 passes alone). Notes in notes/OB7.md"
+    },
+    {
+      "at": "2026-11-23T01:36:47+00:00",
+      "agent": "agent-4969",
+      "event": "approved",
+      "note": "Coordinator: sweep accepted (run 2: 782 passed, 2 failed). Open items go to the repair task after OB8: SortMenu does not scroll its highlighted row into view (motion.spec g, real regression); folder rows not staggered on return to Projects; performance:171 timing passed alone."
     }
   ]
 }

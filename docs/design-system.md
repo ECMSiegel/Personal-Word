@@ -73,7 +73,8 @@ Added 2026-11-12 (layout-primitives plan, task T0; [plan](agent-work/2026-11-12-
 | `.row-label` | the row's growing, shrinkable label |
 | `.row-trail` | a cluster pushed to the row's end |
 | `.row-value` | right-aligned tabular figures, at least `--value-width` (default 3ch) |
-| `.indent` | a nested block whose content starts one `--slot` in (start side only); nested `.indent`s add up -- a folder's body on the Projects page (FB5) |
+| `.indent` | a nested block whose content starts one `--slot` in (start side only); nested `.indent`s add up -- it was a folder's body on the Projects page (FB5), which the outline replaces with `.depth` |
+| `.depth` | a row in a flat outline: inline-start padding of `--edge` plus `--depth` x `--slot` (set `--depth` on the row); defined after `.row` so it wins the start side. The Projects page rows use it |
 | `.menu` | list surface: `--space-1` block padding, `--edge` 12 px for its rows |
 | `.menu-rule` | 1 px `--line` with `--space-1` above and below |
 | `.panel` | form-like popover body: a stack with `--space-3` padding, `--edge` 0, rows at `--row-height-compact` |
@@ -124,7 +125,7 @@ Toolbar spacing comes from the layout primitives (see Layout primitives): the fo
 | Control | Hover and focus cue |
 | --- | --- |
 | Icon-only toolbar buttons | magnifying dock |
-| Standalone icons outside the toolbar (Projects trash, reverse, view, search, gear; sidebar Open beside) | the icon grows 25 percent, plus colour change; see Standalone icon magnify |
+| Standalone icons outside the toolbar (Projects trash, search, gear; sidebar Open beside) | the icon grows 25 percent, plus colour change; see Standalone icon magnify |
 | Other icon-only buttons (chevrons, close, pin) | colour change, see States |
 | Anything that shows text, including More-menu rows | text emphasis, see States |
 
@@ -268,7 +269,7 @@ The sidebar minimum is 190 px. Group labels (Manuscript, Fragments, Research) an
 
 ## Rules
 
-- Keep flat, restrained surfaces and square corners. No decorative quills (the only folder icons are the working ones on the Projects page, owner approved 2026-11-18), curved connectors, slogans or heavy footer strips.
+- Keep flat, restrained surfaces and square corners. No decorative quills (the only folder icons are the working ones on the Projects page, owner approved 2026-11-18; project rows there carry only a small muted document icon, owner approved 2026-11-22), curved connectors, slogans or heavy footer strips.
 - Sidebar selection is weight and colour, never a fill: the lit section heading is bold in `--text`, rows are dim until hovered, focused or open and never bold (see Sidebar selection).
 - Hover and keyboard focus on text controls use the one shared text emphasis; toolbar icons use the dock. No second hover weight, scale or stroke rule (see States).
 - Do not add helper captions under controls. Use placeholders, existing error messages, or keyboard-reachable tooltips with `title`, `aria-describedby` and a focus-visible tip. Preserve the browser-only storage notice and the research file error messages.
@@ -391,7 +392,7 @@ All of these have Chromium and unit evidence only; none has been checked in the 
 
 **Settings strip (T275).** `SettingsNav` is a sticky row of section names under "Project settings" (`top: -40px` to cancel the page's 40 px top padding), `--paper` background, 1 px `--line` below. Links are `--muted`, `--text` on hover and focus, and weight 600 plus `--accent` for the section in view (`aria-current`). No fill and no hover rule of its own. Keyboard clicks and Reduce Motion scroll instantly.
 
-**Projects page (T274; toolbar changed 2026-11-11).** The toolbar holds Start new project and Import writing on the left and, in its right group (`.library-display`), search, Sort, the reverse arrow, the list/cards toggle and the gear. There is no caption row above the list (the wave-9 `.library-caption` was removed). Sort stays an ordinary text control, so it keeps the shared hover bold. Rows put the 15 px title first, then "Edited <date>" in the text colour and "Added <date>" muted. Sort, direction and view are saved under `folio.workspace.library`.
+**Projects page (T274; outline rebuilt 2026-11-22).** The toolbar holds Start new project and Import writing on the left and, in its right group (`.library-display`), search, the sort menu and the gear. There is no caption row above the list (the wave-9 `.library-caption` was removed). The list is one outline: a header row (Name, Edited, Words, Sections, Added) whose labels sort on click and whose columns can be ticked on and off from its right-click menu (a checked row has a leading check mark; the menu closes after each toggle, so reopen it to tick another). Folder and project rows share one row height (40 px: `.outline` sets `--row-height` to `--bar-height`), and each level indents one step (`.depth`). Project rows carry a small muted document icon so their names line up with folder names. Folder rows show total words, "n projects" and the latest edit. There is no card view and no view toggle on this page. Up to three pinned rows sit in a band at the top, with no heading and one `--space-5` gap under it, and a 16 px muted pin icon after the name (a pinned project that lives in a folder also shows "-- <folder path>"); with nothing pinned there is no band. The sort menu is one popover with three groups, each with its current row checked: Sort by (Name, Edited, Added, Words, Sections, Custom), Direction (labels fit the sort; both rows disabled under Custom) and Folders (On top, Mixed with projects); picking a row leaves the menu open. Its trigger is an ordinary text control, so it keeps the shared hover bold. Sort, direction, folder placement and visible columns are saved under `folio.workspace.library`.
 
 ## How to check
 

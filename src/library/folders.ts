@@ -11,7 +11,23 @@ export type LibraryState = {
   folders: LibraryFolder[];
   placement: Record<string, string>;
   order: Record<string, string[]>;
+  /** Pinned items, at most `PIN_LIMIT`, in pin order. Absent when nothing is pinned. */
+  pins?: ItemKey[];
 };
+
+/** "f:<folderId>" or "p:<projectId>": one folder or project in a combined order or the pin list. */
+export type ItemKey = `f:${string}` | `p:${string}`;
+export const PIN_LIMIT = 3;
+
+export const itemKey = (kind: "folder" | "project", id: string): ItemKey =>
+  `${kind === "folder" ? "f" : "p"}:${id}`;
+
+export function parseKey(key: ItemKey): { kind: "folder" | "project"; id: string } {
+  return { kind: key.startsWith("f:") ? "folder" : "project", id: key.slice(2) };
+}
+
+const isItemKey = (value: unknown): value is ItemKey =>
+  typeof value === "string" && value.length > 2 && (value.startsWith("f:") || value.startsWith("p:"));
 
 export type Summary = { id: string };
 
@@ -34,6 +50,7 @@ function copyState(state: LibraryState): LibraryState {
     order: Object.fromEntries(
       Object.entries(state.order).map(([key, ids]) => [key, [...ids]]),
     ),
+    ...(state.pins ? { pins: [...state.pins] } : {}),
   };
 }
 
@@ -114,7 +131,12 @@ export function parseLibrary(raw: unknown): LibraryState {
     if (Array.isArray(idsForContainer) && idsForContainer.every((id) => typeof id === "string"))
       order[container] = [...idsForContainer];
   }
-  return { version: 1, folders, placement, order };
+  const pins: ItemKey[] = [];
+  if (Array.isArray(raw.pins)) {
+    for (const key of raw.pins)
+      if (isItemKey(key) && !pins.includes(key) && pins.length < PIN_LIMIT) pins.push(key);
+  }
+  return { version: 1, folders, placement, order, ...(pins.length ? { pins } : {}) };
 }
 
 export function containerOf(state: LibraryState, projectId: string): string {
@@ -182,6 +204,13 @@ export function moveFolder(state: LibraryState, id: string, parent: string | nul
   return next;
 }
 
+const itemsKey = (container: string) => `items:${container}`;
+
+function setPins(state: LibraryState, pins: ItemKey[]) {
+  if (pins.length) state.pins = pins;
+  else delete state.pins;
+}
+
 const folderOrderKey = (parent: string | null) => `folders:${parent ?? ROOT}`;
 
 export function orderedFolders(state: LibraryState, parent: string | null, shown: LibraryFolder[]): LibraryFolder[] {
@@ -225,6 +254,11 @@ export function deleteFolder(state: LibraryState, id: string): LibraryState {
   }
   delete next.order[id];
   delete next.order[folderOrderKey(id)];
+  delete next.order[itemsKey(id)];
+  const gone = itemKey("folder", id);
+  for (const key of Object.keys(next.order))
+    if (key.startsWith("items:")) next.order[key] = next.order[key].filter((item) => item !== gone);
+  setPins(next, (next.pins ?? []).filter((item) => item !== gone));
   return next;
 }
 
@@ -234,6 +268,9 @@ export function fileProject(state: LibraryState, projectId: string, folder: stri
   else next.placement[projectId] = folder;
   for (const key of Object.keys(next.order))
     next.order[key] = next.order[key].filter((id) => id !== projectId);
+  const gone = itemKey("project", projectId);
+  for (const key of Object.keys(next.order))
+    if (key.startsWith("items:")) next.order[key] = next.order[key].filter((item) => item !== gone);
   return next;
 }
 
@@ -263,5 +300,49 @@ export function moveProject(
   order.splice(Math.max(0, Math.min(toIndex, order.length)), 0, projectId);
   const next = copyState(state);
   next.order[container] = order;
+  return next;
+}
+
+/** The container's saved order of folders and projects together: its `items:` list, else the
+ *  old keys (folders, then projects), else null. The old keys are never rewritten. */
+export function savedItems(state: LibraryState, container: string): ItemKey[] | null {
+  const items = state.order[itemsKey(container)];
+  if (items) return items.filter(isItemKey);
+  const folders = state.order[folderOrderKey(container === ROOT ? null : container)];
+  const projects = state.order[container];
+  if (!folders && !projects) return null;
+  return [
+    ...(folders ?? []).map((id) => itemKey("folder", id)),
+    ...(projects ?? []).map((id) => itemKey("project", id)),
+  ];
+}
+
+/** Hand reorder: put `key` before or after `neighbour` (null = last) in the container's saved
+ *  order. Starts from the saved order, or from `shown` (the on-screen order) when there is none;
+ *  on-screen rows missing from it go in front, as they display. Only this container changes. */
+export function placeBeside(
+  state: LibraryState,
+  container: string,
+  shown: ItemKey[],
+  key: ItemKey,
+  neighbour: ItemKey | null,
+  side: "before" | "after",
+): LibraryState {
+  const saved = savedItems(state, container) ?? [];
+  const listed = new Set(saved);
+  const list = [...shown.filter((item) => !listed.has(item)), ...saved].filter((item) => item !== key);
+  const at = neighbour === null ? -1 : list.indexOf(neighbour);
+  if (at < 0) list.push(key);
+  else list.splice(side === "before" ? at : at + 1, 0, key);
+  const next = copyState(state);
+  next.order[itemsKey(container)] = [...new Set(list)];
+  return next;
+}
+
+export function togglePin(state: LibraryState, key: ItemKey): LibraryState {
+  const pins = state.pins ?? [];
+  if (!pins.includes(key) && pins.length >= PIN_LIMIT) return state;
+  const next = copyState(state);
+  setPins(next, pins.includes(key) ? pins.filter((item) => item !== key) : [...pins, key]);
   return next;
 }

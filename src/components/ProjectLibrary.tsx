@@ -1,74 +1,58 @@
 import { useCallback, useEffect, useLayoutEffect, useRef, useState, type ReactNode } from "react";
-import { ChevronDown, FolderPlus, Layers, List, Search, Settings, Trash2 } from "lucide-react";
+import { ChevronDown, FolderPlus, Search, Settings } from "lucide-react";
 import type { Summary } from "../model";
 import type { DamagedJournal } from "../save-queue";
 import { desktop } from "../storage";
 import { baseName, dropProblem, readDroppedPath } from "../import/dropImport";
 import { ModalFrame } from "../app/ProjectDialogs";
-import { Dropdown } from "./Dropdown";
 import { DropTarget, type DropItem } from "./DropTarget";
 import { Popover, PopoverItem } from "./Popover";
 import { play } from "../motion";
 import {
   readLibraryPreferences,
   writeLibraryPreferences,
-  type LibraryFallbackSort,
+  type LibraryColumn,
   type LibraryPreferences,
 } from "../libraryPreferences";
 import { ContextMenu, type ContextMenuItem } from "./ContextMenu";
 import {
   ROOT,
   addFolder,
-  childFolders,
   containerOf,
   deleteFolder,
+  emptyLibrary,
   fileProject,
   moveFolder,
-  moveProject,
-  orderedFolders,
-  orderedProjects,
+  itemKey,
+  parseKey,
+  PIN_LIMIT,
+  togglePin,
+  placeBeside,
   renameFolder,
-  reorderFolder,
+  savedItems,
   setFolderCollapsed,
   setFolderColour,
+  type ItemKey,
   type LibraryFolder,
+  type LibraryState,
 } from "../library/folders";
+import { buildOutline, siblings, type OutlineRow } from "../library/outline";
+// Outline.tsx sits beside outline.ts; on a case-insensitive disk "../library/Outline" would
+// resolve to outline.ts, so the component is imported with its extension.
+import { Outline, type OutlineRowWiring } from "../library/Outline.tsx";
+import { SortMenu } from "../library/SortMenu";
+import { columnMenuItems, toggleColumn } from "../library/columnMenu";
+import { dropPins, stalePins } from "../library/pins";
 import { useLibrary } from "../library/useLibrary";
-import { useLibraryDrag } from "../library/useLibraryDrag";
-import type { DragItem, Drop } from "../library/libraryDrag";
+import { useLibraryDrag, type DragRowInfo } from "../library/useLibraryDrag";
+import type { Drop } from "../library/outlineDrag";
 import { keyboardMove } from "./dragReorder";
-import {
-  FolderHeading,
-  byName,
-  folderDestinations,
-  folderPath,
-  folderSubtree,
-} from "../library/LibraryFolders";
+import { folderDestinations, folderPath } from "../library/LibraryFolders";
 import "./library.css";
-
-/** The Projects-page order for one sort, applied before any folders exist. Pure: the input
- * array is not touched. Custom falls back to the sort the owner came from. */
-export function sortProjects(
-  projects: Summary[],
-  sort: LibraryFallbackSort,
-  reverse: boolean,
-): Summary[] {
-  const added = (p: Summary) => (p as Summary & { createdAt?: string }).createdAt;
-  const out = projects
-    .slice()
-    .sort((a, b) =>
-      sort === "name"
-        ? a.title.localeCompare(b.title)
-        : (sort === "added" ? (added(b) ?? "") : b.updatedAt).localeCompare(
-            sort === "added" ? (added(a) ?? "") : a.updatedAt,
-          ),
-    );
-  if (reverse) out.reverse();
-  return out;
-}
 
 export function ProjectLibrary({
   projects,
+  listed,
   onCreate,
   onOpen,
   onDelete,
@@ -87,6 +71,8 @@ export function ProjectLibrary({
   colours,
 }: {
   projects: Summary[];
+  /** True after the first successful project listing; until then no project pin counts as stale. */
+  listed: boolean;
   templates?: { id: string; name: string }[];
   /** `folderId`: file the new project in that folder (FB4 "New project here"). */
   onCreate: (templateId?: string, folderId?: string) => void;
@@ -109,7 +95,7 @@ export function ProjectLibrary({
   const [prefs, setPrefs] = useState<LibraryPreferences>(() =>
     readLibraryPreferences(window.localStorage),
   );
-  const { view, sort, reverse, fallbackSort } = prefs;
+  const { sort, reverse, fallbackSort, foldersFirst, columns } = prefs;
   const changePrefs = (change: Partial<LibraryPreferences>) => {
     const next = { ...prefs, ...change };
     // Choosing Custom remembers the sort the owner came from; that is what Custom shows
@@ -136,14 +122,7 @@ export function ProjectLibrary({
     ["chicago", "Chicago"],
     ["screenplay", "Screenplay"],
   ];
-  const added = (p: Summary) =>
-    (p as Summary & { createdAt?: string }).createdAt;
   const needle = query.trim().toLocaleLowerCase();
-  const sorted = sortProjects(
-    projects.filter((p) => p.title.toLocaleLowerCase().includes(needle)),
-    sort === "custom" ? fallbackSort : sort,
-    reverse,
-  );
 
   // Folders (FB4). Until the library has been read, and for good if the read failed, every
   // project shows at the top level and nothing about folders can be changed.
@@ -187,8 +166,7 @@ export function ProjectLibrary({
     },
   });
   const projectFocus = (id: string) => `[data-project-id="${CSS.escape(id)}"] .row-label`;
-  const folderFocus = (id: string) =>
-    `[data-folder-id="${CSS.escape(id)}"] > [data-folder-heading] .folder-chevron`;
+  const folderFocus = (id: string) => `[data-folder-id="${CSS.escape(id)}"] .folder-chevron`;
   const focusLater = (selector: string, fallback?: HTMLElement | null) =>
     requestAnimationFrame(() =>
       (tree.current?.querySelector<HTMLElement>(selector) ?? fallback)?.focus(),
@@ -237,10 +215,10 @@ export function ProjectLibrary({
     if (name === null && fresh) newFolderButton.current?.focus();
     else focusLater(folderFocus(id));
   };
-  // Custom order (FB5). Every hand reorder -- menu, Option+arrows or a drag -- first switches the
-  // sort to Custom (changePrefs records the sort it came from), then saves the order on screen
-  // with the move applied. Off while searching (a filtered list is never saved as an order) and
-  // until the library has loaded.
+  // Custom order (OB5, Decision 4). Every hand reorder -- menu, Option+arrows or a drag, under any
+  // sort -- moves just that row inside its container's saved order (or, with none, the order on
+  // screen) and switches the sort to Custom (changePrefs records the sort it came from). Off while
+  // searching (a filtered list is never saved as an order) and until the library has loaded.
   const canReorder = ready && !needle;
   const toCustom = () => {
     if (sort !== "custom") changePrefs({ sort: "custom" });
@@ -254,82 +232,212 @@ export function ProjectLibrary({
     announceFrame.current = requestAnimationFrame(() => setAnnouncement(text));
   };
   useEffect(() => () => cancelAnimationFrame(announceFrame.current), []);
-  /** One step up (-1) or down (1) among what is on screen; the focus stays on the moved row. */
-  const stepBy = (
-    dir: -1 | 1,
-    id: string,
-    name: string,
-    shown: string[],
-    save: (to: number) => void,
-    focus: string,
-  ) => {
+  // A project that was in the listing and is gone (not damaged) was deleted: its pin goes with it.
+  // Not "missing from the listing" alone: that list is empty until the first load.
+  const seen = useRef<string[]>([]);
+  useEffect(() => {
+    const gone = seen.current.filter((id) => !projects.some((p) => p.id === id) && !damagedFolders.includes(id));
+    seen.current = projects.map((p) => p.id);
+    if (ready && listed && gone.length) update((s) => dropPins(s, gone.map((id) => itemKey("project", id))));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [projects, ready, listed, damagedFolders]);
+  // What the pin menu's click needs, read at click time (a menu opened earlier keeps its old items).
+  const live = useRef({ ids: [] as string[], damaged: [] as string[], listed });
+  live.current = { ids: projects.map((p) => p.id), damaged: damagedFolders, listed };
+  // A listing that came back empty proves nothing about which projects exist (a slow or partial read
+  // looks the same), so project pins are only judged stale against a non-empty, successful listing.
+  const knowsProjects = (now: { ids: string[]; listed: boolean }) => now.listed && now.ids.length > 0;
+  // The page (OB1 model): one flat list of rows with depths. Search is a flat list of matches in
+  // the active sort (Custom shows its fallback sort), with no folders and no pinned rows.
+  const outline = buildOutline({ projects, lib, sort, fallbackSort, reverse, foldersFirst });
+  const matches = needle
+    ? buildOutline({
+        projects: projects.filter((p) => p.title.toLocaleLowerCase().includes(needle)),
+        lib: emptyLibrary,
+        sort: sort === "custom" ? fallbackSort : sort,
+        fallbackSort,
+        reverse,
+        foldersFirst,
+      }).rows.map((row): OutlineRow => {
+        const at = containerOf(lib, row.id);
+        return { ...row, container: at, path: at === ROOT ? undefined : folderPath(lib, at) };
+      })
+    : [];
+  // Hand reorder (OB5). "Shown" is a container's order as the page draws it in the current sort,
+  // with every folder open (so a collapsed folder has its would-be order) and without the rows
+  // lifted into the pinned band (they are not on screen in their container).
+  const opened = (s: LibraryState): LibraryState => ({
+    ...s,
+    folders: s.folders.map((f) => (f.collapsed ? { ...f, collapsed: false } : f)),
+  });
+  const layout = (s: LibraryState, asCustom = false) => {
+    const o = buildOutline({
+      projects,
+      lib: opened(s),
+      sort: asCustom ? "custom" : sort,
+      // As toCustom/changePrefs: Custom falls back to the sort it came from.
+      fallbackSort: asCustom && sort !== "custom" ? sort : fallbackSort,
+      reverse,
+      foldersFirst,
+    });
+    return [...o.pinned.filter((r) => r.depth > 0), ...o.rows];
+  };
+  const shownIn = (container: string, s = lib, asCustom = false) => siblings(layout(s, asCustom), container);
+  const containerOfKey = (key: ItemKey) => {
+    const { kind, id } = parseKey(key);
+    return kind === "project" ? containerOf(lib, id) : (lib.folders.find((f) => f.id === id)?.parent ?? ROOT);
+  };
+  /** The neighbour a step of `dir` would pass, or null at the end of the container or, under
+   *  Folders on top, where a project would pass a folder (or a folder a project). */
+  const stepTarget = (key: ItemKey, dir: -1 | 1, shown: ItemKey[]): ItemKey | null => {
+    const at = shown.indexOf(key);
+    const next = at < 0 ? undefined : shown[at + dir];
+    if (!next) return null;
+    return foldersFirst && next[0] !== key[0] ? null : next;
+  };
+  /** Move up (-1) / down (1) past the neighbouring on-screen sibling; focus stays on the row. */
+  const stepItem = (key: ItemKey, name: string, dir: -1 | 1, focus: string) => {
     if (!canReorder) return;
-    const to = shown.indexOf(id) + dir;
-    if (to < 0 || to >= shown.length) {
-      announce(`${name} is already ${dir < 0 ? "first" : "last"}`);
+    const container = containerOfKey(key);
+    const shown = shownIn(container);
+    // Rows in the pinned band are not in their container's on-screen order: no step.
+    if (!shown.includes(key)) return;
+    const next = stepTarget(key, dir, shown);
+    if (!next) {
+      // Under Folders on top a step also stops where a folder would pass a project (or the reverse):
+      // say which kind of row it is the end of, since rows of the other kind follow or precede it.
+      const beyond = shown[shown.indexOf(key) + dir];
+      const kind = beyond && foldersFirst && beyond[0] !== key[0] ? (key[0] === "f" ? " folder" : " project") : "";
+      announce(`${name} is already ${kind ? "the " : ""}${dir < 0 ? "first" : "last"}${kind}`);
       return;
     }
+    const side = dir < 0 ? "before" : "after";
+    const result = placeBeside(lib, container, shown, key, next, side);
+    update((s) => placeBeside(s, container, shown, key, next, side));
     toCustom();
-    save(to);
     focusLater(focus);
-    announce(`Moved ${name} to position ${to + 1} of ${shown.length}`);
+    // The place it lands in the saved order, which the page shows now that the sort is Custom.
+    const after = shownIn(container, result, true);
+    announce(`Moved ${name} to position ${after.indexOf(key) + 1} of ${after.length}`);
   };
-  const projectIds = (container: string) => projectsIn(container).map((p) => p.id);
-  const folderIds = (parent: string | null) => foldersIn(parent).map((f) => f.id);
-  const stepProject = (p: Summary, dir: -1 | 1) => {
-    const container = containerOf(lib, p.id);
-    const shown = projectIds(container);
-    stepBy(dir, p.id, p.title, shown, (to) => update((s) => moveProject(s, container, shown, p.id, to)), projectFocus(p.id));
-  };
-  const stepFolder = (f: LibraryFolder, dir: -1 | 1) => {
-    const shown = folderIds(f.parent);
-    stepBy(dir, f.id, f.name, shown, (to) => update((s) => reorderFolder(s, f.parent, shown, f.id, to)), folderFocus(f.id));
-  };
-  /** Move up / Move down, disabled at the ends and whenever reordering is off. */
-  const stepItems = (id: string, shown: string[], step: (dir: -1 | 1) => void): ContextMenuItem[] =>
-    ([-1, 1] as const).map((dir) => ({
+  const stepProject = (p: Summary, dir: -1 | 1) => stepItem(itemKey("project", p.id), p.title, dir, projectFocus(p.id));
+  const stepFolder = (f: LibraryFolder, dir: -1 | 1) => stepItem(itemKey("folder", f.id), f.name, dir, folderFocus(f.id));
+  /** Move up / Move down, disabled at the ends, where Folders on top stops it, in the pinned band
+   *  and whenever reordering is off. */
+  const stepItems = (key: ItemKey, step: (dir: -1 | 1) => void): ContextMenuItem[] => {
+    const shown = canReorder ? shownIn(containerOfKey(key)) : [];
+    return ([-1, 1] as const).map((dir) => ({
       label: dir < 0 ? "Move up" : "Move down",
-      disabled: !canReorder || shown[shown.indexOf(id) + dir] === undefined,
+      disabled: !canReorder || !stepTarget(key, dir, shown),
       run: () => step(dir),
     }));
-  /** A drag released on a target (useLibraryDrag). A project changing folder is filed and placed
-   *  in one write, using the target container's order on screen (a drop onto a heading files it first). */
-  const applyDrop = (source: DragItem, drop: Drop) => {
-    if (!canReorder) return;
-    if (source.kind === "project") {
-      const from = containerOf(lib, source.id);
-      const target = drop.kind === "into" ? drop.folder : drop.container;
-      const shown = projectIds(target);
-      const rest = shown.filter((id) => id !== source.id);
-      toCustom();
-      // Onto a heading: filed like "Move to folder…", so it appears first in that folder.
-      if (drop.kind === "into") {
-        update((s) => fileProject(s, source.id, target === ROOT ? null : target));
-        return;
-      }
-      const to = rest.indexOf(drop.id) + (drop.kind === "after" ? 1 : 0);
-      update((s) =>
-        moveProject(target === from ? s : fileProject(s, source.id, target === ROOT ? null : target), target, shown, source.id, to),
-      );
-      return;
-    }
-    if (drop.kind === "into") return;
-    const parent = lib.folders.find((f) => f.id === source.id)?.parent ?? null;
-    const shown = folderIds(parent);
-    const to = shown.filter((id) => id !== source.id).indexOf(drop.id) + (drop.kind === "after" ? 1 : 0);
-    toCustom();
-    update((s) => reorderFolder(s, parent, shown, source.id, to));
   };
-  const { drag, onPointerDown: startDrag } = useLibraryDrag({ tree, enabled: canReorder, view, onDrop: applyDrop });
+  /** A drag released on a target (useLibraryDrag). A row changing container is filed or moved and
+   *  placed in one write; only the target container's order changes. A drop where the row already
+   *  is changes nothing (no write, the sort stays). */
+  const applyDrop = (source: ItemKey, drop: Drop) => {
+    if (!canReorder) return;
+    const { kind, id } = parseKey(source);
+    const from = containerOfKey(source);
+    const target = drop.kind === "end" ? ROOT : drop.kind === "into" ? drop.folder : drop.container;
+    const shown = shownIn(target);
+    const rest = shown.filter((k) => k !== source);
+    const side = drop.kind === "after" || drop.kind === "end" ? "after" : "before";
+    // Same place on screen: before its own next sibling, after its previous one, into its folder
+    // when it is already first there, end when it is already last at the top level.
+    if (target === from) {
+      const beside = drop.kind === "into" ? (rest[0] ?? null) : drop.kind === "end" ? null : drop.key;
+      const at = beside === null ? rest.length : rest.indexOf(beside) + (side === "after" ? 1 : 0);
+      if (shown.indexOf(source) === at) return;
+    }
+    // Into: first in the folder's saved order, so before the head of the list placeBeside saves
+    // (rows not yet saved come first, then the saved ones). End: last at the top level.
+    const saved = savedItems(lib, target) ?? [];
+    const head = [...rest.filter((k) => !saved.includes(k)), ...saved.filter((k) => rest.includes(k))][0];
+    const neighbour = drop.kind === "into" ? (head ?? null) : drop.kind === "end" ? null : drop.key;
+    const parent = target === ROOT ? null : target;
+    // moveFolder refuses a folder into its own subtree (the drop rules never offer one).
+    if (kind === "folder" && target !== from && moveFolder(lib, id, parent) === lib) return;
+    update((s) => {
+      const moved =
+        target === from ? s : kind === "project" ? fileProject(s, id, parent) : moveFolder(s, id, parent);
+      return placeBeside(moved, target, shown, source, neighbour, side);
+    });
+    toCustom();
+  };
+  // What the drag needs from the model about each drawn row (OB5a RowRect less its box).
+  const all = needle ? [] : [...outline.pinned, ...outline.rows];
+  const dragInfo = new Map<ItemKey, DragRowInfo>();
+  all.forEach((row, i) => {
+    const ancestors: string[] = [];
+    for (let at = row.container; at !== ROOT; ) {
+      if (ancestors.includes(at)) break;
+      ancestors.unshift(at);
+      at = lib.folders.find((f) => f.id === at)?.parent ?? ROOT;
+    }
+    dragInfo.set(row.key, {
+      key: row.key,
+      kind: row.kind,
+      container: row.container,
+      depth: row.depth,
+      expandedWithRows: row.kind === "folder" && all[i + 1]?.container === row.id,
+      // The band's own rows: lifted, so depth 0 inside `pinned` (their children are deeper).
+      pinnedTop: i < outline.pinned.length && row.depth === 0,
+      ancestors,
+    });
+  });
+  const { drag, onPointerDown: startDrag } = useLibraryDrag({
+    tree,
+    enabled: canReorder,
+    info: (key) => dragInfo.get(key),
+    foldersFirst,
+    onDrop: applyDrop,
+  });
+  const lastKey = all[all.length - 1]?.key;
+  /** The drag state a row draws (outline.css): lifted, the drop line, "into", the end line. */
+  const dragAttrs = (row: OutlineRow) => {
+    const drop = drag?.drop;
+    const edge =
+      drop && (drop.kind === "before" || drop.kind === "after") && drop.key === row.key
+        ? drop.kind === "before" ? "start" : "end"
+        : drop?.kind === "end" && row.key === lastKey ? "end" : undefined;
+    return {
+      "data-drag-state": drag?.source === row.key ? "lifted" : undefined,
+      "data-drag-edge": edge,
+      "data-drop-into": drop?.kind === "into" && row.kind === "folder" && drop.folder === row.id ? "" : undefined,
+      "data-drop-end": drop?.kind === "end" && row.key === lastKey ? "" : undefined,
+    };
+  };
+  /** "Pin to top" / "Unpin" (OB6); at the limit an unpinned row's item is disabled and says so.
+   *  Only live pins count: one whose project was deleted (or folder removed) holds no slot, and is
+   *  dropped when the next pin is made. Damaged projects are kept (they may come back). */
+  const pinItem = (key: ItemKey): ContextMenuItem => {
+    const pins = lib.pins ?? [];
+    const pinned = pins.includes(key);
+    const stale = stalePins(lib, live.current.ids, damagedFolders, knowsProjects(live.current));
+    const used = pins.length - stale.length;
+    const full = !pinned && used >= PIN_LIMIT;
+    return {
+      label: pinned ? "Unpin" : full ? `Pin to top (${used} of ${PIN_LIMIT} used)` : "Pin to top",
+      disabled: full,
+      // Stale pins are worked out at click time from the state being changed, never from the menu's build.
+      run: () =>
+        update((s) => {
+          const now = live.current;
+          return togglePin(dropPins(s, stalePins(s, now.ids, now.damaged, knowsProjects(now))), key);
+        }),
+    };
+  };
   const folderItems = (f: LibraryFolder, at: Point): ContextMenuItem[] => [
     {
       label: f.collapsed ? "Expand" : "Collapse",
       run: () => update((s) => setFolderCollapsed(s, f.id, !f.collapsed)),
     },
+    pinItem(itemKey("folder", f.id)),
     { label: "New project here", run: () => onCreate(undefined, f.id) },
     { label: "New subfolder", run: () => startFolder(f.id) },
     { label: "Rename", run: () => setEditing({ id: f.id, fresh: false }) },
-    ...stepItems(f.id, folderIds(f.parent), (dir) => stepFolder(f, dir)),
+    ...stepItems(itemKey("folder", f.id), (dir) => stepFolder(f, dir)),
     {
       label: "Move to folder…",
       run: () =>
@@ -363,7 +471,8 @@ export function ProjectLibrary({
     const current = containerOf(lib, p.id);
     return [
       { label: "Open", run: () => onOpen(p.id) },
-      ...stepItems(p.id, projectIds(current), (dir) => stepProject(p, dir)),
+      pinItem(itemKey("project", p.id)),
+      ...stepItems(itemKey("project", p.id), (dir) => stepProject(p, dir)),
       {
         label: "Move to folder…",
         disabled: !ready,
@@ -376,24 +485,40 @@ export function ProjectLibrary({
       { label: "Delete", danger: true, run: () => onDelete(p) },
     ];
   };
-  const activeSort = sort === "custom" ? fallbackSort : sort;
-  /** A container's projects: the active sort, then the hand-made order while Custom. */
-  const projectsIn = (container: string) => {
-    const shown = sortProjects(
-      projects.filter((p) => containerOf(lib, p.id) === container),
-      activeSort,
-      reverse,
-    );
-    return sort === "custom" ? orderedProjects(lib, container, shown) : shown;
-  };
-  /** A container's subfolders: by name, then the hand-made order while Custom. */
-  const foldersIn = (parent: string | null) => {
-    const named = childFolders(lib, parent).slice().sort(byName);
-    return sort === "custom" ? orderedFolders(lib, parent, named) : named;
-  };
-  const folderCount = (id: string) => {
-    const inside = folderSubtree(lib, id);
-    return projects.filter((p) => inside.has(containerOf(lib, p.id))).length;
+  /** A header click: another column sorts by it in its natural direction; the same one flips. */
+  const sortBy = (column: "name" | LibraryColumn) =>
+    sort === column ? changePrefs({ reverse: !reverse }) : changePrefs({ sort: column, reverse: false });
+  const wiring = (row: OutlineRow): OutlineRowWiring => {
+    if (row.kind === "folder") {
+      const f = row.folder!;
+      return {
+        attrs: {
+          ...menuHandlers(
+            (at) => openMenu(at, `${f.name} actions`, folderFocus(f.id), folderItems(f, at)),
+            (dir) => stepFolder(f, dir),
+          ),
+          ...dragAttrs(row),
+        },
+        onActivate: () => update((s) => setFolderCollapsed(s, f.id, !f.collapsed)),
+        tint: colours?.find((c) => c.id === f.colour)?.colour,
+        rename:
+          editing?.id === f.id
+            ? (name, viaKey) => finishEditing(f.id, editing.fresh, name, viaKey)
+            : undefined,
+      };
+    }
+    const p = row.project!;
+    return {
+      attrs: {
+        ...menuHandlers(
+          (at) => openMenu(at, `${p.title} actions`, projectFocus(p.id), projectItems(p, at)),
+          (dir) => stepProject(p, dir),
+        ),
+        ...dragAttrs(row),
+      },
+      onActivate: () => onOpen(p.id),
+      onDelete: () => onDelete(p),
+    };
   };
   useLayoutEffect(() => {
     if (!creating) return;
@@ -485,115 +610,6 @@ export function ProjectLibrary({
     setSearching(false);
     if (refocus) searchButton.current?.focus();
   };
-  const date = (value?: string) =>
-    value
-      ? new Date(value).toLocaleDateString(undefined, {
-          month: "short",
-          day: "numeric",
-          year: "numeric",
-        })
-      : "Unknown";
-  const projectRow = (p: Summary, path?: string) => (
-    <div
-      className="project-row row"
-      key={p.id}
-      data-project-id={p.id}
-      data-drag-state={lifted("project", p.id) ? "lifted" : undefined}
-      data-drag-edge={edgeAt(p.id, path === undefined ? containerOf(lib, p.id) : undefined)}
-      {...menuHandlers(
-        (at) => openMenu(at, `${p.title} actions`, projectFocus(p.id), projectItems(p, at)),
-        (dir) => stepProject(p, dir),
-      )}
-    >
-      <button className="emph-row row-label" onClick={() => onOpen(p.id)}>
-        <strong className="project-name emph-label">
-          {p.title}
-          {path && (
-            <>
-              {" "}
-              <span className="project-path">-- {path}</span>
-            </>
-          )}
-        </strong>
-        <span className="project-dates">
-          <span className="project-edited">Edited {date(p.updatedAt)}</span>
-          <span className="project-added">Added {date(added(p))}</span>
-          {p.wordCount !== undefined && (
-            <span className="project-words">
-              {p.wordCount.toLocaleString("en-US")} {p.wordCount === 1 ? "word" : "words"}
-            </span>
-          )}
-          {p.sectionCount !== undefined && (
-            <span className="project-sections">
-              {p.sectionCount} {p.sectionCount === 1 ? "section" : "sections"}
-            </span>
-          )}
-        </span>
-      </button>
-      <button
-        className="delete-entry icon-grow slot flush-end"
-        aria-label={"Delete project " + p.title}
-        title="Delete project"
-        onClick={() => onDelete(p)}
-      >
-        <Trash2 size={16} />
-      </button>
-    </div>
-  );
-  /** One container's projects. A folder with no projects renders none; the top level always
-   *  renders (it holds the empty state). */
-  const lifted = (kind: DragItem["kind"], id: string) =>
-    drag?.source.kind === kind && drag.source.id === id;
-  /** The 2 px drop line: "start" above (list) or left of (cards) the target, "end" below or right.
-   *  A folder's line marks its whole section, so "after" reads as after its contents. */
-  const edgeAt = (id: string, container: string | undefined) => {
-    const d = drag?.drop;
-    if (!d || d.kind === "into" || d.id !== id || d.container !== container) return undefined;
-    return d.kind === "before" ? "start" : "end";
-  };
-  const projectsBox = (container: string, extra?: ReactNode, always = false) => {
-    const shown = projectsIn(container);
-    if (!shown.length && !always) return null;
-    return (
-      <div
-        className={"folder-projects project-list project-list--" + view}
-        data-container={container}
-        data-drag-axis={view === "cards" ? "x" : undefined}
-      >
-        {shown.map((p) => projectRow(p))}
-        {extra}
-      </div>
-    );
-  };
-  const folderSection = (f: LibraryFolder): ReactNode => (
-    <section
-      className={"library-folder stack " + (view === "cards" ? "gap-2" : "gap-0")}
-      key={f.id}
-      data-folder-id={f.id}
-      data-drag-edge={edgeAt(f.id, f.parent ?? ROOT)}
-    >
-      <FolderHeading
-        folder={f}
-        count={folderCount(f.id)}
-        tint={colours?.find((c) => c.id === f.colour)?.colour}
-        editing={editing?.id === f.id}
-        lifted={lifted("folder", f.id)}
-        dropInto={drag?.drop?.kind === "into" && drag.drop.folder === f.id}
-        onToggle={() => update((s) => setFolderCollapsed(s, f.id, !f.collapsed))}
-        onRenamed={(name, viaKey) => finishEditing(f.id, editing?.fresh ?? false, name, viaKey)}
-        {...menuHandlers(
-          (at) => openMenu(at, `${f.name} actions`, folderFocus(f.id), folderItems(f, at)),
-          (dir) => stepFolder(f, dir),
-        )}
-      />
-      {!f.collapsed && (
-        <div className={"folder-body stack indent " + (view === "cards" ? "gap-6" : "gap-5")}>
-          {foldersIn(f.id).map((c) => folderSection(c))}
-          {projectsBox(f.id)}
-        </div>
-      )}
-    </section>
-  );
   return (
     <main
       className="library"
@@ -717,28 +733,12 @@ export function ProjectLibrary({
               />
             </div>
           </div>
-          <Dropdown
-            label="Sort projects"
-            value={sort}
-            onChange={(value) => changePrefs({ sort: value })}
-            cover
-            plain
-            options={[
-              { value: "name", label: "Name" },
-              { value: "added", label: "Added" },
-              { value: "edited", label: "Last edited" },
-              { value: "custom", label: "Custom" },
-            ]}
+          <SortMenu
+            sort={sort}
+            reverse={reverse}
+            foldersFirst={foldersFirst}
+            onChange={changePrefs}
           />
-          <button
-            type="button"
-            className="icon-button icon-grow slot"
-            aria-label="Reverse project sort order"
-            disabled={sort === "custom"}
-            onClick={() => changePrefs({ reverse: !reverse })}
-          >
-            <span aria-hidden="true">{reverse ? "↑" : "↓"}</span>
-          </button>
           <button
             ref={newFolderButton}
             type="button"
@@ -749,16 +749,6 @@ export function ProjectLibrary({
             onClick={() => startFolder(null)}
           >
             <FolderPlus size={16} />
-          </button>
-          <button
-            type="button"
-            className="icon-button icon-grow slot"
-            aria-label={
-              view === "list" ? "Show project cards" : "Show project list"
-            }
-            onClick={() => changePrefs({ view: view === "list" ? "cards" : "list" })}
-          >
-            {view === "list" ? <Layers size={16} /> : <List size={16} />}
           </button>
           {settings && (
             <button
@@ -780,61 +770,55 @@ export function ProjectLibrary({
         label="Drop to import"
         openPicker={openDropPicker}
       >
-      {/* Top-level blocks and a folder's own blocks are spaced apart, so a folder's last
-          project never reads as part of what follows it. */}
-      <div
-        className={"library-tree stack " + (view === "cards" ? "gap-6" : "gap-5")}
-        ref={tree}
-        data-dragging={drag ? "" : undefined}
-        onPointerDown={startDrag}
+      <Outline
+        pinned={needle ? [] : outline.pinned}
+        rows={needle ? matches : outline.rows}
+        columns={columns}
+        sort={sort}
+        reverse={reverse}
+        hasFolders={lib.folders.length > 0}
+        showPaths={!!needle}
+        onSort={sortBy}
+        onHeaderMenu={(at) =>
+          openMenu(at, "Columns", "button.outline-sort", columnMenuItems(columns, (c) =>
+            changePrefs({ columns: toggleColumn(columns, c) }),
+          ))
+        }
+        renderRowProps={wiring}
+        rootRef={tree}
+        rootAttrs={{ "data-dragging": drag ? "" : undefined, onPointerDown: startDrag }}
       >
-        {needle ? (
-          // Search: no headings, one flat list, each match with its folder path.
-          <div className={"folder-projects project-list project-list--" + view} data-search="">
-            {sorted.map((p) => {
-              const at = containerOf(lib, p.id);
-              return projectRow(p, at === ROOT ? undefined : folderPath(lib, at));
-            })}
-            {projects.length > 0 && !sorted.length && (
-              <p className="library-empty">No matching projects.</p>
-            )}
-          </div>
-        ) : (
-          <>
-            {foldersIn(null).map((f) => folderSection(f))}
-            {projectsBox(ROOT, (
-              !projects.length && (
-                <div className="library-empty">
-                  <p>
-                    Start with a blank page or a template, or bring in writing you
-                    already have.
-                  </p>
-                  <div className="library-empty-actions">
-                    {templateChoices.map(([id, label]) => (
-                      <button
-                        key={id}
-                        type="button"
-                        className="text-action"
-                        aria-label={"Start a " + label + " project"}
-                        onClick={() => onCreate(id)}
-                      >
-                        {label}
-                      </button>
-                    ))}
+        {needle
+          ? projects.length > 0 && !matches.length && <p className="library-empty">No matching projects.</p>
+          : !projects.length && (
+              <div className="library-empty">
+                <p>
+                  Start with a blank page or a template, or bring in writing you
+                  already have.
+                </p>
+                <div className="library-empty-actions">
+                  {templateChoices.map(([id, label]) => (
                     <button
+                      key={id}
                       type="button"
                       className="text-action"
-                      aria-label="Import writing from a file"
-                      onClick={() => writingInput.current?.click()}
+                      aria-label={"Start a " + label + " project"}
+                      onClick={() => onCreate(id)}
                     >
-                      Import writing
+                      {label}
                     </button>
-                  </div>
+                  ))}
+                  <button
+                    type="button"
+                    className="text-action"
+                    aria-label="Import writing from a file"
+                    onClick={() => writingInput.current?.click()}
+                  >
+                    Import writing
+                  </button>
                 </div>
-              )
-            ), true)}
-          </>
-        )}
+              </div>
+            )}
         {menu && (
           <ContextMenu
             key={menu.key}
@@ -846,7 +830,7 @@ export function ProjectLibrary({
             onClose={closeMenu}
           />
         )}
-      </div>
+      </Outline>
       </DropTarget>
       <div className="visually-hidden" role="status" aria-live="polite">
         {announcement}

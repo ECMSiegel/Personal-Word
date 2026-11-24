@@ -474,14 +474,14 @@ test("a drop while the new-project name dialog is open opens nothing", async ({ 
   await expect(page.getByRole("alert")).toHaveCount(0);
 });
 
-test("the trash icon never overlaps the dates when a project row is hovered", async ({ page }) => {
+test("the trash icon never overlaps the last column when a project row is hovered", async ({ page }) => {
   await page.setViewportSize({ width: 1100, height: 900 });
   await seed(page);
   for (const width of [1100, 1600]) {
     await page.setViewportSize({ width, height: 900 });
     const row = page.locator(".project-row").first();
     await expect(row.locator("button").first()).not.toContainText("//");
-    const dates = row.locator(".project-dates");
+    const dates = row.locator(".col-added");
     const trash = row.locator(".delete-entry");
     await row.hover();
     const d = (await dates.boundingBox())!;

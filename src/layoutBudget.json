@@ -19,6 +19,7 @@
   "src/editor/toolbar-motion.css": 4,
   "src/export/export-menu.css": 1,
   "src/library/folders.css": 0,
+  "src/library/outline.css": 0,
   "src/organization/fragments.css": 4,
   "src/organization/organization.css": 14,
   "src/research/citation-card.css": 14,
@@ -26,5 +27,5 @@
   "src/settings/appearance-settings.css": 5,
   "src/settings/settings-nav.css": 3,
   "src/settings/shortcuts-settings.css": 4,
-  "src/styles.css": 115
+  "src/styles.css": 106
 }

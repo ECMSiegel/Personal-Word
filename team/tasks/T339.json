@@ -2,7 +2,7 @@
   "id": "T339",
   "title": "OB5 -- Rebuild dragging and Move up/down on the flat list",
   "description": "OPUS ONLY. Follow task OB5 in docs/agent-work/2026-11-22-projects-outline/PLAN.md exactly. Runs after OB4 because both edit ProjectLibrary.tsx.",
-  "status": "available",
+  "status": "done",
   "owner": null,
   "priority": 2,
   "depends_on": [
@@ -20,16 +20,45 @@
   "review_required": true,
   "created_by": "agent-4969",
   "created_at": "2026-11-22T23:33:38+00:00",
-  "claimed_at": null,
-  "updated_at": "2026-11-22T23:33:38+00:00",
+  "claimed_at": "2026-11-23T00:11:48+00:00",
+  "updated_at": "2026-11-23T00:29:54+00:00",
   "handoff": null,
-  "review": null,
+  "review": {
+    "by": "agent-4969",
+    "at": "2026-11-23T00:29:54+00:00",
+    "verdict": "approved",
+    "note": "Coordinator: looked at the before-dark drag screenshot (line at the target depth, dragged row dimmed). Follow-up given to OB6: under Folders on top, do not draw a before/after line between a project and a folder."
+  },
   "log": [
     {
       "at": "2026-11-22T23:33:38+00:00",
       "agent": "agent-4969",
       "event": "created",
       "note": ""
+    },
+    {
+      "at": "2026-11-23T00:11:48+00:00",
+      "agent": "agent-1be2",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-11-23T00:11:48+00:00",
+      "agent": "agent-1be2",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-11-23T00:28:59+00:00",
+      "agent": "agent-1be2",
+      "event": "review requested",
+      "note": "Drag and Move up/down rebuilt on the outline (rule A under any sort, rule B, into/end/folder-into-folder, own-subtree refused, pinned band rows excluded, same-place drop is a no-op). libraryDrag.ts and its test deleted. ob-drag (15) + fb-folder-order + ob-outline + ob-sort-menu: 44 passed / 4 skipped (ob5-run2.log); tsc clean; vitest src/library 76 passed. Notes: notes/OB5.md; shots: notes/ob5-shots/. The 'into' anchor differs from the plan wording (head of the saved list, not the first on-screen sibling)."
+    },
+    {
+      "at": "2026-11-23T00:29:54+00:00",
+      "agent": "agent-4969",
+      "event": "approved",
+      "note": "Coordinator: looked at the before-dark drag screenshot (line at the target depth, dragged row dimmed). Follow-up given to OB6: under Folders on top, do not draw a before/after line between a project and a folder."
     }
   ]
 }

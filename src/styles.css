@@ -391,7 +391,7 @@ button:focus-visible {
    grow by transform; only the scale is animated. Reduce Motion drops the scale, keeps the faux bold. Icon-only controls are excluded: they keep the
    colour rule above (and the toolbar icons get the dock). No other rule may set hover weight
    or a hover scale. A new button, link, tab, menu row or summary gets this with no new CSS. */
-:is(button, a[href], [role="tab"], [role="menuitem"], [role="option"], summary, label:has(input[type="checkbox"], input[type="radio"]), .text-action):not(:is(
+:is(button, a[href], [role="tab"], [role="menuitem"], [role="menuitemradio"], [role="menuitemcheckbox"], [role="option"], summary, label:has(input[type="checkbox"], input[type="radio"]), .text-action):not(:is(
     .icon-button,
     .delete-entry,
     .group-actions button,
@@ -424,7 +424,7 @@ button:focus-visible {
   transform-origin: var(--emph-origin, center);
   transition: transform var(--emph-duration) var(--ease-out);
 }
-:is(button, a[href], [role="tab"], [role="menuitem"], [role="option"], summary, label:has(input[type="checkbox"], input[type="radio"]), .text-action):not(:is(
+:is(button, a[href], [role="tab"], [role="menuitem"], [role="menuitemradio"], [role="menuitemcheckbox"], [role="option"], summary, label:has(input[type="checkbox"], input[type="radio"]), .text-action):not(:is(
     .icon-button,
     .delete-entry,
     .group-actions button,
@@ -460,7 +460,7 @@ button:focus-visible {
 :is(label:has(input), label:has(textarea)) :is(input, textarea) {
   text-shadow: none;
 }
-:is(button, a[href], [role="tab"], [role="menuitem"], [role="option"], summary, label:has(input[type="checkbox"], input[type="radio"]), .text-action):active:not(:disabled) {
+:is(button, a[href], [role="tab"], [role="menuitem"], [role="menuitemradio"], [role="menuitemcheckbox"], [role="option"], summary, label:has(input[type="checkbox"], input[type="radio"]), .text-action):active:not(:disabled) {
   --press-s: 0.99;
   --emph-duration: var(--duration-press);
 }
@@ -1064,19 +1064,6 @@ p {
   font-size: var(--type-body);
   line-height: 1.5;
   color: var(--text);
-}
-.project-list strong,
-.project-list small {
-  display: block;
-}
-.project-list strong {
-  font-size: var(--type-large);
-  font-weight: 500;
-}
-.project-list small {
-  font-size: var(--type-small);
-  color: var(--muted);
-  margin-top: var(--space-2);
 }
 .visually-hidden {
   position: absolute;
@@ -1739,100 +1726,6 @@ button[aria-pressed="true"],
   background: var(--accent);
   filter: brightness(0.88);
 }
-.project-list {
-  display: flex;
-  flex-direction: column;
-  /* The rows' inset is the page margin, not --edge. */
-  --edge: 0px;
-}
-.project-row {
-  border-top: 1px solid var(--line);
-  min-width: 0;
-}
-.project-row > button:first-child {
-  padding: var(--space-4) var(--space-1);
-  gap: var(--space-4);
-  flex-direction: row;
-  align-items: center;
-  justify-content: flex-start;
-  border-radius: 0;
-  text-align: left;
-}
-.project-list .project-name {
-  font-size: var(--type-body);
-  flex: 1;
-  min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-.project-row > button:first-child > .project-dates {
-  display: grid;
-  gap: var(--space-3);
-  justify-content: flex-end;
-  flex: 1;
-  font-size: var(--type-small);
-  color: var(--muted);
-}
-/* List: four fixed columns. The DOM order is edited, added, words, sections; each span keeps
-   its own column on every row whether or not the project has counts, so nothing shifts. */
-.project-list--list .project-row > button:first-child > .project-dates {
-  grid-template-columns: 10.5em 7em 7em 10.5em;
-  grid-template-rows: auto;
-  white-space: nowrap;
-  text-align: right;
-}
-.project-list--list .project-dates .project-edited {
-  grid-row: 1;
-  grid-column: 1;
-}
-.project-list--list .project-dates .project-words {
-  grid-row: 1;
-  grid-column: 2;
-}
-.project-list--list .project-dates .project-sections {
-  grid-row: 1;
-  grid-column: 3;
-}
-.project-list--list .project-dates .project-added {
-  grid-row: 1;
-  grid-column: 4;
-}
-.project-list--cards {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(256px, 1fr));
-  gap: var(--space-4);
-}
-.project-list--cards .project-row {
-  position: relative;
-  border: 1px solid var(--line);
-}
-.project-list--cards .project-row > button:first-child {
-  min-height: 115px;
-  padding: var(--space-5) var(--space-5) var(--space-5) var(--space-4);
-  flex-direction: column;
-  align-items: stretch;
-}
-/* The trash button sits in the card's top-right corner: stop the title short of it. */
-.project-list--cards .project-name {
-  max-width: calc(100% - var(--space-5));
-}
-/* Cards: two columns of two lines -- Edited over Added, words over sections -- with the
-   right track a fixed width so every card starts its numbers in the same place. */
-.project-list--cards .project-row > button:first-child > .project-dates {
-  grid-auto-flow: column;
-  grid-template-rows: auto auto;
-  grid-template-columns: 1fr 7.25em;
-  justify-content: flex-start;
-  gap: var(--space-1) var(--space-2);
-  white-space: nowrap;
-  text-align: left;
-}
-.project-list--cards .delete-entry {
-  position: absolute;
-  right: var(--space-2);
-  top: var(--space-2);
-}
 .library-empty {
   font-size: var(--type-small);
   padding: var(--space-5) 0;
@@ -1897,37 +1790,6 @@ button[aria-pressed="true"],
 @media (max-width: 700px) {
   .library {
     padding: var(--space-6) var(--space-5);
-  }
-  .project-dates {
-    gap: 3px !important;
-  }
-  /* Narrow windows: the four columns stack to two lines in both views. */
-  .project-list--list .project-row > button:first-child > .project-dates,
-  .project-list--cards .project-row > button:first-child > .project-dates {
-    grid-template-columns: 10.5em 7.5em;
-    grid-template-rows: auto auto;
-    white-space: nowrap;
-    text-align: left;
-  }
-  .project-list--list .project-dates .project-edited,
-  .project-list--cards .project-dates .project-edited {
-    grid-row: 1;
-    grid-column: 1;
-  }
-  .project-list--list .project-dates .project-words,
-  .project-list--cards .project-dates .project-words {
-    grid-row: 1;
-    grid-column: 2;
-  }
-  .project-list--list .project-dates .project-added,
-  .project-list--cards .project-dates .project-added {
-    grid-row: 2;
-    grid-column: 1;
-  }
-  .project-list--list .project-dates .project-sections,
-  .project-list--cards .project-dates .project-sections {
-    grid-row: 2;
-    grid-column: 2;
   }
   .library-toolbar .library-display {
     --gap: var(--space-1);

@@ -2,7 +2,7 @@
   "id": "T345",
   "title": "OB7a -- Update AGENTS.md and the design and architecture docs for the outline",
   "description": "Haiku or Sonnet. Follow step 3 of task OB7 in docs/agent-work/2026-11-22-projects-outline/PLAN.md now, from the plan's Decisions; OB7 then only sweeps specs and re-checks these docs against what was built. Runs alongside OB2.",
-  "status": "available",
+  "status": "done",
   "owner": null,
   "priority": 3,
   "depends_on": [
@@ -16,16 +16,45 @@
   "review_required": true,
   "created_by": "agent-4969",
   "created_at": "2026-11-22T23:35:57+00:00",
-  "claimed_at": null,
-  "updated_at": "2026-11-22T23:35:57+00:00",
+  "claimed_at": "2026-11-22T23:44:21+00:00",
+  "updated_at": "2026-11-22T23:45:24+00:00",
   "handoff": null,
-  "review": null,
+  "review": {
+    "by": "agent-4969",
+    "at": "2026-11-22T23:45:24+00:00",
+    "verdict": "approved",
+    "note": "Coordinator: read the AGENTS.md diff; wording matches the plan's Decisions. OB7 re-checks all three docs against what was built."
+  },
   "log": [
     {
       "at": "2026-11-22T23:35:57+00:00",
       "agent": "agent-4969",
       "event": "created",
       "note": ""
+    },
+    {
+      "at": "2026-11-22T23:44:21+00:00",
+      "agent": "agent-cfea",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-11-22T23:44:21+00:00",
+      "agent": "agent-cfea",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-11-22T23:45:10+00:00",
+      "agent": "agent-cfea",
+      "event": "review requested",
+      "note": "OB7a docs updated: AGENTS.md (icon rule, library.json/outline sentence), docs/design-system.md (indent row, quills rule, Projects page paragraph), docs/architecture.md (Projects-page folders paragraph, libraryPreferences line). grep 'subfolders come first' AGENTS.md: no match. Notes in docs/agent-work/2026-11-22-projects-outline/notes/OB7a.md."
+    },
+    {
+      "at": "2026-11-22T23:45:24+00:00",
+      "agent": "agent-4969",
+      "event": "approved",
+      "note": "Coordinator: read the AGENTS.md diff; wording matches the plan's Decisions. OB7 re-checks all three docs against what was built."
     }
   ]
 }

@@ -1,0 +1,210 @@
+/* OB2: the Projects page outline. One grid template, built by Outline.tsx from the visible columns
+   (--outline-template), is shared by the header and every row, so each column's right edge is the
+   same at every depth; the depth indent (.depth, layout.css) only moves the leading slots and the
+   name, which takes the rest. Spacing comes only from the layout primitives (.row, .depth, .slot,
+   .flush-*): this file sets none of its own (budget 0). */
+
+.outline {
+  /* The rows' inset is the page margin, not --edge. */
+  --edge: 0px;
+  /* One row height for folders and projects: the bar height gives a list row some air. */
+  --row-height: var(--bar-height);
+  /* Column widths, sized for "Nov 12, 2026", "12,345" and "12 projects" at --type-small. */
+  --col-edited: 7.5em;
+  --col-words: 6em;
+  --col-sections: 7.5em;
+  --col-added: 7.5em;
+}
+
+/* Two classes: layout.css loads after this file, and .row would otherwise win `display`. */
+.outline .outline-row,
+.outline .outline-header {
+  display: grid;
+  grid-template-columns: var(--outline-template);
+  align-items: center;
+  font-size: var(--type-small);
+  min-width: 0;
+}
+.outline .outline-row {
+  border-top: 1px solid var(--line);
+}
+/* The list closes with the same rule under its last row, drawn by the list so every row keeps
+   one height and a folder's end never doubles a rule. */
+.outline-body:has(> .outline-row) {
+  border-bottom: 1px solid var(--line);
+}
+
+/* Slots, by grid line name, so a missing cell never shifts the next one. */
+.outline .folder-chevron {
+  grid-column: arrow;
+  /* The chevron's ink, not its slot, sits on the row's start edge (.flush-start). */
+  --icon-size: 14px;
+}
+.outline .outline-icon {
+  grid-column: icon;
+  flex: none;
+  color: var(--muted);
+}
+.outline .outline-name,
+.outline .folder-name-input,
+.outline .col-name {
+  grid-column: name;
+  min-width: 0;
+}
+.outline .col-edited {
+  grid-column: edited;
+}
+.outline .col-words {
+  grid-column: words;
+}
+.outline .col-sections {
+  grid-column: sections;
+}
+.outline .col-added {
+  grid-column: added;
+}
+.outline .delete-entry {
+  grid-column: trash;
+  /* With .flush-end the trash ink, not its slot, sits on the row's end edge. */
+  justify-self: end;
+}
+
+/* A project row's open button spans icon to the last column and lays its parts on the row's own
+   tracks, so the whole row (bar the trash) opens the project. */
+.outline .outline-open {
+  grid-column: icon / trash;
+  display: grid;
+  grid-template-columns: subgrid;
+  align-items: center;
+  align-self: stretch;
+  justify-content: stretch;
+  padding: 0;
+  text-align: start;
+}
+
+/* Names: body size, normal text colour; folders bold, projects regular. The name cell is a cluster
+   (layout.css): the title ellipsizes inside it, and the path and pin mark after it never shrink. */
+.outline .outline-name {
+  font-size: var(--type-body);
+  font-weight: 400;
+  color: var(--text);
+  white-space: nowrap;
+}
+.outline .outline-title {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.outline .folder-name {
+  font-weight: 700;
+}
+.outline .folder-name-input {
+  font-size: var(--type-body);
+  font-weight: 700;
+  color: var(--text);
+  background: transparent;
+  border: 0;
+  border-bottom: 1px solid var(--line);
+  border-radius: 0;
+  /* .row gives the field no inline padding, so its text starts where the name started; the field
+     keeps its own height rather than the row's minimum. */
+  --row-height: 0px;
+}
+.outline .project-path {
+  flex: none;
+  font-weight: 400;
+  color: var(--muted);
+}
+/* The pin mark after a band row's name: 16px (the size prop), muted. */
+.outline .outline-pin {
+  color: var(--muted);
+}
+.outline .folder-row {
+  cursor: default;
+}
+
+/* Cells hold values only; right-aligned under their header. Edited reads in the text colour. */
+.outline .outline-cell {
+  color: var(--muted);
+  text-align: end;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-variant-numeric: tabular-nums;
+}
+.outline .outline-cell.col-edited {
+  color: var(--text);
+}
+
+/* Header: small muted labels; the sorted one in the text colour with its arrow. Column labels
+   are right-aligned like their values; the arrow sits on the side away from the shared edge. */
+.outline .outline-heading {
+  display: flex;
+  justify-content: flex-end;
+  align-self: stretch;
+  min-width: 0;
+}
+.outline .outline-heading.col-name {
+  justify-content: flex-start;
+}
+/* Each sort button fills its header cell (the whole cell sorts); its label stays on the cell's
+   column edge, the arrow beside it. */
+.outline .outline-sort {
+  flex: 1 1 auto;
+  justify-content: flex-end;
+  padding: 0;
+  font-size: var(--type-small);
+  color: var(--muted);
+  white-space: nowrap;
+}
+.outline .outline-heading.col-name .outline-sort {
+  justify-content: flex-start;
+}
+/* The whole cell is the button, but keyboard focus rings only the label and arrow. */
+.outline .outline-sort:focus-visible {
+  outline: none;
+}
+.outline .outline-sort:focus-visible > .outline-sort-label {
+  outline: var(--focus-ring);
+  outline-offset: var(--focus-offset);
+  outline-color: var(--accent);
+}
+.outline .outline-sort[data-active] {
+  color: var(--text);
+}
+
+/* Narrow windows: no header; rows show Name and Edited only. */
+@media (max-width: 700px) {
+  .outline .outline-header {
+    display: none;
+  }
+  .outline .outline-row {
+    grid-template-columns: var(--outline-template-narrow);
+  }
+  .outline .outline-row :is(.col-words, .col-sections, .col-added) {
+    display: none;
+  }
+}
+
+/* OB5 dragging. The dragged row dims and the 2 px accent drop line is drawn by folders.css and
+   drag-reorder.css ([data-drag-edge]::after, start = top edge, end = bottom edge); here the line
+   starts at the target row's depth, so the level the row will land at reads at a glance. The
+   line under the last row for a drop on the blank area ("end") is at the top level. "Into" a
+   folder is the folder name in the accent colour, with no fill. */
+.outline .outline-row {
+  position: relative;
+}
+.outline .outline-row[data-drag-edge]::after {
+  inset-inline-start: calc(var(--depth, 0) * var(--slot));
+}
+.outline .outline-row[data-drop-end]::after {
+  inset-inline-start: 0;
+}
+.outline .outline-row[data-drop-into] .folder-name {
+  color: var(--accent);
+}
+
+/* While a drag is in progress no trash shows (the lifted row and the hovered target alike). */
+.outline[data-dragging] .delete-entry {
+  visibility: hidden;
+}

@@ -2,7 +2,7 @@
   "id": "T343",
   "title": "OB9 -- Final validation and rebuild (do not launch)",
   "description": "Sonnet. Follow task OB9 in docs/agent-work/2026-11-22-projects-outline/PLAN.md and its Validation list.",
-  "status": "available",
+  "status": "done",
   "owner": null,
   "priority": 2,
   "depends_on": [
@@ -14,16 +14,45 @@
   "review_required": true,
   "created_by": "agent-4969",
   "created_at": "2026-11-22T23:33:39+00:00",
-  "claimed_at": null,
-  "updated_at": "2026-11-22T23:33:39+00:00",
+  "claimed_at": "2026-11-23T02:44:18+00:00",
+  "updated_at": "2026-11-23T02:59:15+00:00",
   "handoff": null,
-  "review": null,
+  "review": {
+    "by": "agent-4969",
+    "at": "2026-11-23T02:59:15+00:00",
+    "verdict": "approved",
+    "note": "Coordinator: confirmed from ob-final.log (793 passed, 0 failed, 84 skipped, exit 0), sha256 prefix 3c41db2a and binary time. Corrected one HANDOFF line that listed repaired items as open."
+  },
   "log": [
     {
       "at": "2026-11-22T23:33:39+00:00",
       "agent": "agent-4969",
       "event": "created",
       "note": ""
+    },
+    {
+      "at": "2026-11-23T02:44:18+00:00",
+      "agent": "agent-3cba",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-11-23T02:44:18+00:00",
+      "agent": "agent-3cba",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-11-23T02:58:52+00:00",
+      "agent": "agent-3cba",
+      "event": "review requested",
+      "note": "tsc clean; unit 1446/100 files; cargo 75 pass 1 ignored; e2e 793 passed 0 failed 84 skipped; app rebuilt not launched, sha256 3c41db2a...1505; record in docs/agent-work/2026-11-22-projects-outline/VALIDATION.md"
+    },
+    {
+      "at": "2026-11-23T02:59:15+00:00",
+      "agent": "agent-4969",
+      "event": "approved",
+      "note": "Coordinator: confirmed from ob-final.log (793 passed, 0 failed, 84 skipped, exit 0), sha256 prefix 3c41db2a and binary time. Corrected one HANDOFF line that listed repaired items as open."
     }
   ]
 }

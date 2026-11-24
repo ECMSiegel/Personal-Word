@@ -1,5 +1,4 @@
-import { useLayoutEffect, useRef, type KeyboardEvent, type MouseEvent } from "react";
-import { ChevronDown, ChevronRight, Folder as FolderIcon } from "lucide-react";
+import { useLayoutEffect, useRef } from "react";
 import { childFolders, type LibraryFolder, type LibraryState } from "./folders";
 import "../components/drag-reorder.css";
 import "./folders.css";
@@ -60,7 +59,7 @@ export function folderDestinations(
 
 /** The name field for a new or renamed folder: focused and selected; Enter or blur saves,
  *  Escape cancels (`null`). `viaKey` says whether a key, not a blur, finished it. */
-function FolderNameInput({
+export function FolderNameInput({
   initial,
   onDone,
 }: {
@@ -82,7 +81,7 @@ function FolderNameInput({
     <input
       ref={input}
       type="text"
-      className="folder-name-input row-label"
+      className="folder-name-input row row-label"
       aria-label="Folder name"
       defaultValue={initial}
       onClick={(e) => e.stopPropagation()}
@@ -98,66 +97,5 @@ function FolderNameInput({
       }}
       onBlur={(e) => finish(e.currentTarget.value, false)}
     />
-  );
-}
-
-/**
- * One folder heading (FB4 step 3): `div.folder-heading.row[data-folder-heading]` holding the
- * chevron button (the keyboard stop: `aria-expanded`, named by the folder), the folder icon, the
- * name (or its rename field) and a muted "-- n" count. A click anywhere on the heading toggles it.
- * Nesting comes from the enclosing folder bodies (`.indent`, one `--slot` per level).
- */
-export function FolderHeading({
-  folder,
-  count,
-  tint,
-  editing,
-  lifted,
-  dropInto,
-  onToggle,
-  onRenamed,
-  onContextMenu,
-  onKeyDown,
-}: {
-  folder: LibraryFolder;
-  count: number;
-  /** CSS colour for the icon (Color palette with a colour set); otherwise it stays muted. */
-  tint?: string;
-  editing: boolean;
-  /** FB5 drag: this folder is being dragged / a dragged project would be filed into it. */
-  lifted?: boolean;
-  dropInto?: boolean;
-  onToggle: () => void;
-  onRenamed: (name: string | null, viaKey: boolean) => void;
-  onContextMenu: (e: MouseEvent<HTMLElement>) => void;
-  onKeyDown: (e: KeyboardEvent<HTMLElement>) => void;
-}) {
-  const expanded = !folder.collapsed;
-  return (
-    <div
-      className="folder-heading row"
-      data-folder-heading={folder.id}
-      data-drag-state={lifted ? "lifted" : undefined}
-      data-drop-into={dropInto ? "" : undefined}
-      onClick={editing ? undefined : onToggle}
-      onContextMenu={onContextMenu}
-      onKeyDown={onKeyDown}
-    >
-      <button
-        type="button"
-        className="folder-chevron icon-button slot flush-start"
-        aria-label={folder.name}
-        aria-expanded={expanded}
-      >
-        {expanded ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
-      </button>
-      <FolderIcon size={16} className="folder-icon" aria-hidden="true" style={tint ? { color: tint } : undefined} />
-      {editing ? (
-        <FolderNameInput initial={folder.name} onDone={onRenamed} />
-      ) : (
-        <span className="folder-name">{folder.name}</span>
-      )}
-      <span className="folder-count">-- {count}</span>
-    </div>
   );
 }

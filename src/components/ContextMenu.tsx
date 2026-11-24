@@ -1,4 +1,5 @@
 import { Fragment, useEffect, useId, useLayoutEffect, useRef, useState, type KeyboardEvent } from "react";
+import { Check } from "lucide-react";
 import "./popover.css";
 import "./dropdown.css";
 import "./context-menu.css";
@@ -11,6 +12,9 @@ export type ContextMenuItem =
       disabled?: boolean;
       /** Destructive: drawn in --danger. */
       danger?: boolean;
+      /** Ticked or not. When any item of a menu sets it, every row reserves the check column and
+       *  rows that set it are menuitemcheckbox rows (the sort menu's check). */
+      checked?: boolean;
     }
   | ContextMenuSwatches;
 
@@ -60,6 +64,7 @@ export function ContextMenu({
 }) {
   const id = useId();
   const menu = useRef<HTMLDivElement>(null);
+  const checkColumn = items.some((it) => it.kind === undefined && it.checked !== undefined);
   const enabled = items.map((it, i) => (it.disabled ? -1 : i)).filter((i) => i >= 0);
   const [highlight, setHighlight] = useState(viaKeyboard ? (enabled[0] ?? -1) : -1);
   const [shown, setShown] = useState(viaKeyboard);
@@ -231,7 +236,8 @@ export function ContextMenu({
         <div
           key={it.label}
           id={`${id}-${index}`}
-          role="menuitem"
+          role={it.checked === undefined ? "menuitem" : "menuitemcheckbox"}
+          aria-checked={it.checked}
           aria-disabled={it.disabled || undefined}
           data-highlighted={index === highlight ? "" : undefined}
           data-danger={it.danger ? "" : undefined}
@@ -240,6 +246,11 @@ export function ContextMenu({
           onPointerDown={(e) => e.preventDefault()}
           onClick={() => choose(index)}
         >
+          {checkColumn && (
+            <span className="dropdown-check" aria-hidden="true">
+              {it.checked && <Check size={16} />}
+            </span>
+          )}
           <span className="row-label">{it.label}</span>
         </div>
         ),

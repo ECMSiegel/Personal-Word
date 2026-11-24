@@ -510,6 +510,8 @@ export default function App() {
     }
   }, []);
   const [library, setLibrary] = useState<Summary[]>([]);
+  // True after the first successful project listing; until then an empty list means "not loaded".
+  const [libraryListed, setLibraryListed] = useState(false);
   const [damagedJournals, setDamagedJournals] = useState<DamagedJournal[]>([]);
   const [damagedFolders, setDamagedFolders] = useState<string[]>([]);
   const [importPreview, setImportPreview] = useState<ImportDraft | ManuscriptPreview | null>(null);
@@ -641,6 +643,7 @@ export default function App() {
       if (!projects.some((s) => s.id === p.id))
         projects.unshift({ id: p.id, title: p.title, updatedAt: p.updatedAt });
     setLibrary(projects);
+    setLibraryListed(true);
     setDamagedJournals(scan.damaged);
     setDamagedFolders(damaged);
   }, []);
@@ -2378,6 +2381,7 @@ export default function App() {
         {!project ? (
           <ProjectLibrary
             projects={library}
+            listed={libraryListed}
             templates={[
               ...writingTemplates.filter((t) => !t.hidden),
               ...customTemplates,

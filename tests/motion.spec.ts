@@ -72,7 +72,7 @@ test("(c) with Reduce Motion there are no running animations and panels change a
 test("(d) opening the Sort dropdown animates only allowed properties and marks one item highlighted without a box", async ({ page }) => {
   await openProjects(page);
   const samples = await sampleDuring(page, () => sortButton(page).click());
-  const listbox = page.getByRole("listbox", { name: "Sort projects" });
+  const listbox = page.getByRole("menu", { name: "Sort projects" });
   await expect(listbox).toBeVisible();
   const props = samples.flatMap((s) => s.props);
   expect(props.length).toBeGreaterThan(0);
@@ -84,7 +84,7 @@ test("(d) opening the Sort dropdown animates only allowed properties and marks o
   const opacities = await listbox
     .locator("[data-popover-item]")
     .evaluateAll((els) => els.map((el) => getComputedStyle(el).opacity));
-  expect(opacities.length).toBe(4); // Custom was added to the Sort list (FB2)
+  expect(opacities.length).toBe(10); // Sort by 6, Direction 2, Folders 2 (OB3 sort menu)
   expect(opacities.filter((o) => o !== "1")).toEqual([]);
 });
 
@@ -95,7 +95,7 @@ test("(e) a menu reopened mid-close reverses from its current frame without remo
     const trigger = document.querySelector<HTMLButtonElement>('button[aria-label="Sort projects"]')!;
     trigger.click();
     await wait(0);
-    const menu = document.querySelector<HTMLElement>('[role="listbox"][aria-label="Sort projects"]')!;
+    const menu = document.querySelector<HTMLElement>('[role="menu"][aria-label="Sort projects"]')!;
     menu.dataset.probe = "1";
     await wait(110);
     menu.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape", bubbles: true }));
@@ -117,14 +117,14 @@ test("(e) a menu reopened mid-close reverses from its current frame without remo
   });
   expect(result.closing).toBe("closing");
   expect(result.stillConnected).toBe(true);
-  expect(result).toMatchObject({ same: true, connected: true, role: "listbox", state: null });
+  expect(result).toMatchObject({ same: true, connected: true, role: "menu", state: null });
 });
 
 test("(f) with Reduce Motion a dropdown opens and closes at once with no animations", async ({ page }) => {
   await page.emulateMedia({ reducedMotion: "reduce" });
   await openProjects(page);
   const samples = await sampleDuring(page, () => sortButton(page).click());
-  const listbox = page.getByRole("listbox", { name: "Sort projects" });
+  const listbox = page.getByRole("menu", { name: "Sort projects" });
   await expect(listbox).toBeVisible();
   expect(await page.evaluate(() => document.querySelectorAll(".popover").length)).toBe(1);
   expect(samples.length).toBeGreaterThan(0);
@@ -137,7 +137,7 @@ test("(f) with Reduce Motion a dropdown opens and closes at once with no animati
 test("(g) the highlighted item is the active descendant and emphasised with a text stroke (never a heavier weight), inside a bordered, scrolled popover", async ({ page }) => {
   await openProjects(page);
   await sortButton(page).click();
-  const listbox = page.getByRole("listbox", { name: "Sort projects" });
+  const listbox = page.getByRole("menu", { name: "Sort projects" });
   await expect(listbox).toBeFocused();
   // Make the 3-item menu scroll so the highlighted item must follow the keys.
   await listbox.evaluate((el) => (el.style.maxHeight = "60px"));

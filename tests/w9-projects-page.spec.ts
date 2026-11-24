@@ -30,21 +30,19 @@ const colours = (page: Page) =>
     return { text: probe("--text"), muted: probe("--muted") };
   });
 
-test("the toolbar holds Start, Import writing, the search, Sort, reverse, the view toggle and the gear", async ({ page }) => {
+test("the toolbar holds Start, Import writing, the search, Sort, New folder and the gear", async ({ page }) => {
   await seed(page);
   const toolbar = page.locator(".library-toolbar");
   const names = await toolbar
     .locator("button")
     .evaluateAll((els) => els.map((el) => el.getAttribute("aria-label") ?? el.textContent!.trim()));
-  expect(names).toHaveLength(8);
+  expect(names).toHaveLength(6);
   expect(names[0]).toContain("Start new project");
   expect(names[1]).toMatch(/^Import writing/);
   expect(names[2]).toBe("Search projects");
   expect(names[3]).toBe("Sort projects");
-  expect(names[4]).toBe("Reverse project sort order");
-  expect(names[5]).toBe("New folder");
-  expect(names[6]).toBe("Show project cards");
-  expect(names[7]).toBe("Settings");
+  expect(names[4]).toBe("New folder");
+  expect(names[5]).toBe("Settings");
   await expect(page.locator(".library-caption")).toHaveCount(0);
 });
 
@@ -57,61 +55,60 @@ test("Sort sits on the same toolbar row as Start new project", async ({ page }) 
   expect(Math.abs((await centreY("Sort projects")) - (await centreY("Start new project")))).toBeLessThanOrEqual(4);
 });
 
-test("Sort, reverse and the view toggle are icon-sized toolbar buttons with no text stroke on hover", async ({ page }) => {
+test("New folder and Settings are icon-sized toolbar buttons with no text stroke on hover", async ({ page }) => {
   await seed(page);
   const toolbar = page.locator(".library-toolbar");
-  const reverse = toolbar.getByRole("button", { name: "Reverse project sort order" });
-  const view = toolbar.getByRole("button", { name: "Show project cards" });
-  await expect(reverse).toBeVisible();
-  await expect(view).toBeVisible();
+  const folder = toolbar.getByRole("button", { name: "New folder" });
+  const settings = toolbar.getByRole("button", { name: "Settings" });
+  await expect(folder).toBeVisible();
+  await expect(settings).toBeVisible();
   // The icon-only ones are outside the text hover rule: no stroke on hover.
-  for (const control of [reverse, view]) {
-    await expect(control).toHaveClass(/\bicon-button\b/);
+  for (const control of [folder, settings]) {
+    await expect(control).toHaveClass(/\b(icon-button|slot)\b/);
     await control.hover();
     const stroke = await control.evaluate((el) => (getComputedStyle(el).textShadow === "none" ? 0 : parseFloat(/(-?[\d.]+)px/.exec(getComputedStyle(el).textShadow)?.[1] ?? "0")));
     expect(stroke).toBe(0);
   }
 });
 
-test("row titles are 15 px and first; Edited is normal colour, Added is muted; cards keep the order", async ({ page }) => {
+test("row names are 13 px and first; Edited is normal colour, Added is muted; Edited comes before Added", async ({ page }) => {
   await seed(page);
   const { text, muted } = await colours(page);
-  for (const view of ["list", "cards"] as const) {
-    if (view === "cards") await page.getByRole("button", { name: "Show project cards" }).click();
-    const row = page.locator(".project-row").first();
-    const name = row.locator(".project-name");
-    const edited = row.locator(".project-dates > span").nth(0);
-    const added = row.locator(".project-dates > span").filter({ hasText: /^Added/ });
-    await expect(edited).toHaveText(/^Edited \S/);
-    await expect(added).toHaveText(/^Added \S/);
-    expect(await name.evaluate((el) => getComputedStyle(el).fontSize)).toBe("15px");
-    expect(await edited.evaluate((el) => getComputedStyle(el).color)).toBe(text);
-    expect(await added.evaluate((el) => getComputedStyle(el).color)).toBe(muted);
-    const n = (await name.boundingBox())!;
-    const e = (await edited.boundingBox())!;
-    const a = (await added.boundingBox())!;
-    // Title first: in a list it is left of the dates, in a card it is above them.
-    expect(n.x < e.x || n.y + n.height <= e.y + 1).toBe(true);
-    // Edited comes before Added in reading order.
-    expect(e.y < a.y || e.x < a.x).toBe(true);
-  }
+  const row = page.locator(".project-row").first();
+  const name = row.locator(".project-name");
+  const edited = row.locator(".col-edited");
+  const added = row.locator(".col-added");
+  await expect(edited).toHaveAttribute("aria-label", /^Edited \S/);
+  await expect(added).toHaveAttribute("aria-label", /^Added \S/);
+  expect(await name.evaluate((el) => getComputedStyle(el).fontSize)).toBe("13px");
+  expect(await edited.evaluate((el) => getComputedStyle(el).color)).toBe(text);
+  expect(await added.evaluate((el) => getComputedStyle(el).color)).toBe(muted);
+  const n = (await name.boundingBox())!;
+  const e = (await edited.boundingBox())!;
+  const a = (await added.boundingBox())!;
+  // The name is first: left of the dates. Edited comes before Added.
+  expect(n.x).toBeLessThan(e.x);
+  expect(e.x).toBeLessThan(a.x);
 });
 
-test("sort, direction and view survive a reload", async ({ page }) => {
+test("sort and direction survive a reload", async ({ page }) => {
   await seed(page);
   await page.getByRole("button", { name: "Sort projects" }).click();
-  await page.getByRole("option", { name: "Name", exact: true }).click();
+  await page.getByRole("menuitemradio", { name: "Name", exact: true }).click();
   await expect(page.locator(".project-row .project-name").first()).toHaveText("Alpha draft");
-  await page.getByRole("button", { name: "Reverse project sort order" }).click();
+  await page.getByRole("menuitemradio", { name: "Z to A" }).click();
   await expect(page.locator(".project-row .project-name").first()).toHaveText("Gamma");
-  await page.getByRole("button", { name: "Show project cards" }).click();
-  await expect(page.locator(".project-list--cards")).toBeVisible();
+  await page.keyboard.press("Escape");
   await expect
     .poll(() => page.evaluate(() => JSON.parse(localStorage.getItem("folio.workspace.library") ?? "{}")))
-    .toEqual({ sort: "name", fallbackSort: "edited", reverse: true, view: "cards" });
+    .toEqual({
+      sort: "name",
+      fallbackSort: "edited",
+      reverse: true,
+      foldersFirst: true,
+      columns: ["edited", "words", "sections", "added"],
+    });
   await page.reload();
-  await expect(page.locator(".project-list--cards")).toBeVisible();
-  await expect(page.getByRole("button", { name: "Show project list" })).toBeVisible();
   await expect(page.getByRole("button", { name: "Sort projects" })).toContainText("Name");
   await expect(page.locator(".project-row .project-name").first()).toHaveText("Gamma");
 });
@@ -119,16 +116,15 @@ test("sort, direction and view survive a reload", async ({ page }) => {
 test("bad saved library preferences fall back to the defaults", async ({ page }) => {
   await page.addInitScript(() => localStorage.setItem("folio.workspace.library", "{not json"));
   await page.goto("/");
-  await expect(page.getByRole("button", { name: "Show project cards" })).toBeVisible();
-  await expect(page.getByRole("button", { name: "Sort projects" })).toContainText("Last edited");
+  await expect(page.getByRole("button", { name: "Search projects" })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Sort projects" })).toContainText("Edited");
 });
 
-test("the page's icon buttons carry icon-grow and the arrow sits in a span", async ({ page }) => {
+test("the page's icon buttons carry icon-grow", async ({ page }) => {
   await seed(page);
-  for (const name of ["Search projects", "Reverse project sort order", "New folder", "Show project cards", "Settings"]) {
+  for (const name of ["Search projects", "New folder", "Settings"]) {
     await expect(page.getByRole("button", { name, exact: true })).toHaveClass(/\bicon-grow\b/);
   }
-  await expect(page.getByRole("button", { name: "Reverse project sort order" }).locator(":scope > span")).toHaveCount(1);
   const trash = page.locator(".project-row .delete-entry").first();
   await expect(trash).toHaveClass(/\bdelete-entry\b/);
   await expect(trash).toHaveClass(/\bicon-grow\b/);
@@ -166,22 +162,7 @@ test("an empty search keeps 'No matching projects.' and not the empty-state bloc
   await expect(page.locator(".library-empty-actions")).toHaveCount(0);
 });
 
-test("in cards view a very long title stays inside its card and clear of the trash button", async ({ page }) => {
-  await page.goto("/");
-  await createProject(page, "Short one");
-  await createProject(page, "Long title ".repeat(10).trim());
-  await page.getByRole("button", { name: "Show project cards" }).click();
-  const card = page.locator(".project-row").filter({ hasText: "Long title" });
-  await card.hover();
-  const name = (await card.locator(".project-name").boundingBox())!;
-  const box = (await card.boundingBox())!;
-  const trash = (await card.locator(".delete-entry").boundingBox())!;
-  expect(name.x + name.width).toBeLessThanOrEqual(box.x + box.width);
-  const overlapsTrash = name.x < trash.x + trash.width && name.x + name.width > trash.x && name.y < trash.y + trash.height && name.y + name.height > trash.y;
-  expect(overlapsTrash).toBe(false);
-});
-
-test("each project shows its word and section counts beside Edited and Added, in list and cards", async ({ page }) => {
+test("each project shows its word and section counts beside Edited and Added", async ({ page }) => {
   await page.goto("/");
   const id = "22222222-2222-4222-8222-222222222222";
   await page.evaluate((id) => {
@@ -210,53 +191,21 @@ test("each project shows its word and section counts beside Edited and Added, in
     );
   }, id);
   await page.reload();
-  for (const view of ["list", "cards"] as const) {
-    if (view === "cards") await page.getByRole("button", { name: "Show project cards" }).click();
-    const row = page.locator(".project-row", { hasText: "Counted project" });
-    await expect(row.locator(".project-edited")).toHaveText(/^Edited \S/);
-    await expect(row.locator(".project-added")).toHaveText(/^Added \S/);
-    await expect(row.locator(".project-words")).toHaveText("1,200 words");
-    await expect(row.locator(".project-sections")).toHaveText("3 sections");
-    const at = async (selector: string) => (await row.locator(selector).boundingBox())!;
-    const edited = await at(".project-edited");
-    const added = await at(".project-added");
-    const words = await at(".project-words");
-    const sections = await at(".project-sections");
-    if (view === "list") {
-      // Four columns; the visual order is edited, words, sections, added (the DOM order differs).
-      expect(words.x).toBeGreaterThan(edited.x);
-      expect(sections.x).toBeGreaterThan(words.x);
-      expect(added.x).toBeGreaterThan(sections.x);
-      expect(Math.abs(added.y - edited.y)).toBeLessThanOrEqual(1);
-    } else {
-      // Two columns of two lines: edited over added, words over sections.
-      expect(Math.abs(added.x - edited.x)).toBeLessThanOrEqual(1);
-      expect(added.y).toBeGreaterThan(edited.y);
-      expect(Math.abs(sections.x - words.x)).toBeLessThanOrEqual(1);
-      expect(sections.y).toBeGreaterThan(words.y);
-    }
-  }
-});
-
-test("in cards view the counts line stays inside the card and clear of the trash button", async ({ page }) => {
-  await page.goto("/");
-  await createProject(page, "Long title ".repeat(10).trim());
-  await page.getByRole("button", { name: "Show project cards" }).click();
-  const card = page.locator(".project-row").first();
-  await card.hover();
-  const box = (await card.boundingBox())!;
-  const trash = (await card.locator(".delete-entry").boundingBox())!;
-  const dates = await card.locator(".project-dates > span").evaluateAll((els) =>
-    els.map((el) => {
-      const r = el.getBoundingClientRect();
-      return { x: r.x, y: r.y, w: r.width, h: r.height };
-    }),
-  );
-  expect(dates).toHaveLength(4);
-  for (const d of dates) {
-    expect(d.x + d.w).toBeLessThanOrEqual(box.x + box.width);
-    expect(d.y + d.h).toBeLessThanOrEqual(box.y + box.height);
-    const overlaps = d.x < trash.x + trash.width && d.x + d.w > trash.x && d.y < trash.y + trash.height && d.y + d.h > trash.y;
-    expect(overlaps).toBe(false);
-  }
+  const row = page.locator(".project-row", { hasText: "Counted project" });
+  await expect(row.locator(".col-edited")).toHaveAttribute("aria-label", /^Edited \S/);
+  await expect(row.locator(".col-added")).toHaveAttribute("aria-label", /^Added \S/);
+  await expect(row.locator(".col-words")).toHaveText("1,200");
+  await expect(row.locator(".col-words")).toHaveAttribute("aria-label", "1,200 words");
+  await expect(row.locator(".col-sections")).toHaveText("3");
+  await expect(row.locator(".col-sections")).toHaveAttribute("aria-label", "3 sections");
+  const at = async (selector: string) => (await row.locator(selector).boundingBox())!;
+  const edited = await at(".col-edited");
+  const added = await at(".col-added");
+  const words = await at(".col-words");
+  const sections = await at(".col-sections");
+  // Four columns; the visual order is edited, words, sections, added, on one line.
+  expect(words.x).toBeGreaterThan(edited.x);
+  expect(sections.x).toBeGreaterThan(words.x);
+  expect(added.x).toBeGreaterThan(sections.x);
+  expect(Math.abs(added.y - edited.y)).toBeLessThanOrEqual(1);
 });

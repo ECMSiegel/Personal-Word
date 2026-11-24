@@ -186,12 +186,12 @@ test("interface and document font choices persist and added styles are shared", 
   await page.goto("/");
   await expect(page.getByRole("button", { name: "Start new project" })).toBeVisible();
   await expectUiFont(page, "Projects page");
-  // The plain Sort dropdown, open: every row must be in the interface font (no exemptions).
+  // The Sort menu, open: every row must be in the interface font (no exemptions).
   await page.getByRole("button", { name: "Sort projects" }).click();
-  await expect(page.getByRole("option", { name: "Name" })).toBeVisible();
+  await expect(page.getByRole("menuitemradio", { name: "Name" })).toBeVisible();
   await expectUiFont(page, "open Sort dropdown");
   await page.keyboard.press("Escape");
-  await expect(page.getByRole("option")).toHaveCount(0);
+  await expect(page.getByRole("menuitemradio")).toHaveCount(0);
   // the brand keeps its own face (PLAN C3 step 7): Futura while its surroundings are Georgia.
   const brandFonts = await page.evaluate(() => {
     const brand = document.querySelector(".brand")!;

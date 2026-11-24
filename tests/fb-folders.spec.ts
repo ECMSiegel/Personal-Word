@@ -2,7 +2,7 @@ import { test, expect, type Locator, type Page } from "@playwright/test";
 import { expectEvenRows } from "./layout-helpers";
 
 // FB4 (docs/agent-work/2026-11-18-folders-batch/PLAN.md): folders on the Projects page --
-// inline collapsible headings in list and card view, a New folder button, right-click
+// folder rows in the one outline list (cards were removed 2026-11-22, OB7), a New folder button, right-click
 // menus, inline rename, colours, Move to folder..., delete folder, flat search and
 // "New project here". Browser preview storage only (`folio.preview.library`).
 
@@ -24,8 +24,13 @@ async function seed(page: Page, titles = ["Alpha draft", "Beta notes", "Gamma"])
 const nameInput = (page: Page) => page.getByRole("textbox", { name: "Folder name" });
 const heading = (page: Page, name: string) =>
   page.locator("[data-folder-heading]").filter({ has: page.getByRole("button", { name, exact: true }) });
-const folder = (page: Page, name: string) =>
-  page.locator("section.library-folder").filter({ has: page.locator(":scope > [data-folder-heading]").filter({ has: page.getByRole("button", { name, exact: true }) }) });
+// The project rows that sit directly in a folder (the outline is flat: they are siblings of the
+// folder row and carry its id as data-container).
+const rowsIn = async (page: Page, name: string) => {
+  const id = await heading(page, name).getAttribute("data-folder-id");
+  return page.locator(`.project-row[data-container="${id}"]`);
+};
+const rootRows = (page: Page) => page.locator('.project-row[data-container="root"]');
 const row = (page: Page, title: string) => page.locator(".project-row").filter({ hasText: title });
 const menu = (page: Page) => page.getByRole("menu");
 const item = (page: Page, name: string) => menu(page).getByRole("menuitem", { name, exact: true });
@@ -67,66 +72,63 @@ async function subfolder(page: Page, parent: string, name: string) {
   await expect(heading(page, name)).toBeVisible();
 }
 
-test("New folder sits left of the view toggle; a new folder opens in rename mode and blur saves it", async ({ page }) => {
+test("New folder is a toolbar button with no view toggle beside it; a new folder opens in rename mode and blur saves it", async ({ page }) => {
   await seed(page);
   const names = await page
     .locator(".library-display > button")
     .evaluateAll((els) => els.map((el) => el.getAttribute("aria-label")));
-  expect(names.indexOf("New folder")).toBe(names.indexOf("Show project cards") - 1);
+  expect(names).toContain("New folder");
+  expect(names).not.toContain("Show project cards");
   await newFolder(page, "Essays");
   expect((await stored(page)).folders).toMatchObject([{ name: "Essays", parent: null }]);
   // Escape on a brand-new folder removes it.
   await page.getByRole("button", { name: "New folder", exact: true }).click();
   await expect(nameInput(page)).toBeFocused();
   await page.keyboard.press("Escape");
-  await expect(page.locator("section.library-folder")).toHaveCount(1);
+  await expect(page.locator("[data-folder-heading]")).toHaveCount(1);
   await page.reload();
   await expect(heading(page, "Essays")).toBeVisible();
   expect((await stored(page)).folders).toHaveLength(1);
 });
 
-test("a subfolder nests under its parent heading, indented one slot", async ({ page }) => {
+test("a subfolder is a row one depth under its parent, indented one slot", async ({ page }) => {
   await seed(page);
   await newFolder(page, "Essays");
   await subfolder(page, "Essays", "Drafts");
-  await expect(folder(page, "Essays").locator(".folder-body").locator(heading(page, "Drafts"))).toHaveCount(1);
+  const essaysId = await heading(page, "Essays").getAttribute("data-folder-id");
+  await expect(heading(page, "Drafts")).toHaveAttribute("data-container", essaysId!);
+  await expect(heading(page, "Drafts")).toHaveAttribute("data-depth", "1");
   const x = async (name: string) => (await heading(page, name).getByRole("button", { name, exact: true }).boundingBox())!.x;
   expect(Math.abs((await x("Drafts")) - (await x("Essays")) - 24)).toBeLessThanOrEqual(1);
-  // A top-level chevron's ink (its drawn path, not its 14 px box) starts where the project
-  // titles start (within 2 px).
-  const icon = (await heading(page, "Essays").locator(".folder-chevron svg path").boundingBox())!;
+  // A top-level folder's name starts where the project names start (within 1 px).
+  const folderName = (await heading(page, "Essays").locator(".folder-name").boundingBox())!;
   const title = (await page.locator(".project-row .project-name").first().boundingBox())!;
-  expect(Math.abs(icon.x - title.x)).toBeLessThanOrEqual(2);
+  expect(Math.abs(folderName.x - title.x)).toBeLessThanOrEqual(1);
 });
 
-test("Move to folder files a project under that heading in list and card view", async ({ page }) => {
+test("Move to folder files a project under that folder", async ({ page }) => {
   await seed(page);
   await newFolder(page, "Essays");
   await subfolder(page, "Essays", "Drafts");
   await openMenu(row(page, "Alpha draft").locator(".row-label"));
-  expect(await itemNames(page)).toEqual(["Open", "Move up", "Move down", "Move to folder…", "Delete"]);
+  expect(await itemNames(page)).toEqual(["Open", "Pin to top", "Move up", "Move down", "Move to folder…", "Delete"]);
   // Move up / Move down are disabled only at the ends (FB5): Alpha draft was made first, so it
   // is last under the default Last edited sort.
-  expect((await page.locator('[data-container="root"] > .project-row .project-name').allTextContents()).at(-1)).toBe("Alpha draft");
+  expect((await rootRows(page).locator(".project-name").allTextContents()).at(-1)).toBe("Alpha draft");
   await expect(item(page, "Move down")).toHaveAttribute("aria-disabled", "true");
   await expect(item(page, "Move up")).not.toHaveAttribute("aria-disabled", "true");
   await item(page, "Move to folder…").click();
   expect(await itemNames(page)).toEqual(["Top level", "Essays", "Essays / Drafts"]);
   await expect(item(page, "Top level")).toHaveAttribute("aria-disabled", "true");
   await item(page, "Essays / Drafts").click();
-  for (const view of ["list", "cards"] as const) {
-    if (view === "cards") await page.getByRole("button", { name: "Show project cards" }).click();
-    const drafts = folder(page, "Drafts");
-    await expect(drafts.locator(`.folder-projects.project-list--${view} .project-row`)).toHaveCount(1);
-    await expect(drafts.locator(".project-row")).toContainText("Alpha draft");
-    await expect(page.locator('[data-container="root"] > .project-row')).toHaveCount(2);
-    // Headings never sit inside a card grid.
-    await expect(page.locator(".project-list--cards section.library-folder")).toHaveCount(0);
-  }
+  const drafts = await rowsIn(page, "Drafts");
+  await expect(drafts).toHaveCount(1);
+  await expect(drafts).toContainText("Alpha draft");
+  await expect(rootRows(page)).toHaveCount(2);
   // A folder's menu offers neither itself nor its descendants.
   await openMenu(heading(page, "Essays"));
   expect(await itemNames(page)).toEqual([
-    "Collapse", "New project here", "New subfolder", "Rename", "Move up", "Move down", "Move to folder…", "Delete folder",
+    "Collapse", "Pin to top", "New project here", "New subfolder", "Rename", "Move up", "Move down", "Move to folder…", "Delete folder",
   ]);
   await item(page, "Move to folder…").click();
   expect(await itemNames(page)).toEqual(["Top level"]);
@@ -134,17 +136,16 @@ test("Move to folder files a project under that heading in list and card view", 
   await page.keyboard.press("Escape");
 });
 
-test("Move to folder works on the first mouse try when the card is partly below the fold", async ({ page }) => {
-  // Real mouse by coordinates (Playwright's locator click would scroll the card into view and
+test("Move to folder works on the first mouse try when the row is partly below the fold", async ({ page }) => {
+  // Real mouse by coordinates (Playwright's locator click would scroll the row into view and
   // hide the defect): restoring focus after the first menu closes must not scroll the list,
   // because any scroll closes the destination menu.
   await page.setViewportSize({ width: 1280, height: 560 });
   await seed(page);
   await newFolder(page, "Essays");
-  await page.getByRole("button", { name: "Show project cards" }).click();
   const box = async (l: Locator) => (await l.boundingBox())!;
   const lib = page.locator("main.library");
-  // Size the window so the last card's bottom edge is cut off by the scroller.
+  // Size the window so the row's bottom edge is cut off by the scroller.
   const gamma = row(page, "Gamma");
   const shortBy = async () => (await box(gamma)).y + (await box(gamma)).height - (await box(lib)).y - (await box(lib)).height;
   const h = page.viewportSize()!.height;
@@ -161,7 +162,7 @@ test("Move to folder works on the first mouse try when the card is partly below 
   const dest = await box(item(page, "Essays"));
   await page.mouse.click(dest.x + 10, dest.y + dest.height / 2);
   await expect(menu(page)).toHaveCount(0);
-  await expect(folder(page, "Essays").locator(".project-row")).toContainText("Gamma");
+  await expect(await rowsIn(page, "Essays")).toContainText("Gamma");
 });
 
 test("collapse hides a folder's rows and survives a reload; rename from the menu", async ({ page }) => {
@@ -206,8 +207,8 @@ test("deleting a folder moves its project up and the project still opens", async
   await openMenu(heading(page, "Essays"));
   await expect(item(page, "Delete folder")).toHaveAttribute("data-danger", "");
   await item(page, "Delete folder").click();
-  await expect(page.locator("section.library-folder")).toHaveCount(0);
-  await expect(page.locator('[data-container="root"] > .project-row')).toHaveCount(3);
+  await expect(page.locator("[data-folder-heading]")).toHaveCount(0);
+  await expect(rootRows(page)).toHaveCount(3);
   expect(await stored(page)).toMatchObject({ folders: [], placement: {} });
   await row(page, "Alpha draft").locator(".row-label").click();
   await expect(page.getByRole("textbox", { name: "Writing editor" })).toBeVisible();
@@ -281,8 +282,8 @@ test("New project here lands the new project in that folder", async ({ page }) =
   await page.getByRole("button", { name: "Save", exact: true }).click();
   await expect(page.getByRole("textbox", { name: "Writing editor" })).toBeVisible();
   await page.getByRole("button", { name: "Projects", exact: true }).click();
-  await expect(folder(page, "Essays").locator(".project-row")).toContainText("Filed project");
-  await expect(page.locator('[data-container="root"] > .project-row')).toHaveCount(1);
+  await expect(await rowsIn(page, "Essays")).toContainText("Filed project");
+  await expect(rootRows(page)).toHaveCount(1);
 });
 
 test("keyboard: the menu key on a focused folder heading opens the menu; arrows move; Escape returns focus", async ({ page }) => {
@@ -294,7 +295,7 @@ test("keyboard: the menu key on a focused folder heading opens the menu; arrows 
   await expect(menu(page)).toBeVisible();
   await expect(menu(page).locator("[data-highlighted]")).toHaveText("Collapse");
   await page.keyboard.press("ArrowDown");
-  await expect(menu(page).locator("[data-highlighted]")).toHaveText("New project here");
+  await expect(menu(page).locator("[data-highlighted]")).toHaveText("Pin to top");
   await page.keyboard.press("Escape");
   await expect(menu(page)).toHaveCount(0);
   await expect(chevron).toBeFocused();
@@ -312,7 +313,7 @@ test("a library file that cannot be read is never written over", async ({ page }
   await page.addInitScript(() => localStorage.setItem("folio.preview.library", "{not json"));
   await seed(page, ["Alpha draft"]);
   await expect(page.getByRole("alert")).toContainText("Folders could not be loaded.");
-  await expect(page.locator('[data-container="root"] > .project-row')).toHaveCount(1);
+  await expect(rootRows(page)).toHaveCount(1);
   await expect(page.getByRole("button", { name: "New folder", exact: true })).toBeDisabled();
   expect(await page.evaluate(() => localStorage.getItem("folio.preview.library"))).toBe("{not json");
 });
@@ -326,65 +327,41 @@ test("a library of an unknown version is a read error and is never written over"
   expect(await page.evaluate(() => localStorage.getItem("folio.preview.library"))).toBe(saved);
 });
 
-// FB5 follow-up (coordinator): a folder's contents sit visibly under it. Each folder body is
-// indented one slot, so its projects line up with its subfolders' headings and top-level
-// projects line up with top-level headings, in list and card view.
-test("a folder's projects and subfolders are indented one slot under its heading", async ({ page }) => {
+// FB5 follow-up (coordinator): a folder's contents sit visibly under it. In the outline each
+// level starts one slot (24 px) further in, and names at one level share one left edge.
+test("a folder's projects and subfolders are indented one slot under its row", async ({ page }) => {
   await seed(page, ["Alpha draft", "Beta notes", "Gamma"]);
   await newFolder(page, "Essays");
   await subfolder(page, "Essays", "Drafts");
   await moveTo(page, "Alpha draft", "Essays");
   await moveTo(page, "Beta notes", "Essays / Drafts");
   const left = async (l: Locator) => (await l.boundingBox())!.x;
-  for (const view of ["list", "cards"] as const) {
-    if (view === "cards") await page.getByRole("button", { name: "Show project cards" }).click();
-    const top = await left(row(page, "Gamma"));
-    const inEssays = await left(row(page, "Alpha draft"));
-    const inDrafts = await left(row(page, "Beta notes"));
-    expect(inEssays, `${view}: a project in a folder starts right of a top-level project`).toBeGreaterThan(top + 20);
-    expect(Math.abs(inDrafts - inEssays - 24), `${view}: one more slot per level`).toBeLessThanOrEqual(1);
-    expect(Math.abs(top - (await left(heading(page, "Essays")))), `${view}: top-level edge`).toBeLessThanOrEqual(0.5);
-    expect(Math.abs(inEssays - (await left(heading(page, "Drafts")))), `${view}: Essays' projects line up with its subfolder heading`).toBeLessThanOrEqual(0.5);
-  }
-  // List: the subfolder's chevron ink sits where its parent folder's project titles start.
-  await page.getByRole("button", { name: "Show project list" }).click();
-  const icon = (await heading(page, "Drafts").locator(".folder-chevron svg path").boundingBox())!;
-  const title = (await row(page, "Alpha draft").locator(".project-name").boundingBox())!;
-  expect(Math.abs(icon.x - title.x)).toBeLessThanOrEqual(2);
+  const top = await left(row(page, "Gamma").locator(".project-name"));
+  const inEssays = await left(row(page, "Alpha draft").locator(".project-name"));
+  const inDrafts = await left(row(page, "Beta notes").locator(".project-name"));
+  expect(Math.abs(inEssays - top - 24), "a project in a folder starts one slot right of a top-level project").toBeLessThanOrEqual(1);
+  expect(Math.abs(inDrafts - inEssays - 24), "one more slot per level").toBeLessThanOrEqual(1);
+  expect(Math.abs(top - (await left(heading(page, "Essays").locator(".folder-name")))), "top-level edge").toBeLessThanOrEqual(0.5);
+  expect(Math.abs(inEssays - (await left(heading(page, "Drafts").locator(".folder-name")))), "Essays' projects line up with its subfolder's name").toBeLessThanOrEqual(0.5);
 });
 
-// FB5 follow-up: list rows keep one rhythm inside folders -- the same height, and every
-// container's last row closes with a rule like the rule above it.
-test("list rows inside folders are even and each container closes with a rule", async ({ page }) => {
+// FB5 follow-up: rows keep one rhythm inside folders -- the same height at every depth, one rule
+// above each row, and one closing rule under the last row of the list.
+test("rows inside folders are even and the list closes with a rule", async ({ page }) => {
   await seed(page, ["Alpha draft", "Beta notes", "Gamma", "Delta", "Epsilon"]);
   await newFolder(page, "Essays");
   await moveTo(page, "Alpha draft", "Essays");
   await moveTo(page, "Beta notes", "Essays");
-  await expectEvenRows(folder(page, "Essays").locator(".project-row"));
-  await expectEvenRows(page.locator('[data-container="root"] > .project-row'));
-  const heights = await page.locator(".project-row").evaluateAll((els) => els.map((el) => el.getBoundingClientRect().height));
+  await expectEvenRows(page.locator(".outline-row"));
+  const heights = await page.locator(".outline-row").evaluateAll((els) => els.map((el) => el.getBoundingClientRect().height));
   expect(Math.max(...heights) - Math.min(...heights), `row heights ${heights.join(", ")}`).toBeLessThanOrEqual(0.5);
-  const containers = await page.locator(".folder-projects.project-list--list").evaluateAll((els) =>
-    els.map((c) => {
-      const last = c.lastElementChild as HTMLElement;
-      // The closing rule: a 1 px line drawn at the last row's bottom edge, by the container or the row.
-      const rule = [c as HTMLElement, last].find((el) => getComputedStyle(el).borderBottomStyle !== "none" && parseFloat(getComputedStyle(el).borderBottomWidth) >= 1);
-      const top = parseFloat(getComputedStyle(last).borderTopWidth);
-      return {
-        id: c.getAttribute("data-container"),
-        rule: rule ? parseFloat(getComputedStyle(rule).borderBottomWidth) : 0,
-        top,
-        gap: rule ? rule.getBoundingClientRect().bottom - last.getBoundingClientRect().bottom : null,
-      };
-    }));
-  expect(containers).toHaveLength(2);
-  for (const c of containers) {
-    expect(c.rule, `${c.id}: closing rule`).toBe(c.top);
-    expect(Math.abs(c.gap! - c.rule), `${c.id}: rule sits on the last row's bottom edge`).toBeLessThanOrEqual(1);
-  }
+  const tops = await page.locator(".outline-row").evaluateAll((els) => els.map((el) => parseFloat(getComputedStyle(el).borderTopWidth)));
+  expect(tops.every((t) => t === 1), `row top rules ${tops.join(", ")}`).toBe(true);
+  const closing = await page.locator(".outline-body").evaluate((el) => parseFloat(getComputedStyle(el).borderBottomWidth));
+  expect(closing, "closing rule under the last row").toBe(1);
 });
 
-// Screenshots for review (FB4 step 5): FB4_SHOTS=1 saves light and dark, list and cards.
+// Screenshots for review (FB4 step 5): FB4_SHOTS=1 saves light and dark.
 test("screenshots: two folders, a subfolder and projects inside", async ({ page }) => {
   test.skip(!process.env.FB4_SHOTS, "set FB4_SHOTS=1 to save the review screenshots");
   await page.setViewportSize({ width: 1100, height: 900 });
@@ -401,11 +378,7 @@ test("screenshots: two folders, a subfolder and projects inside", async ({ page 
   await menu(page).getByRole("menuitemradio", { name: "Purple" }).click();
   for (const scheme of ["light", "dark"] as const) {
     await page.emulateMedia({ colorScheme: scheme });
-    for (const view of ["list", "cards"] as const) {
-      const toggle = page.getByRole("button", { name: view === "list" ? "Show project list" : "Show project cards" });
-      if (await toggle.count()) await toggle.click();
-      await page.mouse.move(0, 0);
-      await page.screenshot({ path: `${process.env.FB_SHOTS_DIR ?? "test-results/fb-FB4"}/projects-folders-${view}-${scheme}.png`, fullPage: true });
-    }
+    await page.mouse.move(0, 0);
+    await page.screenshot({ path: `${process.env.FB_SHOTS_DIR ?? "test-results/fb-FB4"}/projects-folders-list-${scheme}.png`, fullPage: true });
   }
 });

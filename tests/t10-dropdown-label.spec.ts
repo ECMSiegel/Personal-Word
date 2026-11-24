@@ -25,18 +25,23 @@ async function mousePick(page: Page, trigger: ReturnType<Page["getByRole"]>, ind
   await expect(trigger).toHaveAttribute("aria-expanded", "false");
 }
 
-test("Projects-page Sort stays closed after a mouse pick", async ({ page }) => {
+// OB4: the Projects-page Sort is the sort menu (Sort by / Direction / Folders), which stays open
+// after a pick on purpose and closes with Escape; the pick must still show on the trigger.
+test("Projects-page Sort shows the pick, stays open, and closes with Escape", async ({ page }) => {
   await newProject(page, "T10 sort");
   await page.getByRole("button", { name: "Projects", exact: true }).click();
   await expect(page.locator(".library")).toBeVisible();
   const sort = page.getByRole("button", { name: "Sort projects" });
-  const before = (await sort.innerText()).trim();
   await sort.click();
-  await expect(page.getByRole("option").first()).toBeVisible();
-  const texts = await page.getByRole("option").allInnerTexts();
+  const menu = page.getByRole("menu", { name: "Sort projects" });
+  await expect(menu).toBeVisible();
+  await page.waitForTimeout(400); // reveal animation
+  await menu.getByRole("menuitemradio", { name: "Words", exact: true }).click();
+  await expect(sort).toContainText("Words");
+  await expect(menu).toBeVisible();
   await page.keyboard.press("Escape");
-  const pick = texts.findIndex((t) => t.trim() !== before);
-  await mousePick(page, sort, pick);
+  await expect(menu).toHaveCount(0);
+  await expect(sort).toHaveAttribute("aria-expanded", "false");
 });
 
 test("Read manuscript Font stays closed after a mouse pick", async ({ page }) => {

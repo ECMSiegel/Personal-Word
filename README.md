@@ -66,7 +66,7 @@ I wanted writing software built for writing. Docs excels in collaborative enviro
 
 ![The Projects screen listing three projects](docs/evidence/readme/projects-light.png)
 
-Separate writing projects live together on one screen, searchable and sortable, as a list or as cards.
+Separate writing projects live together on one screen, searchable and sortable, as one outline list with folders, sortable columns and up to three pinned items.
 
 ## Quick start
 

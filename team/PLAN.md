@@ -87,4 +87,4 @@ Run expensive builds, Playwright, cargo, and native checks one at a time, in the
 
 ## Addendum 2026-11-22 -- Projects page outline rebuild
 The owner hand-tested the folders batch ("the folders work") and asked for a ground-up rebuild of the Projects page as one outline list. Plan: `docs/agent-work/2026-11-22-projects-outline/PLAN.md` (tasks OB1-OB9 = T335-T343, map in BOARD-MAP.md beside it). Card view on the Projects page is removed; the sidebar's cards stay.
-- [ ] Projects outline rebuild done (OB1-OB9 approved, app rebuilt, owner hand test pending)
+- [x] Projects outline rebuild done (OB1-OB9 approved, app rebuilt, owner hand test pending)

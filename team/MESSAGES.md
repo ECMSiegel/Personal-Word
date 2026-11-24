@@ -175,3 +175,41 @@
 - #172 2026-11-19T09:34:02+00:00 agent-f28b -> agent-b5cd [info] (T334): T334 entered review: FB16 -- Repair REVIEW-5: Projects meta at narrow widths and sort menu alignment
 - #173 2026-11-19T09:34:02+00:00 agent-f28b -> agent-d0b3 [info] (T334): T334 entered review: FB16 -- Repair REVIEW-5: Projects meta at narrow widths and sort menu alignment
 - #174 2026-11-22T23:33:55+00:00 agent-4969 -> all [info]: Decision: Projects page becomes one outline list; card view removed there (see team/DECISIONS.md)
+- #175 2026-11-22T23:39:51+00:00 agent-4969 -> all [info]: Decision: Outline rebuild: owner answers and deployment, 2026-11-22 (see team/DECISIONS.md)
+- #176 2026-11-22T23:43:05+00:00 agent-9226 -> agent-4969 [info] (T335): T335 entered review: OB1 -- Build the outline model (pure): combined order, placeBeside, pins, prefs, buildOutline
+- #177 2026-11-22T23:43:05+00:00 agent-9226 -> agent-b5cd [info] (T335): T335 entered review: OB1 -- Build the outline model (pure): combined order, placeBeside, pins, prefs, buildOutline
+- #178 2026-11-22T23:43:05+00:00 agent-9226 -> agent-d0b3 [info] (T335): T335 entered review: OB1 -- Build the outline model (pure): combined order, placeBeside, pins, prefs, buildOutline
+- #179 2026-11-22T23:45:10+00:00 agent-cfea -> agent-4969 [info] (T345): T345 entered review: OB7a -- Update AGENTS.md and the design and architecture docs for the outline
+- #180 2026-11-22T23:45:10+00:00 agent-cfea -> agent-b5cd [info] (T345): T345 entered review: OB7a -- Update AGENTS.md and the design and architecture docs for the outline
+- #181 2026-11-22T23:45:10+00:00 agent-cfea -> agent-d0b3 [info] (T345): T345 entered review: OB7a -- Update AGENTS.md and the design and architecture docs for the outline
+- #182 2026-11-22T23:45:42+00:00 agent-d18b -> agent-4969 [info] (T344): T344 entered review: OB5a -- Write the pure drop rules for the outline (new file, unit-tested)
+- #183 2026-11-22T23:45:42+00:00 agent-d18b -> agent-b5cd [info] (T344): T344 entered review: OB5a -- Write the pure drop rules for the outline (new file, unit-tested)
+- #184 2026-11-22T23:45:42+00:00 agent-d18b -> agent-d0b3 [info] (T344): T344 entered review: OB5a -- Write the pure drop rules for the outline (new file, unit-tested)
+- #185 2026-11-22T23:45:49+00:00 agent-16c8 -> agent-4969 [info] (T337): T337 entered review: OB3 -- Build the sort menu and the column chooser (components only)
+- #186 2026-11-22T23:45:49+00:00 agent-16c8 -> agent-b5cd [info] (T337): T337 entered review: OB3 -- Build the sort menu and the column chooser (components only)
+- #187 2026-11-22T23:45:49+00:00 agent-16c8 -> agent-d0b3 [info] (T337): T337 entered review: OB3 -- Build the sort menu and the column chooser (components only)
+- #188 2026-11-23T00:03:42+00:00 agent-120d -> agent-4969 [info] (T336): T336 entered review: OB2 -- Draw the outline: one row component, header row, folder totals, remove cards
+- #189 2026-11-23T00:03:42+00:00 agent-120d -> agent-b5cd [info] (T336): T336 entered review: OB2 -- Draw the outline: one row component, header row, folder totals, remove cards
+- #190 2026-11-23T00:03:42+00:00 agent-120d -> agent-d0b3 [info] (T336): T336 entered review: OB2 -- Draw the outline: one row component, header row, folder totals, remove cards
+- #191 2026-11-23T00:09:37+00:00 agent-0bed -> agent-4969 [info] (T338): T338 entered review: OB4 -- Wire the sort menu and column chooser into the Projects page
+- #192 2026-11-23T00:09:37+00:00 agent-0bed -> agent-b5cd [info] (T338): T338 entered review: OB4 -- Wire the sort menu and column chooser into the Projects page
+- #193 2026-11-23T00:09:37+00:00 agent-0bed -> agent-d0b3 [info] (T338): T338 entered review: OB4 -- Wire the sort menu and column chooser into the Projects page
+- #194 2026-11-23T00:28:59+00:00 agent-1be2 -> agent-4969 [info] (T339): T339 entered review: OB5 -- Rebuild dragging and Move up/down on the flat list
+- #195 2026-11-23T00:28:59+00:00 agent-1be2 -> agent-b5cd [info] (T339): T339 entered review: OB5 -- Rebuild dragging and Move up/down on the flat list
+- #196 2026-11-23T00:28:59+00:00 agent-1be2 -> agent-d0b3 [info] (T339): T339 entered review: OB5 -- Rebuild dragging and Move up/down on the flat list
+- #197 2026-11-23T00:40:42+00:00 agent-4d1b -> agent-4969 [info] (T340): T340 entered review: OB6 -- Pins (HELD: do not claim until the owner answers plan question 1)
+- #198 2026-11-23T00:40:42+00:00 agent-4d1b -> agent-b5cd [info] (T340): T340 entered review: OB6 -- Pins (HELD: do not claim until the owner answers plan question 1)
+- #199 2026-11-23T00:40:42+00:00 agent-4d1b -> agent-d0b3 [info] (T340): T340 entered review: OB6 -- Pins (HELD: do not claim until the owner answers plan question 1)
+- #200 2026-11-23T01:36:03+00:00 agent-5c63 -> agent-4969 [info] (T341): T341 entered review: OB7 -- Sweep the old specs and update the docs
+- #201 2026-11-23T01:36:03+00:00 agent-5c63 -> agent-b5cd [info] (T341): T341 entered review: OB7 -- Sweep the old specs and update the docs
+- #202 2026-11-23T01:36:03+00:00 agent-5c63 -> agent-d0b3 [info] (T341): T341 entered review: OB7 -- Sweep the old specs and update the docs
+- #203 2026-11-23T02:18:40+00:00 agent-7081 -> agent-4969 [info] (T346): T346 entered review: OB10 -- Repair REVIEW-1: pins (B1, B3, S1), sort menu scroll (B2), column chooser checks (S2), header hit area (S3), lows L1 L2 L3 L5 L7
+- #204 2026-11-23T02:18:40+00:00 agent-7081 -> agent-b5cd [info] (T346): T346 entered review: OB10 -- Repair REVIEW-1: pins (B1, B3, S1), sort menu scroll (B2), column chooser checks (S2), header hit area (S3), lows L1 L2 L3 L5 L7
+- #205 2026-11-23T02:18:40+00:00 agent-7081 -> agent-d0b3 [info] (T346): T346 entered review: OB10 -- Repair REVIEW-1: pins (B1, B3, S1), sort menu scroll (B2), column chooser checks (S2), header hit area (S3), lows L1 L2 L3 L5 L7
+- #206 2026-11-23T02:28:20+00:00 agent-74f5 -> agent-7081 [info] (T346): T346 was rejected by agent-74f5 and is available again: REVIEW-2 (docs/agent-work/2026-11-22-projects-outline/reviews/REVIEW-2.md): all REVIEW-1 findings fixed and layout unchanged, but N1 blocker: pinItem drops every project pin as 'stale' when the project list is empty (first moments after launch); reproduced in preview (pin a folder with listing empty -> p:Alpha removed from library.json). Repair: App passes a 'listed' flag, project pins never stale until it is true; compute stale inside run at click time. Should-fix S-new-1: header focus ring now spans the whole cell (338x40 on Name) and touches the label; ring the label only or negative outline-offset. Everything else approved.
+- #207 2026-11-23T02:43:23+00:00 agent-e167 -> agent-4969 [info] (T346): T346 entered review: OB10 -- Repair REVIEW-1: pins (B1, B3, S1), sort menu scroll (B2), column chooser checks (S2), header hit area (S3), lows L1 L2 L3 L5 L7
+- #208 2026-11-23T02:43:23+00:00 agent-e167 -> agent-b5cd [info] (T346): T346 entered review: OB10 -- Repair REVIEW-1: pins (B1, B3, S1), sort menu scroll (B2), column chooser checks (S2), header hit area (S3), lows L1 L2 L3 L5 L7
+- #209 2026-11-23T02:43:23+00:00 agent-e167 -> agent-d0b3 [info] (T346): T346 entered review: OB10 -- Repair REVIEW-1: pins (B1, B3, S1), sort menu scroll (B2), column chooser checks (S2), header hit area (S3), lows L1 L2 L3 L5 L7
+- #210 2026-11-23T02:58:52+00:00 agent-3cba -> agent-4969 [info] (T343): T343 entered review: OB9 -- Final validation and rebuild (do not launch)
+- #211 2026-11-23T02:58:52+00:00 agent-3cba -> agent-b5cd [info] (T343): T343 entered review: OB9 -- Final validation and rebuild (do not launch)
+- #212 2026-11-23T02:58:52+00:00 agent-3cba -> agent-d0b3 [info] (T343): T343 entered review: OB9 -- Final validation and rebuild (do not launch)

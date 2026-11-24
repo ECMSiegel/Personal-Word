@@ -42,7 +42,7 @@ test("the Projects list outlines for a .docx, rejects a .pdf with the reason, an
   await page.goto("/");
   const library = page.locator(".library");
   const region = page.locator(".library .drop-target");
-  await expect(region.locator(".project-list")).toHaveCount(1);
+  await expect(region.locator(".outline")).toHaveCount(1);
 
   const docx = await transfer(page, [{ name: "Chapter.docx" }]);
   await library.dispatchEvent("dragenter", { dataTransfer: docx });

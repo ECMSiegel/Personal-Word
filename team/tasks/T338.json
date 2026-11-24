@@ -2,7 +2,7 @@
   "id": "T338",
   "title": "OB4 -- Wire the sort menu and column chooser into the Projects page",
   "description": "Sonnet. Follow task OB4 in docs/agent-work/2026-11-22-projects-outline/PLAN.md exactly.",
-  "status": "available",
+  "status": "done",
   "owner": null,
   "priority": 2,
   "depends_on": [
@@ -18,16 +18,45 @@
   "review_required": true,
   "created_by": "agent-4969",
   "created_at": "2026-11-22T23:33:38+00:00",
-  "claimed_at": null,
-  "updated_at": "2026-11-22T23:33:38+00:00",
+  "claimed_at": "2026-11-23T00:04:32+00:00",
+  "updated_at": "2026-11-23T00:10:11+00:00",
   "handoff": null,
-  "review": null,
+  "review": {
+    "by": "agent-4969",
+    "at": "2026-11-23T00:10:11+00:00",
+    "verdict": "approved",
+    "note": "Coordinator: looked at the dark sort-menu screenshot -- three groups, one check each, inside the window. OB8 reviews the rest."
+  },
   "log": [
     {
       "at": "2026-11-22T23:33:38+00:00",
       "agent": "agent-4969",
       "event": "created",
       "note": ""
+    },
+    {
+      "at": "2026-11-23T00:04:32+00:00",
+      "agent": "agent-0bed",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-11-23T00:04:32+00:00",
+      "agent": "agent-0bed",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-11-23T00:09:37+00:00",
+      "agent": "agent-0bed",
+      "event": "review requested",
+      "note": "OB4: SortMenu + column chooser wired; 3 specs 13 pass; notes/OB4.md"
+    },
+    {
+      "at": "2026-11-23T00:10:11+00:00",
+      "agent": "agent-4969",
+      "event": "approved",
+      "note": "Coordinator: looked at the dark sort-menu screenshot -- three groups, one check each, inside the window. OB8 reviews the rest."
     }
   ]
 }

@@ -2,7 +2,7 @@
   "id": "T335",
   "title": "OB1 -- Build the outline model (pure): combined order, placeBeside, pins, prefs, buildOutline",
   "description": "Sonnet. Follow task OB1 in docs/agent-work/2026-11-22-projects-outline/PLAN.md exactly, including the Decisions section. Unit tests fail first. No UI.",
-  "status": "available",
+  "status": "done",
   "owner": null,
   "priority": 1,
   "depends_on": [],
@@ -17,16 +17,45 @@
   "review_required": true,
   "created_by": "agent-4969",
   "created_at": "2026-11-22T23:33:20+00:00",
-  "claimed_at": null,
-  "updated_at": "2026-11-22T23:33:20+00:00",
+  "claimed_at": "2026-11-22T23:40:09+00:00",
+  "updated_at": "2026-11-22T23:43:24+00:00",
   "handoff": null,
-  "review": null,
+  "review": {
+    "by": "agent-4969",
+    "at": "2026-11-22T23:43:24+00:00",
+    "verdict": "approved",
+    "note": "Coordinator: ran the unit tests (pass); owner rules A and B, old-shape fixture and pin round-trip are covered. Logic gets a second look in OB8."
+  },
   "log": [
     {
       "at": "2026-11-22T23:33:20+00:00",
       "agent": "agent-4969",
       "event": "created",
       "note": ""
+    },
+    {
+      "at": "2026-11-22T23:40:09+00:00",
+      "agent": "agent-9226",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-11-22T23:40:09+00:00",
+      "agent": "agent-9226",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-11-22T23:43:05+00:00",
+      "agent": "agent-9226",
+      "event": "review requested",
+      "note": "OB1 done: ItemKey/placeBeside/pins in folders.ts, prefs (sorts, columns, foldersFirst, no view), outline.ts buildOutline+siblings. vitest 4 files 58 tests pass; tsc errors only ProjectLibrary.tsx 112 and 759 (view). Notes in notes/OB1.md"
+    },
+    {
+      "at": "2026-11-22T23:43:24+00:00",
+      "agent": "agent-4969",
+      "event": "approved",
+      "note": "Coordinator: ran the unit tests (pass); owner rules A and B, old-shape fixture and pin round-trip are covered. Logic gets a second look in OB8."
     }
   ]
 }

@@ -1,12 +1,14 @@
 import { test, expect, type Locator, type Page } from "@playwright/test";
 
-// FB5 (docs/agent-work/2026-11-18-folders-batch/PLAN.md): custom order on the Projects page.
-// Any hand reorder -- Move up/down, Option+Up/Down or dragging -- switches the sort to Custom
-// and saves the order that was on screen with the move applied; a project dropped on a folder
-// heading is filed there; reordering is off while searching. Browser preview storage only.
+// FB5 (docs/agent-work/2026-11-18-folders-batch/PLAN.md), rewritten for the outline by OB5
+// (docs/agent-work/2026-11-22-projects-outline/PLAN.md, Decisions 4 and 10): any hand reorder --
+// Move up/down, Option+Up/Down or dragging -- moves that one row inside its container's saved
+// order (with none, the order on screen) and switches the sort to Custom; a project dropped on a
+// folder row is filed first there; reordering is off while searching. The card cases are gone
+// with the card view. Browser preview storage only.
 
 // Created oldest first: Delta, Bravo, Alpha, Charlie. So Added (newest first) is Charlie, Alpha,
-// Bravo, Delta; Name is Alpha, Bravo, Charlie, Delta; Last edited is Delta, Alpha, Charlie, Bravo.
+// Bravo, Delta; Name is Alpha, Bravo, Charlie, Delta; Edited is Delta, Alpha, Charlie, Bravo.
 const seeds = [
   { id: "dddd4444-4444-4444-8444-444444444444", title: "Delta", createdAt: "2026-01-01T00:00:00.000Z", updatedAt: "2026-04-01T00:00:00.000Z" },
   { id: "bbbb2222-2222-4222-8222-222222222222", title: "Bravo", createdAt: "2026-02-01T00:00:00.000Z", updatedAt: "2026-01-01T00:00:00.000Z" },
@@ -27,23 +29,25 @@ async function seed(page: Page) {
   await expect(page.locator(".project-row")).toHaveCount(4);
 }
 
-const SHOTS = process.env.FB_SHOTS_DIR ?? "test-results/fb-FB5";
 const titles = (page: Page, container = "root") =>
-  page.locator(`[data-container="${container}"] > .project-row .project-name`).allInnerTexts();
+  page.locator(`.project-row[data-container="${container}"] .project-name`).allInnerTexts();
 const row = (page: Page, title: string) => page.locator(".project-row").filter({ hasText: title });
 const sortButton = (page: Page) => page.getByRole("button", { name: "Sort projects" });
 const heading = (page: Page, name: string) =>
-  page.locator("[data-folder-heading]").filter({ has: page.getByRole("button", { name, exact: true }) });
+  page.locator(".folder-row").filter({ has: page.getByRole("button", { name, exact: true }) });
 const menu = (page: Page) => page.getByRole("menu");
 const item = (page: Page, name: string) => menu(page).getByRole("menuitem", { name, exact: true });
 const stored = (page: Page) =>
   page.evaluate(() => JSON.parse(localStorage.getItem("folio.preview.library") ?? "null"));
 
-async function sortBy(page: Page, label: "Name" | "Added" | "Last edited" | "Custom") {
+async function sortBy(page: Page, label: "Name" | "Added" | "Edited" | "Custom") {
   await sortButton(page).click();
-  await expect(page.getByRole("option").first()).toBeVisible();
+  const sortMenu = page.getByRole("menu", { name: "Sort projects" });
+  await expect(sortMenu).toBeVisible();
   await page.waitForTimeout(400); // reveal animation
-  await page.getByRole("option", { name: label, exact: true }).click();
+  await sortMenu.getByRole("menuitemradio", { name: label, exact: true }).click();
+  await page.keyboard.press("Escape");
+  await expect(sortMenu).toBeHidden();
   await expect(sortButton(page)).toContainText(label);
 }
 
@@ -55,14 +59,15 @@ async function newFolder(page: Page, name: string) {
   await expect(heading(page, name)).toBeVisible();
 }
 
-type Spot = "top" | "bottom" | "left" | "right" | "middle";
+type Spot = "top" | "bottom" | "middle";
 /** A real pointer drag: press in `from`, pass the 4 px threshold, move to `spot` of `to`, then
  *  `during` (screenshots, mid-drag checks) and release unless `release` is false. */
 async function drag(page: Page, from: Locator, to: Locator, spot: Spot, during?: () => Promise<void>) {
   const a = (await from.boundingBox())!;
   const b = (await to.boundingBox())!;
-  const x = { left: b.x + b.width * 0.2, right: b.x + b.width * 0.8 }[spot as "left"] ?? b.x + b.width / 2;
-  const y = { top: b.y + b.height * 0.25, bottom: b.y + b.height * 0.75 }[spot as "top"] ?? b.y + b.height / 2;
+  const x = b.x + b.width / 2;
+  // Top and bottom sixth: before / after on a project (halves) and on a folder (thirds).
+  const y = { top: b.y + b.height * 0.15, bottom: b.y + b.height * 0.85 }[spot as "top"] ?? b.y + b.height / 2;
   await page.mouse.move(a.x + a.width / 3, a.y + a.height / 2);
   await page.mouse.down();
   await page.mouse.move(a.x + a.width / 3 + 6, a.y + a.height / 2 + 6, { steps: 2 });
@@ -117,13 +122,14 @@ test("(d) Move down from the menu switches to Custom; Move up is disabled at the
   await item(page, "Move down").click();
   await expect(sortButton(page)).toContainText("Custom");
   expect(await titles(page)).toEqual(["Bravo", "Alpha", "Charlie", "Delta"]);
-  expect((await stored(page)).order.root).toEqual(["bbbb2222-2222-4222-8222-222222222222", "aaaa1111-1111-4111-8111-111111111111", "cccc3333-3333-4333-8333-333333333333", "dddd4444-4444-4444-8444-444444444444"]);
+  // No saved order before (rule B): the order on screen, with the move, is saved as items.
+  expect((await stored(page)).order["items:root"]).toEqual(["p:bbbb2222-2222-4222-8222-222222222222", "p:aaaa1111-1111-4111-8111-111111111111", "p:cccc3333-3333-4333-8333-333333333333", "p:dddd4444-4444-4444-8444-444444444444"]);
   await row(page, "Delta").locator(".row-label").click({ button: "right" });
   await expect(item(page, "Move down")).toHaveAttribute("aria-disabled", "true");
   await page.keyboard.press("Escape");
 });
 
-test("(e) dragging a project onto a folder heading files it; dropping on a row in another folder places it there", async ({ page }) => {
+test("(e) dragging a project onto a folder row files it; dropping on a row in another folder places it there", async ({ page }) => {
   await seed(page);
   await sortBy(page, "Name");
   await newFolder(page, "Essays");
@@ -153,28 +159,9 @@ test("(e) dragging a project onto a folder heading files it; dropping on a row i
   expect(await titles(page, essays!)).toEqual(["Delta", "Alpha"]);
   expect(await titles(page)).toEqual(["Bravo", "Charlie"]);
   expect((await stored(page)).placement).toMatchObject({ "dddd4444-4444-4444-8444-444444444444": essays });
-  // Dropped onto the heading, a project is filed first, like "Move to folder…".
+  // Dropped onto the folder row, a project is filed first in it.
   await drag(page, row(page, "Bravo"), heading(page, "Essays"), "middle");
   expect(await titles(page, essays!)).toEqual(["Bravo", "Delta", "Alpha"]);
-});
-
-test("(f) in cards view a drag reorders by the card's horizontal middle", async ({ page }) => {
-  await seed(page);
-  await sortBy(page, "Added");
-  await page.getByRole("button", { name: "Show project cards" }).click();
-  await expect(page.locator(".project-list--cards .project-row")).toHaveCount(4);
-  await drag(page, row(page, "Charlie"), row(page, "Alpha"), "right", async () => {
-    await expect(row(page, "Alpha")).toHaveAttribute("data-drag-edge", "end");
-    // The drop line is vertical in a card grid.
-    const line = await row(page, "Alpha").evaluate((el) => {
-      const s = getComputedStyle(el, "::after");
-      return { w: s.width, content: s.content };
-    });
-    expect(line).toEqual({ w: "2px", content: '""' });
-    if (process.env.FB4_SHOTS) await page.screenshot({ path: `${SHOTS}/drag-cards-light.png`, fullPage: true });
-  });
-  await expect(sortButton(page)).toContainText("Custom");
-  expect(await titles(page)).toEqual(["Alpha", "Charlie", "Bravo", "Delta"]);
 });
 
 test("(g) Option+Down moves the focused row, announces it and keeps focus", async ({ page }) => {
@@ -198,12 +185,12 @@ test("(h) a folder dragged below its sibling reorders; a folder moves by keyboar
   await seed(page);
   await newFolder(page, "Essays");
   await newFolder(page, "Fiction");
-  const folders = () => page.locator(".library-tree > section.library-folder > [data-folder-heading] .folder-name").allInnerTexts();
+  const folders = () => page.locator('.folder-row[data-container="root"] .folder-name').allInnerTexts();
   expect(await folders()).toEqual(["Essays", "Fiction"]);
   await drag(page, heading(page, "Essays").locator(".folder-name"), heading(page, "Fiction"), "bottom", async () => {
     await expect(heading(page, "Essays")).toHaveAttribute("data-drag-state", "lifted");
-    // The line marks the end of the whole Fiction section.
-    await expect(page.locator("section.library-folder").filter({ has: heading(page, "Fiction") })).toHaveAttribute("data-drag-edge", "end");
+    // Fiction is empty, so its bottom third is "after": the line is on its lower edge.
+    await expect(heading(page, "Fiction")).toHaveAttribute("data-drag-edge", "end");
   });
   expect(await folders()).toEqual(["Fiction", "Essays"]);
   await expect(sortButton(page)).toContainText("Custom");
@@ -247,16 +234,4 @@ test("while searching every reorder control is off", async ({ page }) => {
   });
   await expect(sortButton(page)).toContainText("Name");
   expect(await stored(page)).toBeNull();
-});
-
-// Review screenshot (FB4_SHOTS=1): a list drag in progress, showing the drop line.
-test("screenshots: a list drag in progress", async ({ page }) => {
-  test.skip(!process.env.FB4_SHOTS, "set FB4_SHOTS=1 to save the review screenshots");
-  await page.setViewportSize({ width: 1100, height: 900 });
-  await seed(page);
-  await newFolder(page, "Essays");
-  await drag(page, row(page, "Alpha"), heading(page, "Essays"), "middle");
-  await drag(page, row(page, "Delta"), row(page, "Bravo"), "bottom", async () => {
-    await page.screenshot({ path: `${SHOTS}/drag-list-light.png`, fullPage: true });
-  });
 });

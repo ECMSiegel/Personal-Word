@@ -935,7 +935,7 @@
         row: rect(row),
         name: rect(row.querySelector(".project-name")),
         trash: rect(row.querySelector(".delete-entry")),
-        dates: [...row.querySelectorAll(".project-dates")].map(rect),
+        dates: [...row.querySelectorAll(".outline-cell")].map(rect),
         trashVisible: getComputedStyle(row.querySelector(".delete-entry") ?? row).opacity,
       };
     });

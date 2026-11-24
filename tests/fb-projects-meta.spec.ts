@@ -1,8 +1,8 @@
 import { test, expect, type Page } from "@playwright/test";
 
-// FB1: the Projects page shows the same four meta fields in fixed columns in list view and as
-// two columns of two lines in card view (Edited over Added, words over sections), so nothing is
-// pushed around by the length of a title, date or count.
+// FB1: the Projects page shows the same four meta fields in fixed columns, so nothing is
+// pushed around by the length of a title, date or count. Rewritten for the outline (OB7): the
+// card view and its two-line layout were removed; cells are `.outline-cell.col-<column>`.
 
 type Seed = {
   id: string;
@@ -72,14 +72,17 @@ async function seed(page: Page) {
   await expect(page.locator(".project-row")).toHaveCount(3);
 }
 
+const COLS = ["col-edited", "col-words", "col-sections", "col-added"];
+
 const boxes = (page: Page, selector: string) =>
-  page.locator(selector).evaluateAll((rows, rowSelector) => {
+  page.locator(selector).evaluateAll((rows) => {
     return rows.map((row) => {
       const rowBox = row.getBoundingClientRect();
       const out: Record<string, { left: number; top: number; width: number; height: number }> = {};
-      for (const el of Array.from(row.querySelectorAll(rowSelector + " .project-dates > span"))) {
+      for (const el of Array.from(row.querySelectorAll(".outline-cell"))) {
         const box = el.getBoundingClientRect();
-        out[(el as HTMLElement).className] = {
+        const cls = Array.from(el.classList).find((c) => c.startsWith("col-")) ?? "";
+        out[cls] = {
           left: box.left - rowBox.left,
           top: box.top - rowBox.top,
           width: box.width,
@@ -88,33 +91,33 @@ const boxes = (page: Page, selector: string) =>
       }
       return { row: { left: rowBox.left, top: rowBox.top, width: rowBox.width, height: rowBox.height }, fields: out };
     });
-  }, selector);
+  });
 
-test("list view: the four fields sit in fixed columns on every row and no row wraps", async ({ page }) => {
+test("the four fields sit in fixed columns on every row and no row wraps", async ({ page }) => {
   await page.setViewportSize({ width: 1100, height: 900 });
   await seed(page);
-  await expect(page.locator(".project-list--list")).toBeVisible();
-  const rows = await boxes(page, ".project-list--list .project-row");
+  await expect(page.locator(".outline")).toBeVisible();
+  const rows = await boxes(page, ".outline .project-row");
   expect(rows).toHaveLength(3);
 
-  for (const cls of ["project-edited", "project-words", "project-sections", "project-added"]) {
+  for (const cls of COLS) {
     expect(rows.every((r) => r.fields[cls]), `${cls} rendered on every row`).toBe(true);
     const lefts = rows.map((r) => r.row.left + r.fields[cls].left);
     expect(Math.max(...lefts) - Math.min(...lefts), `${cls} left edge ${lefts.join(", ")}`).toBeLessThanOrEqual(1);
   }
 
-  // Visual order left to right: Edited, words, sections, Added (the DOM order is different).
+  // Visual order left to right: Edited, words, sections, Added.
   const left = (cls: string) => rows[0].row.left + rows[0].fields[cls].left;
-  expect(left("project-edited")).toBeLessThan(left("project-words"));
-  expect(left("project-words")).toBeLessThan(left("project-sections"));
-  expect(left("project-sections")).toBeLessThan(left("project-added"));
+  expect(left("col-edited")).toBeLessThan(left("col-words"));
+  expect(left("col-words")).toBeLessThan(left("col-sections"));
+  expect(left("col-sections")).toBeLessThan(left("col-added"));
 
   // All four fields on one line: every row is the same height.
   const heights = rows.map((r) => r.row.height);
   expect(Math.max(...heights) - Math.min(...heights), `row heights ${heights.join(", ")}`).toBeLessThanOrEqual(1);
 
   // The text fits inside its own column, so no cell runs under its neighbour.
-  const tooWide = await page.locator(".project-list--list .project-dates > span").evaluateAll((els) =>
+  const tooWide = await page.locator(".outline .outline-cell").evaluateAll((els) =>
     els
       .map((el) => {
         const range = document.createRange();
@@ -131,40 +134,11 @@ test("list view: the four fields sit in fixed columns on every row and no row wr
   expect(tooWide, `fields wider than their column: ${JSON.stringify(tooWide)}`).toEqual([]);
 });
 
-test("card view: Edited over Added and words over sections, the same offsets on every card", async ({ page }) => {
-  await page.setViewportSize({ width: 1100, height: 900 });
-  await seed(page);
-  await page.getByRole("button", { name: "Show project cards" }).click();
-  await expect(page.locator(".project-list--cards")).toBeVisible();
-  const cards = await boxes(page, ".project-list--cards .project-row");
-  expect(cards).toHaveLength(3);
-
-  for (const card of cards) {
-    const f = card.fields;
-    expect(Math.abs(f["project-added"].left - f["project-edited"].left), "Added below Edited").toBeLessThanOrEqual(1);
-    expect(f["project-added"].top).toBeGreaterThan(f["project-edited"].top);
-    expect(Math.abs(f["project-sections"].left - f["project-words"].left), "sections below words").toBeLessThanOrEqual(1);
-    expect(f["project-sections"].top).toBeGreaterThan(f["project-words"].top);
-    expect(f["project-words"].left).toBeGreaterThan(f["project-edited"].left);
-    // The two lines line up with each other.
-    expect(
-      Math.abs(f["project-added"].top - f["project-edited"].top - (f["project-sections"].top - f["project-words"].top)),
-    ).toBeLessThanOrEqual(1);
-  }
-
-  // The same position on every card, whatever the title, dates and counts.
-  for (const cls of ["project-edited", "project-added", "project-words", "project-sections"]) {
-    const lefts = cards.map((c) => c.fields[cls].left);
-    expect(Math.max(...lefts) - Math.min(...lefts), `${cls} left ${lefts.join(", ")}`).toBeLessThanOrEqual(1);
-  }
-  const gaps = cards.map((c) => c.fields["project-words"].left - c.fields["project-edited"].left);
-  expect(Math.max(...gaps) - Math.min(...gaps), `column gap ${gaps.join(", ")}`).toBeLessThanOrEqual(1);
-});
-
 // One line tall: a date or count that wraps is about twice the line height of its neighbours.
 const wrapped = (page: Page, scope: string) =>
-  page.locator(scope + " .project-dates > span").evaluateAll((els) =>
+  page.locator(scope + " .outline-cell").evaluateAll((els) =>
     els
+      .filter((el) => getComputedStyle(el).display !== "none")
       .map((el) => {
         const lineHeight = parseFloat(getComputedStyle(el).lineHeight) || 1.4 * parseFloat(getComputedStyle(el).fontSize);
         return { text: el.textContent ?? "", height: el.getBoundingClientRect().height, lineHeight };
@@ -172,67 +146,39 @@ const wrapped = (page: Page, scope: string) =>
       .filter((r) => r.height > r.lineHeight * 1.5),
   );
 
-test("narrow window (680 px): no date wraps, every row is the same height, the counts share one edge", async ({ page }) => {
+test("narrow window (680 px): only Edited shows, no date wraps, every row is the same height, Edited shares one edge", async ({ page }) => {
   await page.setViewportSize({ width: 680, height: 900 });
   await seed(page);
-  expect(await wrapped(page, ".project-list--list .project-row"), "wrapped list fields").toEqual([]);
-  const rows = await boxes(page, ".project-list--list .project-row");
+  expect(await wrapped(page, ".outline .project-row"), "wrapped fields").toEqual([]);
+  const rows = await boxes(page, ".outline .project-row");
   const heights = rows.map((r) => r.row.height);
   expect(Math.max(...heights) - Math.min(...heights), `row heights ${heights.join(", ")}`).toBeLessThanOrEqual(1);
-  for (const cls of ["project-edited", "project-added", "project-words", "project-sections"]) {
-    const lefts = rows.map((r) => r.row.left + r.fields[cls].left);
-    expect(Math.max(...lefts) - Math.min(...lefts), `${cls} left edge ${lefts.join(", ")}`).toBeLessThanOrEqual(1);
-  }
-  await page.getByRole("button", { name: "Show project cards" }).click();
-  expect(await wrapped(page, ".project-list--cards .project-row"), "wrapped card fields").toEqual([]);
+  const lefts = rows.map((r) => r.row.left + r.fields["col-edited"].left);
+  expect(Math.max(...lefts) - Math.min(...lefts), `Edited left edge ${lefts.join(", ")}`).toBeLessThanOrEqual(1);
+  // Under 700 px the header and the Words, Sections and Added cells are hidden (Decision 11).
+  expect(rows.every((r) => r.fields["col-words"].width === 0 && r.fields["col-added"].width === 0)).toBe(true);
 });
 
-test("window 800 px: no card date wraps, at the top level or inside a folder, and the columns have room", async ({ page }) => {
-  await page.setViewportSize({ width: 800, height: 900 });
-  await seed(page);
-  await page.getByRole("button", { name: "Show project cards" }).click();
-  await expect(page.locator(".project-list--cards")).toBeVisible();
-  expect(await wrapped(page, ".project-list--cards .project-row"), "wrapped card fields").toEqual([]);
-  const cards = await boxes(page, ".project-list--cards .project-row");
-  for (const card of cards) {
-    expect(card.row.width, "card width").toBeGreaterThanOrEqual(255);
-    // The date column and the counts column are at least 8 px apart (room to read as two items).
-    const f = card.fields;
-    const gap = f["project-words"].left - (f["project-edited"].left + f["project-edited"].width);
-    expect(gap, `gap between dates and counts ${gap}`).toBeGreaterThanOrEqual(8);
-  }
-});
-
-test("window 800 px: a folder's cards do not wrap either", async ({ page }) => {
-  await page.setViewportSize({ width: 800, height: 900 });
+test("dates and counts fit inside their cells and the row at 680, 720, 800, 870, 1100 and 1440 px, top level and in a folder", async ({ page }) => {
   await seed(page);
   await page.getByRole("button", { name: "New folder", exact: true }).click();
   const input = page.getByRole("textbox", { name: "Folder name" });
   await input.fill("Essays");
   await input.evaluate((el) => (el as HTMLInputElement).blur());
-  await page.getByRole("button", { name: "Show project cards" }).click();
   const target = page.locator(".project-row").filter({ hasText: "Notes" }).locator(".row-label");
   await target.click({ button: "right" });
   await page.getByRole("menuitem", { name: "Move to folder…", exact: true }).click();
   await page.getByRole("menuitem", { name: "Essays", exact: true }).click();
-  const inside = page.locator(".folder-body .project-list--cards .project-row");
-  await expect(inside).toHaveCount(1);
-  expect(await wrapped(page, ".folder-body .project-list--cards .project-row"), "wrapped folder card fields").toEqual([]);
-  const box = (await inside.first().boundingBox())!;
-  expect(box.width, "folder card width").toBeGreaterThanOrEqual(255);
-});
-
-test("cards: dates and counts fit inside the card at 680, 720, 800, 870, 1100 and 1440 px; 1440 fits three in a row", async ({ page }) => {
-  await seed(page);
-  await page.getByRole("button", { name: "Show project cards" }).click();
+  await expect(page.locator('.project-row[data-depth="1"]')).toHaveCount(1);
   for (const width of [680, 720, 800, 870, 1100, 1440]) {
     await page.setViewportSize({ width, height: 900 });
     await page.waitForTimeout(150);
-    expect(await wrapped(page, ".project-list--cards .project-row"), `wrapped at ${width}`).toEqual([]);
-    const clipped = await page.locator(".project-list--cards .project-row").evaluateAll((cards) =>
-      cards.flatMap((card) => {
-        const edge = card.getBoundingClientRect().right;
-        return Array.from(card.querySelectorAll(".project-dates > span")).flatMap((el) => {
+    expect(await wrapped(page, ".outline .outline-row"), `wrapped at ${width}`).toEqual([]);
+    const clipped = await page.locator(".outline .outline-row").evaluateAll((rows) =>
+      rows.flatMap((row) => {
+        const edge = row.getBoundingClientRect().right;
+        return Array.from(row.querySelectorAll(".outline-cell")).flatMap((el) => {
+          if (getComputedStyle(el).display === "none") return [];
           const range = document.createRange();
           range.selectNodeContents(el);
           const r = range.getBoundingClientRect();
@@ -240,24 +186,19 @@ test("cards: dates and counts fit inside the card at 680, 720, 800, 870, 1100 an
         });
       }),
     );
-    expect(clipped, `text clipped or outside the card at ${width}`).toEqual([]);
-    if (width === 1440) {
-      const tops = await page.locator(".project-list--cards .project-row").evaluateAll((els) => els.map((e) => e.getBoundingClientRect().top));
-      expect(new Set(tops.map(Math.round)).size, `three cards share one row at 1440: ${tops}`).toBe(1);
-    }
+    expect(clipped, `text clipped or outside the row at ${width}`).toEqual([]);
   }
 });
 
-test("cards: the longest counts, 999,999 words and 999 sections, fit their track and the card", async ({ page }) => {
+test("the longest counts, 999,999 words and 999 projects, fit their column and the row", async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
   await seed(page);
-  await page.getByRole("button", { name: "Show project cards" }).click();
-  const out = await page.locator(".project-list--cards .project-row").first().evaluate((card) => {
-    card.querySelector(".project-words")!.textContent = "999,999 words";
-    card.querySelector(".project-sections")!.textContent = "999 sections";
-    const edge = card.getBoundingClientRect().right;
-    return ["project-words", "project-sections"].map((cls) => {
-      const el = card.querySelector("." + cls)!;
+  const out = await page.locator(".outline .project-row").first().evaluate((row) => {
+    row.querySelector(".col-words")!.textContent = "999,999";
+    row.querySelector(".col-sections")!.textContent = "999 projects";
+    const edge = row.getBoundingClientRect().right;
+    return ["col-words", "col-sections"].map((cls) => {
+      const el = row.querySelector("." + cls)!;
       const range = document.createRange();
       range.selectNodeContents(el);
       return { cls, text: range.getBoundingClientRect().width, cell: el.getBoundingClientRect().width, spare: edge - range.getBoundingClientRect().right };
@@ -265,6 +206,6 @@ test("cards: the longest counts, 999,999 words and 999 sections, fit their track
   });
   for (const r of out) {
     expect(r.text, `${r.cls} text ${r.text} in cell ${r.cell}`).toBeLessThanOrEqual(r.cell + 0.5);
-    expect(r.spare, `${r.cls} ends ${r.spare} px inside the card`).toBeGreaterThanOrEqual(1);
+    expect(r.spare, `${r.cls} ends ${r.spare} px inside the row`).toBeGreaterThanOrEqual(1);
   }
 });

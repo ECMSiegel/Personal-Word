@@ -671,8 +671,7 @@ test.describe("Projects page (T5)", () => {
     await seedProjects(page);
     const toolbar = page.locator(".library-toolbar");
     const icons = [
-      toolbar.getByRole("button", { name: "Reverse project sort order" }),
-      toolbar.getByRole("button", { name: "Show project cards" }),
+      toolbar.getByRole("button", { name: "New folder" }),
       toolbar.getByRole("button", { name: "Settings" }),
     ];
     await expectSlots(icons, 24, 24);
@@ -701,17 +700,6 @@ test.describe("Projects page (T5)", () => {
     expect(Math.max(...rights) - Math.min(...rights), `trash right edges ${rights.join(", ")}`).toBeLessThanOrEqual(1);
   });
 
-  test("T5: cards sit in a grid with a 16 px gap both ways", async ({ page }) => {
-    await seedProjects(page);
-    await page.getByRole("button", { name: "Show project cards" }).click();
-    const cards = await page.locator(".project-list--cards .project-row").evaluateAll((els) =>
-      els.map((el) => el.getBoundingClientRect()).map((r) => ({ x: r.x, right: r.right, y: r.y, bottom: r.bottom })),
-    );
-    expect(cards).toHaveLength(3);
-    expect(cards[1].x - cards[0].right).toBeCloseTo(16, 0);
-    expect(cards[2].x - cards[1].right).toBeCloseTo(16, 0);
-  });
-
   // T13 (board T317): the trash ink, the gear ink and the row rule end share one right edge.
   const svgBox = async (l: Locator) => (await l.locator("svg").first().boundingBox())!;
 
@@ -719,8 +707,8 @@ test.describe("Projects page (T5)", () => {
     await seedProjects(page);
     const row = page.locator(".project-row").first();
     const trash = row.locator(".delete-entry");
-    // The rightmost dates cell in list view is Added (visual order: edited, words, sections, added).
-    const added = row.locator(".project-dates .project-added");
+    // The rightmost cell is Added (visual order: edited, words, sections, added).
+    const added = row.locator(".col-added");
     await page.mouse.move(0, 0);
     const before = (await added.boundingBox())!;
     await row.hover();
@@ -735,17 +723,6 @@ test.describe("Projects page (T5)", () => {
     expect(Math.abs(t.x + t.width - (r.x + r.width)), "trash ink right vs rule end").toBeLessThanOrEqual(1);
     const slot = (await trash.boundingBox())!;
     expect(slot.x - (after.x + after.width), "dates to slot gap").toBeCloseTo(12, 0);
-  });
-
-  test("T13: card trash has equal top and right insets", async ({ page }) => {
-    await seedProjects(page);
-    await page.getByRole("button", { name: "Show project cards" }).click();
-    const card = page.locator(".project-row").first();
-    const t = await svgBox(card.locator(".delete-entry"));
-    const c = (await card.boundingBox())!;
-    const top = t.y - c.y;
-    const right = c.x + c.width - (t.x + t.width);
-    expect(Math.abs(top - right), `top ${top} right ${right}`).toBeLessThanOrEqual(1);
   });
 });
 

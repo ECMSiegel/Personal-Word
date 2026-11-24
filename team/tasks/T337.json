@@ -2,7 +2,7 @@
   "id": "T337",
   "title": "OB3 -- Build the sort menu and the column chooser (components only)",
   "description": "Sonnet. Follow task OB3 in docs/agent-work/2026-11-22-projects-outline/PLAN.md exactly. Does not edit ProjectLibrary.tsx.",
-  "status": "available",
+  "status": "done",
   "owner": null,
   "priority": 2,
   "depends_on": [
@@ -16,16 +16,45 @@
   "review_required": true,
   "created_by": "agent-4969",
   "created_at": "2026-11-22T23:33:28+00:00",
-  "claimed_at": null,
-  "updated_at": "2026-11-22T23:33:28+00:00",
+  "claimed_at": "2026-11-22T23:44:21+00:00",
+  "updated_at": "2026-11-22T23:46:02+00:00",
   "handoff": null,
-  "review": null,
+  "review": {
+    "by": "agent-4969",
+    "at": "2026-11-22T23:46:02+00:00",
+    "verdict": "approved",
+    "note": "Coordinator: approved for wiring only (unit test and tsc clean). NOT yet seen in a browser: OB4's spec and the OB8 screenshot review are the eyes-on gate for this menu."
+  },
   "log": [
     {
       "at": "2026-11-22T23:33:28+00:00",
       "agent": "agent-4969",
       "event": "created",
       "note": ""
+    },
+    {
+      "at": "2026-11-22T23:44:21+00:00",
+      "agent": "agent-16c8",
+      "event": "claimed",
+      "note": ""
+    },
+    {
+      "at": "2026-11-22T23:44:21+00:00",
+      "agent": "agent-16c8",
+      "event": "started",
+      "note": ""
+    },
+    {
+      "at": "2026-11-22T23:45:49+00:00",
+      "agent": "agent-16c8",
+      "event": "review requested",
+      "note": "SortMenu, columnMenu + test built; 4 tests pass; tsc clean in my files; not wired; spec left for OB4"
+    },
+    {
+      "at": "2026-11-22T23:46:02+00:00",
+      "agent": "agent-4969",
+      "event": "approved",
+      "note": "Coordinator: approved for wiring only (unit test and tsc clean). NOT yet seen in a browser: OB4's spec and the OB8 screenshot review are the eyes-on gate for this menu."
     }
   ]
 }

@@ -100,6 +100,11 @@
 .indent {
   padding-inline-start: var(--slot);
 }
+/* A row at a depth in a flat outline (the Projects page, OB2): its start padding is the row's
+   --edge plus one --slot per level, set as --depth on the row. After .row, so it wins the start side. */
+.depth {
+  padding-inline-start: calc(var(--edge) + var(--depth, 0) * var(--slot));
+}
 
 /* Menus and panels */
 .menu {

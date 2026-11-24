@@ -1,101 +1,25 @@
-/* FB4: folders on the Projects page. Spacing comes only from the layout primitives
-   (.stack, .row, .slot, .gap-N); this file sets none of its own (budget 0). */
+/* FB4/FB5: folders on the Projects page. The rows themselves are drawn by the outline
+   (src/library/outline.css, OB2). Spacing comes only from the layout primitives; this file sets
+   none of its own (budget 0). */
 
 /* The context menu is placed against this box. */
 .library-tree {
   position: relative;
 }
 
-/* A heading starts at its container's edge; each folder body (.indent) moves its subfolders and
-   projects one slot in, so a folder's contents sit visibly under it. */
-.folder-heading {
-  --edge: 0px;
-  font-size: var(--type-body);
-  cursor: default;
-}
-/* The chevron's ink, not its slot, lines up with the project titles (.flush-start pulls by
-   (slot - icon) / 2, and this icon is 14 px). */
-.folder-heading .folder-chevron {
-  --icon-size: 14px;
-}
-.folder-heading .folder-icon {
-  flex: none;
-  color: var(--muted);
-}
-.folder-heading .folder-name {
-  min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  font-weight: 700;
-  color: var(--text);
-}
-.folder-heading .folder-count {
-  flex: none;
-  color: var(--muted);
-  white-space: nowrap;
-}
-.folder-heading .folder-name-input {
-  min-width: 0;
-  font-size: var(--type-body);
-  font-weight: 700;
-  color: var(--text);
-  background: transparent;
-  border: 0;
-  border-bottom: 1px solid var(--line);
-  border-radius: 0;
-}
-
-/* List rows draw a rule above themselves; a container that has rows closes with the same rule
-   under its last row, so the last row of a folder reads the same height as the others. Drawn by
-   the container, not the row, so every row keeps the same height. */
-.project-list--list.folder-projects:has(> .project-row) {
-  border-bottom: 1px solid var(--line);
-}
-
-/* A folder's card grid is indented, so stretching its cards to fill would make them narrower than
-   the top level's and squeeze their dates onto two lines. Its cards stop at 256 px (the top level's
-   minimum width); a narrower grid holds fewer cards instead. */
-.folder-body .project-list--cards {
-  grid-template-columns: repeat(auto-fill, minmax(256px, 256px));
-}
-
-/* FB5 dragging. The 2 px accent drop line is drag-reorder.css's [data-drag-edge]::after (a
-   horizontal line in the list, a vertical one in card grids, which carry data-drag-axis="x");
-   here only which edge it sits on. A folder's line marks its whole section. Nothing moves and
-   nothing animates while dragging, so Reduce Motion needs nothing extra. */
-.library-tree .project-row,
-.library-tree .library-folder {
-  position: relative;
-}
+/* FB5 dragging on the outline rows (useLibraryDrag, OB5). The 2 px accent drop line is
+   drag-reorder.css's [data-drag-edge]::after; here only which edge it sits on. */
 .library-tree [data-drag-edge="start"]::after {
   top: 0;
 }
 .library-tree [data-drag-edge="end"]::after {
   bottom: 0;
 }
-.library-tree [data-drag-axis="x"] [data-drag-edge="start"]::after {
-  left: 0;
-}
-.library-tree [data-drag-axis="x"] [data-drag-edge="end"]::after {
-  right: 0;
-}
-/* The dragged row or heading stays where it is, dimmed. */
+/* The dragged row stays where it is, dimmed. */
 .library-tree [data-drag-state="lifted"] {
   opacity: 0.5;
 }
 .library-tree[data-dragging],
 .library-tree[data-dragging] * {
   cursor: grabbing;
-}
-/* A dragged project over a folder heading: the folder name turns accent (weight and colour, no fill). */
-.folder-heading[data-drop-into] .folder-name,
-.folder-heading[data-drop-into] .folder-count {
-  color: var(--accent);
-}
-
-/* Search results: the folder path after the title, muted and regular weight. */
-.library .project-list .project-name .project-path {
-  font-weight: 400;
-  color: var(--muted);
 }

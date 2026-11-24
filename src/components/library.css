@@ -118,13 +118,6 @@
   padding-left: var(--space-3);
 }
 
-/* Rows: the title reads first; Edited leads the dates in the normal colour, Added follows muted. */
-.library .project-list .project-name {
-  font-size: var(--type-large);
-}
-.library .project-dates .project-edited {
-  color: var(--text);
-}
 /* Empty state: one sentence and text controls, no illustration. */
 .library .library-empty-actions {
   display: flex;
@@ -142,8 +135,4 @@
 }
 .library .library-empty > p {
   font-size: var(--type-body);
-}
-/* A card's trash is absolutely placed with equal insets; it must not take the list row's flush-end pull. */
-.project-list--cards .project-row .delete-entry {
-  margin-inline-end: 0;
 }

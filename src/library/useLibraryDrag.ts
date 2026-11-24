@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState, type PointerEvent as ReactPointerEvent, type RefObject } from "react";
-import { ROOT } from "./folders";
-import { dropTarget, type DragItem, type Drop, type DropRect } from "./libraryDrag";
+import type { ItemKey } from "./folders";
+import { outlineDropTarget, type Drop, type RowRect } from "./outlineDrag";
 
 /** Pixels of travel before a press becomes a drag; a smaller move stays a click. */
 const THRESHOLD = 4;
@@ -8,53 +8,52 @@ const THRESHOLD = 4;
 /** Presses here never start a drag: the trash button, a folder's chevron, the rename field. */
 const NO_DRAG = ".delete-entry, .folder-chevron, input, textarea, [role='menu']";
 
-function measure(tree: HTMLElement): DropRect[] {
-  const rects: DropRect[] = [];
-  for (const row of tree.querySelectorAll<HTMLElement>("[data-container] > [data-project-id]"))
-    rects.push({
-      id: row.dataset.projectId!,
-      kind: "project",
-      container: row.parentElement!.dataset.container!,
-      rect: row.getBoundingClientRect(),
-    });
-  for (const heading of tree.querySelectorAll<HTMLElement>("[data-folder-heading]")) {
-    const parent = heading.parentElement?.parentElement?.closest<HTMLElement>("[data-folder-id]");
-    rects.push({
-      id: heading.dataset.folderHeading!,
-      kind: "folder",
-      container: parent?.dataset.folderId ?? ROOT,
-      rect: heading.getBoundingClientRect(),
-    });
+/** What the outline model knows about a drawn row and the DOM does not (OB5a's RowRect less `rect`). */
+export type DragRowInfo = Omit<RowRect, "rect">;
+
+/** Every drawn `.outline-row` with its box; rows the model does not know are left out. */
+function measure(tree: HTMLElement, info: (key: ItemKey) => DragRowInfo | undefined) {
+  const rects: RowRect[] = [];
+  let listBottom = -Infinity;
+  for (const row of tree.querySelectorAll<HTMLElement>(".outline-row[data-key]")) {
+    const known = info(row.dataset.key as ItemKey);
+    const r = row.getBoundingClientRect();
+    listBottom = Math.max(listBottom, r.bottom);
+    if (known) rects.push({ ...known, rect: { left: r.left, top: r.top, width: r.width, height: r.height } });
   }
-  return rects;
+  return { rects, listBottom };
 }
 
 /**
- * Pointer dragging on the Projects page (FB5 step 4). Spread `onPointerDown` on the tree. A press on
- * a project row or a folder heading that travels 4 px becomes a drag: `drag` names the source and
- * the current drop (from `dropTarget`; the caller draws `data-drag-state`, `data-drag-edge` and
- * `data-drop-into`). Release applies through `onDrop`; Escape or pointercancel cancels. Rows are
- * measured on every move, so scrolling mid-drag is fine. Nothing else moves while dragging, and the
- * click that ends a real drag is swallowed, so it neither opens a project nor toggles a folder.
+ * Pointer dragging on the Projects outline (OB5). Spread `onPointerDown` on the outline root. A
+ * press on a row that travels 4 px becomes a drag (rows in the pinned band never drag): `drag`
+ * names the source and the current drop from `outlineDropTarget` (the caller draws the state).
+ * Release applies through `onDrop`; Escape or pointercancel cancels. Rows are measured on every
+ * move, so scrolling mid-drag is fine. Nothing else moves while dragging, and the click that ends
+ * a real drag is swallowed, so it neither opens a project nor toggles a folder.
  */
 export function useLibraryDrag({
   tree,
   enabled,
-  view,
+  info,
+  foldersFirst,
   onDrop,
 }: {
   tree: RefObject<HTMLElement | null>;
   /** Off while searching or before the library has loaded. */
   enabled: boolean;
-  view: "list" | "cards";
-  onDrop: (source: DragItem, drop: Drop) => void;
+  /** The model's facts about a drawn row (container, depth, ancestors, pinned band...). */
+  info: (key: ItemKey) => DragRowInfo | undefined;
+  /** Folders on top: a before/after of the other kind is not offered (outlineDropTarget). */
+  foldersFirst: boolean;
+  onDrop: (source: ItemKey, drop: Drop) => void;
 }): {
-  drag: { source: DragItem; drop: Drop | null } | null;
+  drag: { source: ItemKey; drop: Drop | null } | null;
   onPointerDown: (e: ReactPointerEvent<HTMLElement>) => void;
 } {
-  const [drag, setDrag] = useState<{ source: DragItem; drop: Drop | null } | null>(null);
-  const latest = useRef({ view, onDrop });
-  latest.current = { view, onDrop };
+  const [drag, setDrag] = useState<{ source: ItemKey; drop: Drop | null } | null>(null);
+  const latest = useRef({ info, onDrop, foldersFirst });
+  latest.current = { info, onDrop, foldersFirst };
   const stop = useRef<(() => void) | null>(null);
   const end = useCallback(() => {
     stop.current?.();
@@ -70,14 +69,11 @@ export function useLibraryDrag({
     if (!enabled || e.button !== 0 || !e.isPrimary || !tree.current) return;
     const target = e.target as Element;
     if (target.closest(NO_DRAG)) return;
-    const row = target.closest<HTMLElement>("[data-container] > [data-project-id]");
-    const heading = row ? null : target.closest<HTMLElement>("[data-folder-heading]");
-    const source: DragItem | null = row
-      ? { id: row.dataset.projectId!, kind: "project" }
-      : heading
-        ? { id: heading.dataset.folderHeading!, kind: "folder" }
-        : null;
-    if (!source || !tree.current.contains(row ?? heading)) return;
+    const row = target.closest<HTMLElement>(".outline-row[data-key]");
+    if (!row || !tree.current.contains(row)) return;
+    const source = row.dataset.key as ItemKey;
+    const known = latest.current.info(source);
+    if (!known || known.pinnedTop) return;
     end();
     const start = { x: e.clientX, y: e.clientY };
     let active = false;
@@ -93,7 +89,8 @@ export function useLibraryDrag({
       active = true;
       const el = tree.current;
       if (!el) return end();
-      drop = dropTarget({ x: ev.clientX, y: ev.clientY }, measure(el), latest.current.view, source);
+      const { rects, listBottom } = measure(el, latest.current.info);
+      drop = outlineDropTarget({ x: ev.clientX, y: ev.clientY }, rects, source, listBottom, latest.current.foldersFirst);
       const now = drop;
       setDrag((old) =>
         old && JSON.stringify(old.drop) === JSON.stringify(now) ? old : { source, drop: now },
