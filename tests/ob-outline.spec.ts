@@ -122,7 +122,7 @@ test("columns line up at every depth; rows are one height; one rule between rows
   expect(Math.abs(bodyBottom - 1 - rows[rows.length - 1].bottom)).toBeLessThanOrEqual(0.5);
 });
 
-test("names: project 13px regular, folder 13px bold; project rows carry a muted document icon", async ({ page }) => {
+test("names: project 13px regular, folder 13px bold; project rows carry no icon and their names line up with folder names", async ({ page }) => {
   await seed(page);
   const project = page.locator(`[data-project-id="${TOP}"] .project-name`);
   await expect(project).toHaveCSS("font-size", "13px");
@@ -130,7 +130,9 @@ test("names: project 13px regular, folder 13px bold; project rows carry a muted 
   const folder = page.locator('[data-folder-id="f-essays"] .folder-name');
   await expect(folder).toHaveCSS("font-size", "13px");
   await expect(folder).toHaveCSS("font-weight", "700");
-  await expect(page.locator(`[data-project-id="${TOP}"] .outline-icon`)).toHaveCount(1);
+  await expect(page.locator(`[data-project-id="${TOP}"] .outline-icon`)).toHaveCount(0);
+  const nameLeft = (sel: string) => page.locator(sel).first().evaluate((el) => el.getBoundingClientRect().left);
+  expect(Math.abs((await nameLeft('.outline-row[data-depth="0"] .project-name')) - (await nameLeft('.outline-row[data-depth="0"] .folder-name')))).toBeLessThanOrEqual(0.5);
   const row = page.locator(`[data-project-id="${DEEP}"]`);
   await expect(row).toHaveAttribute("data-depth", "2");
   await expect(row).toHaveAttribute("data-container", "f-drafts");

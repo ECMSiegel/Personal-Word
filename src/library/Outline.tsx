@@ -1,5 +1,5 @@
 import type { CSSProperties, HTMLAttributes, KeyboardEvent, ReactNode, Ref } from "react";
-import { ChevronDown, ChevronRight, FileText, Folder as FolderIcon, Pin, Trash2 } from "lucide-react";
+import { ChevronDown, ChevronRight, Folder as FolderIcon, Pin, Trash2 } from "lucide-react";
 import type { OutlineRow } from "./outline";
 import type { LibraryColumn, LibrarySort } from "../libraryPreferences";
 import { FolderNameInput } from "./LibraryFolders";
@@ -119,19 +119,22 @@ export function Outline({
     "--outline-template-narrow": tracks(columns.filter((c) => c === "edited")),
   } as CSSProperties;
   const all = [...pinned, ...rows];
-  // The band's own rows (OB6). Every pinned row in the band wears the pin mark (a pinned item inside
-  // a pinned folder uses a slot too); only the lifted top rows (depth 0) also show the folder path.
+  // The band's own rows (OB6). Every pinned row in the band wears the pin mark in its icon slot (a
+  // pinned item inside a pinned folder uses a slot too; on a folder it stands in for the folder
+  // icon); only the lifted top rows (depth 0) also show the folder path.
   const bandTop = new Set(pinned.filter((r) => r.depth === 0).map((r) => r.key));
   const bandPinned = new Set(pinned.filter((r) => r.pinned).map((r) => r.key));
+  const pinMark = (tint?: string) => (
+    <Pin size={16} className="outline-icon outline-pin" role="img" aria-label="Pinned" style={tint ? { color: tint } : undefined} />
+  );
   /** The name cell: the title (it alone ellipsizes), then "-- <folder path>" (search, or a lifted
-   *  row from a folder) and the pin mark, which never shrink. */
+   *  row from a folder), which never shrinks. */
   const nameCell = (row: OutlineRow, title: string, className: string) => {
     const path = (showPaths || bandTop.has(row.key)) && row.path;
     return (
       <span className={`outline-name ${className} cluster gap-1`}>
         <span className="outline-title">{title}</span>
         {path && <span className="project-path">{" "}-- {path}</span>}
-        {bandPinned.has(row.key) && <Pin size={16} className="outline-pin" role="img" aria-label="Pinned" />}
       </span>
     );
   };
@@ -205,7 +208,11 @@ export function Outline({
         >
           {expanded ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
         </button>
-        <FolderIcon size={16} className="outline-icon folder-icon" aria-hidden="true" style={wiring.tint ? { color: wiring.tint } : undefined} />
+        {bandPinned.has(row.key) ? (
+          pinMark(wiring.tint)
+        ) : (
+          <FolderIcon size={16} className="outline-icon folder-icon" aria-hidden="true" style={wiring.tint ? { color: wiring.tint } : undefined} />
+        )}
         {wiring.rename ? (
           <FolderNameInput initial={f.name} onDone={wiring.rename} />
         ) : (
@@ -233,7 +240,7 @@ export function Outline({
         data-path={row.path}
       >
         <button type="button" className="outline-open emph-row row-label" onClick={wiring.onActivate}>
-          <FileText size={16} className="outline-icon" aria-hidden="true" />
+          {bandPinned.has(row.key) && pinMark()}
           {nameCell(row, p.title, "project-name emph-label")}
           {cells(row, columns)}
         </button>
@@ -270,11 +277,9 @@ export function Outline({
           {columns.map(headerCell)}
         </div>
       )}
-      {/* With pins: the band, then one --space-5 gap (the stack primitive), then the list. */}
-      <div className="stack gap-5">
-        {pinned.length > 0 && <div className="outline-body outline-band">{pinned.map(drawRow)}</div>}
-        {(rows.length > 0 || pinned.length === 0) && <div className="outline-body">{rows.map(drawRow)}</div>}
-      </div>
+      {/* With pins: the band, then the list straight under it, one row rule between them. */}
+      {pinned.length > 0 && <div className="outline-body outline-band">{pinned.map(drawRow)}</div>}
+      {(rows.length > 0 || pinned.length === 0) && <div className="outline-body">{rows.map(drawRow)}</div>}
       {children}
     </div>
   );

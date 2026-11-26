@@ -33,6 +33,10 @@
 .outline-body:has(> .outline-row) {
   border-bottom: 1px solid var(--line);
 }
+/* The pinned band sits straight on the list: the list's first row draws the one rule between. */
+.outline-band:has(+ .outline-body > .outline-row) {
+  border-bottom: 0;
+}
 
 /* Slots, by grid line name, so a missing cell never shifts the next one. */
 .outline .folder-chevron {
@@ -83,7 +87,7 @@
 }
 
 /* Names: body size, normal text colour; folders bold, projects regular. The name cell is a cluster
-   (layout.css): the title ellipsizes inside it, and the path and pin mark after it never shrink. */
+   (layout.css): the title ellipsizes inside it, and the path after it never shrinks. */
 .outline .outline-name {
   font-size: var(--type-body);
   font-weight: 400;
@@ -113,10 +117,6 @@
 .outline .project-path {
   flex: none;
   font-weight: 400;
-  color: var(--muted);
-}
-/* The pin mark after a band row's name: 16px (the size prop), muted. */
-.outline .outline-pin {
   color: var(--muted);
 }
 .outline .folder-row {

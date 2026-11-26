@@ -2,8 +2,8 @@ import { test, expect, type Page } from "@playwright/test";
 
 // OB6 (docs/agent-work/2026-11-22-projects-outline/PLAN.md, Open question 1 defaults): pins on the
 // Projects page. A pinned row moves out of its place into a band at the top of the list (under the
-// header, no heading, no fill, one --space-5 gap under it), with a 16px muted pin icon after its
-// name; a pinned project that lives in a folder shows "-- <folder path>" after its name; a pinned
+// header, no heading, no fill, no gap under it), with a 16px muted pin icon in the icon slot before
+// its name (on a pinned folder it stands in for the folder icon); a pinned project that lives in a folder shows "-- <folder path>" after its name; a pinned
 // folder shows with its contents in the band. Three pins at most. Nothing pinned: no band, no
 // gap, no icon. Browser preview storage only (`folio.preview.*`), seeded per test.
 
@@ -117,17 +117,18 @@ test("pinning a project that lives in a folder: once, in the band, with its path
     return c;
   });
   expect(icon.color).toBe(muted);
-  // The icon follows the name on the same line.
+  // The icon sits in the icon slot, before the name on the same line.
   const name = (await row.locator(".project-name").boundingBox())!;
   const ibox = (await row.getByRole("img", { name: "Pinned" }).boundingBox())!;
-  expect(ibox.x).toBeGreaterThan(name.x + 20);
+  expect(ibox.x + ibox.width).toBeLessThanOrEqual(name.x + 0.5);
+  expect(Math.abs(ibox.y + ibox.height / 2 - (name.y + name.height / 2))).toBeLessThanOrEqual(1.5);
   // Its menu now says Unpin.
   await menuFor(page, row);
   await expect(menuItem(page, "Unpin")).toBeVisible();
   await expect(menuItem(page, "Pin to top")).toHaveCount(0);
 });
 
-test("the band sits under the header, has no heading or fill, and one --space-5 gap follows it", async ({ page }) => {
+test("the band sits under the header, has no heading or fill, and the list follows with one rule and no gap", async ({ page }) => {
   await seed(page, tree([`p:${D}`, `p:${E1}`]));
   const header = (await page.locator(".outline-header").boundingBox())!;
   const rows = band(page).locator(".outline-row");
@@ -136,17 +137,10 @@ test("the band sits under the header, has no heading or fill, and one --space-5 
   expect(first.y - (header.y + header.height)).toBeLessThanOrEqual(1);
   const last = (await rows.last().boundingBox())!;
   const next = (await rest(page).locator(".outline-row").first().boundingBox())!;
-  const space5 = await page.evaluate(() => {
-    const probe = document.createElement("div");
-    probe.style.height = "var(--space-5)";
-    document.body.append(probe);
-    const h = probe.getBoundingClientRect().height;
-    probe.remove();
-    return h;
-  });
-  expect(space5).toBeGreaterThan(0);
-  // The band's closing rule is 1px; the gap itself is --space-5.
-  expect(next.y - (last.y + last.height) - 1).toBeCloseTo(space5, 0);
+  // The list's first row touches the band's last row; the one rule between them is that row's own.
+  expect(Math.abs(next.y - (last.y + last.height))).toBeLessThanOrEqual(0.5);
+  await expect(band(page)).toHaveCSS("border-bottom-width", "0px");
+  await expect(rest(page).locator(".outline-row").first()).toHaveCSS("border-top-width", "1px");
   expect(await band(page).evaluate((el) => getComputedStyle(el).backgroundColor)).toBe("rgba(0, 0, 0, 0)");
   await expect(band(page).getByRole("heading")).toHaveCount(0);
   // Pinned rows leave their own place: Delta shows once.
@@ -161,6 +155,8 @@ test("pinning a folder: it and its contents show only in the band, and it expand
   await expect(f).toHaveCount(1);
   await expect(folder(page, "f-essays")).toHaveCount(1);
   await expect(f.getByRole("img", { name: "Pinned" })).toHaveCount(1);
+  // The pin stands in for the folder icon, in the same slot the list's folder icons use.
+  await expect(f.locator(".folder-icon")).toHaveCount(0);
   // Its contents are under it in the band and nowhere else.
   for (const title of ["Essay one", "Essay two"]) {
     await expect(band(page).locator(".project-row").filter({ hasText: title })).toHaveCount(1);
@@ -256,7 +252,7 @@ test("N1: pinning a folder while the project listing is empty keeps every projec
   await expect(band(page).locator(".project-row").filter({ hasText: "Alpha" }).getByRole("img", { name: "Pinned" })).toHaveCount(1);
 });
 
-test("B3: a very long pinned name keeps its pin mark and path inside the name column", async ({ page }) => {
+test("B3: a very long pinned name keeps its pin mark, and its path stays inside the name column", async ({ page }) => {
   const long = "A very long pinned project title that keeps going well past the width of the name column on any window at all";
   for (const width of [1280, 600]) {
     await page.setViewportSize({ width, height: 800 });
@@ -273,8 +269,9 @@ test("B3: a very long pinned name keeps its pin mark and path inside the name co
       const title = r.querySelector(".outline-title")!;
       return {
         nameRight: box(r.querySelector(".project-name")).right,
+        pinWidth: box(r.querySelector(".outline-pin")).width,
+        nameLeft: box(r.querySelector(".project-name")).left,
         pinRight: box(r.querySelector(".outline-pin")).right,
-        pinLeft: box(r.querySelector(".outline-pin")).left,
         pathRight: box(r.querySelector(".project-path")).right,
         pathWidth: box(r.querySelector(".project-path")).width,
         titleRight: box(title).right,
@@ -284,8 +281,9 @@ test("B3: a very long pinned name keeps its pin mark and path inside the name co
     });
     expect(m.clipped, `${width} title is cut with an ellipsis`).toBe(true);
     expect(m.ellipsis).toBe("ellipsis");
-    expect(m.pinRight, `${width} pin inside the name column`).toBeLessThanOrEqual(m.nameRight + 0.5);
-    expect(m.pathRight).toBeLessThanOrEqual(m.pinLeft + 0.5);
+    expect(m.pinWidth, `${width} pin keeps its size`).toBe(16);
+    expect(m.pinRight, `${width} pin before the name`).toBeLessThanOrEqual(m.nameLeft + 0.5);
+    expect(m.pathRight, `${width} path inside the name column`).toBeLessThanOrEqual(m.nameRight + 0.5);
     expect(m.titleRight).toBeLessThanOrEqual(m.pathRight);
     expect(m.pathWidth).toBeGreaterThan(40);
   }
